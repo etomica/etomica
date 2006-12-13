@@ -10,26 +10,25 @@ import javax.vecmath.Point3f;
 
 class FigureManager {
 	
-	//HashMap improved add/remove performance by a factor of 10
-	private java.util.HashMap figs; //holds Figures to be drawn.
+    private Figure[] figs;
 	
-	private long idCount; //for giving Figures IDs when they are added
+    private int idMax; //for giving Figures IDs when they are added
 	
-	/* Store molSpace size in Angstroms; needed for proper scaling
-	 * These are determined by the contents of the model, and change as atoms
-	 * are added and deleted.
-	 */
-	private Point3f min = new Point3f(0,0,0);
-	private Point3f max = new Point3f(0,0,0);
+    /* Store molSpace size in Angstroms; needed for proper scaling
+     * These are determined by the contents of the model, and change as atoms
+     * are added and deleted.
+     */
+    private Point3f min = new Point3f(0,0,0);
+    private Point3f max = new Point3f(0,0,0);
     private Point3f tempP = new Point3f();
-	
-	private G3DSys gsys;
-	
-	public FigureManager(G3DSys g) {
-		//figs = new java.util.HashSet();
-		figs = new java.util.HashMap();
-		idCount = 0;
-		gsys = g;
+
+    private G3DSys gsys;
+
+    public FigureManager(G3DSys g) {
+        //figs = new java.util.HashSet();
+        figs = new Figure[0];
+        idMax = -1;
+        gsys = g;
 	}
 	
 	/** Get the depth of the model in Angstroms
@@ -68,25 +67,27 @@ class FigureManager {
         tempP.z = (min.z+max.z)/2;
         gsys.setCenterOfRotation(tempP);
 		
-		for(java.util.Iterator iter = figs.values().iterator(); iter.hasNext();) {
-			Figure f = (Figure)iter.next();
-			if( f != null ) f.draw();
+        for (int j=0; j<idMax+1; j++) {
+            figs[j].draw();
 		}
 	}
 	
-	public long addFig(Figure f) {
-		long id = addFigNoRescale(f);
+	public void addFig(Figure f) {
+		addFigNoRescale(f);
 		shrinkModel();
 		gsys.recalcPPA();
-		return id;
 	}
 
 	/**
 	 * Stores an additional figure, expanding model bounds as needed
 	 * @param f the Figure to add
 	 */
-	public long addFigNoRescale(Figure f) {
-		//possible new min and max values due to the new figure
+	public void addFigNoRescale(Figure f) {
+        if (f.getID() > -1) {
+            throw new IllegalArgumentException("figure is already here");
+        }
+
+        //possible new min and max values due to the new figure
 		float curMinX = f.getX() - f.getD()/2;
 		float curMaxX = f.getX() + f.getD()/2;
 		float curMinY = f.getY() - f.getD()/2;
@@ -102,17 +103,21 @@ class FigureManager {
 		if(curMinZ < min.z) { min.z = curMinZ; }
 		if(curMaxZ > max.z) { max.z = curMaxZ; }
 
-		f.setID(idCount);
-		figs.put(new Long(idCount), f);
-		
-		return idCount++;
+        f.setID(++idMax);
+        if (figs.length < idMax+1) {
+          // no room in the array.  reallocate the array with an extra cushion.
+          Figure[] newFigsArray = new Figure[(int)(idMax*1.5)+50];
+          System.arraycopy(figs, 0, newFigsArray, 0, figs.length);
+          figs = newFigsArray;
+        }
+        figs[idMax] = f;
 	}
 
-	public Figure removeFig(long id) {
-		Figure f = removeFigNoRescale(id);
+	public Figure removeFig(Figure f) {
+		Figure r = removeFigNoRescale(f);
 		shrinkModel();
 		gsys.recalcPPA();
-		return f;
+		return r;
 	}
 	
 	/**
@@ -122,11 +127,27 @@ class FigureManager {
 	 * @param id the ID of the figure to remove
 	 * @return the removed figure (or null)
 	 */
-	public Figure removeFigNoRescale(long id) {
-		Long l = new Long(id);
-		Figure f = (Figure)figs.get(l);
-		figs.remove(l);
-		return f;
+	public Figure removeFigNoRescale(Figure f) {
+        if (f.getID() > idMax || figs[f.getID()] != f) {
+            throw new IllegalArgumentException("Don't know about "+f);
+        }
+        int oldID = f.getID();
+        if (oldID < idMax && idMax > 0) {
+            figs[oldID] = figs[idMax];
+            figs[oldID].setID(oldID);
+            figs[idMax] = null;
+        }
+        else {
+            figs[oldID] = null;
+        }
+        idMax--;
+        if (idMax > 100 && idMax < figs.length/2) {
+            Figure[] newFigsArray = new Figure[idMax+50];
+            System.arraycopy(figs, 0, newFigsArray, 0, idMax+1);
+            figs = newFigsArray;
+        }
+        f.setID(-1);
+        return f;
 	}
 
 	/**
@@ -137,17 +158,16 @@ class FigureManager {
 	public void shrinkModel() {
 		float xn,yn,zn; //miN
 		float xm,ym,zm; //Max
-		java.util.Iterator i = figs.values().iterator();
-		if(!i.hasNext()) return;
+		if(idMax < 0) return;
 
-		Figure f = (Figure)i.next();
+		Figure f = figs[0];
 		//System.out.println(""+f.getID()+": "+f.getX()+","+f.getY()+","+f.getZ());
 		float offset = f.getD()/2;
 		xn = f.getX() - offset; yn = f.getY() - offset; zn = f.getZ() - offset;
 		xm = f.getX() + offset; ym = f.getY() + offset; zm = f.getZ() + offset;
 		
-		while(i.hasNext()) {
-			f = (Figure)i.next();
+		for (int i=1; i<idMax+1; i++) {
+			f = figs[i];
 			offset = f.getD()/2;
 			//System.out.println(""+f.getID()+": "+f.getX()+","+f.getY()+","+f.getZ());
 			if( f.getX()-offset < xn ) xn = f.getX()-offset;
@@ -160,24 +180,5 @@ class FigureManager {
 		
 		min.x = xn; min.y = yn; min.z = zn;
 		max.x = xm; max.y = ym; max.z = zm;
-	}
-
-	/**
-	 * Gets an array of longs for the current collection of Figures.
-	 * User must refresh stale data if model is modified afterwards.
-	 * @return the array of current Figure IDs.
-	 */
-	public long[] getFigs() {
-		Object[] figarr = figs.values().toArray();
-		long[] idarr = new long[figarr.length];
-		for(int i=0; i<figarr.length; i++)
-			idarr[i] = ((Figure)figarr[i]).getID();
-		return idarr;
-	}	
-	
-	public Figure getFig(long id) {
-		Long l = new Long(id);
-		Figure f = (Figure)figs.get(l);
-		return f;
 	}
 }

@@ -19,7 +19,7 @@ public abstract class Figure {
 	protected short _c; //color
 	protected Point3f _p; //location in molecule space
 	protected float _d; //diameter of the figure, when applicable
-	protected long _id; //serial id for figure tracking and removal
+	protected int _id; //serial id for figure tracking and removal
 	
     boolean drawme = true;
     
@@ -59,12 +59,12 @@ public abstract class Figure {
 	/**Get the ID of the figure
 	 * @return the ID of the figure
 	 */
-	public long getID() { return _id; }
+	public int getID() { return _id; }
 	/**
 	 * Set the ID of the figure. Should only be used by the FigureManager
 	 * @param id the ID to set
 	 */
-	public void setID(long id) { _id = id; }
+	public void setID(int id) { _id = id; }
 	
 	/**
 	 * All Figures know how to draw themselves via override.

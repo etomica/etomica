@@ -1,6 +1,8 @@
 package g3dsys.test;
 
 import g3dsys.control.G3DSys;
+import g3dsys.images.Ball;
+import g3dsys.images.Figure;
 
 import java.awt.Color;
 import java.awt.Frame;
@@ -29,7 +31,7 @@ public class G3DTest extends TestCase {
 	 * them correctly leaves the size unchanged.
 	 */
 	public void testfigureRemoveResize() {
-		gsys.addFig(G3DSys.BALL, Color.RED, 0,0,0, 100);
+        gsys.addFig(new Ball(gsys, G3DSys.getColix(Color.RED), 0,0,0, 100));
 		float minx = gsys.getMinX(); float maxx = gsys.getMaxX();
 		float miny = gsys.getMinY(); float maxy = gsys.getMaxY();
 		float minz = gsys.getMinZ(); float maxz = gsys.getMaxZ();
@@ -42,17 +44,18 @@ public class G3DTest extends TestCase {
 			float x = r.nextFloat()*r.nextInt();
 			float y = r.nextFloat()*r.nextInt();
 			float z = r.nextFloat()*r.nextInt();
-			c.add(new Long( gsys.addFigNoRescale(G3DSys.BALL,Color.RED,x,y,z,100)));
+            Figure ball = new Ball(gsys,G3DSys.getColix(Color.RED),x,y,z,100);
+            gsys.addFig(ball);
+            c.add(ball);
 		}
 		gsys.recalcPPA();
 		System.out.println("added figures in "+(System.currentTimeMillis()-begin)+" milliseconds");
 		
 		begin = System.currentTimeMillis();
 		for(java.util.Iterator i = c.iterator(); i.hasNext();) {
-			Long l = (Long)i.next();
-			gsys.removeFigNoRescale(l.longValue());
-		}
-		gsys.removeFig(-1);
+            Figure f = (Figure)i.next();
+            gsys.removeFig(f);
+        }
 		System.out.println("removed figures in "+(System.currentTimeMillis()-begin)+" milliseconds");
 		
 		assertTrue("model not minx-resized properly; is "

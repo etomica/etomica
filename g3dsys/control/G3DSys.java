@@ -137,125 +137,45 @@ public class G3DSys {
   /* ****************************************************************
    * Methods for modifying the model
    * ****************************************************************/
-  /**Adds a shape to the associated FigureManager at the given molspace
-   * coordinate. All positional values are in Angstroms.
-   * @param TYPE the kind of shape to add
-   * @param color the color of the shape
-   * @param p molspace position
-   * @param d molspace diameter
-   * @return the tracking ID of the Figure that was added; -1 if no addition
-   */
-  public long addFigNoRescale(int TYPE, java.awt.Color color, Point3f p, float d) {
-    return addFigNoRescale(TYPE, color, p.x, p.y, p.z, d);
-  }
-  public long addFig(int TYPE, java.awt.Color color, Point3f p, float d) {
-    return addFig(TYPE, color, p.x, p.y, p.z, d);
-  }
-  public long addFig(int TYPE, java.awt.Color color, float x, float y, float z, float d) {
-    short c = Graphics3D.getColix(color2argb(color));
-    switch(TYPE) {
-    case BALL:
-      return fm.addFig(new Ball(this,c,x,y,z,d));
-    case TIMEDBALL:
-      return fm.addFig(new TimedBall(this,c,x,y,z,d));
-    case BOX:
-      return fm.addFig(new Box(this, c));
-    case AXES:
-      return fm.addFig(new Axes(this, c));
-    default:
-      System.out.println("unknown shape type");
-    return -1;
-    }
-  }
-  public long addFigNoRescale(int TYPE, java.awt.Color color, float x, float y, float z, float d) {
-    short c = Graphics3D.getColix(color2argb(color));
-    switch(TYPE) {
-    case BALL:
-      return fm.addFigNoRescale(new Ball(this,c,x,y,z,d));
-    case TIMEDBALL:
-      return fm.addFig(new TimedBall(this,c,x,y,z,d));
-    case BOX:
-      return fm.addFigNoRescale(new Box(this,c));
-    case AXES:
-      return fm.addFigNoRescale(new Axes(this,c));
-    default:
-      System.out.println("unknown shape type");
-    return -1;
-    }
-  }
 
   /**
-   * Removes the Figure that has the given ID but does not rescale
+   * Adds the Figure to the associated FigureManager but does not rescale
    * Good for batch removals, but shrinkModel must be called manually at the
    * end.
-   * @param id the id of the Figure to remove
+   * @param f the Figure to add
+   */
+  public void addFigNoRescale(Figure f) {
+      fm.addFigNoRescale(f);
+  }
+  
+  /**
+   * Adds the Figure to the associated FigureManager and automatically rescales
+   * @param f the Figure to add
+   */
+  public void addFig(Figure f) {
+      fm.addFig(f);
+  }
+  
+  /**
+   * Removes the given Figure and automatically rescales
+   * @param f the Figure to remove
    * @return the Figure that was removed (or null)
    */
-  public Figure removeFigNoRescale(long id) {
-    return fm.removeFigNoRescale(id);
+  public Figure removeFig(Figure f) {
+      return fm.removeFig(f);
   }
-
+  
   /**
-   * Removes the Figure that has the given ID and automatically rescales
-   * @param id the ID of the Figure to remove
+   * Removes the given Figure but does not rescale
+   * Good for batch removals, but shrinkModel must be called manually at the
+   * end.
+   * @param f the Figure to remove
    * @return the Figure that was removed (or null)
    */
-  public Figure removeFig(long id) {
-    return fm.removeFig(id);
-  }
-
-  /**
-   * Gets the collection figures as represented by ID.
-   * Iterators are not safe here since the model could be modified while
-   * the user has an open iterator.
-   * @return an array of longs of Figure IDs
-   */
-  public long[] getFigs() {
-    return fm.getFigs();
-  }
-
-  /**
-   * Modifies the Figure represented by id, and assigns the given
-   * color and locations.
-   * @param id the ID of the Figure to modify
-   * @param color the color to apply
-   * @param x the Angstrom x location to apply
-   * @param y the Angstrom y location to apply
-   * @param z the Angstrom z location to apply
-   * @param d the Angstrom diameter to apply
-   */
-  public void modFig(long id, java.awt.Color color, float x, float y, float z, float d, boolean drawable) {
-    short c = Graphics3D.getColix(color2argb(color));
-    Figure f = fm.getFig(id);
-    if(f != null) {
-      f.setColor(c);
-      f.setX(x);
-      f.setY(y);
-      f.setZ(z);
-      f.setD(d);
-      f.setDrawable(drawable);
-    }
+  public Figure removeFigNoRescale(Figure f) {
+      return fm.removeFigNoRescale(f);
   }
   
-  public void modFigXYZ(long id, float x, float y, float z) {
-    Figure f = fm.getFig(id);
-    if(f != null) {
-      f.setX(x);
-      f.setY(y);
-      f.setZ(z);
-    }
-  }
-  
-  public void modFigColor(long id, java.awt.Color color) {
-    Figure f = fm.getFig(id);
-    if(f != null) f.setColor(Graphics3D.getColix(color2argb(color)));
-  }
-  
-  public void modFigDrawable(long id, boolean drawable) {
-    Figure f = fm.getFig(id);
-    if(f != null) f.setDrawable(drawable);
-  }
-
   /* ****************************************************************
    * Rotation and translation delegation
    * ****************************************************************/
@@ -353,7 +273,7 @@ public class G3DSys {
    * @param color the color to be converted
    * @returns an argb int
    **/
-  public static int color2argb(java.awt.Color color) {
+  private static int color2argb(java.awt.Color color) {
     float[] compArray = color.getComponents(null);
     int a = (int)(compArray[3]*255+0.5);
     int r = (int)(compArray[0]*255+0.5);
@@ -363,4 +283,12 @@ public class G3DSys {
     return argb;
   }
 
+  /**
+   * Converts the given AWT color to an argb int
+   * @param color the color to be converted
+   * @returns an argb int
+   **/
+  public static short getColix(java.awt.Color color) {
+    return Graphics3D.getColix(color2argb(color));
+  }
 }
