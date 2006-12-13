@@ -1,8 +1,5 @@
 package etomica.normalmode;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
@@ -13,15 +10,16 @@ import etomica.data.DataHistogram;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBoxesCAE;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.crystal.PrimitiveFcc;
+import etomica.lattice.LatticeCubicSimple;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
@@ -29,8 +27,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
@@ -41,7 +37,7 @@ import etomica.util.HistogramSimple;
  */
 public class TestHarmonic extends Simulation {
 
-    public TestHarmonic(Space space, int numAtoms, String filename) {
+    public TestHarmonic(Space space, int numAtoms, double density, String filename) {
         super(space, true, new PotentialMaster(space));
 
         defaults.makeLJDefaults();
@@ -63,7 +59,7 @@ public class TestHarmonic extends Simulation {
         
         bdry = new BoundaryRectangularPeriodic(this);
         phase.setBoundary(bdry);
-        phase.setDensity(1.04);
+        phase.setDensity(density);
 
         PhaseImposePbc makeperiodic = new PhaseImposePbc(phase);
         integrator.addListener(makeperiodic);
@@ -79,11 +75,13 @@ public class TestHarmonic extends Simulation {
         double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
         Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
         double[] coefficients = new double[waveVectors.length];
+        double[] justWaveVector = new double[space.D()];
         for (int i=0; i<waveVectors.length; i++) {
             coefficients[i] = waveVectorsAndCoefficients[i][0];
-            waveVectors[i] = new Vector3D(waveVectorsAndCoefficients[i][1],
-                    waveVectorsAndCoefficients[i][2],
-                    waveVectorsAndCoefficients[i][3]);
+            for (int j=0; j<space.D(); j++) {
+                justWaveVector[j] = waveVectorsAndCoefficients[i][j+1];
+            }
+            waveVectors[i] = Space.makeVector(justWaveVector); 
         }
         double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
         
@@ -93,9 +91,13 @@ public class TestHarmonic extends Simulation {
         move.setWaveVectorCoefficients(coefficients);
         move.setNormalCoordWrapper(new NormalCoordLeaf(space));
         
-        lattice = new LatticeCubicFcc();
+        if (space.D() == 1) {
+            lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
+        }
+        else {
+            lattice = new LatticeCubicFcc();
+        }
         config = new ConfigurationLattice(lattice);
-        // config.setRescalingToFitVolume(false);
 
         config.initializeCoordinates(phase);
 
@@ -108,13 +110,19 @@ public class TestHarmonic extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
+        int D = 1;
         int nA = 108;
-        boolean graphic = true;
+        double density = 1.04;
+        if (D == 1) {
+            nA = 5;
+            density = 0.5;
+        }
+        boolean graphic = false;
         String filename = "normal_modes400";
         if (args.length > 0) {
             filename = args[0];
         }
-        TestHarmonic sim = new TestHarmonic(Space3D.getInstance(), nA, filename);
+        TestHarmonic sim = new TestHarmonic(Space.getInstance(D), nA, density, filename);
         
         P2HardSphere p2HardSphere = new P2HardSphere(sim.getSpace(), 1.0, true);
         sim.getPotentialMaster().addPotential(p2HardSphere, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
@@ -135,13 +143,16 @@ public class TestHarmonic extends Simulation {
         double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
         Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
         double[] coefficients = new double[waveVectors.length];
+        double[] justWaveVector = new double[D];
         for (int i=0; i<waveVectors.length; i++) {
             coefficients[i] = waveVectorsAndCoefficients[i][0];
-            waveVectors[i] = new Vector3D(waveVectorsAndCoefficients[i][1],
-                    waveVectorsAndCoefficients[i][2],
-                    waveVectorsAndCoefficients[i][3]);
+            for (int j=0; j<D; j++) {
+                justWaveVector[j] = waveVectorsAndCoefficients[i][j+1];
+            }
+            waveVectors[i] = Space.makeVector(justWaveVector); 
         }
         double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
+        //these are actually eigenvalues
         double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
         for (int i=0; i<omegaSquared.length; i++) {
             for (int j=0; j<omegaSquared[i].length; j++) {
@@ -199,66 +210,20 @@ public class TestHarmonic extends Simulation {
 
             simG.makeAndDisplayFrame();
         } else {
-            PrimitiveFcc primitive = sim.lattice.getPrimitiveFcc();
-            ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config
-                    .getLatticeMemento();
-            Vector scaling = myLattice.latticeScaling;
-            primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
 
-            MeterNormalMode meterNormalMode = new MeterNormalMode();
-            meterNormalMode.setPhase(sim.phase);
-            meterNormalMode.setNormalCoordWrapper(normalCoordLeaf);
-            meterNormalMode.setWaveVectorFactory(new WaveVectorFactoryFcc(primitive));
-
-            int nSteps = 100;
+            int nSteps = 1000000;
 
             sim.activityIntegrate.setMaxSteps(nSteps);
-
-            String outFilename = "normal_modes_harmonic";
-            if (args.length > 0) {
-                filename = args[0];
-            }
-            
-            sim.activityIntegrate.setMaxSteps(nSteps);
-
-            if (true) {
-                IntervalActionAdapter fooAdapter = new IntervalActionAdapter(meterNormalMode);
-                fooAdapter.setActionInterval(1);
-                sim.integrator.addListener(fooAdapter);
-            }
             
             sim.getController().actionPerformed();
             
-            if (true) {
-                DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
-                normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-                int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
-                
-                try {
-                    FileWriter fileWriterQ = new FileWriter(outFilename+".Q");
-                    FileWriter fileWriterS = new FileWriter(outFilename+".S");
-                    for (int i=0; i<waveVectors.length; i++) {
-                        fileWriterQ.write(Double.toString(waveVectors[i].x(0)));
-                        for (int j=1; j<waveVectors[i].D(); j++) {
-                            fileWriterQ.write(" "+waveVectors[i].x(j));
-                        }
-                        fileWriterQ.write("\n");
-                        DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
-                        for (int k=0; k<normalDim; k++) {
-                            fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
-                            for (int l=1; l<normalDim; l++) {
-                                fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
-                            }
-                            fileWriterS.write("\n");
-                        }
-                    }
-                    fileWriterQ.close();
-                    fileWriterS.close();
-                }
-                catch (IOException e) {
-                    throw new RuntimeException("Oops, failed to write data "+e);
-                }
-            }
+            DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
+            double pNotOverlap = ((DataDouble)boltzmannData.getData(StatType.AVERAGE.index)).x;
+            double pError = ((DataDouble)boltzmannData.getData(StatType.ERROR.index)).x;
+            
+            System.out.println("avg HS Boltzmann factor "+pNotOverlap+" +/- "+pError);
+            
+            System.out.println("free energy contribution "+(-Math.log(pNotOverlap))+" +/- "+(pError/pNotOverlap));
         }
 
     }
@@ -268,7 +233,7 @@ public class TestHarmonic extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public Phase phase;
     public BoundaryRectangularPeriodic bdry;
-    public LatticeCubicFcc lattice;
+    public BravaisLattice lattice;
     public ConfigurationLattice config;
     public Species species;
 }
