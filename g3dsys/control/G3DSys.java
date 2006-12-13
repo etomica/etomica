@@ -310,7 +310,7 @@ public class G3DSys {
    * @param p the point to convert
    * @return the pixel coordinate
    */
-  public Point3i screenSpace(Point3f p) { return cm.screenSpace(p); }
+  public void screenSpace(Point3f p, Point3i s) { cm.screenSpace(p, s); }
   /**
    * Handles perspective based on depth and diameter.
    * @param z depth of an object

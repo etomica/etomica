@@ -3,6 +3,7 @@ package g3dsys.images;
 import g3dsys.control.G3DSys;
 
 import javax.vecmath.Point3f;
+import javax.vecmath.Point3i;
 
 import org.jmol.g3d.Graphics3D;
 
@@ -16,6 +17,7 @@ public class Box extends Figure {
 	// eight points to define the box
 	private Point3f LUT,LDT,RUT,RDT; //leftUpTop, leftDownTop, etc.
 	private Point3f LUB,LDB,RUB,RDB; //leftUpBottom, leftDownBottom, etc.
+    private final Point3i t1, t2;
 
 	public Box(G3DSys g, short c) {
 		super(g, c);
@@ -26,6 +28,9 @@ public class Box extends Figure {
 				(_gsys.getMinX() + _gsys.getMaxX())/2,
 				(_gsys.getMinY() + _gsys.getMaxY())/2,
 				(_gsys.getMinZ() + _gsys.getMaxZ())/2);
+        
+        t1 = new Point3i();
+        t2 = new Point3i();
 		
 		g.setCenterOfRotation(_p); //rotate about center of box
 	}
@@ -46,22 +51,34 @@ public class Box extends Figure {
 		Graphics3D g3d = _gsys.getG3D();
 		
 		//four top to bottom lines
-		g3d.drawLine(_c, _gsys.screenSpace(LUT), _gsys.screenSpace(LUB));
-		g3d.drawLine(_c, _gsys.screenSpace(LDT), _gsys.screenSpace(LDB));
-		g3d.drawLine(_c, _gsys.screenSpace(RUT), _gsys.screenSpace(RUB));
-		g3d.drawLine(_c, _gsys.screenSpace(RDT), _gsys.screenSpace(RDB));
+        _gsys.screenSpace(LUT, t1); _gsys.screenSpace(LUB, t2);
+		g3d.drawLine(_c, t1, t2);
+        _gsys.screenSpace(LDT, t1); _gsys.screenSpace(LDB, t2);
+        g3d.drawLine(_c, t1, t2);
+        _gsys.screenSpace(RUT, t1); _gsys.screenSpace(RUB, t2);
+        g3d.drawLine(_c, t1, t2);
+        _gsys.screenSpace(RDT, t1); _gsys.screenSpace(RDB, t2);
+        g3d.drawLine(_c, t1, t2);
 		
 		//four left to right lines
-		g3d.drawLine(_c, _gsys.screenSpace(LUT), _gsys.screenSpace(RUT));
-		g3d.drawLine(_c, _gsys.screenSpace(LDT), _gsys.screenSpace(RDT));
-		g3d.drawLine(_c, _gsys.screenSpace(LUB), _gsys.screenSpace(RUB));
-		g3d.drawLine(_c, _gsys.screenSpace(LDB), _gsys.screenSpace(RDB));
+        _gsys.screenSpace(LUT, t1); _gsys.screenSpace(RUT, t2);
+        g3d.drawLine(_c, t1, t2);
+        _gsys.screenSpace(LDT, t1); _gsys.screenSpace(RDT, t2);
+        g3d.drawLine(_c, t1, t2);
+        _gsys.screenSpace(LUB, t1); _gsys.screenSpace(RUB, t2);
+        g3d.drawLine(_c, t1, t2);
+        _gsys.screenSpace(LDB, t1); _gsys.screenSpace(RDB, t2);
+        g3d.drawLine(_c, t1, t2);
 		
 		//four up to down lines
-		g3d.drawLine(_c, _gsys.screenSpace(LUT), _gsys.screenSpace(LDT));
-		g3d.drawLine(_c, _gsys.screenSpace(RUT), _gsys.screenSpace(RDT));
-		g3d.drawLine(_c, _gsys.screenSpace(LUB), _gsys.screenSpace(LDB));
-		g3d.drawLine(_c, _gsys.screenSpace(RUB), _gsys.screenSpace(RDB));		
+        _gsys.screenSpace(LUT, t1); _gsys.screenSpace(LDT, t2);
+        g3d.drawLine(_c, t1, t2);
+        _gsys.screenSpace(RUT, t1); _gsys.screenSpace(RDT, t2);
+        g3d.drawLine(_c, t1, t2);
+        _gsys.screenSpace(LUB, t1); _gsys.screenSpace(LDB, t2);
+        g3d.drawLine(_c, t1, t2);
+        _gsys.screenSpace(RUB, t1); _gsys.screenSpace(RDB, t2);
+        g3d.drawLine(_c, t1, t2);
 	}
 	
 	public float getD() {

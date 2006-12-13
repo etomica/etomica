@@ -21,6 +21,7 @@ class FigureManager {
 	 */
 	private Point3f min = new Point3f(0,0,0);
 	private Point3f max = new Point3f(0,0,0);
+    private Point3f tempP = new Point3f();
 	
 	private G3DSys gsys;
 	
@@ -62,8 +63,10 @@ class FigureManager {
 	/** Dispatches draw commands to all stored Figures */
 	public void draw() {
 		// persistent center of rotation in the middle of the model
-		gsys.setCenterOfRotation(new javax.vecmath.Point3f(
-				(min.x+max.x)/2, (min.y+max.y)/2, (min.z+max.z)/2));
+        tempP.x = (min.x+max.x)/2;
+        tempP.y = (min.y+max.y)/2;
+        tempP.z = (min.z+max.z)/2;
+        gsys.setCenterOfRotation(tempP);
 		
 		for(java.util.Iterator iter = figs.values().iterator(); iter.hasNext();) {
 			Figure f = (Figure)iter.next();

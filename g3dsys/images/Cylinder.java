@@ -14,8 +14,9 @@ import org.jmol.g3d.Graphics3D;
 
 public class Cylinder extends Figure {
 	
-	private Point3f p1; //center of first endcap
-	private Point3f p2; //center of second endcap
+	private final Point3f p1; //center of first endcap
+	private final Point3f p2; //center of second endcap
+    private final Point3i p1i, p2i;
 
 	public Cylinder(G3DSys g, short c, float x1, float y1, float z1,
 			float x2, float y2, float z2) {
@@ -26,19 +27,21 @@ public class Cylinder extends Figure {
 		this.p1 = p1;
 		this.p2 = p2;
 		_p = new Point3f( (p1.x+p2.x)/2, (p1.y+p2.y)/2, (p1.z+p2.z)/2 );
+        p1i = new Point3i();
+        p2i = new Point3i();
 	}
 
 	public void draw() {
-		Point3i p1i = _gsys.screenSpace(p1);
-		Point3i p2i = _gsys.screenSpace(p2);
-		_gsys.getG3D().fillCylinder(_c, Graphics3D.ENDCAPS_FLAT, dist(p1i,p2i)/2, p1i, p2i);
+		_gsys.screenSpace(p1, p1i);
+		_gsys.screenSpace(p2, p2i);
+		_gsys.getG3D().fillCylinder(_c, Graphics3D.ENDCAPS_FLAT, disti(p1i,p2i)/2, p1i, p2i);
 	}
 	
 	/**
 	 * @return distance between points defining cylinder, within one pixel
 	 */
-	private int dist(Point3i p1i, Point3i p2i) {
-		return (int) java.lang.Math.sqrt((p2i.x-p1i.x)*(p2i.x-p1i.x) + (p2i.y-p1i.y)*(p2i.y-p1i.y) + (p2i.z-p1i.z)*(p2i.z-p1i.z)); 
+	private int disti(Point3i ap1i, Point3i ap2i) {
+		return (int) java.lang.Math.sqrt((ap2i.x-ap1i.x)*(ap2i.x-ap1i.x) + (ap2i.y-ap1i.y)*(ap2i.y-ap1i.y) + (ap2i.z-ap1i.z)*(ap2i.z-ap1i.z)); 
 	}
 	/**
 	 * @return distance between points defining cylinder in molecule space
@@ -51,7 +54,7 @@ public class Cylinder extends Figure {
 	 * @return the 'diameter' of the cylinder; the distance between endpoints
 	 */
 	public float getD() {
-		return (float)dist(p1,p2);
+		return dist(p1,p2);
 	}
 
 }
