@@ -30,6 +30,7 @@ class CoordMapper {
 	
 	// center of rotation in Angstroms; origin by default
 	private Point3f cor = new Point3f(0,0,0);
+    private Point3f tempP = new Point3f();
 	
 	//perspective flag and scaling factor
 	private boolean PERSPECTIVE = true;
@@ -47,16 +48,6 @@ class CoordMapper {
 	 * Rotation methods
 	 * *****************************************************************/
 
-	/**Rotate molspace point p according to the current rotation matrix
-	 * @param p the molspace point to rotate
-	 * @return the rotated molspace point
-	 */
-	private Point3f applyRotation(Point3f p) {
-		Matrix3f m = new Matrix3f(p.x,0,0,p.y,0,0,p.z,0,0);
-		m.mul(rotation,m);
-		return (new Point3f(m.m00, m.m10, m.m20));
-	}
-	
 	/** Rotate to the home position; remove all rotations and translations */
 	public void rotateToHome() {
 		rotation.setIdentity();
@@ -137,28 +128,26 @@ class CoordMapper {
 	 * @param molSpace the molecule space coordinate in Angstroms
 	 * @return the G3D pixel space coordinate after conversion and rotation
 	 */
-	public Point3i screenSpace(Point3f molSpace) {
+	public void screenSpace(Point3f molSpace, Point3i screenSpace) {
 		//translate and offset for the center of rotation
-		float newxf = molSpace.x - cor.x;
-		float newyf = molSpace.y - cor.y;
-		float newzf = molSpace.z - cor.z;
-		Point3f newMolSpace = new Point3f(newxf, newyf, newzf);
+        tempP.x = molSpace.x - cor.x;
+        tempP.y = molSpace.y - cor.y;
+        tempP.z = molSpace.z - cor.z;
 		
 		//rotate and remove rotation offsets
-		Point3f rot = applyRotation(newMolSpace);
-		rot.x += cor.x;
-		rot.y += cor.y;
-		rot.z += cor.z;
+        rotation.transform(tempP);
+		tempP.x += cor.x;
+		tempP.y += cor.y;
+		tempP.z += cor.z;
 		
 		//need better centering offsets
 		//-- these seem to work well now
-		int newx = xlateHoriz +
-			angToPixel(rot.x + java.lang.Math.abs(master.getMinX()));
-		int newy = xlateVert + 
-			angToPixel(rot.y + java.lang.Math.abs(master.getMinY()));
-		int newz = angToPixel(rot.z) + (int) Short.MAX_VALUE/2;
+		screenSpace.x = xlateHoriz +
+			angToPixel(tempP.x + java.lang.Math.abs(master.getMinX()));
+		screenSpace.y = xlateVert + 
+			angToPixel(tempP.y + java.lang.Math.abs(master.getMinY()));
+		screenSpace.z = angToPixel(tempP.z) + (int) Short.MAX_VALUE/2;
 
-		return new Point3i(newx,newy,newz);
 	}
 
 	/**Performs perspective calculation, if enabled
