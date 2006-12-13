@@ -481,7 +481,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
      */
     public void setNullPotential(Potential1 nullPotential) {
         this.nullPotential = (PotentialHard)nullPotential;
-        if (nullPotential != null) {
+        if (nullPotential != null && phase != null) {
             nullPotential.setPhase(phase);
         }
     }
