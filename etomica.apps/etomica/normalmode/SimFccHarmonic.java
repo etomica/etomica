@@ -23,6 +23,7 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.phase.Phase;
+import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -74,6 +75,7 @@ public class SimFccHarmonic extends Simulation {
 
         if (space.D() == 1) {
             lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
+            ((IntegratorHard)integrator).setNullPotential(new P1HardPeriodic(space));
         }
         else {
             lattice = new LatticeCubicFcc();

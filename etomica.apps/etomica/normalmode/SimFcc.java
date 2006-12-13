@@ -20,6 +20,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.models.hexane.MeterCorrelationMatrix;
 import etomica.phase.Phase;
+import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -70,6 +71,7 @@ public class SimFcc extends Simulation {
 
         if (space.D() == 1) {
             lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
+            ((IntegratorHard)integrator).setNullPotential(new P1HardPeriodic(space));
         }
         else {
             lattice = new LatticeCubicFcc();
@@ -78,7 +80,6 @@ public class SimFcc extends Simulation {
 
         config.initializeCoordinates(phase);
 
-        // nan phase.setDensity(1.04);
         integrator.setPhase(phase);
     }
 
