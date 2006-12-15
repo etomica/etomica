@@ -130,7 +130,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	 * AgentSource methods
 	 * ******************************************************/
 	public Class getAgentClass() {
-	    return Long.class;
+	    return Figure.class;
 	}
 	
 	public Object makeAgent(Atom a) {
