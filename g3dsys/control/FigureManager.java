@@ -72,36 +72,14 @@ class FigureManager {
 		}
 	}
 	
-	public void addFig(Figure f) {
-		addFigNoRescale(f);
-		shrinkModel();
-		gsys.recalcPPA();
-	}
-
 	/**
 	 * Stores an additional figure, expanding model bounds as needed
 	 * @param f the Figure to add
 	 */
-	public void addFigNoRescale(Figure f) {
+    public void addFig(Figure f) {
         if (f.getID() > -1) {
             throw new IllegalArgumentException("figure is already here");
         }
-
-        //possible new min and max values due to the new figure
-		float curMinX = f.getX() - f.getD()/2;
-		float curMaxX = f.getX() + f.getD()/2;
-		float curMinY = f.getY() - f.getD()/2;
-		float curMaxY = f.getY() + f.getD()/2;
-		float curMinZ = f.getZ() - f.getD()/2;
-		float curMaxZ = f.getZ() + f.getD()/2;
-		
-		// if new coordinates exceed the old, expand space and store old max
-		if(curMinX < min.x) { min.x = curMinX; }
-		if(curMaxX > max.x) { max.x = curMaxX; }
-		if(curMinY < min.y) { min.y = curMinY; }
-		if(curMaxY > max.y) { max.y = curMaxY; }
-		if(curMinZ < min.z) { min.z = curMinZ; }
-		if(curMaxZ > max.z) { max.z = curMaxZ; }
 
         f.setID(++idMax);
         if (figs.length < idMax+1) {
@@ -111,15 +89,8 @@ class FigureManager {
           figs = newFigsArray;
         }
         figs[idMax] = f;
-	}
+    }
 
-	public Figure removeFig(Figure f) {
-		Figure r = removeFigNoRescale(f);
-		shrinkModel();
-		gsys.recalcPPA();
-		return r;
-	}
-	
 	/**
 	 * Remove a Figure from the system without resizing.
 	 * Useful when doing batch removals from a large system, but the user
@@ -127,7 +98,7 @@ class FigureManager {
 	 * @param id the ID of the figure to remove
 	 * @return the removed figure (or null)
 	 */
-	public Figure removeFigNoRescale(Figure f) {
+    public synchronized Figure removeFig(Figure f) {
         if (f.getID() > idMax || figs[f.getID()] != f) {
             throw new IllegalArgumentException("Don't know about "+f);
         }
@@ -149,36 +120,11 @@ class FigureManager {
         f.setID(-1);
         return f;
 	}
-
-	/**
-	 * Resizes min and max Angstrom values for the model based on what Figures
-	 * are still present
-	 * Uses iterators. Removing n figures in succession can be quadratic.
-	 */
-	public void shrinkModel() {
-		float xn,yn,zn; //miN
-		float xm,ym,zm; //Max
-		if(idMax < 0) return;
-
-		Figure f = figs[0];
-		//System.out.println(""+f.getID()+": "+f.getX()+","+f.getY()+","+f.getZ());
-		float offset = f.getD()/2;
-		xn = f.getX() - offset; yn = f.getY() - offset; zn = f.getZ() - offset;
-		xm = f.getX() + offset; ym = f.getY() + offset; zm = f.getZ() + offset;
-		
-		for (int i=1; i<idMax+1; i++) {
-			f = figs[i];
-			offset = f.getD()/2;
-			//System.out.println(""+f.getID()+": "+f.getX()+","+f.getY()+","+f.getZ());
-			if( f.getX()-offset < xn ) xn = f.getX()-offset;
-			if( f.getX()+offset > xm ) xm = f.getX()+offset;
-			if( f.getY()-offset < yn ) yn = f.getY()-offset;
-			if( f.getY()+offset > ym ) ym = f.getY()+offset;
-			if( f.getZ()-offset < zn ) zn = f.getZ()-offset;
-			if( f.getZ()+offset > zm ) zm = f.getZ()+offset;
-		}
-		
-		min.x = xn; min.y = yn; min.z = zn;
-		max.x = xm; max.y = ym; max.z = zm;
-	}
+    
+    public void setBoundingBox(float minx, float miny, float minz,
+                               float maxx, float maxy, float maxz) {
+        min.x = minx; min.y = miny; min.z = minz;
+        max.x = maxx; max.y = maxy; max.z = maxz;
+        gsys.recalcPPA();
+    }
 }

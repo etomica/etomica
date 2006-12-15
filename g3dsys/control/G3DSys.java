@@ -139,41 +139,19 @@ public class G3DSys {
    * ****************************************************************/
 
   /**
-   * Adds the Figure to the associated FigureManager but does not rescale
-   * Good for batch removals, but shrinkModel must be called manually at the
-   * end.
-   * @param f the Figure to add
-   */
-  public void addFigNoRescale(Figure f) {
-      fm.addFigNoRescale(f);
-  }
-  
-  /**
-   * Adds the Figure to the associated FigureManager and automatically rescales
+   * Adds the Figure to the associated FigureManager
    * @param f the Figure to add
    */
   public void addFig(Figure f) {
-      fm.addFig(f);
+    fm.addFig(f);
   }
   
   /**
-   * Removes the given Figure and automatically rescales
+   * Removes the Figure to from associated FigureManager
    * @param f the Figure to remove
-   * @return the Figure that was removed (or null)
    */
   public Figure removeFig(Figure f) {
-      return fm.removeFig(f);
-  }
-  
-  /**
-   * Removes the given Figure but does not rescale
-   * Good for batch removals, but shrinkModel must be called manually at the
-   * end.
-   * @param f the Figure to remove
-   * @return the Figure that was removed (or null)
-   */
-  public Figure removeFigNoRescale(Figure f) {
-      return fm.removeFigNoRescale(f);
+    return fm.removeFig(f);
   }
   
   /* ****************************************************************
@@ -219,7 +197,20 @@ public class G3DSys {
   public Point3f getCenterOfRotation() { return cm.getCenterOfRotation(); }
 
 
-
+  /**
+   * Set the min and maximum coordinates for the model.  The zoom level is set
+   * such that everything within the box is viewable.
+   * @param minx minimum x
+   * @param miny minimum y
+   * @param minz minimum z
+   * @param maxx maximum x
+   * @param maxy maximum y
+   * @param maxz maximum z
+   */
+  public void setBoundingBox(float minx, float miny, float minz,
+          float maxx, float maxy, float maxz) {
+      fm.setBoundingBox(minx, miny, minz, maxx, maxy, maxz);
+  }
 
   /* ****************************************************************
    * CoordMapper delegation

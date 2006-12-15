@@ -11,7 +11,7 @@ public class Ball extends Figure {
 	
 	private Point3f p; // xyz position in molecule space
     private Point3i s;
-	
+    
 	public Ball(g3dsys.control.G3DSys g, short c,
 			float x, float y, float z, float diameter) {
 		this(g, c, new Point3f(x,y,z), diameter);
