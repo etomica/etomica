@@ -29,6 +29,7 @@ public abstract class Figure {
 		_gsys = g;
 		_c = c;
 		_p = new Point3f(0,0,0); //default location is origin
+        _id = -1;
 	}
 	
 	/** @return the color of the figure */
