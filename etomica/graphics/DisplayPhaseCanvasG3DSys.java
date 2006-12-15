@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.Panel;
 import java.awt.TextField;
 
+import javax.vecmath.Point3f;
+
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
@@ -12,10 +14,14 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.math.geometry.LineSegment;
+import etomica.math.geometry.Polytope;
+import etomica.space.Boundary;
+import etomica.space.Vector;
 import g3dsys.control.G3DSys;
 import g3dsys.images.Ball;
-import g3dsys.images.Box;
 import g3dsys.images.Figure;
+import g3dsys.images.Line;
 
 //TODO: rewrite doPaint and drawAtom
 
@@ -30,6 +36,9 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     private final double[] coords;
 	
 	private AtomAgentManager aam;
+    
+    private Polytope oldPolytope;
+    private Line[] polytopeLines;
 
 	public DisplayPhaseCanvasG3DSys(DisplayPhase _phase) {
 		//old stuff
@@ -46,32 +55,12 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		this.add(p);
         coords = new double[3];
 		gsys = new G3DSys(p);
-		gsys.addFig(new Box(gsys, G3DSys.getColix(Color.GREEN)));
 		
 		//init AtomAgentManager, to sync G3DSys and Etomica models
 		//this automatically adds the atoms
 		aam = new AtomAgentManager(this,displayPhase.getPhase());
 
-		//need to init atoms here: get iterator, add figures, etc.
-//		atomIterator.setPhase(displayPhase.getPhase());
-//		atomIterator.reset();
-//		while(atomIterator.hasNext()) {
-//
-//			AtomLeaf a = (AtomLeaf) atomIterator.nextAtom();
-//			double[] coords = new double[3];
-//			a.coord.position().assignTo(coords);
-//			System.out.println("adding atom at "+coords[0]+","+coords[1]+","+coords[2]);
-//			makeAgent(a);
-//			gsys.addFig(G3DSys.Figures.BALL, org.jmol.g3d.Graphics3D.RED,
-//			(float)coords[0], (float)coords[1], (float)coords[2], 1);
-//		}
-//		java.util.Random r = new java.util.Random();
-//
-//		for(int i=0; i<25000; i++) {
-//			gsys.addFig(G3DSys.Figures.BALL, org.jmol.g3d.Graphics3D.BLUE,
-//					20*r.nextFloat(), 20*r.nextFloat(), 20*r.nextFloat(), 1);
-//		}
-		gsys.refresh();
+//		gsys.refresh();
 	}
 
 	/**
@@ -122,6 +111,38 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
             ball.setY((float)coords[1]);
             ball.setZ((float)coords[2]);
 		}
+        
+        Boundary boundary = displayPhase.getPhase().getBoundary();
+        Polytope polytope = boundary.getShape();
+        if (polytope != oldPolytope) {
+            if (polytopeLines != null) {
+                for (int i=0; i<polytopeLines.length; i++) {
+                    gsys.removeFig(polytopeLines[i]);
+                }
+            }
+            LineSegment[] lines = polytope.getEdges();
+            polytopeLines = new Line[lines.length];
+            for (int i=0; i<lines.length; i++) {
+                Vector[] vertices = lines[i].getVertices();
+                polytopeLines[i] = new Line(gsys, G3DSys.getColix(Color.WHITE), 
+                        new Point3f((float)vertices[0].x(0), (float)vertices[0].x(1), (float)vertices[0].x(2)), 
+                        new Point3f((float)vertices[1].x(0), (float)vertices[1].x(1), (float)vertices[1].x(2)));
+                gsys.addFig(polytopeLines[i]);
+            }
+            oldPolytope = polytope;
+        }
+        else {
+            LineSegment[] lines = polytope.getEdges();
+            for (int i=0; i<lines.length; i++) {
+                Vector[] vertices = lines[i].getVertices();
+                polytopeLines[i].setStart((float)vertices[0].x(0), (float)vertices[0].x(1), (float)vertices[0].x(2));
+                polytopeLines[i].setEnd((float)vertices[1].x(0), (float)vertices[1].x(1), (float)vertices[1].x(2));
+            }
+        }
+        Vector bounds = boundary.getBoundingBox();
+        gsys.setBoundingBox((float)(-bounds.x(0)*0.5), (float)(-bounds.x(1)*0.5), (float)(-bounds.x(2)*0.5),
+                            (float)( bounds.x(0)*0.5), (float)( bounds.x(1)*0.5), (float)( bounds.x(2)*0.5));
+        
 		gsys.fastRefresh();
 		
 	}
