@@ -119,13 +119,6 @@ public class ConfigurationLattice extends Configuration {
         if (sumOfMolecules == 0) {
             return;
         }
-        if (sumOfMolecules == 1) {
-            atomIterator.reset();
-            work.E(0.0);
-            atomActionTranslateTo.setDestination(work);
-            atomActionTranslateTo.actionPerformed(atomIterator.nextAtom());
-            return;
-        }
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {
             basisSize = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
