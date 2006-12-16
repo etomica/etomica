@@ -3,7 +3,6 @@ package etomica.models.hexane;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
-import etomica.data.DataTag;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 
@@ -21,7 +20,6 @@ public class DataProcessorArrayFlatten extends DataProcessor {
      * Constructor that doesn't do anything.
      */
     public DataProcessorArrayFlatten(){
-        tag = new DataTag();
     }
     
     protected Data processData(Data inputData) {
@@ -55,19 +53,15 @@ public class DataProcessorArrayFlatten extends DataProcessor {
         return outputDataInfo;
     }
 
-    public DataTag getTag() {
-        return tag;
-    }
-
     /**
      * returns null (non-Javadoc)
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
+    public DataProcessor getDataCaster(DataInfo newDataInfo) {
         return null;
     }
 
+    private static final long serialVersionUID = 1L;
     private DataDoubleArray outputData;
     private DataInfoDoubleArray outputDataInfo;
     private int[] shapeNew;
-    protected final DataTag tag;
 }
