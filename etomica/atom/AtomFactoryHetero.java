@@ -175,7 +175,9 @@ public class AtomFactoryHetero extends AtomFactory {
     /**
      * Sets the factories that make the child atoms of this factory's atom.
      * If the number of factories changes, the number fractions are set so 
-     * that there is an equal amount of each child.
+     * that there is an equal amount of each child.  The caller is responsible
+     * for ensuring that the AtomTypes for the child factories are children
+     * of this AtomFactory's AtomType.
      *
      * @throws IllegalArgumentException
      *             if newChildFactory is an empty array
@@ -192,6 +194,11 @@ public class AtomFactoryHetero extends AtomFactory {
         }
     }
 
+    /**
+     * Adds the given factory as a child of this factory.  The caller is 
+     * responsible for ensuring that the AtomType for the child factory is a
+     * child of this AtomFactory's AtomType.
+     */
     public void addChildFactory(AtomFactory newChildFactory) {
         if (!isMutable) {
             throw new IllegalStateException("Factory is not mutable");
@@ -207,6 +214,11 @@ public class AtomFactoryHetero extends AtomFactory {
         }
     }
     
+    /**
+     * Removes the given factory as a child of this factory.  The caller is 
+     * responsible for removing the AtomType for the child factory from its
+     * parent AtomType.
+     */
     public boolean removeChildFactory(AtomFactory newChildFactory) {
         if (!isMutable) {
             throw new IllegalStateException("Factory is not mutable");
