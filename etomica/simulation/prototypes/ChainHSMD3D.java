@@ -8,8 +8,6 @@ import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.CriterionSimple;
-import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P1BondedHardSpheres;
@@ -24,6 +22,7 @@ import etomica.species.SpeciesSpheres;
 // this class is probably somewhat broken.  See etomica.tests.TestSWChain for a known-working chain simulation
 public class ChainHSMD3D extends Simulation {
 
+    private static final long serialVersionUID = 1L;
     public Phase phase;
     public IntegratorHard integrator;
     public SpeciesSpheres species;
@@ -58,7 +57,8 @@ public class ChainHSMD3D extends Simulation {
         ((ConformationLinear)((AtomFactoryHomo)species.getFactory()).getConformation()).setAngle(1,0.5);
         
         phase = new Phase(this);
-        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc());
+        config.initializeCoordinates(phase);
         species.getAgent(phase).setNMolecules(numAtoms);
         
         PotentialGroup p1Intra = P1BondedHardSpheres.makeP1BondedHardSpheres(this);
@@ -66,7 +66,7 @@ public class ChainHSMD3D extends Simulation {
         
         //PotentialGroup p2Inter = new PotentialGroup(2, space);
         potential = new P2HardSphere(this);
-        NeighborCriterion criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
+//        NeighborCriterion criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
 //FIXME        ApiFiltered interIterator = new ApiFiltered(new ApiIntergroup(),criterion);
 //FIXME        p2Inter.addPotential(potential,interIterator);
 //FIXME        NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});

@@ -54,7 +54,7 @@ public class GrainBoundaryConfiguration extends Configuration {
     	/** Lattices A + B share same space.  Only need to getSpace() for one 
     	 *  of the two.
     	 */
-        super(latticeA.getSpace()); 
+        super(); 
         this.latticeA = latticeA; 
         this.latticeB = latticeB;
         this.indexIteratorA = indexIteratorA; 
@@ -77,44 +77,7 @@ public class GrainBoundaryConfiguration extends Configuration {
         		IteratorDirective.Direction.UP);
         atomIteratorFixedB = new AtomIteratorArrayList(
         		IteratorDirective.Direction.UP);
-        work = space.makeVector();
     }
-
-    /**
-     * Specifies whether indices used to place each atom should be remembered.
-     * Default is false.
-     */
-    public void setRememberingIndices(boolean b) {
-        indices = b ? new int[0][] : null;
-    }
-
-    /**
-     * Indicates of instance is set to remember indices used to place each atom.
-     */
-    public boolean isRememberingIndices() {
-        return indices != null;
-    }
-
-    /**
-     * Returns an array of integer arrays, each corresponding to the indexes
-     * used to place a molecule in the last call to initializePositions. The
-     * index for each atom is obtained from the returned array using the atom's
-     * global index; that is, <code>getIndices()[atom.getGlobalIndex()]</code>
-     * gives the index array for <code>atom</code>.  A new instance of this
-     * array is made with each call to initializeCoordinates.
-     * 
-     * @throws IllegalStateException
-     *             if isRememberingIndices if false.
-     */
-    public int[][] getIndices() {
-        if (indices == null) {
-            throw new IllegalStateException(
-                    "ConfigurationLattice is not set to remember the indices.");
-        }
-        return indices;
-    }
-        
-    
 
     public void setDimensions (int nCellsAx, int nCellsAy, int nCellsAz, 
     		int nCellsBx, int nCellsBy, int nCellsBz, double aA, double bA,
@@ -149,16 +112,8 @@ public class GrainBoundaryConfiguration extends Configuration {
      * Places the molecules in the given phase on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(Phase p) {
-        if (indices != null) {
-            indices = new int[p.getSpeciesMaster().getMaxGlobalIndex()+1][];
-        }
-        super.initializeCoordinates(p);
-        
-    }
-
-    public void initializePositions(AtomArrayList[] lists) {
-    	
+    public void initializeCoordinates(Phase phase) {
+    	AtomArrayList[] lists = getMoleculeLists(phase);
     	Vector firstAtomPosition = ((AtomLeaf)lists[0].get(0)).getCoord().position();
     	
     	System.out.println("At beginning of initializePositions  "+ firstAtomPosition);
@@ -183,6 +138,8 @@ public class GrainBoundaryConfiguration extends Configuration {
          *  lattice A is above lattice B, and both are centered on the z axis.
          */
         
+        Vector3D offsetA = (Vector3D)phase.space().makeVector();
+        Vector3D offsetB = (Vector3D)phase.space().makeVector();
         offsetA.setX(0, -0.5 * latticeDimensionsA[0]);
         offsetA.setX(1, -0.5 * latticeDimensionsA[1]);
         offsetA.setX(2, (latticeDimensionsB[2] - latticeDimensionsA[2])/2.0 );
@@ -311,7 +268,6 @@ public class GrainBoundaryConfiguration extends Configuration {
 
     private final BravaisLatticeCrystal latticeA, latticeB;
     private final IndexIteratorSizable indexIteratorA, indexIteratorB;
-    private final Vector work;
     private final AtomActionTranslateTo atomActionTranslateTo;
     private final AtomIteratorArrayList atomIteratorFixedA, atomIteratorFixedB;
     private final AtomIteratorArrayListCompound atomIteratorMobileA, 
@@ -323,9 +279,6 @@ public class GrainBoundaryConfiguration extends Configuration {
     double[] latticeDimensionsA = new double[3];
     double[] latticeDimensionsB = new double[3];
     private int nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy, nCellsBz;
-    private final Vector3D offsetA = (Vector3D)space.makeVector();
-    private final Vector3D offsetB = (Vector3D)space.makeVector();
     private MyLattice myLatA, myLatB;
-    private int[][] indices = null;
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 }

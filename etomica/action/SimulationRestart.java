@@ -37,7 +37,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
             setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
         }
         else {
-            setConfiguration(new ConfigurationSequential(sim.space()));
+            setConfiguration(new ConfigurationSequential());
         }
         ignoreOverlap = sim.getDefaults().ignoreOverlap;
         accumulatorAction = new SimulationDataAction(sim, new ResetAccumulators());
@@ -85,6 +85,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
         this.configuration = configuration;
     }
 
+    private static final long serialVersionUID = 1L;
     private Configuration configuration;
     private boolean ignoreOverlap;
     private SimulationDataAction accumulatorAction;

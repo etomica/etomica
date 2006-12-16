@@ -96,7 +96,7 @@ public class ZeoliteSimulation extends Simulation {
         //Start by reading the first line, which is number of Atoms
         String fileName = "2unitcell";
         //String fileName = "pbu2";
-        ConfigurationFileXYZ config = new ConfigurationFileXYZ(space,fileName);
+        ConfigurationFileXYZ config = new ConfigurationFileXYZ(fileName);
         int[] numAtoms = config.getNumAtoms();
         
         nAtomsMeth = numAtoms[numAtoms.length - 1];

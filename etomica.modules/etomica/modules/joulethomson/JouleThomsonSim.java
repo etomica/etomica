@@ -52,7 +52,7 @@ public class JouleThomsonSim extends Simulation {
         
         Configuration config;
         if (space.D() == 2) {
-            config = new ConfigurationSequential(space);
+            config = new ConfigurationSequential();
         }
         else {
             config = new ConfigurationLattice(new LatticeCubicFcc());

@@ -2,9 +2,8 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorArrayListCompound;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorSequential;
@@ -55,15 +54,12 @@ public class ConfigurationLattice extends Configuration {
      */
     public ConfigurationLattice(SpaceLattice lattice,
             IndexIteratorSizable indexIterator) {
-        super(lattice.getSpace());
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
-        atomIterator = new AtomIteratorArrayListCompound();
-        work = space.makeVector();
     }
 
     /**
@@ -97,6 +93,9 @@ public class ConfigurationLattice extends Configuration {
             throw new IllegalStateException(
                     "ConfigurationLattice is not set to remember the indices.");
         }
+        if (indices[0].length == 0) {
+            throw new RuntimeException("InitializeCoordinates has not been called for this phase");
+        }
         return indices;
     }
 
@@ -104,17 +103,11 @@ public class ConfigurationLattice extends Configuration {
      * Places the molecules in the given phase on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(Phase p) {
+    public void initializeCoordinates(Phase phase) {
         if (indices != null) {
-            indices = new int[p.getSpeciesMaster().getMaxGlobalIndex()+1][];
+            indices = new int[phase.getSpeciesMaster().getMaxGlobalIndex()+1][];
         }
-        super.initializeCoordinates(p);
-    }
-
-    public void initializePositions(AtomArrayList[] lists) {
-        if (lists.length == 0)
-            return;
-        atomIterator.setLists(lists);
+        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(phase);
         int sumOfMolecules = atomIterator.size();
         if (sumOfMolecules == 0) {
             return;
@@ -127,11 +120,9 @@ public class ConfigurationLattice extends Configuration {
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        double[] shape = (double[]) dimensions.clone();
-        double[] latticeConstant = lattice.getLatticeConstants();
-        for (int i = 0; i < shape.length; i++) {
-            shape[i] /= latticeConstant[i];
-        }
+        Vector shape = (Vector)phase.getBoundary().getDimensions().clone();
+        Vector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
+        shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
         int[] latticeDimensions = calculateLatticeDimensions(nCells, shape);
@@ -147,46 +138,39 @@ public class ConfigurationLattice extends Configuration {
         }
 
         // determine lattice constant
-        Vector latticeScaling = space.makeVector();
+        Vector latticeScaling = phase.space().makeVector();
         if (rescalingToFitVolume) {
-            for (int i = 0; i < latticeDimensions.length; i++) {
-                // in favorable situations, this should be approximately equal
-                // to 1.0
-                latticeScaling.setX(i, dimensions[i]
-                        / (latticeDimensions[i] * latticeConstant[i]));
-            }
+            // in favorable situations, this should be approximately equal
+            // to 1.0
+            latticeScaling.E(phase.getBoundary().getDimensions());
+            latticeScaling.DE(latticeConstantV);
+            latticeScaling.DE(Space.makeVector(latticeDimensions));
         } else {
             latticeScaling.E(1.0);
         }
 
         // determine amount to shift lattice so it is centered in volume
-        double[] offset = (double[]) dimensions.clone();
-        double[] vectorOfMax = new double[lattice.getSpace().D()];
-        double[] vectorOfMin = new double[lattice.getSpace().D()];
-        for (int i = 0; i < lattice.getSpace().D(); i++) {
-            vectorOfMax[i] = Double.NEGATIVE_INFINITY;
-            vectorOfMin[i] = Double.POSITIVE_INFINITY;
-        }
+        Vector offset = (Vector)phase.getBoundary().getDimensions().clone();
+        Vector vectorOfMax = phase.space().makeVector();
+        Vector vectorOfMin = phase.space().makeVector();
+        vectorOfMax.E(Double.NEGATIVE_INFINITY);
+        vectorOfMin.E(Double.POSITIVE_INFINITY);
 
-        // XXX this looks scary and asking for trouble
-        // it's probably not needed/wanted for periodic boundaries, but
-        // gets the atoms off the boundaries for non-periodic boundaries
+        // XXX this can do strange things. it's probably not needed for 
+        // periodic boundaries, but gets the atoms off the boundaries for 
+        // non-periodic boundaries
         indexIterator.reset();
         while (indexIterator.hasNext()) {
             Vector site = (Vector) lattice.site(indexIterator.next());
             site.TE(latticeScaling);
-            for (int i = 0; i < site.D(); i++) {
-                vectorOfMax[i] = Math.max(vectorOfMax[i], site.x(i));
-                vectorOfMin[i] = Math.min(vectorOfMin[i], site.x(i));
-            }
+            vectorOfMax.maxE(site);
+            vectorOfMin.minE(site);
         }
-        for (int i = 0; i < lattice.getSpace().D(); i++) {
-            offset[i] = -0.5 * (vectorOfMax[i] - vectorOfMin[i])
-                    - vectorOfMin[i];
-        }
-        Vector offsetVector = Space.makeVector(offset);
+        offset.Ev1Mv2(vectorOfMax, vectorOfMin);
+        offset.TE(-0.5);
+        offset.ME(vectorOfMin);
 
-        myLat = new MyLattice(lattice, latticeScaling, offsetVector);
+        myLat = new MyLattice(lattice, latticeScaling, offset);
 
         // Place molecules
         atomIterator.reset();
@@ -209,29 +193,29 @@ public class ConfigurationLattice extends Configuration {
         }
     }
 
-    private int[] calculateLatticeDimensions(int nCells, double[] shape) {
-        int dimLeft = shape.length;
+    protected int[] calculateLatticeDimensions(int nCells, Vector shape) {
+        int dimLeft = shape.D();
         int nCellsLeft = nCells;
-        int[] latticeDimensions = new int[shape.length];
+        int[] latticeDimensions = new int[shape.D()];
         while (dimLeft > 0) {
             double smin = Double.POSITIVE_INFINITY;
             int dmin = 0;
             double product = 1.0;
-            for (int idim = 0; idim < shape.length; idim++) {
+            for (int idim = 0; idim < shape.D(); idim++) {
                 if (latticeDimensions[idim] > 0)
                     continue;
-                if (shape[idim] < smin) {
-                    smin = shape[idim];
+                if (shape.x(idim) < smin) {
+                    smin = shape.x(idim);
                     dmin = idim;
                 }
-                product *= shape[idim];
+                product *= shape.x(idim);
             }
             // round off except for last dimension (then round up)
             if (dimLeft > 1) {
-                latticeDimensions[dmin] = (int) Math.round(shape[dmin]
+                latticeDimensions[dmin] = (int) Math.round(shape.x(dmin)
                         * Math.pow((nCellsLeft / product), 1.0 / dimLeft));
             } else {
-                latticeDimensions[dmin] = (int) Math.ceil(shape[dmin]
+                latticeDimensions[dmin] = (int) Math.ceil(shape.x(dmin)
                         * nCellsLeft / product);
             }
             nCellsLeft = (nCellsLeft + latticeDimensions[dmin] - 1)
@@ -251,61 +235,13 @@ public class ConfigurationLattice extends Configuration {
         return myLat;
     }
 
-    private final SpaceLattice lattice;
-    private final IndexIteratorSizable indexIterator;
-    private final Vector work;
-    private boolean rescalingToFitVolume = true;
-    private final AtomActionTranslateTo atomActionTranslateTo;
-    private final AtomIteratorArrayListCompound atomIterator;
-    private MyLattice myLat;
+    protected final SpaceLattice lattice;
+    protected final IndexIteratorSizable indexIterator;
+    protected boolean rescalingToFitVolume = true;
+    protected final AtomActionTranslateTo atomActionTranslateTo;
+    protected MyLattice myLat;
     private int[][] indices = null;
-    private static final long serialVersionUID = 1L;
-
-    // /**
-    // * Sets the size of the lattice (number of atoms in each direction) so
-    // that
-    // * it has a number of sites equal or greater than the given value n. Sets
-    // * lattice to be square (same number in all directions), and finds
-    // smallest
-    // * size that gives number of sites equal or exceeding the given value.
-    // */
-    // public void setSize(int n) {
-    // if (n < 0 || n >= Integer.MAX_VALUE)
-    // throw new IllegalArgumentException(
-    // "Inappropriate size specified for lattice: " + n);
-    // int i = (int)Math.pow(n,1/D());
-    // while(i <= n) {
-    // if ((int)Math.pow(i,D()) >= n) break;
-    // i++;
-    // }
-    // setSize(primitive.space.makeArrayD(i));
-    // }
-    //
-    // /**
-    // * Performs same actions as setSize(int), then size of primitive vectors
-    // are
-    // * adjusted such that lattice will fit in the given dimensions. Assumes
-    // all
-    // * dimension values are equal (future development will address case of
-    // non-
-    // * square dimensions).
-    // */
-    // public void setSize(int n, double[] dimensions) {
-    // if (n < 0 || n >= Integer.MAX_VALUE)
-    // throw new IllegalArgumentException(
-    // "Inappropriate size specified for lattice: " + n);
-    // int i = (int)Math.pow(n,1/D());
-    // while(i <= n) {
-    // if ((int)Math.pow(i,D()) >= n) break;
-    // i++;
-    // }
-    // //size primitive vectors to given dimensions
-    // double[] newLength = new double[D()];
-    // for (int j = 0; j < D(); j++)
-    // newLength[j] = dimensions[j] / (double) i;
-    // primitive.setSize(newLength);
-    // setSize(primitive.space.makeArrayD(i));
-    // }
+    private static final long serialVersionUID = 2L;
 
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
@@ -363,7 +299,7 @@ public class ConfigurationLattice extends Configuration {
      */
     public static class MyLattice implements SpaceLattice {
 
-        MyLattice(SpaceLattice l, Vector latticeScaling, Vector offset) {
+        public MyLattice(SpaceLattice l, Vector latticeScaling, Vector offset) {
             lattice = l;
             this.latticeScaling = (Vector) latticeScaling.clone();
             this.offset = (Vector) offset.clone();

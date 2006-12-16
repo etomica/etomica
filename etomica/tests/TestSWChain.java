@@ -94,7 +94,8 @@ public class TestSWChain extends Simulation {
         phase.getAgent(species).setNMolecules(numMolecules);
 
         integrator.setPhase(phase);
-        new ConfigurationFile(space,"SWChain"+Integer.toString(numMolecules)).initializeCoordinates(phase);
+        ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));
+        config.initializeCoordinates(phase);
     }
     
     public static void main(String[] args) {

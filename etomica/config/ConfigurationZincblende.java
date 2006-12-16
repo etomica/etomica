@@ -2,6 +2,7 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.graphics.ColorSchemeByType;
@@ -10,6 +11,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
@@ -18,28 +20,27 @@ import etomica.space3d.Vector3D;
  * of two fcc lattices, with one shifted in each direction by one-quarter
  * of the lattice constant.
  */
-public class ConfigurationZincblende extends Configuration {
+public class ConfigurationZincblende extends ConfigurationLattice {
     
-    private static final long serialVersionUID = 1L;
-    private final ConfigurationLattice fcc;
-    private final AtomGroupAction translator;
+    private static final long serialVersionUID = 2L;
+    private AtomGroupAction translator0, translator1;
     private final AtomIteratorArrayListSimple iterator0, iterator1;
-    private final LatticeCubicFcc lattice;
     
-    public ConfigurationZincblende(Space space) {
-        super(space);
-        lattice = new LatticeCubicFcc();
-        fcc = new ConfigurationLattice(lattice);
-        translator = new AtomGroupAction(new AtomActionTranslateBy(space));
+    public ConfigurationZincblende(double latticeConstant) {
+        super(new LatticeCubicFcc(latticeConstant));
         iterator0 = new AtomIteratorArrayListSimple();
         iterator1 = new AtomIteratorArrayListSimple();
     }
+    
     
     /**
      * Initializes positions of atoms to the zincblende structure.  The given
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
-    public void initializePositions(AtomArrayList[] lists) {
+    public void initializeCoordinates(Phase phase) {
+        translator0 = new AtomGroupAction(new AtomActionTranslateBy(phase.space()));
+        translator1 = new AtomGroupAction(new AtomActionTranslateBy(phase.space()));
+        AtomArrayList[] lists = getMoleculeLists(phase); 
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }
@@ -47,55 +48,77 @@ public class ConfigurationZincblende extends Configuration {
             System.err.println("Warning: different numbers of molecules for two species in ConfigurationZincBlende");
         }
         
-        //create fcc lattice each species at same positions
-        fcc.initializePositions(new AtomArrayList[]{lists[0]});
-        fcc.initializePositions(new AtomArrayList[]{lists[1]});
-        
+        int nCells = (int) Math.ceil(lists[0].size() / 4.0);
+
+        // determine scaled shape of simulation volume
+        Vector shape = (Vector)phase.getBoundary().getDimensions().clone();
+        Vector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
+        shape.DE(latticeConstantV);
+
+        // determine number of cells in each direction
+        int[] latticeDimensions = calculateLatticeDimensions(nCells, shape);
+        if (indexIterator.getD() > latticeDimensions.length) {
+            int[] iteratorDimensions = new int[latticeDimensions.length+1];
+            System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0,
+                    latticeDimensions.length);
+            iteratorDimensions[latticeDimensions.length] = 4;
+            indexIterator.setSize(iteratorDimensions);
+        }
+        else {
+            indexIterator.setSize(latticeDimensions);
+        }
+
         //shift lattice in all three directions by one-quarter the lattice constant
         Vector3D shift = new Vector3D();
-        shift.E(0.125*lattice.getLatticeConstant());
-        
-        ((AtomActionTranslateBy)translator.getAction()).setTranslationVector(shift);
+        shift.Ea1Tv1(-0.5,phase.getBoundary().getDimensions());
+        shift.PE(0.125*((LatticeCubicFcc)lattice).getLatticeConstant());
+        ((AtomActionTranslateBy)translator0.getAction()).setTranslationVector(shift);
 
+        shift.PE(0.25*((LatticeCubicFcc)lattice).getLatticeConstant());
+        ((AtomActionTranslateBy)translator1.getAction()).setTranslationVector(shift);
+
+        // Place molecules
         iterator0.setList(lists[0]);
         iterator0.reset();
-        while(iterator0.hasNext()) {
-            translator.actionPerformed(iterator0.nextAtom());
-        }
-        shift.TE(-1.0);
-        ((AtomActionTranslateBy)translator.getAction()).setTranslationVector(shift);
-        
         iterator1.setList(lists[1]);
         iterator1.reset();
-        while(iterator1.hasNext()) {
-            translator.actionPerformed(iterator1.nextAtom());
+        indexIterator.reset();
+        while (indexIterator.hasNext()) {
+            int[] ii = indexIterator.next();
+            Vector site = (Vector) lattice.site(ii);
+            atomActionTranslateTo.setDestination(site);
+
+            Atom a0 = iterator0.nextAtom();
+            Atom a1 = iterator1.nextAtom();
+            atomActionTranslateTo.actionPerformed(a0);
+            atomActionTranslateTo.actionPerformed(a1);
+
+            translator0.actionPerformed(a0);
+            translator1.actionPerformed(a1);
         }
     }        
     
-    public void setDimensions(double[] dimensions) {
-        super.setDimensions(dimensions);
-        fcc.setDimensions(dimensions);
-    }
-
     /**
      * Displays configuration without setting up full simulation.
      */
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
         sim.getDefaults().atomSize = 5.0;
-        Space space = sim.getSpace();
         Phase phase = new Phase(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
         phase.getAgent(speciesSpheres0).setNMolecules(32);
         phase.getAgent(speciesSpheres1).setNMolecules(32);
-        new ConfigurationZincblende(space).initializeCoordinates(phase);
+        ConfigurationZincblende config = new ConfigurationZincblende(15);
+        config.initializeCoordinates(phase);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
-        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
+        DisplayPhase display = new DisplayPhase(phase);
+        simGraphic.add(display);
+        ColorSchemeByType colorScheme = (ColorSchemeByType)display.getColorScheme();
         colorScheme.setColor(speciesSpheres0.getMoleculeType(),new java.awt.Color(0,255,0));
         colorScheme.setColor(speciesSpheres1.getMoleculeType(), java.awt.Color.red);
         simGraphic.makeAndDisplayFrame();
-    }//end of main
+    }
     
-}//end of ConfigurationZincBlende
+}

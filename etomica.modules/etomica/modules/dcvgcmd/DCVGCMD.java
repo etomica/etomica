@@ -193,8 +193,7 @@ public class DCVGCMD extends Simulation {
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
         double length = 0.25;
-        config = new ConfigurationLatticeTube(
-                new LatticeCubicFcc(), length, speciesTube);
+        config = new ConfigurationLatticeTube(new LatticeCubicFcc(), length);
         config.initializeCoordinates(phase);
 
         //position of hole in porous-wall potential

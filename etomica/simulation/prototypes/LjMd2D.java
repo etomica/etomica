@@ -21,6 +21,7 @@ import etomica.util.Default;
  
 public class LjMd2D extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
     public Phase phase;
@@ -45,7 +46,7 @@ public class LjMd2D extends Simulation {
         species = new SpeciesSpheresMono(this);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(50);
-        new ConfigurationSequential(space).initializeCoordinates(phase);
+        new ConfigurationSequential().initializeCoordinates(phase);
         potential = new P2LennardJones(this);
         this.potentialMaster.addPotential(potential,new Species[]{species,species});
         

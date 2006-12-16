@@ -2,11 +2,10 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorArrayListCompound;
-import etomica.space.Space;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.phase.Phase;
 import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 
@@ -21,18 +20,15 @@ import etomica.space2d.Vector2D;
 
 public class ConfigurationSequential extends Configuration {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 	private boolean fill;
 	private boolean squareConfig;
-    private final AtomIteratorArrayListCompound atomIterator;
-    private final AtomActionTranslateTo atomActionTranslateTo;
+    private AtomActionTranslateTo atomActionTranslateTo;
 
-	public ConfigurationSequential(Space space) {
-		super(space);
+	public ConfigurationSequential() {
+		super();
 		setFillVertical(true);
 		setSquareConfig(false); // hexagonalLattice is Default!!
-        atomIterator = new AtomIteratorArrayListCompound();
-        atomActionTranslateTo = new AtomActionTranslateTo(space);
 	}
     
 	public void setFillVertical(boolean b) {fill = b;}
@@ -41,12 +37,13 @@ public class ConfigurationSequential extends Configuration {
 	public void setSquareConfig(boolean b){ squareConfig = b;}
 	public boolean getSquareConfig() {return squareConfig;}
     
-    public void initializePositions(AtomArrayList[] lists) {
-        atomIterator.setLists(lists);
+    public void initializeCoordinates(Phase phase) {
+        atomActionTranslateTo = new AtomActionTranslateTo(phase.space());
+        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(phase);
 
-        double Lx = dimensions[0];
+        double Lx = phase.getBoundary().getDimensions().x(0);
         double Ly = 0.0;
-        if(dimensions.length>1)  Ly = dimensions[1];
+        if(phase.space().D()>1)  Ly = phase.getBoundary().getDimensions().x(1);
 
         int sumOfMolecules = atomIterator.size();
          
@@ -55,7 +52,7 @@ public class ConfigurationSequential extends Configuration {
         
         Vector[] rLat;
         
-        switch(space.D()) {
+        switch(phase.space().D()) {
             case 1:
                 rLat = lineLattice(sumOfMolecules, Lx);
                 break;
@@ -73,9 +70,9 @@ public class ConfigurationSequential extends Configuration {
         }
         
    // Place molecules     
-        Vector dimensionsHalf = space.makeVector();
-        for (int j=0; j<space.D(); j++) {
-            dimensionsHalf.setX(j,dimensions[j]*0.5);
+        Vector dimensionsHalf = phase.space().makeVector();
+        for (int j=0; j<phase.space().D(); j++) {
+            dimensionsHalf.setX(j,phase.getBoundary().getDimensions().x(j)*0.5);
         }
         int i = 0;
         atomIterator.reset();

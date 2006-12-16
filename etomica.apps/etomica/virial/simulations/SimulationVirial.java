@@ -85,8 +85,7 @@ public class SimulationVirial extends Simulation {
 		P0Cluster p0 = new P0Cluster(space);
 		potentialMaster.addPotential(p0,new Species[]{});
 		
-        ConfigurationCluster configuration = new ConfigurationCluster(space);
-        configuration.setPhase(phase);
+        ConfigurationCluster configuration = new ConfigurationCluster();
         configuration.initializeCoordinates(phase);
 
         allValueClusters = new ClusterAbstract[targetClusters.length+1];

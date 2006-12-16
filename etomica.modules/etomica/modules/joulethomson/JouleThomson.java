@@ -432,7 +432,7 @@ public class JouleThomson extends SimulationGraphic {
                 sim.phase.getBoundary().setDimensions(v);
                 Configuration config;
                 if (sim.phase.space().D() == 2) {
-                    config = new ConfigurationSequential(sim.phase.space());
+                    config = new ConfigurationSequential();
                 }
                 else {
                     config = new ConfigurationLattice(new LatticeCubicFcc());

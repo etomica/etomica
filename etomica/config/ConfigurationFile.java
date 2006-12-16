@@ -5,11 +5,9 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorArrayListCompound;
-import etomica.atom.iterator.AtomIteratorTree;
-import etomica.space.Space;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.phase.Phase;
 import etomica.space.Vector;
 
 /**
@@ -17,15 +15,12 @@ import etomica.space.Vector;
  */
 public class ConfigurationFile extends Configuration {
 
-    public ConfigurationFile(Space space, String aConfName) {
-        super(space);
+    public ConfigurationFile(String aConfName) {
         confName = aConfName;
-        newPos = space.makeVector();
-        atomIterator = new AtomIteratorArrayListCompound();
     }
     
-    public void initializePositions(AtomArrayList[] atomLists) {
-        if (atomLists.length == 0) return;
+    public void initializeCoordinates(Phase phase) {
+        AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms(phase);
         String fileName = confName+".pos";
         FileReader fileReader;
         try {
@@ -35,21 +30,10 @@ public class ConfigurationFile extends Configuration {
         }
         try {
             BufferedReader bufReader = new BufferedReader(fileReader);
-            atomIterator.setLists(atomLists);
-            AtomIteratorTree leafIterator = new AtomIteratorTree();
             atomIterator.reset();
             while (atomIterator.hasNext()) {
-                Atom molecule = atomIterator.nextAtom();
-                if (molecule.getNode().isLeaf()) {
-                    setPosition((AtomLeaf)molecule,bufReader.readLine());
-                }
-                else {
-                    leafIterator.setRoot(molecule);
-                    leafIterator.reset();
-                    while (leafIterator.hasNext()) {
-                        setPosition((AtomLeaf)leafIterator.nextAtom(),bufReader.readLine());
-                    }
-                }
+                Atom atom = atomIterator.nextAtom();
+                setPosition((AtomLeaf)atom,bufReader.readLine());
             }
             fileReader.close();
         } catch(IOException e) {
@@ -59,16 +43,12 @@ public class ConfigurationFile extends Configuration {
         
     private void setPosition(AtomLeaf atom, String string) {
         String[] coordStr = string.split(" +");
-        double[] coord = new double[coordStr.length];
-        for (int i=0; i<coord.length; i++) {
-            coord[i] = Double.valueOf(coordStr[i]).doubleValue();
+        Vector pos = atom.getCoord().position();
+        for (int i=0; i<pos.D(); i++) {
+            pos.setX(i, Double.valueOf(coordStr[i]).doubleValue());
         }
-        newPos.E(coord);
-        atom.getCoord().position().E(newPos);
     }
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private String confName;
-    private Vector newPos;
-    private final AtomIteratorArrayListCompound atomIterator;
 }

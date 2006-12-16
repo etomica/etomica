@@ -1,18 +1,13 @@
 package etomica.tests;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
-import etomica.nbr.CriterionSimple;
-import etomica.nbr.CriterionSpecies;
-import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
-import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -65,7 +60,8 @@ public class TestHSMD3D extends Simulation {
         phase.getAgent(species).setNMolecules(numAtoms);
         phase.getAgent(species2).setNMolecules(numAtoms/100);
         integrator.setPhase(phase);
-        new ConfigurationFile(space,"HSMD3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
+        ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
+        config.initializeCoordinates(phase);
         
 //        WriteConfiguration writeConfig = new WriteConfiguration("foo",phase,1);
 //        integrator.addIntervalListener(writeConfig);

@@ -55,7 +55,7 @@ public class PistonCylinder extends Simulation {
         Vector newDim;
         Configuration config;
         if (space.D() == 2) {
-            config = new ConfigurationSequential(space);
+            config = new ConfigurationSequential();
             newDim = new Vector2D(80,150);
         }
         else {

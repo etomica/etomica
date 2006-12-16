@@ -19,6 +19,7 @@ import etomica.species.SpeciesSpheresMono;
  
 public class SwMd2D extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
     public Phase phase;
@@ -44,7 +45,7 @@ public class SwMd2D extends Simulation {
         species = new SpeciesSpheresMono(this);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(50);
-        new ConfigurationSequential(space).initializeCoordinates(phase);
+        new ConfigurationSequential().initializeCoordinates(phase);
         potential = new P2SquareWell(this);
         this.potentialMaster.addPotential(potential,new Species[]{species,species});
         

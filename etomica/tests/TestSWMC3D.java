@@ -58,7 +58,8 @@ public class TestSWMC3D extends Simulation {
         ((PotentialMasterCell)potentialMaster).setRange(potential.getRange());
         potentialMaster.addPotential(potential, new Species[] {species, species});
         
-        new ConfigurationFile(space,"SWMC3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
+        ConfigurationFile config = new ConfigurationFile("SWMC3D"+Integer.toString(numAtoms));
+        config.initializeCoordinates(phase);
         integrator.setPhase(phase);
         ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
 //        WriteConfiguration writeConfig = new WriteConfiguration("SWMC3D"+Integer.toString(numAtoms),phase,1);

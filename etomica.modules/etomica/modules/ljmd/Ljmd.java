@@ -54,7 +54,7 @@ public class Ljmd extends Simulation {
         //construct phase
 	    phase = new Phase(this);
         phase.getAgent(species).setNMolecules(N);
-        new ConfigurationSequential(space).initializeCoordinates(phase);
+        new ConfigurationSequential().initializeCoordinates(phase);
         integrator.setPhase(phase);
 		
         PhaseImposePbc imposePBC = new PhaseImposePbc(phase);

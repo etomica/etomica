@@ -12,7 +12,6 @@ import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Debug;
 
 /**
  * Simple hard-sphere Monte Carlo simulation in 2D.
@@ -22,6 +21,7 @@ import etomica.util.Debug;
  
 public class HsMc2d extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species, species2;
@@ -41,7 +41,7 @@ public class HsMc2d extends Simulation {
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(20);
         phase.getAgent(species2).setNMolecules(20);
-        new ConfigurationSequential(space).initializeCoordinates(phase);
+        new ConfigurationSequential().initializeCoordinates(phase);
 	    potential = new P2HardSphere(this);
         potentialMaster.addPotential(potential, new Species[] {species, species});
         potentialMaster.addPotential(potential, new Species[] {species, species2});

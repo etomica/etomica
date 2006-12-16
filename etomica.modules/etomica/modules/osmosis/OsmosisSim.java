@@ -87,7 +87,7 @@ public class OsmosisSim extends Simulation {
         phase.getBoundary().setDimensions(new Vector2D(30.0, 30.0));
         phase.getAgent(speciesA).setNMolecules(30);
         phase.getAgent(speciesB).setNMolecules(10);
-        ConfigurationSequential config = new ConfigurationSequential(space);
+        ConfigurationSequential config = new ConfigurationSequential();
         config.setSquareConfig(true);
         config.initializeCoordinates(phase);
 

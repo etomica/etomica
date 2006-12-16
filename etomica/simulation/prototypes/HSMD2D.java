@@ -1,11 +1,7 @@
 package etomica.simulation.prototypes;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
 import etomica.config.ConfigurationSequential;
 import etomica.integrator.IntegratorHard;
-import etomica.nbr.CriterionSimple;
-import etomica.nbr.CriterionSpecies;
-import etomica.nbr.NeighborCriterion;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -25,6 +21,7 @@ import etomica.util.Default;
  
 public class HSMD2D extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species, species2;
     public Phase phase;
@@ -77,7 +74,7 @@ public class HSMD2D extends Simulation {
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(512);
         phase.getAgent(species2).setNMolecules(5);
-        new ConfigurationSequential(space).initializeCoordinates(phase);
+        new ConfigurationSequential().initializeCoordinates(phase);
         integrator.setPhase(phase);
     }
     

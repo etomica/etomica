@@ -23,11 +23,10 @@ import etomica.species.SpeciesSpheresRotating;
 /**
  * Simple Gibbs-ensemble Monte Carlo simulation of rotating molecules.
  */
-
 //in present form uses just a LJ potential, so orientation is irrelevant
-
 public class GEMCWithRotation extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public GEMCWithRotation() {
         this(Space2D.getInstance());
     }
@@ -70,7 +69,7 @@ public class GEMCWithRotation extends Simulation {
         
         Configuration config;
         if (space.D() == 2) {
-            config = new ConfigurationSequential(space);
+            config = new ConfigurationSequential();
         }
         else {
             config = new ConfigurationLattice(new LatticeCubicFcc());

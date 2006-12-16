@@ -33,6 +33,7 @@ import etomica.species.SpeciesSpheresMono;
  
 public class HSMD2D_noNbr extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public ActivityIntegrate activityIntegrate;
     public AccumulatorAverage pressureAverage;
     public AccumulatorHistory pressureHistory;
@@ -56,7 +57,7 @@ public class HSMD2D_noNbr extends Simulation {
         species = new SpeciesSpheresMono(this);
 	    phase = new Phase(this);
         phase.getAgent(species).setNMolecules(64);
-        new ConfigurationSequential(space).initializeCoordinates(phase);
+        new ConfigurationSequential().initializeCoordinates(phase);
 	    P2HardSphere potential = new P2HardSphere(this);
 	    potentialMaster.addPotential(potential,new Species[]{species,species});
         P1HardBoundary potentialBoundary = new P1HardBoundary(this);

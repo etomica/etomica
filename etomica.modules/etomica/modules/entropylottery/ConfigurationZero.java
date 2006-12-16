@@ -1,10 +1,9 @@
 package etomica.modules.entropylottery;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.AtomArrayList;
-import etomica.atom.iterator.AtomIteratorArrayListCompound;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
-import etomica.space.Space;
+import etomica.phase.Phase;
 import etomica.space.Vector;
 
 /**
@@ -15,26 +14,26 @@ import etomica.space.Vector;
 public class ConfigurationZero extends Configuration {
 
 
-    public ConfigurationZero(Space space) {
-        super(space);
+    public ConfigurationZero() {
+        super();
     }
 
-    protected void initializePositions(AtomArrayList[] atomList) {
-        AtomActionTranslateTo atomActionTranslateTo = new AtomActionTranslateTo(space);
-        Vector work = space.makeVector();
+    public void initializeCoordinates(Phase phase) {
+        AtomActionTranslateTo atomActionTranslateTo = new AtomActionTranslateTo(phase.space());
+        Vector work = phase.space().makeVector();
         work.E(0.0);
-        int intD = (int)Math.round(dimensions[0]);
+        int intD = (int)Math.round(phase.getBoundary().getDimensions().x(0));
         if (intD % 2 == 0) {
             work.E(-0.5);
         }
         atomActionTranslateTo.setDestination(work);
 
-        AtomIteratorArrayListCompound iterator = new AtomIteratorArrayListCompound(atomList);
+        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
         iterator.reset();
         while (iterator.hasNext()) {
            atomActionTranslateTo.actionPerformed(iterator.nextAtom());
         }
     }
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 }

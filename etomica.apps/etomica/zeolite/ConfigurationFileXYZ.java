@@ -1,25 +1,21 @@
 package etomica.zeolite;
 
-import etomica.config.Configuration;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorArrayListCompound;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.config.Configuration;
+import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space.Vector;
 
 public class ConfigurationFileXYZ extends Configuration{
 
-		public ConfigurationFileXYZ(Space space, String aConfName){
-			super(space);
+		public ConfigurationFileXYZ(String aConfName){
+			super();
 			confName = aConfName;
-	        newPos = space.makeVector();
-	        atomIterator = new AtomIteratorArrayListCompound();
 	        min = new double[3];
 	        max = new double[3];
 	        dim = new double[3];
@@ -31,8 +27,7 @@ public class ConfigurationFileXYZ extends Configuration{
 	                        
 		}
 		
-		public void initializePositions(AtomArrayList[] atomLists) {
-	        if (atomLists.length == 0) return;
+		public void initializeCoordinates(Phase phase) {
 	        String fileName = confName+".xyz";
 	        FileReader fileReader;
 	        try {
@@ -40,25 +35,15 @@ public class ConfigurationFileXYZ extends Configuration{
 	        }catch(IOException e) {
 	            throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage());
 	        }
+            AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms(phase);
 	        try {
 	            BufferedReader bufReader = new BufferedReader(fileReader);
-	            atomIterator.setLists(atomLists);
-	            AtomIteratorTree leafIterator = new AtomIteratorTree();
 	            atomIterator.reset();
 	            //Skips the first line, which contains numAtoms
 	            bufReader.readLine();
 	            while (atomIterator.hasNext()) {
-	                Atom molecule = atomIterator.nextAtom();
-	                if (molecule.getNode().isLeaf()) {
-	                    setPosition((AtomLeaf)molecule,bufReader.readLine());
-	                }
-	                else {
-	                    leafIterator.setRoot(molecule);
-	                    leafIterator.reset();
-	                    while (leafIterator.hasNext()) {
-	                        setPosition((AtomLeaf)leafIterator.nextAtom(),bufReader.readLine());
-	                    }
-	                }
+	                AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
+	                setPosition(atom,bufReader.readLine());
 	            }
 	            fileReader.close();
 	        } catch(IOException e) {
@@ -67,24 +52,21 @@ public class ConfigurationFileXYZ extends Configuration{
 	        atomIterator.reset();
 	        
 	        while(atomIterator.hasNext()){
-	        	Atom molecule = atomIterator.nextAtom();
-	        	if(molecule.getNode().isLeaf()){
-	        		translatePosition((AtomLeaf)molecule);
-	        	}	
+	        	AtomLeaf molecule = (AtomLeaf)atomIterator.nextAtom();
+	        	translatePosition(molecule);
 	        }
 	        
 		}
 		
 		private void setPosition(AtomLeaf atom, String string) {
 	        String[] coordStr = string.split(" +");
-	        double[] coord = new double[coordStr.length];
-	        for (int i=0; i<coord.length; i++) {
-	            coord[i] = Double.valueOf(coordStr[i]).doubleValue();
-	            if(coord[i]<min[i]) min[i] = coord[i];
-	            if(coord[i]>max[i]) max[i] = coord[i];
+            Vector pos = atom.getCoord().position();
+	        for (int i=0; i<pos.D(); i++) {
+	            double coord = Double.valueOf(coordStr[i]).doubleValue();
+	            if(coord<min[i]) min[i] = coord;
+	            if(coord>max[i]) max[i] = coord;
+                pos.setX(i, coord);
 	        }
-	        newPos.E(coord);
-	        atom.getCoord().position().E(newPos);
 	        for(int i=0;i<3;i++){
 	        	dim[i] = max[i]-min[i];
 	        }
@@ -121,8 +103,7 @@ public class ConfigurationFileXYZ extends Configuration{
 		}
 		
 		public Vector getUpdatedDimensions(){
-			updatedDimensions = space.makeVector();
-			updatedDimensions.E(dim);
+			updatedDimensions = Space.makeVector(dim);
 			
 			updatedDimensions.TE(0,1.01);
 			updatedDimensions.TE(1,1.01);
@@ -130,14 +111,12 @@ public class ConfigurationFileXYZ extends Configuration{
 			return updatedDimensions;
 		}
 		
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 2L;
 		private Vector updatedDimensions;
 		private double[] min;
 		private double[] max;
 		private double[] dim;
 		private int[] nAtomsList;
 		private String confName;
-	    private Vector newPos;
-	    private final AtomIteratorArrayListCompound atomIterator;
 
 }

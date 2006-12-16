@@ -2,13 +2,12 @@ package etomica.virial;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorArrayListCompound;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
-import etomica.space.Space;
+import etomica.phase.Phase;
 import etomica.space.Vector;
 
 /**
@@ -22,20 +21,19 @@ public class ConfigurationCluster extends Configuration {
 	/**
 	 * Constructor for ConfigurationCluster.
 	 */
-	public ConfigurationCluster(Space space) {
-		super(space);
-        iterator = new AtomIteratorArrayListCompound();
+	public ConfigurationCluster() {
+		super();
 	}
 
 	/**
 	 * @see etomica.config.Configuration#initializePositions(etomica.AtomIterator)
 	 */
     //XXX this can't actually handle multi-atom molecules
-	public void initializePositions(AtomArrayList[] lists) {
+	public void initializeCoordinates(Phase phase) {
 		Vector translationVector = phase.space().makeVector();
-        Vector dimVector = Space.makeVector(dimensions);
+        Vector dimVector = (Vector)phase.getBoundary().getDimensions().clone();
 		Vector center = phase.space().makeVector();
-		iterator.setLists(lists);
+        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
 		iterator.reset();
         while (iterator.hasNext()) {
             Atom a = iterator.nextAtom();
@@ -47,7 +45,7 @@ public class ConfigurationCluster extends Configuration {
         }
         iterator.reset();
 
-        AtomActionTranslateTo translator = new AtomActionTranslateTo(space);
+        AtomActionTranslateTo translator = new AtomActionTranslateTo(phase.space());
         translator.setDestination(center);
         translator.setAtomPositionDefinition(new AtomPositionFirstAtom());
         translator.actionPerformed(iterator.nextAtom());
@@ -57,8 +55,9 @@ public class ConfigurationCluster extends Configuration {
 		while(iterator.hasNext()) { 
             translator.actionPerformed(iterator.nextAtom()); //.coord.position().E(center);//put all at center of box
         }
-        phase.trialNotify();
-		double value = phase.getSampleCluster().value(phase.getCPairSet(), phase.getAPairSet());
+        PhaseCluster phaseCluster = (PhaseCluster)phase;
+        phaseCluster.trialNotify();
+		double value = phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet());
         if (value == 0) {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");
         }
@@ -74,33 +73,15 @@ public class ConfigurationCluster extends Configuration {
                 translator.setDestination(translationVector);
                 translator.actionPerformed(a);
 			}
-            phase.trialNotify();
-			value = phase.getSampleCluster().value(phase.getCPairSet(),phase.getAPairSet());
+            phaseCluster.trialNotify();
+			value = phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(),phaseCluster.getAPairSet());
             System.out.println("value "+value);
             if (value != 0) {
                 System.out.println("that wasn't so bad.");
-                phase.acceptNotify();
+                phaseCluster.acceptNotify();
             }
 		}
 	}
 
-	/**
-	 * Returns the phase.
-	 * @return Phase
-	 */
-	public PhaseCluster getPhase() {
-		return phase;
-	}
-
-    /**
-	 * Sets the phase.
-	 * @param phase The phase to set
-	 */
-	public void setPhase(PhaseCluster phase) {
-		this.phase = phase;
-	}
-
-    private static final long serialVersionUID = 1L;
-    private PhaseCluster phase;
-    private final AtomIteratorArrayListCompound iterator;
+    private static final long serialVersionUID = 2L;
 }

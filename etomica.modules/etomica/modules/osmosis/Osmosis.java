@@ -70,7 +70,7 @@ public class Osmosis {
 
         Unit tUnit = Kelvin.UNIT;
 
-        ConfigurationSequential config = new ConfigurationSequential(sim.getSpace());
+        ConfigurationSequential config = new ConfigurationSequential();
         config.setSquareConfig(true);
 
         DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim);
