@@ -109,8 +109,9 @@ public class SWMD3D extends Simulation {
 	phase.setDensity(0.0405);
     ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
     configuration.initializeCoordinates(phase);
-  } //end of constructor
+  }
 
+  private static final long serialVersionUID = 1L;
   public IntegratorHard integrator;
   public SpeciesSpheresMono species;
   public Phase phase;
@@ -127,6 +128,7 @@ public class SWMD3D extends Simulation {
 	  public java.awt.Color getAtomColor(AtomLeaf a) {
 		  return (a == atom) ? java.awt.Color.red : java.awt.Color.yellow;
 	  }
+      private static final long serialVersionUID = 1L;
       private AtomLeaf atom;
   }
 

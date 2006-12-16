@@ -899,7 +899,7 @@ public class MyEigenvalueDecomposition implements java.io.Serializable {
         }
         
         if (issymmetric) {
-            System.out.println("Symmetric");
+//            System.out.println("Symmetric");
             for (int i = 0; i < n; i++) {
                for (int j = 0; j < n; j++) {
                   V[i][j] = input[i][j];

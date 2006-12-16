@@ -1,12 +1,7 @@
-/*
- * History
- * Created on Nov 23, 2004 by kofke
- */
 package etomica.nbr.cell;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomList;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.lattice.SiteFactory;
@@ -15,8 +10,6 @@ import etomica.lattice.SiteFactory;
  * Site used to form array of cells for cell-based neighbor listing.  Each
  * cell is capable of holding lists of atoms that are in them.
  */
-
-
 public class Cell implements java.io.Serializable {
 
     public Cell(int latticeArrayIndex) {
