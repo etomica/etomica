@@ -4,8 +4,6 @@ import etomica.species.Species;
 import etomica.util.Debug;
 import etomica.util.Default;
 
-//import etomica.electrostatics.*;
-
 /**
  * AtomType holds fields that are common to many atoms. It serves many
  * functions:
@@ -103,7 +101,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
             index = parentType.requestIndex();
             parentType.addChildType(this);
         }
-    }        
+    }
 
     public void setChildIndex(int newChildIndex) {
         setChildIndex((parentType != null) ? parentType.getAddress() : 0, newChildIndex);
