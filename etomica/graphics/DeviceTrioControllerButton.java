@@ -84,9 +84,9 @@ public class DeviceTrioControllerButton extends Device {
             public void actionPerformed() {
                 if (c.isActive()) {
                     c.halt();
-                    c.reset();
                     DeviceTrioControllerButton.this.reset();
                 }
+                c.reset();
             }
             public String getLabel() {
                 return "";
