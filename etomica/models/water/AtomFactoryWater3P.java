@@ -33,6 +33,8 @@ public class AtomFactoryWater3P extends AtomFactory {
 
         AtomTypeSphere hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
         AtomTypeSphere oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
+        hType.setParentType((AtomTypeGroup)atomType);
+        oType.setParentType((AtomTypeGroup)atomType);
         CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
         hFactory = new AtomFactoryMono(leafCoordFactory, hType);
 		oFactory = new AtomFactoryMono(leafCoordFactory, oType);
