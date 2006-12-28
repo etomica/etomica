@@ -105,6 +105,10 @@ public class ParameterSetMEAM {
 	//used parameters from Cu-Sn paper (Aguilar, Ravelo, & Baskes 2000)
 	public static final ParameterSetMEAM Cu = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(3.62), 1.07, 2.50, 
 			5.106, 3.62, 2.2, 6.0, 2.2, 3.14, 2.49, 2.95, 1.0, 12.0, 2.0, 2.8);
+	//used paramters from Ni paper (Baskes 1997)
+	public static final ParameterSetMEAM Ni = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(4.45), 1.10, 2.49,
+			4.99, 2.45, 1.5, 6.0, 1.5, 3.57, 1.60, 3.7, 1.0, 12.0, 2.0, 2.8);
+	
 	public static final ParameterSetMEAM Ag3Sn = new ParameterSetMEAM(ElectronVolt.UNIT.toSim(2.83), Double.NaN, 2.96,
 			6.07, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 
 			Double.NaN, Double.NaN, Double.NaN);
