@@ -113,7 +113,7 @@ public class MSDProcessor {
     
         /*
          * Each row of totalRsquared initially contains the summation of all
-         * the atoms position differences for a specific deltaT (i.e. row 
+         * the atoms position differences for a specific deltaT (e.g. row 
          * three is the difference of block1 and block4, plus the difference 
          * of block2 and block5, etc.)
          * 
