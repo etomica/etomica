@@ -9,9 +9,6 @@ import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.Atom;
-import etomica.atom.AtomFilter;
-import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.integrator.Integrator;
@@ -19,11 +16,9 @@ import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.math.geometry.Plane;
-import etomica.math.geometry.Polyhedron;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -38,7 +33,7 @@ import etomica.space3d.Vector3D;
   * 10/21/02 (DAK) added static method to set EtomicaTheme
   * 09/02/03 (DAK) setting Default.DO_SLEEP in constructor
   */
-public class SimulationGraphic implements SimulationContainer, java.io.Serializable {
+public class SimulationGraphic implements SimulationContainer {
     
     static {
         try {
@@ -186,7 +181,7 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
         f.setSize(700,500);
         f.getContentPane().add(panel);
         f.pack();
-        f.show();
+        f.setVisible(true);
         f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
         return f;
     }
@@ -269,25 +264,6 @@ public class SimulationGraphic implements SimulationContainer, java.io.Serializa
         simGraphic.panel().setBackground(java.awt.Color.yellow);
         Plane plane = new Plane();
         plane.setThreePoints(new Vector3D(1,1,1), new Vector3D(2,2,2), new Vector3D(4,5,1));
-        
-    }//end of main
-    
-    private static class MyFilter implements AtomFilter, java.io.Serializable {
-        Polyhedron polyhedron;
-        AtomPositionDefinition positionDefinition;
-        public MyFilter(Polyhedron shape) {
-            this.polyhedron = shape;
-        }
-        public void setPositionDefinition(AtomPositionDefinition def) {
-            positionDefinition = def;
-        }
-        public boolean accept(Atom atom) {
-            Vector r = positionDefinition.position(atom);
-            if(!polyhedron.contains(r)) return false;
-            if(polyhedron.distanceTo(r) < 0.5) return false;
-            return true;
-            
-        }
         
     }
 }
