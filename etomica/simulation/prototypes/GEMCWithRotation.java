@@ -2,15 +2,15 @@ package etomica.simulation.prototypes;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSphere;
-import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.config.ConfigurationSequential;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
@@ -67,13 +67,14 @@ public class GEMCWithRotation extends Simulation {
         // it has 2 integrators
         integrator.addIntegrator(integratorMC);
         
-        Configuration config;
+        SpaceLattice lattice;
         if (space.D() == 2) {
-            config = new ConfigurationSequential();
+            lattice = new LatticeOrthorhombicHexagonal();
         }
         else {
-            config = new ConfigurationLattice(new LatticeCubicFcc());
+            lattice = new LatticeCubicFcc();
         }
+        ConfigurationLattice config = new ConfigurationLattice(lattice);
         config.initializeCoordinates(phase1);
         config.initializeCoordinates(phase2);
             

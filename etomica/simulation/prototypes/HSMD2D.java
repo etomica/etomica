@@ -1,7 +1,8 @@
 package etomica.simulation.prototypes;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.config.ConfigurationSequential;
+import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -74,7 +75,7 @@ public class HSMD2D extends Simulation {
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(512);
         phase.getAgent(species2).setNMolecules(5);
-        new ConfigurationSequential().initializeCoordinates(phase);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         integrator.setPhase(phase);
     }
     
