@@ -1,11 +1,12 @@
 package etomica.simulation.prototypes;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.config.ConfigurationSequential;
+import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
@@ -46,7 +47,7 @@ public class LjMd2D extends Simulation {
         species = new SpeciesSpheresMono(this);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(50);
-        new ConfigurationSequential().initializeCoordinates(phase);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         potential = new P2LennardJones(this);
         this.potentialMaster.addPotential(potential,new Species[]{species,species});
         

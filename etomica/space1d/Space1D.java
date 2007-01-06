@@ -1,7 +1,5 @@
 package etomica.space1d;
 
-import java.io.ObjectStreamException;
-
 import etomica.EtomicaInfo;
 import etomica.space.NearestImageTransformer;
 import etomica.space.RotationTensor;
@@ -111,7 +109,7 @@ public final class Space1D extends Space {
      * 
      * @return the singleton INSTANCE
      */
-    private Object readResolve() throws ObjectStreamException {
+    private Object readResolve() {
         return INSTANCE;
     }
     
