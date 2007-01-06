@@ -109,7 +109,13 @@ public abstract class Primitive implements java.io.Serializable {
 
     protected void update() {
         for (int i=0; i<D; i++) {
-            if (size[i] == 0 || angle[i] == 0) {
+            if (size[i] == 0) {
+                // we haven't been fully set up yet
+                return;
+            }
+        }
+        for (int i=0; i<angle.length; i++) {
+            if (angle[i] == 0) {
                 // we haven't been fully set up yet
                 return;
             }
