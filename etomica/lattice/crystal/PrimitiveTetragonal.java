@@ -10,6 +10,7 @@ import etomica.space.Vector;
  */
 public class PrimitiveTetragonal extends Primitive {
     
+    private static final long serialVersionUID = 1L;
     private double ab = 1.0;
     
     public PrimitiveTetragonal(Space space) {
@@ -59,27 +60,6 @@ public class PrimitiveTetragonal extends Primitive {
     }
     public double getC() {return size[2];}
     
-    public void setSize(double[] newSize) {
-        if (newSize[0] != newSize[1]) {
-            throw new RuntimeException("new size must be tetragonal (sizeX = sizeY)");
-        }
-        if (ab == newSize[0] && size[2] == newSize[2]) {
-            // no change
-            return;
-        }
-        super.setSize(newSize);
-        ab = newSize[0];
-    }
-
-    public void setAngles(double[] newAngle) {
-        for (int i=0; i<D; i++) {
-            if (newAngle[i] != rightAngle) {
-                throw new IllegalArgumentException("PrimitiveTetragonal angles must be right angles");
-            }
-        }
-        super.setAngles(newAngle);
-    }
-
     protected void update() {
         super.update();
         latticeVectors[0].setX(0, size[0]);
@@ -96,6 +76,7 @@ public class PrimitiveTetragonal extends Primitive {
     
     public void scaleSize(double scale) {
         setSize(new double[]{ab*scale, ab*scale, size[2]*scale});
+        ab = ab * scale;
     }
 
     public int[] latticeIndex(Vector q) {

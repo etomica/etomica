@@ -12,9 +12,7 @@ import etomica.space.Vector;
  */
 public class PrimitiveCubic extends Primitive {
     
-    //primitive vectors are stored internally at unit length.  When requested
-    //from the vectors() method, copies are scaled to size and returned.
-    //default size is 1.0
+    private static final long serialVersionUID = 1L;
     private double cubicSize;
     
     public PrimitiveCubic(Space space) {
@@ -65,35 +63,12 @@ public class PrimitiveCubic extends Primitive {
             sizeArray[i] = newCubicSize;
         }
         setSize(sizeArray);
-    }
-    
-    public void setSize(double[] newSize) {
-        for (int i=1; i<D; i++) {
-            if (newSize[0] != newSize[i]) {
-                throw new RuntimeException("new size must be cubic");
-            }
-        }
-        if (cubicSize == newSize[0]) {
-            // no change
-            return;
-        }
-        super.setSize(newSize);
-        // set cubicSize after super.setSize just in case it throws
-        cubicSize = newSize[0];
+        cubicSize = newCubicSize;
     }
     
     protected void update() {
         super.update();
         for(int i=0; i<D; i++) latticeVectors[i].setX(i, size[0]);
-    }
-    
-    public void setAngles(double[] newAngle) {
-        for (int i=0; i<D; i++) {
-            if (newAngle[i] != rightAngle) {
-                throw new IllegalArgumentException("PrimitiveCubic angles must be right angles");
-            }
-        }
-        super.setAngles(newAngle);
     }
     
     /**

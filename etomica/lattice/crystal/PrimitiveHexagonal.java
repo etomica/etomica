@@ -62,18 +62,6 @@ public class PrimitiveHexagonal extends Primitive {
     }
     public double getC() {return size[2];}
     
-    public void setSize(double[] newSize) {
-        if (newSize[0] != newSize[1]) {
-            throw new RuntimeException("new size must be hexagonal (sizeX = sizeY)");
-        }
-        if (ab == newSize[0] && size[2] == newSize[2]) {
-            // no change
-            return;
-        }
-        super.setSize(newSize);
-        ab = newSize[0];
-    }
-    
     protected void update() {
         super.update();
         latticeVectors[0].setX(0,size[0]);
@@ -82,18 +70,6 @@ public class PrimitiveHexagonal extends Primitive {
         latticeVectors[2].setX(2,size[2]);
     }
     
-    public void setAngles(double[] newAngle) {
-        for (int i=0; i<2; i++) {
-            if (newAngle[i] != rightAngle) {
-                throw new IllegalArgumentException("PrimitiveHexagonal angles alpha and beta must be right angles");
-            }
-        }
-        if (newAngle[2] != gamma) {
-            throw new IllegalArgumentException("PrimitiveHexagonal angle gamma must be "+gamma);
-        }
-        super.setAngles(newAngle);
-    }
-
     /**
      * Returns a new PrimitiveHexagonal with the same size as this one.
      */
@@ -103,6 +79,7 @@ public class PrimitiveHexagonal extends Primitive {
     
     public void scaleSize(double scale) {
         setSize(new double[]{scale*ab, scale*ab, scale*size[2]});
+        ab = ab * scale;
     }
 
     public int[] latticeIndex(Vector q) {

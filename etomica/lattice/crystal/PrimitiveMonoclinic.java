@@ -10,6 +10,8 @@ import etomica.space.Vector;
  */
 public class PrimitiveMonoclinic extends Primitive {
     
+    private static final long serialVersionUID = 1L;
+
     public PrimitiveMonoclinic(Space space) {
         this(space, 1.0, 1.0, 1.0, rightAngle);
     }
@@ -60,14 +62,6 @@ public class PrimitiveMonoclinic extends Primitive {
     }
     public double getC() {return size[2];}
 
-    public void setSize(double[] newSize) {
-        if (size[0] == newSize[0] && size[1] == newSize[1] && size[2] == newSize[2]) {
-            // no change
-            return;
-        }
-        super.setSize(newSize);
-    }
-    
     //direct lattice (ix = 0, iz = 2)
     // v[0] = (1,0,0); v[1] = (0,1,0); v[2] = (c,0,s)  (times a, b, c)
      
@@ -82,6 +76,9 @@ public class PrimitiveMonoclinic extends Primitive {
     }
     
     public void setBeta(double t) {
+        if (t < rightAngle || t > Math.PI) {
+            throw new IllegalArgumentException("Beta must be between PI/2 and PI");
+        }
         setAngles(new double[]{rightAngle, t, rightAngle});
     }
     
@@ -89,16 +86,6 @@ public class PrimitiveMonoclinic extends Primitive {
         return angle[1];
     }
 
-    public void setAngles(double[] newAngles) {
-        if (newAngles[0] != rightAngle || newAngles[2] != rightAngle) {
-            throw new RuntimeException("alpha and gamma must be right angles");
-        }
-        if (newAngles[1] < rightAngle || newAngles[1] > Math.PI) {
-            throw new IllegalArgumentException("Beta must be between PI/2 and PI");
-        }
-        super.setAngles(newAngles);
-    }
-    
     /**
      * Returns a new, identical instance of this primitive.
      */
@@ -139,6 +126,8 @@ public class PrimitiveMonoclinic extends Primitive {
     public String toString() {return "Monoclinic";}
 
     protected static class PrimitiveMonoclinicReciprocal extends PrimitiveMonoclinic {
+        private static final long serialVersionUID = 1L;
+
         public PrimitiveMonoclinicReciprocal(Space space, double a, double b, double c, double beta) {
             super(space, a, b, c, beta, false);
         }

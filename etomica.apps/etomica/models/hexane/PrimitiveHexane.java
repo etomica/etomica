@@ -71,29 +71,6 @@ public class PrimitiveHexane extends Primitive {
         scaleSize(newA/size[0]);
     }
     
-    public void setSize(double[] newSize) {
-        if (size[0] == newSize[0] && size[1] == newSize[1] && size[2] == newSize[2]) {
-            // no change
-            return;
-        }
-        if (size[0] == 0) {
-            //initialization
-            super.setSize(newSize);
-        }
-
-        // size can be scaled, but not the relative values cannot change
-        double scale = newSize[0] / fixedSizes[0];
-        if (newSize[1] - fixedSizes[1]*scale > 0.0000001*(newSize[1]+fixedSizes[1]*scale) ||
-            newSize[2] - fixedSizes[2]*scale > 0.0000001*(newSize[1]+fixedSizes[2]*scale)) {
-            throw new IllegalArgumentException("You can't change the relative size of the primitive vectors");
-        }
-        double[] newNewSize = new double[3];
-        newNewSize[0] = newSize[0];
-        newNewSize[1] = scale*fixedSizes[1];
-        newNewSize[2] = scale*fixedSizes[2];
-        super.setSize(newNewSize);
-    }
-    
     protected void update() {
         super.update();
         double scale = size[0]/fixedSizes[0];

@@ -70,36 +70,14 @@ public class PrimitiveFcc extends Primitive {
             sizeArray[i] = newCubicSize;
         }
         setSize(sizeArray);
+        cubicSize = newCubicSize;
     }
 
-    public void setSize(double[] newSize) {
-        for (int i=1; i<D; i++) {
-            if (newSize[0] != newSize[i]) {
-                throw new RuntimeException("new sizes must be equal to each other");
-            }
-        }
-        if (cubicSize == newSize[0]) {
-            // no change
-            return;
-        }
-        super.setSize(newSize);
-        cubicSize = newSize[0];
-    }
-    
     protected void update() {
         super.update();
         for(int i=0; i<D; i++) latticeVectors[i].Ea1Tv1(size[0],unitVectors[i]);
     }
     
-    public void setAngles(double[] newAngle) {
-        for (int i=0; i<D; i++) {
-            if (newAngle[i] != FCC_ANGLE) {
-                throw new IllegalArgumentException("PrimitiveFcc angles must be "+FCC_ANGLE);
-            }
-        }
-        super.setAngles(newAngle);
-    }
-
     /**
      * Returns the common length of all primitive vectors.
      */

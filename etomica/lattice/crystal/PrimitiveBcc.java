@@ -8,6 +8,7 @@ import etomica.space.Vector;
  */
 public class PrimitiveBcc extends Primitive {
     
+    private static final long serialVersionUID = 1L;
     private double cubicSize;
     private Vector[] unitVectors;
     private static final double BCC_ANGLE = Math.acos(1.0/3.0);
@@ -64,6 +65,7 @@ public class PrimitiveBcc extends Primitive {
             sizeArray[i] = newCubicSize;
         }
         setSize(sizeArray);
+        cubicSize = newCubicSize;
     }
     
     /**
@@ -71,32 +73,9 @@ public class PrimitiveBcc extends Primitive {
      */
     public double getCubicSize() {return cubicSize;}
     
-    public void setSize(double[] newSize) {
-        for (int i=1; i<D; i++) {
-            if (newSize[0] != newSize[i]) {
-                throw new RuntimeException("new size must be cubic");
-            }
-        }
-        if (cubicSize == newSize[0]) {
-            // no change
-            return;
-        }
-        super.setSize(newSize);
-        cubicSize = newSize[0];
-    }
-    
     protected void update() {
         super.update();
         for(int i=0; i<D; i++) latticeVectors[i].Ea1Tv1(size[0],unitVectors[i]);
-    }
-
-    public void setAngles(double[] newAngle) {
-        for (int i=0; i<D; i++) {
-            if (newAngle[i] != BCC_ANGLE) {
-                throw new IllegalArgumentException("PrimitiveBcc angles must "+BCC_ANGLE);
-            }
-        }
-        super.setAngles(newAngle);
     }
 
     /**

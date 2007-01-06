@@ -11,6 +11,8 @@ import etomica.space3d.Vector3D;
  */
 public class PrimitiveTriclinic extends Primitive {
     
+    private static final long serialVersionUID = 1L;
+
     public PrimitiveTriclinic(Space space) {
         this(space, 1.0, 1.0, 1.0, rightAngle, rightAngle, rightAngle);
     }
@@ -77,14 +79,6 @@ public class PrimitiveTriclinic extends Primitive {
     }
     public double getC() {return size[2];}
 
-    public void setSize(double[] newSize) {
-        if (size[0] == newSize[0] && size[1] == newSize[1] && size[2] == newSize[2]) {
-            // no change
-            return;
-        }
-        super.setSize(newSize);
-    }
-    
     protected void update() {
         super.update();
         double cosAlpha = Math.cos(angle[0]);

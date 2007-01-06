@@ -75,10 +75,9 @@ public abstract class Primitive implements java.io.Serializable {
     
     /**
      * Sets the length of each primitive vector to the corresponding
-     * value in the given array.  Calls set[ABC] methods (defined in subclass)
-     * for any lengths that are not equal to current values.
+     * value in the given array.
      */
-    public void setSize(double[] newSize) {
+    protected final void setSize(double[] newSize) {
         for (int i=0; i<newSize.length; i++) {
             if (newSize[i] <= 0.0) { 
                 throw new IllegalArgumentException("sizes must be positive");
@@ -92,10 +91,9 @@ public abstract class Primitive implements java.io.Serializable {
     
     /**
      * Sets the angles between the primitive vector to the corresponding
-     * values in the given array.  Calls set[alpha/beta/gamma] methods (defined in subclass)
-     * for any angles that are not equal to current values.
+     * values in the given array.
      */
-    public void setAngles(double[] newAngle) {
+    protected final void setAngles(double[] newAngle) {
         for (int i=0; i<newAngle.length; i++) {
             if (newAngle[i] < 0 || newAngle[i] > Math.PI) {
                 throw new IllegalArgumentException("Angles must be between 0 and pi");
