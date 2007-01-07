@@ -10,10 +10,11 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.Configuration;
-import etomica.config.ConfigurationSequential;
+import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
@@ -61,7 +62,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
         phase1.getAgent(speciesA).setNMolecules(30);
         phase1.getAgent(speciesB).setNMolecules(30);
-        Configuration config = new ConfigurationSequential();
+        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
         config.initializeCoordinates(phase1);
 
         //potentials

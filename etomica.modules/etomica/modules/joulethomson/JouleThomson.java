@@ -15,7 +15,6 @@ import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.config.ConfigurationSequential;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
@@ -39,6 +38,8 @@ import etomica.integrator.IntegratorGear4NPH;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.IntegratorGear4NPH.MeterTPH;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.lattice.SpaceLattice;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
@@ -430,13 +431,14 @@ public class JouleThomson extends SimulationGraphic {
                 Vector v = sim.getSpace().makeVector();
                 v.E(size);
                 sim.phase.getBoundary().setDimensions(v);
-                Configuration config;
+                SpaceLattice lattice;
                 if (sim.phase.space().D() == 2) {
-                    config = new ConfigurationSequential();
+                    lattice = new LatticeOrthorhombicHexagonal();
                 }
                 else {
-                    config = new ConfigurationLattice(new LatticeCubicFcc());
+                    lattice = new LatticeCubicFcc();
                 }
+                Configuration config = new ConfigurationLattice(lattice);
                 config.initializeCoordinates(sim.phase);
             }
             if(speciesName.equals("Ideal gas")) sim.potential.setEnabled(false);

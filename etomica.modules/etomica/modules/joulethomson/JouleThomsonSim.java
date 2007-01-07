@@ -4,12 +4,13 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.config.ConfigurationSequential;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorGear4NPH;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.simulation.Simulation;
@@ -50,13 +51,14 @@ public class JouleThomsonSim extends Simulation {
 	    phase = new Phase(this);
         phase.getAgent(species).setNMolecules(nAtoms);
         
-        Configuration config;
+        SpaceLattice lattice;
         if (space.D() == 2) {
-            config = new ConfigurationSequential();
+            lattice = new LatticeOrthorhombicHexagonal();
         }
         else {
-            config = new ConfigurationLattice(new LatticeCubicFcc());
+            lattice = new LatticeCubicFcc();
         }
+        Configuration config = new ConfigurationLattice(lattice);
         config.initializeCoordinates(phase);
         
         integratorJT = new IntegratorJT(potentialMaster, integrator, integratorNVE);

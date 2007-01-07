@@ -4,9 +4,9 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.config.ConfigurationSequential;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
@@ -55,7 +55,7 @@ public class PistonCylinder extends Simulation {
         Vector newDim;
         Configuration config;
         if (space.D() == 2) {
-            config = new ConfigurationSequential();
+            config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
             newDim = new Vector2D(80,150);
         }
         else {

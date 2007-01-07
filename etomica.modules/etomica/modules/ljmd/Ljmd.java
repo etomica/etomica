@@ -1,10 +1,11 @@
 package etomica.modules.ljmd;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.config.ConfigurationSequential;
+import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -54,7 +55,7 @@ public class Ljmd extends Simulation {
         //construct phase
 	    phase = new Phase(this);
         phase.getAgent(species).setNMolecules(N);
-        new ConfigurationSequential().initializeCoordinates(phase);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         integrator.setPhase(phase);
 		
         PhaseImposePbc imposePBC = new PhaseImposePbc(phase);
@@ -78,5 +79,3 @@ public class Ljmd extends Simulation {
     }//end of main
     
 }
-
-

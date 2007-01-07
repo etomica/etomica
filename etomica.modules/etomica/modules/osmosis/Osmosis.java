@@ -9,7 +9,7 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomTypeSphere;
-import etomica.config.ConfigurationSequential;
+import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
@@ -30,6 +30,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.lattice.LatticeCubicSimple;
 import etomica.math.geometry.Rectangle;
 import etomica.modifier.Modifier;
 import etomica.potential.P1HardBoundary;
@@ -70,8 +71,7 @@ public class Osmosis {
 
         Unit tUnit = Kelvin.UNIT;
 
-        ConfigurationSequential config = new ConfigurationSequential();
-        config.setSquareConfig(true);
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
 
         DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim);
         SimulationRestart simRestart = new SimulationRestart(sim);

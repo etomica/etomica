@@ -3,11 +3,12 @@ package etomica.modules.osmosis;
 import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.config.ConfigurationSequential;
+import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.lattice.LatticeCubicSimple;
 import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
@@ -87,8 +88,7 @@ public class OsmosisSim extends Simulation {
         phase.getBoundary().setDimensions(new Vector2D(30.0, 30.0));
         phase.getAgent(speciesA).setNMolecules(30);
         phase.getAgent(speciesB).setNMolecules(10);
-        ConfigurationSequential config = new ConfigurationSequential();
-        config.setSquareConfig(true);
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
         config.initializeCoordinates(phase);
 
         integrator = new IntegratorHard(this);
