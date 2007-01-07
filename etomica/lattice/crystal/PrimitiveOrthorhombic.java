@@ -40,7 +40,7 @@ public class PrimitiveOrthorhombic extends Primitive {
         reciprocal.setSize(reciprocalSize);
     }
     
-    public void setA(double newA) {
+    public void setSizeA(double newA) {
         if (size[0] == newA) {
             return;
         }
@@ -51,9 +51,9 @@ public class PrimitiveOrthorhombic extends Primitive {
         newSize[0] = newA;
         setSize(newSize);
     }
-    public double getA() {return size[0];}
+    public double getSizeA() {return size[0];}
     
-    public void setB(double newB) {
+    public void setSizeB(double newB) {
         if (size[1] == newB) {
             return;
         }
@@ -64,9 +64,9 @@ public class PrimitiveOrthorhombic extends Primitive {
         newSize[1] = newB;
         setSize(newSize);
     }
-    public double getB() {return size[1];}
+    public double getSizeB() {return size[1];}
         
-    public void setC(double newC) {
+    public void setSizeC(double newC) {
         if (size[2] == newC) {
             return;
         }
@@ -77,7 +77,7 @@ public class PrimitiveOrthorhombic extends Primitive {
         newSize[2] = newC;
         setSize(newSize);
     }
-    public double getC() {return size[2];}
+    public double getSizeC() {return size[2];}
     
     /**
      * Returns a new, identical instance of this primitive.

@@ -40,7 +40,7 @@ public class PrimitiveOrthorhombicHexagonal extends Primitive {
     /**
      * Sets A to the given value and B to 2.0/sqrt(3.0)*A
      */
-    public void setA(double newA) {
+    public void setSizeA(double newA) {
         if (size[0] == newA) {
             return;
         }
@@ -49,7 +49,7 @@ public class PrimitiveOrthorhombicHexagonal extends Primitive {
         newSize[1] = 2.0/Math.sqrt(3)*newA;
         setSize(newSize);
     }
-    public double getA() {return size[0];}
+    public double getSizeA() {return size[0];}
         
     /**
      * Returns a new, identical instance of this primitive.

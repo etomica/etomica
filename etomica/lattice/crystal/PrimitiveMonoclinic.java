@@ -23,7 +23,7 @@ public class PrimitiveMonoclinic extends Primitive {
                                double beta, boolean makeReciprocal) {
         super(space, makeReciprocal);//also makes reciprocal
         setSize(new double[]{a, b, c});//also sets reciprocal via update
-        setBeta(beta);
+        setAngleBeta(beta);
     }
     
     //called by superclass constructor
@@ -35,32 +35,32 @@ public class PrimitiveMonoclinic extends Primitive {
     protected void updateReciprocal() {
         ((PrimitiveMonoclinic)reciprocal).setSize(new double[]{2.0*Math.PI/(size[0]*Math.sin(angle[1])),
                     2.0*Math.PI/size[1], 2.0*Math.PI/(size[2]*Math.sin(angle[1]))});
-        ((PrimitiveMonoclinic)reciprocal).setBeta(angle[1]);
+        ((PrimitiveMonoclinic)reciprocal).setAngleBeta(angle[1]);
     }
     
-    public void setA(double newA) {
+    public void setSizeA(double newA) {
         if (size[0] == newA) {
             return;
         }
         setSize(new double[]{newA, size[1], size[2]});
     }
-    public double getA() {return size[0];}
+    public double getSizeA() {return size[0];}
     
-    public void setB(double newB) {
+    public void setSizeB(double newB) {
         if (size[1] == newB) {
             return;
         }
         setSize(new double[]{size[0], newB, size[2]});
     }
-    public double getB() {return size[1];}
+    public double getSizeB() {return size[1];}
         
-    public void setC(double newC) {
+    public void setSizeC(double newC) {
         if (size[2] == newC) {
             return;
         }
         setSize(new double[]{size[0], size[1], newC});
     }
-    public double getC() {return size[2];}
+    public double getSizeC() {return size[2];}
 
     //direct lattice (ix = 0, iz = 2)
     // v[0] = (1,0,0); v[1] = (0,1,0); v[2] = (c,0,s)  (times a, b, c)
@@ -75,14 +75,14 @@ public class PrimitiveMonoclinic extends Primitive {
         latticeVectors[2].setX(2,size[2]*Math.sin(angle[1]));
     }
     
-    public void setBeta(double t) {
+    public void setAngleBeta(double t) {
         if (t < rightAngle || t > Math.PI) {
             throw new IllegalArgumentException("Beta must be between PI/2 and PI");
         }
         setAngles(new double[]{rightAngle, t, rightAngle});
     }
     
-    public double getBeta() {
+    public double getAngleBeta() {
         return angle[1];
     }
 

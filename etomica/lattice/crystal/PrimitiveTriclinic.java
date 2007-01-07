@@ -55,29 +55,29 @@ public class PrimitiveTriclinic extends Primitive {
         cStar.TE(factor);
     }
     
-    public void setA(double newA) {
+    public void setSizeA(double newA) {
         if (size[0] == newA) {
             return;
         }
         setSize(new double[]{newA, size[1], size[2]});
     }
-    public double getA() {return size[0];}
+    public double getSizeA() {return size[0];}
     
-    public void setB(double newB) {
+    public void setSizeB(double newB) {
         if (size[1] == newB) {
             return;
         }
         setSize(new double[]{size[0], newB, size[2]});
     }
-    public double getB() {return size[1];}
+    public double getSizeB() {return size[1];}
         
-    public void setC(double newC) {
+    public void setSizeC(double newC) {
         if (size[2] == newC) {
             return;
         }
         setSize(new double[]{size[0], size[1], newC});
     }
-    public double getC() {return size[2];}
+    public double getSizeC() {return size[2];}
 
     protected void update() {
         super.update();
@@ -93,13 +93,13 @@ public class PrimitiveTriclinic extends Primitive {
         latticeVectors[2].setX(2,size[2]*Math.sqrt(1.0-cosAlpha*cosAlpha-cosBeta*cosBeta-cosGamma*cosGamma+2*cosAlpha*cosBeta*cosGamma)/sinGamma);
     }
     
-    public void setAlpha(double t) {
+    public void setAngleAlpha(double t) {
         if (t == angle[0]) {
             return;
         }
         setAngles(new double[]{t, angle[1], angle[2]});
     }
-    public double getAlpha() {return angle[0];}
+    public double getAngleAlpha() {return angle[0];}
     
     public void setBeta(double t) {
         if (t == angle[1]) {
@@ -107,15 +107,15 @@ public class PrimitiveTriclinic extends Primitive {
         }
         setAngles(new double[]{angle[0], t, angle[2]});
     }
-    public double getBeta() {return angle[1];}
+    public double getAngleBeta() {return angle[1];}
     
-    public void setGamma(double t) {
+    public void setAngleGamma(double t) {
         if (t == angle[2]) {
             return;
         }
         setAngles(new double[]{angle[0], angle[1], t});
     }
-    public double getGamma() {return angle[2];}
+    public double getAngleGamma() {return angle[2];}
     
     /**
      * Returns a new, identical instance of this primitive.

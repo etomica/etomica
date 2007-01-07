@@ -41,7 +41,7 @@ public class PrimitiveHexagonal2D extends Primitive {
         reciprocal.setSize(newReciprocalSize);
     }
     
-    public void setAB(double newAB) {
+    public void setSizeAB(double newAB) {
         if (newAB == ab) {
             return;
         }
@@ -49,7 +49,7 @@ public class PrimitiveHexagonal2D extends Primitive {
         ab = newAB;
     }
     
-    public double getAB() {
+    public double getSizeAB() {
         return ab;
     }
     
@@ -68,7 +68,7 @@ public class PrimitiveHexagonal2D extends Primitive {
     }
     
     public void scaleSize(double scale) {
-        setAB(scale*ab);
+        setSizeAB(scale*ab);
     }
 
     public int[] latticeIndex(Vector q) {

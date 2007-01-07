@@ -42,7 +42,7 @@ public class PrimitiveHexagonal extends Primitive {
         reciprocal.setSize(newReciprocalSize);
     }
     
-    public void setAB(double newAB) {
+    public void setSizeAB(double newAB) {
         if (newAB == ab) {
             return;
         }
@@ -50,17 +50,17 @@ public class PrimitiveHexagonal extends Primitive {
         ab = newAB;
     }
     
-    public double getAB() {
+    public double getSizeAB() {
         return ab;
     }
     
-    public void setC(double newC) {
+    public void setSizeC(double newC) {
         if (newC == size[2]) {
             return;
         }
         setSize(new double[]{ab, ab, newC});
     }
-    public double getC() {return size[2];}
+    public double getSizeC() {return size[2];}
     
     protected void update() {
         super.update();

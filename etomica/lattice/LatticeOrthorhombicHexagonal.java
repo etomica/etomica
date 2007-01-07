@@ -34,7 +34,7 @@ public class LatticeOrthorhombicHexagonal extends BravaisLatticeCrystal implemen
      */
     public PrimitiveHexagonal2D getPrimitiveHexagonal() {
         PrimitiveHexagonal2D p = new PrimitiveHexagonal2D(getSpace());
-        p.setAB(((PrimitiveOrthorhombicHexagonal)primitive).getA());
+        p.setSizeAB(((PrimitiveOrthorhombicHexagonal)primitive).getSizeA());
         return p;
     }
     
