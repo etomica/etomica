@@ -2,9 +2,10 @@ package etomica.simulation.prototypes;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.config.ConfigurationSequential;
+import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
 import etomica.simulation.Simulation;
@@ -45,7 +46,7 @@ public class SwMd2D extends Simulation {
         species = new SpeciesSpheresMono(this);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(50);
-        new ConfigurationSequential().initializeCoordinates(phase);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         potential = new P2SquareWell(this);
         this.potentialMaster.addPotential(potential,new Species[]{species,species});
         
