@@ -25,6 +25,7 @@ public class PrimitiveHexagonal extends Primitive {
     protected PrimitiveHexagonal(Space space, double ab, double c, boolean makeReciprocal) {
         super(space, makeReciprocal);
         setSize(new double[]{ab, ab, c});
+        this.ab = ab;
         setAngles(new double[]{rightAngle, rightAngle, gamma});
     }
     
