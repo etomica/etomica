@@ -150,25 +150,29 @@ public class LatticeEditor {
         boolean hasAngle = false;
         for (int i=0; i<properties.length; i++) {
             String name = properties[i].getName();
-            if (name.equals("size") || name.equals("angles")) {
+            if (!name.startsWith("size") && !name.startsWith("angle") && !name.equals("cubicSize") || properties[i].getWriteMethod() == null) {
                 // we don't actually want setSize as it wants an array
                 continue;
             }
-            DeviceBox newBox = new DeviceBox();
             ModifierGeneral modifier = new ModifierGeneral(primitive, name);
-            newBox.setModifier(modifier);
-            if (name.equals("alpha") || name.equals("beta") || name.equals("gamma")) {
+            DeviceBox newBox = new DeviceBox();
+            if (name.startsWith("angle")) {
                 // angle
+                modifier.setLabel(name.substring(5));
                 hasAngle = true;
                 newBox.setUnit(Degree.UNIT);
                 anglePanel.add(newBox.graphic());
                 angleBoxes = (DeviceBox[])Arrays.addObject(angleBoxes, newBox);
             }
             else {
-                // assume it's size.  might be A, B, C, AB, Cubic
+                // might be A, B, C, AB, CubicSize
+                if (name.startsWith("size")) {
+                    modifier.setLabel(name.substring(4));
+                }
                 sizePanel.add(newBox.graphic());
                 sizeBoxes = (DeviceBox[])Arrays.addObject(sizeBoxes, newBox);
             }
+            newBox.setModifier(modifier);
             newBox.setPostAction(new Action() {
                 public void actionPerformed() {
                     update();
