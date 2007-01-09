@@ -4,7 +4,6 @@ import etomica.math.SpecialFunctions;
 import etomica.simulation.Simulation;
 import etomica.space.Tensor;
 import etomica.space.Vector;
-import etomica.space3d.Vector3D;
 import etomica.util.Function;
 
 /**
@@ -310,25 +309,6 @@ public final class Vector2D extends etomica.space.Vector {
 
     public double dot(Vector u) {
         return x * ((Vector2D) u).x + y * ((Vector2D) u).y;
-    }
-
-    public Vector3D cross(Vector3D u) {
-        return new Vector3D(y * u.x(2), -x * u.x(2), x * u.x(1) - y * u.x(0));
-    }
-
-    public Vector3D cross(Vector2D u) {
-        return new Vector3D(0.0, 0.0, x * u.y - y * u.x);
-    }
-
-    /**
-     * Replaces this vector with its cross-product with the given 3D vector,
-     * with result projected onto the 2D plane. This vector becomes the result
-     * of (this vector) X u.
-     */
-    public void XE(Vector3D u) {
-        double xNew = y * u.x(2);
-        y = -x * u.x(2);
-        x = xNew;
     }
 
     public void normalize() {

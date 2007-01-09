@@ -4,7 +4,6 @@ import etomica.math.SpecialFunctions;
 import etomica.simulation.Simulation;
 import etomica.space.Tensor;
 import etomica.space.Vector;
-import etomica.space2d.Vector2D;
 import etomica.util.Function;
 
 /**
@@ -528,26 +527,6 @@ public final class Vector3D extends Vector {
         x *= r;
         y *= r;
         z *= r;
-    }
-
-    public Vector3D cross(Vector2D u) {//does 3d cross-product taking u.z = 0
-        Vector3D work = new Vector3D(this);
-        work.x = -z * u.x(1);
-        work.y = z * u.x(0);
-        work.z = x * u.x(1) - y * u.x(0);
-        return work;
-    }
-
-    /**
-     * Makes a new vector and assigns it the cross product of this with given
-     * vector. This vector is unchanged.
-     * 
-     * @see etomica.space.Vector#cross(Vector)
-     */
-    public Vector3D cross(Vector3D u) {//not thread safe
-        Vector3D work = new Vector3D(this);
-        work.XE(u);
-        return work;
     }
 
     public void XE(Vector3D u) {//cross product

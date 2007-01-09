@@ -1,7 +1,5 @@
 package etomica.space;
 
-import etomica.space2d.Vector2D;
-import etomica.space3d.Vector3D;
 import etomica.util.Function;
 
 /**
@@ -311,21 +309,6 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     public abstract double dot(Vector u); 
 
     /**
-     * Returns the 3D cross product of this vector with a 2D vector.
-     */
-    public abstract etomica.space3d.Vector3D cross(etomica.space2d.Vector2D u);
-
-    /**
-     * Cross product of this vector with the given vector
-     */
-    public abstract etomica.space3d.Vector3D cross(etomica.space3d.Vector3D u); 
-
-    /**
-     * Replaces this vector with its cross product with the given vector.
-     */
-    public abstract void XE(etomica.space3d.Vector3D u); //replaces this vector
-
-    /**
      * Applies the given tensor transformation to this vector, replaced its
      * elements with the transformed values.
      */
@@ -374,19 +357,6 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
         for (int i = a.length - 1; i >= 0; i--) {
             PEa1Tv1(a[i], u[i]);
         }
-    }
-
-    /**
-     * Returns a new vector equal to cross product of this vector 
-     * with the given one
-     */
-    public etomica.space3d.Vector3D cross(Vector u) {
-        if (u instanceof Vector3D) {
-            return cross((Vector3D) u);
-        } else if (u instanceof Vector2D) {
-            return cross((Vector2D) u);
-        } else
-            return null;
     }
 
     /**

@@ -286,23 +286,6 @@ public final class Vector1D extends etomica.space.Vector {
         return ((Vector1D) u).x * x;
     }
 
-    /**
-     * Sets this vector equal to its cross product of with a 3D vector. Result
-     * is projected into this space, and thus outcome is to make this vector
-     * zero.
-     */
-    public void XE(etomica.space3d.Vector3D u) {
-        x = 0.0;
-    }
-
-    public etomica.space3d.Vector3D cross(etomica.space2d.Vector2D u) {
-        return null;
-    }
-
-    public etomica.space3d.Vector3D cross(etomica.space3d.Vector3D u) {
-        return null;
-    }
-
     public void randomRotate(double deltheta) {//no implementation in 1D
     }
 

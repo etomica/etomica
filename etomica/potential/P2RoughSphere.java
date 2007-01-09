@@ -23,20 +23,20 @@ public class P2RoughSphere extends P2HardSphere {
 
     private static final long serialVersionUID = 1L;
     private final Vector3D omegaSum = new Vector3D();
-    private final Vector v12Surface;
-    private final Vector v12Par;
-    private final Vector v12Perp;
-    private final Vector impulse;
+    private final Vector3D v12Surface;
+    private final Vector3D v12Par;
+    private final Vector3D v12Perp;
+    private final Vector3D impulse;
     
     public P2RoughSphere(Simulation sim) {
         this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
     }
     public P2RoughSphere(Space space, double d, boolean ignoreOverlap) {
         super(space,d,ignoreOverlap);
-        v12Surface = space.makeVector();
-        v12Par = space.makeVector();
-        v12Perp = space.makeVector();
-        impulse = space.makeVector();
+        v12Surface = new Vector3D();
+        v12Par = new Vector3D();
+        v12Perp = new Vector3D();
+        impulse = new Vector3D();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -91,7 +91,8 @@ public class P2RoughSphere extends P2HardSphere {
         coord1.position().PEa1Tv1( falseTime*rm1,impulse);
         
         //here omegaSum is used to hold the angular impulse
-        omegaSum.E(dr.cross(impulse));
+        omegaSum.E(dr);
+        omegaSum.XE(impulse);
         omegaSum.TE(-0.5);
         coord0.angularVelocity().PE(omegaSum);
         coord1.angularVelocity().PE(omegaSum);
