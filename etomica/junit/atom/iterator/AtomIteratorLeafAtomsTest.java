@@ -43,7 +43,6 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         }
         
         Phase[] phase = new Phase[3];
-        int[] atomsPerMolecule = new int[] {nA0, 1, 3*4};
         int[][] moleculeCount = new int[3][];
         for(int i=0; i<phase.length; i++) {
             phase[i] = rootNode.getDescendant(new int[] { i }).getNode().parentPhase();

@@ -7,8 +7,6 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorFiltered;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.space.Space;
-import etomica.space1d.Space1D;
 
 /**
  * Unit test of AtomIteratorFiltered
@@ -38,8 +36,6 @@ public class AtomIteratorFilteredTest extends IteratorTestAbstract {
     }
 
     public void testIterator() {
-
-        Space space = Space1D.getInstance();
 
         AtomList list = new AtomList();
 

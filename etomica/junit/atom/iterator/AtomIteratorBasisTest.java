@@ -4,10 +4,7 @@ import java.util.LinkedList;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.AtomsetArray;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.junit.UnitTestUtil;
@@ -92,7 +89,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //test target is a child of the basis
         basis = rootNode.getDescendant(new int[] {0,0,0});
         target = rootNode.getDescendant(new int[] {0,0,0,1});
-        iterate = (Atom)target;
+        iterate = target;
         testOneIterate(basis, target, iterate);
 
         //test subsequent nulling of target

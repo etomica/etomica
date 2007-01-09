@@ -9,8 +9,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.junit.UnitTestUtil;
-import etomica.space.Space;
-import etomica.space1d.Space1D;
 
 /**
  * Unit test for AtomIteratorListSimple.
@@ -23,7 +21,6 @@ public class AtomIteratorListSimpleTest extends IteratorTestAbstract {
     }
     
     public void testListVariations() {
-        Space space = Space1D.getInstance();
         AtomIteratorListSimple iterator = new AtomIteratorListSimple();
         
         //make sure new iterator gives no iterates

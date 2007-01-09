@@ -4,8 +4,6 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListTabbed;
 import etomica.junit.UnitTestUtil;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 
 /**
  * General unit test for a list iterator.  Sets up different types of lists,
@@ -42,7 +40,6 @@ public abstract class ListIteratorTestAbstract extends IteratorTestAbstract {
      */
 	public void testListVariations() {
 		
-		Space space = Space3D.getInstance();
 //		 make empty list to start
 		AtomList atomList = new AtomListTabbed();
 		

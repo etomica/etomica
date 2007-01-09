@@ -7,9 +7,6 @@ import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
 import etomica.atom.AtomListTabbed;
 import etomica.atom.iterator.AtomIteratorListTabbed;
-import etomica.space.Space;
-import etomica.space1d.Space1D;
-import etomica.space3d.Space3D;
 
 /**
  * Unit test for AtomIteratorList. Tests that effect of first and terminator type are
@@ -361,7 +358,7 @@ public class AtomIteratorListTabbedTest extends IteratorTestAbstract {
         }
     }
 
-    private void checkFirstLast(LinkedList list, Atom first, Atom last) {
+    protected void checkFirstLast(LinkedList list, Atom first, Atom last) {
         if (list.size() > 0) {
             assertEquals(list.getFirst(), first.toString());
             assertEquals(list.getLast(), last.toString());

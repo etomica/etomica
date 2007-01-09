@@ -86,17 +86,17 @@ public class AtomIteratorSequenceTest extends ListIteratorTestAbstract {
         generalIteratorMethodTests(upIterator);
         generalIteratorMethodTests(dnIterator);
 
-        checkNextLinker(upIterator, dnIterator);
+        checkNextLinker();
 
         upIterator.setFirst(list.header.previous);
         dnIterator.setFirst(list.header.previous);
         generalIteratorMethodTests(upIterator);
         generalIteratorMethodTests(dnIterator);
         
-        checkNextLinker(upIterator, dnIterator);
+        checkNextLinker();
     }
     
-    private void checkNextLinker(AtomIteratorSequence upIterator, AtomIteratorSequence dnIterator) {
+    private void checkNextLinker() {
         AtomLinker first = upIterator.getFirst();
         assertEquals(first, dnIterator.getFirst());
         upIterator.reset();

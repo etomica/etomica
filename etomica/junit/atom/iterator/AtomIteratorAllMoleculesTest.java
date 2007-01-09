@@ -6,7 +6,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
 import etomica.species.Species;

@@ -4,8 +4,6 @@ import java.util.LinkedList;
 
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.space.Space;
-import etomica.space2d.Space2D;
 
 
 /**
@@ -29,7 +27,6 @@ public class AtomIteratorSingletTest extends IteratorTestAbstract {
     }
     
     public void setUp() {
-        Space space = Space2D.getInstance();
         singletIterator = new AtomIteratorSinglet();
         testAtom1 = new Atom();
         testAtom2 = new Atom();

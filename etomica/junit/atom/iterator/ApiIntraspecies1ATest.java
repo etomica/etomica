@@ -5,7 +5,6 @@ import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.AtomsetArray;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.atom.iterator.IteratorDirective;
@@ -176,9 +175,9 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
             this.species0 = species0;
             this.species1 = species1;
         }
-        public void actionPerformed(AtomSet atoms) {
-            assertTrue(atoms.getAtom(0).getType().getSpecies() == species0);
-            assertTrue(atoms.getAtom(1).getType().getSpecies() == species1);
+        public void actionPerformed(AtomSet atomSet) {
+            assertTrue(atomSet.getAtom(0).getType().getSpecies() == species0);
+            assertTrue(atomSet.getAtom(1).getType().getSpecies() == species1);
         }
     }
     

@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import etomica.atom.Atom;
 import etomica.atom.AtomList;
 import etomica.atom.iterator.ApiInterList;
-import etomica.space.Space;
-import etomica.space3d.Space3D;
 
 /**
  * Unit test for ApiInterList
@@ -24,7 +22,6 @@ public class ApiInterListTest extends IteratorTestAbstract {
     public void testIterator() {
         
         ApiInterList api = new ApiInterList();
-        Space space = Space3D.getInstance();
         
         //test that new iterator gives no iterates
         countTest(api, 0);

@@ -11,7 +11,6 @@ import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.ApiIntragroup;
-import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
 
@@ -52,9 +51,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         ApiIntragroup api = ApiBuilder.makeNonAdjacentPairIterator();
 
         setup1();
-        nonAdjacentPairTests(api, parent, target, targetFirst, targetLast, 
-                iterate, iterateFirst, iterateLast,
-                upNon, upFirstNon, dnNon, dnLastNon);
+        nonAdjacentPairTests(api);
         
         setup2();
         api.setBasis(parent);
@@ -77,14 +74,10 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         testNoIterates(api);
         
         setup3();
-        nonAdjacentPairTests(api, parent, target, targetFirst, targetLast, 
-                iterate, iterateFirst, iterateLast,
-                upNon, upFirstNon, dnNon, dnLastNon);
+        nonAdjacentPairTests(api);
 
         setup4();
-        nonAdjacentPairTests(api, parent, target, targetFirst, targetLast, 
-                iterate, iterateFirst, iterateLast,
-                upNon, upFirstNon, dnNon, dnLastNon);
+        nonAdjacentPairTests(api);
 
     }
     
@@ -225,9 +218,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         ApiIntragroup api = ApiBuilder.makeAdjacentPairIterator();
         
         setup1();
-        adjacentPairTests(api, parent, target, targetFirst, targetLast, 
-                iterate, iterateFirst, iterateLast,
-                up2, upFirst, dn, dnLast);
+        adjacentPairTests(api);
         
         //************ test basis is leaf
         setup2();
@@ -236,11 +227,11 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //target matches basis, no direction, two iterates
         api.setDirection(null);
         api.setTarget(target);
-        testApiTwoIterates(api, new AtomPair(target, up2), new AtomPair(dn, target));
+        testApiTwoIterates(api, new AtomPair(target, up), new AtomPair(dn, target));
 
         //target matches basis, up, one iterate
         api.setDirection(UP);
-        testApiOneIterate(api, new AtomPair(target, up2));
+        testApiOneIterate(api, new AtomPair(target, up));
         
         //target matches basis, down, one iterate
         api.setDirection(DOWN);
@@ -253,14 +244,10 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //********* test target further descended from iterates
         setup3();
 
-        adjacentPairTests(api, parent, target, targetFirst, targetLast,
-                iterate, iterateFirst, iterateLast,
-               up2, upFirst, dn, dnLast);
+        adjacentPairTests(api);
         
         setup4();
-        adjacentPairTests(api, parent, target, targetFirst, targetLast,
-                iterate, iterateFirst, iterateLast,
-               up2, upFirst, dn, dnLast);
+        adjacentPairTests(api);
 
     }
 
@@ -270,7 +257,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         target = rootNode.getDescendant(new int[] {1,0,0});//the only species0 molecule
         targetFirst = target;
         targetLast = target;
-        up2 = dn = upFirst = dnLast = null;
+        up = dn = upFirst = dnLast = null;
         upNon = upFirstNon = dnNon = dnLastNon = new Atom[0]; 
         iterate = target;
         iterateFirst = target;
@@ -283,7 +270,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         target = rootNode.getDescendant(new int[] {0,2,2,1,0,1});
         targetFirst = rootNode.getDescendant(new int[] {0,2,2,0,0,2});
         targetLast = rootNode.getDescendant(new int[] {0,2,2,4,1});
-        up2 = rootNode.getDescendant(new int[] {0,2,2,2});
+        up = rootNode.getDescendant(new int[] {0,2,2,2});
         upNon = new Atom[] {
                 rootNode.getDescendant(new int[] {0,2,2,3}),
                 rootNode.getDescendant(new int[] {0,2,2,4})};
@@ -311,7 +298,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         target = rootNode.getDescendant(new int[] {0,1,5});//atom5 
         targetFirst = rootNode.getDescendant(new int[] {0,1,0});//atom0 
         targetLast = rootNode.getDescendant(new int[] {0,1,9});//atom9
-        up2 = rootNode.getDescendant(new int[] {0,1,6});
+        up = rootNode.getDescendant(new int[] {0,1,6});
         upNon = new Atom[] {
                 rootNode.getDescendant(new int[] {0,1,7}),
                 rootNode.getDescendant(new int[] {0,1,8}),
@@ -351,7 +338,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         target = rootNode.getDescendant(new int[] {0,0,2,5});
         targetFirst = rootNode.getDescendant(new int[] {0,0,2,0});
         targetLast = rootNode.getDescendant(new int[] {0,0,2,9});
-        up2 = rootNode.getDescendant(new int[] {0,0,2,6});
+        up = rootNode.getDescendant(new int[] {0,0,2,6});
         upNon = new Atom[] {
                         rootNode.getDescendant(new int[] {0,0,2,7}),
                         rootNode.getDescendant(new int[] {0,0,2,8}),
@@ -390,23 +377,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     /**
      * Test AdjacentPairIterator.
      * @param api the iterator
-     * @param parent the basis atom
-     * @param target a target in middle of basis list
-     * @param targetFirst a target at beginning of basis list
-     * @param targetLast a target at end of basis list
-     * @param iterate the child-of-basis iterate implied by the target (same as target if target is in childlist of basis)
-     * @param iterateFirst the child-of-basis iterate implied by targetFirst
-     * @param iterateLast the child-of-basis iterate implied by targetLast
-     * @param up the adjacent atom uplist of iterate
-     * @param upFirst the adjacent atom uplist of iterateFirst
-     * @param dn the adjacent atom dnlist of iterate
-     * @param dnLast the adjacent atom dnlist of iterateLast
      */
-    private void adjacentPairTests(ApiIntragroup api, Atom parent, 
-            Atom target, Atom targetFirst, Atom targetLast,
-            Atom iterate, Atom iterateFirst, Atom iterateLast,
-            Atom up, Atom upFirst, 
-            Atom dn, Atom dnLast) {
+    private void adjacentPairTests(ApiIntragroup api) {
         
         api.setBasis(parent);
 
@@ -476,36 +448,20 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     /**
      * Test NonAdjacentPairIterator.
      * @param api the iterator
-     * @param parent the basis atom
-     * @param target a target in middle of basis list
-     * @param targetFirst a target at beginning of basis list
-     * @param targetLast a target at end of basis list
-     * @param iterate the child-of-basis iterate implied by the target (same as target if target is in childlist of basis)
-     * @param iterateFirst the child-of-basis iterate implied by targetFirst
-     * @param iterateLast the child-of-basis iterate implied by targetLast
-     * @param up the nonadjacent atoms uplist of iterate
-     * @param upFirst the nonadjacent atoms uplist of iterateFirst
-     * @param dn the nonadjacent atoms dnlist of iterate
-     * @param dnLast the nonadjacent atoms dnlist of iterateLast
      */
-
-    private void nonAdjacentPairTests(ApiIntragroup api, Atom parent, 
-            Atom target, Atom targetFirst, Atom targetLast,
-            Atom iterate, Atom iterateFirst, Atom iterateLast,
-            Atom[] up, Atom[] upFirst, 
-            Atom[] dn, Atom[] dnLast) {
+    private void nonAdjacentPairTests(ApiIntragroup api) {
         
         api.setBasis(parent);
 
         //target, no direction, two iterates
         api.setDirection(null);
         api.setTarget(target);
-        testApiIterates(api, iterate, up, dn);
+        testApiIterates(api, iterate, upNon, dnNon);
         
         //first in list, no direction, one iterate
         api.setDirection(null);
         api.setTarget(targetFirst);
-        testApiIterates(api, UP, iterateFirst, upFirst);
+        testApiIterates(api, UP, iterateFirst, upFirstNon);
         
         //first in list, down, no iterates
         api.setDirection(DOWN);
@@ -515,12 +471,12 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //last in list, down, one iterate
         api.setDirection(DOWN);
         api.setTarget(targetLast);
-        testApiIterates(api, DOWN, iterateLast, dnLast);
+        testApiIterates(api, DOWN, iterateLast, dnLastNon);
 
         //last in list, no direction, one iterate
         api.setDirection(null);
         api.setTarget(targetLast);
-        testApiIterates(api, DOWN, iterateLast, dnLast);
+        testApiIterates(api, DOWN, iterateLast, dnLastNon);
         
         //last in list, up, no iterates
         api.setDirection(UP);
@@ -530,18 +486,18 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //first in list, up, one iterate
         api.setDirection(UP);
         api.setTarget(targetFirst);
-        testApiIterates(api, UP, iterateFirst, upFirst);
+        testApiIterates(api, UP, iterateFirst, upFirstNon);
 
 
         //target, up, one iterate
         api.setDirection(UP);
         api.setTarget(target);
-        testApiIterates(api, UP, iterate, up);
+        testApiIterates(api, UP, iterate, upNon);
 
         //target, down, one iterate
         api.setDirection(DOWN);
         api.setTarget(target);
-        testApiIterates(api, DOWN, iterate, dn);
+        testApiIterates(api, DOWN, iterate, dnNon);
 
         //no target, (2(n-2) + (n-2)*(n-3))/2 iterates
         //(first and last have n-2, the other n-2 have n-3)
@@ -562,32 +518,16 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         testNoIterates(api);
     }
 
-    /**
-     * Used by adjacentPairTests.
-     * Tests that iterator gives a single particular iterate.
-     */
-    private LinkedList testOneIterate(AtomPairIterator iterator, AtomPair pair) {
-        if(pair.atom1 == null) {
-            testNoIterates(iterator);
-            return new LinkedList();
-        }
-        LinkedList list = generalIteratorMethodTests(iterator);
-        Lister test = new Lister();
-        test.actionPerformed(pair);
-        assertEquals(list, test.list);
-        return list;
-    }
-    
     private AtomTreeNodeGroup rootNode;
     int n0a, nAtoms, n1a, n2a, n3a;
     int[] nTree;
-    private final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;
-    private final IteratorDirective.Direction DOWN = IteratorDirective.Direction.DOWN;
+    private static final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;
+    private static final IteratorDirective.Direction DOWN = IteratorDirective.Direction.DOWN;
     private Atom parent;
     private Atom target;
     private Atom targetFirst;
     private Atom targetLast;
-    private Atom up2;
+    private Atom up;
     private Atom[] upNon;
     private Atom upFirst;
     private Atom[] upFirstNon;
@@ -598,6 +538,4 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     private Atom iterate;
     private Atom iterateFirst;
     private Atom iterateLast;
-
-
 }

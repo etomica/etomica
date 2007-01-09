@@ -6,8 +6,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiSinglet;
-import etomica.space.Space;
-import etomica.space2d.Space2D;
 
 /**
  * Unit test for ApiSinglet class.
@@ -29,7 +27,6 @@ public class ApiSingletTest extends IteratorTestAbstract {
     }
 
     public void setUp() {
-        Space space = Space2D.getInstance();
         iterator = new ApiSinglet();
         testAtom1 = new Atom();
         testAtom2 = new Atom();

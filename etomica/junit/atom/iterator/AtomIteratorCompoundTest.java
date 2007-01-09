@@ -11,8 +11,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorCompound;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.junit.UnitTestUtil;
-import etomica.space.Space;
-import etomica.space1d.Space1D;
 
 /**
  * Unit test for AtomIteratorListCompound.
@@ -100,8 +98,6 @@ public class AtomIteratorCompoundTest extends IteratorTestAbstract {
     }
     
     public void doVariations(AtomIteratorCompound iterator, AtomIteratorListSimple[] iterators, int varIndex) {
-        
-        Space space = Space1D.getInstance();
         
         AtomList[] lists = new AtomList[iterators.length];
         for(int i=0; i<lists.length; i++) {

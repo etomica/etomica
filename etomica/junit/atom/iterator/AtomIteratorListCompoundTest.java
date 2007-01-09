@@ -9,10 +9,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.junit.UnitTestUtil;
-import etomica.space.Space;
-import etomica.space1d.Space1D;
 
 /**
  * Unit test for AtomIteratorListCompound.
@@ -96,8 +93,6 @@ public class AtomIteratorListCompoundTest extends IteratorTestAbstract {
     }
     
     public void doVariations(AtomIteratorArrayListCompound iterator, AtomArrayList[] lists, int varIndex) {
-        
-        Space space = Space1D.getInstance();
         
         //add some atoms and check each time
         lists[varIndex].clear();

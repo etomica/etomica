@@ -4,7 +4,6 @@ import java.util.LinkedList;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
@@ -160,31 +159,31 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         testNoIterates((Atom)null);
     }
     
-    private LinkedList testIterateCount(int depth, Atom root, int count) {
+    private LinkedList testIterateCount(int depth, Atom iterationRoot, int count) {
         treeIterator.setIterationDepth(depth);
-        LinkedList list0 = testIterateCount(root, count);
+        LinkedList list0 = testIterateCount(iterationRoot, count);
         treeIterator.setIterationDepth(0);
         treeIterator.setRoot(null);
-        treeIterator.setRoot(root);//change order of setting
+        treeIterator.setRoot(iterationRoot);//change order of setting
         treeIterator.setIterationDepth(depth);
         LinkedList list1 = generalIteratorMethodTests(treeIterator);
         assertEquals(list0, list1);
         return list0;
     }
-    private LinkedList testIterateCount(Atom root, int count) {
-        treeIterator.setRoot(root);
+    private LinkedList testIterateCount(Atom iterationRoot, int count) {
+        treeIterator.setRoot(iterationRoot);
         LinkedList list = generalIteratorMethodTests(treeIterator);
 //        System.out.println(list.size()+ " "+count);
         assertEquals(list.size(), count);
         return list;
     }
     
-    private LinkedList testOneIterate(int depth, Atom root, Atom iterate) {
+    private LinkedList testOneIterate(int depth, Atom iterationRoot, Atom iterate) {
         treeIterator.setIterationDepth(depth);
-        return testOneIterate(root, iterate);
+        return testOneIterate(iterationRoot, iterate);
     }
-    private LinkedList testOneIterate(Atom root, Atom iterate) {
-        treeIterator.setRoot(root);
+    private LinkedList testOneIterate(Atom iterationRoot, Atom iterate) {
+        treeIterator.setRoot(iterationRoot);
         LinkedList list = generalIteratorMethodTests(treeIterator);
         Lister testLister = new Lister();
         testLister.actionPerformed(iterate);
@@ -192,21 +191,21 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         return list;
     }
     
-    private LinkedList testArrayIterates(int depth, Atom root, Atom[] iterates) {
+    private LinkedList testArrayIterates(int depth, Atom iterationRoot, Atom[] iterates) {
         treeIterator.setIterationDepth(depth);
         AtomArrayList arrayList = new AtomArrayList();
         for (int i=0; i<iterates.length; i++) {
             arrayList.add(iterates[i]);
         }
-        return testListIterates(root, arrayList);
+        return testListIterates(iterationRoot, arrayList);
     }
     
-    private LinkedList testListIterates(int depth, Atom root, AtomArrayList iterates) {
+    private LinkedList testListIterates(int depth, Atom iterationRoot, AtomArrayList iterates) {
         treeIterator.setIterationDepth(depth);
-        return testListIterates(root, iterates);
+        return testListIterates(iterationRoot, iterates);
     }
-    private LinkedList testListIterates(Atom root, AtomArrayList iterates) {
-        treeIterator.setRoot(root);
+    private LinkedList testListIterates(Atom iterationRoot, AtomArrayList iterates) {
+        treeIterator.setRoot(iterationRoot);
         LinkedList list = generalIteratorMethodTests(treeIterator);
         Lister testLister = new Lister();
         testLister.addEachToList(iterates);
@@ -214,8 +213,8 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         return list;
     }
     
-    private void testNoIterates(Atom root) {
-        treeIterator.setRoot(root);
+    private void testNoIterates(Atom iterationRoot) {
+        treeIterator.setRoot(iterationRoot);
         LinkedList list = generalIteratorMethodTests(treeIterator);
         assertEquals(list.size(), 0);
     }
