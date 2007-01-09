@@ -3,7 +3,6 @@ package etomica.junit;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomLinker;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
@@ -34,7 +33,7 @@ import etomica.util.Default;
 /*
  * History Created on Apr 28, 2005 by kofke
  */
-public class UnitTestUtil implements java.io.Serializable {
+public class UnitTestUtil {
 
     public static boolean VERBOSE = false;
 
