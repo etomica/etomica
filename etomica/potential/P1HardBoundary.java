@@ -63,21 +63,19 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     }
     
     public double energy(AtomSet a) {
-        //XXX this doesn't account for inactive walls!
-        double e = 0.0;
         Vector dimensions = boundary.getDimensions();
-        double rx = ((AtomLeaf)a).getCoord().position().x(0);
-        double ry = ((AtomLeaf)a).getCoord().position().x(1);
-        double dxHalf = 0.5*dimensions.x(0);
-        double dyHalf = 0.5*dimensions.x(1);
-        if((rx < -dxHalf+collisionRadius) || (rx > dxHalf-collisionRadius) ||
-           (ry < -dyHalf+collisionRadius) || (ry > dyHalf-collisionRadius)) {
-            e = Double.POSITIVE_INFINITY;
+        Vector pos = ((AtomLeaf)a).getCoord().position();
+        for (int i=0; i<work.D(); i++) {
+            if (!isActiveDim[i][1]) {
+                continue;
+            }
+            double rx = pos.x(i);
+            double dxHalf = 0.5*dimensions.x(i);
+            if((rx < -dxHalf+collisionRadius) || (rx > dxHalf-collisionRadius)) {
+                 return Double.POSITIVE_INFINITY;
+            }
         }
-        else{ 
-            e = 0.0;
-        }
-        return e;
+        return 0;
     }
      
     public double energyChange() {return 0.0;}
