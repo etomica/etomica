@@ -402,7 +402,7 @@ public class UnitGraphics {
 			 * This is performed if the raise power button is pressed, there is
 			 * a selected used unit.
 			 */
-			if (actionCommand.equals("^") && !selectedUsedUnit.isEmpty()) {
+			if (actionCommand.equals("^") && !selectedUsedUnit.equals(null)) {
 				// The exponent and unit are stored.
 				dl = exponentVector.elementAt(
 						unitsVector.indexOf(selectedUsedUnit)).toString();
@@ -423,7 +423,7 @@ public class UnitGraphics {
 			/*
 			 * This is performed if the lower power button is pressed.
 			 */
-			if (actionCommand.equals("v") && !selectedUsedUnit.isEmpty()) {
+			if (actionCommand.equals("v") && !selectedUsedUnit.equals(null)) {
 				// The exponent and unit are stored.
 				dl = exponentVector.elementAt(
 						unitsVector.indexOf(selectedUsedUnit)).toString();
@@ -451,7 +451,7 @@ public class UnitGraphics {
 			 */
 			if (actionCommand.equals("<")
 					&& !unitsVector.contains(selectedUnit)
-					&& !selectedUnit.isEmpty()) {
+					&& !selectedUnit.equals(null)) {
 				/*
 				 * The unit is added to the units vector, and the default
 				 * exponent of 1 is added to the exponent vector.
@@ -476,8 +476,8 @@ public class UnitGraphics {
 			 * This is performed if the remove unit button hit and there is a
 			 * selected used unit.
 			 */
-			if (actionCommand.equals(">") && !selectedUsedUnit.isEmpty()
-					&& !unitsVector.isEmpty()) {
+			if (actionCommand.equals(">") && !selectedUsedUnit.equals(null)
+					&& !unitsVector.equals(null)) {
 
 				/*
 				 * Here is some code to decide which unit is selected after the
@@ -507,7 +507,7 @@ public class UnitGraphics {
 				 * The add unit button is enabled if there are units to add add
 				 * the selected unit is not used.
 				 */
-				if (!selectedUnitsSet.isEmpty()
+				if (!selectedUnitsSet.equals(null)
 						&& !unitsVector.contains(selectedUnit)) {
 					addUnitButton.setEnabled(true);
 				}
@@ -536,7 +536,7 @@ public class UnitGraphics {
 					String[] unitList = Lister.uisString(unitSystemChoice
 							.getSelectedItem().toString());
 					for (int i = 0; i < unitList.length; i++) {
-						System.out.println(unitList[i]);
+						//System.out.println(unitList[i]);
 						selectedUnitsSet.addElement(unitList[i]);
 					}
 				}
@@ -562,7 +562,7 @@ public class UnitGraphics {
 						// System.out.println(newUnitSet[i]);
 						selectedUnitsSet.addElement(newUnitSet[i]);
 					}
-					if (selectedUnitsSet.isEmpty()) {
+					if (selectedUnitsSet.equals(null)) {
 						addUnitButton.setEnabled(false);
 					} else {
 						addUnitButton.setEnabled(true);
