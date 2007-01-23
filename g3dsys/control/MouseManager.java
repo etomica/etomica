@@ -1,9 +1,4 @@
-/* $RCSfile$
- * $Author$
- * $Date$
- * $Revision$
- *
- * Copyright (C) 2002-2005  The Jmol Development Team
+/* Copyright (C) 2002-2005  The Jmol Development Team
  *
  * Contact: jmol-developers@lists.sf.net
  *
@@ -32,12 +27,14 @@ import java.awt.event.MouseMotionListener;
 class MouseManager implements MouseListener, MouseMotionListener {
 
   private G3DSys gsys;
+  private Component c; // for giving focus on click
 
   private int previousDragX, previousDragY;
   
   public MouseManager(Component component, G3DSys gs) {
     component.addMouseListener(this);
     component.addMouseMotionListener(this);
+    c = component;
     gsys = gs;
   }
 
@@ -45,7 +42,6 @@ class MouseManager implements MouseListener, MouseMotionListener {
   final static int RIGHT = Event.META_MASK;  // 4
 
   private void mouseSinglePressDrag(int deltaX, int deltaY, int modifiers) {
-  	long start = System.currentTimeMillis();
     switch (modifiers) {
     case LEFT:
       gsys.rotateByY((float)deltaX);
@@ -61,12 +57,12 @@ class MouseManager implements MouseListener, MouseMotionListener {
   }
 
   public void mousePressed(MouseEvent e) {
+    c.requestFocus(); // Sun says this is not foolproof
     previousDragX = e.getX();
     previousDragY = e.getY();
   }
   
   public void mouseDragged(MouseEvent e) {
-  	long start = System.currentTimeMillis();
     int deltaX = e.getX() - previousDragX;
     int deltaY = e.getY() - previousDragY;
     previousDragX = e.getX(); previousDragY = e.getY();

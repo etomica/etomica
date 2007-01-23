@@ -22,7 +22,7 @@ public class Line extends Figure {
     public void draw() {
         _gsys.screenSpace(start, s);
         _gsys.screenSpace(end, e);
-        _gsys.getG3D().drawDashedLine(_c, 0, 0, s, e);
+        _gsys.getG3D().drawDashedLine(_c, 0, 0, s.x, s.y, s.z, e.x, e.y, e.z);
     }
 
 	public float getD() { return 0; }

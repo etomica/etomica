@@ -52,33 +52,33 @@ public class Box extends Figure {
 		
 		//four top to bottom lines
         _gsys.screenSpace(LUT, t1); _gsys.screenSpace(LUB, t2);
-		g3d.drawLine(_c, t1, t2);
+		g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
         _gsys.screenSpace(LDT, t1); _gsys.screenSpace(LDB, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
         _gsys.screenSpace(RUT, t1); _gsys.screenSpace(RUB, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
         _gsys.screenSpace(RDT, t1); _gsys.screenSpace(RDB, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
 		
 		//four left to right lines
         _gsys.screenSpace(LUT, t1); _gsys.screenSpace(RUT, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
         _gsys.screenSpace(LDT, t1); _gsys.screenSpace(RDT, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
         _gsys.screenSpace(LUB, t1); _gsys.screenSpace(RUB, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
         _gsys.screenSpace(LDB, t1); _gsys.screenSpace(RDB, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
 		
 		//four up to down lines
         _gsys.screenSpace(LUT, t1); _gsys.screenSpace(LDT, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
         _gsys.screenSpace(RUT, t1); _gsys.screenSpace(RDT, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
         _gsys.screenSpace(LUB, t1); _gsys.screenSpace(LDB, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
         _gsys.screenSpace(RUB, t1); _gsys.screenSpace(RDB, t2);
-        g3d.drawLine(_c, t1, t2);
+        g3d.drawLine(_c, t1.x, t1.y, t1.z, t2.x, t2.y, t2.z);
 	}
 	
 	public float getD() {
