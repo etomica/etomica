@@ -159,8 +159,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                     Vector dr = phase.space().makeVector();
                     Vector dv = phase.space().makeVector();
 
-                    AtomLeaf atom0 = (AtomLeaf)pair.atom0;
-                    AtomLeaf atom1 = (AtomLeaf)pair.atom1;
+                    AtomLeaf atom0 = (AtomLeaf)debugPair.atom0;
+                    AtomLeaf atom1 = (AtomLeaf)debugPair.atom1;
                     ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
                     ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
                     dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
