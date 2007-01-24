@@ -56,7 +56,7 @@ public class SimFccHarmonic extends Simulation {
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(this,
                 integrator);
-        double timeStep = 0.04;
+        double timeStep = 4;
         integrator.setTimeStep(timeStep);
         getController().addAction(activityIntegrate);
 
@@ -69,9 +69,6 @@ public class SimFccHarmonic extends Simulation {
         bdry = new BoundaryRectangularPeriodic(this);
         phase.setBoundary(bdry);
         phase.setDensity(density);
-
-        PhaseImposePbc makeperiodic = new PhaseImposePbc(phase);
-        integrator.addListener(makeperiodic);
 
         if (space.D() == 1) {
             lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
@@ -100,7 +97,7 @@ public class SimFccHarmonic extends Simulation {
             density = 0.5;
         }
         String filename = "normal_modes1D";
-        double simTime = 1000;
+        double simTime = 4000000;
         if (args.length > 0) {
             filename = args[0];
         }
