@@ -117,7 +117,7 @@ public class MCMoveHarmonic extends MCMovePhase {
 
                 for (int i=0; i<normalDim; i++) {
                     for (int j=0; j<normalDim; j++) {
-                        u[j] += waveVectorCoefficients[iVector]*eigenVectors[iVector][i][j]*
+                        u[j] += Math.sqrt(waveVectorCoefficients[iVector])*eigenVectors[iVector][i][j]*
                                   (rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
                     }
                 }
