@@ -226,7 +226,7 @@ public class SimulationVirialOverlap extends Simulation {
             // set refPref back to -1 so that later on we know that we've been looking for
             // the appropriate value
             refPref = -1;
-            getController().addAction(ai);
+            getController().reset();
         }
 
     }
@@ -240,7 +240,7 @@ public class SimulationVirialOverlap extends Simulation {
             integrators[i].setEquilibrating(true);
         }
         getController().run();
-        getController().addAction(ai);
+        getController().reset();
 
         if (refPref == -1) {
             int newMinDiffLoc = dsvo.minDiffLocation();
