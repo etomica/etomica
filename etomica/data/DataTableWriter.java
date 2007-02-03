@@ -108,7 +108,9 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
         firstWrite = true;
     }
 
-    private FileWriter fileWriter;
+    private static final long serialVersionUID = 2L;
+    // DataLogger will give the fileWriter back to us when it actually writes
+    private transient FileWriter fileWriter;
     private boolean firstWrite;
     private DataInfo dataInfo;
     private boolean includeHeader;

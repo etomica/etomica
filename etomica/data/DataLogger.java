@@ -8,12 +8,6 @@ import java.util.Locale;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 
-
-/* History
- * 07/06/04 (DAK) added makeWriteAction method, defined Action class, and set
- * apart actions in doWrite method
- */
-
 /**
  * DataSink that manages a FileWriter and also listens to non-interval 
  * integrator events and sends appropriate data to a DataWriter.
@@ -40,7 +34,9 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
         dataInfo = newDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         insertTransformerIfNeeded();
-        dataSink.putDataInfo(dataInfo);
+        if (dataSink != null) {
+            dataSink.putDataInfo(dataInfo);
+        }
     }
     
     public DataTag getTag() {
@@ -56,6 +52,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
             caster.setDataSink(dataWriter);
             dataSink = caster;
         }
+        dataSink.putDataInfo(dataInfo);
     }
 
     public DataProcessor getDataCaster(DataInfo dataInfo) {
@@ -69,13 +66,18 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
      */
     public void setDataSink(DataSink dataWriter) {
         this.dataWriter = (DataWriter)dataWriter;
+        insertTransformerIfNeeded();
+    }
+    
+    public DataSink getDataSink() {
+        return dataWriter;
     }
     
     /**
      * Close file when integrator is done.
      */
     public void nonintervalAction(IntegratorNonintervalEvent evt){
-        if(evt.type() == IntegratorNonintervalEvent.DONE) {
+        if(evt.type() == IntegratorNonintervalEvent.DONE && dataWriter != null) {
             if (writeOnFinishSource != null) {
                 doWrite(writeOnFinishSource.getData());
             }
@@ -236,17 +238,18 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
     }
 
 
+    private static final long serialVersionUID = 2L;
     private int count; //counts number of events received before calling doAction().
     private int writeInterval; //number of times specified by the user between two actions.
                                 //could be set by setUpdateInterval() method.
     private String fileName; //output file name. This name should not have a suffix.
     private boolean appending = true; //whether to overwrite to the existing data 
                                         //or attach the data. Default is not overwriting.
-    protected FileWriter fileWriter; //this is a handle that subclass can use to write data.
+    protected transient FileWriter fileWriter; //this is a handle that subclass can use to write data.
     protected String fileNameSuffix = ".txt"; //Default suffix is text file, subclass can change this.
     private boolean sameFileEachTime = true; //whether to write to the same file at each INTERVAL.
     private boolean closeFileEachTime = false; //whether to close the file and open a new one at each INTERVAL.
-    private boolean fileIsOpen = false; //at the beginning, it is false.
+    private transient boolean fileIsOpen = false; //at the beginning, it is false.
     private int priority;
     private DataSource writeOnFinishSource = null;
     private boolean writeOnInterval = true;
@@ -254,6 +257,16 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
     private DataSink dataSink;
     private DataInfo dataInfo;
     protected final DataTag tag;
+
+    private void readObject(java.io.ObjectInputStream in)
+    throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        fileWriter = null;
+        // the file isn't open!  :)
+        // this will also cause fileWriter to be recreated when needed
+        fileIsOpen = false;
+    }
     
     /**
      * Interface for a DataSink that actually writes data to a file
