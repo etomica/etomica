@@ -14,9 +14,6 @@ import etomica.util.Arrays;
  */
 public class PotentialArray implements java.io.Serializable {
 
-	/**
-	 * 
-	 */
 	public PotentialArray() {
 		super();
 	}
@@ -67,9 +64,10 @@ public class PotentialArray implements java.io.Serializable {
     }
 
     /**
-     * Removes the given potential from the list held by this type instance,
-     * and returns the index that was assigned to it.  If the potential was
-     * not previously added to this instance, returns -1.
+     * Removes the given potential and the associated criterion from the list 
+     * held by this type instance, and returns the index that was assigned to 
+     * it.  If the potential was not previously added to this instance, returns
+     * -1.
      */
     public int removePotential(Potential potential) {
         for (int i=0; i<potentials.length; i++) {
@@ -78,6 +76,11 @@ public class PotentialArray implements java.io.Serializable {
     	    	System.arraycopy(potentials,0,newPotentials,0,i);
     	    	System.arraycopy(potentials,i+1,newPotentials,i,potentials.length-i-1);
     	    	potentials = newPotentials;
+
+                NeighborCriterion[] newCriteria = new NeighborCriterion[criteria.length-1];
+                System.arraycopy(criteria,0,newCriteria,0,i);
+                System.arraycopy(criteria,i+1,newCriteria,i,criteria.length-i-1);
+                criteria = newCriteria;
     	    	return i;
     		}
     	}
@@ -92,6 +95,7 @@ public class PotentialArray implements java.io.Serializable {
         return criteria;
     }
     
+    private static final long serialVersionUID = 1L;
     private Potential[] potentials = new Potential[0];
     private NeighborCriterion[] criteria = new NeighborCriterion[0];
     private int mostRecentIndex = -1;
