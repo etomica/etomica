@@ -58,7 +58,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		
 		//init AtomAgentManager, to sync G3DSys and Etomica models
 		//this automatically adds the atoms
-		aam = new AtomAgentManager(this,displayPhase.getPhase());
+		aam = new AtomAgentManager(this, displayPhase.getPhase(), false);
 
 //		gsys.refresh();
 	}
