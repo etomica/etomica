@@ -193,6 +193,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
             }
 
         }//end while(numActions > 0)
+        isActive = false;
         synchronized(this) {
             notifyAll();//notify any threads requesting halt and waiting for execution to complete
         }
