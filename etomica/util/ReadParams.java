@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * This class reads input parameters from a file and assigns the values to the
@@ -20,7 +18,7 @@ public class ReadParams implements java.io.Serializable {
         setInputFileName(inputFileName);
     }
     
-    public ReadParams(String inputFileName, Object parameterWrapper) {
+    public ReadParams(String inputFileName, ParamBase parameterWrapper) {
         this(inputFileName);
         setParameterWrapper(parameterWrapper);
     }
@@ -49,7 +47,7 @@ public class ReadParams implements java.io.Serializable {
     /**
      * Sets the parameterWrapper
      */
-    public void setParameterWrapper(Object newParameterWrapper) {
+    public void setParameterWrapper(ParamBase newParameterWrapper) {
         wrapper = newParameterWrapper;
         fields = wrapper.getClass().getFields();
     }
@@ -182,10 +180,10 @@ public class ReadParams implements java.io.Serializable {
         return wrapperClass;
     }
     
-    public Object makeWrapperObject(Class wrapperClass) {
+    public ParamBase makeWrapperObject(Class wrapperClass) {
         try {
             // make sure we can instantiate this thing
-            return wrapperClass.newInstance();
+            return (ParamBase)wrapperClass.newInstance();
         }
         catch (InstantiationException e) {
             if (firstException == null) {
@@ -288,9 +286,9 @@ public class ReadParams implements java.io.Serializable {
     }
     
     protected boolean parseUnknownType(Field field, String value) {
-        if (wrapper instanceof ParamWrapper) {
+        if (wrapper instanceof ObjectParamWrapper) {
             try {
-                ((ParamWrapper)wrapper).parseField(field, value);
+                ((ObjectParamWrapper)wrapper).parseField(field, value);
             }
             catch (RuntimeException ex) {
                 if (firstException == null) {
@@ -317,8 +315,9 @@ public class ReadParams implements java.io.Serializable {
         return firstException;
     }
 
+    private static final long serialVersionUID = 2L;
     protected Exception firstException;
     protected Field[] fields;
-    protected Object wrapper;
+    protected ParamBase wrapper;
     protected String fileName;
 }

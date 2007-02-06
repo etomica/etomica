@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * and Strings.  Other types are passed off to the wrapper object itself if
  * it is of type ParamWrapper.
  */
-public interface ParamWrapper {
+public interface ObjectParamWrapper {
 
     /**
      * Writes the given field using the given fileWriter.  The field is written

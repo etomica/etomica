@@ -16,7 +16,7 @@ public class WriteParams implements java.io.Serializable {
         setInputFileName(inputFileName);
     }
     
-    public WriteParams(String inputFileName, Object parameterWrapper) {
+    public WriteParams(String inputFileName, ParamBase parameterWrapper) {
         this(inputFileName);
         setParameterWrapper(parameterWrapper);
     }
@@ -38,14 +38,14 @@ public class WriteParams implements java.io.Serializable {
     /**
      * Returns the parameter wrapper.
      */
-    public Object getParameterWrapper() {
+    public ParamBase getParameterWrapper() {
         return wrapper;
     }
 
     /**
      * Sets the parameterWrapper
      */
-    public void setParameterWrapper(Object newParameterWrapper) {
+    public void setParameterWrapper(ParamBase newParameterWrapper) {
         wrapper = newParameterWrapper;
     }
 
@@ -73,7 +73,7 @@ public class WriteParams implements java.io.Serializable {
             throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage(),e);
         }
 
-        fileWriter.write("# Class "+wrapper.getClass().getName().toString()+"\n");
+        fileWriter.write("# Class "+wrapper.getClass().getName()+"\n");
         // write fields that were not in the file before
         for (int j=0; j<fields.length; j++) {
             doWrite(fileWriter,fields[j]);
@@ -146,14 +146,15 @@ public class WriteParams implements java.io.Serializable {
     }
     
     protected void writeUnknownType(FileWriter fileWriter, Field field) {
-        if (wrapper instanceof ParamWrapper) {
-            ((ParamWrapper)wrapper).writeField(fileWriter, field);
+        if (wrapper instanceof ObjectParamWrapper) {
+            ((ObjectParamWrapper)wrapper).writeField(fileWriter, field);
         }
         else {
             throw new RuntimeException("don't know how to parse field "+field.getName());
         }
     }
     
-    protected Object wrapper;
+    private static final long serialVersionUID = 1L;
+    protected ParamBase wrapper;
     protected String fileName;
 }
