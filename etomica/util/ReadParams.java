@@ -40,7 +40,7 @@ public class ReadParams implements java.io.Serializable {
     /**
      * Returns the parameter wrapper.
      */
-    public Object getParameterWrapper() {
+    public ParamBase getParameterWrapper() {
         return wrapper;
     }
 
@@ -164,7 +164,7 @@ public class ReadParams implements java.io.Serializable {
         return success;
     }
     
-    public Class getWrapperClass(String line) {
+    protected Class getWrapperClass(String line) {
         Class wrapperClass = null;
         try {
             wrapperClass = Class.forName(line);
