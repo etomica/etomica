@@ -92,6 +92,9 @@ public class TestHexane extends Simulation {
          moveMolecule.setStepSize(0.024);
          rot.setStepSize(0.042);
 
+         growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(), integrator, species);
+         growMolecule.setPhase(phase);
+         
         //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
         
         integrator.getMoveManager().addMCMove(moveMolecule);
@@ -204,7 +207,7 @@ public class TestHexane extends Simulation {
         else {
 
             String filename = "normal_modes_hexane";
-            
+
             PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
             // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
             WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive);
@@ -214,7 +217,8 @@ public class TestHexane extends Simulation {
             meterNormalMode.setWaveVectorFactory(waveVectorFactory);
             meterNormalMode.setNormalCoordWrapper(new NormalCoordHexane());
             meterNormalMode.setPhase(sim.phase);
-
+            System.out.println("0");
+            
             long nSteps = 1000000;
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
@@ -222,6 +226,7 @@ public class TestHexane extends Simulation {
 
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
+            System.out.println("1");
             sim.getController().reset();
             sim.activityIntegrate.setMaxSteps(nSteps);
             
@@ -264,6 +269,7 @@ public class TestHexane extends Simulation {
             }
         }
 
+        System.out.println("Go look at the data, silly!");
     }
 
     public ActivityIntegrate activityIntegrate;
@@ -274,6 +280,7 @@ public class TestHexane extends Simulation {
     public BoundaryDeformablePeriodic bdry;
  
     public MCMoveMolecule moveMolecule;
+    public CBMCGrowSolidHexane growMolecule;
     public BravaisLattice lattice;
     
 //    public MCMoveVolume moveVolume;
