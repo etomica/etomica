@@ -12,10 +12,6 @@ package etomica.integrator;
  * @see Integrator
  * @see IntervalEvent
  */
-
-/*
- * History Created on Apr 27, 2005 by kofke
- */
-interface IntegratorListener {
+public interface IntegratorListener {
 
 }
