@@ -40,7 +40,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     }
 
     public boolean doTrial() {
-        //pick a molecule & get it's childlist.
+        //pick a molecule & get its childlist.
         atom = phase.randomMolecule();
         uOld = energyMeter.getDataAsScalar();
         
