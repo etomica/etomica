@@ -168,4 +168,18 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	public void releaseAgent(Object agent, Atom atom) {
 		gsys.removeFig((Figure) agent);
 	}
+    
+    
+    public void setSlab(double slab) {
+      gsys.setSlabPercent((int)slab);
+    }
+    public double getSlab() {
+      return gsys.getSlabPercent();
+    }
+    public void setDepth(double depth) {
+      gsys.setDepthPercent((int)depth);
+    }
+    public double getDepth() {
+      return gsys.getDepthPercent();
+    }
 }
