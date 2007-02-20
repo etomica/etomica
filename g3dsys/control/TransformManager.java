@@ -54,7 +54,7 @@ class TransformManager {
     translateCenterTo(0, 0);
     matrixRotate.setIdentity(); // no rotations
     setZoomEnabled(true);
-    zoomToPercent(100);
+    zoomToPercent(2.0f/1.5f*100); // counters zoom-out resulting from clipping bug fix
     scaleFitToScreen();
     //navigationCenter.set(fixedRotationCenter);
   }
