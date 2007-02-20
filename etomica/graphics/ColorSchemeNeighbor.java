@@ -30,6 +30,9 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
             AtomLeaf atom = (AtomLeaf)allIterator.nextAtom();
             atomColors[atom.getGlobalIndex()] = typeColorScheme.getAtomColor(atom);//Color.green;
         }
+        if (referenceAtom == null) {
+            return;
+        }
         //color blue the neighbor atoms in same group
         nbrIterator.reset();
         while(nbrIterator.hasNext()) {
