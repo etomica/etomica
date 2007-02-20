@@ -43,8 +43,8 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
                 atomColors[atom.getGlobalIndex()] = Color.yellow;
             }
         }
-        //color red the target atom 
-        atomColors[referenceAtom.getGlobalIndex()] = Color.red;
+        //color green the target atom 
+        atomColors[referenceAtom.getGlobalIndex()] = Color.green;
     }
     
     public void setAtom(Atom a) {
