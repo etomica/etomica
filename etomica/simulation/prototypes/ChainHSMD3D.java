@@ -2,10 +2,12 @@
 
 package etomica.simulation.prototypes;
 
+import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
@@ -48,6 +50,7 @@ public class ChainHSMD3D extends Simulation {
         integrator.setIsothermal(false);
         integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
+        
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
@@ -58,8 +61,12 @@ public class ChainHSMD3D extends Simulation {
         
         phase = new Phase(this);
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc());
-        config.initializeCoordinates(phase);
         species.getAgent(phase).setNMolecules(numAtoms);
+        config.initializeCoordinates(phase);
+
+        PhaseImposePbc pbc = new PhaseImposePbc(phase);
+        integrator.addListener(pbc);
+        pbc.setApplyToMolecules(true);
         
         PotentialGroup p1Intra = P1BondedHardSpheres.makeP1BondedHardSpheres(this);
         potentialMaster.addPotential(p1Intra,new Species[]{species});
@@ -96,4 +103,9 @@ public class ChainHSMD3D extends Simulation {
  //       phase.setDensity(0.7);
     } //end of constructor
 
+    public static void main(String[] args) {
+      final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
+      final SimulationGraphic simGraphic = new SimulationGraphic(sim);
+      simGraphic.makeAndDisplayFrame();
+    }
 }//end of class
