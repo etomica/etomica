@@ -47,7 +47,7 @@ class MouseManager implements MouseListener, MouseMotionListener {
       // deltaY/X reversed here since
       // horizontal drag (x) : rotate around y, vertical (y) : rotate around x
       // also, /2 so we don't rotate too quickly
-      gsys.rotateByXY(deltaY/2, deltaX/2);
+      gsys.rotateByXY(deltaY/2.0f, deltaX/2.0f);
       gsys.fastRefresh();
       break;
     case RIGHT:

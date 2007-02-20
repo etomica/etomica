@@ -112,7 +112,7 @@ class TransformManager {
     return radians;
   }
 
-  void rotateXYBy(int xDelta, int yDelta) {
+  void rotateXYBy(float xDelta, float yDelta) {
     // from mouse action
     float f = 1;
     rotateXRadians(xDelta * radiansPerDegree * f);

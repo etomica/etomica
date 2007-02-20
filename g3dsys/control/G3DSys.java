@@ -182,8 +182,8 @@ public class G3DSys {
    */
   public void rotateByXY(float degx, float degy) {
     tm.rotateXYBy(
-        (int)((flipXAxis ? -1 : 1)*degx),
-        (int)((flipYAxis ? -1 : 1)*degy));
+        (flipXAxis ? -1 : 1)*degx,
+        (flipYAxis ? -1 : 1)*degy);
   }
   /**Rotate the display around the x axis
    * @param degrees the number of degrees to rotate
