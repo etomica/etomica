@@ -212,7 +212,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             oldTime = collisionTimeStep;
             collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
         } 
-        colliderAgent = null;
 
         advanceAcrossTimeStep(timeStep);
         collisionTimeStep = 0.0;
@@ -357,6 +356,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
         // reset might be called because atoms were added or removed
         // calling getAgents ensures we have an up-to-date array.
 
+        colliderAgent = null;
+        
         ConfigurationOverlapException overlapException = null;
         try {
             super.reset();
