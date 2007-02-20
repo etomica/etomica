@@ -3,6 +3,7 @@ package g3dsys.control;
 import g3dsys.images.Figure;
 
 import javax.vecmath.Point3f;
+import javax.vecmath.Tuple3f;
 
 /**
  *	Class that stores figures and delegates draw commands to them 
@@ -62,10 +63,10 @@ class FigureManager {
 	/** Dispatches draw commands to all stored Figures */
 	public void draw() {
 		// persistent center of rotation in the middle of the model
-        tempP.x = (min.x+max.x)/2;
-        tempP.y = (min.y+max.y)/2;
-        tempP.z = (min.z+max.z)/2;
-        gsys.setCenterOfRotation(tempP);
+//        tempP.x = (min.x+max.x)/2;
+//        tempP.y = (min.y+max.y)/2;
+//        tempP.z = (min.z+max.z)/2;
+//        gsys.setCenterOfRotation(tempP);
 		
         for (int j=0; j<idMax+1; j++) {
             figs[j].draw();
@@ -126,5 +127,32 @@ class FigureManager {
         min.x = minx; min.y = miny; min.z = minz;
         max.x = maxx; max.y = maxy; max.z = maxz;
         gsys.recalcPPA();
+    }
+
+    /**
+     * Finds the furthest distance in the model; in our dynamic model from
+     * one corner to the other. For rotation, assumed about the origin.
+     * This will always be a safe distance, regardless of the rotation point.
+     * @param center the reference point; currently ignored
+     * @return the furthest distance found, in Angstroms
+     */
+    public float calcRotationRadius(Point3f center) {
+      //real radius is /2, but still has clipping when atoms are near the boundary
+      //and /1 shrinks the model too much at 100% zoom; /1.5f compromise
+      //note that if an atom radius causes it to extend well outside the box
+      //there may still be clipping
+      return min.distance(max)/1.5f;
+    }
+
+    public Point3f getBoundingBoxCenter() {
+      return new Point3f(0,0,0);
+    }
+
+    public Point3f getAverageAtomPoint() {
+      Point3f average = new Point3f(0,0,0);
+      for (int i = figs.length; --i >= 0;)
+        average.add(figs[i].getPoint()); //nulls in figs?
+      average.scale(1f / figs.length);
+      return average;
     }
 }

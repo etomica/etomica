@@ -27,7 +27,7 @@ public class Ball extends Figure {
 	public void draw() {
         if(!drawme) return;
 		//if overhead is too much, give figures actual references later
-		_gsys.screenSpace(p, s);
+        _gsys.screenSpace(p, s);
 		int diam = _gsys.perspective(s.z, _d);
 		_gsys.getG3D().fillSphereCentered(_c, diam, s);
 	}

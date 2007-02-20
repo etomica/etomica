@@ -44,15 +44,16 @@ class MouseManager implements MouseListener, MouseMotionListener {
   private void mouseSinglePressDrag(int deltaX, int deltaY, int modifiers) {
     switch (modifiers) {
     case LEFT:
-      gsys.rotateByY((float)deltaX);
-      gsys.rotateByX((float)deltaY);
+      // deltaY/X reversed here since
+      // horizontal drag (x) : rotate around y, vertical (y) : rotate around x
+      // also, /2 so we don't rotate too quickly
+      gsys.rotateByXY(deltaY/2, deltaX/2);
       gsys.fastRefresh();
       break;
     case RIGHT:
-    	gsys.xlateX(deltaX);
-    	gsys.xlateY(deltaY);
-    	gsys.fastRefresh();
-    	break;
+      gsys.xlateXY(deltaX, deltaY);
+      gsys.fastRefresh();
+      break;
     }
   }
 
@@ -66,7 +67,7 @@ class MouseManager implements MouseListener, MouseMotionListener {
     int deltaX = e.getX() - previousDragX;
     int deltaY = e.getY() - previousDragY;
     previousDragX = e.getX(); previousDragY = e.getY();
-    mouseSinglePressDrag(deltaX/2, deltaY/2, e.getModifiers());
+    mouseSinglePressDrag(deltaX, deltaY, e.getModifiers());
   }
 
   public void mouseMoved(MouseEvent e) {}

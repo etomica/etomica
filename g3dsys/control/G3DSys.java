@@ -7,6 +7,7 @@ import java.awt.event.ComponentListener;
 
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
+import javax.vecmath.Tuple3f;
 
 import org.jmol.g3d.Graphics3D;
 
@@ -34,27 +35,32 @@ public class G3DSys {
 
   // classes needing communication amongst themselves
   // coupled in function not in code
-  private CoordMapper cm;
   private FigureManager fm;
   private Display dm;
+  private TransformManager tm;
 
   private java.awt.Container parent; //awt object in which system is contained
   private Graphics3D g3d; //instance of G3D
 
+  private Point3i tempp; //for storing transformations
+  
   public G3DSys(java.awt.Container window) {
     //init infrastructure
     parent = window;
     dm = new Display(this);
 
     fm = new FigureManager(this);
-    cm = new CoordMapper(this);
+    tm = new TransformManager(this);
+    tm.clear();
+    tm.zoomToPercent(100f);
+    tm.setDefaultRotation();
     dm.setSize(parent.getSize());
 
     //init g3d
     g3d = new Graphics3D(dm);
     g3d.setWindowSize(window.getWidth()-10, window.getHeight()-60, false);
     g3d.setBackgroundArgb(0xFF000000);
-    g3d.setSlabAndDepthValues(0, Short.MAX_VALUE);
+    g3d.setSlabAndDepthValues(0, Integer.MAX_VALUE);
 
     //enable scaling resize
     parent.addComponentListener(new ComponentListener() {
@@ -86,8 +92,8 @@ public class G3DSys {
   public void refresh() {
     dm.setSize(parent.getSize());
     dm.setLocation(0,0);
+    tm.setScreenDimension(parent.getWidth(), parent.getHeight());
     g3d.setWindowSize(parent.getWidth(), parent.getHeight(), false);
-    cm.recalcPPA();
     dm.repaint();
   }
 
@@ -118,9 +124,14 @@ public class G3DSys {
   /** Gets the pixel height of the display
    *  @return height of the g3d display area in pixels */
   public int getPixelHeight() { return parent.getHeight(); }
-  /** Gets the pixel depth of the display
+  /** Gets the pixel depth of the display (zbuffer)
    *  @return depth of the g3d display area in pixels */
-  public int getPixelDepth() { return cm.angToPixel(fm.getDepth()); }
+  public int getPixelDepth() {
+    //used for slab/depth changes; need a better way to do this
+    //zoom level affects this
+    calcZbufferLimits();
+    return zbufferBack - zbufferFront;
+  }
   /** Gets the Angstrom width of the model
    *  @return width of the model in Angstroms */
   public float getAngstromWidth() { return fm.getWidth(); }
@@ -157,46 +168,63 @@ public class G3DSys {
   /* ****************************************************************
    * Rotation and translation delegation
    * ****************************************************************/
-  private boolean flipYAxis = true;
+  private boolean flipYAxis = false;
   private boolean flipXAxis = false;
+  public boolean isYFlipped() { return flipYAxis; }
+  public boolean isXFlipped() { return flipXAxis; }
+  public void setYFlipped(boolean y) { flipYAxis = y; }
+  public void setXFlipped(boolean x) { flipXAxis = x; }
+
+  /**
+   * Rotate the display around the x and y axes
+   * @param degx the number of degrees to rotate x
+   * @param degy the number of degrees to rotate y
+   */
+  public void rotateByXY(float degx, float degy) {
+    tm.rotateXYBy(
+        (int)((flipXAxis ? -1 : 1)*degx),
+        (int)((flipYAxis ? -1 : 1)*degy));
+  }
   /**Rotate the display around the x axis
    * @param degrees the number of degrees to rotate
    */
   public void rotateByX(float degrees) {
-    cm.rotateByX( (flipXAxis ? -1 : 1) * degrees);
+    rotateByXY(degrees,0);
   }
 
   /**Rotate the display around the y axis
    * @param degrees the number of degrees to rotate
    */
   public void rotateByY(float degrees) {
-    cm.rotateByY( (flipYAxis ? -1 : 1) * degrees);
+    rotateByXY(0,degrees);
   }
 
   /**Rotate the display around the z axis
    * @param degrees the number of degrees to rotate
    */
-  public void rotateByZ(float degrees) { cm.rotateByZ(degrees);	}
+  public void rotateByZ(float degrees) { tm.rotateZBy((int)degrees); }
 
   /** Remove all rotation (and translation) and return to the home position */
-  public void rotateToHome() { cm.rotateToHome(); }
+  public void rotateToHome() { tm.homePosition(); }
   /** Translate model 20% of pixel width to the left (-x) */
-  public void xlateLeft() { cm.xlateX(-1*getPixelWidth()/5); }
+  public void xlateLeft() { tm.translateXYBy(-(int)(tm.width*.2), 0); }
   /** Translate model 20% of pixel width to the right (+x) */
-  public void xlateRight() { cm.xlateX(getPixelWidth()/5); }
+  public void xlateRight() { tm.translateXYBy((int)(tm.height*.2), 0); }
   /** Translate model 20% of pixel width up (-y) */
-  public void xlateUp() { cm.xlateY(-1*getPixelHeight()/5); }
+  public void xlateUp() { tm.translateXYBy(0, -(int)(tm.height*.2)); }
   /** Translate model 20% of pixel width down (+y) */
-  public void xlateDown() { cm.xlateY(getPixelHeight()/5); }
-  /** Translate model horizontally x pixels */
-  public void xlateX(int x) { cm.xlateX(x); }
-  /** Translate model vertically y pixels */
-  public void xlateY(int y) { cm.xlateY(y); }
+  public void xlateDown() { tm.translateXYBy(0, (int)(tm.height*.2)); }
+  /** Trnaslate model x,y pixels */
+  public void xlateXY(int x, int y) { tm.translateXYBy(x, y); }
   /** Set the molecule space location around which rotation occurs */
-  public void setCenterOfRotation(Point3f p) { cm.setCenterOfRotation(p); }
-  public Point3f getCenterOfRotation() { return cm.getCenterOfRotation(); }
-
-
+  public void setCenterOfRotation(Point3f p) {
+    //looks like it should work, but haven't tried it yet 2/9/07
+    tm.setRotationPointXY(p);
+  } 
+  public Point3f getCenterOfRotation() {
+    return tm.getRotationCenter();
+  }
+  
   /**
    * Set the min and maximum coordinates for the model.  The zoom level is set
    * such that everything within the box is viewable.
@@ -209,9 +237,25 @@ public class G3DSys {
    */
   public void setBoundingBox(float minx, float miny, float minz,
           float maxx, float maxy, float maxz) {
+    if(fm.getMinX() == fm.getMaxX()) {
+      //initialize; one dimension is flat
       fm.setBoundingBox(minx, miny, minz, maxx, maxy, maxz);
+      tm.homePosition();
+    }
+    else {
+      fm.setBoundingBox(minx, miny, minz, maxx, maxy, maxz);
+       /* allows the rotation radius to grow along with the bounding box
+        * fixes the clipping bug for a growing system, sort of.
+        * 
+        */
+      tm.setDefaultRotation();
+    }
   }
 
+  public Point3f getBoundingBoxCenter() {
+    return fm.getBoundingBoxCenter();
+  }
+  
   /* ****************************************************************
    * CoordMapper delegation
    * ****************************************************************/
@@ -221,28 +265,39 @@ public class G3DSys {
    * @param p the point to convert
    * @return the pixel coordinate
    */
-  public void screenSpace(Point3f p, Point3i s) { cm.screenSpace(p, s); }
+  public void screenSpace(Point3f p, Point3i s) {
+    tempp = tm.transformPoint(p);
+    s.set(tempp.x, tempp.y, tempp.z);
+  }
   /**
    * Handles perspective based on depth and diameter.
    * @param z depth of an object
    * @param d diameter of an object
    * @return the new perspective-scaled diameter for the object
    */
-  public int perspective(int z, float d) { return cm.perspective(z,d); }
+  public short perspective(int z, float d) {
+    return tm.scaleToScreen(z, (int)(d*1000f));
+  }
   /**
    * Recalculates the pixel per Angstrom ratio
    */
-  public void recalcPPA() { cm.recalcPPA(); }
+  public void recalcPPA() {
+    //no longer needed since move to TransformManager
+  }
   /**
    * Increase the zoom level by i percent
    * @param i the percentage amount to increase 
    */
-  public void zoomUp(int i) { cm.zoomUp(i); }
+  public void zoomUp(int i) {
+    tm.zoomToPercent(tm.getZoomPercent()+10);
+  }
   /**
    * Decrease the zoom level by i percent
    * @param i the percentage amount to decrease
    */
-  public void zoomDown(int i) { cm.zoomDown(i); }
+  public void zoomDown(int i) {
+    tm.zoomToPercent(tm.getZoomPercentFloat()-10);
+  }
 
 
 
@@ -256,7 +311,11 @@ public class G3DSys {
   public float getMaxX() { return fm.getMaxX(); }
   public float getMaxY() { return fm.getMaxY(); }
   public float getMaxZ() { return fm.getMaxZ(); }
-  public void draw() { fm.draw();}
+  public void draw() {
+    tm.finalizeTransformParameters();
+    g3d.setSlabAndDepthValues(tm.slabValue, tm.depthValue);
+    fm.draw();
+  }
 
 
   /**
@@ -282,4 +341,47 @@ public class G3DSys {
   public static short getColix(java.awt.Color color) {
     return Graphics3D.getColix(color2argb(color));
   }
+
+  /**
+   * Finds the atom distance furthest from the given point; for rotation
+   * @param center the reference point
+   * @return the furthest distance found, in Angstroms
+   */
+  public float calcRotationRadius(Point3f center) {
+    return fm.calcRotationRadius(center);
+  }
+
+  public Point3f getAverageAtomPoint() {
+    return fm.getAverageAtomPoint();
+  }
+
+  private Point3f origin = new Point3f(0,0,0);
+  private int zbufferCenter = 0, zbufferFront = 0, zbufferBack = 0;
+  public void calcZbufferLimits() {
+    int pixelWidth = (int)(
+        java.lang.Math.abs(fm.getMaxX())+
+        java.lang.Math.abs(fm.getMinX())*
+        tm.scalePixelsPerAngstrom*2);
+    zbufferCenter = tm.transformPoint(origin).z;
+    zbufferFront = zbufferCenter - pixelWidth;
+    zbufferBack = zbufferCenter + pixelWidth;
+    System.out.print("zbufferBack: "+zbufferBack);
+    System.out.println(", zbufferFront: "+zbufferFront);
+  }
+
+
+
+
+  public double getSlabPercent() { return tm.getSlabPercentSetting(); }
+
+  public double getDepthPercent() { return tm.getDepthPercentSetting();  }
+
+  public void setSlabPercent(int val) {
+    tm.slabToPercent(val);
+  }
+
+  public void setDepthPercent(int val) {
+    tm.depthToPercent(val);
+  }
+
 }
