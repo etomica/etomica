@@ -14,11 +14,6 @@ import etomica.units.Dimension;
  * @author Andrew Schultz and David Kofke
  *  
  */
-
-/*
- * History
- * Created on Jun 15, 2005 by kofke
- */
 public class DataInteger implements Data, java.io.Serializable {
 
     /**
@@ -26,22 +21,6 @@ public class DataInteger implements Data, java.io.Serializable {
      */
     public DataInteger() {
         super();
-    }
-
-    /**
-     * Copy constructor.
-     */
-    public DataInteger(DataInteger data) {
-        super();
-        x = data.x;
-    }
-    
-    /**
-     * Returns a copy of this instance.  Returned object has its own instances of
-     * all fields, set equal to the values of this instance's fields.
-     */
-    public Data makeCopy() {
-        return new DataInteger(this);
     }
 
     /**
@@ -65,6 +44,7 @@ public class DataInteger implements Data, java.io.Serializable {
         return Integer.toString(x);
     }
     
+    private static final long serialVersionUID = 1L;
     /**
      * The encapsulated <tt>int</tt> value.
      */
@@ -82,6 +62,8 @@ public class DataInteger implements Data, java.io.Serializable {
         public Data makeData() {
             return new DataInteger();
         }
+
+        private static final long serialVersionUID = 1L;
     }
     
     public static class DataInfoIntegerFactory extends DataInfoFactory {
@@ -95,5 +77,7 @@ public class DataInteger implements Data, java.io.Serializable {
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));
             return dataInfo;
         }
+
+        private static final long serialVersionUID = 1L;
     }
 }

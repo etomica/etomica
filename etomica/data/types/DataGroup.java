@@ -28,10 +28,6 @@ import etomica.util.Function;
  *
  */
 
-/*
- * History
- * Created on Jun 16, 2005 by kofke
- */
 public class DataGroup implements DataArithmetic, java.io.Serializable {
 
     /**
@@ -55,31 +51,6 @@ public class DataGroup implements DataArithmetic, java.io.Serializable {
         this.data = (Data[])data.clone();
     }
     
-    /**
-     * Copy constructor.  Performs a deep copy, forming a new
-     * DataGroup with new instances of copies of this instance's
-     * data objects.
-     */
-    public DataGroup(DataGroup group) {
-        super();
-        this.data = new Data[group.data.length];
-        for(int i=0; i<data.length; i++) {
-            if(group.data[i] != null) {
-                this.data[i] = group.data[i].makeCopy();
-            }
-        }
-    }
-    
-    /**
-     * Returns a deep copy of this instance.  Returned object has its own instances of
-     * all fields, set equal to the values of this instance's fields.  All data
-     * objects in this group are copied.
-     */
-    public Data makeCopy() {
-        return new DataGroup(this);
-    }
-
-
     /**
      * Applies the E method to all Data elements held, in a one-to-one
      * correspondence with the elements in the given data group.
@@ -130,6 +101,7 @@ public class DataGroup implements DataArithmetic, java.io.Serializable {
         return string.toString();
     }
     
+    private static final long serialVersionUID = 1L;
     protected final Data[] data;
     
     public static class DataInfoGroup extends DataInfo implements DataInfoArithmetic {
@@ -176,10 +148,12 @@ public class DataGroup implements DataArithmetic, java.io.Serializable {
             return new DataGroup(subData);
         }
 
+        private static final long serialVersionUID = 1L;
         protected final DataInfo[] subDataInfo;
     }
     
     public static class DataInfoGroupFactory extends DataInfoFactory {
+
         protected DataInfoGroupFactory(DataInfoGroup template) {
             super(template);
             subDataInfo = (DataInfo[])template.subDataInfo.clone();
@@ -200,6 +174,7 @@ public class DataGroup implements DataArithmetic, java.io.Serializable {
             return subDataInfo;
         }
         
+        private static final long serialVersionUID = 1L;
         protected DataInfo[] subDataInfo;
     }
 

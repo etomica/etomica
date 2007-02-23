@@ -67,18 +67,6 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
         x = new double[arrayShape[0]*jumpCount[0]];
     }
 
-    /**
-     * Copy constructor.  Makes a new DataDoubleArray having the same DataInfo instance
-     * as the given DataDoubleArray.  New instance will encapsulate a double array that
-     * is a clone of the one in the given instance. 
-     */
-    public DataDoubleArray(DataDoubleArray data) {
-        super();
-        x = (double[])data.x.clone();
-        jumpCount = data.jumpCount;
-        arrayShape = data.jumpCount;
-    }
-    
    /**
     * Wraps the given array, xData in a DataDoubleArray of the given shape.
     * 
@@ -101,14 +89,6 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
             throw new IllegalArgumentException("length of xData must be equal to product of arrayShapes");
         }
         x = xData;
-    }
-    
-    /**
-     * Returns a copy of this instance. Returned object has its own instances of
-     * the data, initialized to the values in this instance.
-     */
-    public Data makeCopy() {
-        return new DataDoubleArray(this);
     }
     
     /**
@@ -349,6 +329,7 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
         return x.toString();
     }
     
+    private static final long serialVersionUID = 1L;
     private final double[] x;
     private final int[] jumpCount;
     private final int[] arrayShape;
@@ -387,6 +368,8 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
         public Data makeData() {
             return new DataDoubleArray(arrayShape);
         }
+
+        private static final long serialVersionUID = 1L;
     }
     
     public static class DataInfoDoubleArrayFactory extends DataInfoFactory {
@@ -417,6 +400,7 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
             return (int[])arrayShape.clone();
         }
         
+        private static final long serialVersionUID = 1L;
         private int[] arrayShape;
     }
 }

@@ -18,10 +18,6 @@ import etomica.util.Function;
  * @author David Kofke
  *  
  */
-
-/*
- * History Created on Jun 15, 2005 by kofke
- */
 public class DataVector implements DataArithmetic, java.io.Serializable {
 
     /**
@@ -38,23 +34,6 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
     public DataVector(Space space) {
         super();
         x = space.makeVector();
-    }
-
-    /**
-     * Copy constructor.
-     */
-    public DataVector(DataVector data) {
-        super();
-        x = (Vector) data.x.clone();
-    }
-
-    /**
-     * Returns a deep copy of this instance. Returned object has its own instances of
-     * all fields, set equal to the values of this instance's fields.  This instance
-     * and the copy share the same DataInfo, which is immutable.
-     */
-    public Data makeCopy() {
-        return new DataVector(this);
     }
 
     /**
@@ -158,6 +137,7 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
         return x.toString();
     }
     
+    private static final long serialVersionUID = 1L;
     /**
      * The wrapped vector data.
      */
@@ -181,7 +161,8 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
         public Data makeData() {
             return new DataVector(space);
         }
-        
+
+        private static final long serialVersionUID = 1L;
         protected final Space space;
     }
 
@@ -208,7 +189,8 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
         public Space getSpace() {
             return space;
         }
-        
+
+        private static final long serialVersionUID = 1L;
         protected Space space;
     }
 }

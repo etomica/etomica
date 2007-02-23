@@ -63,23 +63,8 @@ public class DataFunction extends DataDoubleArray {
     public DataFunction(int[] arrayShape) {
         super(arrayShape);
     }
-    
-    /**
-     * Copy constructor. New DataFunction instance and original share the same 
-     * independent data instances (and DataInfo); new and original have different
-     * instances of dependent data.
-     */
-    public DataFunction(DataFunction data) {
-        super(data);
-    }
-    
-    /**
-     * Returns a copy of this instance, holding the same instances of the independent
-     * data and a new instance of the dependent data.
-     */
-    public Data makeCopy() {
-        return new DataFunction(this);
-    }
+
+    private static final long serialVersionUID = 1L;
 
     public static class DataInfoFunction extends DataInfoDoubleArray {
         public DataInfoFunction(String label, Dimension dimension, DataSourceIndependent xDataSource) {
@@ -107,6 +92,7 @@ public class DataFunction extends DataDoubleArray {
             return new DataFunction(arrayShape);
         }
 
+        private static final long serialVersionUID = 1L;
         protected final DataSourceIndependent xDataSource;
     }
     
@@ -138,6 +124,7 @@ public class DataFunction extends DataDoubleArray {
             return xDataSource;
         }
         
+        private static final long serialVersionUID = 1L;
         protected DataSourceIndependent xDataSource;
     }
 }

@@ -36,12 +36,6 @@ package etomica.data;
 public interface Data {
 
     /**
-     * Returns a new instance of a data object, formed as a deep copy of this
-     * instance.
-     */
-    public Data makeCopy();
-
-    /**
      * Deep-copies the data from the given object to this one.
      * 
      * @throws ClassCastException

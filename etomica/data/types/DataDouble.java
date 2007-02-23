@@ -17,10 +17,6 @@ import etomica.util.Function;
  * @author David Kofke and Andrew Schultz
  *  
  */
-
-/*
- * History Created on Jun 15, 2005 by kofke
- */
 public class DataDouble implements DataArithmetic, java.io.Serializable {
 
     /**
@@ -30,23 +26,6 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
      */
     public DataDouble() {
         super();
-    }
-
-    /**
-     * Copy constructor.  Makes a new DataDouble having the same data value as 
-     * the given DataDouble.
-     */
-    public DataDouble(DataDouble data) {
-        super();
-        x = data.x;
-    }
-
-    /**
-     * Returns a copy of this instance. Returned object has its own instances of
-     * all fields, set equal to the values of this instance's fields.
-     */
-    public Data makeCopy() {
-        return new DataDouble(this);
     }
 
     /**
@@ -163,6 +142,7 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
         return Double.toString(x);
     }
 
+    private static final long serialVersionUID = 1L;
     /**
      * The wrapped data value held by this object.
      */
@@ -180,6 +160,8 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
         public Data makeData() {
             return new DataDouble();
         }
+
+        private static final long serialVersionUID = 1L;
     }
     
     public static class DataInfoDoubleFactory extends DataInfoFactory {
@@ -193,5 +175,7 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));
             return dataInfo;
         }
+
+        private static final long serialVersionUID = 1L;
     }
 }

@@ -34,10 +34,6 @@ import etomica.util.Function;
  * @author David Kofke and Andrew Schultz
  *  
  */
-
-/*
- * History Created on Jul 28, 2005 by kofke
- */
 public class DataTable extends DataGroup implements DataArithmetic, Serializable {
 
     /**
@@ -75,22 +71,6 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
                 throw new IllegalArgumentException("All columns must have the same length");
             }
         }
-    }
-    
-    /**
-     * Copy constructor. Makes a new DataTable with new Column instances having
-     * the same data values and row headings as in the given DataTable.
-     */
-    public DataTable(DataTable dataTable) {
-        this(dataTable.getNData(), dataTable.getNRows());
-        E(dataTable);
-    }
-
-    /**
-     * Makes a copy of this DataTable using the copy constructor.
-     */
-    public Data makeCopy() {
-        return new DataTable(this);
     }
     
     /**
@@ -255,6 +235,8 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
         return false;
     }
 
+    private static final long serialVersionUID = 1L;
+
     public static class DataInfoTable extends DataInfoGroup implements DataInfoArithmetic {
         public DataInfoTable(String label, DataInfo[] columnInfo, int nRows, String[] rowHeaders) {
             super(label, Null.DIMENSION, columnInfo);
@@ -297,6 +279,7 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
             return new DataTable(subDataInfo.length, nRows);
         }
 
+        private static final long serialVersionUID = 1L;
         protected final String[] rowHeaders;
         protected final int nRows;
     }
@@ -378,6 +361,7 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
             columnInfoFactories = (DataInfoDoubleArrayFactory[])newColumnInfoFactories.clone();
         }
         
+        private static final long serialVersionUID = 1L;
         protected DataInfoDoubleArrayFactory[] columnInfoFactories;
         protected String[] rowHeaders;
         protected int nRows;

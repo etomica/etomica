@@ -20,9 +20,6 @@ import etomica.util.Function;
  *  
  */
 
-/*
- * History Created on Jun 15, 2005 by andrew
- */
 public class DataTensor implements DataArithmetic, java.io.Serializable {
 
     /**
@@ -39,23 +36,6 @@ public class DataTensor implements DataArithmetic, java.io.Serializable {
     public DataTensor(Space space) {
         super();
         x = space.makeTensor();
-    }
-
-    /**
-     * Copy constructor.
-     */
-    public DataTensor(DataTensor data) {
-        super();
-        x = (Tensor) data.x.clone();
-    }
-
-    /**
-     * Returns a deep copy of this instance. Returned object has its own
-     * instances of all fields, set equal to the values of this instance's
-     * fields. This instance and the copy share the same DataInfo, which is immutable.
-     */
-    public Data makeCopy() {
-        return new DataTensor(this);
     }
 
     /**
@@ -166,6 +146,7 @@ public class DataTensor implements DataArithmetic, java.io.Serializable {
         return x.toString();
     }
 
+    private static final long serialVersionUID = 1L;
     /**
      * The wrapped tensor data.
      */
@@ -190,6 +171,7 @@ public class DataTensor implements DataArithmetic, java.io.Serializable {
             return new DataTensor(space);
         }
         
+        private static final long serialVersionUID = 1L;
         protected final Space space;
     }
     
@@ -220,6 +202,7 @@ public class DataTensor implements DataArithmetic, java.io.Serializable {
             return space;
         }
         
+        private static final long serialVersionUID = 1L;
         protected Space space;
     }
 }
