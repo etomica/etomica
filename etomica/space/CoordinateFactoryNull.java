@@ -6,6 +6,8 @@ package etomica.space;
  */
 public class CoordinateFactoryNull implements CoordinateFactory, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     public ICoordinate makeCoordinate() {
         return null;
     }
