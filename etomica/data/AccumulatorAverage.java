@@ -174,6 +174,13 @@ public class AccumulatorAverage extends DataAccumulator {
             standardDeviation.ME(work);
             standardDeviation.map(Function.Sqrt.INSTANCE);
         }
+        else if (blockSize > blockCountDown) {
+            average.E(blockSum);
+            average.TE(1.0/(blockSize-blockCountDown));
+            error.E(Double.NaN);
+            blockCorrelation.E(Double.NaN);
+            standardDeviation.E(Double.NaN);
+        }
         return dataGroup;
     }
 
@@ -337,6 +344,7 @@ public class AccumulatorAverage extends DataAccumulator {
     }//end of ValueType
 
 
+    private static final long serialVersionUID = 1L;
     protected DataArithmetic sum; //sum(blockSum/blkSize) = sum(blockAvg)
     protected DataArithmetic sumSquare;//sum(blockAvg^2)
     protected DataArithmetic blockSum;//block(value)
@@ -352,4 +360,4 @@ public class AccumulatorAverage extends DataAccumulator {
     protected int blockSize;
     private final DataTag mostRecentTag, averageTag, errorTag, standardDeviationTag, mostRecentBlockTag, blockCorrelationTag;
 
-}//end of AccumulatorAverage
+}
