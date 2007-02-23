@@ -52,7 +52,7 @@ public class DataHistogram extends DataProcessor {
     protected Data processData(Data inputData) {
         DataArithmetic values = (DataArithmetic)inputData;
         histogram.reset();
-        for (int i = nData-1; i >= 0; i--) {
+        for (int i = 0; i <nData; i++) {
             histogram.addValue(values.getValue(i));
         }
 
