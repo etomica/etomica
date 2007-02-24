@@ -57,8 +57,8 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
             for (int i=0; i<normalDim; i++) {
                 double realCoord = 0, imaginaryCoord = 0;
                 for (int j=0; j<normalDim; j++) {
-                    realCoord += realT[j] * eigenVectors[iVector][j][i];
-                    imaginaryCoord += imaginaryT[j] * eigenVectors[iVector][j][i];
+                    realCoord += eigenVectors[iVector][j][i] * realT[j];
+                    imaginaryCoord += eigenVectors[iVector][j][i] * imaginaryT[j];
                 }
                 // we were supposed to divide T by sqrt(atomCount), but it's easier to handle that here
                 double normalCoord = (realCoord*realCoord + imaginaryCoord*imaginaryCoord)/atomCount;
