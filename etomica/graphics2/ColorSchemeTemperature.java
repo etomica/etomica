@@ -51,7 +51,7 @@ public class ColorSchemeTemperature implements ColorScheme {
         
     public int atomColor(AtomLeaf a) {
         float blueness = 0.0f;
-        double ke = ((AtomTypeLeaf)a.getType()).getMass()*((ICoordinateKinetic)a.getCoord()).velocity().squared();
+        double ke = ((AtomTypeLeaf)a.getType()).getMass()*((ICoordinateKinetic)a.getCoord()).getVelocity().squared();
         if(ke > KEMax) {blueness = 0.0f;}
         else if(ke < KEMin) {blueness = 1.0f;}
         else {blueness = (float)((KEMax-ke)*range);}

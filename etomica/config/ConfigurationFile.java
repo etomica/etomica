@@ -43,7 +43,7 @@ public class ConfigurationFile extends Configuration {
         
     private void setPosition(AtomLeaf atom, String string) {
         String[] coordStr = string.split(" +");
-        Vector pos = atom.getCoord().position();
+        Vector pos = atom.getCoord().getPosition();
         for (int i=0; i<pos.D(); i++) {
             pos.setX(i, Double.valueOf(coordStr[i]).doubleValue());
         }

@@ -29,16 +29,16 @@ public class ConformationWaterTIP4P extends Conformation {
         iterator.reset();
         
         AtomLeaf o = (AtomLeaf)iterator.nextAtom();
-        o.getCoord().position().E(new double[] {x, y, 0.0});
+        o.getCoord().getPosition().E(new double[] {x, y, 0.0});
                
         AtomLeaf h1 = (AtomLeaf)iterator.nextAtom();
-        h1.getCoord().position().E(new double[] {x+bondLengthOH, y, 0.0});
+        h1.getCoord().getPosition().E(new double[] {x+bondLengthOH, y, 0.0});
                 
         AtomLeaf h2 = (AtomLeaf)iterator.nextAtom();
-        h2.getCoord().position().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
+        h2.getCoord().getPosition().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
         
         AtomLeaf m = (AtomLeaf)iterator.nextAtom();
-        m.getCoord().position().E(new double[] {x+rOM*Math.cos(angleHOH/2.0), y+rOM*Math.sin(angleHOH/2.0), 0.0});
+        m.getCoord().getPosition().E(new double[] {x+rOM*Math.cos(angleHOH/2.0), y+rOM*Math.sin(angleHOH/2.0), 0.0});
 
     }
     

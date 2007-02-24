@@ -22,7 +22,7 @@ public class AtomActionTranslateBy extends AtomActionAdapter {
     }
     
     public void actionPerformed(Atom atom) {
-        ((AtomLeaf)atom).getCoord().position().PE(translationVector);
+        ((AtomLeaf)atom).getCoord().getPosition().PE(translationVector);
     }
        
     /**

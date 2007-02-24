@@ -69,9 +69,9 @@ public class P2SquareWell extends Potential2HardSpherical {
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
         ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
         ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
-        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
-        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
         nearestImageTransformer.nearestImage(dr);
 
@@ -120,13 +120,13 @@ public class P2SquareWell extends Potential2HardSpherical {
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        coord0.velocity().PEa1Tv1( rm0,dv);
-        coord1.velocity().PEa1Tv1(-rm1,dv);
-        coord0.position().PEa1Tv1(-falseTime*rm0,dv);
-        coord1.position().PEa1Tv1( falseTime*rm1,dv);
+        coord0.getVelocity().PEa1Tv1( rm0,dv);
+        coord1.getVelocity().PEa1Tv1(-rm1,dv);
+        coord0.getPosition().PEa1Tv1(-falseTime*rm0,dv);
+        coord1.getPosition().PEa1Tv1( falseTime*rm1,dv);
         if(nudge != 0) {
-            coord0.position().PEa1Tv1(-nudge,dr);
-            coord1.position().PEa1Tv1(nudge,dr);
+            coord0.getPosition().PEa1Tv1(-nudge,dr);
+            coord1.getPosition().PEa1Tv1(nudge,dr);
         }
     }//end of bump method
 
@@ -148,9 +148,9 @@ public class P2SquareWell extends Potential2HardSpherical {
     public double collisionTime(AtomSet pair, double falseTime) {
         ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).getCoord();
         ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).getCoord();
-        dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+        dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
-        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
         nearestImageTransformer.nearestImage(dr);
 

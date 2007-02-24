@@ -62,9 +62,9 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
         else {
             while (iterator.hasNext()) {
                 AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                Vector shift = boundary.centralImage(atom.getCoord().position());
+                Vector shift = boundary.centralImage(atom.getCoord().getPosition());
                 if (!shift.isZero()) {
-                    atom.getCoord().position().PE(shift);
+                    atom.getCoord().getPosition().PE(shift);
                 }
             }
         }

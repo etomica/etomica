@@ -33,14 +33,14 @@ public class CoordinateAngularKinetic extends CoordinateAngular implements
     /**
      * Returns the angular-velocity vector (not a copy).
      */
-    public Vector angularVelocity() {
+    public Vector getAngularVelocity() {
         return omega;
     }
 
     /**
      * Returns the velocity vector (not a copy).
      */
-    public Vector velocity() {
+    public Vector getVelocity() {
         return v;
     }
 

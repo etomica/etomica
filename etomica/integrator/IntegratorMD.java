@@ -174,9 +174,9 @@ public abstract class IntegratorMD extends IntegratorPhase {
                     int index = Simulation.random.nextInt(atomList.size());
                     AtomLeaf a = (AtomLeaf)atomList.get(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();
-                    currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a.getCoord()).velocity().squared();
+                    currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a.getCoord()).getVelocity().squared();
                     randomizeMomentum(atomList.get(index));
-                    currentKineticEnergy += 0.5*m*((ICoordinateKinetic)a.getCoord()).velocity().squared();
+                    currentKineticEnergy += 0.5*m*((ICoordinateKinetic)a.getCoord()).getVelocity().squared();
                 }
             }
             // ANDERSEN was handled at the start
@@ -225,7 +225,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
                 double mass = ((AtomTypeLeaf)a.getType()).getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
-                    momentum.PEa1Tv1(mass,((ICoordinateKinetic)a.getCoord()).velocity());
+                    momentum.PEa1Tv1(mass,((ICoordinateKinetic)a.getCoord()).getVelocity());
                 }
             }
             momentum.TE(1.0/atomIterator.size());
@@ -235,7 +235,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
                 double rm = ((AtomTypeLeaf)a.getType()).rm();
                 if (rm != 0) {
-                    ((ICoordinateKinetic)a.getCoord()).velocity().PEa1Tv1(-rm,momentum);
+                    ((ICoordinateKinetic)a.getCoord()).getVelocity().PEa1Tv1(-rm,momentum);
                 }
             }
             if (Debug.ON) {
@@ -245,7 +245,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
                     AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
                     double mass = ((AtomTypeLeaf)a.getType()).getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
-                        momentum.PEa1Tv1(mass,((ICoordinateKinetic)a.getCoord()).velocity());
+                        momentum.PEa1Tv1(mass,((ICoordinateKinetic)a.getCoord()).getVelocity());
                     }
                 }
                 momentum.TE(1.0/atomIterator.size());
@@ -269,7 +269,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            ((ICoordinateKinetic)a.getCoord()).velocity().TE(s); //scale momentum
+            ((ICoordinateKinetic)a.getCoord()).getVelocity().TE(s); //scale momentum
         }
         return scale;
     }

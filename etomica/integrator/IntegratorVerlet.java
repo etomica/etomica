@@ -81,7 +81,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
-            Vector r = a.getCoord().position();
+            Vector r = a.getCoord().getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
             agent.force.TE(((AtomTypeLeaf)a.getType()).rm()*t2);
@@ -101,7 +101,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
-            agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a.getCoord()).velocity());//06/13/03 removed minus sign before timeStep
+            agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a.getCoord()).getVelocity());//06/13/03 removed minus sign before timeStep
         }
         super.reset();
     }

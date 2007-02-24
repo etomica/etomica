@@ -22,13 +22,13 @@ public class Coordinate implements ICoordinate, java.io.Serializable {
      * given coordinate.
      */
     public void E(ICoordinate coord) {
-        r.E(coord.position());
+        r.E(coord.getPosition());
     }
 
     /**
      * Returns the position vector (not a copy).
      */
-    public final Vector position() {
+    public final Vector getPosition() {
         return r;
     }
 

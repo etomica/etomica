@@ -53,11 +53,11 @@ public class P2RoughSphere extends P2HardSphere {
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
         ICoordinateAngularKinetic coord0 = (ICoordinateAngularKinetic)atom0.getCoord();
         ICoordinateAngularKinetic coord1 = (ICoordinateAngularKinetic)atom1.getCoord();
-        Vector v1 = coord0.velocity();
-        Vector v2 = coord1.velocity();
+        Vector v1 = coord0.getVelocity();
+        Vector v2 = coord1.getVelocity();
         dv.Ev1Mv2(v2, v1);
         
-        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
         nearestImageTransformer.nearestImage(dr);
 
@@ -66,8 +66,8 @@ public class P2RoughSphere extends P2HardSphere {
         double rm0 = ((AtomTypeLeaf)atom0.getType()).rm();
         double rm1 = ((AtomTypeLeaf)atom1.getType()).rm();
         double kappa = 4*((AtomType.Rotator)atom0.getType()).momentOfInertia()[0]*rm0/(collisionDiameter*collisionDiameter);
-        omegaSum.E(coord0.angularVelocity());
-        omegaSum.PE(coord1.angularVelocity());
+        omegaSum.E(coord0.getAngularVelocity());
+        omegaSum.PE(coord1.getAngularVelocity());
         // v12Surface should come to equal v2 - v1 - 1/2*(omega2+omega1) X (r2-r1)
         v12Surface.E(dr); // (r2 - r1)
         v12Surface.XE(omegaSum); //(r2-r1) X (omega2+omega1)
@@ -85,17 +85,17 @@ public class P2RoughSphere extends P2HardSphere {
         impulse.PEa1Tv1(kappa/(1+kappa),v12Perp);
         impulse.TE(((AtomTypeLeaf)atom0.getType()).getMass());
         
-        coord0.velocity().PEa1Tv1( rm0,impulse);
-        coord1.velocity().PEa1Tv1(-rm1,impulse);
-        coord0.position().PEa1Tv1(-falseTime*rm0,impulse);
-        coord1.position().PEa1Tv1( falseTime*rm1,impulse);
+        coord0.getVelocity().PEa1Tv1( rm0,impulse);
+        coord1.getVelocity().PEa1Tv1(-rm1,impulse);
+        coord0.getPosition().PEa1Tv1(-falseTime*rm0,impulse);
+        coord1.getPosition().PEa1Tv1( falseTime*rm1,impulse);
         
         //here omegaSum is used to hold the angular impulse
         omegaSum.E(dr);
         omegaSum.XE(impulse);
         omegaSum.TE(-0.5);
-        coord0.angularVelocity().PE(omegaSum);
-        coord1.angularVelocity().PE(omegaSum);
+        coord0.getAngularVelocity().PE(omegaSum);
+        coord1.getAngularVelocity().PE(omegaSum);
         
         lastCollisionVirial = 2.0/(rm0 + rm1)*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;

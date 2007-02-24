@@ -138,9 +138,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                     AtomLeaf atom1 = (AtomLeaf)pair.atom1;
                     ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
                     ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
-                    dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+                    dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
                     
-                    dr.Ev1Mv2(coord1.position(), coord0.position());
+                    dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
                     phase.getBoundary().nearestImage(dr);
 
                     dr.PEa1Tv1(oldTime,dv);
@@ -163,9 +163,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                     AtomLeaf atom1 = (AtomLeaf)debugPair.atom1;
                     ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
                     ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
-                    dv.Ev1Mv2(coord1.velocity(), coord0.velocity());
+                    dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
                     
-                    dr.Ev1Mv2(coord1.position(), coord0.position());
+                    dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
                     phase.getBoundary().nearestImage(dr);
 
                     dr.PEa1Tv1(collisionTimeStep,dv);
@@ -173,10 +173,10 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                     if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
                         System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
                         if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).getCoord()).velocity());
-                            System.out.println(debugPair.atom0+" coordinates "+((AtomLeaf)debugPair.atom0).getCoord().position().P(dr));
-                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom1).getCoord()).velocity());
-                            System.out.println(debugPair.atom1+" coordinates "+((AtomLeaf)debugPair.atom1).getCoord().position().P(dr));
+                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).getCoord()).getVelocity());
+                            System.out.println(debugPair.atom0+" coordinates "+((AtomLeaf)debugPair.atom0).getCoord().getPosition().P(dr));
+                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom1).getCoord()).getVelocity());
+                            System.out.println(debugPair.atom1+" coordinates "+((AtomLeaf)debugPair.atom1).getCoord().getPosition().P(dr));
                         }
                     }
                     if (Debug.LEVEL > 1) {
@@ -187,8 +187,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                 }
                 else if (Debug.LEVEL > 2 && debugPair.atom0 instanceof AtomLeaf) {
                     Vector dr = potential.getSpace().makeVector();
-                    dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).getCoord()).velocity());
-                    System.out.println(debugPair.atom0+" coordinates "+((AtomLeaf)debugPair.atom0).getCoord().position().P(dr));
+                    dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).getCoord()).getVelocity());
+                    System.out.println(debugPair.atom0+" coordinates "+((AtomLeaf)debugPair.atom0).getCoord().getPosition().P(dr));
                 }
             }
 
@@ -348,7 +348,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
-			a.getCoord().position().PEa1Tv1(tStep,((ICoordinateKinetic)a.getCoord()).velocity());
+			a.getCoord().getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a.getCoord()).getVelocity());
 		}
 	}
 

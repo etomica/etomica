@@ -42,7 +42,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     }
     
     public boolean accept(Atom a) {
-        return !plane.isPositiveSide((Vector3D)((AtomLeaf)a).getCoord().position());
+        return !plane.isPositiveSide((Vector3D)((AtomLeaf)a).getCoord().getPosition());
     }
     
     public void setPrimitive(Primitive primitive) {

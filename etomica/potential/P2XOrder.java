@@ -21,11 +21,13 @@ import etomica.space.Vector;
 public class P2XOrder extends Potential2 implements PotentialHard {
     
     private static final long serialVersionUID = 1L;
-    protected final Vector dr;
+    protected final Vector dr, drOld;
+    protected Phase phase;
     
     public P2XOrder(Space space) {
         super(space);
         dr = space.makeVector();
+        drOld = space.makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -60,10 +62,19 @@ public class P2XOrder extends Potential2 implements PotentialHard {
      * Zero if x coordinates are ordered differently from atom indexes.
      */
     public double energy(AtomSet pair) {
- //       double deltaX = pair.dr(0);
-        double deltaX = ((AtomLeaf)((AtomPair)pair).atom1).getCoord().position().x(0) - ((AtomLeaf)((AtomPair)pair).atom0).getCoord().position().x(0);
+        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getCoord().getPosition(), ((AtomLeaf)((AtomPair)pair).atom0).getCoord().getPosition());
+        drOld.E(dr);
         int dI = ((AtomPair)pair).atom1.getNode().getIndex() - ((AtomPair)pair).atom0.getNode().getIndex();
-        return (deltaX * dI < 0.0) ? Double.POSITIVE_INFINITY : 0.0;
+        if (dI == ((AtomPair)pair).atom1.getNode().parentNode().childAtomCount()-1) {
+            dr.ME(phase.getBoundary().getDimensions());
+            return (dr.x(0) * dI > 0.0) ? Double.POSITIVE_INFINITY : 0.0;
+        }
+        else if (dI == 1) {
+            return (dr.x(0) * dI < 0.0) ? Double.POSITIVE_INFINITY : 0.0;
+        }
+        else {
+            return 0;
+        }
     }
     
     public double energyChange() {
@@ -77,6 +88,8 @@ public class P2XOrder extends Potential2 implements PotentialHard {
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setPhase(Phase phase) { }
+    public void setPhase(Phase newPhase) {
+        phase = newPhase;
+    }
     
 }//end of P2XOrder

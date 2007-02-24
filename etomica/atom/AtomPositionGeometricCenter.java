@@ -42,7 +42,7 @@ public class AtomPositionGeometricCenter implements AtomPositionDefinition {
         }
         
         public void actionPerformed(Atom a) {
-            vectorSum.PE(((AtomLeaf)a).getCoord().position());
+            vectorSum.PE(((AtomLeaf)a).getCoord().getPosition());
             nAtoms++;
         }
         

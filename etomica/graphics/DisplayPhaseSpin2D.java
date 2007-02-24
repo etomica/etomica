@@ -48,7 +48,7 @@ public class DisplayPhaseSpin2D extends DisplayPhaseCanvas2D {
         ox = origin[0] + 3 + ox*spinWidth*(lattice.getSize()[0]+2);
         oy = origin[1] + 3 + oy*spinWidth*(lattice.getSize()[1]+2);
         //draw lattice plane
-        g.setColor(atom.getCoord().position().x(0) > 0 ? Color.green : Color.white);
+        g.setColor(atom.getCoord().getPosition().x(0) > 0 ? Color.green : Color.white);
         g.fillRect(ox+latticeIndex[0]*spinWidth,oy+latticeIndex[1]*spinWidth,spinWidth,spinWidth);
 //        g.setColor(Color.black);
 //        g.drawRect(ox+latticeIndex[0]*spinWidth,oy+latticeIndex[1]*spinWidth,spinWidth,spinWidth);

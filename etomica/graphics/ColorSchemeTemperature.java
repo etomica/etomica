@@ -49,7 +49,7 @@ public class ColorSchemeTemperature extends ColorScheme {
         
     public Color getAtomColor(AtomLeaf a) {
         float red, blue;
-        double ke = ((AtomTypeLeaf)a.getType()).getMass()*((ICoordinateKinetic)a.getCoord()).velocity().squared();
+        double ke = ((AtomTypeLeaf)a.getType()).getMass()*((ICoordinateKinetic)a.getCoord()).getVelocity().squared();
         if(ke > KEMax) {blue = 0.0f;}
         else if(ke < KEMin) {blue = 1.0f;}
         else {blue = (float)((KEMax-ke)*range);}

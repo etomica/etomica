@@ -32,14 +32,14 @@ public class CoordinateKinetic extends Coordinate implements ICoordinateKinetic 
      * given coordinate.
      */
     public void E(ICoordinateKinetic coord) {
-        r.E(coord.position());
-        v.E(coord.velocity());
+        r.E(coord.getPosition());
+        v.E(coord.getVelocity());
     }
     
    /**
      * Returns the instance of the velocity vector (not a copy).
      */
-    public final Vector velocity() {
+    public final Vector getVelocity() {
         return v;
     }
 

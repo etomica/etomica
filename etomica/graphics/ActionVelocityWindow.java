@@ -39,7 +39,7 @@ public class ActionVelocityWindow implements Action {
         iterator.reset();
         while (iterator.hasNext()) {
             AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-            Vector vel = ((ICoordinateKinetic)atom.getCoord()).velocity();
+            Vector vel = ((ICoordinateKinetic)atom.getCoord()).getVelocity();
             String str = Double.toString(vel.x(0));
             for (int i=1; i<vel.D(); i++) {
                 str += " "+Double.toString(vel.x(i));

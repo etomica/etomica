@@ -42,7 +42,7 @@ public class MCMoveRotate extends MCMovePhaseStep {
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
-        orientation = ((ICoordinateAngular)molecule.getCoord()).orientation(); 
+        orientation = ((ICoordinateAngular)molecule.getCoord()).getOrientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(stepSize);
         uNew = Double.NaN;

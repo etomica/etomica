@@ -63,7 +63,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
         }
         translationVector.setRandomCube();
         translationVector.TE(stepSize);
-        ((AtomLeaf)atom).getCoord().position().PE(translationVector);
+        ((AtomLeaf)atom).getCoord().getPosition().PE(translationVector);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
@@ -104,7 +104,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
      */
     public void rejectNotify() {
         translationVector.TE(-1);
-        ((AtomLeaf)atom).getCoord().position().PE(translationVector);
+        ((AtomLeaf)atom).getCoord().getPosition().PE(translationVector);
     }
         
     

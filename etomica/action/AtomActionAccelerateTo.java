@@ -36,7 +36,7 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
      */
     public void actionPerformed(Atom atom) {
         if(atom.getType().isLeaf()) {
-            ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).velocity().E(targetVelocity);
+            ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).getVelocity().E(targetVelocity);
         } else {
             Vector currentVelocity = velocityMeter.getVelocityAverage(atom);
             dr.Ev1Mv2(targetVelocity, currentVelocity);

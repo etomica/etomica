@@ -36,8 +36,8 @@ public class P2WaterSPC extends Potential2 {
 		AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)((AtomPair)pair).atom1.getNode();
 		
 		//compute O-O distance to consider truncation	
-		etomica.space3d.Vector3D O1r = (etomica.space3d.Vector3D)node1.O.getCoord().position();
-		etomica.space3d.Vector3D O2r = (etomica.space3d.Vector3D)node2.O.getCoord().position();
+		etomica.space3d.Vector3D O1r = (etomica.space3d.Vector3D)node1.O.getCoord().getPosition();
+		etomica.space3d.Vector3D O2r = (etomica.space3d.Vector3D)node2.O.getCoord().getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
 		boundary.nearestImage(work);
@@ -50,10 +50,10 @@ public class P2WaterSPC extends Potential2 {
 		double s6 = s2*s2*s2;
 		sum += epsilon4*s6*(s6 - 1.0);
 		
-		etomica.space3d.Vector3D H11r = (etomica.space3d.Vector3D)node1.H1.getCoord().position();
-		etomica.space3d.Vector3D H12r = (etomica.space3d.Vector3D)node1.H2.getCoord().position();
-		etomica.space3d.Vector3D H21r = (etomica.space3d.Vector3D)node2.H1.getCoord().position();
-		etomica.space3d.Vector3D H22r = (etomica.space3d.Vector3D)node2.H2.getCoord().position();
+		etomica.space3d.Vector3D H11r = (etomica.space3d.Vector3D)node1.H1.getCoord().getPosition();
+		etomica.space3d.Vector3D H12r = (etomica.space3d.Vector3D)node1.H2.getCoord().getPosition();
+		etomica.space3d.Vector3D H21r = (etomica.space3d.Vector3D)node2.H1.getCoord().getPosition();
+		etomica.space3d.Vector3D H22r = (etomica.space3d.Vector3D)node2.H2.getCoord().getPosition();
         		
 		final boolean zeroShift = shift.isZero();
 					

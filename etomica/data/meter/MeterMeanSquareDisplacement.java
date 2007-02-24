@@ -71,7 +71,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         while(iterator.hasNext()) {
             rAccum[i] = space.makeVector();
             rLast[i] = space.makeVector();
-            rLast[i].E(((AtomLeaf)iterator.nextAtom()).getCoord().position());
+            rLast[i].E(((AtomLeaf)iterator.nextAtom()).getCoord().getPosition());
             i++;
         }
     }
@@ -95,7 +95,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
             while(meter.iterator.hasNext()) {
-                Vector r = ((AtomLeaf)meter.iterator.nextAtom()).getCoord().position();
+                Vector r = ((AtomLeaf)meter.iterator.nextAtom()).getCoord().getPosition();
                 meter.rAccum[i].PE(r);
                 meter.rAccum[i].ME(meter.rLast[i]);
                 meter.rLast[i].E(r);
@@ -116,7 +116,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
             //store last coordinate after pbc applied
-           while(meter.iterator.hasNext()) {meter.rLast[i++].E(((AtomLeaf)meter.iterator.nextAtom()).getCoord().position());}
+           while(meter.iterator.hasNext()) {meter.rLast[i++].E(((AtomLeaf)meter.iterator.nextAtom()).getCoord().getPosition());}
         }
         private static final long serialVersionUID = 1L;
         final MeterMeanSquareDisplacement meter;

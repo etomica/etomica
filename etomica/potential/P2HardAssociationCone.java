@@ -75,7 +75,7 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
         AtomPair pair = (AtomPair)atoms;
         ICoordinateAngular coord0 = (ICoordinateAngular)((AtomLeaf)pair.atom0).getCoord();
         ICoordinateAngular coord1 = (ICoordinateAngular)((AtomLeaf)pair.atom1).getCoord();
-        dr.Ev1Mv2(coord1.position(),coord0.position());
+        dr.Ev1Mv2(coord1.getPosition(),coord0.getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
         double eTot = 0.0;
@@ -93,14 +93,14 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
             e1.E(0.);
             e1.setX(0,1);
             eArr[0] = e1;
-            coord0.orientation().convertToSpaceFrame(eArr);
+            coord0.getOrientation().convertToSpaceFrame(eArr);
             double er1 = e1.dot(dr);
 
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
                 e2.E(0.);
                 e2.setX(0,1);
                 eArr[0] = e2;
-                coord1.orientation().convertToSpaceFrame(eArr);
+                coord1.getOrientation().convertToSpaceFrame(eArr);
                 double er2 = e2.dot(dr);
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
             }

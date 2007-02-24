@@ -122,7 +122,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     }
     
     public double energy(AtomSet a) {
-        double dx = ((AtomLeaf)a).getCoord().position().x(wallD) - wallPosition;
+        double dx = ((AtomLeaf)a).getCoord().getPosition().x(wallD) - wallPosition;
         if (dx*dx < collisionRadius*collisionRadius) {
             return Double.POSITIVE_INFINITY;
         }
@@ -132,8 +132,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public double energyChange() {return 0.0;}
     
     public double collisionTime(AtomSet atoms, double falseTime) {
-        double dr = ((AtomLeaf)atoms).getCoord().position().x(wallD) - wallPosition;
-        double dv = ((ICoordinateKinetic)((AtomLeaf)atoms).getCoord()).velocity().x(wallD) - wallVelocity;
+        double dr = ((AtomLeaf)atoms).getCoord().getPosition().x(wallD) - wallPosition;
+        double dv = ((ICoordinateKinetic)((AtomLeaf)atoms).getCoord()).getVelocity().x(wallD) - wallVelocity;
         dr += dv*falseTime;
         if (pressure >= 0.0) {
             double area = 1.0;
@@ -152,8 +152,8 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         dr += 0.5*a*falseTime*falseTime;
         if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(atoms)) {
             System.out.println(dr+" "+dv+" "+falseTime+" "+atoms);
-            System.out.println(((ICoordinateKinetic)((AtomLeaf)atoms).getCoord()).velocity().x(wallD));
-            System.out.println(((AtomLeaf)atoms).getCoord().position().x(wallD));
+            System.out.println(((ICoordinateKinetic)((AtomLeaf)atoms).getCoord()).getVelocity().x(wallD));
+            System.out.println(((AtomLeaf)atoms).getCoord().getPosition().x(wallD));
         }
         double t = Double.POSITIVE_INFINITY;
         double discr = -1.0;
@@ -188,15 +188,15 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         }
         if (ignoreOverlap && t<0.0) t = 0.0;
         if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(atoms))) {
-            System.out.println(atoms+" "+a+" "+dr+" "+dv+" "+discr+" "+t+" "+(t+falseTime)+" "+(((AtomLeaf)atoms).getCoord().position().x(wallD)+((ICoordinateKinetic)((AtomLeaf)atoms).getCoord()).velocity().x(wallD)*(t+falseTime))+" "+(wallPosition+wallVelocity*(t+falseTime)-0.5*a*(t+falseTime)*(t+falseTime)));
+            System.out.println(atoms+" "+a+" "+dr+" "+dv+" "+discr+" "+t+" "+(t+falseTime)+" "+(((AtomLeaf)atoms).getCoord().getPosition().x(wallD)+((ICoordinateKinetic)((AtomLeaf)atoms).getCoord()).getVelocity().x(wallD)*(t+falseTime))+" "+(wallPosition+wallVelocity*(t+falseTime)-0.5*a*(t+falseTime)*(t+falseTime)));
             if (t<0) throw new RuntimeException("foo");
         }
         return t + falseTime;
     }
                 
     public void bump(AtomSet a, double falseTime) {
-        double r = ((AtomLeaf)a).getCoord().position().x(wallD);
-        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).velocity();
+        double r = ((AtomLeaf)a).getCoord().getPosition().x(wallD);
+        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
         if (pressure >= 0.0) {
             double area = 1.0;
             if (pressure > 0.0) {
@@ -216,14 +216,14 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 System.out.println("bork at "+falseTime+" ! "+a+" "+(r+v.x(wallD)*falseTime)+" "+v.x(wallD));
                 System.out.println("wall bork! "+trueWallPosition+" "+trueWallVelocity+" "+force);
                 System.out.println("dr bork! "+((r+v.x(wallD)*falseTime)-trueWallPosition)+" "+collisionRadius);
-                System.out.println(((AtomLeaf)a).getCoord().position().x(wallD));
+                System.out.println(((AtomLeaf)a).getCoord().getPosition().x(wallD));
                 throw new RuntimeException("bork!");
             }
         }
         double dp = 2.0/(1/wallMass + ((AtomTypeLeaf)((Atom)a).getType()).rm())*(trueWallVelocity-v.x(wallD));
         virialSum += dp;
         v.setX(wallD,v.x(wallD)+dp*((AtomTypeLeaf)((Atom)a).getType()).rm());
-        ((AtomLeaf)a).getCoord().position().setX(wallD,r-dp*((AtomTypeLeaf)((Atom)a).getType()).rm()*falseTime);
+        ((AtomLeaf)a).getCoord().getPosition().setX(wallD,r-dp*((AtomTypeLeaf)((Atom)a).getType()).rm()*falseTime);
         wallVelocity -= dp/wallMass;
         wallPosition += dp/wallMass*falseTime;
         

@@ -78,7 +78,7 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
     public Data getData(Atom atom) {
-        atomData.x.Ev1v2(((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).velocity(), ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).velocity());
+        atomData.x.Ev1v2(((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).getVelocity(), ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).getVelocity());
         atomData.TE(((AtomTypeLeaf)atom.getType()).rm());
         return atomData;
     }

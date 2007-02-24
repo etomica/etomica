@@ -37,7 +37,7 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         Coordinate coord0 = (Coordinate)((AtomLeaf)((AtomPair)pair).atom0).getCoord();
         Coordinate coord1 = (Coordinate)((AtomLeaf)((AtomPair)pair).atom1).getCoord();
 
-        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
         nearestImageTransformer.nearestImage(dr);
         return u(dr.squared());
     }

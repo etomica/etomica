@@ -45,7 +45,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
         ICoordinate coord0 = atom0.getCoord();
         ICoordinate coord1 = atom1.getCoord();
         
-        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
         nearestImageTransformer.nearestImage(dr);
 
         double r2 = dr.squared();
@@ -70,7 +70,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
         ICoordinate coord0 = atom0.getCoord();
         ICoordinate coord1 = atom1.getCoord();
         
-        dr.Ev1Mv2(coord1.position(), coord0.position());
+        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
         nearestImageTransformer.nearestImage(dr);
 
         double r2 = dr.squared();

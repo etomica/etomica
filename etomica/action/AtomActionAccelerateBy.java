@@ -23,7 +23,7 @@ public class AtomActionAccelerateBy extends AtomActionAdapter {
     }
     
     public void actionPerformed(Atom atom) {
-        ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).velocity().PE(accelerationVector);
+        ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).getVelocity().PE(accelerationVector);
     }
        
     /**

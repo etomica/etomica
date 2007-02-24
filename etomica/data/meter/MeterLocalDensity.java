@@ -42,7 +42,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar implements Mete
         int nSum = 0;
         iterator.reset();
         while(iterator.hasNext()) {
-            if(shape.contains(((AtomLeaf)iterator.nextAtom()).getCoord().position())) nSum++;
+            if(shape.contains(((AtomLeaf)iterator.nextAtom()).getCoord().getPosition())) nSum++;
         }
         return nSum/shape.getVolume();
     }

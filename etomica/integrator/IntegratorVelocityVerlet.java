@@ -72,8 +72,8 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         while(atomIterator.hasNext()) {    //loop over all atoms
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();  //  advancing positions full step
             MyAgent agent = (MyAgent)agentManager.getAgent(a);     //  and momenta half step
-            Vector r = a.getCoord().position();
-            Vector v = ((ICoordinateKinetic)a.getCoord()).velocity();
+            Vector r = a.getCoord().getPosition();
+            Vector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
             v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
             agent.force.E(0.0);
@@ -87,7 +87,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         while(atomIterator.hasNext()) {     //loop over atoms again
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();   //  finishing the momentum step
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            ((ICoordinateKinetic)a.getCoord()).velocity().PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
+            ((ICoordinateKinetic)a.getCoord()).getVelocity().PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
         }
         if(isothermal) {
             doThermostat();

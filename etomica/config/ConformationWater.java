@@ -27,13 +27,13 @@ public class ConformationWater extends Conformation {
         moleculeIterator.reset();
         
         AtomLeaf o = (AtomLeaf)moleculeIterator.nextAtom();
-        o.getCoord().position().E(new double[] {x, y, 0.0});
+        o.getCoord().getPosition().E(new double[] {x, y, 0.0});
                
         AtomLeaf h1 = (AtomLeaf)moleculeIterator.nextAtom();
-        h1.getCoord().position().E(new double[] {x+bondLengthOH, y, 0.0});
+        h1.getCoord().getPosition().E(new double[] {x+bondLengthOH, y, 0.0});
                 
         AtomLeaf h2 = (AtomLeaf)moleculeIterator.nextAtom();
-        h2.getCoord().position().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
+        h2.getCoord().getPosition().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
 
     }
         

@@ -33,7 +33,7 @@ public class CoordinateAngular extends Coordinate implements ICoordinateAngular,
     /**
      * Returns the orientation (not a copy).
      */
-    public Orientation orientation() {
+    public Orientation getOrientation() {
         return orientation;
     }
 
