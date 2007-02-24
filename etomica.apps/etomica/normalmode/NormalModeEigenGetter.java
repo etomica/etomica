@@ -8,7 +8,7 @@ import etomica.eigenstuff.MyEigenvalueDecomposition;
 public class NormalModeEigenGetter {
     
     public static void main (String[] args){
-        String filename = "normal_modes4000";
+        String filename = "normal_modes1D6";
         if (args.length > 0) {
             filename = args[0];
         }
