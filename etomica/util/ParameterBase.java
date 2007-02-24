@@ -11,6 +11,10 @@ import java.lang.reflect.Field;
  */
 public abstract class ParameterBase {
     
+    public ParameterBase() {
+        parsers = new ParameterParser[0];
+    }
+    
     public void addParser(ParameterParser newParser) {
         parsers = (ParameterParser[])Arrays.addObject(parsers, newParser);
     }
