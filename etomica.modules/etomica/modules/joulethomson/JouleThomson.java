@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import javax.swing.JPanel;
 
+import etomica.action.Action;
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
 import etomica.action.ResetAccumulators;
@@ -104,6 +105,12 @@ public class JouleThomson extends SimulationGraphic {
         Unit hUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
  
 	    displayPhase1 = new DisplayPhase(sim.phase);
+        sim.integratorJT.addListener(new IntervalActionAdapter(new Action() {
+            public void actionPerformed() {
+                displayPhase1.repaint();
+            }
+            public String getLabel() {return "";}
+        }));
 	    
 	    //colorscheme to color atoms blue to red according to their velocity
 	    DeviceSlider scaleSlider = null;
@@ -153,8 +160,8 @@ public class JouleThomson extends SimulationGraphic {
 //		if(space.D() == 3) integrator.setDoSleep(false);
 		
 		final DeviceSlider pSlider = new DeviceSlider(sim.getController());
-        pSlider.setModifier(new ModifierGeneral(sim.integrator,"targetP"));
 		pSlider.setUnit(pUnit);
+        pSlider.setModifier(new ModifierGeneral(sim.integrator,"targetP"));
 		pSlider.setLabel("Setpoint Pressure ("+pUnit.symbol()+")");
 		pSlider.setMinimum(0);
 		pSlider.setMaximum(200);
