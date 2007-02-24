@@ -9,9 +9,9 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.graphics.Drawable;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.units.Length;
 import etomica.util.Debug;
 
@@ -33,7 +33,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     private static final long serialVersionUID = 1L;
     private double collisionRadius = 0.0;
-    private final Vector work;
+    private final IVector work;
     private int[] pixPosition;
     private int[] thickness;
     private boolean ignoreOverlap;
@@ -63,8 +63,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     }
     
     public double energy(AtomSet a) {
-        Vector dimensions = boundary.getDimensions();
-        Vector pos = ((AtomLeaf)a).getCoord().getPosition();
+        IVector dimensions = boundary.getDimensions();
+        IVector pos = ((AtomLeaf)a).getCoord().getPosition();
         for (int i=0; i<work.D(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;
@@ -82,9 +82,9 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     public double collisionTime(AtomSet a, double falseTime) {
         work.E(((AtomLeaf)a).getCoord().getPosition());
-        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
         work.PEa1Tv1(falseTime,v);
-        Vector dimensions = boundary.getDimensions();
+        IVector dimensions = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
         for(int i=work.D()-1; i>=0; i--) {
             double vx = v.x(i);
@@ -120,9 +120,9 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
 //        Atom a = agent.atom();
     public void bump(AtomSet a, double falseTime) {
         work.E(((AtomLeaf)a).getCoord().getPosition());
-        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
         work.PEa1Tv1(falseTime,v);
-        Vector dimensions = boundary.getDimensions();
+        IVector dimensions = boundary.getDimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding

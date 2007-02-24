@@ -11,8 +11,8 @@ import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataInteger.DataInfoInteger;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.data.types.DataVector.DataInfoVector;
+import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.units.Dimension;
 
 /**
@@ -170,7 +170,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
             double[] x = outputData.getData();
             int k=0;
             for (int i=0; i<group.getNData(); i++) {
-                Vector v = ((DataVector)group.getData(i)).x;
+                IVector v = ((DataVector)group.getData(i)).x;
                 for (int j=0; j<v.D(); j++) {
                     x[k++] = v.x(j);
                 }

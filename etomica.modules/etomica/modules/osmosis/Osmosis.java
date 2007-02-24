@@ -35,7 +35,7 @@ import etomica.math.geometry.Rectangle;
 import etomica.modifier.Modifier;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.space2d.Vector2D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
@@ -114,7 +114,7 @@ public class Osmosis {
         moleFraction = new MeterLocalMoleFraction();
 //        moleFraction = new MeterMoleFraction();
         moleFraction.setPhase(sim.phase);
-        Vector dimensions = sim.phase.getBoundary().getDimensions();
+        IVector dimensions = sim.phase.getBoundary().getDimensions();
         moleFraction.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
         moleFraction.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
         moleFraction.setSpecies(sim.speciesB);

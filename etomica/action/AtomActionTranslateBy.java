@@ -1,8 +1,8 @@
 package etomica.action;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * 
@@ -15,7 +15,7 @@ import etomica.space.Vector;
 public class AtomActionTranslateBy extends AtomActionAdapter {
     
     private static final long serialVersionUID = 1L;
-    private final Vector translationVector;
+    private final IVector translationVector;
     
     public AtomActionTranslateBy(Space space) {
         translationVector = space.makeVector();
@@ -31,14 +31,14 @@ public class AtomActionTranslateBy extends AtomActionAdapter {
      * instance, not a copy, so any manipulation of the returned vector will
      * affect the action of this instance.
      */
-    public Vector getTranslationVector() {
+    public IVector getTranslationVector() {
         return translationVector;
     }
     /**
      * @param destination The translation vector to set.  A local copy
      * is made of the given vector.
      */
-    public void setTranslationVector(Vector translationVector) {
+    public void setTranslationVector(IVector translationVector) {
         this.translationVector.E(translationVector);
     }
 }

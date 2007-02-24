@@ -9,8 +9,8 @@ import etomica.math.geometry.TruncatedOctahedron;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * This class enables creation of a periodic truncated-octahedron boundary.
@@ -56,11 +56,11 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         return isPeriodic;
     }
 
-    public final etomica.space.Vector getDimensions() {
+    public final IVector getDimensions() {
         return dimensionsCopy;
     }
 
-    public etomica.space.Vector randomPosition() {
+    public IVector randomPosition() {
         throw new MethodNotImplementedException();
         //temp.setRandom(dimensions);
         //return temp;
@@ -73,7 +73,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
                 .x(0));
     }
 
-    public void setDimensions(etomica.space.Vector v) {
+    public void setDimensions(IVector v) {
         dimensions.E(v);
         updateDimensions();
     }
@@ -86,7 +86,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
             double[][] origins = new double[faces.length][];
             double multiplier = ((TruncatedOctahedron)shape).getContainingCubeEdgeLength();
             for(int i=0; i<faces.length; i++) {
-                Vector[] vertices = faces[i].getVertices();
+                IVector[] vertices = faces[i].getVertices();
                 plane.setThreePoints((Vector3D)vertices[0], (Vector3D)vertices[1], (Vector3D)vertices[2]);
                 plane.getNormalVector(normal);
                 normal.TE(multiplier);
@@ -95,7 +95,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
             return origins;
         }
         //algorithm for nShells > 1 misses many of the images (those through the hexagon faces)
-        Vector workVector = space.makeVector();
+        IVector workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];
@@ -114,7 +114,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         return origins;
     }
 
-    public float[][] getOverflowShifts(Vector rr, double distance) {
+    public float[][] getOverflowShifts(IVector rr, double distance) {
         int D = space.D();
         int numVectors = 1;
         for (int i = 1; i < D; i++) {
@@ -162,7 +162,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         return shifts;
     }
 
-    public void nearestImage(Vector dr) {
+    public void nearestImage(IVector dr) {
         dr.PEa1Tv1(0.5, dimensions);
         dr.PE(centralImage(dr));
         dr.PEa1Tv1(-0.5, dimensions);
@@ -191,7 +191,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         //        dr.PE(intoTruncatedOctahedron);
     }
 
-    public Vector centralImage(Vector r) {
+    public IVector centralImage(IVector r) {
         double n = ((TruncatedOctahedron) shape).getContainingCubeEdgeLength();
         intoContainingCube.EModShift(r, dimensions);
         rrounded.Ev1Pv2(r, intoContainingCube);
@@ -208,22 +208,22 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         return intoTruncatedOctahedron;
     }
     
-    public Vector getBoundingBox() {
+    public IVector getBoundingBox() {
         return dimensionsCopy;
     }
     
-    public Vector getCenter() {
+    public IVector getCenter() {
         return dimensionsHalfCopy;
     }
 
     private static final long serialVersionUID = 1L;
-    protected final Vector intoTruncatedOctahedron;
-    protected final Vector rrounded;
-    protected final Vector intoContainingCube;
-    protected final Vector dimensions;
-    protected final Vector dimensionsCopy;
-    protected final Vector dimensionsHalf;
-    protected final Vector dimensionsHalfCopy;
+    protected final IVector intoTruncatedOctahedron;
+    protected final IVector rrounded;
+    protected final IVector intoContainingCube;
+    protected final IVector dimensions;
+    protected final IVector dimensionsCopy;
+    protected final IVector dimensionsHalf;
+    protected final IVector dimensionsHalfCopy;
     private final IndexIteratorSequential indexIterator;
     private final boolean[] needShift;
     protected final boolean[] isPeriodic;

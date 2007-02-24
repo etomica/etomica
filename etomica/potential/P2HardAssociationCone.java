@@ -7,9 +7,9 @@ import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateAngular;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -29,11 +29,11 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private double sigma, sigmaSquared;
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
-    private Vector e1;
-    private Vector e2;
+    private IVector e1;
+    private IVector e2;
     private double theta, ec2;
-    private final Vector[] eArr = new Vector[1];
-    private final Vector dr;
+    private final IVector[] eArr = new IVector[1];
+    private final IVector dr;
     private NearestImageTransformer nearestImageTransformer;
     
     public P2HardAssociationCone(Simulation sim) {

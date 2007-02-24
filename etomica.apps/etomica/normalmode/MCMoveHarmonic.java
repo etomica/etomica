@@ -8,7 +8,7 @@ import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 public class MCMoveHarmonic extends MCMovePhase {
 
@@ -35,7 +35,7 @@ public class MCMoveHarmonic extends MCMovePhase {
         }
     }
     
-    public void setWaveVectors(Vector[] newWaveVectors) {
+    public void setWaveVectors(IVector[] newWaveVectors) {
         waveVectors = newWaveVectors;
     }
     
@@ -52,7 +52,7 @@ public class MCMoveHarmonic extends MCMovePhase {
         iterator.setPhase(newPhase);
         normalDim = getNormalDim();
 
-        latticePositions = new Vector[phase.getSpeciesMaster().moleculeCount()];
+        latticePositions = new IVector[phase.getSpeciesMaster().moleculeCount()];
 
         iterator.reset();
         int atomCount = 0;
@@ -153,10 +153,10 @@ public class MCMoveHarmonic extends MCMovePhase {
     private static final long serialVersionUID = 1L;
     protected NormalCoordMapper normalCoordMapper;
     private final AtomIteratorAllMolecules iterator;
-    private Vector[] latticePositions;
+    private IVector[] latticePositions;
     private double[][] eigenValuesSqrt;
     private double[][][] eigenVectors;
-    private Vector[] waveVectors;
+    private IVector[] waveVectors;
     private double[] waveVectorCoefficients;
     protected int normalDim;
     protected double[] u;

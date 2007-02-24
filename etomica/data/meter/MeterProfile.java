@@ -17,8 +17,8 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Length;
 
 /**
@@ -78,14 +78,14 @@ public class MeterProfile implements Meter, DataSourceIndependent, java.io.Seria
      * Accessor method for vector describing the direction along which the profile is measured.
      * Each atom position is dotted along this vector to obtain its profile abscissa value.
      */
-    public Vector getProfileVector() {return profileVector;}
+    public IVector getProfileVector() {return profileVector;}
     
     /**
      * Accessor method for vector describing the direction along which the profile is measured.
      * Each atom position is dotted along this vector to obtain its profile abscissa value.
      * The given vector is converted to a unit vector, if not already.
      */
-    public void setProfileVector(Vector v) {
+    public void setProfileVector(IVector v) {
         profileVector.E(v);
         profileVector.normalize();
         double halfBox = 0.5*phase.getBoundary().getDimensions().dot(profileVector);
@@ -162,8 +162,8 @@ public class MeterProfile implements Meter, DataSourceIndependent, java.io.Seria
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
      */
-    final Vector profileVector;
-    final Vector position;
+    final IVector profileVector;
+    final IVector position;
     /**
      * Meter that defines the property being profiled.
      */

@@ -16,8 +16,8 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /* History of changes
  * 08/29/02 (DAK) changed Andersen thermostat to velocity-scaling thermostat
@@ -72,8 +72,8 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
         while(atomIterator.hasNext()) {    //loop over all atoms
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();  //  advancing positions full step
             MyAgent agent = (MyAgent)agentManager.getAgent(a);     //  and momenta half step
-            Vector r = a.getCoord().getPosition();
-            Vector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+            IVector r = a.getCoord().getPosition();
+            IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
             v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
             agent.force.E(0.0);
@@ -129,14 +129,14 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     public final static class MyAgent implements IntegratorPhase.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;
         public Atom atom;
-        public Vector force;
+        public IVector force;
 
         public MyAgent(Space space, Atom a) {
             atom = a;
             force = space.makeVector();
         }
         
-        public Vector force() {return force;}
+        public IVector force() {return force;}
     }//end of MyAgent
     
 }//end of IntegratorVelocityVerlet

@@ -25,8 +25,8 @@ import etomica.phase.PhaseEvent;
 import etomica.phase.PhaseInflateEvent;
 import etomica.phase.PhaseListener;
 import etomica.space.Boundary;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.util.Debug;
 
 /**
@@ -129,7 +129,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         }
     	int D = space.D();
         int[] nCells = new int[D];
-        Vector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = phase.getBoundary().getDimensions();
         lattice.setDimensions(dimensions);
         for (int i=0; i<D; i++) {
             nCells[i] = (int)Math.floor(cellRange*dimensions.x(i)/range);
@@ -189,7 +189,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
      * @param atom
      */
     public void assignCell(Atom atom) {
-        Vector position = (positionDefinition != null) ?
+        IVector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
                     atom.getType().getPositionDefinition().position(atom);
         Cell atomCell = (Cell)lattice.site(position);
@@ -208,7 +208,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     
     public Object makeAgent(Atom atom) {
         if (atom.getType().isInteracting()) {
-            Vector position = (positionDefinition != null) ?
+            IVector position = (positionDefinition != null) ?
                     positionDefinition.position(atom) :
                         atom.getType().getPositionDefinition().position(atom);
             Cell atomCell = (Cell)lattice.site(position);
@@ -270,7 +270,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
                 Boundary boundary = phase.getBoundary();
                 neighborCellManager.removeFromCell(atom);
                 if (!atom.getNode().isLeaf()) {
-                    Vector shift = boundary.centralImage(moleculePosition.position(atom));
+                    IVector shift = boundary.centralImage(moleculePosition.position(atom));
                     if (!shift.isZero()) {
                         translator.setTranslationVector(shift);
                         moleculeTranslator.actionPerformed(atom);

@@ -3,8 +3,8 @@ package etomica.virial;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * @author kofke
@@ -29,5 +29,5 @@ public abstract class MayerFunctionSpherical implements MayerFunction, java.io.S
         return f(dr.squared(), beta);
     }
 
-    protected final Vector dr;
+    protected final IVector dr;
 }

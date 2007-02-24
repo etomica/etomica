@@ -13,8 +13,8 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Constant NVT Molecular Dynamics Integrator-Constraint Method
@@ -34,7 +34,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
     private final Space space;
-    Vector work, work1, work2, work3, work4;
+    IVector work, work1, work2, work3, work4;
     double halfTime, mass;
 
     protected AtomAgentManager agentManager;
@@ -107,7 +107,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         double chi;
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-			Vector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+			IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
             
 			work1.E(v); //work1 = v
 			work2.E(((Agent)agentManager.getAgent(a)).force);	//work2=F
@@ -125,7 +125,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
 			Agent agent = (Agent)agentManager.getAgent(a);
-			Vector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+			IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
 		
 			double scale = (2.0*chi-1.0); 
 			work3.Ea1Tv1(scale,v); 
@@ -139,8 +139,8 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-			Vector r = a.getCoord().getPosition();
-			Vector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+			IVector r = a.getCoord().getPosition();
+			IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
             
 			work.Ea1Tv1(timeStep,v);
 			work.PE(r);
@@ -163,7 +163,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
             
 	public final static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;
-        public Vector force;
+        public IVector force;
     
 
         public Agent(Space space, Atom a) {
@@ -171,7 +171,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
             force = space.makeVector();
         }
         
-        public Vector force() {return force;}
+        public IVector force() {return force;}
     }//end of Agent
     
 }

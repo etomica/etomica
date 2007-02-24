@@ -9,9 +9,9 @@ import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Undefined;
 
  /** The Bond Order Parameter Ql provides a metric that indicates the crystallinity of a phase.
@@ -61,7 +61,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
         	double r2 = dr.squared();
             if(r2 < r2Cut) {
                 nbSum += 2;
-                Vector rVec = dr;
+                IVector rVec = dr;
                 rVec.sphericalCoordinates(rThetaPhi);
                 double theta = rThetaPhi[1];
                 double phi = rThetaPhi[2];
@@ -143,5 +143,5 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
     private double r2Cut;
     private double[] rThetaPhi = new double[3];
     private double coeff;
-    private final Vector dr;
+    private final IVector dr;
 }

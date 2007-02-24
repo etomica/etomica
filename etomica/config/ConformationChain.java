@@ -3,8 +3,8 @@ package etomica.config;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * General class for a collection of linearly linked atoms.
@@ -31,7 +31,7 @@ public abstract class ConformationChain extends Conformation {
 	 * @return the instructions to get to the location of the next molecule from
 	 * the current one.
 	 */
-	protected abstract Vector nextVector();
+	protected abstract IVector nextVector();
 	
 	/**
 	 * Places a set of atoms in a linearly connected fashion.
@@ -49,7 +49,7 @@ public abstract class ConformationChain extends Conformation {
         	reset();
 		
         	//space.makeVector() zeroes the made Vector automatically
-        	Vector currentPosition = space.makeVector();
+        	IVector currentPosition = space.makeVector();
         
         	//Zero the first atom.
         	((AtomLeaf)atomIterator.nextAtom()).getCoord().getPosition().E(0.0);

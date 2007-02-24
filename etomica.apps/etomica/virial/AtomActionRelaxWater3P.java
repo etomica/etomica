@@ -7,8 +7,8 @@ import etomica.action.AtomActionAdapter;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.models.water.AtomTreeNodeWater3P;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 public class AtomActionRelaxWater3P extends AtomActionAdapter {
     public AtomActionRelaxWater3P(Space space) {
@@ -24,10 +24,10 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
         AtomLeaf H1 = waterNode.H1;
         AtomLeaf H2 = waterNode.H2;
         // normalize OH1
-        Vector p1 = H1.getCoord().getPosition();
+        IVector p1 = H1.getCoord().getPosition();
         p1.ME(O.getCoord().getPosition());
         p1.TE(1/Math.sqrt(p1.squared()));
-        Vector p2 = H2.getCoord().getPosition();
+        IVector p2 = H2.getCoord().getPosition();
         p2.ME(O.getCoord().getPosition());
         p2.TE(1/Math.sqrt(p2.squared()));
         // move H2 to fix bond angle
@@ -43,6 +43,6 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
     }
 
     private static final long serialVersionUID = 1L;
-    private final Vector work;
+    private final IVector work;
     private final double sinAngle, cosAngle, distance;
 }

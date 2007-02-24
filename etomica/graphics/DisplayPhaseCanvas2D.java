@@ -14,7 +14,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateAngular;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 //Class used to define canvas onto which configuration is drawn
 public class DisplayPhaseCanvas2D extends DisplayCanvas {
@@ -27,7 +27,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     private final static Color wellColor = Color.pink;//new Color(185,185,185, 110);
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     private final int[] atomOrigin;
-    private final Vector boundingBox;
+    private final IVector boundingBox;
         
     public DisplayPhaseCanvas2D(DisplayPhase _phase) {
         scaleText.setVisible(true);
@@ -63,7 +63,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
        
     protected void drawAtom(Graphics g, int origin[], AtomLeaf a) {
         if(!displayPhase.getAtomFilter().accept(a)) return;
-        Vector r = a.getCoord().getPosition();
+        IVector r = a.getCoord().getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
 
         boolean drawOrientation = (a.getType() instanceof AtomTypeOrientedSphere);
@@ -104,7 +104,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         }
     }
             
-    Vector vec2;  
+    IVector vec2;  
    /**
     * Method that handles the drawing of the phase to the screen.
     *
@@ -130,7 +130,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
             int ox = origin[0] + (int)(toPixels*boundingBox.x(0)*0.5);
             int oy = origin[1] + (int)(toPixels*boundingBox.x(1)*0.5);
             for(int i=0; i<edges.length; i++) {
-                Vector[] vertices = edges[i].getVertices();
+                IVector[] vertices = edges[i].getVertices();
                 int x1 = ox + (int)(toPixels*vertices[0].x(0));
                 int y1 = oy + (int)(toPixels*vertices[0].x(1));
                 int x2 = ox + (int)(toPixels*vertices[1].x(0));

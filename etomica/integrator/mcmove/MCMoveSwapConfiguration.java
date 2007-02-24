@@ -10,7 +10,7 @@ import etomica.integrator.IntegratorPT.MCMoveSwap;
 import etomica.integrator.IntegratorPT.MCMoveSwapFactory;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 
 /**
@@ -24,7 +24,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	private final AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
 	private final AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
 	private final AtomIteratorLeafAtoms affectedAtomIterator = new AtomIteratorLeafAtoms();
-	private final Vector r;
+	private final IVector r;
 	private double u1, u2, temp1, temp2, deltaU1;
 	private final Phase[] swappedPhases = new Phase[2];
 

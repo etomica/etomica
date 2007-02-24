@@ -14,7 +14,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.units.Dimension;
 import etomica.units.Time;
 import etomica.util.Debug;
@@ -302,6 +302,6 @@ public abstract class IntegratorMD extends IntegratorPhase {
     protected MeterKineticEnergy meterKE;
     private AtomActionRandomizeVelocity atomActionRandomizeVelocity;
     private MeterTemperature meterTemperature;
-    private final Vector momentum;
+    private final IVector momentum;
 }
 

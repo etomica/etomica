@@ -20,8 +20,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.ICoordinate;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.species.Species;
 import etomica.species.SpeciesResolver;
 import etomica.species.SpeciesSignature;
@@ -162,7 +162,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * given atom can appear more than once in this list, if it is nearest to
      * more than one of the positions.
      */
-    public Atom[] nearestAtom(Vector[] r) {
+    public Atom[] nearestAtom(IVector[] r) {
     	AtomIterator iterator = new AtomIteratorLeafAtoms(this);
     	Atom[] nearest = new Atom[r.length];
     	for(int i=0; i<r.length; i++) {
@@ -201,7 +201,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      */
     public final Boundary getBoundary() {return boundary;}
     
-    public final void setDimensions(Vector d) {
+    public final void setDimensions(IVector d) {
         boundary.setDimensions(d);
         eventManager.fireEvent(inflateEvent);
     }

@@ -5,8 +5,8 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
@@ -34,12 +34,12 @@ public class P2WaterSPCE extends Potential2 {
         AtomTreeNodeWater3P node1 = (AtomTreeNodeWater3P)pair.atom0.getNode();
         AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)pair.atom1.getNode();
 
-        Vector O1r = node1.O.getCoord().getPosition();
-        Vector O2r = node2.O.getCoord().getPosition();
-        Vector H11r = node1.H1.getCoord().getPosition();
-        Vector H12r = node1.H2.getCoord().getPosition();
-        Vector H21r = node2.H1.getCoord().getPosition();
-        Vector H22r = node2.H2.getCoord().getPosition();
+        IVector O1r = node1.O.getCoord().getPosition();
+        IVector O2r = node2.O.getCoord().getPosition();
+        IVector H11r = node1.H1.getCoord().getPosition();
+        IVector H12r = node1.H2.getCoord().getPosition();
+        IVector H21r = node2.H1.getCoord().getPosition();
+        IVector H22r = node2.H2.getCoord().getPosition();
 
         final double core = 0.1;
 

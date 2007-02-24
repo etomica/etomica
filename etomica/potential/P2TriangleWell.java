@@ -8,9 +8,9 @@ import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinate;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Hard core with an attractive tail that goes to zero linearly with r.
@@ -63,7 +63,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
  
 
     // what could call this?
-    public Vector force(AtomSet pair){
+    public IVector force(AtomSet pair){
         
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
@@ -130,8 +130,8 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     private double lambda; //wellDiameter = coreDiameter * lambda ;lambda is well width
     private double epsilon;
     private double constant;
-    private final Vector force;
-    private final Vector dr;
+    private final IVector force;
+    private final IVector dr;
     private NearestImageTransformer nearestImageTransformer;
 }
 

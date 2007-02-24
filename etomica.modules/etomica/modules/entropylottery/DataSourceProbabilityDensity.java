@@ -15,7 +15,7 @@ import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
 import etomica.space.BoundaryPeriodic;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.units.Quantity;
 
 public class DataSourceProbabilityDensity implements DataSource, IntegratorIntervalListener, IntegratorNonintervalListener {
@@ -68,7 +68,7 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
         if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
             phase = ((IntegratorPhase)evt.getSource()).getPhase();
             totalAtomCount = phase.getSpeciesMaster().moleculeCount();
-            Vector dimensions = phase.getBoundary().getDimensions();
+            IVector dimensions = phase.getBoundary().getDimensions();
             if (data.getLength() != (int)Math.round(dimensions.x(0))) {
                 int newSize = (int)Math.round(dimensions.x(0));
                 data = new DataDoubleArray(newSize);

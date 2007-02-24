@@ -12,7 +12,7 @@ import etomica.graphics.DisplayCanvas;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.Drawable;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.species.Species;
 
     /* History of changes
@@ -109,7 +109,7 @@ public class DisplayPhaseCanvas1DBins extends DisplayCanvas {
         }
         
         Phase phase = displayPhase.getPhase();
-        Vector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = phase.getBoundary().getDimensions();
         if (atomCount.length != (int)Math.round(dimensions.x(0))) {
             atomCount = new int[(int)Math.round(dimensions.x(0))];
         }

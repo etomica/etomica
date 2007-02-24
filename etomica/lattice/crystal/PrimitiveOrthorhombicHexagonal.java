@@ -1,8 +1,8 @@
 package etomica.lattice.crystal;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Rectangle;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Primitive group for an orthorhombic system.  Primitive vectors orthogonal 
@@ -73,7 +73,7 @@ public class PrimitiveOrthorhombicHexagonal extends Primitive {
         setSize(newSize);
     }        
     
-    public int[] latticeIndex(Vector q) {
+    public int[] latticeIndex(IVector q) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -81,7 +81,7 @@ public class PrimitiveOrthorhombicHexagonal extends Primitive {
         return idx;
     }
 
-    public int[] latticeIndex(Vector q, int[] dimensions) {
+    public int[] latticeIndex(IVector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x

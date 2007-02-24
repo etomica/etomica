@@ -28,8 +28,8 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 /**
  * @author nancycribbin
@@ -240,7 +240,7 @@ public class TestHexane extends Simulation {
             normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
             int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
             
-            Vector[] waveVectors = waveVectorFactory.getWaveVectors();
+            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
             double[] coefficients = waveVectorFactory.getCoefficients();
             
             try {

@@ -8,9 +8,9 @@ import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.util.Arrays;
@@ -325,7 +325,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	/* (non-Javadoc)
 	 * @see etomica.potential.PotentialSoft#gradient(etomica.atom.AtomSet)
 	 */
-	public Vector[] gradient(AtomSet atoms) {
+	public IVector[] gradient(AtomSet atoms) {
 		if (atoms.count() > gnEi.length) {
 			gnEi = new Vector3D[atoms.count()];
 			for (int i = 0; i < atoms.count(); i++) {

@@ -6,6 +6,6 @@ package etomica.space;
  */
 public interface ICoordinateAngularKinetic extends ICoordinateKinetic, ICoordinateAngular {
     
-    public Vector getAngularVelocity(); //angular velocity vector in space-fixed frame
+    public IVector getAngularVelocity(); //angular velocity vector in space-fixed frame
     
 }

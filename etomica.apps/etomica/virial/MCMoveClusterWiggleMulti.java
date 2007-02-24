@@ -10,7 +10,7 @@ import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
 
@@ -82,7 +82,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             int j = Simulation.random.nextInt(numChildren);
             selectedAtoms[i] = (AtomLeaf)childList.get(j);
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
-            Vector position = selectedAtoms[i].getCoord().getPosition();
+            IVector position = selectedAtoms[i].getCoord().getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
             if (j == 0 || j == numChildren-1) {
 //                System.out.println("end"+j+" move");
@@ -126,8 +126,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             }
             else {
 //                System.out.println("middle move "+j);
-                Vector position0 = ((AtomLeaf)childList.get(j-1)).getCoord().getPosition();
-                Vector position2 = ((AtomLeaf)childList.get(j+1)).getCoord().getPosition();
+                IVector position0 = ((AtomLeaf)childList.get(j-1)).getCoord().getPosition();
+                IVector position2 = ((AtomLeaf)childList.get(j+1)).getCoord().getPosition();
                 work2.Ev1Pv2(position0, position2);
                 work2.TE(0.5);
                 //work1 is vector between the 0-2 midpoint and 1

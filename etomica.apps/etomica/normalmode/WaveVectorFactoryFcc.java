@@ -5,7 +5,7 @@ import java.io.Serializable;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
@@ -93,7 +93,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         }
     }
     
-    public Vector[] getWaveVectors() {
+    public IVector[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -112,7 +112,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         
         WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc(primitive);
         foo.makeWaveVectors(phase);
-        Vector[] waveVectors = foo.getWaveVectors();
+        IVector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
         for (int i=0; i<waveVectors.length; i++) {

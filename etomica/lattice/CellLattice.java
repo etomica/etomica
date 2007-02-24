@@ -4,8 +4,8 @@
  */
 package etomica.lattice;
 
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * A lattice of arbitrarily-sized rectangular cells, such that a point in space can be 
@@ -28,7 +28,7 @@ public class CellLattice extends RectangularLattice {
      * @param siteFactory
      *            makes the sites of the lattice
      */
-    public CellLattice(Vector dimensions, SiteFactory siteFactory) {
+    public CellLattice(IVector dimensions, SiteFactory siteFactory) {
         super(dimensions.D(), siteFactory);
         cellSize = new double[D()];
         idx = new int[D()];
@@ -42,13 +42,13 @@ public class CellLattice extends RectangularLattice {
      * is assumed to be consistent with the dimension D of the lattice (i.e.,
      * r.D() == this.D()) but this is not checked.
      */
-    public Object site(Vector r) {
+    public Object site(IVector r) {
         assignIndex(r, idx);
         return site(idx);
 
     }
     
-    public void assignIndex(Vector r, int[] idx) {
+    public void assignIndex(IVector r, int[] idx) {
         for(int i=0; i<idx.length; i++) {
             idx[i] = (int)(size[i]*(r.x(i)/dimensions.x(i)+0.5));
         }        
@@ -57,11 +57,11 @@ public class CellLattice extends RectangularLattice {
     /**
      * Returns the array that specifies the spatial dimensions of the lattice of cells.
      */
-    public Vector getDimensions() {
+    public IVector getDimensions() {
         return dimensions;
     }
     
-    public void setDimensions(Vector d) {
+    public void setDimensions(IVector d) {
         dimensions.E(d);
     }
 
@@ -79,7 +79,7 @@ public class CellLattice extends RectangularLattice {
     }
     
     private final double[] cellSize;
-    private final Vector dimensions;
+    private final IVector dimensions;
     private final int[] idx;//a work array
 
     /**
@@ -118,7 +118,7 @@ public class CellLattice extends RectangularLattice {
          */
         public void checkDimensions() {
             if(lattice == null) return;
-            Vector currentDimensions = ((CellLattice)lattice).getDimensions();
+            IVector currentDimensions = ((CellLattice)lattice).getDimensions();
             if(!previousDimensions.equals(currentDimensions)) {
                 setNeighborDistance(neighborDistance);
                 previousDimensions.E(currentDimensions);
@@ -126,7 +126,7 @@ public class CellLattice extends RectangularLattice {
         }
         
         private final int[] idx;//a work array
-        private final Vector previousDimensions;
+        private final IVector previousDimensions;
         private double neighborDistance;
     }//end of NeighborIterator
 }

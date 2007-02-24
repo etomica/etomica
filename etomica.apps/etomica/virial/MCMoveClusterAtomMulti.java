@@ -5,7 +5,7 @@ import etomica.atom.AtomLeaf;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * @author kofke
@@ -18,7 +18,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public MCMoveClusterAtomMulti(Simulation sim, int nAtoms) {
         super(sim);
         selectedAtoms = new AtomLeaf[nAtoms];
-        translationVectors = new Vector[nAtoms];
+        translationVectors = new IVector[nAtoms];
         for (int i=0; i<nAtoms; i++) {
             translationVectors[i] = potential.getSpace().makeVector();
         }
@@ -76,5 +76,5 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
     private final AtomLeaf[] selectedAtoms;
-    private final Vector[] translationVectors;
+    private final IVector[] translationVectors;
 }

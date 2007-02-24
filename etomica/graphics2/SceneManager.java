@@ -13,7 +13,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -43,9 +43,9 @@ public final class SceneManager {
         Boundary bnd = phase.getBoundary();
         Polytope shape = bnd.getShape();
         boolean needUpdate = false;
-        Vector[] newVertices = shape.getVertices();
+        IVector[] newVertices = shape.getVertices();
         if (boundaryVertices == null || boundaryVertices.length != newVertices.length) {
-            boundaryVertices = new Vector[newVertices.length];
+            boundaryVertices = new IVector[newVertices.length];
             for (int i=0; i<boundaryVertices.length; i++) {
                 boundaryVertices[i] = phase.space().makeVector();
                 boundaryVertices[i].E(newVertices[i]);
@@ -67,7 +67,7 @@ public final class SceneManager {
             }
             
             LineSegment[] edges = shape.getEdges();
-            Vector shift = phase.space().makeVector();
+            IVector shift = phase.space().makeVector();
             
             boundaryPoly = renderer.createPoly();
             for(int i=0; i<edges.length; i++) 
@@ -84,7 +84,7 @@ public final class SceneManager {
             SphereShapeWrapper wrapper = (SphereShapeWrapper)agentIterator.next();
             AtomLeaf a = wrapper.atom;
             int c = colorScheme.atomColor(a);
-            Vector r = a.getCoord().getPosition();
+            IVector r = a.getCoord().getPosition();
 
             Renderable.Shape shp = wrapper.shape;
             shp.setPosition( r );
@@ -177,8 +177,8 @@ public final class SceneManager {
     protected AtomFilter atomFilter;
     protected double scale;
     protected Phase phase;
-    protected Vector[] boundaryVertices;
-    protected Vector from, to;
+    protected IVector[] boundaryVertices;
+    protected IVector from, to;
     
     protected ColorScheme colorScheme;
     protected Atom[] selectedAtoms = new Atom[1];

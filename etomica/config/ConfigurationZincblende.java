@@ -10,8 +10,8 @@ import etomica.graphics.DisplayPhase;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
@@ -51,9 +51,9 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         int nCells = (int) Math.ceil(lists[0].size() / 4.0);
 
         // determine scaled shape of simulation volume
-        Vector shape = phase.space().makeVector();
+        IVector shape = phase.space().makeVector();
         shape.E(phase.getBoundary().getDimensions());
-        Vector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
+        IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -86,7 +86,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         indexIterator.reset();
         while (indexIterator.hasNext()) {
             int[] ii = indexIterator.next();
-            Vector site = (Vector) lattice.site(ii);
+            IVector site = (IVector) lattice.site(ii);
             atomActionTranslateTo.setDestination(site);
 
             Atom a0 = iterator0.nextAtom();

@@ -2,8 +2,8 @@ package etomica.action;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * 
@@ -16,7 +16,7 @@ import etomica.space.Vector;
 public class AtomActionAccelerateBy extends AtomActionAdapter {
     
     private static final long serialVersionUID = 1L;
-    private final Vector accelerationVector;
+    private final IVector accelerationVector;
     
     public AtomActionAccelerateBy(Space space) {
         accelerationVector = space.makeVector();
@@ -32,14 +32,14 @@ public class AtomActionAccelerateBy extends AtomActionAdapter {
      * instance, not a copy, so any manipulation of the returned vector will
      * affect the action of this instance.
      */
-    public Vector getAccelerationVector() {
+    public IVector getAccelerationVector() {
         return accelerationVector;
     }
     /**
      * @param accelerationVector The acceleration vector to set.  A local copy
      * is made of the given vector.
      */
-    public void setAccelerationVector(Vector accelerationVector) {
+    public void setAccelerationVector(IVector accelerationVector) {
         this.accelerationVector.E(accelerationVector);
     }
 }

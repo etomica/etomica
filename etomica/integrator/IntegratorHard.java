@@ -21,7 +21,7 @@ import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.util.Debug;
 import etomica.util.TreeLinker;
 import etomica.util.TreeList;
@@ -131,8 +131,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    Vector dr = phase.space().makeVector();
-                    Vector dv = phase.space().makeVector();
+                    IVector dr = phase.space().makeVector();
+                    IVector dv = phase.space().makeVector();
 
                     AtomLeaf atom0 = (AtomLeaf)pair.atom0;
                     AtomLeaf atom1 = (AtomLeaf)pair.atom1;
@@ -156,8 +156,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
                 debugPair = Debug.getAtoms(phase);
                 if (debugPair.atom0 instanceof AtomLeaf && debugPair.atom1 instanceof AtomLeaf) {
-                    Vector dr = phase.space().makeVector();
-                    Vector dv = phase.space().makeVector();
+                    IVector dr = phase.space().makeVector();
+                    IVector dv = phase.space().makeVector();
 
                     AtomLeaf atom0 = (AtomLeaf)debugPair.atom0;
                     AtomLeaf atom1 = (AtomLeaf)debugPair.atom1;
@@ -186,7 +186,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                     }
                 }
                 else if (Debug.LEVEL > 2 && debugPair.atom0 instanceof AtomLeaf) {
-                    Vector dr = potential.getSpace().makeVector();
+                    IVector dr = potential.getSpace().makeVector();
                     dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).getCoord()).getVelocity());
                     System.out.println(debugPair.atom0+" coordinates "+((AtomLeaf)debugPair.atom0).getCoord().getPosition().P(dr));
                 }

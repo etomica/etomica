@@ -6,9 +6,9 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Energy;
 import etomica.units.Length;
@@ -32,7 +32,7 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected double lastCollisionVirial, lastCollisionVirialr2;
     protected Tensor lastCollisionVirialTensor;
     protected double lastEnergyChange;
-    protected Vector dv;
+    protected IVector dv;
     protected final boolean ignoreOverlap;
 
     public P2SquareWell(Simulation sim) {

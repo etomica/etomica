@@ -5,9 +5,9 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.space.Coordinate;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Methods for a hard (impulsive), spherically-symmetric pair potential.
@@ -46,6 +46,6 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         nearestImageTransformer = phase.getBoundary();
     }
 
-    protected final Vector dr;
+    protected final IVector dr;
     protected NearestImageTransformer nearestImageTransformer;
 }

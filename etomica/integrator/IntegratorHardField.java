@@ -14,8 +14,8 @@ import etomica.potential.Potential1;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Extension of IntegratorHard for case where a constant external force field is applied.
@@ -156,13 +156,13 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     */
     public static class HardFieldAgent extends IntegratorHard.Agent implements IntegratorPhase.Forcible { 
     
-        public final Vector force;
+        public final IVector force;
         public boolean forceFree = true;
         public HardFieldAgent(Atom a, IntegratorHardField integrator) {
             super(a, integrator);
             force = integrator.space.makeVector();
         }
-        public final Vector force() {return force;}
+        public final IVector force() {return force;}
     }//end of Agent
     
     /**

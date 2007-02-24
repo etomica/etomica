@@ -14,8 +14,8 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
@@ -52,7 +52,7 @@ public class PistonCylinder extends Simulation {
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(112);
         phase.setBoundary(new BoundaryPistonCylinder(space));
-        Vector newDim;
+        IVector newDim;
         Configuration config;
         if (space.D() == 2) {
             config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());

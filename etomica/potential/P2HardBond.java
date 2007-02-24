@@ -7,9 +7,9 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.util.Debug;
@@ -198,6 +198,6 @@ public class P2HardBond extends Potential2HardSpherical {
     private double lastCollisionVirial = 0.0;
     private double lastCollisionVirialr2 = 0.0;
     private boolean ignoreOverlap;
-    private final Vector dv;
+    private final IVector dv;
     private final Tensor lastCollisionVirialTensor;
 }

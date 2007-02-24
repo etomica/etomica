@@ -33,8 +33,8 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
@@ -77,7 +77,7 @@ public class TestHarmonic extends Simulation {
             }
         }
         double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
-        Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
+        IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
         double[] coefficients = new double[waveVectors.length];
         double[] justWaveVector = new double[space.D()];
         for (int i=0; i<waveVectors.length; i++) {
@@ -149,7 +149,7 @@ public class TestHarmonic extends Simulation {
         
         NormalCoordLeaf normalCoordLeaf = new NormalCoordLeaf(sim.getSpace());
         double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
-        Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
+        IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
         double[] coefficients = new double[waveVectors.length];
         double[] justWaveVector = new double[D];
         for (int i=0; i<waveVectors.length; i++) {
@@ -206,7 +206,7 @@ public class TestHarmonic extends Simulation {
         }
         ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config
         .getLatticeMemento();
-        Vector scaling = myLattice.latticeScaling;
+        IVector scaling = myLattice.latticeScaling;
         primitive.scaleSize(scaling.x(0));
         MeterNormalMode meterNormalMode = new MeterNormalMode();
         meterNormalMode.setNormalCoordWrapper(normalCoordLeaf);

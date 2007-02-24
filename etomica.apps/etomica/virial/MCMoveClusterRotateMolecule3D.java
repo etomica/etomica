@@ -8,8 +8,8 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * @author andrew
@@ -33,7 +33,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     public void setPhase(Phase p) {
         super.setPhase(p);
         weightMeter.setPhase(p);
-        oldPositions = new Vector[((AtomTreeNodeGroup)molecule.getNode()).getChildList().size()-1];
+        oldPositions = new IVector[((AtomTreeNodeGroup)molecule.getNode()).getChildList().size()-1];
         for (int j=0; j<oldPositions.length; j++) {
             oldPositions[j] = p.space().makeVector();
         }
@@ -100,6 +100,6 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     private final MeterClusterWeight weightMeter;
     protected int trialCount, relaxInterval = 100;
     protected AtomAction relaxAction;
-    private Vector[] oldPositions;
+    private IVector[] oldPositions;
 
 }

@@ -12,8 +12,8 @@ import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Action that imposes the central-image effect of a phase having periodic
@@ -52,7 +52,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
         if (applyToMolecules) {
             while (iterator.hasNext()) {
                 Atom molecule = iterator.nextAtom();
-                Vector shift = boundary.centralImage(moleculePosition.position(molecule));
+                IVector shift = boundary.centralImage(moleculePosition.position(molecule));
                 if (!shift.isZero()) {
                     translator.setTranslationVector(shift);
                     moleculeTranslator.actionPerformed(molecule);
@@ -62,7 +62,7 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
         else {
             while (iterator.hasNext()) {
                 AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                Vector shift = boundary.centralImage(atom.getCoord().getPosition());
+                IVector shift = boundary.centralImage(atom.getCoord().getPosition());
                 if (!shift.isZero()) {
                     atom.getCoord().getPosition().PE(shift);
                 }

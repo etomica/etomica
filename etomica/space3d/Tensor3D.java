@@ -1,8 +1,8 @@
 package etomica.space3d;
 
 
+import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 import etomica.util.Function;
 
@@ -64,7 +64,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx=t.zx; zy=t.zy; zz=t.zz;
     }
     
-    public void E(Vector[] v) {
+    public void E(IVector[] v) {
         if(v.length != 3) {
             throw new IllegalArgumentException("Tensor requires 3 vectors to set its values");
         }
@@ -73,7 +73,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx = ((Vector3D)v[0]).z; zy = ((Vector3D)v[1]).z; zz = ((Vector3D)v[2]).z;
     }
     
-    public void assignTo(Vector[] v) {
+    public void assignTo(IVector[] v) {
         if(v.length != 3) {
             throw new IllegalArgumentException("Tensor requires 3 vector for assignment");
         }
@@ -82,7 +82,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         ((Vector3D)v[0]).z = zx; ((Vector3D)v[1]).z = zy; ((Vector3D)v[2]).z = zz;
     }
 
-    public void Ev1v2(Vector v1, Vector v2) {
+    public void Ev1v2(IVector v1, IVector v2) {
         Vector3D u1 = (Vector3D)v1;
         Vector3D u2 = (Vector3D)v2;
         xx=u1.x*u2.x; xy=u1.x*u2.y; xz=u1.x*u2.z;
@@ -147,7 +147,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zz= (txx*tyy-txy*tyx)/det;                              
     }
     
-    public void PEv1v2(Vector v1, Vector v2) {
+    public void PEv1v2(IVector v1, IVector v2) {
         Vector3D u1 = (Vector3D)v1;
         Vector3D u2 = (Vector3D)v2;
         xx+=u1.x*u2.x; xy+=u1.x*u2.y; xz+=u1.x*u2.z;
@@ -155,7 +155,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx+=u1.z*u2.x; zy+=u1.z*u2.y; zz+=u1.z*u2.z;
     }
     
-    public void MEv1v2(Vector v1, Vector v2) {
+    public void MEv1v2(IVector v1, IVector v2) {
         Vector3D u1 = (Vector3D)v1;
         Vector3D u2 = (Vector3D)v2;
         xx-=u1.x*u2.x; xy-=u1.x*u2.y; xz-=u1.x*u2.z;

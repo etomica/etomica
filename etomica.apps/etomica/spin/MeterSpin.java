@@ -5,8 +5,8 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.Meter;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Undefined;
 
 
@@ -60,5 +60,5 @@ public class MeterSpin extends DataSourceScalar implements Meter {
     private static final long serialVersionUID = 1L;
     private Phase phase;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    private final Vector sum;
+    private final IVector sum;
 }

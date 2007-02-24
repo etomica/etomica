@@ -5,7 +5,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomSet;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 
 /**
@@ -27,6 +27,6 @@ public interface PotentialSoft {
 	 * @param atoms
 	 * @return
 	 */
-	public Vector[] gradient(AtomSet atoms);
+	public IVector[] gradient(AtomSet atoms);
 
 }

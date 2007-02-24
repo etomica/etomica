@@ -17,20 +17,20 @@ public interface Tensor extends Cloneable {
      * dimensions must equal the tensor dimension.
      * @param v
      */
-    public abstract void E(Vector[] v);
+    public abstract void E(IVector[] v);
     
     /**
      * Assigns the tensor elements column-wise to the given vectors. The number
      * of vectors must equal the dimension of the tensor, and the vector
      * dimensions must equal the tensor dimension.
      */
-    public abstract void assignTo(Vector[] v);
+    public abstract void assignTo(IVector[] v);
     
     /**
      * Sets this equal to the dyadic or outer product of the given vectors.
      * Element ab is given by v1.a * v2.b 
      */
-    public abstract void Ev1v2(Vector v1, Vector v2);
+    public abstract void Ev1v2(IVector v1, IVector v2);
     
     public abstract void E(double a);
     public abstract void PE(double a);
@@ -40,8 +40,8 @@ public interface Tensor extends Cloneable {
     /**
      * Increments this by the dyadic or outer product of the given vectors.
      */
-    public abstract void PEv1v2(Vector v1, Vector v2);
-    public abstract void MEv1v2(Vector v1, Vector v2);
+    public abstract void PEv1v2(IVector v1, IVector v2);
+    public abstract void MEv1v2(IVector v1, IVector v2);
     public abstract void ME(Tensor t);
     public abstract double trace();
     public abstract void transpose();

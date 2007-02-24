@@ -12,8 +12,8 @@ import etomica.atom.AtomSet;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * 1-D potential that has a WCA form in the Z direction.
@@ -22,7 +22,7 @@ import etomica.space.Vector;
 public class P1WCAWall extends Potential1 implements PotentialSoft {
 
     private static final long serialVersionUID = 1L;
-    private final Vector[] gradient;
+    private final IVector[] gradient;
     private double sigma;
     private double epsilon;
     private double cutoff;
@@ -35,7 +35,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
-        gradient = new Vector[1];
+        gradient = new IVector[1];
         gradient[0] = space.makeVector();
     }
 
@@ -51,7 +51,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
 
     public double energy(AtomSet atom) {
         AtomLeaf a = (AtomLeaf) atom;
-        Vector dimensions = boundary.getDimensions();
+        IVector dimensions = boundary.getDimensions();
         double rz = a.getCoord().getPosition().x(2);
         double dzHalf = 0.5 * dimensions.x(2);
         return energy(dzHalf + rz) + energy(dzHalf - rz);
@@ -77,9 +77,9 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         return 0;
     }
 
-    public Vector[] gradient(AtomSet atom) {
+    public IVector[] gradient(AtomSet atom) {
         AtomLeaf a = (AtomLeaf) atom;
-        Vector dimensions = boundary.getDimensions();
+        IVector dimensions = boundary.getDimensions();
         double rz = a.getCoord().getPosition().x(2);
         double dzHalf = 0.5 * dimensions.x(2);
         double gradz = gradient(rz + dzHalf) - gradient(dzHalf - rz);

@@ -14,7 +14,7 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -51,7 +51,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
         callCount = 0;
 
         phase = newPhase;
-        latticePositions = new Vector[phase.getSpeciesMaster().moleculeCount()];
+        latticePositions = new IVector[phase.getSpeciesMaster().moleculeCount()];
         normalDim = normalCoordMapper.getNormalDim();
 
         iterator.setPhase(phase);
@@ -101,7 +101,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
         return phase;
     }
     
-    public Vector[] getWaveVectors() {
+    public IVector[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -186,7 +186,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    private Vector[] waveVectors;
+    private IVector[] waveVectors;
     private WaveVectorFactory waveVectorFactory;
     protected NormalCoordMapper normalCoordMapper;
     private int numWaveVectors;
@@ -196,7 +196,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
     private DataInfo dataInfo;
     private DataGroup data;
     private final AtomIteratorAllMolecules iterator;
-    private Vector[] latticePositions;
+    private IVector[] latticePositions;
     private int callCount;
 
     protected int normalDim;

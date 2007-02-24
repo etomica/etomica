@@ -42,8 +42,8 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
@@ -428,7 +428,7 @@ public class JouleThomson extends SimulationGraphic {
     	    if(currentSig > 0.5) {
     	        sim.phase.setDensity(targetDensity/Math.pow(currentSig,sim.getSpace().D()));
     	        double size = currentSig*Math.pow(sim.phase.atomCount()/targetDensity,1.0/sim.getSpace().D());
-                Vector v = sim.getSpace().makeVector();
+                IVector v = sim.getSpace().makeVector();
                 v.E(size);
                 sim.phase.getBoundary().setDimensions(v);
                 SpaceLattice lattice;

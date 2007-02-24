@@ -10,7 +10,7 @@ import etomica.phase.Phase;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Our own ApiFiltered that's phase-dependent
@@ -45,7 +45,7 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorP
             // accept them all and weight them half as much. 
             int numOut = 0;
             for (int i=0; i<2; i++) {
-                Vector pos = ((AtomLeaf)atoms.getAtom(i)).getCoord().getPosition();
+                IVector pos = ((AtomLeaf)atoms.getAtom(i)).getCoord().getPosition();
                 if (pos.x(0) < -0.5*dimensions.x(0)+radius ||
                     pos.x(0) >  0.5*dimensions.x(0)-radius) {
                     numOut++;
@@ -64,7 +64,7 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorP
         }
         
         private double padding;
-        private final Vector dimensions;
+        private final IVector dimensions;
         private final P1HardMovingBoundary pistonPotential;
     }
 }

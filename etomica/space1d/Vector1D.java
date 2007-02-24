@@ -2,14 +2,14 @@ package etomica.space1d;
 
 import etomica.math.SpecialFunctions;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.util.Function;
 
 /**
  * Implementation of the Vector class for a 1-dimensional space. In this case the vector
  * is a trivial object formed from just one element.
  */
-public final class Vector1D extends etomica.space.Vector { 
+public final class Vector1D implements IVector, java.io.Serializable { 
     
     double x;
     private static final long serialVersionUID = 1L;
@@ -30,7 +30,7 @@ public final class Vector1D extends etomica.space.Vector {
         this.E(u);
     }
 
-    public boolean equals(Vector v) {
+    public boolean equals(IVector v) {
         return (x == ((Vector1D) v).x);
     }
 
@@ -78,16 +78,16 @@ public final class Vector1D extends etomica.space.Vector {
         x = a[0];
     }
 
-    public void Ea1Tv1(double a1, Vector u) {
+    public void Ea1Tv1(double a1, IVector u) {
         Vector1D u1 = (Vector1D) u;
         x = a1 * u1.x;
     }
 
-    public void Ev1Pa1Tv2(Vector v1, double a1, Vector v2) {
+    public void Ev1Pa1Tv2(IVector v1, double a1, IVector v2) {
         x = ((Vector1D) v1).x + a1 * ((Vector1D) v2).x;
     }
 
-    public void PEa1Tv1(double a1, Vector u) {
+    public void PEa1Tv1(double a1, IVector u) {
         x += a1 * ((Vector1D) u).x;
     }
 
@@ -111,17 +111,17 @@ public final class Vector1D extends etomica.space.Vector {
         x /= a;
     }
 
-    public void Ev1Pv2(Vector u1, Vector u2) {
+    public void Ev1Pv2(IVector u1, IVector u2) {
         x = ((Vector1D) u1).x + ((Vector1D) u2).x;
     }
 
-    public void Ev1Mv2(etomica.space.Vector u1, etomica.space.Vector u2) {
+    public void Ev1Mv2(IVector u1, IVector u2) {
         Vector1D v1 = (Vector1D) u1;
         Vector1D v2 = (Vector1D) u2;
         x = v1.x - v2.x;
     }
 
-    public double Mv1Squared(etomica.space.Vector u1) {
+    public double Mv1Squared(IVector u1) {
         double dx = x - ((Vector1D) u1).x;
         return dx * dx;
     }
@@ -130,7 +130,7 @@ public final class Vector1D extends etomica.space.Vector {
         if(x < eps && -x < eps) x = 0.0;
     }
 
-    public void mod(etomica.space.Vector u) {
+    public void mod(IVector u) {
         mod((Vector1D) u);
     }
 
@@ -152,7 +152,7 @@ public final class Vector1D extends etomica.space.Vector {
     //        	EModShift((Vector)r, (Vector)u);
     //        }
     //sets this equal to (r mod u) - r
-    public void EModShift(Vector r, Vector u) {
+    public void EModShift(IVector r, IVector u) {
         double rx = ((Vector1D) r).x;
         double ux = ((Vector1D) u).x;
         x = rx;
@@ -163,7 +163,7 @@ public final class Vector1D extends etomica.space.Vector {
         x -= rx;
     }
 
-    public void EMod2Shift(Vector r, Vector u) {
+    public void EMod2Shift(IVector r, IVector u) {
         double rx = ((Vector1D) r).x;
         double ux = ((Vector1D) u).x;
         x = rx;
@@ -174,29 +174,29 @@ public final class Vector1D extends etomica.space.Vector {
         x -= rx;
     }
 
-    public void PEa1SGNv1(double a1, Vector v1) {
+    public void PEa1SGNv1(double a1, IVector v1) {
         x += a1 * SpecialFunctions.sgn(((Vector1D) v1).x);
     }
 
-    public etomica.space.Vector P(Vector u) {
+    public IVector P(IVector u) {
         Vector1D work = new Vector1D();
         work.x = x + ((Vector1D)u).x;
         return work;
     }
 
-    public etomica.space.Vector M(Vector u) {
+    public IVector M(IVector u) {
         Vector1D work = new Vector1D();
         work.x = x - ((Vector1D)u).x;
         return work;
     }
 
-    public etomica.space.Vector T(Vector u) {
+    public IVector T(IVector u) {
         Vector1D work = new Vector1D();
         work.x = x * ((Vector1D)u).x;
         return work;
     }
 
-    public etomica.space.Vector D(Vector u) {
+    public IVector D(IVector u) {
         Vector1D work = new Vector1D();
         work.x = x / ((Vector1D)u).x;
         return work;
@@ -206,11 +206,11 @@ public final class Vector1D extends etomica.space.Vector {
         x = (x > 0) ? x : -x;
     }
 
-    public void minE(Vector v) {
+    public void minE(IVector v) {
         if(((Vector1D)v).x < x) x = ((Vector1D)v).x;
     }
 
-    public void maxE(Vector v) {
+    public void maxE(IVector v) {
         if(((Vector1D)v).x > x) x = ((Vector1D)v).x;
     }
 
@@ -242,7 +242,7 @@ public final class Vector1D extends etomica.space.Vector {
         x = Simulation.random.nextDouble() * d;
     }
 
-    public void setRandom(Vector u) {
+    public void setRandom(IVector u) {
         setRandom(((Vector1D) u).x);
     }
 
@@ -262,27 +262,27 @@ public final class Vector1D extends etomica.space.Vector {
         x = (Simulation.random.nextBoolean()) ? -1.0 : +1.0;
     }
 
-    public void E(Vector u) {
+    public void E(IVector u) {
         x = ((Vector1D) u).x;
     }
 
-    public void PE(Vector u) {
+    public void PE(IVector u) {
         x += ((Vector1D) u).x;
     }
 
-    public void ME(Vector u) {
+    public void ME(IVector u) {
         x -= ((Vector1D) u).x;
     }
 
-    public void TE(Vector u) {
+    public void TE(IVector u) {
         x *= ((Vector1D) u).x;
     }
 
-    public void DE(Vector u) {
+    public void DE(IVector u) {
         x /= ((Vector1D) u).x;
     }
 
-    public double dot(Vector u) {
+    public double dot(IVector u) {
         return ((Vector1D) u).x * x;
     }
 

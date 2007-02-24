@@ -1,6 +1,6 @@
 package etomica.math.geometry;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Representation of a mathematical polyhedron, a 3-dimensional polytope.
@@ -32,7 +32,7 @@ public class PolyhedronGeneral extends Polyhedron {
     /**
      * Returns true if the given point lies inside or on an edge of the polyhedron
      */
-    public boolean contains(Vector vector) {
+    public boolean contains(IVector vector) {
         throw new MethodNotImplementedException("General formula for 'contains' not in place");
     }
 

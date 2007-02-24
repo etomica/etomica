@@ -13,7 +13,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Action that opens a new window and dumps the velocities into the window.
@@ -39,7 +39,7 @@ public class ActionVelocityWindow implements Action {
         iterator.reset();
         while (iterator.hasNext()) {
             AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-            Vector vel = ((ICoordinateKinetic)atom.getCoord()).getVelocity();
+            IVector vel = ((ICoordinateKinetic)atom.getCoord()).getVelocity();
             String str = Double.toString(vel.x(0));
             for (int i=1; i<vel.D(); i++) {
                 str += " "+Double.toString(vel.x(i));

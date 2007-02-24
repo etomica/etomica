@@ -5,7 +5,7 @@ package etomica.models.hexane;
 
 import etomica.lattice.crystal.Primitive;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Deformable boundary that takes the shape of a primitive with some number
@@ -26,8 +26,8 @@ public class BoundaryDeformableLattice extends BoundaryDeformablePeriodic {
      * Creates boundary vectors in the direction of the primitive vectors, 
      * scaled by nCells
      */
-    private static final Vector[] makeDimensionVectors(Primitive primitive, int[] numCells) {
-        Vector[] dimensionVectors = new Vector[primitive.getSpace().D()];
+    private static final IVector[] makeDimensionVectors(Primitive primitive, int[] numCells) {
+        IVector[] dimensionVectors = new IVector[primitive.getSpace().D()];
         for (int i=0; i<dimensionVectors.length; i++) {
             dimensionVectors[i] = primitive.getSpace().makeVector();
             dimensionVectors[i].Ea1Tv1(numCells[i],primitive.vectors()[i]);

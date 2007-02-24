@@ -4,7 +4,7 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Configuration that simply puts all the Atoms at 0, or -0.5 if the box size
@@ -20,7 +20,7 @@ public class ConfigurationZero extends Configuration {
 
     public void initializeCoordinates(Phase phase) {
         AtomActionTranslateTo atomActionTranslateTo = new AtomActionTranslateTo(phase.space());
-        Vector work = phase.space().makeVector();
+        IVector work = phase.space().makeVector();
         work.E(0.0);
         int intD = (int)Math.round(phase.getBoundary().getDimensions().x(0));
         if (intD % 2 == 0) {

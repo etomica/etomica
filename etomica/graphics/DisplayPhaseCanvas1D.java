@@ -12,7 +12,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Boundary;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.species.Species;
 
     /* History of changes
@@ -64,7 +64,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private void drawAtom(Graphics g, int origin[], AtomLeaf a) {
         if(!displayPhase.getAtomFilter().accept(a)) return;
         
-        Vector r = a.getCoord().getPosition();
+        IVector r = a.getCoord().getPosition();
         boolean drawWell = false;
         int sigmaP, xP, yP, baseXP, baseYP;
 

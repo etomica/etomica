@@ -26,8 +26,8 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -122,7 +122,7 @@ public class SimFcc extends Simulation {
         }
         ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config
                 .getLatticeMemento();
-        Vector scaling = myLattice.latticeScaling;
+        IVector scaling = myLattice.latticeScaling;
         primitive.scaleSize(scaling.x(0));
 
         MeterNormalMode meterNormalMode = new MeterNormalMode();
@@ -153,7 +153,7 @@ public class SimFcc extends Simulation {
         normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
         int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
         
-        Vector[] waveVectors = waveVectorFactory.getWaveVectors();
+        IVector[] waveVectors = waveVectorFactory.getWaveVectors();
         double[] coefficients = waveVectorFactory.getCoefficients();
         
         try {

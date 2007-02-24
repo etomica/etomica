@@ -6,7 +6,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.species.Species;
 
 /**
@@ -43,8 +43,8 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
     
     //Different because we know the bond angle
     //All moves are accepted,
-    protected Vector calcRandomBondWithAngle(Vector v){
-        Vector vax = phase.space().makeVector();
+    protected IVector calcRandomBondWithAngle(IVector v){
+        IVector vax = phase.space().makeVector();
         double ubb;
         v.normalize();
         
@@ -60,18 +60,18 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
         return vax;
     }
     
-    protected Vector calcRandomBondWithAngleAndTorsion(AtomLeaf a, AtomLeaf b, 
+    protected IVector calcRandomBondWithAngleAndTorsion(AtomLeaf a, AtomLeaf b, 
             AtomLeaf c){
         if(phase.space().D() != 3){
             throw new IllegalArgumentException("Torsional bond is only used in 3D simulations");
         }
         
-        Vector vax = phase.space().makeVector();
-        Vector vux = phase.space().makeVector();
+        IVector vax = phase.space().makeVector();
+        IVector vux = phase.space().makeVector();
         double theta;
         double ubb, utors, usum;
-        Vector tempCloser = phase.space().makeVector();
-        Vector tempFarther = phase.space().makeVector();
+        IVector tempCloser = phase.space().makeVector();
+        IVector tempFarther = phase.space().makeVector();
         
         tempFarther.E(b.getCoord().getPosition());
         tempFarther.ME(c.getCoord().getPosition()); 
@@ -113,7 +113,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
         return 0.0;
     }
     
-    protected double calcBondTorsionalEnergy(Vector v){
+    protected double calcBondTorsionalEnergy(IVector v){
         double denom = Math.sqrt(v.x(0) * v.x(0) + v.x(1) * v.x(1) + v.x(2) * v.x(2));
         
         if (denom > 1.0){

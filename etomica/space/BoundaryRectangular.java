@@ -69,11 +69,11 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * the boundary.  The returned Vector does not represent the values internally,
      * so manipulation of the vector has no effect on this BoundaryRectangular instance.
      */
-    public Vector getDimensions() {
+    public IVector getDimensions() {
         return dimensionsCopy;
     }
     
-    public Vector getBoundingBox() {
+    public IVector getBoundingBox() {
         return dimensionsCopy;
     }
 
@@ -82,7 +82,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * the boundary.  The same Vector instance is returned with each call, with
      * a new random point each time.
      */
-    public Vector randomPosition() {
+    public IVector randomPosition() {
         temp.setRandomCube();
         temp.TE(dimensions);
         return temp;
@@ -98,7 +98,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * copied, so manipulation of the given vector has no subsequent effect
      * on this Boundary instance.
      */
-    public void setDimensions(etomica.space.Vector v) {
+    public void setDimensions(IVector v) {
         dimensions.E(v);
         updateDimensions();
     }
@@ -127,7 +127,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * is the dimension of the space.
      */
     public double[][] imageOrigins(int nShells) {
-        Vector workVector = space.makeVector();
+        IVector workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];
@@ -145,7 +145,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         return origins;
     }
 
-    public float[][] getOverflowShifts(Vector rr, double distance) {
+    public float[][] getOverflowShifts(IVector rr, double distance) {
        int D = space.D();
        int numVectors = 1;
        for (int i=1; i<D; i++) {
@@ -190,9 +190,9 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
        return shifts;
     }
     
-    private final Vector temp;
-    protected final Vector dimensions;
-    protected final Vector dimensionsCopy;
+    private final IVector temp;
+    protected final IVector dimensions;
+    protected final IVector dimensionsCopy;
     private final IndexIteratorSequential indexIterator;
     private final boolean[] needShift;
     protected boolean[] isPeriodic;

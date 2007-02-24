@@ -5,8 +5,8 @@
 package etomica.math.geometry;
 
 import etomica.exception.MethodNotImplementedException;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -33,7 +33,7 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
         this.b = (Vector3D)embeddedSpace.makeVector();
         this.c = (Vector3D)embeddedSpace.makeVector();
         work = (Vector3D)embeddedSpace.makeVector();
-        setEdgeVectors(new Vector[] {a, b, c});
+        setEdgeVectors(new IVector[] {a, b, c});
     }
 
     /**
@@ -88,7 +88,7 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
      * surface of) this cell, <code>false</code> otherwise.
      */
     //TODO implement contains method in Parallelepiped
-    public boolean contains(etomica.space.Vector v) {
+    public boolean contains(IVector v) {
         throw new MethodNotImplementedException();
 //        double x = v.x(0)-position.x(0);
 //        double y = v.x(1)-position.x(1);
@@ -101,7 +101,7 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
      * Sets the lengths and directions of all edges of the parellelepiped.
      * Given instances are copied to an internal representation.
      */
-    public void setEdgeVectors(Vector[] vectors) {
+    public void setEdgeVectors(IVector[] vectors) {
         a.Ea1Tv1(0.5, vectors[0]);
         b.Ea1Tv1(0.5, vectors[1]);
         c.Ea1Tv1(0.5, vectors[2]);

@@ -1,8 +1,8 @@
 package etomica.lattice;
 
 import etomica.lattice.crystal.Primitive;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Arbitrary-dimension Bravais Lattice, in which the sites are instances of 
@@ -35,7 +35,7 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
     public Object site(int[] index) {
         if(index.length != getSpace().D()) throw new IllegalArgumentException("index given to site method of lattice must have number of elements equal to dimension of lattice");
         latticeVector.E(0);
-        Vector[] latticeVectors = primitive.vectors();
+        IVector[] latticeVectors = primitive.vectors();
         for(int i=0; i<index.length; i++) {
             latticeVector.PEa1Tv1(index[i], latticeVectors[i]);
         }
@@ -65,6 +65,6 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected Primitive primitive;
-    private final Vector latticeVector;
+    private final IVector latticeVector;
     
 }

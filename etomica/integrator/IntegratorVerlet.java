@@ -14,8 +14,8 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
 
@@ -25,7 +25,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     private final Space space;
     private double t2;
 
-    Vector work;
+    IVector work;
 
     protected AtomAgentManager agentManager;
 
@@ -81,7 +81,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
-            Vector r = a.getCoord().getPosition();
+            IVector r = a.getCoord().getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
             agent.force.TE(((AtomTypeLeaf)a.getType()).rm()*t2);
@@ -120,8 +120,8 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             
 	public final static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;
-        public Vector force;
-        public Vector rMrLast;  //r - rLast
+        public IVector force;
+        public IVector rMrLast;  //r - rLast
 
         public Agent(Space space, Atom a) {
             atom = a;
@@ -129,7 +129,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             rMrLast = space.makeVector();
         }
         
-        public Vector force() {return force;}
+        public IVector force() {return force;}
     }//end of Agent
     
 }//end of IntegratorVerlet

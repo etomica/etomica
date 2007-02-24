@@ -3,8 +3,8 @@ package etomica.virial;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.util.Debug;
 
 /**
@@ -60,7 +60,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
             iPosition.E(iAtom.getType().getPositionDefinition().position(iAtom));
             for(int j=i+1; j<numAtoms; j++) {
                 Atom jAtom = atoms[j];
-                Vector jPosition = jAtom.getType().getPositionDefinition().position(jAtom);
+                IVector jPosition = jAtom.getType().getPositionDefinition().position(jAtom);
                 dr.Ev1Mv2(iPosition, jPosition);
                 r2[i*numAtoms+j] = dr.squared();
             }
@@ -83,8 +83,8 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     protected final double[] r2;
     protected final Atom[] atoms;
     protected final int numAtoms;
-    protected final Vector dr;
-    private final Vector iPosition;
+    protected final IVector dr;
+    private final IVector iPosition;
     private int ID;
     private static int staticID;
 }

@@ -3,8 +3,8 @@ import etomica.EtomicaInfo;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardBoundary;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Osmotic pressure meter that calculates the difference in 
@@ -66,7 +66,7 @@ public class MeterOsmoticPressure extends MeterPressureHard {
         virialSum = 0;
 
         // calculate accessible "area"
-        Vector dimensions = integratorHard.getPhase().getBoundary().getDimensions();
+        IVector dimensions = integratorHard.getPhase().getBoundary().getDimensions();
         double area = 1;
         for (int i=1; i<dimensions.D(); i++) {
             area *= (dimensions.x(i)-2*collisionRadius);

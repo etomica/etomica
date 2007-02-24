@@ -3,8 +3,8 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -23,12 +23,12 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     
     private static final long serialVersionUID = 1L;
     private double w = 100.0;
-    private final Vector[] force;
-    private final Vector x0;
+    private final IVector[] force;
+    private final IVector x0;
     
     public P1Harmonic(Space space) {
         super(space);
-        force = new Vector[]{space.makeVector()};
+        force = new IVector[]{space.makeVector()};
         x0 = space.makeVector();
     }
     
@@ -45,11 +45,11 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         return w;
     }
     
-    public void setX0(Vector x0) {
+    public void setX0(IVector x0) {
         this.x0.E(x0);
     }
     
-    public Vector getX0() {
+    public IVector getX0() {
         return x0;
     }
     
@@ -73,8 +73,8 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         return 0.0;
     }
 
-    public Vector[] gradient(AtomSet a){
-        Vector r = ((AtomLeaf)a).getCoord().getPosition();
+    public IVector[] gradient(AtomSet a){
+        IVector r = ((AtomLeaf)a).getCoord().getPosition();
         force[0].Ev1Mv2(r,x0);
         force[0].TE(w);
             

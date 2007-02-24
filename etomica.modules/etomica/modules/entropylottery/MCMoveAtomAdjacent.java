@@ -10,7 +10,7 @@ import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryPeriodic;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Monte Carlo move that moves an atom by +/- 1 unit in a random dimension.
@@ -20,7 +20,7 @@ import etomica.space.Vector;
 public class MCMoveAtomAdjacent extends MCMovePhase {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected Vector translationVector;
+    protected IVector translationVector;
     protected Atom atom;
     protected AtomSource atomSource;
 
@@ -52,8 +52,8 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
      */
     public double getB() {
         boolean[] periodicity = ((BoundaryPeriodic)phase.getBoundary()).getPeriodicity();
-        Vector position = ((AtomLeaf)atom).getCoord().getPosition();
-        Vector dimensions = phase.getBoundary().getDimensions();
+        IVector position = ((AtomLeaf)atom).getCoord().getPosition();
+        IVector dimensions = phase.getBoundary().getDimensions();
         for (int i=0; i<position.D(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary
             int x = (int)Math.round(position.x(i)+dimensions.x(i)*0.5-0.5);

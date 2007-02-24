@@ -11,7 +11,7 @@ import etomica.integrator.IntegratorPhase;
 import etomica.integrator.mcmove.MCMove;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.virial.PhaseCluster;
 
 /**
@@ -24,7 +24,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     private AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
     private AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
     private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
-    private Vector r;
+    private IVector r;
     private PhaseCluster phase1, phase2;
     private double weightOld1, weightOld2;
     private double weightNew1, weightNew2;

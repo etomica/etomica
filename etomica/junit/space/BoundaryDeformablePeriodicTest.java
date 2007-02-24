@@ -9,8 +9,8 @@ import etomica.lattice.IndexIteratorSequential;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.species.SpeciesSpheresMono;
@@ -86,10 +86,10 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         }
     }
     
-    public Vector bruteForceNearestImage(Vector dr) {
+    public IVector bruteForceNearestImage(IVector dr) {
         double dr2Min = Double.MAX_VALUE;
         imageIndexIterator.reset();
-        Vector drMin = space.makeVector();
+        IVector drMin = space.makeVector();
         drMin.E(dr);
         while(imageIndexIterator.hasNext()) {
             int[] idx = imageIndexIterator.next();
@@ -147,8 +147,8 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     Space space;
     IndexIteratorSequential positionIndexIterator, imageIndexIterator;
     int iMax;
-    Vector dr, dr1, dr2, drStep;
-    Vector[] edgeVectors;
+    IVector dr, dr1, dr2, drStep;
+    IVector[] edgeVectors;
     Simulation sim;
     SimulationGraphic simGraphic;
     DisplayPhase display;

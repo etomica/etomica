@@ -8,9 +8,9 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Monte Carlo trial that rotates the atoms of a molecule about its first atom.
@@ -31,7 +31,7 @@ public class MCMoveRotateMolecule extends MCMovePhaseStep {
     private transient double uOld;
     private transient double uNew = Double.NaN;
     private transient Atom molecule;
-    private transient Vector r0;
+    private transient IVector r0;
     private transient RotationTensor rotationTensor;
 
     public MCMoveRotateMolecule(PotentialMaster potentialMaster, Space space) {

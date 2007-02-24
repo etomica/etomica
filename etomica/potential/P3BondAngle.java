@@ -3,9 +3,9 @@ package etomica.potential;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -91,7 +91,7 @@ public class P3BondAngle extends Potential {
         return Double.POSITIVE_INFINITY;
     }
 
-    protected final Vector dr12, dr23;
+    protected final IVector dr12, dr23;
     protected NearestImageTransformer nearestImageTransformer;
     protected double angle;
     protected double epsilon;

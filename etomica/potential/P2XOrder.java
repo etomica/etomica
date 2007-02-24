@@ -5,9 +5,9 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 
 /**
  * Hard potential that enforces ordering of the x-coordinates of the
@@ -21,7 +21,7 @@ import etomica.space.Vector;
 public class P2XOrder extends Potential2 implements PotentialHard {
     
     private static final long serialVersionUID = 1L;
-    protected final Vector dr, drOld;
+    protected final IVector dr, drOld;
     protected Phase phase;
     
     public P2XOrder(Space space) {

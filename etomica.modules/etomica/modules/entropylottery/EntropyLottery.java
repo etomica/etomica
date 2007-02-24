@@ -4,8 +4,8 @@ import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -36,7 +36,7 @@ public class EntropyLottery extends Simulation {
 	    phase = new Phase(this);
         phase.getAgent(species).setNMolecules(N);
         phase.setBoundary(new BoundaryRectangularNonperiodic(space));
-        Vector dimensions = space.makeVector();
+        IVector dimensions = space.makeVector();
         dimensions.E(10);
         phase.getBoundary().setDimensions(dimensions);
         new ConfigurationZero().initializeCoordinates(phase);

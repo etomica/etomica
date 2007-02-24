@@ -11,7 +11,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.
@@ -23,7 +23,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
     private static final long serialVersionUID = 1L;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
-    protected final Vector translationVector;
+    protected final IVector translationVector;
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;

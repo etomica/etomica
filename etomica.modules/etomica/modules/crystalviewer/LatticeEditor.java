@@ -23,7 +23,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.species.Species;
 import etomica.units.Degree;
 import etomica.units.Quantity;
@@ -197,7 +197,7 @@ public class LatticeEditor {
         if (currentLattice instanceof BravaisLatticeCrystal) {
             numAtoms *= ((BravaisLatticeCrystal)currentLattice).getBasis().getScaledCoordinates().length;
         }
-        Vector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = phase.getBoundary().getDimensions();
         dimensions.E(currentLattice.getPrimitive().getSize());
         dimensions.TE(size);
         phase.setDimensions(dimensions);

@@ -3,8 +3,8 @@ package etomica.atom;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Calculates the geometric center over a set of atoms. The position of the
@@ -27,7 +27,7 @@ public class AtomPositionGeometricCenter implements AtomPositionDefinition {
         groupWrapper = new AtomGroupAction(myAction);
     }
 
-    public Vector position(Atom atom) {
+    public IVector position(Atom atom) {
         vectorSum.E(0.0);
         myAction.nAtoms = 0;
         groupWrapper.actionPerformed(atom);
@@ -36,7 +36,7 @@ public class AtomPositionGeometricCenter implements AtomPositionDefinition {
     }
 
     private static class MyAction extends AtomActionAdapter {
-        public MyAction(Vector v) {
+        public MyAction(IVector v) {
             vectorSum = v;
             nAtoms = 0;
         }
@@ -47,12 +47,12 @@ public class AtomPositionGeometricCenter implements AtomPositionDefinition {
         }
         
         private static final long serialVersionUID = 1L;
-        private Vector vectorSum;
+        private IVector vectorSum;
         public int nAtoms;
     }
 
-    private final Vector center;
-    private final Vector vectorSum;
+    private final IVector center;
+    private final IVector vectorSum;
     private AtomGroupAction groupWrapper;
     private MyAction myAction;
 }

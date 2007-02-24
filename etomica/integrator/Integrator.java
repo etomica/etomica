@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.util.NameMaker;
 
 /**
@@ -265,7 +265,7 @@ public abstract class Integrator implements java.io.Serializable {
      * could be under the influence of a force.
      */
     public interface Forcible {
-        public Vector force();
+        public IVector force();
     }
     
     public synchronized IntegratorIntervalListener[] getIntervalListeners() {

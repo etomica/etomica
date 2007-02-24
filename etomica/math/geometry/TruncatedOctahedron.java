@@ -4,8 +4,8 @@
  */
 package etomica.math.geometry;
 
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -142,7 +142,7 @@ public class TruncatedOctahedron extends Polyhedron {
      */
 
     private static Polygon[] makeFaces(Space embeddedSpace) {
-        Vector[] vertices = embeddedSpace.makeVectorArray(24);
+        IVector[] vertices = embeddedSpace.makeVectorArray(24);
         LineSegment[] edges = new LineSegment[36];
         Polygon[] faces = new Polygon[14];
         for (int i = 0; i < vertices.length; i++) {
@@ -217,7 +217,7 @@ public class TruncatedOctahedron extends Polyhedron {
         return faces;
     }
 
-    public boolean contains(etomica.space.Vector v) {
+    public boolean contains(IVector v) {
         double length = getContainingCubeEdgeLength();
         double x = Math.abs(v.x(0) - position.x(0)) / length;
         double y = Math.abs(v.x(1) - position.x(1)) / length;

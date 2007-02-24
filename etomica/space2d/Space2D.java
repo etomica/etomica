@@ -1,8 +1,7 @@
 package etomica.space2d;
 
-import java.io.ObjectStreamException;
-
 import etomica.EtomicaInfo;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Orientation;
 import etomica.space.RotationTensor;
@@ -61,7 +60,7 @@ public final class Space2D extends Space {
         return 2.0 * Math.PI * r;
     } //surface area of sphere of radius r (used for differential shell volume)
 
-    public etomica.space.Vector makeVector() {
+    public IVector makeVector() {
         return new Vector2D();
     }
 
@@ -119,7 +118,7 @@ public final class Space2D extends Space {
      * 
      * @return the singleton INSTANCE
      */
-    private Object readResolve() throws ObjectStreamException {
+    private Object readResolve() {
         return INSTANCE;
     }
 

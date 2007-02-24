@@ -6,6 +6,7 @@ import etomica.atom.AtomLeaf;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
@@ -62,7 +63,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         if(h.length != space.D()) throw new IllegalArgumentException("Error: number of miller indices passed to LatticePlane.setMillerIndices inconsistent with spatial dimension");
         int currentPosition = getPosition();
         normal.E(0.0);
-        etomica.space.Vector[] b = reciprocal.vectors();
+        IVector[] b = reciprocal.vectors();
         for(int i=0; i<h.length; i++) {
             normal.PEa1Tv1(h[i],b[i]);
             millerIndices[i] = h[i];
@@ -164,7 +165,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     public void setOrigin(Vector3D origin) {
         this.origin.E(origin);
     }
-    public etomica.space.Vector getOrigin() {return origin;}
+    public IVector getOrigin() {return origin;}
     
     /**
      * Changes the direction of the normal vector so that it points

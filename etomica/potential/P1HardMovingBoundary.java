@@ -8,9 +8,9 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.graphics.Drawable;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 import etomica.units.Force;
@@ -138,7 +138,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         if (pressure >= 0.0) {
             double area = 1.0;
             if (pressure > 0.0) {
-                final Vector dimensions = pistonBoundary.getDimensions();
+                final IVector dimensions = pistonBoundary.getDimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
                         area *= (dimensions.x(i)-collisionRadius*2.0);
@@ -196,11 +196,11 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 
     public void bump(AtomSet a, double falseTime) {
         double r = ((AtomLeaf)a).getCoord().getPosition().x(wallD);
-        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
         if (pressure >= 0.0) {
             double area = 1.0;
             if (pressure > 0.0) {
-                final Vector dimensions = pistonBoundary.getDimensions();
+                final IVector dimensions = pistonBoundary.getDimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
                         area *= (dimensions.x(i)-collisionRadius*2.0);
@@ -231,7 +231,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public double lastWallVirial() {
         double area = 1.0;
-        final Vector dimensions = pistonBoundary.getDimensions();
+        final IVector dimensions = pistonBoundary.getDimensions();
         for (int i=0; i<D; i++) {
             if (i != wallD) {
                 area *= (dimensions.x(i)-collisionRadius*2.0);
@@ -272,7 +272,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public void advanceAcrossTimeStep(double tStep) {
         if (pressure >= 0.0) {
             double area = 1.0;
-            final Vector dimensions = pistonBoundary.getDimensions();
+            final IVector dimensions = pistonBoundary.getDimensions();
             for (int i=0; i<D; i++) {
                 if (i != wallD) {
                     area *= (dimensions.x(i)-collisionRadius*2.0);

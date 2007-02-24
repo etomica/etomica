@@ -3,8 +3,8 @@
  */
 package etomica.config;
 
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * @author nancycribbin
@@ -12,7 +12,7 @@ import etomica.space.Vector;
  */
 public class ConformationChain2D extends ConformationChain {
 	
-	public ConformationChain2D(Space space, Vector[] vex){
+	public ConformationChain2D(Space space, IVector[] vex){
 		super(space);
 		if(vex.length != vectors.length){
 			throw new IllegalArgumentException("Different vector array lengths in ConformationChain2D.");
@@ -34,7 +34,7 @@ public class ConformationChain2D extends ConformationChain {
 	/* (non-Javadoc)
 	 * @see etomica.ConformationChain#nextVector()
 	 */
-	public Vector nextVector() {
+	public IVector nextVector() {
 		if(tracker<vectors.length){
 			tracker += 1;
 			return vectors[tracker-1];
@@ -44,7 +44,7 @@ public class ConformationChain2D extends ConformationChain {
 	    return vectors[tracker-1];
 	}
 
-	Vector[] vectors;
+	IVector[] vectors;
 	int tracker;			//Tracker is used to track which vector the counter is on.
 
 }

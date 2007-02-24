@@ -1,7 +1,7 @@
 package etomica.math.geometry;
 import java.util.LinkedList;
 
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -73,7 +73,7 @@ public abstract class Polyhedron extends Polytope {
      * @param r
      * @return
      */
-    public double distanceTo(Vector r) {
+    public double distanceTo(IVector r) {
         updateVertices();
         if(!contains(r)) return Double.NaN;
         double d = Double.POSITIVE_INFINITY;

@@ -1,7 +1,7 @@
 package etomica.space3d;
 
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.util.Constants;
 
 
@@ -25,7 +25,7 @@ public class Orientation3D extends etomica.space.Orientation {
     private transient double x1,y1,z1;//temp variable
     private transient Vector3D v1 = new Vector3D();
     public void E(etomica.space.Orientation o) {E((Orientation3D)o);}
-    public etomica.space.Vector getOrientation(){return orientVector;}
+    public IVector getOrientation(){return orientVector;}
     public void setOrientation(Vector3D vect){orientVector.E(vect);}
     public void E(Orientation3D o) {
       angle[0] = o.angle[0];
@@ -34,7 +34,7 @@ public class Orientation3D extends etomica.space.Orientation {
       needToUpdateA = true;
       orientVector.E(o.getOrientation());
     }
-    public etomica.space.Vector[] bodyFrame() {return bodyFrame;}
+    public IVector[] bodyFrame() {return bodyFrame;}
     public double[] angle() {return angle;}
     public final void rotateBy(double dt[]) {
         rotateBy(0, dt[0]);
@@ -114,7 +114,7 @@ public class Orientation3D extends etomica.space.Orientation {
         needToUpdateA = false;
      }
   //   public double[][] rotationMatrix() {return A;}
-      public void convertToBodyFrame(Vector[] u) {
+      public void convertToBodyFrame(IVector[] u) {
         if(needToUpdateA) updateRotationMatrix();
         Vector3D[] v = (Vector3D[])u;
         for(int i=0; i<v.length; i++) {
@@ -125,7 +125,7 @@ public class Orientation3D extends etomica.space.Orientation {
         }
      }
      //V_space = A_transpose*V_body
-     public void convertToSpaceFrame(Vector[] u) {
+     public void convertToSpaceFrame(IVector[] u) {
         if(needToUpdateA) updateRotationMatrix();
         Vector3D[] v = (Vector3D[])u;
         for(int i=0; i<v.length; i++) {
@@ -135,6 +135,6 @@ public class Orientation3D extends etomica.space.Orientation {
             v[i].E(v1);
         }
      }
-    public void convertToBodyFrame(etomica.space.Vector v) {convertToBodyFrame((Vector3D)v);}
-    public void convertToSpaceFrame(etomica.space.Vector v) {convertToSpaceFrame((Vector3D)v);}
+    public void convertToBodyFrame(IVector v) {convertToBodyFrame((Vector3D)v);}
+    public void convertToSpaceFrame(IVector v) {convertToSpaceFrame((Vector3D)v);}
 }

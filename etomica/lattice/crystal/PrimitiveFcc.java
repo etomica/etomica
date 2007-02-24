@@ -1,7 +1,7 @@
 package etomica.lattice.crystal;
 import etomica.math.geometry.Polytope;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Primitive group for a face-centered-cubic system.
@@ -13,7 +13,7 @@ public class PrimitiveFcc extends Primitive {
     //from the vectors() method, copies are scaled to size and returned.
     //default size is 1.0
     private double cubicSize;
-    private Vector[] unitVectors;
+    private IVector[] unitVectors;
     private static final double FCC_ANGLE = Math.acos(0.5);
     
     public PrimitiveFcc(Space space) {
@@ -26,7 +26,7 @@ public class PrimitiveFcc extends Primitive {
     protected PrimitiveFcc(Space space, double size, boolean makeReciprocal) {
         super(space, makeReciprocal); //also makes reciprocal
         //set up orthogonal vectors of unit size
-        unitVectors = new Vector[D];
+        unitVectors = new IVector[D];
         for(int i=0; i<D; i++) {
             unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(2.0));
@@ -90,7 +90,7 @@ public class PrimitiveFcc extends Primitive {
         setCubicSize(scale*cubicSize);
     }
 
-    public int[] latticeIndex(Vector q) {
+    public int[] latticeIndex(IVector q) {
         throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
 /*        for(int i=0; i<D; i++) {
             double x = q.x(i)/size;
@@ -99,7 +99,7 @@ public class PrimitiveFcc extends Primitive {
         return idx;
 */    }
     
-    public int[] latticeIndex(Vector q, int[] dimensions) {
+    public int[] latticeIndex(IVector q, int[] dimensions) {
         throw new RuntimeException("PrimitiveFcc.latticeIndex not yet implemented");
  /*       for(int i=0; i<D; i++) {
             double x = q.x(i)/size;

@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 
 /**
@@ -8,7 +8,7 @@ import etomica.space.Vector;
  */
 public class AtomPositionDefinitionSimple implements AtomPositionDefinition, java.io.Serializable {
 
-    public Vector position(Atom atom) {
+    public IVector position(Atom atom) {
         return ((AtomLeaf)atom).getCoord().getPosition();
     }
 

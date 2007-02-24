@@ -1,7 +1,7 @@
 package etomica.math.geometry;
 
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * A zero-dimensional polytope, a mathematical point in space.
@@ -19,7 +19,7 @@ public class Point extends Polytope {
         this(embeddedSpace, embeddedSpace.makeVector());
     }
 
-    public Point(Space embeddedSpace, Vector vector) {
+    public Point(Space embeddedSpace, IVector vector) {
         super(embeddedSpace, vector);
     }
 
@@ -45,7 +45,7 @@ public class Point extends Polytope {
      * Returns true if this point is at exactly the same location as the point
      * defined by the given vector.
      */
-    public boolean contains(Vector v) {
+    public boolean contains(IVector v) {
         return vertices[0].equals(v);
     }
     

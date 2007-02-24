@@ -7,7 +7,7 @@ import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.species.Species;
 import etomica.units.Fraction;
 
@@ -44,14 +44,14 @@ public class MeterLocalMoleFraction extends DataSourceScalar implements Meter {
      * Sets the origin of the subvolume (Polytopes typically have their center
      * at 0).  The shape origin is 0 by default.
      */
-    public void setShapeOrigin(Vector newShapeOrigin) {
+    public void setShapeOrigin(IVector newShapeOrigin) {
         shapeOrigin = newShapeOrigin;
     }
     
     /**
      * Returns the origin of the subvolume.
      */
-    public Vector getShapeOrigin() {
+    public IVector getShapeOrigin() {
         return shapeOrigin;
     }
     
@@ -126,6 +126,6 @@ public class MeterLocalMoleFraction extends DataSourceScalar implements Meter {
     private Species species;
     private AtomIteratorPhaseDependent iterator = new AtomIteratorLeafAtoms();
     private Polytope shape;
-    private Vector shapeOrigin;
-    private Vector tempVec;
+    private IVector shapeOrigin;
+    private IVector tempVec;
 }

@@ -3,8 +3,8 @@ import etomica.atom.Atom;
 import etomica.atom.AtomGroupVelocityAverage;
 import etomica.atom.AtomLeaf;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Sets the velocity of an atom to a specified vector value.  If applied
@@ -15,8 +15,8 @@ import etomica.space.Vector;
 public class AtomActionAccelerateTo extends AtomActionAdapter {
     
     private static final long serialVersionUID = 1L;
-    private final Vector dr;
-    private final Vector targetVelocity;
+    private final IVector dr;
+    private final IVector targetVelocity;
     private final AtomGroupAction atomAccelerator;
     private final AtomGroupVelocityAverage velocityMeter;
 
@@ -38,7 +38,7 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
         if(atom.getType().isLeaf()) {
             ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).getVelocity().E(targetVelocity);
         } else {
-            Vector currentVelocity = velocityMeter.getVelocityAverage(atom);
+            IVector currentVelocity = velocityMeter.getVelocityAverage(atom);
             dr.Ev1Mv2(targetVelocity, currentVelocity);
             ((AtomActionAccelerateBy)atomAccelerator.getAction()).setAccelerationVector(dr);
             atomAccelerator.actionPerformed(atom);
@@ -49,14 +49,14 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
      * @return Returns the targetVelocity, the mass-average velocity that the
      * atom will be accelerated to by this action.
      */
-    public Vector getTargetVelocity() {
+    public IVector getTargetVelocity() {
         return targetVelocity;
     }
     /**
      * @param destination The velocity to set.  A local copy
      * is made of the given vector.
      */
-    public void setTargetVelocity(Vector targetVelocity) {
+    public void setTargetVelocity(IVector targetVelocity) {
         this.targetVelocity.E(targetVelocity);
     }
 }

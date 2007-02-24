@@ -4,9 +4,9 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
@@ -20,7 +20,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
    
     public Potential2SoftSpherical(Space space) {
         super(space);
-        gradient = new Vector[2];
+        gradient = new IVector[2];
         gradient[0] = space.makeVector();
         gradient[1] = space.makeVector();
         dr = space.makeVector();
@@ -87,7 +87,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     /**
      * Gradient of the pair potential as given by the du(double) method.
      */
-    public Vector[] gradient(AtomSet atoms) {
+    public IVector[] gradient(AtomSet atoms) {
         AtomPair pair = (AtomPair)atoms;
         dr.Ev1Mv2(((AtomLeaf)pair.atom1).getCoord().getPosition(),((AtomLeaf)pair.atom0).getCoord().getPosition());
         nearestImageTransformer.nearestImage(dr);
@@ -115,8 +115,8 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         nearestImageTransformer = phase.getBoundary();
     }
 
-    private final Vector[] gradient;
+    private final IVector[] gradient;
     protected NearestImageTransformer nearestImageTransformer;
-    protected final Vector dr;
+    protected final IVector dr;
     
 }//end of Potential2SoftSpherical

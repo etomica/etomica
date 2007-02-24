@@ -8,9 +8,9 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateAngularKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -53,8 +53,8 @@ public class P2RoughSphere extends P2HardSphere {
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
         ICoordinateAngularKinetic coord0 = (ICoordinateAngularKinetic)atom0.getCoord();
         ICoordinateAngularKinetic coord1 = (ICoordinateAngularKinetic)atom1.getCoord();
-        Vector v1 = coord0.getVelocity();
-        Vector v2 = coord1.getVelocity();
+        IVector v1 = coord0.getVelocity();
+        IVector v2 = coord1.getVelocity();
         dv.Ev1Mv2(v2, v1);
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

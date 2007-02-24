@@ -21,7 +21,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polyhedron;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 import gl4java.utils.glut.GLUTEnum;
 
@@ -305,7 +305,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
                 drawOverflow = computeShiftOrigin(a, displayPhase.getPhase().getBoundary());
             }
             Color c = colorScheme.getAtomColor(a);
-            Vector r = a.getCoord().getPosition();
+            IVector r = a.getCoord().getPosition();
             //Update the positions of the atom
             vert[0] = (float)r.x(0) - xCenter;// + drawExpansionShiftX - 0*(float)temp.x(0);
             vert[1] = (float)r.x(1) - yCenter;// + drawExpansionShiftY - 0*(float)temp.x(1);
@@ -431,7 +431,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     gl.glRotatef(xRot, 1f, 0f, 0f);
     gl.glRotatef(yRot, 0f, 1f, 0f);
     
-    Vector dimensions = displayPhase.getPhase().getBoundary().getDimensions();
+    IVector dimensions = displayPhase.getPhase().getBoundary().getDimensions();
     rightClipPlane[3] = leftClipPlane[3] = ((dimensions.x(0))*displayPhase.getImageShells());
     topClipPlane[3] = bottomClipPlane[3] = ((dimensions.x(1))*displayPhase.getImageShells());
     backClipPlane[3] = frontClipPlane[3] = ((dimensions.x(2))*displayPhase.getImageShells());
@@ -549,7 +549,7 @@ public class DisplayPhaseCanvas3DOpenGL extends DisplayCanvasOpenGL implements G
     public void setDrawExpansionFactor(double drawExpansionFactor) {
         	this.drawExpansionFactor = drawExpansionFactor;
         	if(displayPhase != null && displayPhase.getPhase() != null) {
-        		Vector box = displayPhase.getPhase().getBoundary().getDimensions();
+        		IVector box = displayPhase.getPhase().getBoundary().getDimensions();
         		float mult = (float)(0.5*(drawExpansionFactor - 1.0));//*(2*I+1);
         		drawExpansionShiftX = (float)(mult*box.x(0));
         		drawExpansionShiftY = (float)(mult*box.x(1));

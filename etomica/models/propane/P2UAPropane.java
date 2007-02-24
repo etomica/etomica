@@ -5,9 +5,9 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Kelvin;
 
 /** 
@@ -36,12 +36,12 @@ public class P2UAPropane extends Potential2 {
         AtomTreeNodeUAPropane node1 = (AtomTreeNodeUAPropane)pair.atom0.getNode();
         AtomTreeNodeUAPropane node2 = (AtomTreeNodeUAPropane)pair.atom1.getNode();
 
-        Vector propane1UA1r = node1.UA1.getCoord().getPosition();
-        Vector propane2UA1r = node2.UA1.getCoord().getPosition();
-        Vector propane1UA2r = node1.UA2.getCoord().getPosition();
-        Vector propane2UA2r = node2.UA2.getCoord().getPosition();
-        Vector propane1UA3r = node1.UA3.getCoord().getPosition();
-        Vector propane2UA3r = node2.UA3.getCoord().getPosition();
+        IVector propane1UA1r = node1.UA1.getCoord().getPosition();
+        IVector propane2UA1r = node2.UA1.getCoord().getPosition();
+        IVector propane1UA2r = node1.UA2.getCoord().getPosition();
+        IVector propane2UA2r = node2.UA2.getCoord().getPosition();
+        IVector propane1UA3r = node1.UA3.getCoord().getPosition();
+        IVector propane2UA3r = node2.UA3.getCoord().getPosition();
 
         
         final double core = 0.1;

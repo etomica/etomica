@@ -25,8 +25,8 @@ import etomica.lattice.IndexIteratorSequential;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -114,7 +114,7 @@ public class GrainBoundaryConfiguration extends Configuration {
      */
     public void initializeCoordinates(Phase phase) {
     	AtomArrayList[] lists = getMoleculeLists(phase);
-    	Vector firstAtomPosition = ((AtomLeaf)lists[0].get(0)).getCoord().getPosition();
+    	IVector firstAtomPosition = ((AtomLeaf)lists[0].get(0)).getCoord().getPosition();
     	
     	System.out.println("At beginning of initializePositions  "+ firstAtomPosition);
     	
@@ -177,7 +177,7 @@ public class GrainBoundaryConfiguration extends Configuration {
                 Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup) a.getNode()).getChildList());
             }
-            Vector site = (Vector) myLatA.site(ii);
+            IVector site = (IVector) myLatA.site(ii);
             if (((AtomLeaf)a).getCoord().getPosition() == firstAtomPosition) {
             	System.out.println();
             }
@@ -205,7 +205,7 @@ public class GrainBoundaryConfiguration extends Configuration {
                 Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((AtomTreeNodeGroup) a.getNode()).getChildList());
             }
-            Vector site = (Vector) myLatB.site(ii);
+            IVector site = (IVector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
             //System.out.println("B  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
@@ -237,7 +237,7 @@ public class GrainBoundaryConfiguration extends Configuration {
      */
     private static class MyLattice implements SpaceLattice {
 
-        MyLattice(SpaceLattice l, Vector offset) {
+        MyLattice(SpaceLattice l, IVector offset) {
             lattice = l;
             this.offset = offset;
 
@@ -252,7 +252,7 @@ public class GrainBoundaryConfiguration extends Configuration {
         }
 
         public Object site(int[] index) {
-            Vector site = (Vector) lattice.site(index);
+            IVector site = (IVector) lattice.site(index);
             site.PE(offset);
             return site;
         }
@@ -263,7 +263,7 @@ public class GrainBoundaryConfiguration extends Configuration {
         }
 
         SpaceLattice lattice;
-        Vector offset;
+        IVector offset;
     }
 
     private final BravaisLatticeCrystal latticeA, latticeB;

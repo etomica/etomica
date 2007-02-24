@@ -44,8 +44,8 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.util.DoubleRange;
@@ -228,7 +228,7 @@ public class TestHexaneHarmonic extends Simulation {
             }
         }
         double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
-        Vector[] waveVectors = new Vector[waveVectorsAndCoefficients.length];
+        IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
         double[] coefficients = new double[waveVectors.length];
         for (int i=0; i<waveVectors.length; i++) {
             coefficients[i] = waveVectorsAndCoefficients[i][0];

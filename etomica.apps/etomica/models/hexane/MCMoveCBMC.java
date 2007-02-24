@@ -10,7 +10,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.util.Constants;
 
 public abstract class MCMoveCBMC extends MCMovePhase {
@@ -48,7 +48,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         chainlength = atomList.size();
         //store the old locations of every atom in the molecule in positionOld.
         for(int i = 0; i < chainlength; i++){
-            positionOld[i].E((Vector)((AtomLeaf)atomList.get(i)).getCoord().getPosition());
+            positionOld[i].E((IVector)((AtomLeaf)atomList.get(i)).getCoord().getPosition());
         }
         
         calcRosenbluthFactors();
@@ -89,7 +89,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
-    private Vector[] positionOld;      //Used to store the position of the molecule before mofing it.
+    private IVector[] positionOld;      //Used to store the position of the molecule before mofing it.
     protected AtomArrayList atomList;
     protected int numTrial;
 }

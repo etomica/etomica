@@ -5,7 +5,7 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Standard Monte Carlo molecule-displacement trial move.
@@ -16,7 +16,7 @@ public class MCMoveMolecule extends MCMoveAtom {
     
     private static final long serialVersionUID = 1L;
     protected final AtomGroupAction moveMoleculeAction;
-    protected final Vector groupTranslationVector;
+    protected final IVector groupTranslationVector;
 
     public MCMoveMolecule(Simulation sim) {
         this(sim.getPotentialMaster(),sim.getDefaults().atomSize,sim.getDefaults().boxSize*0.5,

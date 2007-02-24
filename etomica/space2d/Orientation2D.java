@@ -1,8 +1,8 @@
 package etomica.space2d;
 
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Orientation;
-import etomica.space.Vector;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.util.Constants;
@@ -110,7 +110,7 @@ public class Orientation2D extends Orientation {
      * Takes vectors defined in the space-frame representation and converts
      * each to the equivalent vector defined in the body-frame representation.
      */
-    public void convertToBodyFrame(Vector[] v) {
+    public void convertToBodyFrame(IVector[] v) {
         double axx = Math.cos(angle[0]);
         double axy = -Math.sin(angle[0]);
         for(int i=0; i<v.length; i++) {
@@ -122,7 +122,7 @@ public class Orientation2D extends Orientation {
      * Takes vectors defined in the body-frame representation and converts
      * each to the equivalent vector defined in the space-frame representation.
      */
-    public void convertToSpaceFrame(Vector[] v) {
+    public void convertToSpaceFrame(IVector[] v) {
         double axx = Math.cos(angle[0]);
         double axy = Math.sin(angle[0]);
         for(int i=0; i<v.length; i++) {

@@ -8,8 +8,8 @@ import javax.swing.JPanel;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.util.Debug;
 
 
@@ -30,7 +30,7 @@ public class RectangularLatticeNbrIteratorSquare extends
 
     protected final int[] range;
     protected int furthestNeighborDelta;
-    private final Vector period;
+    private final IVector period;
     protected int halfNeighborCount;
 
     /**
@@ -39,7 +39,7 @@ public class RectangularLatticeNbrIteratorSquare extends
     public RectangularLatticeNbrIteratorSquare(int D) {
         super(D);
         range = new int[D];
-        Vector newPeriod = Space.makeVector(D);
+        IVector newPeriod = Space.makeVector(D);
         newPeriod.E(1.0);
         period = Space.makeVector(D);
         setPeriod(newPeriod);
@@ -211,7 +211,7 @@ public class RectangularLatticeNbrIteratorSquare extends
      * the vector returned by the currentPbc method.
      * @param newPeriod values of new period are copied to internal vector
      */
-    public void setPeriod(Vector newPeriod) {
+    public void setPeriod(IVector newPeriod) {
         if(period.equals(newPeriod)) return;
         
         period.E(newPeriod);

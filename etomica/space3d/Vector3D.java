@@ -2,14 +2,14 @@ package etomica.space3d;
 
 import etomica.math.SpecialFunctions;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.util.Function;
 
 /**
  * Implementation of the Vector class for a 3-dimensional space.
  */
-public final class Vector3D extends Vector {
+public final class Vector3D implements IVector, java.io.Serializable {
 
     double x, y, z;
     private static final long serialVersionUID = 1L;
@@ -61,7 +61,7 @@ public final class Vector3D extends Vector {
         array[2] = z;
     }
 
-    public boolean equals(Vector v) {
+    public boolean equals(IVector v) {
         return (x == ((Vector3D) v).x) && (y == ((Vector3D) v).y)
                 && (z == ((Vector3D) v).z);
     }
@@ -76,7 +76,7 @@ public final class Vector3D extends Vector {
         result[2] = Math.atan2(x, y); //phi
     }
 
-    public void E(Vector u) {
+    public void E(IVector u) {
         x = ((Vector3D) u).x;
         y = ((Vector3D) u).y;
         z = ((Vector3D) u).z;
@@ -112,31 +112,31 @@ public final class Vector3D extends Vector {
         z = u[2];
     }
 
-    public void Ea1Tv1(double a1, Vector u) {
+    public void Ea1Tv1(double a1, IVector u) {
         x = a1 * ((Vector3D) u).x;
         y = a1 * ((Vector3D) u).y;
         z = a1 * ((Vector3D) u).z;
     }
 
-    public void PEa1Tv1(double a1, Vector u) {
+    public void PEa1Tv1(double a1, IVector u) {
         x += a1 * ((Vector3D) u).x;
         y += a1 * ((Vector3D) u).y;
         z += a1 * ((Vector3D) u).z;
     }
 
-    public void Ev1Pa1Tv2(Vector v1, double a1, Vector v2) {
+    public void Ev1Pa1Tv2(IVector v1, double a1, IVector v2) {
         x = ((Vector3D) v1).x + a1 * ((Vector3D) v2).x;
         y = ((Vector3D) v1).y + a1 * ((Vector3D) v2).y;
         z = ((Vector3D) v1).z + a1 * ((Vector3D) v2).z;
     }
 
-    public void PEa1SGNv1(double a1, Vector v1) {
+    public void PEa1SGNv1(double a1, IVector v1) {
         x += a1 * SpecialFunctions.sgn(((Vector3D) v1).x);
         y += a1 * SpecialFunctions.sgn(((Vector3D) v1).y);
         z += a1 * SpecialFunctions.sgn(((Vector3D) v1).z);
     }
 
-    public void PE(Vector u) {
+    public void PE(IVector u) {
         x += ((Vector3D) u).x;
         y += ((Vector3D) u).y;
         z += ((Vector3D) u).z;
@@ -148,7 +148,7 @@ public final class Vector3D extends Vector {
         z += a;
     }
 
-    public void ME(Vector u) {
+    public void ME(IVector u) {
         x -= ((Vector3D) u).x;
         y -= ((Vector3D) u).y;
         z -= ((Vector3D) u).z;
@@ -178,7 +178,7 @@ public final class Vector3D extends Vector {
             z *= a;
     }
 
-    public void TE(Vector u) {
+    public void TE(IVector u) {
         x *= ((Vector3D) u).x;
         y *= ((Vector3D) u).y;
         z *= ((Vector3D) u).z;
@@ -190,19 +190,19 @@ public final class Vector3D extends Vector {
         z /= a;
     }
 
-    public void DE(Vector u) {
+    public void DE(IVector u) {
         x /= ((Vector3D) u).x;
         y /= ((Vector3D) u).y;
         z /= ((Vector3D) u).z;
     }
 
-    public void Ev1Pv2(Vector u1, Vector u2) {
+    public void Ev1Pv2(IVector u1, IVector u2) {
         x = ((Vector3D) u1).x + ((Vector3D) u2).x;
         y = ((Vector3D) u1).y + ((Vector3D) u2).y;
         z = ((Vector3D) u1).z + ((Vector3D) u2).z;
     }
 
-    public void Ev1Mv2(Vector u1, Vector u2) {
+    public void Ev1Mv2(IVector u1, IVector u2) {
         x = ((Vector3D) u1).x - ((Vector3D) u2).x;
         y = ((Vector3D) u1).y - ((Vector3D) u2).y;
         z = ((Vector3D) u1).z - ((Vector3D) u2).z;
@@ -214,7 +214,7 @@ public final class Vector3D extends Vector {
         if(z < eps && -z < eps) z = 0.0;
     }
 
-    public void mod(Vector u) {
+    public void mod(IVector u) {
         mod((Vector3D) u);
     }
 
@@ -277,7 +277,7 @@ public final class Vector3D extends Vector {
     //			EModShift((Vector)r, (Vector)u);
     //		}
     //sets this equal to (r mod u) - r
-    public void EModShift(Vector r, Vector u) {
+    public void EModShift(IVector r, IVector u) {
         Vector3D r3d = (Vector3D) r;
         Vector3D u3d = (Vector3D) u;
         x = r3d.x;
@@ -306,7 +306,7 @@ public final class Vector3D extends Vector {
         z -= r3d.z;
     }
 
-    public void EMod2Shift(Vector r, Vector u) {
+    public void EMod2Shift(IVector r, IVector u) {
         Vector3D r3d = (Vector3D) r;
         Vector3D u3d = (Vector3D) u;
         x = r3d.x;
@@ -329,27 +329,27 @@ public final class Vector3D extends Vector {
         z -= r3d.z;
     }
 
-    public Vector P(Vector u) {
-        Vector work = new Vector3D();
+    public IVector P(IVector u) {
+        IVector work = new Vector3D();
         work.Ev1Pv2(this, u);
         return work;
     }
 
-    public Vector M(Vector u) {
-        Vector work = new Vector3D();
+    public IVector M(IVector u) {
+        IVector work = new Vector3D();
         work.Ev1Mv2(this, u);
         return work;
     }
 
-    public Vector T(Vector u) {
-        Vector work = new Vector3D();
+    public IVector T(IVector u) {
+        IVector work = new Vector3D();
         work.E(this);
         work.TE(u);
         return work;
     }
 
-    public Vector D(Vector u) {
-        Vector work = new Vector3D();
+    public IVector D(IVector u) {
+        IVector work = new Vector3D();
         work.E(this);
         work.DE(u);
         return work;
@@ -361,13 +361,13 @@ public final class Vector3D extends Vector {
         z = (z < 0) ? -z : z;
     }
 
-    public void minE(Vector v) {
+    public void minE(IVector v) {
         if(((Vector3D)v).x < x) x = ((Vector3D)v).x;
         if(((Vector3D)v).y < y) y = ((Vector3D)v).y;
         if(((Vector3D)v).z < z) z = ((Vector3D)v).z;
     }
 
-    public void maxE(Vector v) {
+    public void maxE(IVector v) {
         if(((Vector3D)v).x > x) x = ((Vector3D)v).x;
         if(((Vector3D)v).y > y) y = ((Vector3D)v).y;
         if(((Vector3D)v).z > z) z = ((Vector3D)v).z;
@@ -392,14 +392,14 @@ public final class Vector3D extends Vector {
         return dx * dx + dy * dy + dz * dz;
     }
 
-    public double Mv1Squared(Vector u) {
+    public double Mv1Squared(IVector u) {
         double dx = x - ((Vector3D) u).x;
         double dy = y - ((Vector3D) u).y;
         double dz = z - ((Vector3D) u).z;
         return dx * dx + dy * dy + dz * dz;
     }
 
-    public double dot(Vector u) {
+    public double dot(IVector u) {
         return x * ((Vector3D) u).x + y * ((Vector3D) u).y + z
                 * ((Vector3D) u).z;
     }
@@ -431,7 +431,7 @@ public final class Vector3D extends Vector {
         z = Simulation.random.nextDouble() * dz;
     }
 
-    public void setRandom(Vector u) {
+    public void setRandom(IVector u) {
         setRandom(((Vector3D) u).x, ((Vector3D) u).y, ((Vector3D) u).z);
     }
 

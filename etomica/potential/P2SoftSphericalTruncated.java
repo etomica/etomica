@@ -2,8 +2,8 @@ package etomica.potential;
 
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 
 /**
@@ -126,7 +126,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
             return duCorrection(nPairs()/phase.volume());
         }
         
-        public Vector[] gradient(AtomSet atoms) {
+        public IVector[] gradient(AtomSet atoms) {
             throw new RuntimeException("Should not be calling gradient on zero-body potential");
         }
         

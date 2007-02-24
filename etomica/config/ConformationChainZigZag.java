@@ -4,8 +4,8 @@
  */
 package etomica.config;
 
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Takes two vectors, and returns them in repeating order to form a zig-zag chain 
@@ -23,7 +23,7 @@ public class ConformationChainZigZag extends ConformationChain {
 		v2 = space.makeVector();
 		isVectorOne = true;
 	}
-	public ConformationChainZigZag(Space space, Vector vect1, Vector vect2){
+	public ConformationChainZigZag(Space space, IVector vect1, IVector vect2){
 		super(space);
 		v1 = space.makeVector();
 		v2 = space.makeVector();
@@ -44,7 +44,7 @@ public class ConformationChainZigZag extends ConformationChain {
 	/* (non-Javadoc)
 	 * @see etomica.ConformationChain#nextVector()
 	 */
-	protected Vector nextVector() {
+	protected IVector nextVector() {
 		if(isVectorOne){
 			isVectorOne = false;
 			return v1;
@@ -53,7 +53,7 @@ public class ConformationChainZigZag extends ConformationChain {
 		return v2;
 	}
 
-	protected Vector v1;
-	protected Vector v2;
+	protected IVector v1;
+	protected IVector v2;
 	boolean isVectorOne;
 }

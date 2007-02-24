@@ -6,9 +6,9 @@ import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.units.Length;
 
 /**
@@ -44,8 +44,8 @@ public class P1HardWall extends Potential1 implements PotentialHard {
 
      
     public double collisionTime(AtomSet a, double falseTime) {
-        Vector r = ((AtomLeaf)a).getCoord().getPosition();
-        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVector r = ((AtomLeaf)a).getCoord().getPosition();
+        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
         double vx = v.x(0);
         // cheat!  We want to ignore collisions from the left.  The initial
         // config sometimes plops atoms on the left.
@@ -63,7 +63,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     }
 
     public void bump(AtomSet a, double falseTime) {
-        Vector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
 
         v.setX(0,-v.x(0));
 

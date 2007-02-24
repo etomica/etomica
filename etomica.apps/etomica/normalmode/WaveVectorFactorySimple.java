@@ -6,7 +6,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
@@ -31,8 +31,8 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
     
         double[] d = primitive.getSize();
         int[] numCells = new int[phase.space().D()];
-        Vector[] reciprocals =  primitive.reciprocal().vectors();;
-        Vector[] waveVectorBasis = new Vector[reciprocals.length];
+        IVector[] reciprocals =  primitive.reciprocal().vectors();;
+        IVector[] waveVectorBasis = new IVector[reciprocals.length];
         
         for (int i=0; i<phase.space().D(); i++) {
             waveVectorBasis[i] = phase.space().makeVector();
@@ -96,7 +96,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         }
     }
     
-    public Vector[] getWaveVectors() {
+    public IVector[] getWaveVectors() {
         return waveVectors;
     }
     
@@ -115,7 +115,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         
         WaveVectorFactorySimple foo = new WaveVectorFactorySimple(primitive);
         foo.makeWaveVectors(phase);
-        Vector[] waveVectors = foo.getWaveVectors();
+        IVector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);
         for (int i=0; i<waveVectors.length; i++) {
@@ -125,6 +125,6 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
 
     private static final long serialVersionUID = 1L;
     protected final Primitive primitive;
-    protected Vector[] waveVectors;
+    protected IVector[] waveVectors;
     protected double[] coefficients;
 }

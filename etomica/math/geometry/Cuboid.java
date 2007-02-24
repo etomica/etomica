@@ -4,8 +4,8 @@
  */
 package etomica.math.geometry;
 
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -60,7 +60,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
      * Returns <code>true</code> if the given vector lies inside (or on the
      * surface of) this cell, <code>false</code> otherwise.
      */
-    public boolean contains(etomica.space.Vector v) {
+    public boolean contains(IVector v) {
         double x = v.x(0)-position.x(0);
         double y = v.x(1)-position.x(1);
         double z = v.x(2)-position.x(2);
@@ -73,7 +73,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
      * each element of the given vector for the length of
      * the corresponding cuboid edge.
      */
-    public void setEdgeLengths(Vector e) {
+    public void setEdgeLengths(IVector e) {
         setEdgeLengths(e.x(0), e.x(1), e.x(2));
     }
     
@@ -83,7 +83,7 @@ public class Cuboid extends Hexahedron implements Rectangular {
      * used to represent the cuboid internally, so changing its
      * values will not affect the state of the cuboid.
      */
-    public Vector getEdgeLengths() {
+    public IVector getEdgeLengths() {
         return edgeLengths;
     }
     

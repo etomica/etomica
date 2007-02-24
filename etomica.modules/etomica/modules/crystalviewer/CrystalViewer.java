@@ -21,7 +21,7 @@ import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
@@ -102,7 +102,7 @@ public class CrystalViewer {
     
     protected SpeciesSpheresMono species;
     protected Phase phase;
-    protected Vector center;
+    protected IVector center;
     protected LatticePlane latticePlane;
     protected ClipPlaneEditor clipPlaneEditor;
     protected DisplayPhase displayPhase;

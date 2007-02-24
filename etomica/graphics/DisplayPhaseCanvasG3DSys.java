@@ -17,7 +17,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import g3dsys.control.G3DSys;
 import g3dsys.images.Ball;
 import g3dsys.images.Figure;
@@ -123,7 +123,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
             LineSegment[] lines = polytope.getEdges();
             polytopeLines = new Line[lines.length];
             for (int i=0; i<lines.length; i++) {
-                Vector[] vertices = lines[i].getVertices();
+                IVector[] vertices = lines[i].getVertices();
                 polytopeLines[i] = new Line(gsys, G3DSys.getColix(Color.WHITE), 
                         new Point3f((float)vertices[0].x(0), (float)vertices[0].x(1), (float)vertices[0].x(2)), 
                         new Point3f((float)vertices[1].x(0), (float)vertices[1].x(1), (float)vertices[1].x(2)));
@@ -134,12 +134,12 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
         else {
             LineSegment[] lines = polytope.getEdges();
             for (int i=0; i<lines.length; i++) {
-                Vector[] vertices = lines[i].getVertices();
+                IVector[] vertices = lines[i].getVertices();
                 polytopeLines[i].setStart((float)vertices[0].x(0), (float)vertices[0].x(1), (float)vertices[0].x(2));
                 polytopeLines[i].setEnd((float)vertices[1].x(0), (float)vertices[1].x(1), (float)vertices[1].x(2));
             }
         }
-        Vector bounds = boundary.getBoundingBox();
+        IVector bounds = boundary.getBoundingBox();
         gsys.setBoundingBox((float)(-bounds.x(0)*0.5), (float)(-bounds.x(1)*0.5), (float)(-bounds.x(2)*0.5),
                             (float)( bounds.x(0)*0.5), (float)( bounds.x(1)*0.5), (float)( bounds.x(2)*0.5));
         

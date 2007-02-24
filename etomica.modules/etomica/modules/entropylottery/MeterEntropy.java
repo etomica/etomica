@@ -5,7 +5,7 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.Meter;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.units.Null;
 
 /**
@@ -22,7 +22,7 @@ public class MeterEntropy extends DataSourceScalar implements Meter {
     }
 
     public double getDataAsScalar() {
-        Vector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = phase.getBoundary().getDimensions();
         if (atomCount.length != (int)Math.round(dimensions.x(0))) {
             atomCount = new int[(int)Math.round(dimensions.x(0))];
         }

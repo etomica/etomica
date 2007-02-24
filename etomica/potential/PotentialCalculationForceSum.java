@@ -6,7 +6,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorPhase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
@@ -14,7 +14,7 @@ import etomica.space.Vector;
  */
 public class PotentialCalculationForceSum extends PotentialCalculation {
         
-    private Vector[] f;
+    private IVector[] f;
     protected AtomAgentManager integratorAgentManager;
     
     public void setAgentManager(AtomAgentManager agentManager) {

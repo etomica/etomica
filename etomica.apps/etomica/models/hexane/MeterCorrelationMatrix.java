@@ -13,8 +13,8 @@ import etomica.data.types.DataTensor;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 import etomica.units.Area;
 import etomica.units.Null;
 
@@ -49,7 +49,7 @@ public class MeterCorrelationMatrix implements Meter {
         //Set up the single atom iterator.
         atomIterator.setPhase(phase);
         atomIterator.reset();
-        op = new Vector[phase.getSpeciesMaster().getMaxGlobalIndex()+1];
+        op = new IVector[phase.getSpeciesMaster().getMaxGlobalIndex()+1];
         //set up the vectors where the original position is stored
         while (atomIterator.hasNext()) {
             AtomLeaf next = (AtomLeaf)atomIterator.nextAtom();
@@ -60,7 +60,7 @@ public class MeterCorrelationMatrix implements Meter {
         //Set up the tempVex.
         maxlength = pri.getMaxLength();
         int tempInt = pri.getMaxLength();
-        tempVex = new Vector[tempInt];
+        tempVex = new IVector[tempInt];
         for(int i = 0; i < tempInt; i++){
             tempVex[i] = phase.space().makeVector();
         }
@@ -85,7 +85,7 @@ public class MeterCorrelationMatrix implements Meter {
         //Used in a variety of loops; save some time by making them now
         AtomLeaf atom;
         int bin;
-        Vector vex = phase.space().makeVector();
+        IVector vex = phase.space().makeVector();
         
         if(!symmetric) System.out.println(symmetric);
         // make the change-in-position-from-the-original-lattice-point vector
@@ -101,8 +101,8 @@ public class MeterCorrelationMatrix implements Meter {
         while (api1.hasNext()) {
             AtomPair pair = api1.nextPair();
             bin = pri.getBin(pair.getAtom(0), pair.getAtom(1));
-            Vector gam1 = tempVex[pair.getAtom(0).getGlobalIndex()];
-            Vector gam2 = tempVex[pair.getAtom(1).getGlobalIndex()];
+            IVector gam1 = tempVex[pair.getAtom(0).getGlobalIndex()];
+            IVector gam2 = tempVex[pair.getAtom(1).getGlobalIndex()];
             tempTen.Ev1v2(gam1, gam2);
             if(symmetric){
                 tempTenAgain.E(tempTen);
@@ -212,8 +212,8 @@ public class MeterCorrelationMatrix implements Meter {
     // the phase. It returns pairs of leaf atoms.
     private final ApiLeafAtoms api1;
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
-    Vector[] op; // The original positions of the atoms.
-    private Vector[] tempVex;
+    IVector[] op; // The original positions of the atoms.
+    private IVector[] tempVex;
     private final DataTag tag;
     private int maxlength;  //The maximum length of various things
     private int[] counter;

@@ -55,7 +55,7 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      * @return the displacement that must be applied to r to move it to its
      *         central-image location
      */
-    public abstract Vector centralImage(Vector r);
+    public abstract IVector centralImage(IVector r);
 
     /**
      * Transforms the given vector to replace it with a minimum-image distance
@@ -66,7 +66,7 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      *            a distance vector between two points in the volume; upon
      *            return this vector is replaced with the minimum-image vector
      */
-    public abstract void nearestImage(Vector dr);
+    public abstract void nearestImage(IVector dr);
 
     /**
      * Returns a copy of the dimensions, as a Vector. Manipulation of this copy
@@ -77,20 +77,20 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      *         boundaries, while for others (e.g., octahedral) the definition is
      *         particular to the boundary.
      */
-    public abstract Vector getDimensions();
+    public abstract IVector getDimensions();
 
     /**
      * Sets the nominal length of the boundary in each direction. Specific
      * interpretation of the given values (which are the elements of the given
      * Vector) depends on the subclass.
      */
-    public abstract void setDimensions(Vector v);
+    public abstract void setDimensions(IVector v);
 
     /**
      * @return a point selected uniformly within the volume enclosed by the
      *         boundary.
      */
-    public abstract Vector randomPosition();
+    public abstract IVector randomPosition();
 
     /**
      * Provides information needed so that drawing can be done of portions of
@@ -105,7 +105,7 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      *         indicates each displacement, second index is the xyz translation
      *         needed to the overflow image
      */
-    public abstract float[][] getOverflowShifts(Vector r, double distance);
+    public abstract float[][] getOverflowShifts(IVector r, double distance);
 
     /**
      * Set of vectors describing the displacements needed to translate the
@@ -125,7 +125,7 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      * on the boundary to another.  Returned vector should be used immediately or
      * copied to another vector.
      */
-    public abstract Vector getBoundingBox();
+    public abstract IVector getBoundingBox();
     
     protected final Space space;
     protected final Polytope shape;

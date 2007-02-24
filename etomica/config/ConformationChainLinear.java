@@ -6,8 +6,8 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Length;
 
@@ -61,9 +61,9 @@ public class ConformationChainLinear extends ConformationChain {
         }
     }
     public double getAngle(int i) {return angle[i];}
-    public void setOrientation(Vector e) {orientation.E(e);}
+    public void setOrientation(IVector e) {orientation.E(e);}
     
-    public void setOffset(Vector v) {
+    public void setOffset(IVector v) {
         orientation.E(v);
         bondLength = Math.sqrt(v.squared());
         orientation.TE(1.0/bondLength);
@@ -93,9 +93,9 @@ public class ConformationChainLinear extends ConformationChain {
 
     private static final long serialVersionUID = 1L;
     private double bondLength;
-    private Vector orientation;
+    private IVector orientation;
     private double[] angle;
-    private Vector translationVector;
+    private IVector translationVector;
     private AtomActionTranslateBy translator;
     private AtomActionTranslateTo moveToOrigin;
     private final AtomIteratorArrayListSimple atomIterator;
@@ -109,7 +109,7 @@ public class ConformationChainLinear extends ConformationChain {
 	/* (non-Javadoc)
 	 * @see etomica.ConformationChain#nextVector()
 	 */
-	protected Vector nextVector() {
+	protected IVector nextVector() {
 		// TODO what happens here? 
 		return null;
 	}

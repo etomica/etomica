@@ -3,8 +3,8 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -141,7 +141,7 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
     /**
      * The wrapped vector data.
      */
-    public final Vector x;
+    public final IVector x;
     
     public static class DataInfoVector extends DataInfo implements DataInfoArithmetic {
         

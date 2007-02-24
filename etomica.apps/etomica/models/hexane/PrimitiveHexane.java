@@ -1,8 +1,8 @@
 package etomica.models.hexane;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Polytope;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -91,7 +91,7 @@ public class PrimitiveHexane extends Primitive {
         setSize(new double[]{size[0]*scale, size[1]*scale, size[2]*scale});
     }        
     
-    public int[] latticeIndex(Vector q) {
+    public int[] latticeIndex(IVector q) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
@@ -99,7 +99,7 @@ public class PrimitiveHexane extends Primitive {
         return idx;
     }
 
-    public int[] latticeIndex(Vector q, int[] dimensions) {
+    public int[] latticeIndex(IVector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
             double x = q.x(i)/size[i];
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x

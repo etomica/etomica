@@ -5,7 +5,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.Meter;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.units.Energy;
 
 /**
@@ -77,14 +77,14 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
         iterator.setPhase(phase);
         normalDim = normalCoordMapper.getNormalDim();
 
-        latticePositions = new Vector[phase.getSpeciesMaster().moleculeCount()];
+        latticePositions = new IVector[phase.getSpeciesMaster().moleculeCount()];
 
         iterator.reset();
         int atomCount = 0;
         while (iterator.hasNext()) {
             latticePositions[atomCount] = phase.space().makeVector();
             Atom atom = iterator.nextAtom();
-            Vector atomPos = atom.getType().getPositionDefinition().position(atom);
+            IVector atomPos = atom.getType().getPositionDefinition().position(atom);
             latticePositions[atomCount].E(atomPos);
             atomCount++;
         }
@@ -104,7 +104,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
         }
     }
     
-    public void setWaveVectors(Vector[] newWaveVectors, double[] coefficients) {
+    public void setWaveVectors(IVector[] newWaveVectors, double[] coefficients) {
         waveVectors = newWaveVectors;
         waveVectorCoefficients = coefficients;
     }
@@ -119,13 +119,13 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
     
     private static final long serialVersionUID = 1L;
     protected NormalCoordMapper normalCoordMapper;
-    protected Vector[] latticePositions;
+    protected IVector[] latticePositions;
     protected final AtomIteratorAllMolecules iterator;
     protected Phase phase;
     protected int normalDim;
     protected double[] u;
     protected double[] realT, imaginaryT;
-    protected Vector[] waveVectors;
+    protected IVector[] waveVectors;
     protected double[] waveVectorCoefficients;
     protected double[][][] eigenVectors;
     protected double[][] omegaSquared;

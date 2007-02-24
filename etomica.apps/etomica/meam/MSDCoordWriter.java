@@ -11,8 +11,8 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /* =====SUMMARY======
  * At each 'writeInterval', which corresponds to a certain number of simulation steps,
@@ -105,7 +105,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 	public void intervalAction(IntegratorIntervalEvent evt) {
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
-			Vector phasedim = phase.getBoundary().getDimensions();
+			IVector phasedim = phase.getBoundary().getDimensions();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
 					
@@ -114,7 +114,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 				int i=0;
 				
 				while (iterator.hasNext()){
-					Vector atomPosition = ((AtomLeaf)iterator.nextAtom()).getCoord().getPosition();
+					IVector atomPosition = ((AtomLeaf)iterator.nextAtom()).getCoord().getPosition();
 					for (int j=0;j < phasedim.D();j++){
 						double actualDistance;
 						
@@ -175,7 +175,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		}
 				
 		public void setPhase(Phase phase){
-			atomOldCoord = new Vector[phase.atomCount()];
+			atomOldCoord = new IVector[phase.atomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
 				atomOldCoord[j] = phase.space().makeVector();
 			}
@@ -223,10 +223,10 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			return 200;
 		}
 		
-		private Vector phaseDim;
+		private IVector phaseDim;
 		private int [][] atomPBIarray;
-		private Vector workVector;
-		private Vector [] atomOldCoord;
+		private IVector workVector;
+		private IVector [] atomOldCoord;
 		private AtomIteratorLeafAtoms iterator;
 		
 	}

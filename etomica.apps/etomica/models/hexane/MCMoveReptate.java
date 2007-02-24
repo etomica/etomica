@@ -12,7 +12,7 @@ import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 public class MCMoveReptate extends MCMovePhaseStep {
     
@@ -86,10 +86,10 @@ public class MCMoveReptate extends MCMovePhaseStep {
        int numChildren = childlist.size();
        
        if(forward){
-           Vector position = ((AtomLeaf)childlist.get(numChildren-1)).getCoord().getPosition();
+           IVector position = ((AtomLeaf)childlist.get(numChildren-1)).getCoord().getPosition();
            positionOld.E(position);
            for (int j = numChildren - 1; j > 0; j--) {
-               Vector position2 = ((AtomLeaf)childlist.get(j-1)).getCoord().getPosition();
+               IVector position2 = ((AtomLeaf)childlist.get(j-1)).getCoord().getPosition();
                position.E(position2);
                position = position2;
            }
@@ -98,10 +98,10 @@ public class MCMoveReptate extends MCMovePhaseStep {
            ((AtomLeaf)childlist.get(0)).getCoord().getPosition().PE(tempV);
        }
        else {
-           Vector position = ((AtomLeaf)childlist.get(0)).getCoord().getPosition();
+           IVector position = ((AtomLeaf)childlist.get(0)).getCoord().getPosition();
            positionOld.E(position);
            for(int j = 0; j < numChildren-1; j++){
-               Vector position2 = ((AtomLeaf)childlist.get(j+1)).getCoord().getPosition();
+               IVector position2 = ((AtomLeaf)childlist.get(j+1)).getCoord().getPosition();
                position.E(position2);
                position = position2;
            }
@@ -132,18 +132,18 @@ public class MCMoveReptate extends MCMovePhaseStep {
         AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
         int numChildren = childlist.size();
         if (!forward) {
-            Vector position = ((AtomLeaf)childlist.get(numChildren-1)).getCoord().getPosition();
+            IVector position = ((AtomLeaf)childlist.get(numChildren-1)).getCoord().getPosition();
             for (int j=numChildren-1; j>0; j--) {
-                Vector position2 = ((AtomLeaf)childlist.get(j-1)).getCoord().getPosition();
+                IVector position2 = ((AtomLeaf)childlist.get(j-1)).getCoord().getPosition();
                 position.E(position2);
                 position = position2;
             }
             ((AtomLeaf)childlist.get(0)).getCoord().getPosition().E(positionOld);
         }
         else {
-            Vector position = ((AtomLeaf)childlist.get(0)).getCoord().getPosition();
+            IVector position = ((AtomLeaf)childlist.get(0)).getCoord().getPosition();
             for (int j=0; j<numChildren-1; j++) {
-                Vector position2 = ((AtomLeaf)childlist.get(j+1)).getCoord().getPosition();
+                IVector position2 = ((AtomLeaf)childlist.get(j+1)).getCoord().getPosition();
                 position.E(position2);
                 position = position2;
             }
@@ -192,8 +192,8 @@ public class MCMoveReptate extends MCMovePhaseStep {
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected boolean fixOverlap;
-    private Vector tempV;
-    private Vector positionOld;
+    private IVector tempV;
+    private IVector positionOld;
     private boolean forward;
     private double bondLength;
     

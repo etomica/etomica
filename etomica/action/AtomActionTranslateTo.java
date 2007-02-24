@@ -2,8 +2,8 @@ package etomica.action;
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Moves (translates) an atom to a specified position.  Location of the
@@ -12,10 +12,10 @@ import etomica.space.Vector;
  */
 public class AtomActionTranslateTo extends AtomActionAdapter {
     
-    private final Vector destination;
+    private final IVector destination;
     private AtomPositionDefinition atomPositionDefinition;
     private AtomGroupAction atomTranslator;
-    private final Vector translationVector;
+    private final IVector translationVector;
 
     /**
      * Creates new action with atom position defined by its
@@ -30,7 +30,7 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
     }
     
     public void actionPerformed(Atom atom) {
-        Vector currentPosition = atomPositionDefinition.position(atom);
+        IVector currentPosition = atomPositionDefinition.position(atom);
         translationVector.Ev1Mv2(destination, currentPosition);
         atomTranslator.actionPerformed(atom);
     }
@@ -39,14 +39,14 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
      * @return Returns the destination, the position that the
      * atom will be moved to by this action.
      */
-    public Vector getDestination() {
+    public IVector getDestination() {
         return destination;
     }
     /**
      * @param destination The destination to set.  A local copy
      * is made of the given vector.
      */
-    public void setDestination(Vector newDestination) {
+    public void setDestination(IVector newDestination) {
         destination.E(newDestination);
     }
     /**
@@ -68,7 +68,7 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
      * This vector can be used to reverse the translation by multiplying it by -1 and 
      * performing an atomActionTranslateBy with it.
      */
-    public Vector getTranslationVector() {
+    public IVector getTranslationVector() {
         return translationVector;
     }
 }

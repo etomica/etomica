@@ -2,7 +2,7 @@ package etomica.modules.entropylottery;
 
 import etomica.modifier.Modifier;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.units.Dimension;
 import etomica.units.Length;
 
@@ -28,7 +28,7 @@ public class ModifierDimensions implements Modifier {
         if (newValue <= 0 || newValue > 1000) {
             throw new IllegalArgumentException("Bogus value for dimension");
         }
-        Vector dim = phase.getBoundary().getDimensions();
+        IVector dim = phase.getBoundary().getDimensions();
         dim.setX(0, newValue);
         phase.setDimensions(dim);
     }

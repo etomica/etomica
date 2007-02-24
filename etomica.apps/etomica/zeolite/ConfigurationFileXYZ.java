@@ -8,8 +8,8 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 public class ConfigurationFileXYZ extends Configuration{
 
@@ -60,7 +60,7 @@ public class ConfigurationFileXYZ extends Configuration{
 		
 		private void setPosition(AtomLeaf atom, String string) {
 	        String[] coordStr = string.split(" +");
-            Vector pos = atom.getCoord().getPosition();
+            IVector pos = atom.getCoord().getPosition();
 	        for (int i=0; i<pos.D(); i++) {
 	            double coord = Double.valueOf(coordStr[i]).doubleValue();
 	            if(coord<min[i]) min[i] = coord;
@@ -102,7 +102,7 @@ public class ConfigurationFileXYZ extends Configuration{
 	        return nAtomsList;
 		}
 		
-		public Vector getUpdatedDimensions(){
+		public IVector getUpdatedDimensions(){
 			updatedDimensions = Space.makeVector(dim);
 			
 			updatedDimensions.TE(0,1.01);
@@ -112,7 +112,7 @@ public class ConfigurationFileXYZ extends Configuration{
 		}
 		
         private static final long serialVersionUID = 2L;
-		private Vector updatedDimensions;
+		private IVector updatedDimensions;
 		private double[] min;
 		private double[] max;
 		private double[] dim;

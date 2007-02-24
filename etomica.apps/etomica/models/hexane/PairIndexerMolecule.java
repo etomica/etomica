@@ -6,8 +6,8 @@ import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.space.Vector;
 
 /**
  * Given molecules in the form of an AtomPair, this class returns an integer
@@ -55,7 +55,7 @@ public class PairIndexerMolecule {
         inverter.E(prim.vectors());
         inverter.inverse();
         
-        latticeSites = new Vector[phase.getSpeciesMaster().getMaxGlobalIndex() + 1];
+        latticeSites = new IVector[phase.getSpeciesMaster().getMaxGlobalIndex() + 1];
 
         calculateAllAtomIndices();
     }
@@ -72,7 +72,7 @@ public class PairIndexerMolecule {
         AtomIteratorAllMolecules aim = new AtomIteratorAllMolecules(phase);
         aim.reset();
         Atom firstatom = (Atom) aim.peek();
-        Vector r0 = phase.space().makeVector();
+        IVector r0 = phase.space().makeVector();
         r0.E(firstatom.getType().getPositionDefinition().position(firstatom));
 
         temp.E(0.0);
@@ -119,7 +119,7 @@ public class PairIndexerMolecule {
         maxLength = jumpCount[0] * iJump[0];
     }
     
-    private void flipVector(Vector dr) {
+    private void flipVector(IVector dr) {
         int shouldBeFlipped = 0; // 1=yes, -1=no
         for (int i=0; i<dr.D(); i++) {
             if (Math.abs(dr.x(i) - 0.5*bdry.getDimensions().x(i)) < tol || 
@@ -153,7 +153,7 @@ public class PairIndexerMolecule {
      * Calculates the Miller indices of the vector argument
      */
     // nan is this okay after the atom has moved?
-    private void calculateTheseIndices(Vector v) {
+    private void calculateTheseIndices(IVector v) {
         // transformation is done in place
         v.transform(inverter);
 
@@ -254,7 +254,7 @@ public class PairIndexerMolecule {
      * each Atom relative to the first Atom.  These should correspond to the 
      * actual lattice sites the Atoms were placed at.
      */
-    public Vector[] getLatticeSites() {
+    public IVector[] getLatticeSites() {
         return latticeSites;
     }
 
@@ -289,7 +289,7 @@ public class PairIndexerMolecule {
     /**
      * Temporary storage space for a vector
      */
-    private final Vector temp;
+    private final IVector temp;
 
     /**
      * Storage space to put the indices
@@ -299,7 +299,7 @@ public class PairIndexerMolecule {
     /**
      * The original position-in-space vector of each atom
      */
-    private final Vector[] latticeSites; 
+    private final IVector[] latticeSites; 
 
     private final Tensor inverter;
 

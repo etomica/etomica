@@ -17,8 +17,8 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
@@ -56,7 +56,7 @@ public class PairIndexerTestSimple extends Simulation {
         config.initializeCoordinates(phase);
         if (latticeConfig != SIMPLE_CUBIC) {
             ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice)config.getLatticeMemento();
-            Vector scaling = myLattice.latticeScaling;
+            IVector scaling = myLattice.latticeScaling;
             // assume isotropic scaling.  If it's not we're screwed anyway
             // because the FCC primitive has to be cubic
             prim.scaleSize(scaling.x(0));
@@ -80,7 +80,7 @@ public class PairIndexerTestSimple extends Simulation {
         AtomIterator outer = new AtomIteratorLeafAtoms(pit.phase);
         ApiInnerFixed api = new ApiInnerFixed(outer, inner);
         api.reset();
-        Vector work = pit.getSpace().makeVector();
+        IVector work = pit.getSpace().makeVector();
 
 //      printer.println("Atom0:0 Atom0:1 Atom0:2 Atom0:# Atom1:0 Atom1:1 Atom1:2 Atom1:# Bin:");
       
@@ -101,7 +101,7 @@ public class PairIndexerTestSimple extends Simulation {
 //                pi.getBin(ap) +" " + atom0.getGlobalIndex());
 
           // determine the pair's dr
-            Vector dr = pit.getSpace().makeVector();
+            IVector dr = pit.getSpace().makeVector();
             dr.Ev1Mv2(((AtomLeaf)atom0).getCoord().getPosition(), ((AtomLeaf)atom1).getCoord().getPosition());
             if (bin < 0) {
                 throw new RuntimeException("bin was negative, dr="+dr);
@@ -130,7 +130,7 @@ public class PairIndexerTestSimple extends Simulation {
                 // the list
                 boolean found = false;
                 for (int i=0; i<drList.size(); i++) {
-                    work.Ev1Mv2(dr, (Vector)drList.get(i));
+                    work.Ev1Mv2(dr, (IVector)drList.get(i));
                     if (work.squared() < 0.001) {
                         found = true;
                     }

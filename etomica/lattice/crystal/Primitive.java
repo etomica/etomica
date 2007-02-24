@@ -1,8 +1,8 @@
 package etomica.lattice.crystal;
 
 import etomica.math.geometry.Polytope;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Collection of primitive elements that specify or are determined
@@ -10,8 +10,8 @@ import etomica.space.Vector;
  */
 public abstract class Primitive implements java.io.Serializable {
     
-    protected final Vector[] latticeVectors;
-    protected final Vector[] latticeVectorsCopy;
+    protected final IVector[] latticeVectors;
+    protected final IVector[] latticeVectorsCopy;
     protected final int[] idx;//used to return coordinate index
     protected final int D;
     protected final double[] size;
@@ -28,8 +28,8 @@ public abstract class Primitive implements java.io.Serializable {
     protected Primitive(Space space, boolean makeReciprocal) {
         this.space = space;
         D = space.D();
-        latticeVectors = new Vector[D];
-        latticeVectorsCopy = new Vector[D];
+        latticeVectors = new IVector[D];
+        latticeVectorsCopy = new IVector[D];
         idx = new int[D];
         size = new double[D];
 //        sizeCopy = new double[D];
@@ -136,12 +136,12 @@ public abstract class Primitive implements java.io.Serializable {
      * provide mutator methods that permit changes to the vectors while
      * adhering to a particular structure (e.g., cubic, fcc, etc.).
      */
-    public Vector[] vectors() {
+    public IVector[] vectors() {
         return copyVectors();
     }
     
     //copies the interal set of vectors to the copy for outside use
-    protected Vector[] copyVectors() {
+    protected IVector[] copyVectors() {
         for(int i=0; i<D; i++) latticeVectorsCopy[i].E(latticeVectors[i]);
         return latticeVectorsCopy;
     }
@@ -156,7 +156,7 @@ public abstract class Primitive implements java.io.Serializable {
      * point if the index were passed to a the site method of a sufficiently
      * large lattice that uses this primitive.
      */
-    public abstract int[] latticeIndex(Vector r);
+    public abstract int[] latticeIndex(IVector r);
     
     /**
      * Same as latticeIndex(Space.Vector), but gives index for periodic system
@@ -164,7 +164,7 @@ public abstract class Primitive implements java.io.Serializable {
      * If lattice index corresponds to a cell outside the range of dimensions,
      * index of image in central cells is returned.
      */
-    public abstract int[] latticeIndex(Vector r, int[] dimensions);
+    public abstract int[] latticeIndex(IVector r, int[] dimensions);
     
     /**
      * Returns the primitive for the reciprocal lattice vectors.

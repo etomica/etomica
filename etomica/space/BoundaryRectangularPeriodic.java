@@ -33,13 +33,13 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         }
     }
     
-    public void nearestImage(Vector dr) {
+    public void nearestImage(IVector dr) {
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
         dr.ME(dimensionsHalf);
     }
 
-    public Vector centralImage(Vector r) {
+    public IVector centralImage(IVector r) {
         tempImage.E(r);
         nearestImage(tempImage);
         tempImage.ME(r);
@@ -55,6 +55,6 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     }
     
     private static final long serialVersionUID = 1L;
-    protected final Vector dimensionsHalf;
-    protected final Vector tempImage;
+    protected final IVector dimensionsHalf;
+    protected final IVector tempImage;
 }

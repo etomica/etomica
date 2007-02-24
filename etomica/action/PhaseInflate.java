@@ -8,8 +8,8 @@ import etomica.atom.Atom;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Performs actions that cause volume of system to expand, with molecule
@@ -69,7 +69,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
      * and boundary dimensions are all multiplied by the scale when action is 
      * performed. A zero or negative scale throws an IllegalArgumentException.
      */
-    public void setVectorScale(Vector scale) {
+    public void setVectorScale(IVector scale) {
         if (scale.min() <= 0.0) throw new IllegalArgumentException(
                    "Cannot have zero or negative scaling in PhaseInflate");
         scaleVector.E(scale);
@@ -78,7 +78,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
     /**
      * Returns the current value of the inflation scale in each dimension.
      */
-    public Vector getVectorScale() {
+    public IVector getVectorScale() {
         return scaleVector;
     }
     
@@ -95,14 +95,14 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
      */
     public void actionPerformed() {
         if(phase == null) return;
-        Vector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = phase.getBoundary().getDimensions();
         dimensions.TE(scaleVector);
         phase.setDimensions(dimensions);
         moleculeIterator.reset();
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1);
-        Vector translationVector = translator.getTranslationVector();
+        IVector translationVector = translator.getTranslationVector();
         while (moleculeIterator.hasNext()) {
             Atom molecule = moleculeIterator.nextAtom();
             translationVector.E(moleculeCenter.position(molecule));
@@ -131,6 +131,6 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
     private final AtomIteratorAllMolecules moleculeIterator;
     private final AtomActionTranslateBy translator;
     private final AtomGroupAction groupScaler;
-    private final Vector scaleVector;
+    private final IVector scaleVector;
     private final AtomPositionGeometricCenter moleculeCenter;
 }

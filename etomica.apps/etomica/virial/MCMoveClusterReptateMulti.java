@@ -11,7 +11,7 @@ import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 
 /**
@@ -91,10 +91,10 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
                 }
             }
             if (forward[i]) {
-                Vector position = ((AtomLeaf)childList.get(numChildren-1)).getCoord().getPosition();
+                IVector position = ((AtomLeaf)childList.get(numChildren-1)).getCoord().getPosition();
                 oldPositions[i].E(position);
                 for (int j=numChildren-1; j>0; j--) {
-                    Vector position2 = ((AtomLeaf)childList.get(j-1)).getCoord().getPosition();
+                    IVector position2 = ((AtomLeaf)childList.get(j-1)).getCoord().getPosition();
                     position.E(position2);
                     position = position2;
                 }
@@ -103,10 +103,10 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
                 ((AtomLeaf)childList.get(0)).getCoord().getPosition().PE(work1);
             }
             else {
-                Vector position = ((AtomLeaf)childList.get(0)).getCoord().getPosition();
+                IVector position = ((AtomLeaf)childList.get(0)).getCoord().getPosition();
                 oldPositions[i].E(position);
                 for (int j=0; j<numChildren-1; j++) {
-                    Vector position2 = ((AtomLeaf)childList.get(j+1)).getCoord().getPosition();
+                    IVector position2 = ((AtomLeaf)childList.get(j+1)).getCoord().getPosition();
                     position.E(position2);
                     position = position2;
                 }
@@ -160,18 +160,18 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
             AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].getNode()).getChildList();
             int numChildren = childList.size();
             if (!forward[i]) {
-                Vector position = ((AtomLeaf)childList.get(numChildren-1)).getCoord().getPosition();
+                IVector position = ((AtomLeaf)childList.get(numChildren-1)).getCoord().getPosition();
                 for (int j=numChildren-1; j>0; j--) {
-                    Vector position2 = ((AtomLeaf)childList.get(j-1)).getCoord().getPosition();
+                    IVector position2 = ((AtomLeaf)childList.get(j-1)).getCoord().getPosition();
                     position.E(position2);
                     position = position2;
                 }
                 ((AtomLeaf)childList.get(0)).getCoord().getPosition().E(oldPositions[i]);
             }
             else {
-                Vector position = ((AtomLeaf)childList.get(0)).getCoord().getPosition();
+                IVector position = ((AtomLeaf)childList.get(0)).getCoord().getPosition();
                 for (int j=0; j<numChildren-1; j++) {
-                    Vector position2 = ((AtomLeaf)childList.get(j+1)).getCoord().getPosition();
+                    IVector position2 = ((AtomLeaf)childList.get(j+1)).getCoord().getPosition();
                     position.E(position2);
                     position = position2;
                 }

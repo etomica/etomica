@@ -1,8 +1,7 @@
 package etomica.space3d;
 
-import java.io.ObjectStreamException;
-
 import etomica.EtomicaInfo;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
@@ -62,7 +61,7 @@ public final class Space3D extends Space {
         return (Math.PI * 4 * r * r);
     }
 
-    public etomica.space.Vector makeVector() {
+    public IVector makeVector() {
         return new Vector3D();
     }
 
@@ -112,11 +111,11 @@ public final class Space3D extends Space {
      * 
      * @return the singleton INSTANCE
      */
-    private Object readResolve() throws ObjectStreamException {
+    private Object readResolve() {
         return INSTANCE;
     }
 
     private static final Space3D INSTANCE = new Space3D();
     private static final long serialVersionUID = 1L;
 
-}//end of Space3D
+}

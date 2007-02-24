@@ -10,9 +10,9 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.util.Debug;
@@ -81,7 +81,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
-		r2 = ((AtomLeaf)atom).getCoord().getPosition().Mv1Squared((Vector)agentManager.getAgent(atom));
+		r2 = ((AtomLeaf)atom).getCoord().getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
             System.out.println("atom "+atom+" displacement "+r2+" "+((AtomLeaf)atom).getCoord().getPosition());
         }
@@ -122,7 +122,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 	
 	public void reset(Atom atom) {
-        ((Vector)agentManager.getAgent(atom)).E(((AtomLeaf)atom).getCoord().getPosition());
+        ((IVector)agentManager.getAgent(atom)).E(((AtomLeaf)atom).getCoord().getPosition());
 	}
 
     public Class getAgentClass() {
@@ -138,7 +138,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     private static final long serialVersionUID = 1L;
     protected final Space space;
     private double interactionRange, displacementLimit2, neighborRadius2;
-	private final Vector dr;
+	private final IVector dr;
     private NearestImageTransformer nearestImageTransformer;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;

@@ -16,8 +16,8 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.units.systems.LJ;
 
 /**
@@ -32,7 +32,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
     protected final Space space;
-    final Vector work1, work2;
+    final IVector work1, work2;
     double zeta = 0.0;
     double chi = 0.0;
     double p1, p2, p3, p4;
@@ -117,8 +117,8 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
-            Vector r = a.getCoord().getPosition();
-            Vector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+            IVector r = a.getCoord().getPosition();
+            IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
             work1.E(v);
             work1.PEa1Tv1(chi,r);
             work2.E(work1);
@@ -146,8 +146,8 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
-            Vector r = a.getCoord().getPosition();
-            Vector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+            IVector r = a.getCoord().getPosition();
+            IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
             r.PEa1Tv1(p1, agent.dr1);
             r.PEa1Tv1(p2, agent.dr2);
             r.PEa1Tv1(p3, agent.dr3);
@@ -208,9 +208,9 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
             
     public static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public Atom atom;
-        public Vector force;
-        public Vector dr1, dr2, dr3, dr4;
-        public Vector dv1, dv2, dv3, dv4;
+        public IVector force;
+        public IVector dr1, dr2, dr3, dr4;
+        public IVector dv1, dv2, dv3, dv4;
 
         public Agent(Space space, Atom a) {
             atom = a;
@@ -225,6 +225,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
             dv4 = space.makeVector();
         }
         
-        public Vector force() {return force;}
+        public IVector force() {return force;}
     }
 }

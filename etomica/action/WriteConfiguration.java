@@ -6,7 +6,7 @@ import java.io.IOException;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Dumps a phase's configuration to a file.  The coordinates are written in a 
@@ -91,12 +91,12 @@ public class WriteConfiguration implements Action {
         }
         try {
             iterator.reset();
-            Vector writePosition = phase.space().makeVector();
+            IVector writePosition = phase.space().makeVector();
             while (iterator.hasNext()) {
                 AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
                 writePosition.E(atom.getCoord().getPosition());
                 if (doApplyPBC) {
-                    Vector shift = phase.getBoundary().centralImage(writePosition);
+                    IVector shift = phase.getBoundary().centralImage(writePosition);
                     if (!shift.isZero()) {
                         writePosition.PE(shift);
                     }

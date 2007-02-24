@@ -2,8 +2,8 @@ package etomica.action;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Action that moves (translates) all the atoms in a phase by a specified
@@ -12,7 +12,7 @@ import etomica.space.Vector;
 public final class PhaseTranslate extends PhaseActionAdapter implements Undoable {
 
     private static final long serialVersionUID = 1L;
-	private final Vector translationVector;
+	private final IVector translationVector;
     private final AtomIteratorLeafAtoms iterator;
 
 	/**
@@ -32,7 +32,7 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 	 * update it is necessary to invoke this method (cannot effect change simply
 	 * by changing the coordinates of vector previously passed to this method).
 	 */
-	public void setTranslationVector(Vector v) {
+	public void setTranslationVector(IVector v) {
 		translationVector.E(v);
 	}
 
@@ -40,7 +40,7 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 	 * @return the translation vector. Changes to coordinates of the returned
 	 *         vector will change the behavior of this action.
 	 */
-	public Vector getTranslationVector() {
+	public IVector getTranslationVector() {
 		return translationVector;
 	}
 

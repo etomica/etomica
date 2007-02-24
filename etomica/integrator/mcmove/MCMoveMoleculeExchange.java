@@ -16,8 +16,8 @@ import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.species.Species;
 
 /**
@@ -37,7 +37,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final AtomActionTranslateTo moleculeTranslator;
     private final AtomActionTranslateBy moleculeReplacer;
-    private final Vector translationVector;
+    private final IVector translationVector;
     
     private transient Atom molecule;
     private transient Phase iPhase, dPhase;

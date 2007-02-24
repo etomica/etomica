@@ -38,11 +38,11 @@ public abstract class Orientation implements java.io.Serializable {
      * Changes the components of all vectors in the given array 
      * to the body frame representation for the current orientation.
      */
-    public abstract void convertToBodyFrame(Vector[] v);
+    public abstract void convertToBodyFrame(IVector[] v);
 
     /**
      * Changes the components all vectors in the given array from a body frame of
      * the current orientation to the space frame.
      */
-    public abstract void convertToSpaceFrame(Vector[] v);
+    public abstract void convertToSpaceFrame(IVector[] v);
 }

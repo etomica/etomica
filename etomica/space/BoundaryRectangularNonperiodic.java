@@ -28,7 +28,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Returns a vector with all elements zero.
      */
-    public Vector centralImage(Vector r) {
+    public IVector centralImage(IVector r) {
         zero.E(0.0);
         return zero;
     }
@@ -36,13 +36,13 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Does nothing.
      */
-    public void nearestImage(Vector dr) {
+    public void nearestImage(IVector dr) {
     }
 
     /**
      * Returns a zero-length vector.
      */
-    public float[][] getOverflowShifts(Vector r, double distance) {
+    public float[][] getOverflowShifts(IVector r, double distance) {
         return shift0;
     }
 
@@ -53,7 +53,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
         return origins;
     }
 
-    private final Vector zero;
+    private final IVector zero;
     protected final double[][] origins= new double[0][0];//cannot be static because several phases may be using at once
     private static final long serialVersionUID = 1L;
 }

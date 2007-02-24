@@ -53,7 +53,7 @@ public abstract class Space implements java.io.Serializable {
     /**
      * Constructs and returns a new Vector appropriate to the space.
      */
-    public abstract Vector makeVector();
+    public abstract IVector makeVector();
 
     /**
      * Constructs and returns a new Orientation appropriate to the space.
@@ -105,7 +105,7 @@ public abstract class Space implements java.io.Serializable {
      * @throws IllegalArgumentException if u1.D() is not equal to u2.D().
      * @throws UnsupportedOperationException if the u1.D is not 1, 2, or 3.
      */
-    public static double r2(Vector u1, Vector u2, Boundary b) { //square distance between two vectors, subject to boundary b
+    public static double r2(IVector u1, IVector u2, Boundary b) { //square distance between two vectors, subject to boundary b
         if(u1.D() != u2.D()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
         switch(u1.D()) {
             case 1: return Space1D.r2((Vector1D)u1, (Vector1D)u2, b, new Vector1D());
@@ -119,7 +119,7 @@ public abstract class Space implements java.io.Serializable {
      * 
      * @throws IllegalArgumentException if D is not 1, 2, or 3.
      */
-    public static Vector makeVector(int D) {
+    public static IVector makeVector(int D) {
         switch(D) {
             case 1:  return new Vector1D();
             case 2:  return new Vector2D();
@@ -133,7 +133,7 @@ public abstract class Space implements java.io.Serializable {
      * 
      * @throws IllegalArgumentException if a.length is not 1, 2, or 3.
      */
-    public static Vector makeVector(double[] a) {
+    public static IVector makeVector(double[] a) {
         switch(a.length) {
             case 1:  return new etomica.space1d.Vector1D(a);
             case 2:  return new etomica.space2d.Vector2D(a);
@@ -146,7 +146,7 @@ public abstract class Space implements java.io.Serializable {
      * Returns a Vector initialized to the given set of values in the array (cast to double).
      * Spatial dimension of the Vector is determined by the length of a.
      */
-    public static Vector makeVector(int[] k) {
+    public static IVector makeVector(int[] k) {
         double[] a = new double[k.length];
         for(int i=0; i<k.length; i++) {a[i] = k[i];}
         return makeVector(a);
@@ -158,8 +158,8 @@ public abstract class Space implements java.io.Serializable {
      * @param n number of vectors in the returned array
      * @return an array of n new vectors made by the space instance
      */
-    public Vector[] makeVectorArray(int n) {
-        Vector[] vectors = new Vector[n];
+    public IVector[] makeVectorArray(int n) {
+        IVector[] vectors = new IVector[n];
         for(int i=0; i<n; i++) vectors[i] = makeVector();
         return vectors;
     }

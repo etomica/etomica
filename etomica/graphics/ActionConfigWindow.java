@@ -12,7 +12,7 @@ import etomica.action.Action;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 /**
  * Action that opens a new window and dumps the coordinates into the window.
@@ -38,7 +38,7 @@ public class ActionConfigWindow implements Action {
         iterator.reset();
         while (iterator.hasNext()) {
             AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-            Vector pos = atom.getCoord().getPosition();
+            IVector pos = atom.getCoord().getPosition();
             String str = Double.toString(pos.x(0));
             for (int i=1; i<pos.D(); i++) {
                 str += " "+Double.toString(pos.x(i));

@@ -5,8 +5,8 @@
 package etomica.math.geometry;
 
 import etomica.exception.MethodNotImplementedException;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space2d.Vector2D;
 
 /**
@@ -31,7 +31,7 @@ public class Parallelogram extends Polygon implements Parallelotope {
         super(embeddedSpace, 4);
         this.a = (Vector2D)embeddedSpace.makeVector();
         this.b = (Vector2D)embeddedSpace.makeVector();
-        setEdgeVectors(new Vector[] {a, b});
+        setEdgeVectors(new IVector[] {a, b});
     }
 
     public double getArea() {
@@ -60,7 +60,7 @@ public class Parallelogram extends Polygon implements Parallelotope {
      * surface of) this cell, <code>false</code> otherwise.
      */
     //TODO implement contains method in Parallelogram
-    public boolean contains(etomica.space.Vector v) {
+    public boolean contains(IVector v) {
         throw new MethodNotImplementedException();
 //        double x = v.x(0)-position.x(0);
 //        double y = v.x(1)-position.x(1);
@@ -73,7 +73,7 @@ public class Parallelogram extends Polygon implements Parallelotope {
      * Sets the lengths and directions of all edges of the parellelepiped.
      * Given instances are copied to an internal representation.
      */
-    public void setEdgeVectors(Vector[] edgeVectors) {
+    public void setEdgeVectors(IVector[] edgeVectors) {
         a.Ea1Tv1(0.5, edgeVectors[0]);
         b.Ea1Tv1(0.5, edgeVectors[1]);
         updateVertices();

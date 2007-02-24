@@ -25,8 +25,8 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
@@ -104,7 +104,7 @@ public class TestFcc extends Simulation {
             PrimitiveFcc primitive = sim.lattice.getPrimitiveFcc();
             ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config
                     .getLatticeMemento();
-            Vector scaling = myLattice.latticeScaling;
+            IVector scaling = myLattice.latticeScaling;
             primitive.setCubicSize(primitive.getCubicSize()*scaling.x(0));
 
             MeterNormalMode meterNormalMode = new MeterNormalMode();
@@ -140,7 +140,7 @@ public class TestFcc extends Simulation {
                 iterator.reset();
                 while (iterator.hasNext()) {
                     AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                    Vector pos = atom.getCoord().getPosition();
+                    IVector pos = atom.getCoord().getPosition();
                     pos.setX(0, pos.x(0)-0.5);
                 }
 
@@ -150,7 +150,7 @@ public class TestFcc extends Simulation {
                 iterator.reset();
                 while (iterator.hasNext()) {
                     AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                    Vector pos = atom.getCoord().getPosition();
+                    IVector pos = atom.getCoord().getPosition();
                     if (Math.round(pos.x(0)+0.5) % 2 == 0) {
                         pos.setX(1,pos.x(1)+0.001);
                     }
@@ -180,7 +180,7 @@ public class TestFcc extends Simulation {
             normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
             int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
             
-            Vector[] waveVectors = meterNormalMode.getWaveVectors();
+            IVector[] waveVectors = meterNormalMode.getWaveVectors();
             
             try {
                 FileWriter fileWriterQ = new FileWriter(filename+".Q");

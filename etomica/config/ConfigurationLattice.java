@@ -12,8 +12,8 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 
@@ -120,9 +120,9 @@ public class ConfigurationLattice extends Configuration {
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        Vector shape = phase.space().makeVector();
+        IVector shape = phase.space().makeVector();
         shape.E(phase.getBoundary().getDimensions());
-        Vector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
+        IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
         // determine number of cells in each direction
@@ -139,7 +139,7 @@ public class ConfigurationLattice extends Configuration {
         }
 
         // determine lattice constant
-        Vector latticeScaling = phase.space().makeVector();
+        IVector latticeScaling = phase.space().makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -151,10 +151,10 @@ public class ConfigurationLattice extends Configuration {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        Vector offset = phase.space().makeVector();
+        IVector offset = phase.space().makeVector();
         offset.E(phase.getBoundary().getDimensions());
-        Vector vectorOfMax = phase.space().makeVector();
-        Vector vectorOfMin = phase.space().makeVector();
+        IVector vectorOfMax = phase.space().makeVector();
+        IVector vectorOfMin = phase.space().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -163,7 +163,7 @@ public class ConfigurationLattice extends Configuration {
         // non-periodic boundaries
         indexIterator.reset();
         while (indexIterator.hasNext()) {
-            Vector site = (Vector) lattice.site(indexIterator.next());
+            IVector site = (IVector) lattice.site(indexIterator.next());
             site.TE(latticeScaling);
             vectorOfMax.maxE(site);
             vectorOfMin.minE(site);
@@ -186,7 +186,7 @@ public class ConfigurationLattice extends Configuration {
             }
 
             int[] ii = indexIterator.next();
-            Vector site = (Vector) myLat.site(ii);
+            IVector site = (IVector) myLat.site(ii);
             if (indices != null) {
                 indices[a.getGlobalIndex()] = (int[]) ii.clone();
             }
@@ -195,7 +195,7 @@ public class ConfigurationLattice extends Configuration {
         }
     }
 
-    protected int[] calculateLatticeDimensions(int nCells, Vector shape) {
+    protected int[] calculateLatticeDimensions(int nCells, IVector shape) {
         int dimLeft = shape.D();
         int nCellsLeft = nCells;
         int[] latticeDimensions = new int[shape.D()];
@@ -301,7 +301,7 @@ public class ConfigurationLattice extends Configuration {
      */
     public static class MyLattice implements SpaceLattice {
 
-        public MyLattice(SpaceLattice l, Vector latticeScaling, Vector offset) {
+        public MyLattice(SpaceLattice l, IVector latticeScaling, IVector offset) {
             lattice = l;
             this.latticeScaling = latticeScaling;
             this.offset = offset;
@@ -316,7 +316,7 @@ public class ConfigurationLattice extends Configuration {
         }
 
         public Object site(int[] index) {
-            Vector site = (Vector) lattice.site(index);
+            IVector site = (IVector) lattice.site(index);
             site.TE(latticeScaling);
             site.PE(offset);
 
@@ -332,8 +332,8 @@ public class ConfigurationLattice extends Configuration {
         }
 
         SpaceLattice lattice;
-        public Vector latticeScaling;
-        Vector offset;
+        public IVector latticeScaling;
+        IVector offset;
 
     }
 

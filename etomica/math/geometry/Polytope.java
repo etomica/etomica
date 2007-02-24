@@ -6,8 +6,8 @@ package etomica.math.geometry;
 
 import java.util.LinkedList;
 
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Representation of a mathematical polytope, which is a finite region of space
@@ -52,10 +52,10 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * Constructor used for the Point subclass
      */
-    Polytope(Space embeddedSpace, Vector vertex) {
+    Polytope(Space embeddedSpace, IVector vertex) {
         D = 0;
         this.embeddedSpace = embeddedSpace;
-        this.vertices = new Vector[] { vertex };
+        this.vertices = new IVector[] { vertex };
         position = vertex;
         this.hyperPlanes = new Polytope[0];
     }
@@ -98,7 +98,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * subclasses the vertices <i>are</i> the representation, so alteration of the
      * returned array will change the polytope.
      */
-    public Vector[] getVertices() {
+    public IVector[] getVertices() {
         updateVertices();
         return vertices;
     }
@@ -106,7 +106,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * Sets the position of the geometric center of the polytope.
      */
-    public void setPosition(Vector r) {
+    public void setPosition(IVector r) {
         position.E(r);
         noTranslation = position.isZero();
         updateVertices();
@@ -118,7 +118,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * logical position of the polytope, without immediately changing the vertices.
      * Use setPosition to change the polytope position.
      */
-    public Vector getPosition() {
+    public IVector getPosition() {
         return position;
     }
 
@@ -133,7 +133,7 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * Returns <code>true</code> if the given vector lies inside the polytope,
      * <code>false</code> otherwise.
      */
-    public abstract boolean contains(Vector v);
+    public abstract boolean contains(IVector v);
 
     /**
      * Number of vertices in the polytrope. A vertex is a point where D edges
@@ -164,17 +164,17 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * polytopes.  Each vertex appears in the list only once.  Used
      * by constructor.
      */
-    private static Vector[] allVertices(Polytope[] hyperPlanes) {
+    private static IVector[] allVertices(Polytope[] hyperPlanes) {
         LinkedList list = new LinkedList();
         for (int i = 0; i < hyperPlanes.length; i++) {
-            Vector[] vertices = hyperPlanes[i].vertices;
+            IVector[] vertices = hyperPlanes[i].vertices;
             for (int j = 0; j < vertices.length; j++) {
                 if (!list.contains(vertices[j])) {
                     list.add(vertices[j]);
                 }
             }
         }
-        return (Vector[]) list.toArray(new Vector[0]);
+        return (IVector[]) list.toArray(new IVector[0]);
     }
     
     public abstract LineSegment[] getEdges();
@@ -197,8 +197,8 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * These vertices are used in all external representations of the polygon.
      * Changes to them do not necessarily change the state of the polygon.
      */
-    protected final Vector[] vertices;
-    protected final Vector position;
+    protected final IVector[] vertices;
+    protected final IVector position;
     protected final Polytope[] hyperPlanes;
     private boolean noTranslation = true;
     //    protected final Orientation orientation;

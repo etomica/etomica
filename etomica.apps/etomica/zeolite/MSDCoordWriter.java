@@ -12,8 +12,8 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.phase.Phase;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.species.Species;
 import etomica.units.Kelvin;
 
@@ -124,7 +124,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		if (--intervalCount == 0){
 			counter++;
 			System.out.println((counter*200*writeInterval/3270000.0)+"%");
-			Vector phasedim = phase.getBoundary().getDimensions();
+			IVector phasedim = phase.getBoundary().getDimensions();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
 			double temp = Kelvin.UNIT.fromSim(meter.getDataAsScalar()*offset);
@@ -134,7 +134,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 				iterator.reset();
 				int i=0;
 				while (iterator.hasNext()){
-					Vector atomPosition = ((AtomLeaf)iterator.nextAtom()).getCoord().getPosition();
+					IVector atomPosition = ((AtomLeaf)iterator.nextAtom()).getCoord().getPosition();
 					for (int j=0;j < phasedim.D();j++){
 						double actualDistance;
 							
@@ -201,7 +201,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		}
 				
 		public void setPhase(Phase phase){
-			atomOldCoord = new Vector[phase.atomCount()];
+			atomOldCoord = new IVector[phase.atomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
 				atomOldCoord[j] = phase.space().makeVector();
 			}
@@ -249,10 +249,10 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			return 200;
 		}
 		
-		private Vector phaseDim;
+		private IVector phaseDim;
 		private int [][] atomPBIarray;
-		private Vector workVector;
-		private Vector [] atomOldCoord;
+		private IVector workVector;
+		private IVector [] atomOldCoord;
 		//private AtomIteratorLeafAtoms iterator;
 		private AtomIteratorMolecule iterator;
 	}

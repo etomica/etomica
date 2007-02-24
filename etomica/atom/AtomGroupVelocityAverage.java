@@ -5,8 +5,8 @@ import java.io.Serializable;
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 
 /**
  * Calculates the mass average velocity over a set of atoms. The velocity
@@ -28,7 +28,7 @@ public class AtomGroupVelocityAverage implements Serializable {
      * Returns the mass-average velocity of the given Atom and 
      * all its children.
      */
-    public Vector getVelocityAverage(Atom a) {
+    public IVector getVelocityAverage(Atom a) {
         vectorSum.E(0.0);
         myAction.massSum = 0;
         groupWrapper.actionPerformed(a);
@@ -37,7 +37,7 @@ public class AtomGroupVelocityAverage implements Serializable {
     }
 
     private static class MyAction extends AtomActionAdapter {
-        public MyAction(Vector sum) {
+        public MyAction(IVector sum) {
             vectorSum = sum;
         }
         public void actionPerformed(Atom a) {
@@ -45,12 +45,12 @@ public class AtomGroupVelocityAverage implements Serializable {
             massSum += ((AtomTypeLeaf)a.getType()).getMass();
         }
         private static final long serialVersionUID = 1L;
-        private final Vector vectorSum;
+        private final IVector vectorSum;
         public double massSum;
     }
 
     private static final long serialVersionUID = 1L;
-    private final Vector vectorSum;
+    private final IVector vectorSum;
     private MyAction myAction;
     private AtomGroupAction groupWrapper;
 }
