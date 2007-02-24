@@ -111,14 +111,15 @@ public class SimFccHarmonic extends Simulation {
             nA = Integer.parseInt(args[3]);
         }
         
+        double harmonicFudge = 1;
+
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" hard sphere simulation, measuring harmonic energy");
         System.out.println(nA+" atoms at density "+density);
+        System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println(simTime+" time units");
         System.out.println("output data to "+filename);
 
         SimFccHarmonic sim = new SimFccHarmonic(Space.getInstance(D), nA, density);
-        
-        double harmonicFudge = .25;
         
         double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
         for (int i=0; i<omegaSquared.length; i++) {
@@ -200,6 +201,7 @@ public class SimFccHarmonic extends Simulation {
         deltaA = Math.log(deltaA);
         
         System.out.println("Harmonic free energy correction: "+deltaA+" +/- "+deltaAerr);
+        System.out.println("Harmonic free energy correction per atom: "+deltaA/nA+" +/- "+deltaAerr/nA);
 
         try {
             // energy -- e? u?
