@@ -68,7 +68,7 @@ public class MCMoveHarmonic extends MCMovePhase {
         rRand = new double[waveVectors.length][normalDim];
         iRand = new double[waveVectors.length][normalDim];
         
-        normalization = 2.0/Math.sqrt(phase.getSpeciesMaster().moleculeCount());
+        normalization = 1/Math.sqrt(phase.getSpeciesMaster().moleculeCount());
         
         // fills in elements of nominalU using NormalCoordWrapper
         iterator.reset();
@@ -98,10 +98,8 @@ public class MCMoveHarmonic extends MCMovePhase {
 
         for (int iVector=0; iVector<waveVectors.length; iVector++) {
             for (int j=0; j<normalDim; j++) {
-                double g = Simulation.random.nextGaussian() * eigenValuesSqrt[iVector][j];
-                double theta = Simulation.random.nextDouble()*2*Math.PI;
-                rRand[iVector][j] = g*Math.cos(theta);
-                iRand[iVector][j] = g*Math.sin(theta);
+                rRand[iVector][j] = Simulation.random.nextGaussian() * eigenValuesSqrt[iVector][j];
+                iRand[iVector][j] = Simulation.random.nextGaussian() * eigenValuesSqrt[iVector][j];
             }
         }
         while (iterator.hasNext()) {
