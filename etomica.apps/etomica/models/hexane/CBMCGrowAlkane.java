@@ -112,29 +112,29 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                     
                     if (i == 0) { //if we're starting with methane
                         vex.setRandomSphere();
-                        (((AtomLeaf)atomList.get(0)).getCoord().position()).E(vex);
+                        (((AtomLeaf)atomList.get(0)).getCoord().getPosition()).E(vex);
                     } else if(i == 1) { //ethane
                         vex.E(calcRandomBond());
-                        vex.PE(((AtomLeaf)atomList.get(0)).getCoord().position());
-                        ((AtomLeaf)atomList.get(1)).getCoord().position().E(vex);
+                        vex.PE(((AtomLeaf)atomList.get(0)).getCoord().getPosition());
+                        ((AtomLeaf)atomList.get(1)).getCoord().getPosition().E(vex);
                     } else if(i == 2) { //propane
                         Vector temp = phase.space().makeVector();
-                        temp.E(((AtomLeaf)atomList.get(1)).getCoord().position());
-                        temp.ME(((AtomLeaf)atomList.get(0)).getCoord().position());        
+                        temp.E(((AtomLeaf)atomList.get(1)).getCoord().getPosition());
+                        temp.ME(((AtomLeaf)atomList.get(0)).getCoord().getPosition());        
                         vex.E(calcRandomBondWithAngle(temp));
-                        vex.PE(((AtomLeaf)atomList.get(1)).getCoord().position());
-                        ((AtomLeaf)atomList.get(2)).getCoord().position().E(vex);
+                        vex.PE(((AtomLeaf)atomList.get(1)).getCoord().getPosition());
+                        ((AtomLeaf)atomList.get(2)).getCoord().getPosition().E(vex);
                     } else {  //butane and up; has a torsional thing going.
                         vex.E(calcRandomBondWithAngleAndTorsion(
                                 (AtomLeaf)atomList.get(i-1), 
                                 (AtomLeaf)atomList.get(i-2), 
                                 (AtomLeaf)atomList.get(i-3)));
-                        vex.PE(((AtomLeaf)atomList.get(i-1)).getCoord().position());
-                        ((AtomLeaf)atomList.get(i)).getCoord().position().E(vex);
+                        vex.PE(((AtomLeaf)atomList.get(i-1)).getCoord().getPosition());
+                        ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(vex);
                     }
                     
                     //store new position
-                    storePos[k].E(((AtomLeaf)atomList.get(i)).getCoord().position());
+                    storePos[k].E(((AtomLeaf)atomList.get(i)).getCoord().getPosition());
                     
                     //evaluate the Boltzmann factor of this configuration
                     // (configuration of this molecule, for this trial)
@@ -159,7 +159,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                 }
                 
                 //Move the atom to the selected position
-                ((AtomLeaf)atomList.get(i)).getCoord().position().E(storePos[best]);
+                ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(storePos[best]);
                 
                 //Increment the Rosenbluth factor for the system.
                 wNew *= sumA;
@@ -172,29 +172,29 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                     
                     if (i == chainlength-1) { //if we're starting with methane
                         vex.setRandomSphere();
-                        (((AtomLeaf)atomList.get(chainlength-1)).getCoord().position()).E(vex);
+                        (((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition()).E(vex);
                     } else if(i == chainlength - 2) {  //ethane
                         vex.E(calcRandomBond());
-                        vex.PE(((AtomLeaf)atomList.get(chainlength-1)).getCoord().position());
-                        ((AtomLeaf)atomList.get(chainlength-2)).getCoord().position().E(vex);
+                        vex.PE(((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition());
+                        ((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition().E(vex);
                     } else if(i == chainlength - 3) {  //propane
                         Vector temp = phase.space().makeVector();
-                        temp.E(((AtomLeaf)atomList.get(chainlength-1)).getCoord().position());
-                        temp.ME(((AtomLeaf)atomList.get(chainlength-2)).getCoord().position());        
+                        temp.E(((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition());
+                        temp.ME(((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition());        
                         vex.E(calcRandomBondWithAngle(temp));
-                        vex.PE(((AtomLeaf)atomList.get(chainlength-2)).getCoord().position());
-                        ((AtomLeaf)atomList.get(chainlength-3)).getCoord().position().E(vex);
+                        vex.PE(((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition());
+                        ((AtomLeaf)atomList.get(chainlength-3)).getCoord().getPosition().E(vex);
                     } else {    //butane and up
                         vex.E(calcRandomBondWithAngleAndTorsion(
                                 (AtomLeaf)atomList.get(i+1),
                                 (AtomLeaf)atomList.get(i+2),
                                 (AtomLeaf)atomList.get(i+3)));
-                        vex.PE(((AtomLeaf)atomList.get(i+1)).getCoord().position());
-                        ((AtomLeaf)atomList.get(i)).getCoord().position().E(vex);
+                        vex.PE(((AtomLeaf)atomList.get(i+1)).getCoord().getPosition());
+                        ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(vex);
                     }
                     
 //                  store new position
-                    storePos[k].E(((AtomLeaf)atomList.get(i)).getCoord().position());
+                    storePos[k].E(((AtomLeaf)atomList.get(i)).getCoord().getPosition());
                     
                     //evaluate the Boltzmann factor of this configuration
                     // (configuration of this molecule, for this trial)
@@ -219,7 +219,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                 }
                 
                 //Move the atom to the selected position
-                ((AtomLeaf)atomList.get(i)).getCoord().position().E(storePos[best]);
+                ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(storePos[best]);
                 
                 //Increment the Rosenbluth factor for the system.
                 wNew *= sumA;
@@ -316,10 +316,10 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
         
         Vector tempCloser = phase.space().makeVector();
         Vector tempFarther = phase.space().makeVector();
-        tempFarther.E(b.getCoord().position());
-        tempFarther.ME(c.getCoord().position()); 
-        tempCloser.E(a.getCoord().position());
-        tempCloser.ME(b.getCoord().position());
+        tempFarther.E(b.getCoord().getPosition());
+        tempFarther.ME(c.getCoord().getPosition()); 
+        tempCloser.E(a.getCoord().getPosition());
+        tempCloser.ME(b.getCoord().getPosition());
         double phi, theta;
         double ubb, utors, usum;
         

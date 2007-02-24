@@ -140,7 +140,7 @@ public class TestFcc extends Simulation {
                 iterator.reset();
                 while (iterator.hasNext()) {
                     AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                    Vector pos = atom.getCoord().position();
+                    Vector pos = atom.getCoord().getPosition();
                     pos.setX(0, pos.x(0)-0.5);
                 }
 
@@ -150,7 +150,7 @@ public class TestFcc extends Simulation {
                 iterator.reset();
                 while (iterator.hasNext()) {
                     AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                    Vector pos = atom.getCoord().position();
+                    Vector pos = atom.getCoord().getPosition();
                     if (Math.round(pos.x(0)+0.5) % 2 == 0) {
                         pos.setX(1,pos.x(1)+0.001);
                     }

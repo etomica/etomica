@@ -73,10 +73,10 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
         Vector tempCloser = phase.space().makeVector();
         Vector tempFarther = phase.space().makeVector();
         
-        tempFarther.E(b.getCoord().position());
-        tempFarther.ME(c.getCoord().position()); 
-        tempCloser.E(a.getCoord().position());
-        tempCloser.ME(b.getCoord().position());
+        tempFarther.E(b.getCoord().getPosition());
+        tempFarther.ME(c.getCoord().getPosition()); 
+        tempCloser.E(a.getCoord().getPosition());
+        tempCloser.ME(b.getCoord().getPosition());
      
         boolean ready = false;
         /*
@@ -99,7 +99,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
         
         ubb = calcBondBendingEnergy(phi);
         usum = ubb + utors;
-        vax.PE(a.getCoord().position());
+        vax.PE(a.getCoord().getPosition());
         
         return vax;
     }

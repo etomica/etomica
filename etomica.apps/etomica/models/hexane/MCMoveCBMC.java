@@ -48,7 +48,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         chainlength = atomList.size();
         //store the old locations of every atom in the molecule in positionOld.
         for(int i = 0; i < chainlength; i++){
-            positionOld[i].E((Vector)((AtomLeaf)atomList.get(i)).getCoord().position());
+            positionOld[i].E((Vector)((AtomLeaf)atomList.get(i)).getCoord().getPosition());
         }
         
         calcRosenbluthFactors();
@@ -75,7 +75,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     
     public void rejectNotify() {
         for(int i = 0; i < chainlength; i++){
-            ((AtomLeaf)atomList.get(i)).getCoord().position().E(positionOld[i]);
+            ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(positionOld[i]);
         }
     }
     

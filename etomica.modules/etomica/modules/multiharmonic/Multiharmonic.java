@@ -58,7 +58,7 @@ public class Multiharmonic extends Simulation {
         iterator.reset();
         while(iterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)iterator.nextAtom();
-            a.getCoord().position().setX(0,x0);
+            a.getCoord().getPosition().setX(0,x0);
         }
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);

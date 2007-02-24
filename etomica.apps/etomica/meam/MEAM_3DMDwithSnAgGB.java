@@ -263,7 +263,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 	    		nCellsBz, aA, bA, cA, aB, bB, cB);
 	    config.initializeCoordinates(phase);
         
-	    System.out.println("In simulation class  " + snFixedA.getAgent(phase).getNode().firstLeafAtom().getCoord().position());
+	    System.out.println("In simulation class  " + snFixedA.getAgent(phase).getNode().firstLeafAtom().getCoord().getPosition());
 		potentialN = new PotentialMEAM(space);
 		potentialN.setParameters(snFixedA, ParameterSetMEAM.Sn);
 		potentialN.setParameters(snA, ParameterSetMEAM.Sn);

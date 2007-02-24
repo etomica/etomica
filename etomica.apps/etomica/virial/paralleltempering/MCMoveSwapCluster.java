@@ -59,10 +59,10 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
             AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
 
             //swap coordinates
-            r.E(a1.getCoord().position());
+            r.E(a1.getCoord().getPosition());
             
-            a1.getCoord().position().E(a2.getCoord().position());
-            a2.getCoord().position().E(r);
+            a1.getCoord().getPosition().E(a2.getCoord().getPosition());
+            a2.getCoord().getPosition().E(r);
         }
 
         //assumes energy will be determined using only pairSets in phases
@@ -102,10 +102,10 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
             AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
 
             //swap coordinates
-            r.E(a1.getCoord().position());
+            r.E(a1.getCoord().getPosition());
             
-            a1.getCoord().position().E(a2.getCoord().position());
-            a2.getCoord().position().E(r);
+            a1.getCoord().getPosition().E(a2.getCoord().getPosition());
+            a2.getCoord().getPosition().E(r);
         }
 
         phase1.rejectNotify();

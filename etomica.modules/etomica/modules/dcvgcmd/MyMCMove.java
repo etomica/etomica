@@ -97,7 +97,7 @@ public class MyMCMove extends MCMoveInsertDelete {
     	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
     	while(atomIterator.hasNext()) {
     		AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
-    		double z = atom.getCoord().position().x(2);
+    		double z = atom.getCoord().getPosition().x(2);
     		if(z < zmin || z > zmax) continue;
     		activeAtoms.add(atom);
     	}

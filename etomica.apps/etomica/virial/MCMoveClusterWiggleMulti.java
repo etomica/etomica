@@ -82,7 +82,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             int j = Simulation.random.nextInt(numChildren);
             selectedAtoms[i] = (AtomLeaf)childList.get(j);
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
-            Vector position = selectedAtoms[i].getCoord().position();
+            Vector position = selectedAtoms[i].getCoord().getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
             if (j == 0 || j == numChildren-1) {
 //                System.out.println("end"+j+" move");
@@ -90,12 +90,12 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 //work1 is the current vector from the bonded atom to atom j
                 work1.E(position);
                 if (j == 0) {
-                    work1.ME(((AtomLeaf)childList.get(j+1)).getCoord().position());
-                    position.E(((AtomLeaf)childList.get(j+1)).getCoord().position());
+                    work1.ME(((AtomLeaf)childList.get(j+1)).getCoord().getPosition());
+                    position.E(((AtomLeaf)childList.get(j+1)).getCoord().getPosition());
                 }
                 else {
-                    work1.ME(((AtomLeaf)childList.get(j-1)).getCoord().position());
-                    position.E(((AtomLeaf)childList.get(j-1)).getCoord().position());
+                    work1.ME(((AtomLeaf)childList.get(j-1)).getCoord().getPosition());
+                    position.E(((AtomLeaf)childList.get(j-1)).getCoord().getPosition());
                 }
                 //work2 is a vector perpendicular to work1.  it can be any 
                 //perpendicular vector, but that just makes it harder!
@@ -126,8 +126,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             }
             else {
 //                System.out.println("middle move "+j);
-                Vector position0 = ((AtomLeaf)childList.get(j-1)).getCoord().position();
-                Vector position2 = ((AtomLeaf)childList.get(j+1)).getCoord().position();
+                Vector position0 = ((AtomLeaf)childList.get(j-1)).getCoord().getPosition();
+                Vector position2 = ((AtomLeaf)childList.get(j+1)).getCoord().getPosition();
                 work2.Ev1Pv2(position0, position2);
                 work2.TE(0.5);
                 //work1 is vector between the 0-2 midpoint and 1
@@ -154,8 +154,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 for (int k=0; k<numChildren; k++) {
 //                    System.out.println(i+" after "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
                     if (k > 0) {
-                        work2.E(((AtomLeaf)childList.get(k)).getCoord().position());
-                        work2.ME(((AtomLeaf)childList.get(k-1)).getCoord().position());
+                        work2.E(((AtomLeaf)childList.get(k)).getCoord().getPosition());
+                        work2.ME(((AtomLeaf)childList.get(k-1)).getCoord().getPosition());
                         double d = Math.sqrt(work2.squared());
 //                        System.out.println("distance "+d);
                         if (Math.abs(d - bondLength)/bondLength > 0.000001) {
@@ -189,7 +189,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 	
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.length; i++) {
-            selectedAtoms[i].getCoord().position().ME(translationVectors[i]);
+            selectedAtoms[i].getCoord().getPosition().ME(translationVectors[i]);
 //            System.out.println(selectedAtoms[i]+" rejected => "+selectedAtoms[i].coord.position());
         }
         ((PhaseCluster)phase).rejectNotify();

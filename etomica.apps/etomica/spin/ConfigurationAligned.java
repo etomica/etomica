@@ -30,7 +30,7 @@ public class ConfigurationAligned extends Configuration {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
         iterator.reset();
         while(iterator.hasNext()) {
-            Vector spin = ((AtomLeaf)iterator.nextAtom()).getCoord().position();
+            Vector spin = ((AtomLeaf)iterator.nextAtom()).getCoord().getPosition();
             spin.E(0.0);
             spin.setX(0,1.0);
         }

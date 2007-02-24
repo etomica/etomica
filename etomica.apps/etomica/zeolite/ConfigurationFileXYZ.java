@@ -60,7 +60,7 @@ public class ConfigurationFileXYZ extends Configuration{
 		
 		private void setPosition(AtomLeaf atom, String string) {
 	        String[] coordStr = string.split(" +");
-            Vector pos = atom.getCoord().position();
+            Vector pos = atom.getCoord().getPosition();
 	        for (int i=0; i<pos.D(); i++) {
 	            double coord = Double.valueOf(coordStr[i]).doubleValue();
 	            if(coord<min[i]) min[i] = coord;
@@ -73,8 +73,8 @@ public class ConfigurationFileXYZ extends Configuration{
 	    }
 		private void translatePosition(AtomLeaf atom){
 			for(int i=0;i<min.length;i++){
-				atom.getCoord().position().PE(i,-1*min[i]);	
-				atom.getCoord().position().PE(i,-0.5*dim[i]);
+				atom.getCoord().getPosition().PE(i,-1*min[i]);	
+				atom.getCoord().getPosition().PE(i,-0.5*dim[i]);
 			}
 		}
 		public int[] getNumAtoms(){

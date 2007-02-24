@@ -52,7 +52,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     public double energy(AtomSet atom) {
         AtomLeaf a = (AtomLeaf) atom;
         Vector dimensions = boundary.getDimensions();
-        double rz = a.getCoord().position().x(2);
+        double rz = a.getCoord().getPosition().x(2);
         double dzHalf = 0.5 * dimensions.x(2);
         return energy(dzHalf + rz) + energy(dzHalf - rz);
     }//end of energy
@@ -80,7 +80,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     public Vector[] gradient(AtomSet atom) {
         AtomLeaf a = (AtomLeaf) atom;
         Vector dimensions = boundary.getDimensions();
-        double rz = a.getCoord().position().x(2);
+        double rz = a.getCoord().getPosition().x(2);
         double dzHalf = 0.5 * dimensions.x(2);
         double gradz = gradient(rz + dzHalf) - gradient(dzHalf - rz);
         gradient[0].setX(2, gradz);

@@ -114,7 +114,7 @@ public class GrainBoundaryConfiguration extends Configuration {
      */
     public void initializeCoordinates(Phase phase) {
     	AtomArrayList[] lists = getMoleculeLists(phase);
-    	Vector firstAtomPosition = ((AtomLeaf)lists[0].get(0)).getCoord().position();
+    	Vector firstAtomPosition = ((AtomLeaf)lists[0].get(0)).getCoord().getPosition();
     	
     	System.out.println("At beginning of initializePositions  "+ firstAtomPosition);
     	
@@ -178,7 +178,7 @@ public class GrainBoundaryConfiguration extends Configuration {
                 config.initializePositions(((AtomTreeNodeGroup) a.getNode()).getChildList());
             }
             Vector site = (Vector) myLatA.site(ii);
-            if (((AtomLeaf)a).getCoord().position() == firstAtomPosition) {
+            if (((AtomLeaf)a).getCoord().getPosition() == firstAtomPosition) {
             	System.out.println();
             }
             atomActionTranslateTo.setDestination(site);

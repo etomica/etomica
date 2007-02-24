@@ -134,7 +134,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 				iterator.reset();
 				int i=0;
 				while (iterator.hasNext()){
-					Vector atomPosition = ((AtomLeaf)iterator.nextAtom()).getCoord().position();
+					Vector atomPosition = ((AtomLeaf)iterator.nextAtom()).getCoord().getPosition();
 					for (int j=0;j < phasedim.D();j++){
 						double actualDistance;
 							
@@ -217,7 +217,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			iterator.reset();
 			int i=0;
 			while (iterator.hasNext()){
-				atomOldCoord[i].E(((AtomLeaf)iterator.nextAtom()).getCoord().position());
+				atomOldCoord[i].E(((AtomLeaf)iterator.nextAtom()).getCoord().getPosition());
 				i++;
 			}
 		}
@@ -230,7 +230,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			// atomPBIarray is filled here
 			while (iterator.hasNext()){
 				workVector.E(atomOldCoord[i]);
-				workVector.ME(((AtomLeaf)iterator.nextAtom()).getCoord().position()); 
+				workVector.ME(((AtomLeaf)iterator.nextAtom()).getCoord().getPosition()); 
 				workVector.DE(phaseDim);
 				
 				for (int j=0;j < phaseDim.D();j++){

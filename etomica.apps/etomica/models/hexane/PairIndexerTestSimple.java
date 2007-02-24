@@ -102,7 +102,7 @@ public class PairIndexerTestSimple extends Simulation {
 
           // determine the pair's dr
             Vector dr = pit.getSpace().makeVector();
-            dr.Ev1Mv2(((AtomLeaf)atom0).getCoord().position(), ((AtomLeaf)atom1).getCoord().position());
+            dr.Ev1Mv2(((AtomLeaf)atom0).getCoord().getPosition(), ((AtomLeaf)atom1).getCoord().getPosition());
             if (bin < 0) {
                 throw new RuntimeException("bin was negative, dr="+dr);
             }

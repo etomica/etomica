@@ -45,7 +45,7 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorP
             // accept them all and weight them half as much. 
             int numOut = 0;
             for (int i=0; i<2; i++) {
-                Vector pos = ((AtomLeaf)atoms.getAtom(i)).getCoord().position();
+                Vector pos = ((AtomLeaf)atoms.getAtom(i)).getCoord().getPosition();
                 if (pos.x(0) < -0.5*dimensions.x(0)+radius ||
                     pos.x(0) >  0.5*dimensions.x(0)-radius) {
                     numOut++;
