@@ -25,12 +25,12 @@ public interface NormalCoordMapper {
     public void setNumAtoms(int numAtoms);
     
     /**
-     * Calculates the normal mode coordinates for the given atom relative to 
-     * its nominal normal mode coordinates.
+     * Calculates the U displacements for the given atom relative to 
+     * its perfect lattice value.
      * @param atom The atom of interest
      * @param nominalU The atom's nominal coordinates, from an earlier call
      * to initNominalU
-     * @param u Upon return, the atom's deviation from its nominal normal mode
+     * @param u Upon return, the atom's deviation from its perfect lattice 
      * coordinates.  |u| must be of length getNormalDim()
      */
     public void calcU(Atom atom, int atomCount, double[] u);
