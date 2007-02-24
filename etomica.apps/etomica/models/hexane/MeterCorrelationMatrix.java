@@ -92,7 +92,7 @@ public class MeterCorrelationMatrix implements Meter {
         atomIterator.reset();
         while (atomIterator.hasNext()) {
             atom = (AtomLeaf) atomIterator.nextAtom();
-            tempVex[atom.getGlobalIndex()].E(atom.getCoord().getPosition());
+            tempVex[atom.getGlobalIndex()].E(atom.getCoord().position());
             tempVex[atom.getGlobalIndex()].ME(op[atom.getGlobalIndex()]);
         }
 
@@ -122,7 +122,7 @@ public class MeterCorrelationMatrix implements Meter {
         while(atomIterator.hasNext()) {
             atom = (AtomLeaf)atomIterator.nextAtom();
             bin = pri.getBin(atom, atom);
-            vex.E(atom.getCoord().getPosition());
+            vex.E(atom.getCoord().position());
             vex.ME(op[atom.getGlobalIndex()]);
             tempTen.Ev1v2(vex, vex);
 //            System.out.println(atom.getGlobalIndex() +"  "+ bin +"  "+ vex.x(0)+"  "+ vex.x(1) +"  "+ vex.x(2));
