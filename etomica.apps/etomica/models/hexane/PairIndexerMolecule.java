@@ -80,7 +80,8 @@ public class PairIndexerMolecule {
             Atom molecule = aim.nextAtom();
             temp.E(molecule.getType().getPositionDefinition().position(molecule));
 
-            latticeSites[molecule.getGlobalIndex()] = (Vector) temp.clone();
+            latticeSites[molecule.getGlobalIndex()] = phase.space().makeVector();
+            latticeSites[molecule.getGlobalIndex()].E(temp);
             temp.ME(r0);
 
             bdry.nearestImage(temp);

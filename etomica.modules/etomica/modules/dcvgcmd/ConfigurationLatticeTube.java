@@ -57,7 +57,8 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         int nCells = (int)Math.ceil((double)iterator.size()/(double)basisSize);
         
         //determine scaled shape of simulation volume
-        Vector shape = (Vector)phase.getBoundary().getDimensions().clone();
+        Vector shape = phase.space().makeVector();
+        shape.E(phase.getBoundary().getDimensions());
         shape.setX(2,shape.x(2)*length);
         Vector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
@@ -87,7 +88,8 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        Vector offset = (Vector)phase.getBoundary().getDimensions().clone();
+        Vector offset = phase.space().makeVector();
+        offset.E(phase.getBoundary().getDimensions());
         Vector vectorOfMax = phase.space().makeVector();
         Vector vectorOfMin = phase.space().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);

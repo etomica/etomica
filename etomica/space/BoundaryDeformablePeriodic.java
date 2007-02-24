@@ -49,9 +49,10 @@ public class BoundaryDeformablePeriodic extends Boundary {
             throw new IllegalArgumentException("BoundaryDeformablePeriodic is appropriate only for 2-D or 3-D spaces");
         }
         
-        edgeVectors = (Vector[])vex.clone();
+        edgeVectors = new Vector[vex.length];
         for(int i=0; i<edgeVectors.length; i++) {
-            edgeVectors[i] = (Vector)vex[i].clone();
+            edgeVectors[i] = space.makeVector();
+            edgeVectors[i].E(vex[i]);
         }
 
         if(D == 2) { 

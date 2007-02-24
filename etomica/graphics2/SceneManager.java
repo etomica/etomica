@@ -45,9 +45,10 @@ public final class SceneManager {
         boolean needUpdate = false;
         Vector[] newVertices = shape.getVertices();
         if (boundaryVertices == null || boundaryVertices.length != newVertices.length) {
-            boundaryVertices = new Vector3D[newVertices.length];
+            boundaryVertices = new Vector[newVertices.length];
             for (int i=0; i<boundaryVertices.length; i++) {
-                boundaryVertices[i] = (Vector)newVertices[i].clone();
+                boundaryVertices[i] = phase.space().makeVector();
+                boundaryVertices[i].E(newVertices[i]);
             }
             needUpdate = true;
         }

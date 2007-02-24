@@ -239,7 +239,7 @@ public class GrainBoundaryConfiguration extends Configuration {
 
         MyLattice(SpaceLattice l, Vector offset) {
             lattice = l;
-            this.offset = (Vector) offset.clone();
+            this.offset = offset;
 
         }
 

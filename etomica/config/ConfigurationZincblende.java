@@ -51,7 +51,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         int nCells = (int) Math.ceil(lists[0].size() / 4.0);
 
         // determine scaled shape of simulation volume
-        Vector shape = (Vector)phase.getBoundary().getDimensions().clone();
+        Vector shape = phase.space().makeVector();
+        shape.E(phase.getBoundary().getDimensions());
         Vector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 

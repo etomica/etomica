@@ -120,7 +120,8 @@ public class ConfigurationLattice extends Configuration {
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        Vector shape = (Vector)phase.getBoundary().getDimensions().clone();
+        Vector shape = phase.space().makeVector();
+        shape.E(phase.getBoundary().getDimensions());
         Vector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
@@ -150,7 +151,8 @@ public class ConfigurationLattice extends Configuration {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        Vector offset = (Vector)phase.getBoundary().getDimensions().clone();
+        Vector offset = phase.space().makeVector();
+        offset.E(phase.getBoundary().getDimensions());
         Vector vectorOfMax = phase.space().makeVector();
         Vector vectorOfMin = phase.space().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
@@ -301,9 +303,8 @@ public class ConfigurationLattice extends Configuration {
 
         public MyLattice(SpaceLattice l, Vector latticeScaling, Vector offset) {
             lattice = l;
-            this.latticeScaling = (Vector) latticeScaling.clone();
-            this.offset = (Vector) offset.clone();
-
+            this.latticeScaling = latticeScaling;
+            this.offset = offset;
         }
 
         public Space getSpace() {

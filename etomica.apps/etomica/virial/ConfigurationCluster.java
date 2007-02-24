@@ -31,7 +31,8 @@ public class ConfigurationCluster extends Configuration {
     //XXX this can't actually handle multi-atom molecules
 	public void initializeCoordinates(Phase phase) {
 		Vector translationVector = phase.space().makeVector();
-        Vector dimVector = (Vector)phase.getBoundary().getDimensions().clone();
+        Vector dimVector = phase.space().makeVector();
+        dimVector.E(phase.getBoundary().getDimensions());
 		Vector center = phase.space().makeVector();
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
 		iterator.reset();

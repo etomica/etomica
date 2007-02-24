@@ -26,19 +26,7 @@ import etomica.util.Function;
  * Vector components may be accessed and changed via the methods "x" and "setX", respectively. 
  * 
  */
-public abstract class Vector implements java.io.Serializable, Cloneable {
-
-    /**
-     * Support of implementation of Cloneable interface. Returns a new Vector
-     * with elements equal to this one.
-     */
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new InternalError(ex.toString());
-        }
-    }
+public abstract class Vector implements java.io.Serializable {
 
     /**
      * Dimension of the space occupied by the vector. Number of elements in the
@@ -69,16 +57,6 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
      * returns them in the given array.
      */
     public abstract void sphericalCoordinates(double[] result);
-
-    /**
-     * Computes the spherical-coordinate representation of this vector, and
-     * returns them in the given array.
-     */
-    public double[] toSphericalCoordinateArray() {
-        double[] array = new double[D()];
-        sphericalCoordinates(array);
-        return array;
-    }
 
     /**
      * Vector components corresponding to the given index. For example,
@@ -330,7 +308,6 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
      */
     public abstract void setRandomSphere();
 
-
     /**
      * Assigns each component to (its own) random value between -0.5 and + 0.5.
      */
@@ -349,17 +326,6 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
     public abstract void randomStep(double d); 
     
     /**
-     * Adds several terms of the form a*u to this vector.  Adds the sum
-     * of a[i]*u[i] to the i-th component component, doing this to all
-     * components.  Does not check compatibility of array lengths.
-     */
-    public final void PEa1Tv1(double[] a, Vector[] u) { 
-        for (int i = a.length - 1; i >= 0; i--) {
-            PEa1Tv1(a[i], u[i]);
-        }
-    }
-
-    /**
      * Performs a random rotation of this vector within a cone of 
      * angle theta on its current position.
      */
@@ -374,20 +340,4 @@ public abstract class Vector implements java.io.Serializable, Cloneable {
      * Applies the given function to each element of the vector.
      */
     public abstract void map(Function f);
-
-    /**
-     * Applies the given tensor transformation to the nearest-image transform
-     * of this minus r0.  Specifically, performs<code><p>
-     * this.ME(r0);<br>
-     * nit.nearestImage(this);<br>
-     * this.transform(A);<br>
-     * this.PE(r0)</code>
-     */
-    public void transform(NearestImageTransformer nit, Vector r0, Tensor A) {
-        this.ME(r0);
-        nit.nearestImage(this);
-        this.transform(A);
-        this.PE(r0);
-    }
-
 }

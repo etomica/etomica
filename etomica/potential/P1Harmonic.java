@@ -50,7 +50,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
     
     public Vector getX0() {
-        return (Vector)x0.clone();
+        return x0;
     }
     
     public Dimension getX0Dimension() {

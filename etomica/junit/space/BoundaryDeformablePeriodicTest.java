@@ -89,7 +89,8 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     public Vector bruteForceNearestImage(Vector dr) {
         double dr2Min = Double.MAX_VALUE;
         imageIndexIterator.reset();
-        Vector drMin = (Vector)dr.clone();
+        Vector drMin = space.makeVector();
+        drMin.E(dr);
         while(imageIndexIterator.hasNext()) {
             int[] idx = imageIndexIterator.next();
             drStep.E(dr);

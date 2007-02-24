@@ -39,7 +39,7 @@ public class P1MagneticField extends Potential1 {
      * @return Returns the direction.
      */
     public Vector getDirection() {
-        return (Vector)direction.clone();
+        return direction;
     }
     /**
      * @param direction The direction to set.

@@ -11,6 +11,7 @@ import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.simulation.Simulation;
 import etomica.space.NearestImageTransformer;
+import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -26,7 +27,8 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 
 	public CriterionSimple(Simulation sim, double interactionRange, double neighborRadius) {
 		super();
-        dr = sim.getSpace().makeVector();
+        space = sim.getSpace();
+        dr = space.makeVector();
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
@@ -128,12 +130,13 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     }
     
     public Object makeAgent(Atom atom) {
-        return atom.getType().isLeaf() ? ((AtomLeaf)atom).getCoord().position().clone() : null;
+        return atom.getType().isLeaf() ? space.makeVector() : null;
     }
     
     public void releaseAgent(Object agent, Atom atom) {}
 
     private static final long serialVersionUID = 1L;
+    protected final Space space;
     private double interactionRange, displacementLimit2, neighborRadius2;
 	private final Vector dr;
     private NearestImageTransformer nearestImageTransformer;
