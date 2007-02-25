@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
@@ -80,9 +79,6 @@ public class TestFccHarmonic extends Simulation {
         bdry = new BoundaryRectangularPeriodic(this);
         phase.setBoundary(bdry);
         phase.setDensity(1.04);
-
-        PhaseImposePbc makeperiodic = new PhaseImposePbc(phase);
-        integrator.addListener(makeperiodic);
 
         lattice = new LatticeCubicFcc();
         ConfigurationLattice config = new ConfigurationLattice(lattice);

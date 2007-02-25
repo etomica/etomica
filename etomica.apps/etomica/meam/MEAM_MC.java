@@ -161,7 +161,7 @@ public class MEAM_MC extends Simulation {
 	    integrator.setPhase(phase);
 	    PhaseImposePbc imposepbc = new PhaseImposePbc();
 	    imposepbc.setPhase(phase);
-	    integrator.addListener(imposepbc);
+	    integrator.addListener(new IntervalActionAdapter(imposepbc));
 			
 	    // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
 	    //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
