@@ -5,6 +5,7 @@ import etomica.action.activity.Controller;
 import etomica.config.ConfigurationLattice;
 import etomica.data.DataSourceCountSteps;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
@@ -51,7 +52,7 @@ public class HsMc2d extends Simulation {
 
         integrator.setPhase(phase);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.addListener(new PhaseImposePbc(phase));
+        integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);

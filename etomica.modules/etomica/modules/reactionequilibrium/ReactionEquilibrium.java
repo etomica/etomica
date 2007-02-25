@@ -14,6 +14,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -100,7 +101,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        integratorHard1.addListener(new PhaseImposePbc(phase1));
+        integratorHard1.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase1)));
 	}
     
     public Atom[] getAgents(Phase phase) {

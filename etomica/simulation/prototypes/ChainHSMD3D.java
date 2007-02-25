@@ -9,6 +9,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -65,7 +66,7 @@ public class ChainHSMD3D extends Simulation {
         config.initializeCoordinates(phase);
 
         PhaseImposePbc pbc = new PhaseImposePbc(phase);
-        integrator.addListener(pbc);
+        integrator.addListener(new IntervalActionAdapter(pbc));
         pbc.setApplyToMolecules(true);
         
         PotentialGroup p1Intra = P1BondedHardSpheres.makeP1BondedHardSpheres(this);

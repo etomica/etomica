@@ -5,6 +5,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveRotate;
@@ -83,8 +84,8 @@ public class GEMCWithRotation extends Simulation {
 
         this.potentialMaster.addPotential(potential,new Species[] {species, species});
 
-        integrator.addListener(new PhaseImposePbc(phase1));
-        integrator.addListener(new PhaseImposePbc(phase2));
+        integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase1)));
+        integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase2)));
 
 	    phase2.setDensity(0.1);
     }//end of constructor        

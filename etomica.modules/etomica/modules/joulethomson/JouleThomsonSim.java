@@ -81,7 +81,7 @@ public class JouleThomsonSim extends Simulation {
         config.initializeCoordinates(phase);
         
         integratorJT = new IntegratorJT(potentialMaster, integrator, integratorNVE);
-        integratorJT.addListener(new PhaseImposePbc(phase));
+        integratorJT.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
         integrator.setPhase(phase);
         integratorNVE.setPhase(phase);
 

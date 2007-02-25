@@ -8,8 +8,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
-import etomica.integrator.IntegratorIntervalEvent;
-import etomica.integrator.IntegratorIntervalListener;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.IVector;
@@ -21,8 +19,7 @@ import etomica.space.Space;
  * be moved to the central-image location (inside the boundaries).
  */
 
-public final class PhaseImposePbc extends PhaseActionAdapter implements
-		IntegratorIntervalListener {
+public final class PhaseImposePbc extends PhaseActionAdapter {
 
 	/**
 	 * Creates the action without specifying a phase. Requires call to setPhase
@@ -68,10 +65,6 @@ public final class PhaseImposePbc extends PhaseActionAdapter implements
                 }
             }
         }
-	}
-
-	public void intervalAction(IntegratorIntervalEvent evt) {
-		actionPerformed();
 	}
 
 	public void setPhase(Phase phase) {

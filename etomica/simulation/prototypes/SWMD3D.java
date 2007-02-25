@@ -11,6 +11,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.modifier.Modifier;
 import etomica.phase.Phase;
@@ -102,7 +103,7 @@ public class SWMD3D extends Simulation {
     this.potentialMaster.addPotential(potential,new Species[]{species,species});
 
     integrator.setPhase(phase);
-    integrator.addListener(new PhaseImposePbc(phase));
+    integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
 
 //	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(phase0));
 //	nControl.setMaximum(108);

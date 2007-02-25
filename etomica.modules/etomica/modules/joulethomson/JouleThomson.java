@@ -69,7 +69,6 @@ import etomica.units.systems.MKS;
  * is the basis of many common refrigeration processes.
  */
 public class JouleThomson extends SimulationGraphic {
-///public class JouleThomson extends Simulation {
     
     DeviceButton restart;
     DisplayPhase displayPhase1;
