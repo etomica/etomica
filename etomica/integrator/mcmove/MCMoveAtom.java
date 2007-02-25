@@ -12,6 +12,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
+import etomica.util.IRandom;
 
 /**
  * Standard Monte Carlo atom-displacement trial move.
@@ -31,14 +32,15 @@ public class MCMoveAtom extends MCMovePhaseStep {
     protected boolean fixOverlap;
 
     public MCMoveAtom(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getDefaults().atomSize, sim.getDefaults().boxSize/2, 
-                sim.getDefaults().ignoreOverlap);
+        this(sim.getRandom(), sim.getPotentialMaster(), sim.getDefaults().atomSize,
+                sim.getDefaults().boxSize/2, sim.getDefaults().ignoreOverlap);
     }
     
-    public MCMoveAtom(PotentialMaster potentialMaster, double stepSize, double stepSizeMax,
+    public MCMoveAtom(IRandom random, PotentialMaster potentialMaster, double stepSize, double stepSizeMax,
             boolean fixOverlap) {
         super(potentialMaster);
         atomSource = new AtomSourceRandomLeaf();
+        ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         translationVector = potentialMaster.getSpace().makeVector();
         setStepSizeMax(stepSizeMax);

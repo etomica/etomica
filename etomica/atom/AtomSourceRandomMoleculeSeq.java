@@ -1,11 +1,11 @@
 package etomica.atom;
 
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
 
 public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
 
     public void setPhase(Phase p) {
+        super.setPhase(p);
         speciesMaster = p.getSpeciesMaster();
         agentList = ((AtomTreeNodeGroup)speciesMaster.getNode()).getChildList();
         reset();
@@ -20,7 +20,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
             // no atoms in the phase
             if (prevIndex == -1) return null;
         }
-        int lookAhead = Simulation.random.nextInt(maxLookAhead+1);
+        int lookAhead = random.nextInt(maxLookAhead+1);
         
         for ( ; agentIndex<agentList.size(); agentIndex++) {
             // advance through the species if needed
@@ -56,7 +56,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
             prevIndex = -1;
             return;
         }
-        prevIndex = Simulation.random.nextInt(size);
+        prevIndex = random.nextInt(size);
         
         for (agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
             moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).getNode()).getChildList();
