@@ -2,8 +2,6 @@ package etomica.potential;
 
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
-import etomica.compatibility.FeatureSet;
-import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -23,13 +21,6 @@ public abstract class Potential extends EtomicaInfo {
 	protected final Space space;
     private String name;
 
-	public FeatureSet getFeatures()
-	{
-		FeatureSet fts = super.getFeatures();
-		return fts.add( "NBODIES", nBody )
-		.add( "SPACEDIM", space.D()  )
-		.add( "POTNAME", name );
-	}
     /**
      * General constructor for a potential instance
      * @param nBody number of atoms to which this potential applies at a time;
