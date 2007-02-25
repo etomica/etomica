@@ -16,6 +16,7 @@ import etomica.species.Species;
 import etomica.util.Arrays;
 import etomica.util.Default;
 import etomica.util.NameMaker;
+import etomica.util.RandomNumberGenerator;
 
 /**
  * The main class that organizes the elements of a molecular simulation.
@@ -53,6 +54,7 @@ public class Simulation implements java.io.Serializable  {
         setController(new Controller());
         speciesRoot = new SpeciesRoot((int[])bitLength.clone());
         potentialMaster.setSimulation(this);
+        myRandom = new RandomNumberGenerator();
     }
 
     /**
@@ -242,7 +244,11 @@ public class Simulation implements java.io.Serializable  {
 
     public static final java.util.Random random = new java.util.Random();
 //    public static final java.util.Random random = new java.util.Random(1);
-        
+
+    public RandomNumberGenerator getRandom() {
+        return myRandom;
+    }
+    
     /**
      * Integer array indicating the maximum number of atoms at each depth in the
      * atom hierarchy.  Maximum depth is given by the size of the array.  Each
@@ -265,6 +271,7 @@ public class Simulation implements java.io.Serializable  {
     protected final PotentialMaster potentialMaster;
     protected final Space space;
     protected final SpeciesRoot speciesRoot;
+    protected final RandomNumberGenerator myRandom;
     private final boolean dynamic;
     private Controller controller;     
     private final LinkedList integratorList = new LinkedList();
