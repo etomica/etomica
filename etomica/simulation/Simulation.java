@@ -2,7 +2,6 @@ package etomica.simulation;
 
 import java.util.LinkedList;
 
-import etomica.EtomicaInfo;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
@@ -24,10 +23,8 @@ import etomica.util.NameMaker;
  * many places to obtain spatial elements such as vectors and boundaries.
  */
 
-public class Simulation extends EtomicaInfo implements java.io.Serializable  {
-    
-    
-    
+public class Simulation implements java.io.Serializable  {
+
     /**
      * Constructs a default 2D, dynamic simulation.
      */

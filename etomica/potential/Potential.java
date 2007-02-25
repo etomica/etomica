@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.space.Space;
@@ -15,7 +14,7 @@ import etomica.util.NameMaker;
  * @author David Kofke
  */
  
-public abstract class Potential extends EtomicaInfo {
+public abstract class Potential {
     
 	private final int nBody;
 	protected final Space space;
