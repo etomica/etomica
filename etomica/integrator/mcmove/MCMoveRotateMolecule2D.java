@@ -1,6 +1,8 @@
 package etomica.integrator.mcmove;
 import etomica.action.AtomTransform;
 import etomica.atom.Atom;
+import etomica.atom.AtomSource;
+import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
@@ -10,7 +12,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.RotationTensor;
-import etomica.space.Space;
+import etomica.util.IRandom;
 
 /**
  * Monte Carlo trial that rotates the atoms of a molecule about its first atom.
@@ -18,7 +20,7 @@ import etomica.space.Space;
  * Has a bug, probably associated with incorrect replacement of the molecule when
  * rejecting the trial.
  */
-public class MCMoveRotateMolecule extends MCMovePhaseStep {
+public class MCMoveRotateMolecule2D extends MCMovePhaseStep {
     
     private static final long serialVersionUID = 1L;
     private final MeterPotentialEnergy energyMeter;
@@ -27,6 +29,8 @@ public class MCMoveRotateMolecule extends MCMovePhaseStep {
     //not sure that tree iterator will give all leaf atoms of a molecule
     //because it assumes all subgroups have same structure
     private final AtomIterator leafAtomIterator = new AtomIteratorTree();
+    private AtomSource moleculeSource;
+    private final IRandom random;
     
     private transient double uOld;
     private transient double uNew = Double.NaN;
@@ -34,17 +38,25 @@ public class MCMoveRotateMolecule extends MCMovePhaseStep {
     private transient IVector r0;
     private transient RotationTensor rotationTensor;
 
-    public MCMoveRotateMolecule(PotentialMaster potentialMaster, Space space) {
+    public MCMoveRotateMolecule2D(Simulation sim) {
+        this(sim.getPotentialMaster(), sim.getRandom());
+    }
+    
+    public MCMoveRotateMolecule2D(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
+        this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        if(space.D() != 2) throw new RuntimeException("MCMoveRotateMolecule suitable only for 2-D simulation");
-        rotationTensor = space.makeRotationTensor();
-        r0 = space.makeVector();
+        if(potentialMaster.getSpace().D() != 2) throw new RuntimeException("MCMoveRotateMolecule suitable only for 2-D simulation");
+        rotationTensor = potentialMaster.getSpace().makeRotationTensor();
+        r0 = potentialMaster.getSpace().makeVector();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
+        moleculeSource = new AtomSourceRandomMolecule();
+        ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
+
         //set directive to exclude intramolecular contributions to the energy
         //TODO enable this
 //        iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
@@ -54,11 +66,11 @@ public class MCMoveRotateMolecule extends MCMovePhaseStep {
      
     public boolean doTrial() {
         if(phase.moleculeCount()==0) {molecule = null; return false;}
-        molecule = phase.randomMolecule();
+        molecule = moleculeSource.getAtom();
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         //update for 3D
-        double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
+        double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(2,dTheta);
        // molecule.coord.transform(molecule.coord.position(), rotationTensor);
         leafAtomIterator.reset();

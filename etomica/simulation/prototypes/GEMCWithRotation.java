@@ -37,7 +37,7 @@ public class GEMCWithRotation extends Simulation {
         defaults.atomSize = 1.2;
         defaults.makeLJDefaults();
         defaults.temperature = defaults.unitSystem.temperature().toSim(0.420);
-        integrator = new IntegratorGEMC(potentialMaster);
+        integrator = new IntegratorGEMC(potentialMaster, getRandom());
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);
 	    activityIntegrate.setDoSleep(true);

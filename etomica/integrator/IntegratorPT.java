@@ -10,14 +10,15 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveSwapConfiguration;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.units.Null;
+import etomica.util.IRandom;
 
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform
@@ -45,15 +46,15 @@ import etomica.units.Null;
 public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement {
     
     public IntegratorPT(Simulation sim) {
-        this(sim.getPotentialMaster());
+        this(sim.getPotentialMaster(), sim.getRandom());
     }
     
-    public IntegratorPT(PotentialMaster potentialMaster) {
-        this(potentialMaster, MCMoveSwapConfiguration.FACTORY);
+    public IntegratorPT(PotentialMaster potentialMaster, IRandom random) {
+        this(potentialMaster, random, MCMoveSwapConfiguration.FACTORY);
     }
     
-    public IntegratorPT(PotentialMaster potentialMaster, MCMoveSwapFactory swapFactory) {
-        super(potentialMaster);
+    public IntegratorPT(PotentialMaster potentialMaster, IRandom random, MCMoveSwapFactory swapFactory) {
+        super(potentialMaster, random);
         setGlobalMoveInterval(100);
         mcMoveSwapFactory = swapFactory;
     }

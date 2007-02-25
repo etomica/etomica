@@ -15,6 +15,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
+import etomica.util.IRandom;
 
 /**
  * Basic Monte Carlo move for semigrand-ensemble simulations.  Move consists
@@ -40,6 +41,7 @@ public class MCMoveSemigrand extends MCMovePhase {
     private final MeterPotentialEnergy energyMeter;
     private final AtomActionTranslateTo moleculeTranslator;
     private AtomPositionDefinition atomPositionDefinition;
+    private final IRandom random;
     
     private transient Atom deleteMolecule, insertMolecule;
     private transient double uOld;
@@ -47,9 +49,13 @@ public class MCMoveSemigrand extends MCMovePhase {
     private transient SpeciesAgent deleteAgent, insertAgent;
     private transient int iInsert, iDelete;
 
+    public MCMoveSemigrand(Simulation sim) {
+        this(sim.getPotentialMaster(), sim.getRandom());
+    }
     
-    public MCMoveSemigrand(PotentialMaster potentialMaster) {
+    public MCMoveSemigrand(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
+        this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         deleteAtomIterator = new AtomIteratorSinglet();
         insertAtomIterator = new AtomIteratorSinglet();
@@ -129,7 +135,7 @@ public class MCMoveSemigrand extends MCMovePhase {
     
     public boolean doTrial() {
         //select species for deletion
-        iDelete = Simulation.random.nextInt(nSpecies);//System.out.println("Random no. :"+randomNo);
+        iDelete = random.nextInt(nSpecies);//System.out.println("Random no. :"+randomNo);
         deleteAgent = agentSet[iDelete];
         if(deleteAgent.getNMolecules() == 0) {
             uNew = uOld = 0.0;
@@ -139,11 +145,11 @@ public class MCMoveSemigrand extends MCMovePhase {
         //select species for insertion
         iInsert = iDelete;
         if(nSpecies == 2) iInsert = 1 - iDelete;
-        else while(iInsert == iDelete) {iInsert = Simulation.random.nextInt(nSpecies);}
+        else while(iInsert == iDelete) {iInsert = random.nextInt(nSpecies);}
         insertAgent = agentSet[iInsert];
   
         AtomArrayList moleculeList = ((AtomTreeNodeGroup)deleteAgent.getNode()).getChildList();
-        deleteMolecule = moleculeList.get(Simulation.random.nextInt(moleculeList.size()));
+        deleteMolecule = moleculeList.get(random.nextInt(moleculeList.size()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();
         phase.removeMolecule(deleteMolecule);

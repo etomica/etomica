@@ -5,6 +5,8 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomSource;
+import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
@@ -15,10 +17,10 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.species.Species;
+import etomica.util.IRandom;
 
 /**
  * Performs a trial that results in the exchange of a molecule from one phase to another.
@@ -38,6 +40,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private final AtomActionTranslateTo moleculeTranslator;
     private final AtomActionTranslateBy moleculeReplacer;
     private final IVector translationVector;
+    private final IRandom random;
+    private AtomSource moleculeSource;
     
     private transient Atom molecule;
     private transient Phase iPhase, dPhase;
@@ -46,9 +50,10 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private transient double uNew = Double.NaN;
     
 
-    public MCMoveMoleculeExchange(PotentialMaster potentialMaster,
+    public MCMoveMoleculeExchange(PotentialMaster potentialMaster, IRandom random,
             IntegratorPhase integrator1, IntegratorPhase integrator2) {
         super(potentialMaster);
+        this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setIncludeLrc(true);
         Space space = potentialMaster.getSpace();
@@ -60,10 +65,12 @@ public final class MCMoveMoleculeExchange extends MCMove {
         this.integrator2 = integrator2;
         firstPhase = integrator1.getPhase();
         secondPhase = integrator2.getPhase();
+        moleculeSource = new AtomSourceRandomMolecule();
+        ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
     }
     
     public boolean doTrial() {
-        if(Simulation.random.nextBoolean()) {
+        if(random.nextInt(2) == 0) {
             iPhase = firstPhase;
             dPhase = secondPhase;
         }
@@ -75,8 +82,9 @@ public final class MCMoveMoleculeExchange extends MCMove {
             uNew = uOld = 0.0;
             return false;
         }
-        
-        molecule = dPhase.randomMolecule();  //select random molecule to delete
+
+        moleculeSource.setPhase(dPhase);
+        molecule = moleculeSource.getAtom();  //select random molecule to delete
         Species species = molecule.getType().getSpecies();
         
         iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
@@ -92,6 +100,20 @@ public final class MCMoveMoleculeExchange extends MCMove {
         uNew = Double.NaN;
         return true;
     }//end of doTrial
+
+    /**
+     * Sets the AtomSource this class uses to pick molecules to delete.
+     */
+    public void setMoleculeSource(AtomSource newMoleculeSource) {
+        moleculeSource = newMoleculeSource;
+    }
+    
+    /**
+     * Returns the AtomSource this class uses to pick molecules to delete.
+     */
+    public AtomSource getMoleculeSource() {
+        return moleculeSource;
+    }
     
     public double getA() {
         energyMeter.setPhase(iPhase);

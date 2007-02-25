@@ -1,6 +1,8 @@
 package etomica.integrator.mcmove;
 import etomica.action.AtomTransform;
 import etomica.atom.Atom;
+import etomica.atom.AtomSource;
+import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTree;
@@ -8,9 +10,9 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space3d.RotationTensor3D;
 import etomica.space3d.Vector3D;
+import etomica.util.IRandom;
 
 
 public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
@@ -18,6 +20,8 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     private static final long serialVersionUID = 1L;
     private final MeterPotentialEnergy energyMeter;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
+    private final IRandom random;
+    private AtomSource moleculeSource;
     
     protected final AtomIteratorTree leafAtomIterator = new AtomIteratorTree();
     
@@ -32,17 +36,24 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     public boolean flag1 = false;
     private double uOldSave;
     
-    public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, Space space) {
+    public MCMoveRotateMolecule3D(Simulation sim) {
+        this(sim.getPotentialMaster(), sim.getRandom());
+    }
+    
+    public MCMoveRotateMolecule3D(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
+        this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        rotationTensor = (RotationTensor3D)space.makeRotationTensor();
-        r0 = (Vector3D)space.makeVector();
+        rotationTensor = (RotationTensor3D)potentialMaster.getSpace().makeRotationTensor();
+        r0 = (Vector3D)potentialMaster.getSpace().makeVector();
        
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
+        moleculeSource = new AtomSourceRandomMolecule();
+        ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
         //TODO enable this
         //set directive to exclude intramolecular contributions to the energy
 //        iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
@@ -58,8 +69,8 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
         uOld = energyMeter.getDataAsScalar();
         if(uOld < Double.MAX_VALUE) uOldSave = uOld;
         
-        double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
-        rotationTensor.setAxial(Simulation.random.nextInt(3),dTheta);
+        double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
+        rotationTensor.setAxial(random.nextInt(3),dTheta);
 
         leafAtomIterator.setRoot(molecule);
         leafAtomIterator.reset();

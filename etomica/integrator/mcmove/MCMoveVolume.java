@@ -7,9 +7,9 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
+import etomica.util.IRandom;
 
 /**
  * Standard Monte Carlo volume-change move for simulations in the NPT ensemble.
@@ -23,21 +23,23 @@ public class MCMoveVolume extends MCMovePhaseStep {
     private MeterPotentialEnergy energyMeter;
     protected final PhaseInflate inflate;
     private final int D;
+    private IRandom random;
 
     private transient double uOld, hOld, vNew, vScale;
     private transient double uNew = Double.NaN;
 
     public MCMoveVolume(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getSpace(), sim.getDefaults().pressure);
+        this(sim.getPotentialMaster(), sim.getRandom(), sim.getDefaults().pressure);
     }
     
     /**
      * @param potentialMaster an appropriate PotentialMaster instance for calculating energies
      * @param space the governing space for the simulation
      */
-    public MCMoveVolume(PotentialMaster potentialMaster, Space space, double pressure) {
+    public MCMoveVolume(PotentialMaster potentialMaster, IRandom random, double pressure) {
         super(potentialMaster);
-        this.D = space.D();
+        this.random = random;
+        this.D = potentialMaster.getSpace().D();
         inflate = new PhaseInflate(potentialMaster.getSpace());
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
@@ -59,7 +61,7 @@ public class MCMoveVolume extends MCMovePhaseStep {
         double vOld = phase.volume();
         uOld = energyMeter.getDataAsScalar();
         hOld = uOld + pressure*vOld;
-        vScale = (2.*Simulation.random.nextDouble()-1.)*stepSize;
+        vScale = (2.*random.nextDouble()-1.)*stepSize;
         vNew = vOld * Math.exp(vScale); //Step in ln(V)
         double rScale = Math.exp(vScale/D);
         inflate.setScale(rScale);
@@ -96,41 +98,4 @@ public class MCMoveVolume extends MCMovePhaseStep {
     public Dimension getPressureDimension() {return Pressure.DIMENSION;}
     public final void setLogPressure(int lp) {setPressure(Math.pow(10.,lp));}
     
-    /**
-     * main method to test and demonstrate this class
-     */
-/*    public static void main(String args[]) {
-                    
-        Simulation sim = new Simulation(new Space2D());
-        Simulation.instance = sim;
-        Species species = new SpeciesSpheresMono(sim);
-//        species.setNMolecules(2);
-        P2HardSphere potential = new P2HardSphere();
-//        Potential potential = new P2LennardJones();
-        IntegratorMC integrator = new IntegratorMC(sim);
-        MCMove mcMoveAtom = new MCMoveAtom(integrator);
-        MCMove mcMoveVolume = new MCMoveVolume(integrator);
-        Controller controller = new Controller(sim);
-        Phase phase = new Phase(sim);
-        Display displayPhase = new DisplayPhase(sim);
-        DeviceSlider slider = new DeviceSlider(mcMoveVolume, "pressure");
-        slider.setMinimum(0);
-        slider.setMaximum(100);
-
-		Meter energy = new MeterPotentialEnergy();
-		energy.setPhase(phase);
-		energy.setHistorying(true);
-		energy.setActive(true);		
-		energy.getHistory().setNValues(500);		
-		DisplayPlot plot = new DisplayPlot();
-		plot.setLabel("Energy");
-		plot.setDataSources(energy.getHistory());
-
-	    Simulation.instance.elementCoordinator.go();
-        
-  //      phase.setDensity(0.1);
-    		                                    
-        Simulation.makeAndDisplayFrame(sim);
-    }//end of main  
-    */
 }

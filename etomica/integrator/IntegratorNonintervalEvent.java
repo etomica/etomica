@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.integrator.IntegratorEvent.Type;
 
 /**
  * Event thrown by integrator when it announces reaching special points in the 
@@ -9,12 +8,9 @@ import etomica.integrator.IntegratorEvent.Type;
  * @author David Kofke and Andrew Schultz
  *
  */
-
-/*
- * History
- * Created on Apr 26, 2005 by kofke
- */
 public class IntegratorNonintervalEvent extends IntegratorEvent {
+
+    private static final long serialVersionUID = 1L;
 
     public IntegratorNonintervalEvent(Integrator source, NonintervalEventType type) {
         super(source, type);
@@ -25,6 +21,8 @@ public class IntegratorNonintervalEvent extends IntegratorEvent {
     public static final NonintervalEventType DONE =       new NonintervalEventType("Done");       //simulation is finished
 
     public static class NonintervalEventType extends Type {
+        private static final long serialVersionUID = 1L;
+
         protected NonintervalEventType(String label) {
             super(label);
         }

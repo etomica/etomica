@@ -9,6 +9,7 @@ import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.util.Arrays;
+import etomica.util.IRandom;
 
 /**
  * Integrator manages other Integrators which either act on a Phase, or manager 
@@ -21,15 +22,15 @@ import etomica.util.Arrays;
 public class IntegratorManagerMC extends Integrator {
 
     public IntegratorManagerMC(Simulation sim) {
-        this(sim.getPotentialMaster());
+        this(sim.getPotentialMaster(), sim.getRandom());
     }
     
-    public IntegratorManagerMC(PotentialMaster potentialMaster) {
+    public IntegratorManagerMC(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         integrators = new Integrator[0];
         intervalEvents = new IntegratorIntervalEvent[0];
         setGlobalMoveInterval(2);
-        moveManager = new MCMoveManager();
+        moveManager = new MCMoveManager(random);
         eventManager = new MCMoveEventManager();
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);

@@ -1,14 +1,8 @@
 package etomica.integrator;
 
-import etomica.util.EnumeratedType;
-
-
-/*
- * History
- * Created on Apr 26, 2005 by kofke
- */
 public class IntegratorIntervalEvent extends IntegratorEvent {
 
+    private static final long serialVersionUID = 1L;
     private final int interval;
     
     public IntegratorIntervalEvent(Integrator source, int interval) {
@@ -23,6 +17,8 @@ public class IntegratorIntervalEvent extends IntegratorEvent {
     public static final IntervalEventType INTERVAL =  new IntervalEventType("Interval"); //routine interval event
 
     public static class IntervalEventType extends Type {
+        private static final long serialVersionUID = 1L;
+
         protected IntervalEventType(String label) {
             super(label);
         }

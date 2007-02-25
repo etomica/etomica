@@ -5,6 +5,8 @@ import etomica.EtomicaInfo;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo integrator. Used to evaluate fluid-fluid
@@ -12,11 +14,15 @@ import etomica.potential.PotentialMaster;
  * 
  * @author David Kofke
  */
-
 public class IntegratorGEMC extends IntegratorManagerMC implements EtomicaElement {
 
-    public IntegratorGEMC(PotentialMaster potentialMaster) {
-        super(potentialMaster);
+    public IntegratorGEMC(Simulation sim) {
+        this(sim.getPotentialMaster(), sim.getRandom());
+    }
+    
+    public IntegratorGEMC(PotentialMaster potentialMaster, IRandom random) {
+        super(potentialMaster, random);
+        this.random = random;
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -34,9 +40,9 @@ public class IntegratorGEMC extends IntegratorManagerMC implements EtomicaElemen
         }
         super.addIntegrator(newIntegrator);
         if (nIntegrators == 2) {
-            volumeExchange = new MCMoveVolumeExchange(potential,
+            volumeExchange = new MCMoveVolumeExchange(potential, random,
                     (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
-            moleculeExchange = new MCMoveMoleculeExchange(potential,
+            moleculeExchange = new MCMoveMoleculeExchange(potential, random,
                     (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
             moveManager.addMCMove(volumeExchange);
             moveManager.addMCMove(moleculeExchange);
@@ -61,7 +67,9 @@ public class IntegratorGEMC extends IntegratorManagerMC implements EtomicaElemen
         return moleculeExchange;
     }
 
+    private static final long serialVersionUID = 1L;
     private MCMoveVolumeExchange volumeExchange;
     private MCMoveMoleculeExchange moleculeExchange;
+    private IRandom random;
 
 }

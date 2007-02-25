@@ -3,12 +3,12 @@ package etomica.integrator.mcmove;
 import java.io.Serializable;
 
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 public class MCMoveManager implements Serializable {
 
-    public MCMoveManager() {
-        super();
+    public MCMoveManager(IRandom random) {
+        this.random = random;
     }
 
     /**
@@ -116,7 +116,7 @@ public class MCMoveManager implements Serializable {
             selectedLink = null;
             return null;
         }
-        int i = Simulation.random.nextInt(frequencyTotal);
+        int i = random.nextInt(frequencyTotal);
         selectedLink = firstMoveLink;
         while ((i -= selectedLink.fullFrequency) >= 0) {
             selectedLink = selectedLink.nextLink;
@@ -149,17 +149,20 @@ public class MCMoveManager implements Serializable {
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private Phase phase;
     private MCMoveLinker firstMoveLink, lastMoveLink;
     private MCMoveLinker selectedLink;
     private int frequencyTotal;
     private int moveCount;
     private boolean isEquilibrating;
+    private final IRandom random;
 
     /**
      * Linker used to construct linked-list of MCMove instances
      */
     private static class MCMoveLinker implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
         int frequency, fullFrequency;
         final MCMove move;
         boolean perParticleFrequency;

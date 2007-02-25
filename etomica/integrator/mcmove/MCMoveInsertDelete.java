@@ -14,6 +14,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
+import etomica.util.IRandom;
 
 /**
  * Elementary Monte Carlo move in which a molecule of a specified species is
@@ -40,14 +41,20 @@ public class MCMoveInsertDelete extends MCMovePhase {
     protected final AtomActionTranslateTo atomTranslator;
     protected AtomFactory moleculeFactory;
     protected AtomArrayList moleculeList;
+    protected IRandom random;
 
-    public MCMoveInsertDelete(PotentialMaster potentialMaster) {
+    public MCMoveInsertDelete(Simulation sim) {
+        this(sim.getPotentialMaster(), sim.getRandom());
+    }
+    
+    public MCMoveInsertDelete(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setMu(0.0);
         energyMeter.setIncludeLrc(true);
         atomTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
         reservoir = new AtomArrayList();
+        this.random = random;
     }
     
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
@@ -75,7 +82,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
      * or deletion.
      */
     public boolean doTrial() {
-        insert = Simulation.random.nextBoolean();
+        insert = (random.nextInt(2) == 0);
         if(insert) {
             uOld = 0.0;
             
@@ -90,7 +97,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
                 testMolecule = null;
                 return false;
             }
-            testMolecule = moleculeList.get(Simulation.random.nextInt(moleculeList.size()));
+            testMolecule = moleculeList.get(random.nextInt(moleculeList.size()));
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
             uOld = energyMeter.getDataAsScalar();

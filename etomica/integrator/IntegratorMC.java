@@ -12,6 +12,7 @@ import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 /**
  * Integrator to perform Metropolis Monte Carlo sampling. Works with a set of
@@ -27,19 +28,19 @@ import etomica.simulation.Simulation;
 public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 
     public IntegratorMC(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(), sim.getRandom(), sim.getDefaults().temperature);
     }
     
 	/**
 	 * Constructs integrator and establishes PotentialMaster instance that
 	 * will be used by moves to calculate the energy.
 	 */
-	public IntegratorMC(PotentialMaster potentialMaster, double temperature) {
+	public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature) {
 		super(potentialMaster,temperature);
 		setIsothermal(true); //has no practical effect, but sets value of
 		// isothermal to be consistent with way integrator
 		// is sampling
-        moveManager = new MCMoveManager();
+        moveManager = new MCMoveManager(random);
         eventManager = new MCMoveEventManager();
         trialEvent = new MCMoveTrialInitiatedEvent(moveManager);
         acceptedEvent = new MCMoveTrialCompletedEvent(moveManager, true);
