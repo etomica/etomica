@@ -14,7 +14,7 @@ import etomica.util.NameMaker;
  * @author David Kofke
  */
  
-public abstract class Potential {
+public abstract class Potential implements java.io.Serializable {
     
 	private final int nBody;
 	protected final Space space;
