@@ -54,8 +54,6 @@ public class Simulation implements java.io.Serializable  {
         speciesRoot = new SpeciesRoot((int[])bitLength.clone());
         potentialMaster.setSimulation(this);
     }
-                 
-    public final Space space() {return space;}
 
     /**
      * Returns an array of Phases contained in the Simulation
