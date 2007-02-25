@@ -15,6 +15,7 @@ import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.util.Arrays;
 import etomica.util.Default;
+import etomica.util.IRandom;
 import etomica.util.NameMaker;
 import etomica.util.RandomNumberGenerator;
 
@@ -245,7 +246,7 @@ public class Simulation implements java.io.Serializable  {
     public static final java.util.Random random = new java.util.Random();
 //    public static final java.util.Random random = new java.util.Random(1);
 
-    public RandomNumberGenerator getRandom() {
+    public IRandom getRandom() {
         return myRandom;
     }
     
@@ -271,7 +272,7 @@ public class Simulation implements java.io.Serializable  {
     protected final PotentialMaster potentialMaster;
     protected final Space space;
     protected final SpeciesRoot speciesRoot;
-    protected final RandomNumberGenerator myRandom;
+    protected final IRandom myRandom;
     private final boolean dynamic;
     private Controller controller;     
     private final LinkedList integratorList = new LinkedList();

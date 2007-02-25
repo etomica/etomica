@@ -7,7 +7,7 @@ import java.util.Random;
  * 
  * @author Andrew Schultz
  */
-public class RandomNumberGenerator {
+public class RandomNumberGenerator implements IRandom {
 
     public RandomNumberGenerator() {
         jRandom = new Random();
