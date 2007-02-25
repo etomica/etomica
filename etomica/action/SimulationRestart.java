@@ -34,10 +34,10 @@ public final class SimulationRestart extends SimulationActionAdapter {
     
     public void setSimulation(Simulation sim) {
         super.setSimulation(sim);
-        if (sim.space().D() == 3) {
+        if (sim.getSpace().D() == 3) {
             setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
         }
-        else if (sim.space().D() == 2) {
+        else if (sim.getSpace().D() == 2) {
             setConfiguration(new ConfigurationLattice(new LatticeOrthorhombicHexagonal()));
         }
         else {

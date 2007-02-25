@@ -20,7 +20,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     private double collisionRadius;
     
     public P1HardWall(Simulation sim) {
-        this(sim.space(), sim.getDefaults().atomSize);
+        this(sim.getSpace(), sim.getDefaults().atomSize);
     }
     
     public P1HardWall(Space space, double sigma) {

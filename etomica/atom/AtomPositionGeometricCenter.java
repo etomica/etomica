@@ -17,7 +17,7 @@ import etomica.space.Space;
 public class AtomPositionGeometricCenter implements AtomPositionDefinition {
 
     public AtomPositionGeometricCenter(Simulation sim) {
-        this(sim.space());
+        this(sim.getSpace());
     }
     
     public AtomPositionGeometricCenter(Space space) {

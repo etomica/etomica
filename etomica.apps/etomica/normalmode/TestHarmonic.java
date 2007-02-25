@@ -3,7 +3,6 @@ package etomica.normalmode;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.config.ConfigurationLattice;
@@ -131,8 +130,8 @@ public class TestHarmonic extends Simulation {
         
         P2HardSphere p2HardSphere = new P2HardSphere(sim.getSpace(), 1.0, true);
         sim.getPotentialMaster().addPotential(p2HardSphere, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
-        if (sim.space().D() == 1) {
-            Potential pOrder = new P2XOrder(sim.space());
+        if (sim.getSpace().D() == 1) {
+            Potential pOrder = new P2XOrder(sim.getSpace());
             sim.potentialMaster.addPotential(pOrder, new AtomType[] {sim.species.getMoleculeType(),sim.species.getMoleculeType()});
         }
         
