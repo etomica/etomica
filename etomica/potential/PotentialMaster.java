@@ -38,7 +38,7 @@ public class PotentialMaster implements java.io.Serializable {
     
     /**
      * Sets the simulation that holds this PotentialMaster.  This method is 
-     * called by the Simulation constrcutor and should not be called at any
+     * called by the Simulation constructor and should not be called at any
      * other time.
      */
     public void setSimulation(Simulation sim) {
