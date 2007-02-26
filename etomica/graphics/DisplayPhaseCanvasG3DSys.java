@@ -91,6 +91,9 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
         AtomFilter atomFilter = displayPhase.getAtomFilter();
 		atomIterator.setPhase(displayPhase.getPhase());
 		atomIterator.reset();
+        if(colorScheme instanceof ColorSchemeCollective) {
+          ((ColorSchemeCollective)colorScheme).colorAllAtoms();
+        }
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf) atomIterator.nextAtom();
             if (a==null || !(a.getType() instanceof AtomTypeSphere)) continue;
