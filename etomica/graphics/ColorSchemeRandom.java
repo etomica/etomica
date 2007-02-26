@@ -6,11 +6,13 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
+import etomica.util.IRandom;
 
 public class ColorSchemeRandom extends ColorScheme implements AgentSource {
     
-    public ColorSchemeRandom(Phase phase) {
+    public ColorSchemeRandom(Phase phase, IRandom random) {
         agentManager = new AtomAgentManager(this, phase);
+        this.random = random;
     }
     
     public Color getAtomColor(AtomLeaf a) {
@@ -22,11 +24,12 @@ public class ColorSchemeRandom extends ColorScheme implements AgentSource {
     }
     
     public Object makeAgent(Atom a) {
-        return ConstantsGraphic.randomColor();
+        return new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
     }
     
     public void releaseAgent(Object agent, Atom atom) {}
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private final AtomAgentManager agentManager;
+    private final IRandom random;
 }
