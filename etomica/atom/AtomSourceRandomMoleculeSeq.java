@@ -83,7 +83,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
         this.maxLookAhead = maxLookAhead;
     }
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     protected int maxLookAhead = 10;
     protected SpeciesMaster speciesMaster;
     protected AtomArrayList moleculeList, agentList;
