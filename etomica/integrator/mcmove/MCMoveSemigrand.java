@@ -29,7 +29,7 @@ import etomica.util.IRandom;
  */
 public class MCMoveSemigrand extends MCMovePhase {
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private Species[] speciesSet;
     private SpeciesAgent[] agentSet;
     private AtomArrayList[] reservoirs;

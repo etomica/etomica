@@ -17,7 +17,7 @@ import etomica.util.IRandom;
 
 public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private final MeterPotentialEnergy energyMeter;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final IRandom random;

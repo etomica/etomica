@@ -18,7 +18,7 @@ import etomica.util.IRandom;
  */
 public class MCMoveVolume extends MCMovePhaseStep {
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
     protected final PhaseInflate inflate;

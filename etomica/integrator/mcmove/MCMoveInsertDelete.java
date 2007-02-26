@@ -24,7 +24,7 @@ import etomica.util.IRandom;
  */
 public class MCMoveInsertDelete extends MCMovePhase {
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     //chemical potential
     protected double mu;
     

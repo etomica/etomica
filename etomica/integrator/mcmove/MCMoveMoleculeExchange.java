@@ -31,7 +31,7 @@ import etomica.util.IRandom;
  
 public final class MCMoveMoleculeExchange extends MCMove {
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private Phase firstPhase;
     private Phase secondPhase;
     private final IntegratorPhase integrator1, integrator2;
