@@ -76,8 +76,8 @@ public class TestHexane extends Simulation {
         phase.getAgent(species).setNMolecules(numMolecules);
 //        config.initializeCoordinates(phase);
 
-        integrator = new IntegratorMC(getPotentialMaster(), defaults.temperature);
-        moveMolecule = new MCMoveMolecule(getPotentialMaster(), 0.1, 1, false);
+        integrator = new IntegratorMC(getPotentialMaster(), getRandom(), defaults.temperature);
+        moveMolecule = new MCMoveMolecule(getPotentialMaster(), getRandom(), 0.1, 1, false);
 //        moveVolume = new MCMoveVolume(potentialMaster, phase.space(), sim.getDefaults().pressure);
 //        moveVolume.setPhase(phase);
 //        crank = new MCMoveCrankshaft();
@@ -85,7 +85,7 @@ public class TestHexane extends Simulation {
 //         snake = new MCMoveReptate(this);
 //         snake.setPhase(phase);
          
-         rot = new MCMoveRotateMolecule3D(getPotentialMaster(), space);
+         rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
          rot.setPhase(phase);
 
          // 0.025 for translate, 0.042 for rotate for rho=0.3737735

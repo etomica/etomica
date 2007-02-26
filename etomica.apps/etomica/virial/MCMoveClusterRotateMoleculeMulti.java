@@ -17,7 +17,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
-import etomica.space.Space;
+import etomica.util.IRandom;
 
 /**
  * @author andrew
@@ -32,8 +32,8 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
      * @param space
      */
     public MCMoveClusterRotateMoleculeMulti(PotentialMaster potentialMaster,
-            Space space, int numMolecules) {
-        super(potentialMaster, space);
+            IRandom random, int numMolecules) {
+        super(potentialMaster, random);
         weightMeter = new MeterClusterWeight(potential);
         setName("MCMoveClusterMolecule");
         nMolecules = numMolecules;

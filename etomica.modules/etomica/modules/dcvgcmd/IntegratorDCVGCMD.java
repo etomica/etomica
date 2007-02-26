@@ -17,6 +17,7 @@ import etomica.potential.PotentialMaster;
 import etomica.species.Species;
 import etomica.units.Dimension;
 import etomica.units.Null;
+import etomica.util.IRandom;
 
 
 /**
@@ -120,22 +121,22 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 		return elapsedTime;
 	}
 	
-	public void setIntegrators(IntegratorMC intmc, IntegratorMD intmd) {
+	public void setIntegrators(IntegratorMC intmc, IntegratorMD intmd, IRandom random) {
 		integratormc = intmc;
 		integratormd = intmd;
         integratormc.setTemperature(temperature);
         integratormd.setTemperature(temperature);
 		integratormd.setPhase(phase);
 		integratormc.setPhase(phase);
-		mcMove1 = new MyMCMove(this, -zFraction);
-		mcMove2 = new MyMCMove(this, +zFraction);
+		mcMove1 = new MyMCMove(this, random, -zFraction);
+		mcMove2 = new MyMCMove(this, random, +zFraction);
         MCMoveManager moveManager = integratormc.getMoveManager();
 		moveManager.addMCMove (mcMove1);
 		moveManager.addMCMove (mcMove2);
 		mcMove1.setSpecies(speciesA);
 		mcMove2.setSpecies(speciesA);
-		mcMove3 = new MyMCMove(this, -zFraction);
-		mcMove4 = new MyMCMove(this, +zFraction);
+		mcMove3 = new MyMCMove(this, random, -zFraction);
+		mcMove4 = new MyMCMove(this, random, +zFraction);
 		moveManager.addMCMove (mcMove3);
 		moveManager.addMCMove (mcMove4);
 		mcMove3.setSpecies(speciesB);

@@ -8,6 +8,7 @@ import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorPhase;
 import etomica.potential.PotentialMaster;
 import etomica.util.Debug;
+import etomica.util.IRandom;
 
 /**
  * This integrator class manages (2) sub-integrators for an overlap
@@ -15,8 +16,9 @@ import etomica.util.Debug;
  */
 public class IntegratorOverlap extends IntegratorManagerMC {
 
-    public IntegratorOverlap(PotentialMaster potentialMaster, IntegratorPhase[] aIntegrators, AccumulatorVirialOverlapSingleAverage[] virialAccumulators) {
-        super(potentialMaster);
+    public IntegratorOverlap(PotentialMaster potentialMaster, IRandom random,
+            IntegratorPhase[] aIntegrators, AccumulatorVirialOverlapSingleAverage[] virialAccumulators) {
+        super(potentialMaster, random);
         setNumSubSteps(1000);
         for (int i=0; i<aIntegrators.length; i++) {
             addIntegrator(aIntegrators[i]);
@@ -159,6 +161,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         return stepFreq[0];
     }
     
+    private static final long serialVersionUID = 1L;
     private final double[] stepFreq;
     private int numSubSteps;
     private int[] totNumSubSteps;

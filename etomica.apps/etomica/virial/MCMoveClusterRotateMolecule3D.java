@@ -9,23 +9,13 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
-import etomica.space.Space;
+import etomica.util.IRandom;
 
-/**
- * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
 
-    /**
-     * @param potentialMaster
-     * @param space
-     */
     public MCMoveClusterRotateMolecule3D(PotentialMaster potentialMaster,
-            Space space) {
-        super(potentialMaster, space);
+            IRandom random) {
+        super(potentialMaster, random);
         weightMeter = new MeterClusterWeight(potential);
         setName("MCMoveClusterMolecule");
     }
@@ -42,7 +32,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     public boolean doTrial() {
         if(phase.moleculeCount()==1) {molecule = null; return false;}
             
-        molecule = phase.randomMolecule();
+        molecule = moleculeSource.getAtom();
         while (molecule.getNode().getIndex() == 0) {
             molecule = phase.randomMolecule();
         }

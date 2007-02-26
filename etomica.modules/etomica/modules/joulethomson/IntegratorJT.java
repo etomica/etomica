@@ -6,6 +6,7 @@ import etomica.integrator.IntegratorPhase;
 import etomica.modifier.ModifierBoolean;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 public class IntegratorJT extends IntegratorManagerMC {
     
@@ -15,8 +16,8 @@ public class IntegratorJT extends IntegratorManagerMC {
     boolean doNVE = true;
     boolean wasReset = false;
     
-    public IntegratorJT(PotentialMaster potentialMaster, IntegratorPhase nph, IntegratorPhase nve) {
-        super(potentialMaster);
+    public IntegratorJT(PotentialMaster potentialMaster, IRandom random, IntegratorPhase nph, IntegratorPhase nve) {
+        super(potentialMaster, random);
         integratorNPH = nph;
         integratorNVE = nve;
         addIntegrator(nph);

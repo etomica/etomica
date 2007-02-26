@@ -58,7 +58,8 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimulationVirialOverlap extends Simulation {
 
-	public SimulationVirialOverlap(Space aSpace, Default defaults, SpeciesFactory speciesFactory, 
+
+    public SimulationVirialOverlap(Space aSpace, Default defaults, SpeciesFactory speciesFactory, 
 			double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
 		this(aSpace,defaults,speciesFactory,temperature,new ClusterAbstract[]{refCluster,targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster.makeCopy()),ClusterWeightAbs.makeWeightCluster(targetCluster.makeCopy())});
@@ -106,10 +107,10 @@ public class SimulationVirialOverlap extends Simulation {
                 moveManager.addMCMove(mcMoveTranslate[iPhase]);
             }
             else {
-                mcMoveRotate[iPhase] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1);
+                mcMoveRotate[iPhase] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(),nMolecules-1);
                 mcMoveRotate[iPhase].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iPhase]);
-                mcMoveTranslate[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
+                mcMoveTranslate[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, getRandom(), 0.41, nMolecules-1);
                 moveManager.addMCMove(mcMoveTranslate[iPhase]);
                 if (species instanceof SpeciesSpheres) {
                     if (((SpeciesSpheres)species).getFactory().getNumChildAtoms() > 2) {
@@ -129,7 +130,7 @@ public class SimulationVirialOverlap extends Simulation {
         }
         
         setRefPref(1,5);
-        integratorOS = new IntegratorOverlap(potentialMaster, integrators, accumulators);
+        integratorOS = new IntegratorOverlap(potentialMaster, getRandom(), integrators, accumulators);
         integratorOS.setNumSubSteps(getDefaults().blockSize);
         ai = new ActivityIntegrate(this,integratorOS);
         ai.setInterval(1);
@@ -272,6 +273,7 @@ public class SimulationVirialOverlap extends Simulation {
         }
     }
     
+    private static final long serialVersionUID = 1L;
 	protected DisplayPlot plot;
 	public DataSourceVirialOverlap dsvo;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;

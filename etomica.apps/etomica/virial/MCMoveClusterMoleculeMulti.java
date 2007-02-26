@@ -7,6 +7,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
+import etomica.util.IRandom;
 
 /**
  * @author kofke
@@ -20,7 +21,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     private final MeterClusterWeight weightMeter;
 
     public MCMoveClusterMoleculeMulti(Simulation sim, int nAtoms) {
-    	this(sim.getPotentialMaster(),sim.getDefaults().atomSize, nAtoms);
+    	this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().atomSize, nAtoms);
     }
     
     /**
@@ -30,9 +31,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
      * phase should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster, 
-            double stepSize, int nAtoms) {
-        super(potentialMaster,stepSize,Double.POSITIVE_INFINITY,false);
+    public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster,
+            IRandom random, double stepSize, int nAtoms) {
+        super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
         this.nAtoms = nAtoms;
         selectedAtoms = new Atom[nAtoms];
         translationVectors = new IVector[nAtoms];

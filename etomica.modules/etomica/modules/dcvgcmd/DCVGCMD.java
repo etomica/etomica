@@ -36,6 +36,7 @@ import etomica.util.Default;
  */
 public class DCVGCMD extends Simulation {
 
+    private static final long serialVersionUID = 1L;
     public IntegratorDCVGCMD integratorDCV;
     public P2WCA potential;
     public P2WCA potential1;
@@ -179,7 +180,7 @@ public class DCVGCMD extends Simulation {
         activityIntegrate = new ActivityIntegrate(this,integratorDCV);
         getController().addAction(activityIntegrate);
 
-        integratorDCV.setIntegrators(integratorMC, integratorMD);
+        integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
         integratorMD.setMeterTemperature(new MeterTemperature(speciesTube));
         //integrator.setSleepPeriod(1);

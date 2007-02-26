@@ -8,9 +8,9 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
+import etomica.util.IRandom;
 
 /**
  * @author kofke
@@ -24,8 +24,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 * Constructor for MyMCMove.
 	 * @param parent
 	 */
-	public MyMCMove(IntegratorPhase integrator, double zFraction) {
-		super(integrator.getPotential());
+	public MyMCMove(IntegratorPhase integrator, IRandom random, double zFraction) {
+		super(integrator.getPotential(), random);
 		position =  (Vector3D)integrator.getPotential().getSpace().makeVector();
 		setZFraction(zFraction);
         this.integrator = integrator;
@@ -41,7 +41,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 * or deletion.
 	 */
 	public boolean doTrial() {
-		insert = Simulation.random.nextDouble() < 0.5;
+		insert = (random.nextInt(2) == 0);
 		if(insert) {
 			uOld = 0.0;
 			if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);

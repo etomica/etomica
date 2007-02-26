@@ -68,7 +68,7 @@ public class SimulationVirialPT extends Simulation {
         // values
         sampleCluster = new ClusterWeight[temperature.length];
         allValueClusters = new ClusterAbstract[temperature.length][targetClusters.length+1];
-        integratorPT = new IntegratorPT(potentialMaster,MCMoveSwapCluster.FACTORY);
+        integratorPT = new IntegratorPT(potentialMaster,getRandom(),MCMoveSwapCluster.FACTORY);
 //        integratorPT.setSwapInterval(2);
         ai = new ActivityIntegrate(this,integratorPT);
         ai.setInterval(1);
@@ -106,13 +106,13 @@ public class SimulationVirialPT extends Simulation {
                 }
             }
             else {
-                mcMoveAtom1[iTemp] = new MCMoveClusterMolecule(potentialMaster, 3.0);
+                mcMoveAtom1[iTemp] = new MCMoveClusterMolecule(potentialMaster, getRandom(), 3.0);
                 moveManager.addMCMove(mcMoveAtom1[iTemp]);
-                mcMoveRotate[iTemp] = new MCMoveClusterRotateMolecule3D(potentialMaster,space);
+                mcMoveRotate[iTemp] = new MCMoveClusterRotateMolecule3D(potentialMaster,getRandom());
                 mcMoveRotate[iTemp].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iTemp]);
                 if (nMolecules>2) {
-                    mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(potentialMaster, 0.41, nMolecules-1);
+                    mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(potentialMaster, getRandom(), 0.41, nMolecules-1);
                     moveManager.addMCMove(mcMoveMulti[iTemp]);
                 }
             }

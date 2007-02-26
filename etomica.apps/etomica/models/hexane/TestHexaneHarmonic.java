@@ -95,8 +95,8 @@ public class TestHexaneHarmonic extends Simulation {
         phase.getAgent(species).setNMolecules(numMolecules);
 //        config.initializeCoordinates(phase);
 
-        integrator = new IntegratorMC(potentialMaster, defaults.temperature);
-        moveMolecule = new MCMoveMolecule(potentialMaster, defaults.atomSize, defaults.boxSize/2, false);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), defaults.temperature);
+        moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(), defaults.atomSize, defaults.boxSize/2, false);
 //        moveVolume = new MCMoveVolume(potentialMaster, phase.space(), sim.getDefaults().pressure);
 //        moveVolume.setPhase(phase);
 //        crank = new MCMoveCrankshaft();
@@ -104,7 +104,7 @@ public class TestHexaneHarmonic extends Simulation {
 //         snake = new MCMoveReptate(this);
 //         snake.setPhase(phase);
          
-         rot = new MCMoveRotateMolecule3D(getPotentialMaster(), space);
+         rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
          rot.setPhase(phase);
          
          // 0.025 for translate, 0.042 for rotate for rho=0.3737735

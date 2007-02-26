@@ -35,7 +35,8 @@ import etomica.virial.SpeciesFactory;
  */
 public class SimulationVirial extends Simulation {
 
-	/**
+
+    /**
 	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
 	 */
 	public SimulationVirial(Space space, Default defaults, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
@@ -67,8 +68,8 @@ public class SimulationVirial extends Simulation {
             mcMoveTranslate= new MCMoveClusterAtomMulti(this, nMolecules-1);
         }
         else {
-            mcMoveTranslate = new MCMoveClusterMoleculeMulti(potentialMaster,0.41,nMolecules-1);
-            mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,space,nMolecules-1);
+            mcMoveTranslate = new MCMoveClusterMoleculeMulti(potentialMaster,getRandom(),0.41,nMolecules-1);
+            mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(),nMolecules-1);
             mcMoveRotate.setStepSize(Math.PI);
             if (species instanceof SpeciesSpheres) {
                 if (((SpeciesSpheres)species).getFactory().getNumChildAtoms() > 2) {
@@ -96,6 +97,7 @@ public class SimulationVirial extends Simulation {
         setAccumulator(new AccumulatorRatioAverage(this));
 	}
 	
+    private static final long serialVersionUID = 1L;
     public IntervalActionAdapter accumulatorAA;
 	public DataSource meter;
 	public DataAccumulator accumulator;

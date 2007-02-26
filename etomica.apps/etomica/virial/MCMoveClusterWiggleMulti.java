@@ -13,6 +13,7 @@ import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
+import etomica.util.IRandom;
 
 /**
  * An MC Move for cluster simulations that "wiggles" a chain molecule.  If the 
@@ -33,7 +34,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     private final MeterPotentialEnergy energyMeter;
 
     public MCMoveClusterWiggleMulti(Simulation sim, int nAtoms) {
-    	this(sim.getPotentialMaster(),sim.getDefaults().atomSize, nAtoms);
+    	this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().atomSize, nAtoms);
         setBondLength(1.0);
     }
     
@@ -45,8 +46,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
      * because first atom is never moved)
      */
     public MCMoveClusterWiggleMulti(PotentialMaster potentialMaster, 
-            double stepSize, int nAtoms) {
-        super(potentialMaster,stepSize,Double.POSITIVE_INFINITY,false);
+            IRandom random, double stepSize, int nAtoms) {
+        super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
         this.nAtoms = nAtoms;
         setStepSizeMax(Math.PI);
         selectedMolecules = new Atom[nAtoms];
