@@ -93,7 +93,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf) atomIterator.nextAtom();
-            if (!(a.getType() instanceof AtomTypeSphere)) continue;
+            if (a==null || !(a.getType() instanceof AtomTypeSphere)) continue;
             Ball ball = (Ball)aam.getAgent(a);
             if (ball == null) {
                 continue;
