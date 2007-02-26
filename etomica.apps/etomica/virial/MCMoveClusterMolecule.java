@@ -36,9 +36,9 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     public boolean doTrial() {
         if(phase.moleculeCount()==1) return false;
         
-        atom = phase.randomMolecule();
+        atom = atomSource.getAtom();
         while (atom.getNode().getIndex() == 0) {
-            atom = phase.randomMolecule();
+            atom = atomSource.getAtom();
         }
         
         uOld = weightMeter.getDataAsScalar();

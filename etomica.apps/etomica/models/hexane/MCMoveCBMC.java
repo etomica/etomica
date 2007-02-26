@@ -3,6 +3,7 @@ package etomica.models.hexane;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomSource;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -25,6 +26,20 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         energyMeter = new MeterPotentialEnergy(potentialMaster);
     }
     
+    /**
+     * Sets the AtomSource used to select molecules acted on by MC trials.
+     */
+    public void setMoleculeSource(AtomSource newMoleculeSource) {
+        moleculeSource = newMoleculeSource;
+    }
+    
+    /**
+     * Returns the AtomSource used to select Atoms acted on by MC trials.
+     */
+    public AtomSource getMoleculeSource() {
+        return moleculeSource;
+    }
+    
     public double energyChange() {
         return uNew - uOld;
     }
@@ -41,7 +56,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
 
     public boolean doTrial() {
         //pick a molecule & get its childlist.
-        atom = phase.randomMolecule();
+        atom = moleculeSource.getAtom();
         uOld = energyMeter.getDataAsScalar();
         
         atomList = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
@@ -92,4 +107,5 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     private IVector[] positionOld;      //Used to store the position of the molecule before mofing it.
     protected AtomArrayList atomList;
     protected int numTrial;
+    protected AtomSource moleculeSource;
 }

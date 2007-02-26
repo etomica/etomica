@@ -64,7 +64,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     public boolean doTrial() {
         if(phase.moleculeCount()==0) {molecule = null; return false;}
             
-        molecule = phase.randomMolecule();
+        molecule = moleculeSource.getAtom();
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         if(uOld < Double.MAX_VALUE) uOldSave = uOld;

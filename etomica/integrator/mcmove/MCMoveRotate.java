@@ -1,11 +1,13 @@
 package etomica.integrator.mcmove;
 
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Orientation;
 
@@ -14,16 +16,21 @@ import etomica.space.Orientation;
  */
 public class MCMoveRotate extends MCMovePhaseStep {
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final Orientation oldOrientation;
+    private AtomSource atomSource;
 
     private transient AtomLeaf molecule;
     private transient double uOld;
     private transient double uNew = Double.NaN;
     private transient Orientation orientation;
 
+    public MCMoveRotate(Simulation sim) {
+        this(sim.getPotentialMaster());
+    }
+    
     public MCMoveRotate(PotentialMaster potentialMaster) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -34,10 +41,24 @@ public class MCMoveRotate extends MCMovePhaseStep {
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
     }
+    
+    /**
+     * Sets the AtomSource used to select Atoms acted on by MC trials.
+     */
+    public void setAtomSource(AtomSource newAtomSource) {
+        atomSource = newAtomSource;
+    }
+     
+    /**
+     * Sets the AtomSource used to select Atoms acted on by MC trials.
+     */
+    public AtomSource getAtomSource() {
+        return atomSource;
+    }
      
     public boolean doTrial() {
         if(phase.moleculeCount()==0) {return false;}
-        molecule = (AtomLeaf)phase.randomMolecule();
+        molecule = (AtomLeaf)atomSource.getAtom();
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();

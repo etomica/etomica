@@ -181,13 +181,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     }
     
     /**
-     * Returns a randomly selected molecule from the phase.
-     */
-    public Atom randomMolecule() {
-        return molecule(Simulation.random.nextInt(moleculeCount()));
-    }
-      
-    /**
      * Sets the boundary object of the phase.
      */
      public void setBoundary(Boundary b) {
