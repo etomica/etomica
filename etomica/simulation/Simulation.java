@@ -268,7 +268,7 @@ public class Simulation implements java.io.Serializable  {
     // {speciesRoot, phases, species, molecules, groups, atoms}
     public int[] DEFAULT_BIT_LENGTH = new int[] {1, 4, 4, 14, 6, 3};
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     protected final PotentialMaster potentialMaster;
     protected final Space space;
     protected final SpeciesRoot speciesRoot;
