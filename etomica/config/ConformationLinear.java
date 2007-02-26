@@ -92,12 +92,11 @@ public class ConformationLinear extends Conformation {
     }
 
     private static final long serialVersionUID = 1L;
-    private double bondLength;
+    protected double bondLength;
     private IVector orientation;
     private double[] angle;
     private IVector translationVector;
     private AtomActionTranslateBy translator;
     private AtomActionTranslateTo moveToOrigin;
-    private final AtomIteratorArrayListSimple atomIterator;
-}//end of ConformationLinear
-      
+    protected final AtomIteratorArrayListSimple atomIterator;
+}

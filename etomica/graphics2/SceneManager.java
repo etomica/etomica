@@ -47,7 +47,7 @@ public final class SceneManager {
         if (boundaryVertices == null || boundaryVertices.length != newVertices.length) {
             boundaryVertices = new IVector[newVertices.length];
             for (int i=0; i<boundaryVertices.length; i++) {
-                boundaryVertices[i] = phase.space().makeVector();
+                boundaryVertices[i] = phase.getSpace().makeVector();
                 boundaryVertices[i].E(newVertices[i]);
             }
             needUpdate = true;
@@ -67,7 +67,7 @@ public final class SceneManager {
             }
             
             LineSegment[] edges = shape.getEdges();
-            IVector shift = phase.space().makeVector();
+            IVector shift = phase.getSpace().makeVector();
             
             boundaryPoly = renderer.createPoly();
             for(int i=0; i<edges.length; i++) 
@@ -100,8 +100,8 @@ public final class SceneManager {
         agentIterator = agentManager.makeIterator();
     	phase = newPhase;
         if (phase != null) {
-            from = phase.space().makeVector();
-            to = phase.space().makeVector();
+            from = phase.getSpace().makeVector();
+            to = phase.getSpace().makeVector();
         }
     }
     

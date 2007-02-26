@@ -70,12 +70,12 @@ public final class PhaseImposePbc extends PhaseActionAdapter {
 	public void setPhase(Phase phase) {
 		super.setPhase(phase);
 		iterator.setPhase(phase);
-        if (space != phase.space()) {
-            space = phase.space();
-            translator = new AtomActionTranslateBy(phase.space());
+        if (space != phase.getSpace()) {
+            space = phase.getSpace();
+            translator = new AtomActionTranslateBy(phase.getSpace());
             moleculeTranslator = new AtomGroupAction(translator);
             if (moleculePosition == null) {
-                moleculePosition = new AtomPositionCOM(phase.space());
+                moleculePosition = new AtomPositionCOM(phase.getSpace());
             }
         }
 	}

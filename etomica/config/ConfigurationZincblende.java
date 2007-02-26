@@ -38,8 +38,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
     public void initializeCoordinates(Phase phase) {
-        translator0 = new AtomGroupAction(new AtomActionTranslateBy(phase.space()));
-        translator1 = new AtomGroupAction(new AtomActionTranslateBy(phase.space()));
+        translator0 = new AtomGroupAction(new AtomActionTranslateBy(phase.getSpace()));
+        translator1 = new AtomGroupAction(new AtomActionTranslateBy(phase.getSpace()));
         AtomArrayList[] lists = getMoleculeLists(phase); 
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
@@ -51,7 +51,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         int nCells = (int) Math.ceil(lists[0].size() / 4.0);
 
         // determine scaled shape of simulation volume
-        IVector shape = phase.space().makeVector();
+        IVector shape = phase.getSpace().makeVector();
         shape.E(phase.getBoundary().getDimensions());
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);

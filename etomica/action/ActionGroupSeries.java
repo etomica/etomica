@@ -12,11 +12,6 @@ import etomica.util.Arrays;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on Feb 2, 2005 by kofke
- */
 public class ActionGroupSeries implements Action, java.io.Serializable, ActionGroup {
 
     /**
@@ -91,6 +86,7 @@ public class ActionGroupSeries implements Action, java.io.Serializable, ActionGr
         this.label = label;
     }
 
+    private static final long serialVersionUID = 1L;
     private Action[] actions;
     private String label;
 }

@@ -28,7 +28,7 @@ public class DisplayPhaseSpin2D extends DisplayPhaseCanvas2D {
      */
     public DisplayPhaseSpin2D(DisplayPhase _phase, NeighborSiteManager neighborSiteManager) {
         super(_phase);
-        latticeIndex = new int[displayPhase.getPhase().space().D()];
+        latticeIndex = new int[displayPhase.getPhase().getSpace().D()];
         spinWidth = 5;
         this.neighborSiteManager = neighborSiteManager;
     }

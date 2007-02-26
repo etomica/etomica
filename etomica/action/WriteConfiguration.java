@@ -91,7 +91,7 @@ public class WriteConfiguration implements Action {
         }
         try {
             iterator.reset();
-            IVector writePosition = phase.space().makeVector();
+            IVector writePosition = phase.getSpace().makeVector();
             while (iterator.hasNext()) {
                 AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
                 writePosition.E(atom.getCoord().getPosition());

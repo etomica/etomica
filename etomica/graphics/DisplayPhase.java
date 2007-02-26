@@ -175,7 +175,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         drawables.remove(obj);
     }
     public void addDrawable(Object obj) {
-        if(phase.space().D() == 3) drawables.add(obj);
+        if(phase.getSpace().D() == 3) drawables.add(obj);
     }
     public void removeDrawable(Object obj) {
         drawables.remove(obj);
@@ -199,7 +199,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
         int boxY = 1;
 
-        switch(phase.space().D()) {
+        switch(phase.getSpace().D()) {
             case 3:
                 boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 boxX *=1.4;
@@ -249,7 +249,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
         int boxY = 1;
 
-        switch(phase.space().D()) {
+        switch(phase.getSpace().D()) {
             case 3:
                 boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 boxX *=1.4;
@@ -363,7 +363,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         toPixels = scale*pixel.toPixels();
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*getPhase().getBoundary().getBoundingBox().x(0));
-        drawSize[1] = (phase.space().D()==1) ? drawingHeight: (int)(toPixels*getPhase().getBoundary().getBoundingBox().x(1));
+        drawSize[1] = (phase.getSpace().D()==1) ? drawingHeight: (int)(toPixels*getPhase().getBoundary().getBoundingBox().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
@@ -404,7 +404,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
             int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
             int boxY = 1;
 
-            switch(phase.space().D()) {
+            switch(phase.getSpace().D()) {
                 case 3:
                     boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                     boxX *=1.4;
@@ -470,7 +470,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         
         InputEventHandler() {
             if(phase == null) return;
-            point = phase.space().makeVector();
+            point = phase.getSpace().makeVector();
         }
         
         public void mouseClicked(MouseEvent evt) {
@@ -483,7 +483,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         public void mousePressed(MouseEvent evt) {
 //			System.out.println("mouse press");
            mouseAction(evt);
-            if(phase.space().D() == 3) {
+            if(phase.getSpace().D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());
             }
@@ -500,21 +500,21 @@ public class DisplayPhase extends Display implements EtomicaElement {
            float x = evt.getX();
             float y = evt.getY();
             
-            if (rotate  && phase.space().D() == 3) {
+            if (rotate  && phase.getSpace().D() == 3) {
                 float xtheta = (y - canvas.getPrevY()) * (360f / canvas.getSize().height);
                 float ytheta = (x - canvas.getPrevX()) * (360f / canvas.getSize().width);
                 canvas.setXRot(canvas.getXRot()+xtheta);
                 canvas.setYRot(canvas.getYRot()+ytheta);
             }
 
-            if (translate && phase.space().D() == 3) {
+            if (translate && phase.getSpace().D() == 3) {
                 float xShift = (x - canvas.getPrevX())/-(canvas.getSize().width/canvas.getZoom());
                 float yShift = (canvas.getPrevY() - y)/-(canvas.getSize().height/canvas.getZoom());
                 canvas.setShiftX(xShift+canvas.getShiftX());
                 canvas.setShiftY(yShift+canvas.getShiftY());
             }                                                   
 
-            if (zoom  && phase.space().D() == 3) {
+            if (zoom  && phase.getSpace().D() == 3) {
                 float xShift = 1f+(x-canvas.getPrevX())/canvas.getSize().width;
                 float yShift = 1f+(canvas.getPrevY()-y)/canvas.getSize().height;
                 float shift = (xShift+yShift)/2f;
@@ -523,7 +523,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
             }
             
             if (!(canvas instanceof DisplayPhaseCanvas3DOpenGL)) canvas.repaint();
-            if(phase.space().D() == 3) {
+            if(phase.getSpace().D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());
             }

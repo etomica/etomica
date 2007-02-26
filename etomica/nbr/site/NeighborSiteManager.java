@@ -38,7 +38,7 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
      * atom is that given by its type (it is set to null in this class).
      */
     public NeighborSiteManager(final Phase phase, int nCells) {
-        space = phase.space();
+        space = phase.getSpace();
 
         lattice = new CellLattice(phase.getBoundary().getDimensions(),
                 AtomSite.FACTORY);

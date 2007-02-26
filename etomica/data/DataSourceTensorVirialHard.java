@@ -57,7 +57,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
             return data;
         }
         Phase phase = integratorHard.getPhase();
-        int D = phase.space().D();
+        int D = phase.getSpace().D();
 
         work.TE(-1./(integratorHard.getTemperature()*elapsedTime*D*phase.atomCount()));
         data.x.E(work);
@@ -111,6 +111,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
         this.name = name;
     }
     
+    private static final long serialVersionUID = 1L;
     private String name;
     private DataSourceCountTime timer;
     private IntegratorHard integratorHard;

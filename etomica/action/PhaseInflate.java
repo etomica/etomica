@@ -36,7 +36,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
      * Constructs action ready to be performed on the given phase. 
      */
     public PhaseInflate(Phase phase) {
-        this(phase.space());
+        this(phase.getSpace());
         setPhase(phase);
     }
 
@@ -128,6 +128,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorAllMolecules moleculeIterator;
     private final AtomActionTranslateBy translator;
     private final AtomGroupAction groupScaler;

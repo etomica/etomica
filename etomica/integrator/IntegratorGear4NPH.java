@@ -218,9 +218,9 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                 integrator.calculateForces();
                 Phase phase = integrator.getPhase();
                 double kineticT = integrator.getMeterTemperature().getDataAsScalar();
-                double mvsq = kineticT * phase.space().D() * phase.atomCount();
+                double mvsq = kineticT * phase.getSpace().D() * phase.atomCount();
                 double volume = phase.volume();
-                double pCurrent = phase.getDensity()*kineticT - integrator.forceSumNPH.w/(phase.space().D()*volume);
+                double pCurrent = phase.getDensity()*kineticT - integrator.forceSumNPH.w/(phase.getSpace().D()*volume);
                 double hCurrent = 0.5*mvsq + integrator.forceSumNPH.u + pCurrent*volume;
                 integrator.setTargetH(hCurrent);
             }
@@ -253,9 +253,9 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         public Data getData() {
             Phase phase = integrator.getPhase();
             double kineticT = integrator.getMeterTemperature().getDataAsScalar();
-            double mvsq = kineticT* phase.space().D() * phase.atomCount();
+            double mvsq = kineticT* phase.getSpace().D() * phase.atomCount();
             double volume = phase.volume();
-            double pCurrent = phase.getDensity()*kineticT - integrator.forceSumNPH.w/(phase.space().D()*volume);
+            double pCurrent = phase.getDensity()*kineticT - integrator.forceSumNPH.w/(phase.getSpace().D()*volume);
             double hCurrent = 0.5*mvsq + integrator.forceSumNPH.u + pCurrent*volume;
             data.getData()[0] = kineticT;
             data.getData()[1] = pCurrent;

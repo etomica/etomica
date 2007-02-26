@@ -131,8 +131,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    IVector dr = phase.space().makeVector();
-                    IVector dv = phase.space().makeVector();
+                    IVector dr = phase.getSpace().makeVector();
+                    IVector dv = phase.getSpace().makeVector();
 
                     AtomLeaf atom0 = (AtomLeaf)pair.atom0;
                     AtomLeaf atom1 = (AtomLeaf)pair.atom1;
@@ -156,8 +156,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
                 debugPair = Debug.getAtoms(phase);
                 if (debugPair.atom0 instanceof AtomLeaf && debugPair.atom1 instanceof AtomLeaf) {
-                    IVector dr = phase.space().makeVector();
-                    IVector dv = phase.space().makeVector();
+                    IVector dr = phase.getSpace().makeVector();
+                    IVector dv = phase.getSpace().makeVector();
 
                     AtomLeaf atom0 = (AtomLeaf)debugPair.atom0;
                     AtomLeaf atom1 = (AtomLeaf)debugPair.atom1;

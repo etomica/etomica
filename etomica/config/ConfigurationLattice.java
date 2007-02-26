@@ -120,7 +120,7 @@ public class ConfigurationLattice extends Configuration {
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector shape = phase.space().makeVector();
+        IVector shape = phase.getSpace().makeVector();
         shape.E(phase.getBoundary().getDimensions());
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
@@ -139,7 +139,7 @@ public class ConfigurationLattice extends Configuration {
         }
 
         // determine lattice constant
-        IVector latticeScaling = phase.space().makeVector();
+        IVector latticeScaling = phase.getSpace().makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -151,10 +151,10 @@ public class ConfigurationLattice extends Configuration {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = phase.space().makeVector();
+        IVector offset = phase.getSpace().makeVector();
         offset.E(phase.getBoundary().getDimensions());
-        IVector vectorOfMax = phase.space().makeVector();
-        IVector vectorOfMin = phase.space().makeVector();
+        IVector vectorOfMax = phase.getSpace().makeVector();
+        IVector vectorOfMin = phase.getSpace().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 

@@ -58,7 +58,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
             
             velocityTensor.TE(1.0/phase.atomCount());
                     
-            data.x.TE(-1/((t-t0)*phase.space().D()*phase.atomCount()));
+            data.x.TE(-1/((t-t0)*phase.getSpace().D()*phase.atomCount()));
             data.x.PE(velocityTensor);
         
             t0 = t;

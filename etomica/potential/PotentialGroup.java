@@ -19,7 +19,6 @@ import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster.AtomIterator0;
 import etomica.space.Space;
-import etomica.species.Species;
 
 /**
  * Collection of potentials that act between the atoms contained in
@@ -30,6 +29,7 @@ import etomica.species.Species;
  */
 public class PotentialGroup extends Potential {
     
+
     /**
      * Makes a potential group defined on the position of nBody atom or atom groups.
      * This constructor should only be called by the PotentialMaster.  Use 
@@ -294,12 +294,14 @@ public class PotentialGroup extends Potential {
         return criterion;
     }
     
+    private static final long serialVersionUID = 1L;
     protected PotentialLinker first;
     protected Phase phase;
     protected PotentialMaster potentialMaster;
     protected NeighborCriterion criterion = new CriterionAll();
 
     protected static class PotentialLinker implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
         public final Potential potential;
         public final AtomsetIteratorBasisDependent iterator;
         public final AtomType[] types;

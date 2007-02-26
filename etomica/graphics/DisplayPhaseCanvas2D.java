@@ -34,8 +34,8 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
         displayPhase = _phase;
-        atomOrigin = new int[_phase.getPhase().space().D()];
-        boundingBox = _phase.getPhase().space().makeVector();
+        atomOrigin = new int[_phase.getPhase().getSpace().D()];
+        boundingBox = _phase.getPhase().getSpace().makeVector();
     }
     
     /**

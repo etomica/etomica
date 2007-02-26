@@ -69,7 +69,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     public NeighborCellManager(final Phase phase, double potentialRange, AtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
         this.phase = phase;
-        space = phase.space();
+        space = phase.getSpace();
         atomIterator = new AtomIteratorTree();
         atomIterator.setDoAllNodes(true);
         atomIterator.setRoot(phase.getSpeciesMaster());

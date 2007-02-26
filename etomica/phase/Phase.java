@@ -129,7 +129,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      */
     public boolean isLrcEnabled() {return lrcEnabled;}
     
-    public final Space space() {return space;}
+    public final Space getSpace() {return space;}
     
     /**
      * Returns the ith molecule in the linked list of molecules.

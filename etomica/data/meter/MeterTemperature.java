@@ -11,14 +11,9 @@ import etomica.units.Temperature;
  * equipartition
  */
 
-/*
- * History of changes 7/03/02 (DAK) Changes to tie in with function of
- * kinetic-energy meter.
- */
-
 public class MeterTemperature extends DataSourceScalar implements Meter {
 
-	public MeterTemperature() {
+    public MeterTemperature() {
 		super("Temperature", Temperature.DIMENSION);
 		meterKE = new MeterKineticEnergy();
 	}
@@ -31,7 +26,7 @@ public class MeterTemperature extends DataSourceScalar implements Meter {
 
 	public double getDataAsScalar() {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-		return (2. / (phase.atomCount() * phase.space().D()))
+		return (2. / (phase.atomCount() * phase.getSpace().D()))
 				* meterKE.getDataAsScalar();
 	}
 
@@ -53,6 +48,7 @@ public class MeterTemperature extends DataSourceScalar implements Meter {
         meterKE.setPhase(phase);
     }
 
+    private static final long serialVersionUID = 1L;
     protected Phase phase;
 	protected final MeterKineticEnergy meterKE;
 }

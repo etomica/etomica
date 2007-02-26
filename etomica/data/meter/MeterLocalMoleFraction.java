@@ -97,8 +97,8 @@ public class MeterLocalMoleFraction extends DataSourceScalar implements Meter {
      */
     public void setPhase(Phase newPhase) {
         phase = newPhase;
-        tempVec = phase.space().makeVector();
-        shapeOrigin = phase.space().makeVector();
+        tempVec = phase.getSpace().makeVector();
+        shapeOrigin = phase.getSpace().makeVector();
         iterator.setPhase(phase);
         if (shape == null) {
             setShape(phase.getBoundary().getShape());
