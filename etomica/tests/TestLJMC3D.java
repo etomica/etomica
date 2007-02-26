@@ -46,7 +46,6 @@ public class TestLJMC3D extends Simulation {
         defaults.makeLJDefaults();
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom(this);
-        mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
         mcMoveAtom.setStepSize(0.2*defaults.atomSize);
         ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -100,6 +99,7 @@ public class TestLJMC3D extends Simulation {
         
         sim.getController().actionPerformed();
         
+        //XXX double Z = 1 + ...  ??
         double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).x*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
         avgPE /= numAtoms;
