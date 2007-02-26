@@ -12,7 +12,6 @@ import etomica.space.Space;
  *
  * @author David Kofke
  */
-   
 public class AtomFactoryTree extends AtomFactoryHomo {
 
     /**
@@ -73,7 +72,9 @@ public class AtomFactoryTree extends AtomFactoryHomo {
 
     /**
      * Returns the factory above this one in the factory tree.
+     * 
      */
+    // is this really necessary?
     public AtomFactoryTree parentFactory() {return parentFactory;}
     
     /**
@@ -81,6 +82,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      * explicitly instantiated by the user (rather than one of the ones it instantiated
      * to make the tree). 
      */
+    // is this really necessary?
     public AtomFactoryTree rootFactory() {
         return (parentFactory == null) ? this : parentFactory.rootFactory();
     }
@@ -88,47 +90,44 @@ public class AtomFactoryTree extends AtomFactoryHomo {
     /**
      * Returns the factory that produces the leaf atoms of the tree.
      */
-     public AtomFactory getLeafFactory() {
+    public AtomFactory getLeafFactory() {
         return (getChildFactory() instanceof AtomFactoryTree) ?
                 ((AtomFactoryTree)getChildFactory()).getLeafFactory() : getChildFactory();
-     } 
+    } 
      
-     /**
-      * Sets the factory that makes the leaf atoms of the tree.  Should be invoked
-      * one time, after construction and before this is used to build a molecule.
-      * 
-      * @throws IllegalStateException if invoked more than once for a single instance.
-      */
-     public void setLeafFactory(AtomFactory factory) {
-         if (!isMutable) {
-             throw new IllegalStateException("Factory is not mutable");
-         }
-        if (getLeafFactory() != null) throw new IllegalStateException("You can set the leaf factory only once!");
+    /**
+     * Sets the factory that makes the leaf atoms of the tree.  Should be invoked
+     * one time, after construction and before this is used to build a molecule.
+     */
+    public void setLeafFactory(AtomFactory factory) {
+        if (!isMutable) {
+            throw new IllegalStateException("Factory is not mutable");
+        }
         if(childFactory instanceof AtomFactoryTree) {
             ((AtomFactoryTree)childFactory).setLeafFactory(factory);
         } else {
             childFactory = factory;
         }     
-     }
+    }
      
-     /**
-      * Returns the AtomType of the lowest-level non-null factory in the tree.
-      * If a leaf factory has been assigned, this will be the type of that factory;
-      * otherwise it will be the type of the AtomFactoryTree at the bottom of the
-      * hierarchy.  This is needed to get the parent atom type when constructing the leaf factory.
-      */
-     public AtomType getLeafType() {
-         if(childFactory == null) {
-             return atomType;
-         }
-         if(childFactory instanceof AtomFactoryTree) {
-             return ((AtomFactoryTree)childFactory).getLeafType();
-         }
-         return childFactory.getType();
-     }
+    /**
+     * Returns the AtomType of the lowest-level non-null factory in the tree.
+     * If a leaf factory has been assigned, this will be the type of that factory;
+     * otherwise it will be the type of the AtomFactoryTree at the bottom of the
+     * hierarchy.  This is needed to get the parent atom type when constructing the leaf factory.
+     */
+    public AtomType getLeafType() {
+        if(childFactory == null) {
+            return atomType;
+        }
+        if(childFactory instanceof AtomFactoryTree) {
+            return ((AtomFactoryTree)childFactory).getLeafType();
+        }
+        return childFactory.getType();
+    }
     
     //number of layers of atoms below the root atom
+    private static final long serialVersionUID = 1L;
     int depth;
     private AtomFactoryTree parentFactory;
-    
-}//end of AtomFactoryTree
+}

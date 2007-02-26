@@ -7,7 +7,6 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLinker;
-import etomica.atom.AtomList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 

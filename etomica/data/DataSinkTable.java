@@ -6,7 +6,6 @@ import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToTable;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
@@ -19,10 +18,6 @@ import etomica.data.types.DataTable.DataInfoTable;
  * 
  * @author David Kofke
  *  
- */
-
-/*
- * History Created on Apr 9, 2005 by kofke
  */
 public class DataSinkTable extends DataSet {
 
@@ -87,9 +82,12 @@ public class DataSinkTable extends DataSet {
         }
     }
     
+    private static final long serialVersionUID = 1L;
     private int rowCount;
     
     protected static class DataCasterJudgeTable implements DataCasterJudge, Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         public DataProcessor getDataCaster(DataInfo dataInfo) {
             if (dataInfo instanceof DataInfoTable) {

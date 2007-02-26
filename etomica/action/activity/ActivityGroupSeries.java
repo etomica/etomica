@@ -238,6 +238,7 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
 		this.pauseAfterEachAction = pauseAfterEachAction;
 	}
 
+    private static final long serialVersionUID = 1L;
     protected Action currentAction;
     protected boolean pauseAfterEachAction;
     protected int numActions;

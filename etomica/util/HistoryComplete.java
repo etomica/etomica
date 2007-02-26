@@ -1,8 +1,5 @@
 package etomica.util;
 
-import etomica.data.DataSource;
-import etomica.data.DataSourceUniform;
-import etomica.data.DataSourceUniform.LimitType;
 
 /**
  * History that records a data from a simulation.  When existing space

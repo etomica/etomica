@@ -1,8 +1,6 @@
 package etomica.data.meter;
 
-import etomica.data.DataInfo;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorEvent;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
@@ -69,6 +67,7 @@ public class MeterKineticEnergyFromIntegrator extends DataSourceScalar implement
         this.phase = phase;
     }
 
+    private static final long serialVersionUID = 1L;
     private Phase phase;
     private IntegratorMD integrator;
 }

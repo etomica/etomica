@@ -3,7 +3,6 @@ package etomica.space3d;
 
 import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.space2d.Vector2D;
 import etomica.util.Function;
 
 public class Tensor3D implements Tensor, java.io.Serializable {

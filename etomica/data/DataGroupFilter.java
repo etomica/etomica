@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.data.types.CastToGroup;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.Arrays;
@@ -98,6 +97,7 @@ public class DataGroupFilter extends DataProcessor {
         return null;
     }
     
+    private static final long serialVersionUID = 1L;
     private Data outputData;
     private final boolean singleInstance;
     private final int[] indexes;

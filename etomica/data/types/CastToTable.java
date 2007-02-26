@@ -6,7 +6,6 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataSourceIndependent;
-import etomica.data.DataTag;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -45,10 +44,6 @@ import etomica.space.Tensor;
  * <p>
  * @author Andrew Schultz and David Kofke
  *  
- */
-
-/*
- * History Created on Jul 28, 2005 by kofke
  */
 public class CastToTable extends DataProcessor implements Serializable {
 
@@ -197,6 +192,7 @@ public class CastToTable extends DataProcessor implements Serializable {
         return null;
     }
 
+    private static final long serialVersionUID = 1L;
     private DataTable outputData;
     private int inputType;
     private DataSourceIndependent xDataSource;

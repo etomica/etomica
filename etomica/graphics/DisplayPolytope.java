@@ -19,7 +19,6 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.units.Length;
 import etomica.units.Pixel;
 
 /**

@@ -1,6 +1,5 @@
 package etomica.util;
 
-import etomica.data.AccumulatorAverage;
 import etomica.units.Joule;
 import etomica.units.systems.LJ;
 
@@ -100,7 +99,8 @@ public final class Constants {
         public static Direction[] choices () {
             return new Direction[] {TOP,BOTTOM,LEFT,RIGHT,FRONT,BACK};
         }
-    }//end of Direction
+        private static final long serialVersionUID = 1L;
+    }
     
     /**
      * Enumerated type for the compass directions NORTH, SOUTH, EAST, WEST.
@@ -115,7 +115,8 @@ public final class Constants {
         public static CompassDirection[] choicse() {
             return new CompassDirection[] {NORTH,SOUTH,WEST,EAST};
         }
-    }//end of CompassDirection
+        private static final long serialVersionUID = 1L;
+   }
     /**
      * Enumerated type for specifying HORIZONTAL/VERTICAL alignment.
      */
@@ -129,6 +130,7 @@ public final class Constants {
         public static Alignment[] choices() {
             return new Alignment[] {HORIZONTAL,VERTICAL,WIDTH};
         }
+        private static final long serialVersionUID = 1L;
     }
     
 }

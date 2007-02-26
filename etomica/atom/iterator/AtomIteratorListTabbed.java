@@ -6,6 +6,7 @@ import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomLinker;
 import etomica.atom.AtomList;
+import etomica.atom.AtomListTabbed;
 import etomica.atom.AtomSet;
 
 /**

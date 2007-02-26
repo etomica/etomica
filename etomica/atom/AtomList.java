@@ -11,7 +11,6 @@ import java.util.Vector;
 
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorListSimple;
-import etomica.simulation.Simulation;
 import etomica.util.Debug;
 import etomica.util.DirtyObject;
 import etomica.util.EtomicaObjectInputStream;
@@ -124,15 +123,6 @@ public class AtomList implements java.io.Serializable, DirtyObject
          return size == 0;
      }
      
-     /**
-      * Returns a randomly selected atom from the list.
-      * Returns null if list is empty.
-      */
-     public Atom getRandom() {
-        if(isEmpty()) return null;
-        return entry(Simulation.random.nextInt(size)).atom;
-     }
-
     /**
      * Returns the first element in this list.
      * Returns null if the list is empty.

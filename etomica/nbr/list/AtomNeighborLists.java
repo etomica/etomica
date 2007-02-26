@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.util.Arrays;
 import etomica.util.DirtyObject;
 import etomica.util.EtomicaObjectInputStream;
 
@@ -20,6 +19,7 @@ import etomica.util.EtomicaObjectInputStream;
  */
 public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
     protected transient AtomArrayList[] upList, downList;
 	
     /**

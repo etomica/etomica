@@ -76,7 +76,7 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
     /**
      * Causes the display of the plot to be updated.
      */
-    public void dataChanged(DataSet dataSet) {
+    public void dataChanged(DataSet changedDataSet) {
         doUpdate();
     }
     

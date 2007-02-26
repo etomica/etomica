@@ -1,6 +1,5 @@
 package etomica.space3d;
 
-import etomica.simulation.Simulation;
 
 
 

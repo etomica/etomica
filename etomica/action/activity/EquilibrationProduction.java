@@ -4,8 +4,6 @@
  */
 package etomica.action.activity;
 
-import java.util.LinkedList;
-
 import etomica.action.Action;
 import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
@@ -23,7 +21,8 @@ import etomica.simulation.Simulation;
  */
 public class EquilibrationProduction extends ActivityGroupSeries {
 
-	/**
+
+    /**
 	 * Constructs activity such that a two different integrators instances are
 	 * used for the equilibration and production integrations.
 	 * 
@@ -114,7 +113,9 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 		return equilibrationActivity.getMaxSteps();
 	}
 
-	private final ActivityIntegrate equilibrationActivity, productionActivity;
+    private static final long serialVersionUID = 1L;
+
+    private final ActivityIntegrate equilibrationActivity, productionActivity;
 
 	private final ActivityGroupSeries productionPreparationActivity;
 
