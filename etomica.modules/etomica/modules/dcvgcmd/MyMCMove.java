@@ -1,8 +1,8 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.integrator.IntegratorPhase;
@@ -63,7 +63,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 				testMolecule = null;//added this line 09/19/02
 				return false;
 			}
-			testMolecule = activeAtoms.getRandom();
+            testMoleculeIndex = random.nextInt(activeAtoms.size());
+			testMolecule = activeAtoms.get(testMoleculeIndex);
 			energyMeter.setTarget(testMolecule);
 			uOld = energyMeter.getDataAsScalar();
 		} 
@@ -79,7 +80,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	public void acceptNotify() {
         super.acceptNotify();
 		if(!insert) {
-			activeAtoms.remove(testMolecule);
+			activeAtoms.remove(testMoleculeIndex);
 			deltaN--;
 		} else {
 			activeAtoms.add(testMolecule);
@@ -112,10 +113,11 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private int deltaN = 0;
 	private Vector3D position;
 	private boolean nearOrigin;
-	private AtomList activeAtoms = new AtomList();
+	private AtomArrayList activeAtoms = new AtomArrayList();
 	private AtomIteratorArrayListSimple atomIterator;// = new AtomIteratorList();
 	private final AtomActionRandomizeVelocity randomizer = new AtomActionRandomizeVelocity(0);
     private final IntegratorPhase integrator;
+    protected int testMoleculeIndex;
 	
 	/**
 	 * Returns the zFraction.

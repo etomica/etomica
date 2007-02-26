@@ -57,7 +57,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         int nCells = (int)Math.ceil((double)iterator.size()/(double)basisSize);
         
         //determine scaled shape of simulation volume
-        IVector shape = phase.space().makeVector();
+        IVector shape = phase.getSpace().makeVector();
         shape.E(phase.getBoundary().getDimensions());
         shape.setX(2,shape.x(2)*length);
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
@@ -77,7 +77,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
     
         // determine lattice constant
-        IVector latticeScaling = phase.space().makeVector();
+        IVector latticeScaling = phase.getSpace().makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -88,10 +88,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = phase.space().makeVector();
+        IVector offset = phase.getSpace().makeVector();
         offset.E(phase.getBoundary().getDimensions());
-        IVector vectorOfMax = phase.space().makeVector();
-        IVector vectorOfMin = phase.space().makeVector();
+        IVector vectorOfMax = phase.getSpace().makeVector();
+        IVector vectorOfMin = phase.getSpace().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -156,9 +156,9 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         //loop for multiple tubes.
         iterator.setList(lists[2]);
         iterator.reset();
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(phase.space()));
+        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(phase.getSpace()));
         // put them all at 0.  oops
-        atomActionTranslateTo.setDestination(phase.space().makeVector());
+        atomActionTranslateTo.setDestination(phase.getSpace().makeVector());
         while (iterator.hasNext()){
         	Atom a = iterator.nextAtom();
         	Conformation config = a.getType().creator().getConformation();

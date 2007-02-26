@@ -438,7 +438,7 @@ public class JouleThomson extends SimulationGraphic {
                 v.E(size);
                 sim.phase.getBoundary().setDimensions(v);
                 SpaceLattice lattice;
-                if (sim.phase.space().D() == 2) {
+                if (sim.phase.getSpace().D() == 2) {
                     lattice = new LatticeOrthorhombicHexagonal();
                 }
                 else {

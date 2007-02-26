@@ -19,8 +19,8 @@ public class ConfigurationZero extends Configuration {
     }
 
     public void initializeCoordinates(Phase phase) {
-        AtomActionTranslateTo atomActionTranslateTo = new AtomActionTranslateTo(phase.space());
-        IVector work = phase.space().makeVector();
+        AtomActionTranslateTo atomActionTranslateTo = new AtomActionTranslateTo(phase.getSpace());
+        IVector work = phase.getSpace().makeVector();
         work.E(0.0);
         int intD = (int)Math.round(phase.getBoundary().getDimensions().x(0));
         if (intD % 2 == 0) {

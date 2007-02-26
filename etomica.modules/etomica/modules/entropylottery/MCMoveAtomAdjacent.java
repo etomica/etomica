@@ -100,7 +100,7 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
     
     public void setPhase(Phase p) {
         super.setPhase(p);
-        translationVector = phase.space().makeVector();
+        translationVector = phase.getSpace().makeVector();
         atomSource.setPhase(p);
     }
     
