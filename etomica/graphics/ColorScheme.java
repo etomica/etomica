@@ -107,7 +107,7 @@ public abstract class ColorScheme implements java.io.Serializable {
           dp.setColorScheme(nghb);
         }
         public String getLabel() {
-          return "Neighbors (broken)";
+          return "Neighbors";
         }
       };
       Action act5 = new Action() {
@@ -135,7 +135,7 @@ public abstract class ColorScheme implements java.io.Serializable {
           dp.setColorScheme(cell);
         }
         public String getLabel() {
-          return "Cell (broken)";
+          return "Cell";
         }
       };
 
