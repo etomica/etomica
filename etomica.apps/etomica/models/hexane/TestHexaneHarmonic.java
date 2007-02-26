@@ -3,9 +3,6 @@
  */
 package etomica.models.hexane;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
@@ -17,11 +14,9 @@ import etomica.data.DataHistogram;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxesCAE;
-import etomica.graphics.DisplayPhaseCanvas3DOpenGL;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -34,9 +29,6 @@ import etomica.normalmode.ArrayReader2D;
 import etomica.normalmode.BoltzmannProcessor;
 import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.normalmode.MeterHarmonicSingleEnergy;
-import etomica.normalmode.MeterNormalMode;
-import etomica.normalmode.NormalCoordLeaf;
-import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.normalmode.TestFccHarmonic.DataProcessorFoo;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;

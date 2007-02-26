@@ -522,7 +522,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 canvas.setZoom(canvas.getZoom()+shift);
             }
             
-            if (!(canvas instanceof DisplayPhaseCanvas3DOpenGL)) canvas.repaint();
+            canvas.repaint();
             if(phase.getSpace().D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());
@@ -682,21 +682,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
                     default:
                         break;
                 }
-            }
-            else if(canvas instanceof DisplayPhaseCanvas3DOpenGL){
-            	DisplayPhaseCanvas3DOpenGL canvasGL = (DisplayPhaseCanvas3DOpenGL)canvas;
-            	switch(c) {
-            		case '<':
-//						setImageShells(0);
-            			canvasGL.setDrawExpansionFactor(canvasGL.getDrawExpansionFactor()-0.02);
-            			drawOverflow = false;
-            			break;
-					case '>':
-//						setImageShells(0);
-						canvasGL.setDrawExpansionFactor(canvasGL.getDrawExpansionFactor()+0.02);
-						drawOverflow = false;
-						break;
-            	}            			
             }
             keyAction(evt);
         }
