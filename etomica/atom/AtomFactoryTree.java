@@ -25,7 +25,7 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      */
     public AtomFactoryTree(Space space, AtomTypeGroup parentType,
                             int[] nAtoms) {
-        this(space, parentType, nAtoms, null);
+        this(space, parentType, nAtoms, new Conformation[nAtoms.length]);
     }
     
     /**
