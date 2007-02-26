@@ -177,10 +177,10 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		public void setPhase(Phase phase){
 			atomOldCoord = new IVector[phase.atomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
-				atomOldCoord[j] = phase.space().makeVector();
+				atomOldCoord[j] = phase.getSpace().makeVector();
 			}
 						
-			atomPBIarray = new int[phase.atomCount()][phase.space().D()];
+			atomPBIarray = new int[phase.atomCount()][phase.getSpace().D()];
 			iterator.setPhase(phase);
 			phaseDim = phase.getBoundary().getDimensions();
 			updateAtomOldCoord();

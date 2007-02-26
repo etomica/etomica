@@ -57,7 +57,7 @@ public class MCMoveHarmonic extends MCMovePhase {
         iterator.reset();
         int atomCount = 0;
         while (iterator.hasNext()) {
-            latticePositions[atomCount] = phase.space().makeVector();
+            latticePositions[atomCount] = phase.getSpace().makeVector();
             Atom atom = iterator.nextAtom();
             latticePositions[atomCount].E(atom.getType().getPositionDefinition().position(atom));
             atomCount++;
@@ -85,7 +85,7 @@ public class MCMoveHarmonic extends MCMovePhase {
     protected int getNormalDim() {
         //x, y, z
         // subclasses can override this to reserve space for other normal mode coordinates
-        return phase.space().D();
+        return phase.getSpace().D();
     }
 
     public AtomIterator affectedAtoms() {

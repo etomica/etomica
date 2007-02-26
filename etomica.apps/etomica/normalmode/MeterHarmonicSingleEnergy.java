@@ -99,7 +99,7 @@ public class MeterHarmonicSingleEnergy implements Meter {
         iterator.reset();
         int atomCount = 0;
         while (iterator.hasNext()) {
-            latticePositions[atomCount] = phase.space().makeVector();
+            latticePositions[atomCount] = phase.getSpace().makeVector();
             Atom atom = iterator.nextAtom();
             IVector atomPos = atom.getType().getPositionDefinition().position(atom);
             latticePositions[atomCount].E(atomPos);

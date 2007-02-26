@@ -58,7 +58,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
         iterator.reset();
         int atomCount = 0;
         while (iterator.hasNext()) {
-            latticePositions[atomCount] = phase.space().makeVector();
+            latticePositions[atomCount] = phase.getSpace().makeVector();
             Atom atom = iterator.nextAtom();
             latticePositions[atomCount].E(atom.getType().getPositionDefinition().position(atom));
             atomCount++;

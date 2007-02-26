@@ -27,14 +27,14 @@ public class MeterCorrelationMatrix implements Meter {
 
     public MeterCorrelationMatrix(Phase ph, PairIndexerMolecule pi) {
         this.phase = ph;
-        dim = phase.space().D();
+        dim = phase.getSpace().D();
         this.pri = pi;
 
         DataTensor[] dataTensors = new DataTensor[pri.getMaxLength()];
         DataInfoTensor[] dataInfoTensors = new  DataInfoTensor[pri.getMaxLength()];
         for (int i = 0; i < pri.getMaxLength(); i++) {
-            dataTensors[i] = new DataTensor(phase.space());
-            dataInfoTensors[i] = new DataInfoTensor("Normal Mode deltas", Area.DIMENSION, phase.space());
+            dataTensors[i] = new DataTensor(phase.getSpace());
+            dataInfoTensors[i] = new DataInfoTensor("Normal Mode deltas", Area.DIMENSION, phase.getSpace());
         }
         data = new DataGroup(dataTensors);
         dataInfo = new DataInfoGroup("Normal Mode deltas", Null.DIMENSION, dataInfoTensors);
@@ -53,7 +53,7 @@ public class MeterCorrelationMatrix implements Meter {
         //set up the vectors where the original position is stored
         while (atomIterator.hasNext()) {
             AtomLeaf next = (AtomLeaf)atomIterator.nextAtom();
-            op[next.getGlobalIndex()] = phase.space().makeVector();
+            op[next.getGlobalIndex()] = phase.getSpace().makeVector();
             op[next.getGlobalIndex()].E(next.getCoord().getPosition());
         }
         
@@ -62,11 +62,11 @@ public class MeterCorrelationMatrix implements Meter {
         int tempInt = pri.getMaxLength();
         tempVex = new IVector[tempInt];
         for(int i = 0; i < tempInt; i++){
-            tempVex[i] = phase.space().makeVector();
+            tempVex[i] = phase.getSpace().makeVector();
         }
         counter = new int[maxlength];
-        tempTen = phase.space().makeTensor();
-        tempTenAgain = phase.space().makeTensor();
+        tempTen = phase.getSpace().makeTensor();
+        tempTenAgain = phase.getSpace().makeTensor();
         
         resetMeter();
         setSymmetric(true);
@@ -85,7 +85,7 @@ public class MeterCorrelationMatrix implements Meter {
         //Used in a variety of loops; save some time by making them now
         AtomLeaf atom;
         int bin;
-        IVector vex = phase.space().makeVector();
+        IVector vex = phase.getSpace().makeVector();
         
         if(!symmetric) System.out.println(symmetric);
         // make the change-in-position-from-the-original-lattice-point vector

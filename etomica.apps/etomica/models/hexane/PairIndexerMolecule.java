@@ -41,17 +41,17 @@ public class PairIndexerMolecule {
         // assume we have a rectangular box.  make our own little boundary
         // instance instead of using actual boundary so that boundary changes
         // don't affect us (since we work off original coordinates)
-        bdry = new BoundaryRectangularPeriodic(phase.space(), 1);
+        bdry = new BoundaryRectangularPeriodic(phase.getSpace(), 1);
         bdry.setDimensions(phase.getBoundary().getDimensions());
 
-        dim = phase.space().D();
+        dim = phase.getSpace().D();
         maxes = new int[dim];
         mins = new int[dim];
         jumpCount = new int[dim];
-        temp = phase.space().makeVector();
+        temp = phase.getSpace().makeVector();
         indices = new int[dim];
 
-        inverter = phase.space().makeTensor();
+        inverter = phase.getSpace().makeTensor();
         inverter.E(prim.vectors());
         inverter.inverse();
         
@@ -72,7 +72,7 @@ public class PairIndexerMolecule {
         AtomIteratorAllMolecules aim = new AtomIteratorAllMolecules(phase);
         aim.reset();
         Atom firstatom = (Atom) aim.peek();
-        IVector r0 = phase.space().makeVector();
+        IVector r0 = phase.getSpace().makeVector();
         r0.E(firstatom.getType().getPositionDefinition().position(firstatom));
 
         temp.E(0.0);
@@ -80,7 +80,7 @@ public class PairIndexerMolecule {
             Atom molecule = aim.nextAtom();
             temp.E(molecule.getType().getPositionDefinition().position(molecule));
 
-            latticeSites[molecule.getGlobalIndex()] = phase.space().makeVector();
+            latticeSites[molecule.getGlobalIndex()] = phase.getSpace().makeVector();
             latticeSites[molecule.getGlobalIndex()].E(temp);
             temp.ME(r0);
 

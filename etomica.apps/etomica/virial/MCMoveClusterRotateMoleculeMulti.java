@@ -49,7 +49,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             molecule = selectedMolecules[i];
             oldPositions[i] = new IVector[((AtomTreeNodeGroup)molecule.getNode()).getChildList().size()];
             for (int j=0; j<oldPositions[i].length; j++) {
-                oldPositions[i][j] = p.space().makeVector();
+                oldPositions[i][j] = p.getSpace().makeVector();
             }
         }
     }

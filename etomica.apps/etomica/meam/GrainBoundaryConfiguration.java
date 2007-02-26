@@ -138,8 +138,8 @@ public class GrainBoundaryConfiguration extends Configuration {
          *  lattice A is above lattice B, and both are centered on the z axis.
          */
         
-        Vector3D offsetA = (Vector3D)phase.space().makeVector();
-        Vector3D offsetB = (Vector3D)phase.space().makeVector();
+        Vector3D offsetA = (Vector3D)phase.getSpace().makeVector();
+        Vector3D offsetB = (Vector3D)phase.getSpace().makeVector();
         offsetA.setX(0, -0.5 * latticeDimensionsA[0]);
         offsetA.setX(1, -0.5 * latticeDimensionsA[1]);
         offsetA.setX(2, (latticeDimensionsB[2] - latticeDimensionsA[2])/2.0 );

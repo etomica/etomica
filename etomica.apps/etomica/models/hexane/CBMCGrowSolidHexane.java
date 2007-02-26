@@ -44,7 +44,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
     //Different because we know the bond angle
     //All moves are accepted,
     protected IVector calcRandomBondWithAngle(IVector v){
-        IVector vax = phase.space().makeVector();
+        IVector vax = phase.getSpace().makeVector();
         double ubb;
         v.normalize();
         
@@ -62,16 +62,16 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
     
     protected IVector calcRandomBondWithAngleAndTorsion(AtomLeaf a, AtomLeaf b, 
             AtomLeaf c){
-        if(phase.space().D() != 3){
+        if(phase.getSpace().D() != 3){
             throw new IllegalArgumentException("Torsional bond is only used in 3D simulations");
         }
         
-        IVector vax = phase.space().makeVector();
-        IVector vux = phase.space().makeVector();
+        IVector vax = phase.getSpace().makeVector();
+        IVector vux = phase.getSpace().makeVector();
         double theta;
         double ubb, utors, usum;
-        IVector tempCloser = phase.space().makeVector();
-        IVector tempFarther = phase.space().makeVector();
+        IVector tempCloser = phase.getSpace().makeVector();
+        IVector tempFarther = phase.getSpace().makeVector();
         
         tempFarther.E(b.getCoord().getPosition());
         tempFarther.ME(c.getCoord().getPosition()); 

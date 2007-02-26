@@ -26,7 +26,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
     public void makeWaveVectors(Phase phase) {
         int numCells = 0;
         double d = -1;
-        for (int i=0; i<phase.space().D(); i++) {
+        for (int i=0; i<phase.getSpace().D(); i++) {
             //XXX divide by sqrt(2) for FCC
             int n = (int)Math.round(phase.getBoundary().getDimensions().x(i) / (primitive.getSize()[i]*Math.sqrt(2)));
             if (i>0 && n != numCells) {

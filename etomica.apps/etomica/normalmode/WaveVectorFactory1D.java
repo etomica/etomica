@@ -31,19 +31,19 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         // assume 1-molecule basis and matchup betwen the box and the primitive
     
         double[] d = primitive.getSize();
-        int[] numCells = new int[phase.space().D()];
+        int[] numCells = new int[phase.getSpace().D()];
         IVector[] reciprocals =  primitive.reciprocal().vectors();;
         IVector[] waveVectorBasis = new IVector[reciprocals.length];
         
-        for (int i=0; i<phase.space().D(); i++) {
-            waveVectorBasis[i] = phase.space().makeVector();
+        for (int i=0; i<phase.getSpace().D(); i++) {
+            waveVectorBasis[i] = phase.getSpace().makeVector();
             waveVectorBasis[i].E(reciprocals[i]);
             numCells[i] = (int)Math.round(phase.getBoundary().getDimensions().x(i) / (d[i]));
             waveVectorBasis[i].TE(1.0/numCells[i]);
         }
     
-        int[] kMin = new int[phase.space().D()];
-        int[] kMax= new int[phase.space().D()];
+        int[] kMin = new int[phase.getSpace().D()];
+        int[] kMax= new int[phase.getSpace().D()];
         for (int i=0; i<kMax.length; i++) {
             kMin[i] = -(numCells[i]-1)/2;
             kMax[i] = numCells[i]/2;
@@ -79,7 +79,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         count = 0;
         for (int kx = -kMax[0]; kx < kMax[0]+1; kx++) {
             if (waveVectorIndices[kx+kMax[0]] > 0) {
-                waveVectors[count] = phase.space().makeVector();
+                waveVectors[count] = phase.getSpace().makeVector();
                 waveVectors[count].Ea1Tv1(kx, waveVectorBasis[0]);
                 coefficients[count] = waveVectorIndices[kx+kMax[0]]/2.0;
                 count++;

@@ -62,7 +62,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
             affectedAtomIterator.setDirection(Direction.DOWN);
         }
         
-        IVector vex = phase.space().makeVector();
+        IVector vex = phase.getSpace().makeVector();
         double uExt;
         double[] a = new double[numTrial];
         wOld = 1.0;
@@ -101,7 +101,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
         //Calculate the NEW Rosenbluth factor
         IVector[] storePos = new IVector[numTrial];
         for(int k = 0; k < numTrial; k++){
-            storePos[k] = phase.space().makeVector();
+            storePos[k] = phase.getSpace().makeVector();
         }
         
         sumA = 0.0;
@@ -118,7 +118,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                         vex.PE(((AtomLeaf)atomList.get(0)).getCoord().getPosition());
                         ((AtomLeaf)atomList.get(1)).getCoord().getPosition().E(vex);
                     } else if(i == 2) { //propane
-                        IVector temp = phase.space().makeVector();
+                        IVector temp = phase.getSpace().makeVector();
                         temp.E(((AtomLeaf)atomList.get(1)).getCoord().getPosition());
                         temp.ME(((AtomLeaf)atomList.get(0)).getCoord().getPosition());        
                         vex.E(calcRandomBondWithAngle(temp));
@@ -178,7 +178,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                         vex.PE(((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition());
                         ((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition().E(vex);
                     } else if(i == chainlength - 3) {  //propane
-                        IVector temp = phase.space().makeVector();
+                        IVector temp = phase.getSpace().makeVector();
                         temp.E(((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition());
                         temp.ME(((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition());        
                         vex.E(calcRandomBondWithAngle(temp));
@@ -261,7 +261,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
      * @return a new bond vector
      */
     protected IVector calcRandomBond(){
-        IVector vax = phase.space().makeVector();
+        IVector vax = phase.getSpace().makeVector();
         vax.setRandomSphere();
         vax.TE(calcBondL());
         return vax;
@@ -275,7 +275,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
      */
     //Based on algorithm 45 in Frenkel & Smit
     protected IVector calcRandomBondWithAngle(IVector v){
-        IVector vax = phase.space().makeVector();
+        IVector vax = phase.getSpace().makeVector();
         double phi;
         double ubb;
         v.normalize();
@@ -283,7 +283,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
         boolean ready = false;
         do {
            vax.setRandomSphere();
-           IVector vux = phase.space().makeVector();
+           IVector vux = phase.getSpace().makeVector();
            vux.E(vax);
            
            phi = Math.acos(vux.dot(v));
@@ -307,15 +307,15 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
     //Based on algorithm 46 in Frenkel & Smit
     protected IVector calcRandomBondWithAngleAndTorsion(AtomLeaf a, AtomLeaf b,
             AtomLeaf c){
-        if(phase.space().D() != 3){
+        if(phase.getSpace().D() != 3){
             throw new IllegalArgumentException("Torsional bond is only used in 3D simulations");
         }
         
-        IVector vax = phase.space().makeVector();
-        IVector vux = phase.space().makeVector();
+        IVector vax = phase.getSpace().makeVector();
+        IVector vux = phase.getSpace().makeVector();
         
-        IVector tempCloser = phase.space().makeVector();
-        IVector tempFarther = phase.space().makeVector();
+        IVector tempCloser = phase.getSpace().makeVector();
+        IVector tempFarther = phase.getSpace().makeVector();
         tempFarther.E(b.getCoord().getPosition());
         tempFarther.ME(c.getCoord().getPosition()); 
         tempCloser.E(a.getCoord().getPosition());

@@ -7,7 +7,7 @@ import etomica.phase.Phase;
 
 public class Reconstituter {
     public static double[][] reconstitute(PairIndexerMolecule pim, Phase phase, double[][][] inData) {
-        int dim = phase.space().D();
+        int dim = phase.getSpace().D();
         //nan let's assume that the leaf atoms are molecules
         double[][] outData = new double[dim*phase.moleculeCount()][dim*phase.moleculeCount()];
         AtomArrayList leafList = phase.getSpeciesMaster().leafList;
