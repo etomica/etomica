@@ -8,7 +8,6 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Orientation;
-import etomica.space.Space;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
@@ -25,10 +24,10 @@ public class MCMoveRotate extends MCMovePhaseStep {
     private transient double uNew = Double.NaN;
     private transient Orientation orientation;
 
-    public MCMoveRotate(PotentialMaster potentialMaster, Space space) {
+    public MCMoveRotate(PotentialMaster potentialMaster) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        oldOrientation = space.makeOrientation();
+        oldOrientation = potentialMaster.getSpace().makeOrientation();
         setStepSizeMax(Math.PI);
         setStepSizeMin(0.0);
         setStepSize(Math.PI/2.0);

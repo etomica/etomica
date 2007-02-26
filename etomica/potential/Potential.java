@@ -70,4 +70,5 @@ public abstract class Potential implements java.io.Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
 }//end of Potential

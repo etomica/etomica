@@ -21,7 +21,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     private final MeterPotentialEnergy energyMeter;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final IRandom random;
-    private AtomSource moleculeSource;
+    protected AtomSource moleculeSource;
     
     protected final AtomIteratorTree leafAtomIterator = new AtomIteratorTree();
     

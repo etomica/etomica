@@ -20,13 +20,13 @@ public class MCMoveMolecule extends MCMoveAtom {
     protected final IVector groupTranslationVector;
 
     public MCMoveMolecule(Simulation sim) {
-        this(sim.getRandom(), sim.getPotentialMaster(),sim.getDefaults().atomSize,
+        this(sim.getPotentialMaster(), sim.getRandom(),sim.getDefaults().atomSize,
              sim.getDefaults().boxSize*0.5, sim.getDefaults().ignoreOverlap);
     }
     
-    public MCMoveMolecule(IRandom random, PotentialMaster potentialMaster, double stepSize,
+    public MCMoveMolecule(PotentialMaster potentialMaster, IRandom random, double stepSize,
             double stepSizeMax, boolean ignoreOverlap) {
-        super(random, potentialMaster,stepSize,stepSizeMax,ignoreOverlap);
+        super(potentialMaster, random,stepSize,stepSizeMax,ignoreOverlap);
         AtomActionTranslateBy translator = new AtomActionTranslateBy(potentialMaster.getSpace());
         groupTranslationVector = translator.getTranslationVector();
         moveMoleculeAction = new AtomGroupAction(translator);
