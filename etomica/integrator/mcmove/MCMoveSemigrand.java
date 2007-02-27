@@ -8,8 +8,8 @@ import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorCompound;
-import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.atom.iterator.AtomIteratorArrayList;
+import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -35,9 +35,8 @@ public class MCMoveSemigrand extends MCMovePhase {
     private AtomArrayList[] reservoirs;
     private double[] fugacityFraction;
     private int nSpecies;
-    private final AtomIteratorSinglet deleteAtomIterator;
-    private final AtomIteratorSinglet insertAtomIterator;
-    private final AtomIteratorCompound affectedAtomIterator; 
+    private final AtomArrayList affectedAtomList;
+    private final AtomIteratorArrayList affectedAtomIterator; 
     private final MeterPotentialEnergy energyMeter;
     private final AtomActionTranslateTo moleculeTranslator;
     private AtomPositionDefinition atomPositionDefinition;
@@ -57,9 +56,9 @@ public class MCMoveSemigrand extends MCMovePhase {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        deleteAtomIterator = new AtomIteratorSinglet();
-        insertAtomIterator = new AtomIteratorSinglet();
-        affectedAtomIterator = new AtomIteratorCompound(new AtomIterator[] {deleteAtomIterator, insertAtomIterator});
+        affectedAtomList = new AtomArrayList(2);
+        affectedAtomIterator = new AtomIteratorArrayList(Direction.UP);
+        affectedAtomIterator.setList(affectedAtomList);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
         moleculeTranslator = new AtomActionTranslateTo(potentialMaster.getSpace());
@@ -194,8 +193,10 @@ public class MCMoveSemigrand extends MCMovePhase {
     public double energyChange() {return uNew - uOld;}
     
     public final AtomIterator affectedAtoms() {
-        insertAtomIterator.setAtom(insertMolecule);
-        deleteAtomIterator.setAtom(deleteMolecule);
+        
+        affectedAtomList.clear();
+        affectedAtomList.add(insertMolecule);
+        affectedAtomList.add(deleteMolecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
