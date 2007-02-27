@@ -31,7 +31,6 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.ConstantsGraphic;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
@@ -379,28 +378,7 @@ public class LjmdGraphic {
         
         panel.add(controlPanel, java.awt.BorderLayout.NORTH);
         panel.add(bigPanel, java.awt.BorderLayout.EAST);
-//        panel().add(displayPanel, java.awt.BorderLayout.EAST);
-		
-		//***************set all the colors******************
-		java.awt.Color background = ConstantsGraphic.KHAKI.brighter().brighter();
-		java.awt.Color contrast = ConstantsGraphic.DARK_RED;
-		panel.setBackground(background);
-		bigPanel.setBackground(background);
-
-		controlPanel.setBackground(background);
-
-		startPanel.setBackground(contrast); //border color
-		startPanel.setOpaque(false);
-
-		temperaturePanel.setBackground(contrast); //border color
-		temperaturePanel.setOpaque(false);
-		tBox.graphic(null).setBackground(background);
-		tSelect.graphic(null).setBackground(background);
-		densityBox.graphic().setBackground(background);
-		nSlider.graphic().setBackground(background);
-        anotherPanel.setBackground(background);
-		
-    }//end of constructor    
+    }
     
     public static void main(String[] args) {
         Space space = Space2D.getInstance();

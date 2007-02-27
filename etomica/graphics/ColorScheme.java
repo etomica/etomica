@@ -27,8 +27,6 @@ public abstract class ColorScheme implements java.io.Serializable {
         defaultColor = color;
     }
 
-    public boolean isStatic(DisplayCanvas dc) { return true; }
-    
     public abstract Color getAtomColor(AtomLeaf a);
     
     public final void setDefaultColor(Color c) {defaultColor = c;}
@@ -40,6 +38,7 @@ public abstract class ColorScheme implements java.io.Serializable {
      * Colors all atoms with baseColor.
      */
     public static class Simple extends ColorScheme {
+        private static final long serialVersionUID = 1L;
         public Simple() {super();}
         public Simple(java.awt.Color color) {super(color);}
         public Color getAtomColor(AtomLeaf a) {return defaultColor;}
@@ -63,18 +62,17 @@ public abstract class ColorScheme implements java.io.Serializable {
         new ColorSchemeColliders((IntegratorHard)sim.getIntegratorList().getFirst());
       final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim,sim.phase);
       nghb.setAtom(sim.phase.firstAtom());
-      final ColorSchemeRandom rand = new ColorSchemeRandom(sim.phase);
+      final ColorSchemeRandom rand = new ColorSchemeRandom(sim.phase, sim.getRandom());
       final ColorSchemeCell cell = new ColorSchemeCell(sim,sim.phase);
       cell.setLattice(((PotentialMasterList)sim.getPotentialMaster()).getNbrCellManager(sim.phase).getLattice());
       
       Action act = new Action() {
         public void actionPerformed() {
-          java.util.Random rand = new java.util.Random(System.currentTimeMillis());
           DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
           ct.setColor(dp.getPhase().firstAtom().getType(), 
-              new java.awt.Color(rand.nextInt(256),
-                  rand.nextInt(256),
-                  rand.nextInt(256))
+              new java.awt.Color(sim.getRandom().nextInt(256),
+                  sim.getRandom().nextInt(256),
+                  sim.getRandom().nextInt(256))
               );
           dp.setColorScheme(ct);
         }
@@ -198,4 +196,4 @@ public abstract class ColorScheme implements java.io.Serializable {
       dp.setColorScheme(colorScheme);
       simGraphic.panel().setBackground(java.awt.Color.yellow);        
     }
-}//end of ColorScheme
+}
