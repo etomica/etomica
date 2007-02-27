@@ -18,6 +18,7 @@ import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.util.IRandom;
 
 /* History of changes
  * 08/29/02 (DAK) changed Andersen thermostat to velocity-scaling thermostat
@@ -27,21 +28,20 @@ import etomica.space.Space;
 
 public final class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     public final PotentialCalculationForceSum forceSum;
-    private final Space space;
     private final IteratorDirective allAtoms;
     
     protected AtomAgentManager agentManager;
 
     public IntegratorVelocityVerlet(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getRandom(),
+             sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
-    public IntegratorVelocityVerlet(PotentialMaster potentialMaster, Space space,
+    public IntegratorVelocityVerlet(PotentialMaster potentialMaster, IRandom random,
             double timeStep, double temperature) {
-        super(potentialMaster,timeStep,temperature);
-        this.space = space;
+        super(potentialMaster,random,timeStep,temperature);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
@@ -121,7 +121,7 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     }
 
     public final Object makeAgent(Atom a) {
-        return new MyAgent(space,a);
+        return new MyAgent(potential.getSpace(),a);
     }
     
     public void releaseAgent(Object agent, Atom atom) {}

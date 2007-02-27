@@ -19,6 +19,7 @@ import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.systems.LJ;
+import etomica.util.IRandom;
 
 /**
  * Gear 4th-order predictor-corrector integrator.
@@ -31,7 +32,6 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     private static final long serialVersionUID = 1L;
     private final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
-    protected final Space space;
     final IVector work1, work2;
     double zeta = 0.0;
     double chi = 0.0;
@@ -46,19 +46,18 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     protected AtomAgentManager agentManager;
 
     public IntegratorGear4(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
-    public IntegratorGear4(PotentialMaster potentialMaster, Space space, 
+    public IntegratorGear4(PotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature) {
-        super(potentialMaster,timeStep,temperature);
-        this.space = space;
+        super(potentialMaster,random,timeStep,temperature);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
-        work1 = space.makeVector();
-        work2 = space.makeVector();
+        work1 = potentialMaster.getSpace().makeVector();
+        work2 = potentialMaster.getSpace().makeVector();
         //XXX this is totally wrong!  This should be based on the actual temperature and
         //potentials (steepness and depth) used.
         setTimeStep(new LJ().time().toSim(2.0));
@@ -201,7 +200,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     }
     
     public Object makeAgent(Atom a) {
-        return new Agent(space,a);
+        return new Agent(phase.getSpace(),a);
     }
     
     public void releaseAgent(Object agent, Atom atom) {}

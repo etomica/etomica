@@ -16,13 +16,13 @@ import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.util.IRandom;
 
 public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
 
     private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
-    private final Space space;
     private double t2;
 
     IVector work;
@@ -30,19 +30,18 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     protected AtomAgentManager agentManager;
 
     public IntegratorVerlet(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,
+        this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,
                 sim.getDefaults().temperature);
     }
     
-    public IntegratorVerlet(PotentialMaster potentialMaster, Space space, 
+    public IntegratorVerlet(PotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature) {
-        super(potentialMaster,timeStep,temperature);
-        this.space = space;
+        super(potentialMaster,random,timeStep,temperature);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
-        work = space.makeVector();
+        work = potentialMaster.getSpace().makeVector();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -113,7 +112,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     }
 
     public final Object makeAgent(Atom a) {
-        return new Agent(space,a);
+        return new Agent(potential.getSpace(),a);
     }
     
     public void releaseAgent(Object agent, Atom atom) {}

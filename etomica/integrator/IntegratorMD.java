@@ -12,13 +12,13 @@ import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.units.Dimension;
 import etomica.units.Time;
 import etomica.util.Debug;
 import etomica.util.EnumeratedType;
+import etomica.util.IRandom;
 /**
  * Superclass of all molecular-dynamics integrators.
  * Extends the Integrator class by adding methods that 
@@ -27,8 +27,10 @@ import etomica.util.EnumeratedType;
 
 public abstract class IntegratorMD extends IntegratorPhase {
     
-    public IntegratorMD(PotentialMaster potentialMaster, double timeStep, double temperature) {
+    public IntegratorMD(PotentialMaster potentialMaster, IRandom random, 
+            double timeStep, double temperature) {
         super(potentialMaster,temperature);
+        this.random = random;
         setTimeStep(timeStep);
         thermostat = ThermostatType.ANDERSEN;
         atomIterator = new AtomIteratorLeafAtoms();
@@ -171,7 +173,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
                     AtomArrayList atomList = phase.getSpeciesMaster().leafList;
-                    int index = Simulation.random.nextInt(atomList.size());
+                    int index = random.nextInt(atomList.size());
                     AtomLeaf a = (AtomLeaf)atomList.get(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();
                     currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a.getCoord()).getVelocity().squared();
@@ -290,10 +292,11 @@ public abstract class IntegratorMD extends IntegratorPhase {
         meter.setPhase(phase);
     }
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     /**
      * Elementary time step for the MD simulation
      */
+    protected final IRandom random;
     protected double timeStep;
     protected double currentKineticEnergy;
     protected AtomIteratorLeafAtoms atomIterator;

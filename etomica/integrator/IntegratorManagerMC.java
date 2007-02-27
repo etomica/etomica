@@ -27,6 +27,7 @@ public class IntegratorManagerMC extends Integrator {
     
     public IntegratorManagerMC(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
+        this.random = random;
         integrators = new Integrator[0];
         intervalEvents = new IntegratorIntervalEvent[0];
         setGlobalMoveInterval(2);
@@ -142,7 +143,7 @@ public class IntegratorManagerMC extends Integrator {
      * a single doStep.
      */
     public void doStep() {
-        if(Simulation.random.nextDouble() < globalMoveProbability) {
+        if(random.nextDouble() < globalMoveProbability) {
             doGlobalMoves();
         } else {
             for(int i=0; i<nIntegrators; i++) {
@@ -177,7 +178,7 @@ public class IntegratorManagerMC extends Integrator {
 
         //decide acceptance
         double chi = move.getA();
-        if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {
+        if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {
             //reject
             move.rejectNotify();
             //notify listeners of outcome
@@ -220,7 +221,7 @@ public class IntegratorManagerMC extends Integrator {
      */
     public double getGlobalMoveInterval() {return globalMoveInterval;}
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private double globalMoveInterval;
     protected double globalMoveProbability;
     protected MCMoveManager moveManager;
@@ -230,4 +231,5 @@ public class IntegratorManagerMC extends Integrator {
     protected int nIntegrators;
     private final MCMoveTrialInitiatedEvent trialEvent;
     private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
+    private final IRandom random;
 }

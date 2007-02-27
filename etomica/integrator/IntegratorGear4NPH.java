@@ -34,6 +34,7 @@ import etomica.units.Null;
 import etomica.units.Pressure;
 import etomica.units.Temperature;
 import etomica.units.Undefined;
+import etomica.util.IRandom;
 
 /**
  * Gear 4th-order predictor-corrector integrator for constant enthalphy, pressure.
@@ -58,19 +59,19 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
     protected final MeterTemperature meterTemperature = new MeterTemperature();
     
     public IntegratorGear4NPH(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,
+        this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,
                 sim.getDefaults().temperature);
     }
     
-    public IntegratorGear4NPH(PotentialMaster potentialMaster, Space space, 
+    public IntegratorGear4NPH(PotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature) {
-        super(potentialMaster, space, timeStep, temperature);
+        super(potentialMaster, random, timeStep, temperature);
         kp = 1.0/rrp/getTimeStep();
         kh = 1.0/rrh/getTimeStep();
-        D = space.D();
+        D = potentialMaster.getSpace().D();
         setIsothermal(true);
-        forceSumNPH = new ForceSumNPH(space);
-        inflate = new PhaseInflate(space);
+        forceSumNPH = new ForceSumNPH(potentialMaster.getSpace());
+        inflate = new PhaseInflate(potentialMaster.getSpace());
     }
     
     public static EtomicaInfo getEtomicaInfo() {

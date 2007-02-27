@@ -15,6 +15,7 @@ import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.util.IRandom;
 
 /**
  * Constant NVT Molecular Dynamics Integrator-Constraint Method
@@ -33,24 +34,23 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
-    private final Space space;
     IVector work, work1, work2, work3, work4;
     double halfTime, mass;
 
     protected AtomAgentManager agentManager;
 
     public IntegratorConNVT(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getSpace(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
-    public IntegratorConNVT(PotentialMaster potentialMaster, Space space, 
+    public IntegratorConNVT(PotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature) {
-        super(potentialMaster,timeStep,temperature);
+        super(potentialMaster,random,timeStep,temperature);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
-        this.space = space;
+        Space space = potentialMaster.getSpace();
         work = space.makeVector();
         work1 = space.makeVector();
         work2 = space.makeVector();
@@ -87,7 +87,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 // steps all particles across time interval tStep
 
     public void doStep() {
-		double dim = space.D();  //get the dimension
+		double dim = phase.getSpace().D();  //get the dimension
 		
         //Compute forces on each atom
         atomIterator.reset();
@@ -156,7 +156,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     }
     
     public final Object makeAgent(Atom a) {
-        return new Agent(space,a);
+        return new Agent(phase.getSpace(),a);
     }
     
     public void releaseAgent(Object agent, Atom atom) {}
@@ -172,7 +172,6 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
         }
         
         public IVector force() {return force;}
-    }//end of Agent
+    }
     
 }
-

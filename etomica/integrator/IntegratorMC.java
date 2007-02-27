@@ -37,6 +37,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 	 */
 	public IntegratorMC(PotentialMaster potentialMaster, IRandom random, double temperature) {
 		super(potentialMaster,temperature);
+        this.random = random;
 		setIsothermal(true); //has no practical effect, but sets value of
 		// isothermal to be consistent with way integrator
 		// is sampling
@@ -108,7 +109,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
 
     	//decide acceptance
     	double chi = move.getA() * Math.exp(move.getB()/temperature);
-    	if (chi == 0.0 || (chi < 1.0 && chi < Simulation.random.nextDouble())) {//reject
+    	if (chi == 0.0 || (chi < 1.0 && chi < random.nextDouble())) {//reject
             move.getTracker().updateCounts(false, chi);
     		move.rejectNotify();
             //notify listeners of outcome
@@ -141,7 +142,8 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
         return eventManager;
     }
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
+    protected final IRandom random;
     protected MCMoveManager moveManager;
     protected final MCMoveEventManager eventManager;
     private final MCMoveTrialInitiatedEvent trialEvent;

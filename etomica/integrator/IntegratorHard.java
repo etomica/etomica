@@ -23,6 +23,7 @@ import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.util.Debug;
+import etomica.util.IRandom;
 import etomica.util.TreeLinker;
 import etomica.util.TreeList;
 
@@ -65,12 +66,12 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
     protected AtomAgentManager agentManager;
 
     public IntegratorHard(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getRandom(), sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
-    public IntegratorHard(PotentialMaster potentialMaster, double timeStep, 
-            double temperature) {
-        super(potentialMaster,timeStep,temperature);
+    public IntegratorHard(PotentialMaster potentialMaster, IRandom random, 
+            double timeStep, double temperature) {
+        super(potentialMaster,random,timeStep,temperature);
         nullPotential = null;
         pair = new AtomPair();
         reverseCollisionHandler = new ReverseCollisionHandler(listToUpdate);

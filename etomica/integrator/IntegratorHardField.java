@@ -16,6 +16,7 @@ import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.util.IRandom;
 
 /**
  * Extension of IntegratorHard for case where a constant external force field is applied.
@@ -39,12 +40,12 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
     };
 
     public IntegratorHardField(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
-    public IntegratorHardField(PotentialMaster potentialMaster, double timeStep, 
-            double temperature) {
-        super(potentialMaster,timeStep,temperature);
+    public IntegratorHardField(PotentialMaster potentialMaster, IRandom random,
+            double timeStep, double temperature) {
+        super(potentialMaster,random,timeStep,temperature);
         space = potentialMaster.getSpace();
         forceSum = new PotentialCalculationForceSum();
         //XXX not serializable
