@@ -36,7 +36,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
         atomIterator = new AtomIteratorLeafAtoms();
         setThermostatInterval(100);
         meterKE = new MeterKineticEnergy();
-        atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature);
+        atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature, random);
         meterTemperature = new MeterTemperature();
         momentum = potentialMaster.getSpace().makeVector();
     }

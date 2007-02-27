@@ -29,6 +29,9 @@ public class MyMCMove extends MCMoveInsertDelete {
 		position =  (Vector3D)integrator.getPotential().getSpace().makeVector();
 		setZFraction(zFraction);
         this.integrator = integrator;
+        randomizer = new AtomActionRandomizeVelocity(0, random);
+        activeAtoms = new AtomArrayList();
+        atomIterator = new AtomIteratorArrayListSimple();
 	}
 
     public void setPhase(Phase p) {
@@ -113,9 +116,9 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private int deltaN = 0;
 	private Vector3D position;
 	private boolean nearOrigin;
-	private AtomArrayList activeAtoms = new AtomArrayList();
-	private AtomIteratorArrayListSimple atomIterator;// = new AtomIteratorList();
-	private final AtomActionRandomizeVelocity randomizer = new AtomActionRandomizeVelocity(0);
+	private final AtomArrayList activeAtoms;
+	private final AtomIteratorArrayListSimple atomIterator;// = new AtomIteratorList();
+	private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorPhase integrator;
     protected int testMoleculeIndex;
 	
@@ -142,8 +145,6 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 */
 	public void setSpecies(Species s) {
 		super.setSpecies(s);
-		atomIterator = new AtomIteratorArrayListSimple();
 		atomIterator.setList(((AtomTreeNodeGroup)speciesAgent.getNode()).getChildList());
 	}
-
 }

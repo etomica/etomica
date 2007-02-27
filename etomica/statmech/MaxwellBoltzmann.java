@@ -1,5 +1,4 @@
 package etomica.statmech;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.units.Mass;
 
@@ -12,13 +11,6 @@ public final class MaxwellBoltzmann {
     
     //private to prevent instantiation
     private MaxwellBoltzmann() {}
-        
-    /**
-     * Returns a random momentum component for a particle of mass m at temperature T
-     */
-    public static double randomMomentumComponent(double T, double m) {
-        return Simulation.random.nextGaussian()*Math.sqrt(m*T);
-    }
     
     /**
      * Function giving the Maxwell-Boltzmann distribution of speeds.

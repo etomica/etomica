@@ -3,9 +3,10 @@ package etomica.action;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
-import etomica.statmech.MaxwellBoltzmann;
+import etomica.util.IRandom;
 
 
 /**
@@ -22,9 +23,10 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
      * Constructs class to assign velocities according to the given temperature.
      * May be subsequently changed with setTemperature method.
      */
-    public AtomActionRandomizeVelocity(double temperature) {
+    public AtomActionRandomizeVelocity(double temperature, IRandom random) {
         setLabel("Randomize velocity");
         setTemperature(temperature);
+        this.random = random;
     }
 
     /**
@@ -41,8 +43,9 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
         }
         int D = velocity.D();
         for(int i=0; i<D; i++) {
-            velocity.setX(i,MaxwellBoltzmann.randomMomentumComponent(temperature,mass)/mass);
+            velocity.setX(i,random.nextGaussian());
         }
+        velocity.TE(Math.sqrt(temperature/mass));
     }
     
     /**
@@ -64,5 +67,6 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
     
     private static final long serialVersionUID = 1L;
     private double temperature;
+    protected final IRandom random;
 
 }
