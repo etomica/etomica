@@ -8,8 +8,7 @@ import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayList;
-import etomica.atom.iterator.IteratorDirective.Direction;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -36,7 +35,7 @@ public class MCMoveSemigrand extends MCMovePhase {
     private double[] fugacityFraction;
     private int nSpecies;
     private final AtomArrayList affectedAtomList;
-    private final AtomIteratorArrayList affectedAtomIterator; 
+    private final AtomIteratorArrayListSimple affectedAtomIterator; 
     private final MeterPotentialEnergy energyMeter;
     private final AtomActionTranslateTo moleculeTranslator;
     private AtomPositionDefinition atomPositionDefinition;
@@ -57,7 +56,7 @@ public class MCMoveSemigrand extends MCMovePhase {
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         affectedAtomList = new AtomArrayList(2);
-        affectedAtomIterator = new AtomIteratorArrayList(Direction.UP);
+        affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtomList);
         affectedAtomIterator.setList(affectedAtomList);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(true);
