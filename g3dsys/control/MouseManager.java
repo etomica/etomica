@@ -38,11 +38,21 @@ class MouseManager implements MouseListener, MouseMotionListener {
     gsys = gs;
   }
 
+  /*
+   * Mouse controls:
+   * left drag - rotate
+   * right drag - translate
+   * ctrl+left drag - depth up/down
+   * ctrl+right drag - slab up/down
+   * shift+left drag - zoom up/down
+   * ctrl+shift+left drag - z axis rotation
+   */
+  
   final static int LEFT = 16;
   final static int RIGHT = Event.META_MASK;  // 4
   final static int CTRL = Event.CTRL_MASK;   // 2
   final static int SHIFT = Event.SHIFT_MASK;
-
+  
   private void mouseSinglePressDrag(int deltaX, int deltaY, int modifiers) {
     switch (modifiers) {
     case LEFT:
@@ -67,6 +77,11 @@ class MouseManager implements MouseListener, MouseMotionListener {
     case SHIFT|LEFT:
       gsys.zoomDown(deltaY);
       gsys.fastRefresh();
+      break;
+    case CTRL|SHIFT|LEFT:
+      gsys.rotateByZ(deltaX/2.0f);
+      gsys.fastRefresh();
+      break;
     }
   }
 
