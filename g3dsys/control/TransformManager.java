@@ -59,6 +59,10 @@ class TransformManager {
     //navigationCenter.set(fixedRotationCenter);
   }
 
+  /**
+   * Sets the current center of rotation to the origin. Currently unused since
+   * we don't support arbitrary centers.
+   */
   void clear() {
     fixedRotationCenter.set(0, 0, 0);
   }
@@ -87,15 +91,21 @@ class TransformManager {
   final static float radiansPerDegree = (float) (2 * Math.PI / 360);
   final static float degreesPerRadian = (float) (360 / (2 * Math.PI));
 
+  //still used, but note that rescaling allows for infinite zoom
   final static int MAXIMUM_ZOOM_PERCENTAGE = 200000;
   final static int MAXIMUM_ZOOM_PERSPECTIVE_DEPTH = 10000;
 
+  /**
+   * Sets the center of rotation; currently unused as this is always the origin
+   * @param center the point to set as center
+   */
   private void setFixedRotationCenter(Point3f center) {
     if (center == null)
       return;
     fixedRotationCenter.set(center);
   }
 
+  
   void setRotationPointXY(Point3f center) {
     Point3i newCenterScreen = transformPoint(center);
     translateCenterTo(newCenterScreen.x, newCenterScreen.y);
@@ -123,21 +133,13 @@ class TransformManager {
     rotateZRadians((float) Math.PI * zDelta / 180);
   }
 
-  void rotateFront() {
-    matrixRotate.setIdentity();
-  }
-
-  void rotateToX(float angleRadians) {
-    matrixRotate.rotX(angleRadians);
-  }
-
-  void rotateToY(float angleRadians) {
-    matrixRotate.rotY(angleRadians);
-  }
-
-  void rotateToZ(float angleRadians) {
-    matrixRotate.rotZ(angleRadians);
-  }
+  /** Remove rotation */
+  void rotateFront() { matrixRotate.setIdentity(); }
+  
+  /* Set specific rotation values for x,y,z */
+  void rotateToX(float angleRadians) { matrixRotate.rotX(angleRadians); }
+  void rotateToY(float angleRadians) { matrixRotate.rotY(angleRadians); }
+  void rotateToZ(float angleRadians) { matrixRotate.rotZ(angleRadians); }
 
   synchronized void rotateXRadians(float angleRadians) {
     matrixTemp3.rotX(angleRadians);
@@ -298,11 +300,15 @@ class TransformManager {
   /* ***************************************************************
    * PERSPECTIVE
    ****************************************************************/
-  private boolean perspectiveDepth = true;
+  private boolean perspectiveDepth = false;
   private float cameraDepth = 3;
   private int cameraDistance = 1000; // prevent divide by zero on startup
   private float cameraDistanceFloat = 1000; // prevent divide by zero on startup
 
+  /**
+   * Turns perspective on or off (will also rescale the display)
+   * @param perspectiveDepth value to set
+   */
   void setPerspectiveDepth(boolean perspectiveDepth) {
     if (this.perspectiveDepth == perspectiveDepth)
       return;
@@ -310,6 +316,10 @@ class TransformManager {
     scaleFitToScreen();
   }
 
+  /**
+   * Returns whether perspective is on or off 
+   * @return returns whether perspective is on or off
+   */
   boolean getPerspectiveDepth() {
     return perspectiveDepth;
   }
@@ -327,6 +337,9 @@ class TransformManager {
     this.height = height;
   }
 
+  /**
+   * Removes translation, i.e.; moves the origin to the center of the screen
+   */
   private void setTranslationCenterToScreen() {
     // translate to the middle of the screen
     xFixedTranslation = width / 2;
@@ -469,6 +482,10 @@ class TransformManager {
 
   private final Vector3f perspectiveOffset = new Vector3f(0, 0, 0);
 
+  /**
+   * Apply all rotation and translation settings
+   *
+   */
   synchronized void finalizeTransformParameters() {
     calcTransformMatrix();
     calcSlabAndDepthValues();
@@ -639,24 +656,33 @@ class TransformManager {
     windowCentered = TF;
   }
 
-  /* This fixes the growing model clipping bug.
-   * Best guess: the rotation radius does not update as the model grows, and
-   * scaling eventually fails to keep the model within the slab.
+  /**
+   * Despite the name, has no impact whatsoever on rotation; resets origin rotation
+   * (which is always the case anyway) and recalculates rotation 
    */
   void setDefaultRotation() {
+    /* This fixes the growing model clipping bug.
+     * Best guess: the rotation radius does not update as the model grows,
+     * and scaling eventually fails to keep the model within the slab.
+     */
+
     rotationCenterDefault = g3dsys.getBoundingBoxCenter();
     setFixedRotationCenter(rotationCenterDefault);
     rotationRadius = rotationRadiusDefault = g3dsys.calcRotationRadius(rotationCenterDefault);
     windowCentered = true;
   }
 
-  Point3f getRotationCenter() {
-    return fixedRotationCenter;
-  }
+  /**
+   * Gets the current center of rotation (currently this is always the origin)
+   * @return the center of rotation
+   */
+  Point3f getRotationCenter() { return fixedRotationCenter; }
 
-  float getRotationRadius() {
-    return rotationRadius;
-  }
+  /**
+   * Gets sphere of rotation radius in Angstroms
+   * @return returns the rotation radius
+   */
+  float getRotationRadius() { return rotationRadius; }
 
   private void setRotationCenterAndRadiusXYZ(Point3f newCenterOfRotation,
                                              boolean andRadius) {
@@ -691,13 +717,19 @@ class TransformManager {
 
   boolean slabEnabled = true;
 
-  int slabPercentSetting = 100;
-  int depthPercentSetting = 0;
+  //used internally, constricted to the 0-100 range
+  float slabPercentSetting = 100;
+  float depthPercentSetting = 0;
 
-  public int slabValue;
-  public int depthValue;
+  //used by g3d directly; must first be calculated by calcSlabAndDepthValues
+  public float slabValue;
+  public float depthValue;
 
-  int getSlabPercentSetting() {
+  /**
+   * Gets slab percent
+   * @return returns current slab percent
+   */
+  float getSlabPercentSetting() {
     return slabPercentSetting;
   }
 
@@ -706,7 +738,7 @@ class TransformManager {
    * @return returns current depth percent
    */
   // added for symmetry 2/15/2007 --C.T.
-  int getDepthPercentSetting() {
+  float getDepthPercentSetting() {
     return depthPercentSetting;
   }
   
@@ -742,7 +774,7 @@ class TransformManager {
    * Increments slab/depth percentage at once
    * @param percentage the amount to increase by
    */
-  void slabDepthByPercentagePoints(int percentage) {
+  void slabDepthByPercentagePoints(float percentage) {
     if (percentage > 0) {
       if (slabPercentSetting + percentage > 100)
         percentage = 100 - slabPercentSetting;
@@ -758,7 +790,7 @@ class TransformManager {
    * Sets a specific slab percentage
    * @param percentSlab
    */
-  void slabToPercent(int percentSlab) {
+  void slabToPercent(float percentSlab) {
     slabPercentSetting = percentSlab < 1 ? 1 : percentSlab > 100 ? 100
         : percentSlab;
     if (depthPercentSetting >= slabPercentSetting)
@@ -780,7 +812,7 @@ class TransformManager {
    */
   // depth is an extension added by OpenRasMol
   // it represents the 'back' of the slab plane
-  void depthToPercent(int percentDepth) {
+  void depthToPercent(float percentDepth) {
     depthPercentSetting = percentDepth < 0 ? 0 : percentDepth > 99 ? 99
         : percentDepth;
     if (slabPercentSetting <= depthPercentSetting)
@@ -803,7 +835,7 @@ class TransformManager {
       // all transformed z coordinates are negative
       // a slab percentage of 100 should map to zero
       // a slab percentage of 0 should map to -diameter
-      int radius = (int) (rotationRadius * scalePixelsPerAngstrom);
+      float radius = (rotationRadius * scalePixelsPerAngstrom);
       slabValue = ((100 - slabPercentSetting) * 2 * radius / 100)
           + cameraDistance;
       depthValue = ((100 - depthPercentSetting) * 2 * radius / 100)

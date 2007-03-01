@@ -22,6 +22,8 @@ import org.jmol.g3d.Graphics3D;
  * figure type argument (e.g.; BALL, LINE, BOX).
  */
 
+//TODO: mouse controls for depth/slab and z-rotation
+
 public class G3DSys {
 
   /** implemented shapes */
@@ -206,21 +208,21 @@ public class G3DSys {
 
   /** Remove all rotation (and translation) and return to the home position */
   public void rotateToHome() { tm.homePosition(); }
-  /** Translate model 20% of pixel width to the left (-x) */
-  public void xlateLeft() { tm.translateXYBy(-(int)(tm.width*.2), 0); }
-  /** Translate model 20% of pixel width to the right (+x) */
-  public void xlateRight() { tm.translateXYBy((int)(tm.height*.2), 0); }
-  /** Translate model 20% of pixel width up (-y) */
-  public void xlateUp() { tm.translateXYBy(0, -(int)(tm.height*.2)); }
-  /** Translate model 20% of pixel width down (+y) */
-  public void xlateDown() { tm.translateXYBy(0, (int)(tm.height*.2)); }
+  /** Translate model 10% of pixel width to the left (-x) */
+  public void xlateLeft() { tm.translateXYBy(-(int)(tm.width*.1), 0); }
+  /** Translate model 10% of pixel width to the right (+x) */
+  public void xlateRight() { tm.translateXYBy((int)(tm.height*.1), 0); }
+  /** Translate model 10% of pixel width up (-y) */
+  public void xlateUp() { tm.translateXYBy(0, -(int)(tm.height*.1)); }
+  /** Translate model 10% of pixel width down (+y) */
+  public void xlateDown() { tm.translateXYBy(0, (int)(tm.height*.1)); }
   /** Trnaslate model x,y pixels */
   public void xlateXY(int x, int y) { tm.translateXYBy(x, y); }
   /** Set the molecule space location around which rotation occurs */
   public void setCenterOfRotation(Point3f p) {
     //looks like it should work, but haven't tried it yet 2/9/07
     tm.setRotationPointXY(p);
-  } 
+  }
   public Point3f getCenterOfRotation() {
     return tm.getRotationCenter();
   }
@@ -257,7 +259,7 @@ public class G3DSys {
   }
   
   /* ****************************************************************
-   * CoordMapper delegation
+   * TransformManager delegation
    * ****************************************************************/
   /**
    * Converts molspace point p (in Angstroms) to a point on the display
@@ -298,7 +300,8 @@ public class G3DSys {
   public void zoomDown(int i) {
     tm.zoomToPercent(tm.getZoomPercentFloat()-10);
   }
-
+  public void setPerspectiveDepth(boolean b) { tm.setPerspectiveDepth(b); }
+  public boolean getPerspectiveDepth() { return tm.getPerspectiveDepth(); }
 
 
 
@@ -313,7 +316,7 @@ public class G3DSys {
   public float getMaxZ() { return fm.getMaxZ(); }
   public void draw() {
     tm.finalizeTransformParameters();
-    g3d.setSlabAndDepthValues(tm.slabValue, tm.depthValue);
+    g3d.setSlabAndDepthValues((int)tm.slabValue, (int)tm.depthValue);
     fm.draw();
   }
 
@@ -373,15 +376,8 @@ public class G3DSys {
 
 
   public double getSlabPercent() { return tm.getSlabPercentSetting(); }
-
   public double getDepthPercent() { return tm.getDepthPercentSetting();  }
-
-  public void setSlabPercent(int val) {
-    tm.slabToPercent(val);
-  }
-
-  public void setDepthPercent(int val) {
-    tm.depthToPercent(val);
-  }
+  public void setSlabPercent(float val) { tm.slabToPercent(val); }
+  public void setDepthPercent(float val) { tm.depthToPercent(val); }
 
 }

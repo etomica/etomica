@@ -74,6 +74,10 @@ class KeyboardControl implements KeyListener {
 			master.rotateToHome();
 			master.fastRefresh();
 		}
+        if( e.getKeyChar() == 'p' ) {
+            master.setPerspectiveDepth(!master.getPerspectiveDepth());
+            master.fastRefresh();
+        }
 	}
 
 }
