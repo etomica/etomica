@@ -41,6 +41,7 @@ class MouseManager implements MouseListener, MouseMotionListener {
   final static int LEFT = 16;
   final static int RIGHT = Event.META_MASK;  // 4
   final static int CTRL = Event.CTRL_MASK;   // 2
+  final static int SHIFT = Event.SHIFT_MASK;
 
   private void mouseSinglePressDrag(int deltaX, int deltaY, int modifiers) {
     switch (modifiers) {
@@ -63,6 +64,9 @@ class MouseManager implements MouseListener, MouseMotionListener {
       gsys.setSlabPercent((float)gsys.getSlabPercent()+deltaY/4.0f);
       gsys.fastRefresh();
       break;
+    case SHIFT|LEFT:
+      gsys.zoomDown(deltaY);
+      gsys.fastRefresh();
     }
   }
 

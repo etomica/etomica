@@ -291,14 +291,14 @@ public class G3DSys {
    * @param i the percentage amount to increase 
    */
   public void zoomUp(int i) {
-    tm.zoomToPercent(tm.getZoomPercent()+10);
+    tm.zoomToPercent(tm.getZoomPercent()+i);
   }
   /**
    * Decrease the zoom level by i percent
    * @param i the percentage amount to decrease
    */
   public void zoomDown(int i) {
-    tm.zoomToPercent(tm.getZoomPercentFloat()-10);
+    tm.zoomToPercent(tm.getZoomPercentFloat()-i);
   }
   public void setPerspectiveDepth(boolean b) { tm.setPerspectiveDepth(b); }
   public boolean getPerspectiveDepth() { return tm.getPerspectiveDepth(); }
