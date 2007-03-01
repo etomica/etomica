@@ -79,7 +79,7 @@ class MouseManager implements MouseListener, MouseMotionListener {
       gsys.fastRefresh();
       break;
     case CTRL|SHIFT|LEFT:
-      gsys.rotateByZ(deltaX/2.0f);
+      gsys.rotateByZ(-deltaX/2.0f); // - so left movement is counterclockwise
       gsys.fastRefresh();
       break;
     }
