@@ -7,7 +7,7 @@ import java.util.Random;
  * 
  * @author Andrew Schultz
  */
-public class RandomNumberGenerator implements IRandom {
+public class RandomNumberGenerator implements IRandom, java.io.Serializable {
 
     public RandomNumberGenerator() {
         jRandom = new Random();
@@ -29,5 +29,6 @@ public class RandomNumberGenerator implements IRandom {
         return jRandom.nextGaussian();
     }
     
+    private static final long serialVersionUID = 1L;
     private final Random jRandom;
 }
