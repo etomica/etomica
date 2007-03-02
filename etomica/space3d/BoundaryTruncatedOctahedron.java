@@ -196,7 +196,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         intoContainingCube.EModShift(r, dimensions);
         rrounded.Ev1Pv2(r, intoContainingCube);
         rrounded.TE(1. / n);
-        rrounded.PE(-0.5);
+
         int aint = (int) (4.0 / 3.0 * (Math.abs(rrounded.x(0))
                 + Math.abs(rrounded.x(1)) + Math.abs(rrounded.x(2))));
         double corr = 0.5 * n * aint;
