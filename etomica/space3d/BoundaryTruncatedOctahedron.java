@@ -193,7 +193,11 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
 
     public IVector centralImage(IVector r) {
         double n = ((TruncatedOctahedron) shape).getContainingCubeEdgeLength();
-        intoContainingCube.EModShift(r, dimensions);
+        intoContainingCube.Ev1Pv2(r, dimensionsHalf);
+        intoContainingCube.mod(dimensions);
+        intoContainingCube.ME(dimensionsHalf);
+        intoContainingCube.ME(r);
+
         rrounded.Ev1Pv2(r, intoContainingCube);
         rrounded.TE(1. / n);
 
