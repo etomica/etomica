@@ -66,8 +66,6 @@ public class ZeoliteSimulation extends Simulation {
     //public final P2HardSphere potential;
     public final P2LennardJones potentialMM;
     private int nAtomsMeth;
-    private AccumulatorAverage temperatureAvg;
-    private AccumulatorAverage keAvg;
     private int interval;
     public ActivityIntegrate activityIntegrate;
     public DisplayPlot ePlot;
@@ -192,7 +190,7 @@ public class ZeoliteSimulation extends Simulation {
      
         filename = (numAtoms[2]+"_"+activityIntegrate.getMaxSteps()+"_"+ts+"_"+interval+"_WCA");
         sp = new Species[1];
-        sp[0] = (Species)species[2];
+        sp[0] = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);
         coordWriter.setPhase(this.phase);
@@ -215,13 +213,12 @@ public class ZeoliteSimulation extends Simulation {
     }
     private Species[] sp;
     private String filename;
-    public static void Converter(String inputFile,int meth) {
+    public static void Converter(String inputFile) {
 		// TODO Auto-generated method stub
 		String outputFile = inputFile+"__Result.txt";
 		MSDProcessor proc = new MSDProcessor(Space3D.getInstance(),inputFile,outputFile);
 		
 		//proc.setDeltaTmax(1);
-		proc.setMethane(meth);
 		proc.fillArrays();
 		System.out.println("Converter done");
 	}

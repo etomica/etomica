@@ -8,8 +8,8 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
 
@@ -62,7 +62,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
             affectedAtomIterator.setDirection(Direction.DOWN);
         }
         
-        IVectorRandom vex = phase.getSpace().makeVector();
+        IVectorRandom vex = (IVectorRandom)phase.getSpace().makeVector();
         double uExt;
         double[] a = new double[numTrial];
         wOld = 1.0;
@@ -118,7 +118,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                         vex.PE(((AtomLeaf)atomList.get(0)).getCoord().getPosition());
                         ((AtomLeaf)atomList.get(1)).getCoord().getPosition().E(vex);
                     } else if(i == 2) { //propane
-                        IVectorRandom temp = phase.getSpace().makeVector();
+                        IVectorRandom temp = (IVectorRandom)phase.getSpace().makeVector();
                         temp.E(((AtomLeaf)atomList.get(1)).getCoord().getPosition());
                         temp.ME(((AtomLeaf)atomList.get(0)).getCoord().getPosition());        
                         vex.E(calcRandomBondWithAngle(temp));
@@ -178,7 +178,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                         vex.PE(((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition());
                         ((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition().E(vex);
                     } else if(i == chainlength - 3) {  //propane
-                        IVectorRandom temp = phase.getSpace().makeVector();
+                        IVector temp = phase.getSpace().makeVector();
                         temp.E(((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition());
                         temp.ME(((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition());        
                         vex.E(calcRandomBondWithAngle(temp));
@@ -261,7 +261,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
      * @return a new bond vector
      */
     protected IVector calcRandomBond(){
-        IVectorRandom vax = phase.getSpace().makeVector();
+        IVectorRandom vax = (IVectorRandom)phase.getSpace().makeVector();
         vax.setRandomSphere();
         vax.TE(calcBondL());
         return vax;
@@ -274,8 +274,8 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
      * @return a new bond vector
      */
     //Based on algorithm 45 in Frenkel & Smit
-    protected IVector calcRandomBondWithAngle(IVectorRandom v){
-        IVectorRandom vax = phase.getSpace().makeVector();
+    protected IVector calcRandomBondWithAngle(IVector v){
+        IVectorRandom vax = (IVectorRandom)phase.getSpace().makeVector();
         double phi;
         double ubb;
         v.normalize();
@@ -311,11 +311,11 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
             throw new IllegalArgumentException("Torsional bond is only used in 3D simulations");
         }
         
-        IVectorRandom vax = phase.getSpace().makeVector();
+        IVectorRandom vax = (IVectorRandom)phase.getSpace().makeVector();
         IVector vux = phase.getSpace().makeVector();
         
-        IVectorRandom tempCloser = phase.getSpace().makeVector();
-        IVectorRandom tempFarther = phase.getSpace().makeVector();
+        IVector tempCloser = phase.getSpace().makeVector();
+        IVector tempFarther = phase.getSpace().makeVector();
         tempFarther.E(b.getCoord().getPosition());
         tempFarther.ME(c.getCoord().getPosition()); 
         tempCloser.E(a.getCoord().getPosition());

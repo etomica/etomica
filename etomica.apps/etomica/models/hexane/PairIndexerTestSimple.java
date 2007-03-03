@@ -17,7 +17,6 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -102,7 +101,7 @@ public class PairIndexerTestSimple extends Simulation {
 //                pi.getBin(ap) +" " + atom0.getGlobalIndex());
 
           // determine the pair's dr
-            IVectorRandom dr = pit.getSpace().makeVector();
+            IVector dr = pit.getSpace().makeVector();
             dr.Ev1Mv2(((AtomLeaf)atom0).getCoord().getPosition(), ((AtomLeaf)atom1).getCoord().getPosition());
             if (bin < 0) {
                 throw new RuntimeException("bin was negative, dr="+dr);

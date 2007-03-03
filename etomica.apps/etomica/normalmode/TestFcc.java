@@ -25,7 +25,6 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -141,7 +140,7 @@ public class TestFcc extends Simulation {
                 iterator.reset();
                 while (iterator.hasNext()) {
                     AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                    IVectorRandom pos = atom.getCoord().getPosition();
+                    IVector pos = atom.getCoord().getPosition();
                     pos.setX(0, pos.x(0)-0.5);
                 }
 
@@ -151,7 +150,7 @@ public class TestFcc extends Simulation {
                 iterator.reset();
                 while (iterator.hasNext()) {
                     AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                    IVectorRandom pos = atom.getCoord().getPosition();
+                    IVector pos = atom.getCoord().getPosition();
                     if (Math.round(pos.x(0)+0.5) % 2 == 0) {
                         pos.setX(1,pos.x(1)+0.001);
                     }

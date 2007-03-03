@@ -120,7 +120,7 @@ public class PairIndexerMolecule {
         maxLength = jumpCount[0] * iJump[0];
     }
     
-    private void flipVector(IVectorRandom dr) {
+    private void flipVector(IVector dr) {
         int shouldBeFlipped = 0; // 1=yes, -1=no
         for (int i=0; i<dr.getD(); i++) {
             if (Math.abs(dr.x(i) - 0.5*bdry.getDimensions().x(i)) < tol || 
@@ -290,7 +290,7 @@ public class PairIndexerMolecule {
     /**
      * Temporary storage space for a vector
      */
-    private final IVectorRandom temp;
+    private final IVector temp;
 
     /**
      * Storage space to put the indices

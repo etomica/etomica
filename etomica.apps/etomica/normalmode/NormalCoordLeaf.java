@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -42,7 +41,7 @@ public class NormalCoordLeaf implements NormalCoordMapper, Serializable {
     }
     
     public void setToU(Atom atom, int atomCount, double[] u) {
-        IVectorRandom pos = ((AtomLeaf)atom).getCoord().getPosition();
+        IVector pos = ((AtomLeaf)atom).getCoord().getPosition();
         for (int i=0; i<pos.getD(); i++) {
             pos.setX(i,nominalU[atomCount][i]+u[i]);
         }

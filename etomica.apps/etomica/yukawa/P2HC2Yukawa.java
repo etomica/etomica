@@ -7,7 +7,7 @@ import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.Simulation;
-import etomica.space.IVectorRandom;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
@@ -139,6 +139,6 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical implements Etomic
 	private double z2;
 	private double expZ1;
 	private double expZ2; 
-	private final IVectorRandom dr;
+	private final IVector dr;
 	private NearestImageTransformer nearestImageTransformer;
 }	

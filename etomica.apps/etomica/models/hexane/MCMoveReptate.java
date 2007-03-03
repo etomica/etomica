@@ -164,7 +164,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
         super.setPhase(p);
         energyMeter.setPhase(p);
         atomSource.setPhase(p);
-        tempV = phase.getSpace().makeVector();
+        tempV = (IVectorRandom)phase.getSpace().makeVector();
         positionOld = phase.getSpace().makeVector();
     }
     

@@ -16,20 +16,19 @@ public class Zeolite {
 		
 		for(int i=0;i<cut;i++){
 			String file = inputFile+"_"+i;
-			Converter(file,32);
+			Converter(file);
 			System.out.println("File "+i+" converted");
 		}
 		
 		//Converter(inputFile,32,2);     
         System.out.println("Finished");
 	}
-	public static void Converter(String inputFile,int meth) {
+	public static void Converter(String inputFile) {
 		// TODO Auto-generated method stub
 		String outputFile = inputFile+"_Result.txt";
 		MSDProcessor proc = new MSDProcessor(Space3D.getInstance(),inputFile,outputFile);
 		
 		//proc.setDeltaTmax(1);
-		proc.setMethane(meth);
 		proc.fillArrays();
 		System.out.println("Converter done");
 	}

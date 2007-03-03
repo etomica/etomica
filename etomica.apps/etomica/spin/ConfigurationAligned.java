@@ -4,7 +4,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.phase.Phase;
-import etomica.space.IVectorRandom;
+import etomica.space.IVector;
 
 
 /**
@@ -30,7 +30,7 @@ public class ConfigurationAligned extends Configuration {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
         iterator.reset();
         while(iterator.hasNext()) {
-            IVectorRandom spin = ((AtomLeaf)iterator.nextAtom()).getCoord().getPosition();
+            IVector spin = ((AtomLeaf)iterator.nextAtom()).getCoord().getPosition();
             spin.E(0.0);
             spin.setX(0,1.0);
         }

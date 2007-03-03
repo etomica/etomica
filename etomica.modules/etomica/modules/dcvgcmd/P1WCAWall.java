@@ -23,7 +23,7 @@ import etomica.space.Space;
 public class P1WCAWall extends Potential1 implements PotentialSoft {
 
     private static final long serialVersionUID = 1L;
-    private final IVectorRandom[] gradient;
+    private final IVector[] gradient;
     private double sigma;
     private double epsilon;
     private double cutoff;

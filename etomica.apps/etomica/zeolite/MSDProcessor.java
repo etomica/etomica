@@ -5,15 +5,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
 
 public class MSDProcessor {
 
-	private int methane;
-	
     public MSDProcessor(Space space, String inputFile, String outputFile){
-    	methane =1;
         msdOutput = outputFile;
         msdInput = inputFile;
         try {
@@ -72,9 +70,7 @@ public class MSDProcessor {
     public void setDeltaTmax(int newDeltaTmax){
         deltaTmax = newDeltaTmax;
     }
-    public void setMethane(int m){
-    	methane=m;
-    }
+
     public void fillArrays(){
     	//Total RMS displacement
         double[] totalRsquared = new double[deltaTmax];  
@@ -209,8 +205,8 @@ public class MSDProcessor {
         }
     }
     
-	private IVectorRandom [] coordBlock1;
-	private IVectorRandom coordVector2;
+	private IVector [] coordBlock1;
+	private IVector coordVector2;
 	private int numAtoms;
     private int numBlocks;
     private int deltaTmax;

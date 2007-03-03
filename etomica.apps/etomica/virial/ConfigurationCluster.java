@@ -31,7 +31,7 @@ public class ConfigurationCluster extends Configuration {
 	 */
     //XXX this can't actually handle multi-atom molecules
 	public void initializeCoordinates(Phase phase) {
-		IVectorRandom translationVector = phase.getSpace().makeVector();
+		IVectorRandom translationVector = (IVectorRandom)phase.getSpace().makeVector();
         IVector dimVector = phase.getSpace().makeVector();
         dimVector.E(phase.getBoundary().getDimensions());
 		IVector center = phase.getSpace().makeVector();

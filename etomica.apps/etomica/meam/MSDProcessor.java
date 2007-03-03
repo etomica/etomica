@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
 
@@ -141,8 +142,8 @@ public class MSDProcessor {
         }
     }
     
-	private IVectorRandom [] coordBlock1;
-	private IVectorRandom coordVector2;
+	private IVector [] coordBlock1;
+	private IVector coordVector2;
 	private int numAtoms;
     private int numBlocks;
     private int deltaTmax;

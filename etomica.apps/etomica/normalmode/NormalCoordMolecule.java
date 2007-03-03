@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -55,7 +54,7 @@ public class NormalCoordMolecule implements NormalCoordMapper, Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final Space space;
-    protected final IVectorRandom work1;
+    protected final IVector work1;
     protected double[][] nominalU;
     protected final AtomActionTranslateTo atomActionTranslateTo;
 }

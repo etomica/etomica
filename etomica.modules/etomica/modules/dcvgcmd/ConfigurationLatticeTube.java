@@ -16,7 +16,6 @@ import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -58,7 +57,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         int nCells = (int)Math.ceil((double)iterator.size()/(double)basisSize);
         
         //determine scaled shape of simulation volume
-        IVectorRandom shape = phase.getSpace().makeVector();
+        IVector shape = phase.getSpace().makeVector();
         shape.E(phase.getBoundary().getDimensions());
         shape.setX(2,shape.x(2)*length);
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
@@ -89,10 +88,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVectorRandom offset = phase.getSpace().makeVector();
+        IVector offset = phase.getSpace().makeVector();
         offset.E(phase.getBoundary().getDimensions());
-        IVectorRandom vectorOfMax = phase.getSpace().makeVector();
-        IVectorRandom vectorOfMin = phase.getSpace().makeVector();
+        IVector vectorOfMax = phase.getSpace().makeVector();
+        IVector vectorOfMin = phase.getSpace().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 

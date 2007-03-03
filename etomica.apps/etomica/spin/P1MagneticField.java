@@ -3,7 +3,6 @@ package etomica.spin;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.potential.Potential1;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -64,5 +63,5 @@ public class P1MagneticField extends Potential1 {
 
     private static final long serialVersionUID = 1L;
     private double h;
-    private final IVectorRandom direction;
+    private final IVector direction;
 }
