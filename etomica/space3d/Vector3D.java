@@ -152,12 +152,6 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         z = ((Vector3D) u1).z - ((Vector3D) u2).z;
     }
     
-    public void truncate(double eps) {
-        if(x < eps && -x < eps) x = 0.0;
-        if(y < eps && -y < eps) y = 0.0;
-        if(z < eps && -z < eps) z = 0.0;
-    }
-
     public void mod(IVector u) {
         mod((Vector3D) u);
     }
@@ -177,67 +171,8 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
             z += u.z;
     }
 
-    public IVector P(IVector u) {
-        IVector work = new Vector3D();
-        work.Ev1Pv2(this, u);
-        return work;
-    }
-
-    public IVector M(IVector u) {
-        IVector work = new Vector3D();
-        work.Ev1Mv2(this, u);
-        return work;
-    }
-
-    public IVector T(IVector u) {
-        IVector work = new Vector3D();
-        work.E(this);
-        work.TE(u);
-        return work;
-    }
-
-    public IVector D(IVector u) {
-        IVector work = new Vector3D();
-        work.E(this);
-        work.DE(u);
-        return work;
-    }
-
-    public void abs() {
-        x = (x < 0) ? -x : x;
-        y = (y < 0) ? -y : y;
-        z = (z < 0) ? -z : z;
-    }
-
-    public void minE(IVector v) {
-        if(((Vector3D)v).x < x) x = ((Vector3D)v).x;
-        if(((Vector3D)v).y < y) y = ((Vector3D)v).y;
-        if(((Vector3D)v).z < z) z = ((Vector3D)v).z;
-    }
-
-    public void maxE(IVector v) {
-        if(((Vector3D)v).x > x) x = ((Vector3D)v).x;
-        if(((Vector3D)v).y > y) y = ((Vector3D)v).y;
-        if(((Vector3D)v).z > z) z = ((Vector3D)v).z;
-    }
-
-   public double min() {
-        return (x < y) ? (x < z) ? x : z : (y < z) ? y : z;
-    }
-
-    public double max() {
-        return (x > y) ? (x > z) ? x : z : (y > z) ? y : z;
-    }
-
     public double squared() {
         return x * x + y * y + z * z;
-    }
-
-    public double Mv1Pv2Squared(Vector3D u1, Vector3D u2) {
-        double dx = x - u1.x + u2.x;
-        double dy = y - u1.y + u2.y;
-        double dz = z - u1.z + u2.z;
-        return dx * dx + dy * dy + dz * dz;
     }
 
     public double Mv1Squared(IVector u) {
@@ -250,28 +185,6 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
     public double dot(IVector u) {
         return x * ((Vector3D) u).x + y * ((Vector3D) u).y + z
                 * ((Vector3D) u).z;
-    }
-
-    public void randomStep(double d) {
-        x += (2. * Simulation.random.nextDouble() - 1) * d;
-        y += (2. * Simulation.random.nextDouble() - 1) * d;
-        z += (2. * Simulation.random.nextDouble() - 1) * d;
-    }
-
-    public void setRandom(double d) {
-        x = Simulation.random.nextDouble() * d;
-        y = Simulation.random.nextDouble() * d;
-        z = Simulation.random.nextDouble() * d;
-    }
-
-    public void setRandom(double dx, double dy, double dz) {
-        x = Simulation.random.nextDouble() * dx;
-        y = Simulation.random.nextDouble() * dy;
-        z = Simulation.random.nextDouble() * dz;
-    }
-
-    public void setRandom(IVector u) {
-        setRandom(((Vector3D) u).x, ((Vector3D) u).y, ((Vector3D) u).z);
     }
 
     public void setRandomCube() {
