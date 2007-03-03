@@ -5,6 +5,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
@@ -19,8 +20,8 @@ public class P2WaterSPC extends Potential2 {
 		super(space);
 		setSigma(3.1670);
 		setEpsilon(Kelvin.UNIT.toSim(78.23));
-		work = (etomica.space3d.Vector3D)space.makeVector();
-		shift = (etomica.space3d.Vector3D)space.makeVector();
+		work = space.makeVector();
+		shift = space.makeVector();
 		setCharges();
 	}   
 
@@ -36,11 +37,13 @@ public class P2WaterSPC extends Potential2 {
 		AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)((AtomPair)pair).atom1.getNode();
 		
 		//compute O-O distance to consider truncation	
-		etomica.space3d.Vector3D O1r = (etomica.space3d.Vector3D)node1.O.getCoord().getPosition();
-		etomica.space3d.Vector3D O2r = (etomica.space3d.Vector3D)node2.O.getCoord().getPosition();
+		IVector O1r = node1.O.getCoord().getPosition();
+		IVector O2r = node2.O.getCoord().getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
+        shift.Ea1Tv1(-1,work);
 		boundary.nearestImage(work);
+        shift.PE(work);
 		r2 = work.squared();
 
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
@@ -50,42 +53,97 @@ public class P2WaterSPC extends Potential2 {
 		double s6 = s2*s2*s2;
 		sum += epsilon4*s6*(s6 - 1.0);
 		
-		etomica.space3d.Vector3D H11r = (etomica.space3d.Vector3D)node1.H1.getCoord().getPosition();
-		etomica.space3d.Vector3D H12r = (etomica.space3d.Vector3D)node1.H2.getCoord().getPosition();
-		etomica.space3d.Vector3D H21r = (etomica.space3d.Vector3D)node2.H1.getCoord().getPosition();
-		etomica.space3d.Vector3D H22r = (etomica.space3d.Vector3D)node2.H2.getCoord().getPosition();
+		IVector H11r = node1.H1.getCoord().getPosition();
+		IVector H12r = node1.H2.getCoord().getPosition();
+		IVector H21r = node2.H1.getCoord().getPosition();
+		IVector H22r = node2.H2.getCoord().getPosition();
         		
-		final boolean zeroShift = shift.isZero();
-					
-		r2 = (zeroShift) ? O1r.Mv1Squared(H21r) : O1r.Mv1Pv2Squared(H21r,shift);
+		final boolean zeroShift = shift.squared() < 0.1;
+        if (zeroShift) {
+            r2 = O1r.Mv1Squared(H21r);
+        }
+        else {
+            shift.PE(O1r);
+            r2 = H21r.Mv1Squared(shift);
+            shift.ME(O1r);
+        }
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 		sum += chargeOH/Math.sqrt(r2);
 		
-		r2 = (zeroShift) ? O1r.Mv1Squared(H22r) : O1r.Mv1Pv2Squared(H22r,shift);
+        if (zeroShift) {
+            r2 = O1r.Mv1Squared(H22r);
+        }
+        else {
+            shift.PE(O1r);
+            r2 = H22r.Mv1Squared(shift);
+            shift.ME(O1r);
+        }
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 		sum += chargeOH/Math.sqrt(r2);
 
-		r2 = (zeroShift) ? H11r.Mv1Squared(O2r) : H11r.Mv1Pv2Squared(O2r,shift);
+        if (zeroShift) {
+            r2 = H11r.Mv1Squared(O2r);
+        }
+        else {
+            shift.PE(H11r);
+            r2 = O2r.Mv1Squared(shift);
+            shift.ME(H11r);
+        }
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 		sum += chargeOH/Math.sqrt(r2);
 
-		r2 = (zeroShift) ? H11r.Mv1Squared(H21r) : H11r.Mv1Pv2Squared(H21r,shift);
+        if (zeroShift) {
+            r2 = H11r.Mv1Squared(H21r);
+        }
+        else {
+            shift.PE(H11r);
+            r2 = H21r.Mv1Squared(shift);
+            shift.ME(H11r);
+        }
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 		sum += chargeHH/Math.sqrt(r2);
 
-		r2 = (zeroShift) ? H11r.Mv1Squared(H22r) : H11r.Mv1Pv2Squared(H22r,shift);
+        if (zeroShift) {
+            r2 = H11r.Mv1Squared(H22r);
+        }
+        else {
+            shift.PE(H11r);
+            r2 = H22r.Mv1Squared(shift);
+            shift.ME(H11r);
+        }
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 		sum += chargeHH/Math.sqrt(r2);
 
-		r2 = (zeroShift) ? H12r.Mv1Squared(O2r) : H12r.Mv1Pv2Squared(O2r,shift);
+        if (zeroShift) {
+            r2 = H12r.Mv1Squared(O2r);
+        }
+        else {
+            shift.PE(H12r);
+            r2 = O2r.Mv1Squared(shift);
+            shift.ME(H12r);
+        }
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 		sum += chargeOH/Math.sqrt(r2);
 
-		r2 = (zeroShift) ? H12r.Mv1Squared(H21r) : H12r.Mv1Pv2Squared(H21r,shift);
+        if (zeroShift) {
+            r2 = H12r.Mv1Squared(H21r);
+        }
+        else {
+            shift.PE(H12r);
+            r2 = H21r.Mv1Squared(shift);
+            shift.ME(H12r);
+        }
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 		sum += chargeHH/Math.sqrt(r2);
 
-		r2 = (zeroShift) ? H12r.Mv1Squared(H22r) : H12r.Mv1Pv2Squared(H22r,shift);
+        if (zeroShift) {
+            r2 = H12r.Mv1Squared(H22r);
+        }
+        else {
+            shift.PE(H12r);
+            r2 = H22r.Mv1Squared(shift);
+            shift.ME(H12r);
+        }
 		if(r2<1.6) return Double.POSITIVE_INFINITY;
 		sum += chargeHH/Math.sqrt(r2);
 
@@ -122,5 +180,5 @@ public class P2WaterSPC extends Potential2 {
 	private double chargeH = Electron.UNIT.toSim(0.41);
 	private double chargeO = Electron.UNIT.toSim(-0.82);
 	private double chargeOO, chargeOH, chargeHH;
-	private etomica.space3d.Vector3D work, shift;
+	private IVector work, shift;
 }
