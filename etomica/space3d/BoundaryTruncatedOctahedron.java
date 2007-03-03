@@ -11,7 +11,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.IVector;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
 
 /**
@@ -26,9 +25,6 @@ import etomica.space.Space;
  * There are no subclasses for periodic and nonperiodic boundary conditions for
  * this class because nonperiodic boundary conditions are not applicable for
  * truncated octahedrons.
- */
-/*
- * History Created on Jan 24, 2005 by kofke
  */
 public class BoundaryTruncatedOctahedron extends Boundary implements
         BoundaryPeriodic {
@@ -57,7 +53,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         return isPeriodic;
     }
 
-    public final IVectorRandom getDimensions() {
+    public final IVector getDimensions() {
         return dimensionsCopy;
     }
 
@@ -96,7 +92,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
             return origins;
         }
         //algorithm for nShells > 1 misses many of the images (those through the hexagon faces)
-        IVectorRandom workVector = space.makeVector();
+        IVector workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];
@@ -166,7 +162,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         return shifts;
     }
 
-    public void nearestImage(IVectorRandom dr) {
+    public void nearestImage(IVector dr) {
         dr.PEa1Tv1(0.5, dimensions);
         dr.PE(centralImage(dr));
         dr.PEa1Tv1(-0.5, dimensions);
@@ -228,10 +224,10 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVectorRandom intoTruncatedOctahedron;
+    protected final IVector intoTruncatedOctahedron;
     protected final IVector rrounded;
     protected final IVector dimensions;
-    protected final IVectorRandom dimensionsCopy;
+    protected final IVector dimensionsCopy;
     protected final IVector dimensionsHalf;
     protected final IVector dimensionsHalfCopy;
     private final IndexIteratorSequential indexIterator;

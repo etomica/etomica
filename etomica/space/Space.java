@@ -53,7 +53,7 @@ public abstract class Space implements java.io.Serializable {
     /**
      * Constructs and returns a new Vector appropriate to the space.
      */
-    public abstract IVectorRandom makeVector();
+    public abstract IVector makeVector();
 
     /**
      * Constructs and returns a new Orientation appropriate to the space.
@@ -158,8 +158,8 @@ public abstract class Space implements java.io.Serializable {
      * @param n number of vectors in the returned array
      * @return an array of n new vectors made by the space instance
      */
-    public IVectorRandom[] makeVectorArray(int n) {
-        IVectorRandom[] vectors = new IVectorRandom[n];
+    public IVector[] makeVectorArray(int n) {
+        IVector[] vectors = new IVectorRandom[n];
         for(int i=0; i<n; i++) vectors[i] = makeVector();
         return vectors;
     }

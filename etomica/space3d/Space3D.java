@@ -1,7 +1,7 @@
 package etomica.space3d;
 
 import etomica.EtomicaInfo;
-import etomica.space.IVectorRandom;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
@@ -61,7 +61,7 @@ public final class Space3D extends Space {
         return (Math.PI * 4 * r * r);
     }
 
-    public IVectorRandom makeVector() {
+    public IVector makeVector() {
         return new Vector3D();
     }
 

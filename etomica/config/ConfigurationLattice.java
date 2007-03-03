@@ -13,7 +13,6 @@ import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -154,8 +153,8 @@ public class ConfigurationLattice extends Configuration {
         // determine amount to shift lattice so it is centered in volume
         IVector offset = phase.getSpace().makeVector();
         offset.E(phase.getBoundary().getDimensions());
-        IVectorRandom vectorOfMax = phase.getSpace().makeVector();
-        IVectorRandom vectorOfMin = phase.getSpace().makeVector();
+        IVector vectorOfMax = phase.getSpace().makeVector();
+        IVector vectorOfMin = phase.getSpace().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 

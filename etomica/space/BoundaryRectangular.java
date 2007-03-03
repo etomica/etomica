@@ -47,7 +47,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         dimensions = space.makeVector();
         dimensions.E(boxSize);
         
-        temp = space.makeVector();
+        temp = (IVectorRandom)space.makeVector();
         dimensionsCopy = space.makeVector();
         indexIterator = new IndexIteratorSequential(space.D());
         needShift = new boolean[space.D()];//used by getOverflowShifts
@@ -69,7 +69,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * the boundary.  The returned Vector does not represent the values internally,
      * so manipulation of the vector has no effect on this BoundaryRectangular instance.
      */
-    public IVectorRandom getDimensions() {
+    public IVector getDimensions() {
         return dimensionsCopy;
     }
     
@@ -127,7 +127,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * is the dimension of the space.
      */
     public double[][] imageOrigins(int nShells) {
-        IVectorRandom workVector = space.makeVector();
+        IVector workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];
@@ -195,7 +195,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     
     private final IVectorRandom temp;
     protected final IVector dimensions;
-    protected final IVectorRandom dimensionsCopy;
+    protected final IVector dimensionsCopy;
     private final IndexIteratorSequential indexIterator;
     private final boolean[] needShift;
     protected boolean[] isPeriodic;

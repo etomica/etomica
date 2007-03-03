@@ -21,7 +21,6 @@ import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.util.Debug;
 import etomica.util.IRandom;
@@ -133,7 +132,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    IVectorRandom dr = phase.getSpace().makeVector();
+                    IVector dr = phase.getSpace().makeVector();
                     IVector dv = phase.getSpace().makeVector();
 
                     AtomLeaf atom0 = (AtomLeaf)pair.atom0;
@@ -158,7 +157,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
                 debugPair = Debug.getAtoms(phase);
                 if (debugPair.atom0 instanceof AtomLeaf && debugPair.atom1 instanceof AtomLeaf) {
-                    IVectorRandom dr = phase.getSpace().makeVector();
+                    IVector dr = phase.getSpace().makeVector();
                     IVector dv = phase.getSpace().makeVector();
 
                     AtomLeaf atom0 = (AtomLeaf)debugPair.atom0;

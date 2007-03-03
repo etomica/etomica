@@ -11,7 +11,6 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
-import etomica.space.IVectorRandom;
 import etomica.space.RotationTensor;
 import etomica.util.IRandom;
 
@@ -85,7 +84,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
         leafAtomIterator.reset();
         while(leafAtomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)leafAtomIterator.nextAtom();
-            IVectorRandom r = a.getCoord().getPosition();
+            IVector r = a.getCoord().getPosition();
             r.ME(r0);
             a.getNode().parentPhase().getBoundary().nearestImage(r);
             rotationTensor.transform(r0);

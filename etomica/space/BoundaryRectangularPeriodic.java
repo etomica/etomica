@@ -20,7 +20,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     public BoundaryRectangularPeriodic(Space space, double boxSize) {
         super(space, makePeriodicity(space.D()), boxSize);
         dimensionsHalf = space.makeVector();
-        tempImage = space.makeVector();
+        tempImage = (IVectorRandom)space.makeVector();
         // call updateDimensions again so dimensionsHalf is updated
         updateDimensions();
     }
@@ -33,7 +33,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         }
     }
     
-    public void nearestImage(IVectorRandom dr) {
+    public void nearestImage(IVector dr) {
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
         dr.ME(dimensionsHalf);

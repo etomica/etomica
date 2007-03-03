@@ -1,7 +1,6 @@
 package etomica.action;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -16,7 +15,7 @@ import etomica.space.Space;
 public class AtomActionTranslateBy extends AtomActionAdapter {
     
     private static final long serialVersionUID = 1L;
-    private final IVectorRandom translationVector;
+    private final IVector translationVector;
     
     public AtomActionTranslateBy(Space space) {
         translationVector = space.makeVector();
@@ -32,7 +31,7 @@ public class AtomActionTranslateBy extends AtomActionAdapter {
      * instance, not a copy, so any manipulation of the returned vector will
      * affect the action of this instance.
      */
-    public IVectorRandom getTranslationVector() {
+    public IVector getTranslationVector() {
         return translationVector;
     }
     /**

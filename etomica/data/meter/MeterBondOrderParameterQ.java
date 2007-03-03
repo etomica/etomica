@@ -10,7 +10,7 @@ import etomica.math.SphericalHarmonics;
 import etomica.math.geometry.coordinate.CoordinateConverter;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.IVectorRandom;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Undefined;
@@ -143,5 +143,5 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
     private double r2Cut;
     private double[] rThetaPhi = new double[3];
     private double coeff;
-    private final IVectorRandom dr;
+    private final IVector dr;
 }

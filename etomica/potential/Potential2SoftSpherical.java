@@ -4,7 +4,6 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -118,6 +117,6 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
 
     private final IVector[] gradient;
     protected NearestImageTransformer nearestImageTransformer;
-    protected final IVectorRandom dr;
+    protected final IVector dr;
     
 }//end of Potential2SoftSpherical

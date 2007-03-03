@@ -17,7 +17,6 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Length;
@@ -163,7 +162,7 @@ public class MeterProfile implements Meter, DataSourceIndependent, java.io.Seria
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.
      */
-    final IVectorRandom profileVector;
+    final IVector profileVector;
     final IVector position;
     /**
      * Meter that defines the property being profiled.

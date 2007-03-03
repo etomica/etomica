@@ -132,7 +132,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     private double epsilon;
     private double constant;
     private final IVector force;
-    private final IVectorRandom dr;
+    private final IVector dr;
     private NearestImageTransformer nearestImageTransformer;
 }
 

@@ -42,7 +42,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        translationVector = potentialMaster.getSpace().makeVector();
+        translationVector = (IVectorRandom)potentialMaster.getSpace().makeVector();
         setStepSizeMax(stepSizeMax);
         setStepSizeMin(0.0);
         setStepSize(stepSize);

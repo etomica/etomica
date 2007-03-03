@@ -36,7 +36,7 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     /**
      * Does nothing.
      */
-    public void nearestImage(IVectorRandom dr) {
+    public void nearestImage(IVector dr) {
     }
 
     /**

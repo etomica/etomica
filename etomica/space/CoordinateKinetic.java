@@ -39,10 +39,10 @@ public class CoordinateKinetic extends Coordinate implements ICoordinateKinetic 
    /**
      * Returns the instance of the velocity vector (not a copy).
      */
-    public final IVectorRandom getVelocity() {
+    public final IVector getVelocity() {
         return v;
     }
 
-    protected final IVectorRandom v;
+    protected final IVector v;
     private static final long serialVersionUID = 1L;
 }

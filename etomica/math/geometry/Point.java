@@ -1,6 +1,5 @@
 package etomica.math.geometry;
 
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -10,17 +9,13 @@ import etomica.space.Space;
  * @author David Kofke
  *  
  */
-
-/*
- * History Created on May 12, 2005 by kofke
- */
 public class Point extends Polytope {
 
     public Point(Space embeddedSpace) {
         this(embeddedSpace, embeddedSpace.makeVector());
     }
 
-    public Point(Space embeddedSpace, IVectorRandom vectorRandom) {
+    public Point(Space embeddedSpace, IVector vectorRandom) {
         super(embeddedSpace, vectorRandom);
     }
 
@@ -54,5 +49,6 @@ public class Point extends Polytope {
         return vertices[0].toString();
     }
 
+    private static final long serialVersionUID = 1L;
     private final static LineSegment[] edges = new LineSegment[0];
 }

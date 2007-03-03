@@ -6,7 +6,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.simulation.Simulation;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -22,7 +21,7 @@ import etomica.units.Length;
 public class P1SoftBoundary extends Potential1 implements PotentialSoft, EtomicaElement {
 
     private static final long serialVersionUID = 1L;
-	private final IVectorRandom[] gradient;
+	private final IVector[] gradient;
 	private double radius;
 	
     public P1SoftBoundary(Simulation sim) {
@@ -30,7 +29,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
     }
 	public P1SoftBoundary(Space space, double radius) {
 		super(space);
-        gradient = new IVectorRandom[1];
+        gradient = new IVector[1];
 		gradient[0] = space.makeVector();
 		setRadius(radius);
 	}

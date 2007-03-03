@@ -11,7 +11,7 @@ import etomica.space.Space;
  */
 public abstract class Primitive implements java.io.Serializable {
     
-    protected final IVectorRandom[] latticeVectors;
+    protected final IVector[] latticeVectors;
     protected final IVector[] latticeVectorsCopy;
     protected final int[] idx;//used to return coordinate index
     protected final int D;

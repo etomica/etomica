@@ -1,7 +1,7 @@
 package etomica.space2d;
 
 import etomica.EtomicaInfo;
-import etomica.space.IVectorRandom;
+import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Orientation;
 import etomica.space.RotationTensor;
@@ -60,7 +60,7 @@ public final class Space2D extends Space {
         return 2.0 * Math.PI * r;
     } //surface area of sphere of radius r (used for differential shell volume)
 
-    public IVectorRandom makeVector() {
+    public IVector makeVector() {
         return new Vector2D();
     }
 

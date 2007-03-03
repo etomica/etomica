@@ -11,7 +11,7 @@ public class PrimitiveBcc extends Primitive {
     
     private static final long serialVersionUID = 1L;
     private double cubicSize;
-    private IVectorRandom[] unitVectors;
+    private IVector[] unitVectors;
     private static final double BCC_ANGLE = Math.acos(1.0/3.0);
     
     public PrimitiveBcc(Space space) {

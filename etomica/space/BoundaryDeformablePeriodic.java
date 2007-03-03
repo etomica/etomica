@@ -74,7 +74,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         hCopy = space.makeTensor();
         hInv = space.makeTensor();
 
-        temp1 = space.makeVector();
+        temp1 = (IVectorRandom)space.makeVector();
         temp2 = space.makeVector();
         unit = space.makeVector();
         unit.E(1.0);
@@ -89,7 +89,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     
     //used by constructor
     private static IVector[] makeVectors(Space space, double boxSize) {
-        IVectorRandom[] vectors = new IVectorRandom[space.D()];
+        IVector[] vectors = new IVector[space.D()];
         for(int i=0; i<vectors.length; i++) {
             vectors[i] = space.makeVector();
             vectors[i].setX(i, boxSize);
@@ -110,7 +110,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Returns a vector with each element equal to the length of the corresponding
      * edge of the boundary.
      */
-	public IVectorRandom getDimensions() {
+	public IVector getDimensions() {
         dimensionsCopy.E(dimensions);
         return dimensionsCopy;
     }
@@ -171,7 +171,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     }
 
     //needs work to improve efficiency; may be incorrect for extremely deformed boundaries
-	public void nearestImage(IVectorRandom dr) { 
+	public void nearestImage(IVector dr) { 
 	    
         boolean transformed = false;
        // temp1.E(dr);
@@ -486,10 +486,11 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private Tensor h;
     private Tensor hCopy;
     private final Tensor hInv;
-    private final IVectorRandom[] edgeVectors;
-    private final IVectorRandom temp1, temp2;
-    private final IVectorRandom dimensions;
-    private final IVectorRandom dimensionsCopy;
+    private final IVector[] edgeVectors;
+    private final IVectorRandom temp1;
+    private final IVector temp2;
+    private final IVector dimensions;
+    private final IVector dimensionsCopy;
     private final IVector dimensionsHalf;
     private final IVector unit;
     private final IVector half;

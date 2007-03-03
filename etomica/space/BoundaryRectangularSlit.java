@@ -73,7 +73,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
         }
     }
 
-    public void nearestImage(IVectorRandom dr) {
+    public void nearestImage(IVector dr) {
         double x = dr.x(sDim);
         dr.PE(dimensionsHalf);
         dr.mod(dimensions);
@@ -102,5 +102,5 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
     private int sDim;
     private static final long serialVersionUID = 1L;
     protected final IVector dimensionsHalf;
-    protected final IVectorRandom tempImage;
+    protected final IVector tempImage;
 }

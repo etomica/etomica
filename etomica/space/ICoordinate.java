@@ -16,6 +16,6 @@ public interface ICoordinate {
     /**
      * Returns the position vector.
      */
-    public IVectorRandom getPosition();
+    public IVector getPosition();
 
 }

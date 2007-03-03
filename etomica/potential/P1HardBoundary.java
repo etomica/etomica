@@ -9,7 +9,6 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.graphics.Drawable;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -121,7 +120,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
 //        Atom a = agent.atom();
     public void bump(AtomSet a, double falseTime) {
         work.E(((AtomLeaf)a).getCoord().getPosition());
-        IVectorRandom v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getDimensions();
         double delmin = Double.MAX_VALUE;

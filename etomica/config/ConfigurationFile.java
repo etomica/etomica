@@ -8,7 +8,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
-import etomica.space.IVectorRandom;
+import etomica.space.IVector;
 
 /**
  * reads configuration coordinates from a file and assigns them to the leaf atoms in a phase
@@ -43,7 +43,7 @@ public class ConfigurationFile extends Configuration {
         
     private void setPosition(AtomLeaf atom, String string) {
         String[] coordStr = string.split(" +");
-        IVectorRandom pos = atom.getCoord().getPosition();
+        IVector pos = atom.getCoord().getPosition();
         for (int i=0; i<pos.getD(); i++) {
             pos.setX(i, Double.valueOf(coordStr[i]).doubleValue());
         }

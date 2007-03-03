@@ -9,7 +9,6 @@ import etomica.lattice.IndexIteratorSequential;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -150,7 +149,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     Space space;
     IndexIteratorSequential positionIndexIterator, imageIndexIterator;
     int iMax;
-    IVectorRandom dr, dr1, dr2, drStep;
+    IVector dr, dr1, dr2, drStep;
     IVector[] edgeVectors;
     Simulation sim;
     SimulationGraphic simGraphic;

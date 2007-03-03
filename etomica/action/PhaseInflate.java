@@ -8,7 +8,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.phase.Phase;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -131,6 +130,6 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
     private final AtomIteratorAllMolecules moleculeIterator;
     private final AtomActionTranslateBy translator;
     private final AtomGroupAction groupScaler;
-    private final IVectorRandom scaleVector;
+    private final IVector scaleVector;
     private final AtomPositionGeometricCenter moleculeCenter;
 }

@@ -12,7 +12,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationEnergySum;
-import etomica.space.IVectorRandom;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Pressure;
 import etomica.units.Volume;
@@ -115,7 +115,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         for(int i=0; i<x.length; i++) { //disallow x = 0
             if(x[i] == 0.0) x[i] = 0.1*dx;
         }
-        scale = new IVectorRandom[x.length];
+        scale = new IVector[x.length];
         
         double mult = 1.0/nDimension;
         for(int i=0; i<x.length; i++) {
@@ -160,7 +160,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     private final DataTag tag;
     private double[] dataArray;
     private final PhaseInflate inflater;
-    private IVectorRandom[] scale;
+    private IVector[] scale;
     private final boolean[] inflateDimensions;
     private final IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();

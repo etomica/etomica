@@ -28,7 +28,7 @@ public class MCMoveMolecule extends MCMoveAtom {
             double stepSizeMax, boolean ignoreOverlap) {
         super(potentialMaster, random,stepSize,stepSizeMax,ignoreOverlap);
         AtomActionTranslateBy translator = new AtomActionTranslateBy(potentialMaster.getSpace());
-        groupTranslationVector = translator.getTranslationVector();
+        groupTranslationVector = (IVectorRandom)translator.getTranslationVector();
         moveMoleculeAction = new AtomGroupAction(translator);
         
         //set directive to exclude intramolecular contributions to the energy

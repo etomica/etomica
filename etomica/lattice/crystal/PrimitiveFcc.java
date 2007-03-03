@@ -14,7 +14,7 @@ public class PrimitiveFcc extends Primitive {
     //from the vectors() method, copies are scaled to size and returned.
     //default size is 1.0
     private double cubicSize;
-    private IVectorRandom[] unitVectors;
+    private IVector[] unitVectors;
     private static final double FCC_ANGLE = Math.acos(0.5);
     
     public PrimitiveFcc(Space space) {
