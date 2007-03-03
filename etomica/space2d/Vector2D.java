@@ -50,11 +50,6 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
         return (x == 0.0) && (y == 0.0);
     }
 
-    public void sphericalCoordinates(double[] result) {
-        result[0] = Math.sqrt(x * x + y * y);
-        result[1] = Math.atan2(y, x); //theta
-    }
-
     public int getD() {
         return 2;
     }
@@ -97,11 +92,6 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
         y = a1 * u1.y;
     }
 
-    public void Ev1Pa1Tv2(IVector v1, double a1, IVector v2) {
-        x = ((Vector2D) v1).x + a1 * ((Vector2D) v2).x;
-        y = ((Vector2D) v1).y + a1 * ((Vector2D) v2).y;
-    }
-
     public void PEa1Tv1(double a1, IVector u) {
         Vector2D u1 = (Vector2D) u;
         x += a1 * u1.x;
@@ -123,13 +113,6 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
         y -= ((Vector2D) u).y;
     }
 
-    public void PE(int i, double a) {
-        if (i == 0)
-            x += a;
-        else
-            y += a;
-    }
-
     public void TE(double a) {
         x *= a;
         y *= a;
@@ -138,13 +121,6 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
     public void TE(IVector u) {
         x *= ((Vector2D) u).x;
         y *= ((Vector2D) u).y;
-    }
-
-    public void TE(int i, double a) {
-        if (i == 0)
-            x *= a;
-        else
-            y *= a;
     }
 
     public void DE(IVector u) {
@@ -157,11 +133,6 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
         double dx = x - u1.x;
         double dy = y - u1.y;
         return dx * dx + dy * dy;
-    }
-
-    public void PEa1SGNv1(double a1, IVector v1) {
-        x += a1 * SpecialFunctions.sgn(((Vector2D) v1).x);
-        y += a1 * SpecialFunctions.sgn(((Vector2D) v1).y);
     }
 
     public void Ev1Pv2(IVector u1, IVector u2) {
@@ -177,11 +148,6 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
         x = v1.x - v2.x;
         y = v1.y - v2.y;
     }
-    
-    public void truncate(double eps) {
-        if(x < eps && -x < eps) x = 0.0;
-        if(y < eps && -y < eps) y = 0.0;
-    }
 
     public void mod(IVector u) {
         Vector2D u2 = (Vector2D) u;
@@ -193,106 +159,6 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
             y -= u2.y;
         while (y < 0.0)
             y += u2.y;
-    }
-
-    public void mod(double a) {
-        while (x > a)
-            x -= a;
-        while (x < 0.0)
-            x += a;
-        while (y > a)
-            y -= a;
-        while (y < 0.0)
-            y += a;
-    }
-
-    //		public void EModShift(Space.Vector r, Space.Vector u) {
-    //			EModShift((Vector)r, (Vector)u);
-    //		}
-    //sets this equal to (r mod u) - r
-    public void EModShift(IVector r, IVector u) {
-        Vector2D r2d = (Vector2D) r;
-        Vector2D u2d = (Vector2D) u;
-        x = r2d.x;
-        while (x > u2d.x)
-            x -= u2d.x;
-        while (x < 0.0)
-            x += u2d.x;
-        x -= r2d.x;
-        y = r2d.y;
-        while (y > u2d.y)
-            y -= u2d.y;
-        while (y < 0.0)
-            y += u2d.y;
-        y -= r2d.y;
-    }
-
-    public void EMod2Shift(IVector r, IVector u) {
-        Vector2D r2d = (Vector2D) r;
-        Vector2D u2d = (Vector2D) u;
-        x = r2d.x;
-        while (x > +u2d.x)
-            x -= (u2d.x + u2d.x);
-        while (x < -u2d.x)
-            x += (u2d.x + u2d.x);
-        x -= r2d.x;
-        y = r2d.y;
-        while (y > +u2d.y)
-            y -= (u2d.y + u2d.y);
-        while (y < -u2d.y)
-            y += (u2d.y + u2d.y);
-        y -= r2d.y;
-    }
-
-    public IVector P(IVector u) {
-        Vector2D work = new Vector2D();
-        work.x = x + ((Vector2D)u).x;
-        work.y = y + ((Vector2D)u).y;
-        return work;
-    }
-
-    public IVector M(IVector u) {
-        Vector2D work = new Vector2D();
-        work.x = x - ((Vector2D)u).x;
-        work.y = y - ((Vector2D)u).y;
-        return work;
-    }
-
-    public IVector T(IVector u) {
-        Vector2D work = new Vector2D();
-        work.x = x * ((Vector2D)u).x;
-        work.y = y * ((Vector2D)u).y;
-        return work;
-    }
-
-    public IVector D(IVector u) {
-        Vector2D work = new Vector2D();
-        work.x = x / ((Vector2D)u).x;
-        work.y = y / ((Vector2D)u).y;
-        return work;
-    }
-
-    public void abs() {
-        x = (x > 0) ? x : -x;
-        y = (y > 0) ? y : -y;
-    }
-
-    public double min() {
-        return (x < y) ? x : y;
-    }
-
-    public double max() {
-        return (x > y) ? x : y;
-    }
-    
-    public void minE(IVector v) {
-        if(((Vector2D)v).x < x) x = ((Vector2D)v).x;
-        if(((Vector2D)v).y < y) y = ((Vector2D)v).y;
-    }
-
-    public void maxE(IVector v) {
-        if(((Vector2D)v).x > x) x = ((Vector2D)v).x;
-        if(((Vector2D)v).y > y) y = ((Vector2D)v).y;
     }
 
     public double squared() {
@@ -307,25 +173,6 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
         double norm = Math.sqrt(1 / (x * x + y * y));
         x *= norm;
         y *= norm;
-    }
-
-    public void randomStep(double d) {
-        x += (2. * Simulation.random.nextDouble() - 1.0) * d;
-        y += (2. * Simulation.random.nextDouble() - 1.0) * d;
-    } //uniformly distributed random step in x and y, within +/- d
-
-    public void setRandom(double d) {
-        x = Simulation.random.nextDouble() * d;
-        y = Simulation.random.nextDouble() * d;
-    }
-
-    public void setRandom(double dx, double dy) {
-        x = Simulation.random.nextDouble() * dx;
-        y = Simulation.random.nextDouble() * dy;
-    }
-
-    public void setRandom(IVector u) {
-        setRandom(((Vector2D) u).x, ((Vector2D) u).y);
     }
 
     public void setRandomCube() {
@@ -352,16 +199,6 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
         } while (rsq > 1.0);
         x = z1;
         y = z2;
-    }
-
-    public void randomRotate(double thetaStep) {
-        double deltheta = (2 * Simulation.random.nextDouble() - 1.0)
-                * thetaStep;
-        double theta = Math.atan2(y, x);
-        theta += deltheta;
-        double r = Math.sqrt(x * x + y * y);
-        x = r * Math.cos(theta);
-        y = r * Math.sin(theta);
     }
 
     public boolean isNaN() {

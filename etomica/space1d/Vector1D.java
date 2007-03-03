@@ -58,10 +58,6 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         array[0] = x;
     }
 
-    public void sphericalCoordinates(double[] result) {
-        result[0] = x;
-    }
-
     public void E(double a) {
         x = a;
     }
@@ -121,18 +117,6 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         x = 1.0;
     }
 
-    public void randomStep(double d) {
-        x += (2. * Simulation.random.nextDouble() - 1.0) * d;
-    } //uniformly distributed random step in x and y, within +/- d
-
-    public void setRandom(double d) {
-        x = Simulation.random.nextDouble() * d;
-    }
-
-    public void setRandom(IVector u) {
-        x = Simulation.random.nextDouble() * ((Vector1D) u).x;
-    }
-
     public void setRandomCube() {
         x = Simulation.random.nextDouble() - 0.5;
     }
@@ -171,9 +155,6 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
 
     public double dot(IVector u) {
         return ((Vector1D) u).x * x;
-    }
-
-    public void randomRotate(double deltheta) {//no implementation in 1D
     }
 
     public boolean isNaN() {
