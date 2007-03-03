@@ -10,7 +10,7 @@ public class NearestImageTransformerNone implements NearestImageTransformer {
     /**
      * Does nothing
      */
-    public void nearestImage(IVector dr) {
+    public void nearestImage(IVectorRandom dr) {
     }
 
 }

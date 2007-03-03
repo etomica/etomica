@@ -1,5 +1,6 @@
 package etomica.lattice.crystal;
 import etomica.math.geometry.Polytope;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -10,7 +11,7 @@ public class PrimitiveBcc extends Primitive {
     
     private static final long serialVersionUID = 1L;
     private double cubicSize;
-    private IVector[] unitVectors;
+    private IVectorRandom[] unitVectors;
     private static final double BCC_ANGLE = Math.acos(1.0/3.0);
     
     public PrimitiveBcc(Space space) {
@@ -23,7 +24,7 @@ public class PrimitiveBcc extends Primitive {
     protected PrimitiveBcc(Space space, double size, boolean makeReciprocal) {
         super(space, makeReciprocal); //also makes reciprocal
         //set up orthogonal vectors of unit size
-        unitVectors = new IVector[D];
+        unitVectors = new IVectorRandom[D];
         for(int i=0; i<D; i++) {
             unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(3.0));

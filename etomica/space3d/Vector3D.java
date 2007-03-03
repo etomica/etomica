@@ -1,20 +1,19 @@
 package etomica.space3d;
 
-import etomica.math.SpecialFunctions;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
-import etomica.space.Tensor;
+import etomica.space.IVectorRandom;
 import etomica.util.Function;
 
 /**
  * Implementation of the Vector class for a 3-dimensional space.
  */
-public final class Vector3D implements IVector, java.io.Serializable {
+public final class Vector3D implements IVectorRandom, java.io.Serializable {
 
     double x, y, z;
     private static final long serialVersionUID = 1L;
 
-    public int D() {
+    public int getD() {
         return 3;
     }
 
@@ -51,10 +50,6 @@ public final class Vector3D implements IVector, java.io.Serializable {
         return ((i == 0) ? x : (i == 1) ? y : z);
     }
 
-    public double[] toArray() {
-        return new double[] { x, y, z };
-    }
-
     public void assignTo(double[] array) {
         array[0] = x;
         array[1] = y;
@@ -68,12 +63,6 @@ public final class Vector3D implements IVector, java.io.Serializable {
 
     public boolean isZero() {
         return (x == 0.0) && (y == 0.0) && (z == 0);
-    }
-
-    public void sphericalCoordinates(double[] result) {
-        result[0] = Math.sqrt(x * x + y * y + z * z);
-        result[1] = Math.acos(z / result[0]); //theta
-        result[2] = Math.atan2(x, y); //phi
     }
 
     public void E(IVector u) {
@@ -103,15 +92,6 @@ public final class Vector3D implements IVector, java.io.Serializable {
         z = u[2];
     }
     
-    public void E(int[] u) {
-        if(u.length != 3){ 
-            throw new IllegalArgumentException("Vector 3D must be given a 3 element array.");
-        }
-        x = u[0];
-        y = u[1];
-        z = u[2];
-    }
-
     public void Ea1Tv1(double a1, IVector u) {
         x = a1 * ((Vector3D) u).x;
         y = a1 * ((Vector3D) u).y;
@@ -122,18 +102,6 @@ public final class Vector3D implements IVector, java.io.Serializable {
         x += a1 * ((Vector3D) u).x;
         y += a1 * ((Vector3D) u).y;
         z += a1 * ((Vector3D) u).z;
-    }
-
-    public void Ev1Pa1Tv2(IVector v1, double a1, IVector v2) {
-        x = ((Vector3D) v1).x + a1 * ((Vector3D) v2).x;
-        y = ((Vector3D) v1).y + a1 * ((Vector3D) v2).y;
-        z = ((Vector3D) v1).z + a1 * ((Vector3D) v2).z;
-    }
-
-    public void PEa1SGNv1(double a1, IVector v1) {
-        x += a1 * SpecialFunctions.sgn(((Vector3D) v1).x);
-        y += a1 * SpecialFunctions.sgn(((Vector3D) v1).y);
-        z += a1 * SpecialFunctions.sgn(((Vector3D) v1).z);
     }
 
     public void PE(IVector u) {
@@ -154,40 +122,16 @@ public final class Vector3D implements IVector, java.io.Serializable {
         z -= ((Vector3D) u).z;
     }
 
-    public void PE(int i, double a) {
-        if (i == 0)
-            x += a;
-        else if (i == 1)
-            y += a;
-        else
-            z += a;
-    }
-
     public void TE(double a) {
         x *= a;
         y *= a;
         z *= a;
     }
 
-    public void TE(int i, double a) {
-        if (i == 0)
-            x *= a;
-        else if (i == 1)
-            y *= a;
-        else
-            z *= a;
-    }
-
     public void TE(IVector u) {
         x *= ((Vector3D) u).x;
         y *= ((Vector3D) u).y;
         z *= ((Vector3D) u).z;
-    }
-
-    public void DE(double a) {
-        x /= a;
-        y /= a;
-        z /= a;
     }
 
     public void DE(IVector u) {
@@ -231,102 +175,6 @@ public final class Vector3D implements IVector, java.io.Serializable {
             z -= u.z;
         while (z < 0.0)
             z += u.z;
-    }
-
-    public void mod(double a) {
-        while (x > a)
-            x -= a;
-        while (x < 0.0)
-            x += a;
-        while (y > a)
-            y -= a;
-        while (y < 0.0)
-            y += a;
-        while (z > a)
-            z -= a;
-        while (z < 0.0)
-            z += a;
-    }
-
-    public void mod2(Vector3D u) {
-        while (x > +u.x)
-            x -= (u.x + u.x);
-        while (x < -u.x)
-            x += (u.x + u.x);
-        while (y > +u.y)
-            y -= (u.y + u.y);
-        while (y < -u.y)
-            y += (u.y + u.y);
-        while (z > +u.z)
-            z -= (u.z + u.z);
-        while (z < -u.z)
-            z += (u.z + u.z);
-    }
-
-    //		public void modShift(Vector u, Vector shift) {
-    //			while(x+shift.x > u.x) shift.x -= u.x;
-    //			while(x-shift.x < 0.0) shift.x += u.x;
-    //			while(y+shift.y > u.y) shift.y -= u.y;
-    //			while(y-shift.y < 0.0) shift.y += u.y;
-    //			while(z+shift.z > u.z) shift.z -= u.z;
-    //			while(z-shift.z < 0.0) shift.z += u.z;
-    //		}
-    //			don't need Space.Vector form -- this method is used only by methods in
-    // Boundary
-    //		public void EModShift(Space.Vector r, Space.Vector u) {
-    //			EModShift((Vector)r, (Vector)u);
-    //		}
-    //sets this equal to (r mod u) - r
-    public void EModShift(IVector r, IVector u) {
-        Vector3D r3d = (Vector3D) r;
-        Vector3D u3d = (Vector3D) u;
-        x = r3d.x;
-        while (x >= u3d.x) {
-            x -= u3d.x;
-        }
-        while (x < 0.0) {
-            x += u3d.x;
-        }
-        x -= r3d.x;
-        y = r3d.y;
-        while (y >= u3d.y) {
-            y -= u3d.y;
-        }
-        while (y < 0.0) {
-            y += u3d.y;
-        }
-        y -= r3d.y;
-        z = r3d.z;
-        while (z >= u3d.z) {
-            z -= u3d.z;
-        }
-        while (z < 0.0) {
-            z += u3d.z;
-        }
-        z -= r3d.z;
-    }
-
-    public void EMod2Shift(IVector r, IVector u) {
-        Vector3D r3d = (Vector3D) r;
-        Vector3D u3d = (Vector3D) u;
-        x = r3d.x;
-        while (x > +u3d.x)
-            x -= (u3d.x + u3d.x);
-        while (x < -u3d.x)
-            x += (u3d.x + u3d.x);
-        x -= r3d.x;
-        y = r3d.y;
-        while (y > +u3d.y)
-            y -= (u3d.y + u3d.y);
-        while (y < -u3d.y)
-            y += (u3d.y + u3d.y);
-        y -= r3d.y;
-        z = r3d.z;
-        while (z > +u3d.z)
-            z -= (u3d.z + u3d.z);
-        while (z < -u3d.z)
-            z += (u3d.z + u3d.z);
-        z -= r3d.z;
     }
 
     public IVector P(IVector u) {
@@ -402,15 +250,6 @@ public final class Vector3D implements IVector, java.io.Serializable {
     public double dot(IVector u) {
         return x * ((Vector3D) u).x + y * ((Vector3D) u).y + z
                 * ((Vector3D) u).z;
-    }
-
-    public void transform(Tensor A) {
-        Tensor3D A3D = (Tensor3D) A;
-        double x1 = A3D.xx * x + A3D.xy * y + A3D.xz * z;
-        double y1 = A3D.yx * x + A3D.yy * y + A3D.yz * z;
-        z = A3D.zx * x + A3D.zy * y + A3D.zz * z;
-        x = x1;
-        y = y1;
     }
 
     public void randomStep(double d) {

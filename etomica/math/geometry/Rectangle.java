@@ -27,7 +27,7 @@ public class Rectangle extends Polygon implements Rectangular {
      */
     public Rectangle(Space embeddedSpace, double xLength, double yLength) {
         super(embeddedSpace, 4);
-        setEdgeLengths(xLength, yLength);
+        setEdgeLengths(embeddedSpace.makeVector(new double[]{xLength, yLength}));
     }
 
     /**
@@ -61,6 +61,7 @@ public class Rectangle extends Polygon implements Rectangular {
      * the corresponding rectangle edge.
      */
     public void setEdgeLengths(IVector e) {
+        edgeLengths.E(e);
         setEdgeLengths(e.x(0), e.x(1));
     }
     
@@ -77,8 +78,7 @@ public class Rectangle extends Polygon implements Rectangular {
     /**
      * @param edgeLength the new length of the sides of the square
      */
-    public void setEdgeLengths(double edgeLengthX, double edgeLengthY) {
-        edgeLengths.E(edgeLengthX, edgeLengthY);
+    protected void setEdgeLengths(double edgeLengthX, double edgeLengthY) {
         nX = -0.5*edgeLengthX;
         pX = +0.5*edgeLengthX;
         nY = -0.5*edgeLengthY;

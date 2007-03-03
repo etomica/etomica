@@ -69,7 +69,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * the boundary.  The returned Vector does not represent the values internally,
      * so manipulation of the vector has no effect on this BoundaryRectangular instance.
      */
-    public IVector getDimensions() {
+    public IVectorRandom getDimensions() {
         return dimensionsCopy;
     }
     
@@ -127,7 +127,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * is the dimension of the space.
      */
     public double[][] imageOrigins(int nShells) {
-        IVector workVector = space.makeVector();
+        IVectorRandom workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];
@@ -136,7 +136,9 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         int k = 0;
         while(indexIterator.hasNext()) {
             int[] index = indexIterator.next();
-            workVector.E(index);
+            for (int i=0; i<space.D(); i++) {
+                workVector.setX(i,index[i]);
+            }
             workVector.PE(-(double)nShells);
             if(workVector.isZero()) continue;
             workVector.TE(dimensions);
@@ -163,7 +165,8 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
        if(numVectors == 1) return shift0;
        
        float[][] shifts = new float[numVectors][D];
-       double[] rrArray = rr.toArray();
+       double[] rrArray = new double[D];
+       rr.assignTo(rrArray);
        for (int i=0; i<D; i++) {
           shifts[0][i] = (float)rrArray[i];
        }
@@ -190,9 +193,9 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
        return shifts;
     }
     
-    private final IVector temp;
+    private final IVectorRandom temp;
     protected final IVector dimensions;
-    protected final IVector dimensionsCopy;
+    protected final IVectorRandom dimensionsCopy;
     private final IndexIteratorSequential indexIterator;
     private final boolean[] needShift;
     protected boolean[] isPeriodic;

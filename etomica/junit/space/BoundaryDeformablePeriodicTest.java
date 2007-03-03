@@ -9,6 +9,7 @@ import etomica.lattice.IndexIteratorSequential;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -54,11 +55,13 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
             int[] index = positionIndexIterator.next();
             //index = new int[] {10, 8, 35};
             //System.out.println(Arrays.toString(index));
-            dr.E(index);
+            for (int i=0; i<index.length; i++) {
+                dr.setX(i, index[i]);
+            }
             dr.TE(2.0/(double)iMax);
             dr.PE(-(1-1./iMax));
             dr1.E(dr);
-            dr.transform(boundary.boundaryTensor());
+            boundary.boundaryTensor().transform(dr);
             //System.out.println("dots: "+dr.dot(edgeVectors[0])/edgeVectors[0].squared()
             //                      +", "+dr.dot(edgeVectors[1])/edgeVectors[1].squared());
             dr1.E(dr);
@@ -147,7 +150,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     Space space;
     IndexIteratorSequential positionIndexIterator, imageIndexIterator;
     int iMax;
-    IVector dr, dr1, dr2, drStep;
+    IVectorRandom dr, dr1, dr2, drStep;
     IVector[] edgeVectors;
     Simulation sim;
     SimulationGraphic simGraphic;

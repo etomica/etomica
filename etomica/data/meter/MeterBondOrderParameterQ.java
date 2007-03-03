@@ -7,9 +7,10 @@ import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
+import etomica.math.geometry.coordinate.CoordinateConverter;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Undefined;
@@ -61,8 +62,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
         	double r2 = dr.squared();
             if(r2 < r2Cut) {
                 nbSum += 2;
-                IVector rVec = dr;
-                rVec.sphericalCoordinates(rThetaPhi);
+                CoordinateConverter.toSpherical(dr,rThetaPhi);
                 double theta = rThetaPhi[1];
                 double phi = rThetaPhi[2];
                 for(int m=-L; m<=L; m++) {
@@ -143,5 +143,5 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar implements Meter
     private double r2Cut;
     private double[] rThetaPhi = new double[3];
     private double coeff;
-    private final IVector dr;
+    private final IVectorRandom dr;
 }

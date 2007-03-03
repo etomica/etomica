@@ -47,7 +47,7 @@ public class BravaisLatticeCrystal extends BravaisLattice {
         IVector basisCoordinate = basis.getScaledCoordinates()[index[D-1]];
         IVector[] primitiveVectors = primitive.vectors();
         position.E(latticePosition);
-        for (int i=0; i<basisCoordinate.D(); i++) {
+        for (int i=0; i<basisCoordinate.getD(); i++) {
             position.PEa1Tv1(basisCoordinate.x(i),primitiveVectors[i]);
         }
         return position;

@@ -29,7 +29,7 @@ public class CellLattice extends RectangularLattice {
      *            makes the sites of the lattice
      */
     public CellLattice(IVector dimensions, SiteFactory siteFactory) {
-        super(dimensions.D(), siteFactory);
+        super(dimensions.getD(), siteFactory);
         cellSize = new double[D()];
         idx = new int[D()];
         this.dimensions = dimensions;
@@ -48,9 +48,9 @@ public class CellLattice extends RectangularLattice {
 
     }
     
-    public void assignIndex(IVector r, int[] idx) {
-        for(int i=0; i<idx.length; i++) {
-            idx[i] = (int)(size[i]*(r.x(i)/dimensions.x(i)+0.5));
+    public void assignIndex(IVector r, int[] aIdx) {
+        for(int i=0; i<aIdx.length; i++) {
+            aIdx[i] = (int)(size[i]*(r.x(i)/dimensions.x(i)+0.5));
         }        
     }
     
@@ -78,6 +78,7 @@ public class CellLattice extends RectangularLattice {
         return cellSize;
     }
     
+    private static final long serialVersionUID = 1L;
     private final double[] cellSize;
     private final IVector dimensions;
     private final int[] idx;//a work array
@@ -103,7 +104,7 @@ public class CellLattice extends RectangularLattice {
             neighborDistance = newNeighborDistance;
             if(lattice == null) return;
             for(int i=0; i<D; i++) {
-                idx[i] = 1+(int)(lattice.getSize()[i]*neighborDistance/((CellLattice)lattice).dimensions.x(i));
+                idx[i] = 1+(int)(lattice.getSize()[i]*neighborDistance/((CellLattice)lattice).getDimensions().x(i));
             }
             super.setRange(idx);
         }
@@ -125,6 +126,7 @@ public class CellLattice extends RectangularLattice {
             }
         }
         
+        private static final long serialVersionUID = 1L;
         private final int[] idx;//a work array
         private final IVector previousDimensions;
         private double neighborDistance;

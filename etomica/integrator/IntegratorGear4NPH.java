@@ -24,6 +24,7 @@ import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -279,7 +280,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         double x; //hypervirial sum
         double rvx; 
         double vf;
-        private final IVector dr;
+        private final IVectorRandom dr;
         private final IVector dv;
         private NearestImageTransformer nearestImageTransformer;
 

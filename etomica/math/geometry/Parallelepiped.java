@@ -5,6 +5,7 @@
 package etomica.math.geometry;
 
 import etomica.exception.MethodNotImplementedException;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;

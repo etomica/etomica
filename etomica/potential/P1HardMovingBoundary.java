@@ -8,6 +8,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.graphics.Drawable;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -196,7 +197,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 
     public void bump(AtomSet a, double falseTime) {
         double r = ((AtomLeaf)a).getCoord().getPosition().x(wallD);
-        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVectorRandom v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
         if (pressure >= 0.0) {
             double area = 1.0;
             if (pressure > 0.0) {

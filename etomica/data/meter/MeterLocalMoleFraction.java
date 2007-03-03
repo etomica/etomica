@@ -7,6 +7,7 @@ import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.species.Species;
 import etomica.units.Fraction;
@@ -127,5 +128,5 @@ public class MeterLocalMoleFraction extends DataSourceScalar implements Meter {
     private AtomIteratorPhaseDependent iterator = new AtomIteratorLeafAtoms();
     private Polytope shape;
     private IVector shapeOrigin;
-    private IVector tempVec;
+    private IVectorRandom tempVec;
 }

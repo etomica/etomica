@@ -28,10 +28,10 @@ public class Coordinate implements ICoordinate, java.io.Serializable {
     /**
      * Returns the position vector (not a copy).
      */
-    public final IVector getPosition() {
+    public final IVectorRandom getPosition() {
         return r;
     }
 
-    protected final IVector r;
+    protected final IVectorRandom r;
     private static final long serialVersionUID = 1L;
 }

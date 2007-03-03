@@ -6,6 +6,7 @@ package etomica.math.geometry;
 
 import java.util.LinkedList;
 
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -52,10 +53,10 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * Constructor used for the Point subclass
      */
-    Polytope(Space embeddedSpace, IVector vertex) {
+    Polytope(Space embeddedSpace, IVectorRandom vertex) {
         D = 0;
         this.embeddedSpace = embeddedSpace;
-        this.vertices = new IVector[] { vertex };
+        this.vertices = new IVectorRandom[] { vertex };
         position = vertex;
         this.hyperPlanes = new Polytope[0];
     }

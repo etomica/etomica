@@ -53,7 +53,7 @@ public abstract class Space implements java.io.Serializable {
     /**
      * Constructs and returns a new Vector appropriate to the space.
      */
-    public abstract IVector makeVector();
+    public abstract IVectorRandom makeVector();
 
     /**
      * Constructs and returns a new Orientation appropriate to the space.
@@ -106,8 +106,8 @@ public abstract class Space implements java.io.Serializable {
      * @throws UnsupportedOperationException if the u1.D is not 1, 2, or 3.
      */
     public static double r2(IVector u1, IVector u2, Boundary b) { //square distance between two vectors, subject to boundary b
-        if(u1.D() != u2.D()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
-        switch(u1.D()) {
+        if(u1.getD() != u2.getD()) throw new IllegalArgumentException("Space.r2:  Dimension of vectors not equal to each other");
+        switch(u1.getD()) {
             case 1: return Space1D.r2((Vector1D)u1, (Vector1D)u2, b, new Vector1D());
             case 2: return Space2D.r2((Vector2D)u1, (Vector2D)u2, b, new Vector2D());
             case 3: return Space3D.r2((Vector3D)u1, (Vector3D)u2, b, new Vector3D());
@@ -133,7 +133,7 @@ public abstract class Space implements java.io.Serializable {
      * 
      * @throws IllegalArgumentException if a.length is not 1, 2, or 3.
      */
-    public static IVector makeVector(double[] a) {
+    public static IVectorRandom makeVector(double[] a) {
         switch(a.length) {
             case 1:  return new etomica.space1d.Vector1D(a);
             case 2:  return new etomica.space2d.Vector2D(a);
@@ -158,8 +158,8 @@ public abstract class Space implements java.io.Serializable {
      * @param n number of vectors in the returned array
      * @return an array of n new vectors made by the space instance
      */
-    public IVector[] makeVectorArray(int n) {
-        IVector[] vectors = new IVector[n];
+    public IVectorRandom[] makeVectorArray(int n) {
+        IVectorRandom[] vectors = new IVectorRandom[n];
         for(int i=0; i<n; i++) vectors[i] = makeVector();
         return vectors;
     }

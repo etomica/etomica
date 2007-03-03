@@ -103,7 +103,7 @@ public class WriteConfiguration implements Action {
                 }
                 
                 fileWriter.write(writePosition.x(0)+"");
-                for (int i=1; i<writePosition.D(); i++) {
+                for (int i=1; i<writePosition.getD(); i++) {
                 	fileWriter.write(" "+writePosition.x(i));
                 }
                 fileWriter.write("\n");

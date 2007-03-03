@@ -39,7 +39,7 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
         IVector dim = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
         double d2 = 2.0*((AtomTypeSphere)((Atom)a).getType()).getDiameter();
-        int D = dim.D();
+        int D = dim.getD();
         for(int i=0; i<D; i++) {
             double t = (dim.x(i)-d2)/v.x(i);
             t = (t < 0) ? -t : t;//abs

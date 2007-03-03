@@ -21,6 +21,7 @@ import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.util.Debug;
 import etomica.util.IRandom;
@@ -132,7 +133,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    IVector dr = phase.getSpace().makeVector();
+                    IVectorRandom dr = phase.getSpace().makeVector();
                     IVector dv = phase.getSpace().makeVector();
 
                     AtomLeaf atom0 = (AtomLeaf)pair.atom0;
@@ -157,7 +158,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
                 debugPair = Debug.getAtoms(phase);
                 if (debugPair.atom0 instanceof AtomLeaf && debugPair.atom1 instanceof AtomLeaf) {
-                    IVector dr = phase.getSpace().makeVector();
+                    IVectorRandom dr = phase.getSpace().makeVector();
                     IVector dv = phase.getSpace().makeVector();
 
                     AtomLeaf atom0 = (AtomLeaf)debugPair.atom0;
@@ -175,9 +176,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                         System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
                         if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
                             dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).getCoord()).getVelocity());
-                            System.out.println(debugPair.atom0+" coordinates "+((AtomLeaf)debugPair.atom0).getCoord().getPosition().P(dr));
+                            dr.PE(((AtomLeaf)debugPair.atom0).getCoord().getPosition());
+                            System.out.println(debugPair.atom0+" coordinates "+dr);
                             dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom1).getCoord()).getVelocity());
-                            System.out.println(debugPair.atom1+" coordinates "+((AtomLeaf)debugPair.atom1).getCoord().getPosition().P(dr));
+                            dr.PE(((AtomLeaf)debugPair.atom1).getCoord().getPosition());
+                            System.out.println(debugPair.atom1+" coordinates "+dr);
                         }
                     }
                     if (Debug.LEVEL > 1) {
@@ -189,7 +192,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
                 else if (Debug.LEVEL > 2 && debugPair.atom0 instanceof AtomLeaf) {
                     IVector dr = potential.getSpace().makeVector();
                     dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).getCoord()).getVelocity());
-                    System.out.println(debugPair.atom0+" coordinates "+((AtomLeaf)debugPair.atom0).getCoord().getPosition().P(dr));
+                    dr.PE(((AtomLeaf)debugPair.atom0).getCoord().getPosition());
+                    System.out.println(debugPair.atom0+" coordinates "+dr);
                 }
             }
 

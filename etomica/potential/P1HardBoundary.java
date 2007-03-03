@@ -9,6 +9,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.graphics.Drawable;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -65,7 +66,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     public double energy(AtomSet a) {
         IVector dimensions = boundary.getDimensions();
         IVector pos = ((AtomLeaf)a).getCoord().getPosition();
-        for (int i=0; i<work.D(); i++) {
+        for (int i=0; i<work.getD(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;
             }
@@ -86,7 +87,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
-        for(int i=work.D()-1; i>=0; i--) {
+        for(int i=work.getD()-1; i>=0; i--) {
             double vx = v.x(i);
             if(vx == 0.0) continue;
             double rx = work.x(i);
@@ -120,13 +121,13 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
 //        Atom a = agent.atom();
     public void bump(AtomSet a, double falseTime) {
         work.E(((AtomLeaf)a).getCoord().getPosition());
-        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVectorRandom v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getDimensions();
         double delmin = Double.MAX_VALUE;
         int imin = 0;
         //figure out which component is colliding
-        for(int i=work.D()-1; i>=0; i--) {
+        for(int i=work.getD()-1; i>=0; i--) {
             double rx = work.x(i);
             double vx = v.x(i);
             double dxHalf = 0.5*dimensions.x(i);

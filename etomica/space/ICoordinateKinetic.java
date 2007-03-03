@@ -11,6 +11,6 @@ package etomica.space;
  */
 public interface ICoordinateKinetic extends ICoordinate {
 
-    public IVector getVelocity();
+    public IVectorRandom getVelocity();
  
 }

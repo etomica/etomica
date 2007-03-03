@@ -5,7 +5,7 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
 
 /**
@@ -17,7 +17,7 @@ public class MCMoveMolecule extends MCMoveAtom {
     
     private static final long serialVersionUID = 1L;
     protected final AtomGroupAction moveMoleculeAction;
-    protected final IVector groupTranslationVector;
+    protected final IVectorRandom groupTranslationVector;
 
     public MCMoveMolecule(Simulation sim) {
         this(sim.getPotentialMaster(), sim.getRandom(),sim.getDefaults().atomSize,

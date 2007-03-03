@@ -60,6 +60,12 @@ public interface Tensor extends Cloneable {
     public abstract void E(double[] d);
     
     /**
+     * Applies the given tensor transformation to this vector, replaced its
+     * elements with the transformed values.
+     */
+    public void transform(IVector A);
+
+    /**
      * Fills the given array with the elements of this tensor.
      * Array values 0, 1, 2,... are assigned from xx, xy, xz, yx, etc. respectively,
      * filling in a row-wise fashion.

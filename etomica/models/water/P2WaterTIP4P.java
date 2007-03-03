@@ -5,6 +5,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Electron;
@@ -33,15 +34,15 @@ public class P2WaterTIP4P extends Potential2 {
         AtomTreeNodeWater4P node1 = (AtomTreeNodeWater4P)pair.atom0.getNode();
         AtomTreeNodeWater4P node2 = (AtomTreeNodeWater4P)pair.atom1.getNode();
 
-        IVector O1r = node1.O.getCoord().getPosition();
+        IVectorRandom O1r = node1.O.getCoord().getPosition();
         IVector O2r = node2.O.getCoord().getPosition();
-        IVector H11r = node1.H1.getCoord().getPosition();
-        IVector H12r = node1.H2.getCoord().getPosition();
+        IVectorRandom H11r = node1.H1.getCoord().getPosition();
+        IVectorRandom H12r = node1.H2.getCoord().getPosition();
         IVector H21r = node2.H1.getCoord().getPosition();
         IVector H22r = node2.H2.getCoord().getPosition();
 
-        IVector M1r = node1.M.getCoord().getPosition();
-        IVector M2r = node2.M.getCoord().getPosition();
+        IVectorRandom M1r = node1.M.getCoord().getPosition();
+        IVectorRandom M2r = node2.M.getCoord().getPosition();
         
 		
         final double core = 0.1;

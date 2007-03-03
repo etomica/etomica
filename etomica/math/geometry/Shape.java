@@ -1,5 +1,6 @@
 package etomica.math.geometry;
 
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 
 /**

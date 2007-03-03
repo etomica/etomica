@@ -14,6 +14,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.PolygonGeneral;
 import etomica.math.geometry.Polytope;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -75,7 +76,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
     private double toPixels;
         
     protected Polytope polytope;
-    private final IVector dimensions, maxCoord, minCoord;
+    private final IVectorRandom dimensions, maxCoord, minCoord;
   
     public DisplayPolytope(Polytope polytope) {
         super();
@@ -118,7 +119,7 @@ public class DisplayPolytope extends Display implements Action, EtomicaElement {
         maxCoord.E(-Double.MAX_VALUE);
         final IVector[] vertices = polytope.getVertices();
         for (int i=0; i<vertices.length; i++) {
-            for (int j=0; j<dimensions.D(); j++) {
+            for (int j=0; j<dimensions.getD(); j++) {
                 if (maxCoord.x(j) < vertices[i].x(j)) {
                     maxCoord.setX(j,vertices[i].x(j));
                 }

@@ -8,6 +8,7 @@ import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinate;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -131,7 +132,7 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     private double epsilon;
     private double constant;
     private final IVector force;
-    private final IVector dr;
+    private final IVectorRandom dr;
     private NearestImageTransformer nearestImageTransformer;
 }
 

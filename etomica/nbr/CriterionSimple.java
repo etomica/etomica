@@ -10,6 +10,7 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
 import etomica.simulation.Simulation;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -138,7 +139,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     private static final long serialVersionUID = 1L;
     protected final Space space;
     private double interactionRange, displacementLimit2, neighborRadius2;
-	private final IVector dr;
+	private final IVectorRandom dr;
     private NearestImageTransformer nearestImageTransformer;
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;

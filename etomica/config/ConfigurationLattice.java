@@ -13,6 +13,7 @@ import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -153,8 +154,8 @@ public class ConfigurationLattice extends Configuration {
         // determine amount to shift lattice so it is centered in volume
         IVector offset = phase.getSpace().makeVector();
         offset.E(phase.getBoundary().getDimensions());
-        IVector vectorOfMax = phase.getSpace().makeVector();
-        IVector vectorOfMin = phase.getSpace().makeVector();
+        IVectorRandom vectorOfMax = phase.getSpace().makeVector();
+        IVectorRandom vectorOfMin = phase.getSpace().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -162,11 +163,14 @@ public class ConfigurationLattice extends Configuration {
         // periodic boundaries, but gets the atoms off the boundaries for 
         // non-periodic boundaries
         indexIterator.reset();
+
         while (indexIterator.hasNext()) {
             IVector site = (IVector) lattice.site(indexIterator.next());
             site.TE(latticeScaling);
-            vectorOfMax.maxE(site);
-            vectorOfMin.minE(site);
+            for (int i=0; i<site.getD(); i++) {
+                vectorOfMax.setX(i, Math.max(site.x(i),vectorOfMax.x(i)));
+                vectorOfMin.setX(i, Math.min(site.x(i),vectorOfMin.x(i)));
+            }
         }
         offset.Ev1Mv2(vectorOfMax, vectorOfMin);
         offset.TE(-0.5);
@@ -196,14 +200,14 @@ public class ConfigurationLattice extends Configuration {
     }
 
     protected int[] calculateLatticeDimensions(int nCells, IVector shape) {
-        int dimLeft = shape.D();
+        int dimLeft = shape.getD();
         int nCellsLeft = nCells;
-        int[] latticeDimensions = new int[shape.D()];
+        int[] latticeDimensions = new int[shape.getD()];
         while (dimLeft > 0) {
             double smin = Double.POSITIVE_INFINITY;
             int dmin = 0;
             double product = 1.0;
-            for (int idim = 0; idim < shape.D(); idim++) {
+            for (int idim = 0; idim < shape.getD(); idim++) {
                 if (latticeDimensions[idim] > 0)
                     continue;
                 if (shape.x(idim) < smin) {

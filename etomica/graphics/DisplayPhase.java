@@ -18,7 +18,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
-import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.units.Pixel;
 
@@ -459,7 +459,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
      */
     private class InputEventHandler implements MouseListener, MouseMotionListener, KeyListener {
         
-        IVector point;
+        IVectorRandom point;
         
         //not yet configured to do molecule selections
         private boolean atomSelectEnabled = false;

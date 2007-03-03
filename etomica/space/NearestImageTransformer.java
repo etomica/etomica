@@ -13,5 +13,5 @@ package etomica.space;
  */
 public interface NearestImageTransformer {
 
-    public void nearestImage(IVector dr);
+    public void nearestImage(IVectorRandom dr);
 }

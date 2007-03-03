@@ -5,6 +5,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Electron;
@@ -34,10 +35,10 @@ public class P2WaterSPCE extends Potential2 {
         AtomTreeNodeWater3P node1 = (AtomTreeNodeWater3P)pair.atom0.getNode();
         AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)pair.atom1.getNode();
 
-        IVector O1r = node1.O.getCoord().getPosition();
+        IVectorRandom O1r = node1.O.getCoord().getPosition();
         IVector O2r = node2.O.getCoord().getPosition();
-        IVector H11r = node1.H1.getCoord().getPosition();
-        IVector H12r = node1.H2.getCoord().getPosition();
+        IVectorRandom H11r = node1.H1.getCoord().getPosition();
+        IVectorRandom H12r = node1.H2.getCoord().getPosition();
         IVector H21r = node2.H1.getCoord().getPosition();
         IVector H22r = node2.H2.getCoord().getPosition();
 

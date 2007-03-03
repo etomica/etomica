@@ -66,7 +66,7 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      *            a distance vector between two points in the volume; upon
      *            return this vector is replaced with the minimum-image vector
      */
-    public abstract void nearestImage(IVector dr);
+    public abstract void nearestImage(IVectorRandom dr);
 
     /**
      * Returns a copy of the dimensions, as a Vector. Manipulation of this copy
@@ -77,7 +77,7 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      *         boundaries, while for others (e.g., octahedral) the definition is
      *         particular to the boundary.
      */
-    public abstract IVector getDimensions();
+    public abstract IVectorRandom getDimensions();
 
     /**
      * Sets the nominal length of the boundary in each direction. Specific

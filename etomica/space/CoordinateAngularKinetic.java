@@ -40,11 +40,11 @@ public class CoordinateAngularKinetic extends CoordinateAngular implements
     /**
      * Returns the velocity vector (not a copy).
      */
-    public IVector getVelocity() {
+    public IVectorRandom getVelocity() {
         return v;
     }
 
-    private IVector v, omega;
+    private IVectorRandom v, omega;
     private static final long serialVersionUID = 1L;
 
 }

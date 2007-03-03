@@ -16,7 +16,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
-import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Length;
@@ -178,7 +178,7 @@ public class MeterRDF implements DataSource, Meter, DataSourceIndependent, java.
     private DataInfo dataInfo;
     private DataDoubleArray rData;
     private AtomsetIteratorPhaseDependent iterator;
-    private final IVector dr;
+    private final IVectorRandom dr;
     private NearestImageTransformer nearestImageTransformer;
     private final DataSourceUniform xDataSource;
     private String name;

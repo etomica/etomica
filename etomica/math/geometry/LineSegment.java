@@ -1,5 +1,6 @@
 package etomica.math.geometry;
 
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space1d.Vector1D;
@@ -25,7 +26,7 @@ public class LineSegment extends Polytope implements Rectangular {
      * Forms the segment using the given vectors as the instances used to
      * represent the end points.
      */
-    LineSegment(Space embeddedSpace, IVector v0, IVector v1) {
+    LineSegment(Space embeddedSpace, IVectorRandom v0, IVectorRandom v1) {
         super(new Point[] {new Point(embeddedSpace, v0), new Point(embeddedSpace, v1)});
         edges = new LineSegment[]{this};
     }

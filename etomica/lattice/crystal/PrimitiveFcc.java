@@ -1,5 +1,6 @@
 package etomica.lattice.crystal;
 import etomica.math.geometry.Polytope;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -13,7 +14,7 @@ public class PrimitiveFcc extends Primitive {
     //from the vectors() method, copies are scaled to size and returned.
     //default size is 1.0
     private double cubicSize;
-    private IVector[] unitVectors;
+    private IVectorRandom[] unitVectors;
     private static final double FCC_ANGLE = Math.acos(0.5);
     
     public PrimitiveFcc(Space space) {
@@ -26,7 +27,7 @@ public class PrimitiveFcc extends Primitive {
     protected PrimitiveFcc(Space space, double size, boolean makeReciprocal) {
         super(space, makeReciprocal); //also makes reciprocal
         //set up orthogonal vectors of unit size
-        unitVectors = new IVector[D];
+        unitVectors = new IVectorRandom[D];
         for(int i=0; i<D; i++) {
             unitVectors[i] = space.makeVector();
             unitVectors[i].E(1.0/Math.sqrt(2.0));

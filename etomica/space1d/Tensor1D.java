@@ -149,4 +149,8 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
     public void map(Function f) {
         xx = f.f(xx);
     }
+    
+    public void transform(IVector v) {
+        v.setX(0, xx * v.x(1));
+    }
 }

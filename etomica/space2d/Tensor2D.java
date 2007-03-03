@@ -2,7 +2,6 @@ package etomica.space2d;
 
 import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.space1d.Vector1D;
 import etomica.util.Function;
 
 /**
@@ -194,7 +193,13 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         yy = f.f(yy);
     }
     
-    public String toString() {
+    public void transform(IVector v) {
+        double x = xx * v.x(0) + xy * v.x(1);
+        v.setX(1, yx * v.x(0) + yy * v.x(1));
+        v.setX(0, x);
+    }
+
+   public String toString() {
         return "("+xx+", "+xy+")\n("+yx+", "+yy+")";
     }
 }

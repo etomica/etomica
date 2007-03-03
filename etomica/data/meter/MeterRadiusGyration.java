@@ -6,6 +6,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -132,6 +133,6 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
     private Phase phase;
     private AtomIteratorAllMolecules iterator;
     private final IVector cm, realPos;
-    private final IVector dr;
+    private final IVectorRandom dr;
 
 }

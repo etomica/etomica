@@ -3,9 +3,8 @@ package etomica.action;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
-import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
-import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
 
 
@@ -35,13 +34,13 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
      * mass is infinite, assigns a zero velocity.
      */
     public void actionPerformed(Atom a) {
-        IVector velocity = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVectorRandom velocity = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
         double mass = ((AtomTypeLeaf)a.getType()).getMass();
         if(Double.isInfinite(mass)) {
             velocity.E(0.0);
             return;
         }
-        int D = velocity.D();
+        int D = velocity.getD();
         for(int i=0; i<D; i++) {
             velocity.setX(i,random.nextGaussian());
         }

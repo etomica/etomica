@@ -10,6 +10,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.space.Space;
 
 /**
@@ -43,7 +44,6 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         dimensions.E(boxSize);
         rrounded = space.makeVector();
         intoTruncatedOctahedron = space.makeVector();
-        intoContainingCube = space.makeVector();
         dimensionsCopy = space.makeVector();
         dimensionsHalf = space.makeVector();
         dimensionsHalfCopy = space.makeVector();
@@ -56,7 +56,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         return isPeriodic;
     }
 
-    public final IVector getDimensions() {
+    public final IVectorRandom getDimensions() {
         return dimensionsCopy;
     }
 
@@ -83,19 +83,19 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
             return new double[0][];
         } else if(nShells == 1) {
             Polygon[] faces = ((Polyhedron)shape).getFaces();
-            double[][] origins = new double[faces.length][];
+            double[][] origins = new double[faces.length][space.D()];
             double multiplier = ((TruncatedOctahedron)shape).getContainingCubeEdgeLength();
             for(int i=0; i<faces.length; i++) {
                 IVector[] vertices = faces[i].getVertices();
                 plane.setThreePoints((Vector3D)vertices[0], (Vector3D)vertices[1], (Vector3D)vertices[2]);
                 plane.getNormalVector(normal);
                 normal.TE(multiplier);
-                origins[i] = normal.toArray();
+                normal.assignTo(origins[i]);
             }
             return origins;
         }
         //algorithm for nShells > 1 misses many of the images (those through the hexagon faces)
-        IVector workVector = space.makeVector();
+        IVectorRandom workVector = space.makeVector();
         int shellFormula = (2 * nShells) + 1;
         int nImages = space.powerD(shellFormula) - 1;
         double[][] origins = new double[nImages][space.D()];
@@ -104,7 +104,9 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         int k = 0;
         while (indexIterator.hasNext()) {
             int[] index = indexIterator.next();
-            workVector.E(index);
+            for (int i = 0; i<workVector.getD(); i++) {
+                workVector.setX(i,index[i]);
+            }
             workVector.PE(-(double) nShells);
             if (workVector.isZero())
                 continue;
@@ -134,7 +136,8 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
             return shift0;
 
         float[][] shifts = new float[numVectors][D];
-        double[] rrArray = rr.toArray();
+        double[] rrArray = new double[3];
+        rr.assignTo(rrArray);
         for (int i = 0; i < D; i++) {
             shifts[0][i] = (float) rrArray[i];
         }
@@ -162,7 +165,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         return shifts;
     }
 
-    public void nearestImage(IVector dr) {
+    public void nearestImage(IVectorRandom dr) {
         dr.PEa1Tv1(0.5, dimensions);
         dr.PE(centralImage(dr));
         dr.PEa1Tv1(-0.5, dimensions);
@@ -193,21 +196,24 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
 
     public IVector centralImage(IVector r) {
         double n = ((TruncatedOctahedron) shape).getContainingCubeEdgeLength();
-        intoContainingCube.Ev1Pv2(r, dimensionsHalf);
-        intoContainingCube.mod(dimensions);
-        intoContainingCube.ME(dimensionsHalf);
-        intoContainingCube.ME(r);
-
-        rrounded.Ev1Pv2(r, intoContainingCube);
+        intoTruncatedOctahedron.Ev1Pv2(r, dimensionsHalf);
+        intoTruncatedOctahedron.mod(dimensions);
+        intoTruncatedOctahedron.ME(dimensionsHalf);
+        rrounded.E(intoTruncatedOctahedron);
+        intoTruncatedOctahedron.ME(r);
         rrounded.TE(1. / n);
 
         int aint = (int) (4.0 / 3.0 * (Math.abs(rrounded.x(0))
                 + Math.abs(rrounded.x(1)) + Math.abs(rrounded.x(2))));
-        double corr = 0.5 * n * aint;
-        intoTruncatedOctahedron.E(intoContainingCube);
 
-        if (corr != 0.0) {
-            intoTruncatedOctahedron.PEa1SGNv1(-corr, rrounded);
+        if (aint != 0) {
+            double corr = 0.5 * n * aint;
+
+            for (int i=0; i<3; i++) {
+                rrounded.setX(i,Math.signum(rrounded.x(i)));
+            }
+            
+            intoTruncatedOctahedron.PEa1Tv1(-corr, rrounded);
         }
         return intoTruncatedOctahedron;
     }
@@ -221,11 +227,10 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     }
 
     private static final long serialVersionUID = 1L;
-    protected final IVector intoTruncatedOctahedron;
+    protected final IVectorRandom intoTruncatedOctahedron;
     protected final IVector rrounded;
-    protected final IVector intoContainingCube;
     protected final IVector dimensions;
-    protected final IVector dimensionsCopy;
+    protected final IVectorRandom dimensionsCopy;
     protected final IVector dimensionsHalf;
     protected final IVector dimensionsHalfCopy;
     private final IndexIteratorSequential indexIterator;
@@ -235,5 +240,4 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     protected float[][] shift;
     private final Plane plane = new Plane();
     private final Vector3D normal = new Vector3D();
-
 }

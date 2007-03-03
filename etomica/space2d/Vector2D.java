@@ -3,13 +3,13 @@ package etomica.space2d;
 import etomica.math.SpecialFunctions;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
-import etomica.space.Tensor;
+import etomica.space.IVectorRandom;
 import etomica.util.Function;
 
 /**
  * Implementation of the Vector class for a 2-dimensional space.
  */
-public final class Vector2D implements IVector, java.io.Serializable {
+public final class Vector2D implements IVectorRandom, java.io.Serializable {
 
     double x, y;
     private static final long serialVersionUID = 1L;
@@ -42,10 +42,6 @@ public final class Vector2D implements IVector, java.io.Serializable {
         array[1] = y;
     }
 
-    public double[] toArray() {
-        return new double[] { x, y };
-    }
-
     public boolean equals(IVector v) {
         return (x == ((Vector2D) v).x) && (y == ((Vector2D) v).y);
     }
@@ -59,7 +55,7 @@ public final class Vector2D implements IVector, java.io.Serializable {
         result[1] = Math.atan2(y, x); //theta
     }
 
-    public int D() {
+    public int getD() {
         return 2;
     }
 
@@ -84,11 +80,7 @@ public final class Vector2D implements IVector, java.io.Serializable {
         x = u[0];
         y = u[1];
     }
-    public void E(int[] u) {
-        if(u.length != 2){throw new IllegalArgumentException("Vector2D must be given a 2 element array.");}
-        x = u[0];
-        y = u[1];
-    }
+
     public void E(double a) {
         x = a;
         y = a;
@@ -315,13 +307,6 @@ public final class Vector2D implements IVector, java.io.Serializable {
         double norm = Math.sqrt(1 / (x * x + y * y));
         x *= norm;
         y *= norm;
-    }
-
-    public void transform(Tensor A) {
-        double x0 = x;
-        double y0 = y;
-        x = ((Tensor2D) A).xx * x0 + ((Tensor2D) A).xy * y0;
-        y = ((Tensor2D) A).yx * x0 + ((Tensor2D) A).yy * y0;
     }
 
     public void randomStep(double d) {

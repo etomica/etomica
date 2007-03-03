@@ -112,14 +112,14 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
      * Returns the number of elements in the wrapped vector.
      */
     public int getLength() {
-        return x.D();
+        return x.getD();
     }
 
     /**
      * Returns the i-th vector value.
      */
     public double getValue(int i) {
-        if(i < 0 || i>= x.D()) throw new IllegalArgumentException("Illegal value: " + i);
+        if(i < 0 || i>= x.getD()) throw new IllegalArgumentException("Illegal value: " + i);
         return x.x(i);
     }
 

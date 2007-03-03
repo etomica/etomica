@@ -8,6 +8,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.phase.Phase;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -70,8 +71,6 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
      * performed. A zero or negative scale throws an IllegalArgumentException.
      */
     public void setVectorScale(IVector scale) {
-        if (scale.min() <= 0.0) throw new IllegalArgumentException(
-                   "Cannot have zero or negative scaling in PhaseInflate");
         scaleVector.E(scale);
     }
     
@@ -119,11 +118,11 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
      * current scale.  Value of scale is not changed as a result.
      */
     public void undo() {
-        for (int i=0; i<scaleVector.D(); i++) {
+        for (int i=0; i<scaleVector.getD(); i++) {
             scaleVector.setX(i,1/scaleVector.x(i));
         }
         actionPerformed();
-        for (int i=0; i<scaleVector.D(); i++) {
+        for (int i=0; i<scaleVector.getD(); i++) {
             scaleVector.setX(i,1/scaleVector.x(i));
         }
     }
@@ -132,6 +131,6 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
     private final AtomIteratorAllMolecules moleculeIterator;
     private final AtomActionTranslateBy translator;
     private final AtomGroupAction groupScaler;
-    private final IVector scaleVector;
+    private final IVectorRandom scaleVector;
     private final AtomPositionGeometricCenter moleculeCenter;
 }

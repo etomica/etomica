@@ -4,7 +4,6 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
-import etomica.data.DataTag;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -171,7 +170,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
             int k=0;
             for (int i=0; i<group.getNData(); i++) {
                 IVector v = ((DataVector)group.getData(i)).x;
-                for (int j=0; j<v.D(); j++) {
+                for (int j=0; j<v.getD(); j++) {
                     x[k++] = v.x(j);
                 }
             }
@@ -203,6 +202,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
         return null;
     }
 
+    private static final long serialVersionUID = 1L;
     private DataDoubleArray outputData;
     private int inputType;
 }

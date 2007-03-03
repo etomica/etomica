@@ -1,13 +1,5 @@
 package etomica.space3d;
 
-
-
-
-
-/*
- * History
- * Created on Jan 24, 2005 by kofke
- */
 public class RotationTensor3D extends Tensor3D implements etomica.space.RotationTensor {
     public RotationTensor3D() {super(); reset();}
     public void reset() {
@@ -64,6 +56,9 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
         this.zx = zx1; this.zy = zy1; this.zz = zz1;
         
     }
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * Method to test rotation tensor.
      */
@@ -77,7 +72,7 @@ public class RotationTensor3D extends Tensor3D implements etomica.space.Rotation
         System.out.println("tensor2_before " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 
         System.out.println();
     
-        r1.transform(tensor2);
+        tensor2.transform(r1);
         System.out.println("r1_transform(tensor2)" + r1.toString());
         tensor2.invert();
         System.out.println("tensor2_invert " + tensor2.xx + "  " +tensor2.xy +"  "+tensor2.xz +"  "+tensor2.yx +"  "+tensor2.yy +"  "+tensor2.yz +"  "+tensor2.zx +"  "+tensor2.zy +"  "+tensor2.zz); 

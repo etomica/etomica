@@ -40,7 +40,7 @@ public class ActionConfigWindow implements Action {
             AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
             IVector pos = atom.getCoord().getPosition();
             String str = Double.toString(pos.x(0));
-            for (int i=1; i<pos.D(); i++) {
+            for (int i=1; i<pos.getD(); i++) {
                 str += " "+Double.toString(pos.x(i));
             }
             textArea.append(str+"\n");

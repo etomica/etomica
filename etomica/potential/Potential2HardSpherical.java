@@ -5,7 +5,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.space.Coordinate;
-import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 
@@ -46,6 +46,6 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         nearestImageTransformer = phase.getBoundary();
     }
 
-    protected final IVector dr;
+    protected final IVectorRandom dr;
     protected NearestImageTransformer nearestImageTransformer;
 }

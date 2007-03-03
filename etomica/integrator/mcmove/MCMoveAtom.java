@@ -11,7 +11,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
 
 /**
@@ -24,7 +24,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
     private static final long serialVersionUID = 1L;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
-    protected final IVector translationVector;
+    protected final IVectorRandom translationVector;
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
