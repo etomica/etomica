@@ -1,9 +1,3 @@
-/*
- * Created on Apr 9, 2004
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 package etomica.modules.dcvgcmd;
 
 import etomica.EtomicaInfo;
@@ -12,7 +6,6 @@ import etomica.atom.AtomSet;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -41,7 +34,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
-        gradient = new IVectorRandom[1];
+        gradient = new IVector[1];
         gradient[0] = space.makeVector();
     }
 

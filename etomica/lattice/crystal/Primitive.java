@@ -1,7 +1,6 @@
 package etomica.lattice.crystal;
 
 import etomica.math.geometry.Polytope;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -29,7 +28,7 @@ public abstract class Primitive implements java.io.Serializable {
     protected Primitive(Space space, boolean makeReciprocal) {
         this.space = space;
         D = space.D();
-        latticeVectors = new IVectorRandom[D];
+        latticeVectors = new IVector[D];
         latticeVectorsCopy = new IVector[D];
         idx = new int[D];
         size = new double[D];

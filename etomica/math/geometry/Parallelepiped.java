@@ -5,7 +5,6 @@
 package etomica.math.geometry;
 
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
@@ -109,6 +108,7 @@ public class Parallelepiped extends Hexahedron implements Parallelotope {
         updateVertices();
     }
 
+    private static final long serialVersionUID = 1L;
     private final Vector3D a, b, c;
     private final Vector3D work;
 

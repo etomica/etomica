@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.space.IVector;
-import etomica.space.IVectorRandom;
 import etomica.space.Space;
 
 public class MSDProcessor {
@@ -52,7 +51,7 @@ public class MSDProcessor {
         	throw new RuntimeException("Couldn't shut down readers, caught IOException: " +e.getMessage());
         }
         
-        coordBlock1 = new IVectorRandom[numAtoms];
+        coordBlock1 = new IVector[numAtoms];
         coordVector2 = space.makeVector();
         
         for (int j=0; j<numAtoms; j++){

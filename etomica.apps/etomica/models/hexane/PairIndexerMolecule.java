@@ -6,7 +6,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Tensor;
 

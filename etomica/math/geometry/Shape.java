@@ -1,6 +1,5 @@
 package etomica.math.geometry;
 
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 
 /**
@@ -8,10 +7,6 @@ import etomica.space.IVector;
  * 
  * @author David Kofke
  *  
- */
-
-/*
- * History Created on Jun 28, 2005 by kofke
  */
 public interface Shape {
 

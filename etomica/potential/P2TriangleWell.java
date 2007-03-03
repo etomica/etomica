@@ -8,7 +8,6 @@ import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinate;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;

@@ -133,7 +133,7 @@ public abstract class Space implements java.io.Serializable {
      * 
      * @throws IllegalArgumentException if a.length is not 1, 2, or 3.
      */
-    public static IVectorRandom makeVector(double[] a) {
+    public static IVector makeVector(double[] a) {
         switch(a.length) {
             case 1:  return new etomica.space1d.Vector1D(a);
             case 2:  return new etomica.space2d.Vector2D(a);
@@ -159,7 +159,7 @@ public abstract class Space implements java.io.Serializable {
      * @return an array of n new vectors made by the space instance
      */
     public IVector[] makeVectorArray(int n) {
-        IVector[] vectors = new IVectorRandom[n];
+        IVector[] vectors = new IVector[n];
         for(int i=0; i<n; i++) vectors[i] = makeVector();
         return vectors;
     }
