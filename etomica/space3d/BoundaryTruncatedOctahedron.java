@@ -2,6 +2,7 @@ package etomica.space3d;
 
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIteratorSequential;
+import etomica.math.SpecialFunctions;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polygon;
 import etomica.math.geometry.Polyhedron;
@@ -210,7 +211,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
             double corr = 0.5 * n * aint;
 
             for (int i=0; i<3; i++) {
-                rrounded.setX(i,Math.signum(rrounded.x(i)));
+                rrounded.setX(i,SpecialFunctions.sgn(rrounded.x(i)));
             }
             
             intoTruncatedOctahedron.PEa1Tv1(-corr, rrounded);
