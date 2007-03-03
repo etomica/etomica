@@ -16,18 +16,12 @@ public class ConfigurationFileXYZ extends Configuration{
 		public ConfigurationFileXYZ(String aConfName){
 			super();
 			confName = aConfName;
-	        min = new double[3];
-	        max = new double[3];
-	        dim = new double[3];
-	        for(int i=0;i<3;i++){
-	        	min[i]=0;
-	        	max[i]=0;
-	        	dim[i]=0;
-	        }
-	                        
 		}
 		
 		public void initializeCoordinates(Phase phase) {
+            min = phase.getSpace().makeVector();
+            max = phase.getSpace().makeVector();
+            dim = phase.getSpace().makeVector();
 	        String fileName = confName+".xyz";
 	        FileReader fileReader;
 	        try {
@@ -63,20 +57,19 @@ public class ConfigurationFileXYZ extends Configuration{
             IVector pos = atom.getCoord().getPosition();
 	        for (int i=0; i<pos.D(); i++) {
 	            double coord = Double.valueOf(coordStr[i]).doubleValue();
-	            if(coord<min[i]) min[i] = coord;
-	            if(coord>max[i]) max[i] = coord;
+	            if(coord<min.x(i)) min.setX(i,coord);
+	            if(coord>max.x(i)) max.setX(i,coord);
                 pos.setX(i, coord);
 	        }
-	        for(int i=0;i<3;i++){
-	        	dim[i] = max[i]-min[i];
-	        }
+            dim.E(max);
+            dim.ME(min);
 	    }
-		private void translatePosition(AtomLeaf atom){
-			for(int i=0;i<min.length;i++){
-				atom.getCoord().getPosition().PE(i,-1*min[i]);	
-				atom.getCoord().getPosition().PE(i,-0.5*dim[i]);
-			}
+
+        private void translatePosition(AtomLeaf atom){
+            atom.getCoord().getPosition().ME(min);
+            atom.getCoord().getPosition().PEa1Tv1(-0.5,dim);
 		}
+        
 		public int[] getNumAtoms(){
 			String fileName = confName+".xyz";
 	        FileReader fileReader;
@@ -103,7 +96,7 @@ public class ConfigurationFileXYZ extends Configuration{
 		}
 		
 		public IVector getUpdatedDimensions(){
-			updatedDimensions = Space.makeVector(dim);
+			updatedDimensions = Space.makeVector(dim.D());
 			
 			updatedDimensions.TE(0,1.01);
 			updatedDimensions.TE(1,1.01);
@@ -113,9 +106,9 @@ public class ConfigurationFileXYZ extends Configuration{
 		
         private static final long serialVersionUID = 2L;
 		private IVector updatedDimensions;
-		private double[] min;
-		private double[] max;
-		private double[] dim;
+        private IVector min;
+        private IVector max;
+        private IVector dim;
 		private int[] nAtomsList;
 		private String confName;
 
