@@ -6,6 +6,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Tensor;
 
@@ -119,9 +120,9 @@ public class PairIndexerMolecule {
         maxLength = jumpCount[0] * iJump[0];
     }
     
-    private void flipVector(IVector dr) {
+    private void flipVector(IVectorRandom dr) {
         int shouldBeFlipped = 0; // 1=yes, -1=no
-        for (int i=0; i<dr.D(); i++) {
+        for (int i=0; i<dr.getD(); i++) {
             if (Math.abs(dr.x(i) - 0.5*bdry.getDimensions().x(i)) < tol || 
                 Math.abs(dr.x(i) + 0.5*bdry.getDimensions().x(i)) < tol) {
                 // we're on the edge, put ourselves on the right edge
@@ -155,9 +156,9 @@ public class PairIndexerMolecule {
     // nan is this okay after the atom has moved?
     private void calculateTheseIndices(IVector v) {
         // transformation is done in place
-        v.transform(inverter);
+        inverter.transform(v);
 
-        for (int i = 0; i < v.D(); i++) {
+        for (int i = 0; i < v.getD(); i++) {
             indices[i] = (int) Math.round(v.x(i));
         }
     }
@@ -289,7 +290,7 @@ public class PairIndexerMolecule {
     /**
      * Temporary storage space for a vector
      */
-    private final IVector temp;
+    private final IVectorRandom temp;
 
     /**
      * Storage space to put the indices

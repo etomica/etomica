@@ -6,7 +6,7 @@ import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
 
 /**
@@ -36,7 +36,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
         this.nAtoms = nAtoms;
         selectedAtoms = new Atom[nAtoms];
-        translationVectors = new IVector[nAtoms];
+        translationVectors = new IVectorRandom[nAtoms];
         for (int i=0; i<nAtoms; i++) {
             translationVectors[i] = potential.getSpace().makeVector();
         }
@@ -100,5 +100,5 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
 	
     private final int nAtoms;
     private final Atom[] selectedAtoms;
-    private final IVector[] translationVectors;
+    private final IVectorRandom[] translationVectors;
 }

@@ -10,6 +10,7 @@ import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryPeriodic;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 
 /**
@@ -20,7 +21,7 @@ import etomica.space.IVector;
 public class MCMoveAtomAdjacent extends MCMovePhase {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    protected IVector translationVector;
+    protected IVectorRandom translationVector;
     protected Atom atom;
     protected AtomSource atomSource;
 
@@ -37,7 +38,7 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
         atom = atomSource.getAtom();
         if (atom == null) return false;
         translationVector.E(0);
-        int i = Simulation.random.nextInt(translationVector.D());
+        int i = Simulation.random.nextInt(translationVector.getD());
         translationVector.setX(i, Simulation.random.nextInt(2)*2-1);
         ((AtomLeaf)atom).getCoord().getPosition().PE(translationVector);
         return true;
@@ -52,9 +53,9 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
      */
     public double getB() {
         boolean[] periodicity = ((BoundaryPeriodic)phase.getBoundary()).getPeriodicity();
-        IVector position = ((AtomLeaf)atom).getCoord().getPosition();
+        IVectorRandom position = ((AtomLeaf)atom).getCoord().getPosition();
         IVector dimensions = phase.getBoundary().getDimensions();
-        for (int i=0; i<position.D(); i++) {
+        for (int i=0; i<position.getD(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary
             int x = (int)Math.round(position.x(i)+dimensions.x(i)*0.5-0.5);
             if (x < 0 || x >= (int)Math.round(dimensions.x(i))) {

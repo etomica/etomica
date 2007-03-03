@@ -1,13 +1,6 @@
-/*
- * Created on Oct 4, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.virial;
 
 import etomica.action.AtomAction;
-import etomica.action.AtomTransform;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
@@ -20,10 +13,9 @@ import etomica.space.IVector;
 import etomica.util.IRandom;
 
 /**
- * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * MCMove for use in a Mayer sampling simulation that rotates all molecules in
+ * a Phase except the first molecule, which is never moved.  The angle of
+ * rotation is the step size and can be tuned for some acceptance rate.
  */
 public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
 
@@ -66,7 +58,6 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             leafAtomIterator.setRoot(molecule);
             leafAtomIterator.reset();
             r0.E(molecule.getType().getPositionDefinition().position(molecule));
-//            System.out.println(molecule+" before position "+r0);
         
             double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
             rotationTensor.setAxial(Simulation.random.nextInt(3),dTheta);
@@ -76,9 +67,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
                 oldPositions[i][j++].E(((AtomLeaf)leafAtomIterator.nextAtom()).getCoord().getPosition());
             }
             leafAtomIterator.reset();
-//            System.out.println(molecule+" starting at "+molecule.node.lastLeafAtom().coord.position());
-            AtomTransform.doTransform(leafAtomIterator, r0, rotationTensor);
-//            System.out.println(molecule+" moved to "+molecule.node.lastLeafAtom().coord.position());
+            doTransform();
             
             
             if (doRelax && relaxAction != null) {
@@ -111,7 +100,6 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     public void rejectNotify() {
-//        super.rejectNotify();
         for (int i=0; i<selectedMolecules.length; i++) {
             molecule = selectedMolecules[i];
             leafAtomIterator.setRoot(molecule);

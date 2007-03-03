@@ -55,7 +55,7 @@ public class ConfigurationFileXYZ extends Configuration{
 		private void setPosition(AtomLeaf atom, String string) {
 	        String[] coordStr = string.split(" +");
             IVector pos = atom.getCoord().getPosition();
-	        for (int i=0; i<pos.D(); i++) {
+            for (int i=0; i<pos.getD(); i++) {
 	            double coord = Double.valueOf(coordStr[i]).doubleValue();
 	            if(coord<min.x(i)) min.setX(i,coord);
 	            if(coord>max.x(i)) max.setX(i,coord);
@@ -96,19 +96,17 @@ public class ConfigurationFileXYZ extends Configuration{
 		}
 		
 		public IVector getUpdatedDimensions(){
-			updatedDimensions = Space.makeVector(dim.D());
+			updatedDimensions = Space.makeVector(dim.getD());
 			
-			updatedDimensions.TE(0,1.01);
-			updatedDimensions.TE(1,1.01);
-			updatedDimensions.TE(2,1.01);
+			updatedDimensions.TE(1.01);
 			return updatedDimensions;
 		}
 		
         private static final long serialVersionUID = 2L;
 		private IVector updatedDimensions;
-        private IVector min;
-        private IVector max;
-        private IVector dim;
+		private IVector min;
+		private IVector max;
+		private IVector dim;
 		private int[] nAtomsList;
 		private String confName;
 

@@ -8,6 +8,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
 import etomica.phase.Phase;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 
 /**
@@ -30,7 +31,7 @@ public class ConfigurationCluster extends Configuration {
 	 */
     //XXX this can't actually handle multi-atom molecules
 	public void initializeCoordinates(Phase phase) {
-		IVector translationVector = phase.getSpace().makeVector();
+		IVectorRandom translationVector = phase.getSpace().makeVector();
         IVector dimVector = phase.getSpace().makeVector();
         dimVector.E(phase.getBoundary().getDimensions());
 		IVector center = phase.getSpace().makeVector();

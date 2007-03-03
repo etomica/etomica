@@ -68,7 +68,7 @@ public class MeterOsmoticPressure extends MeterPressureHard {
         // calculate accessible "area"
         IVector dimensions = integratorHard.getPhase().getBoundary().getDimensions();
         double area = 1;
-        for (int i=1; i<dimensions.D(); i++) {
+        for (int i=1; i<dimensions.getD(); i++) {
             area *= (dimensions.x(i)-2*collisionRadius);
         }
         return value / area;

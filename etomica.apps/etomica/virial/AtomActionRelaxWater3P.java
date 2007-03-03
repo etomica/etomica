@@ -32,7 +32,8 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
         p2.TE(1/Math.sqrt(p2.squared()));
         // move H2 to fix bond angle
         double d = p1.dot(p2);
-        work.Ev1Pa1Tv2(p2,-d,p1);
+        work.E(p2);
+        work.PEa1Tv1(-d,p1);
         work.TE(1/Math.sqrt(work.squared()));
         p2.Ea1Tv1(sinAngle,work);
         p2.PEa1Tv1(cosAngle,p1);

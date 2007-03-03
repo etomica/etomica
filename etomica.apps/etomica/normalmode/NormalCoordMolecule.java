@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -32,14 +33,14 @@ public class NormalCoordMolecule implements NormalCoordMapper, Serializable {
 
     public void calcU(Atom atom, int atomCount, double[] u) {
         IVector pos = atom.getType().getPositionDefinition().position(atom);
-        for (int i=0; i<pos.D(); i++) {
+        for (int i=0; i<pos.getD(); i++) {
             u[i] = pos.x(i) - nominalU[atomCount][i];
         }
     }
 
     public void initNominalU(Atom atom, int atomCount) {
         IVector pos = atom.getType().getPositionDefinition().position(atom);
-        for (int i=0; i<pos.D(); i++) {
+        for (int i=0; i<pos.getD(); i++) {
             nominalU[atomCount][i] = pos.x(i);
         }
     }
@@ -54,7 +55,7 @@ public class NormalCoordMolecule implements NormalCoordMapper, Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final Space space;
-    protected final IVector work1;
+    protected final IVectorRandom work1;
     protected double[][] nominalU;
     protected final AtomActionTranslateTo atomActionTranslateTo;
 }

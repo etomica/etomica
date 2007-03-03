@@ -135,13 +135,13 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 				int i=0;
 				while (iterator.hasNext()){
 					IVector atomPosition = ((AtomLeaf)iterator.nextAtom()).getCoord().getPosition();
-					for (int j=0;j < phasedim.D();j++){
+					for (int j=0;j < phasedim.getD();j++){
 						double actualDistance;
 							
 						// Total distance traveled between file writes is computed
 						actualDistance = atomPBIarray[i][j] * phasedim.x(j) + atomPosition.x(j);
 						fileWriter.write(""+actualDistance);
-						if(j!=phasedim.D()-1){
+						if(j!=phasedim.getD()-1){
 							fileWriter.write("\t");
 						}
 						
@@ -233,7 +233,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 				workVector.ME(((AtomLeaf)iterator.nextAtom()).getCoord().getPosition()); 
 				workVector.DE(phaseDim);
 				
-				for (int j=0;j < phaseDim.D();j++){
+				for (int j=0;j < phaseDim.getD();j++){
 					
 					// Before Math.round, workVector is -/+ 0.9999,1.000,1.0001,0.000
 					// Value will truncate when added to atomPBIarray, we must make workVector a whole number

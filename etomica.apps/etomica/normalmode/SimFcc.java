@@ -161,7 +161,7 @@ public class SimFcc extends Simulation {
             FileWriter fileWriterS = new FileWriter(filename+".S");
             for (int i=0; i<waveVectors.length; i++) {
                 fileWriterQ.write(Double.toString(coefficients[i]));
-                for (int j=0; j<waveVectors[i].D(); j++) {
+                for (int j=0; j<waveVectors[i].getD(); j++) {
                     fileWriterQ.write(" "+waveVectors[i].x(j));
                 }
                 fileWriterQ.write("\n");

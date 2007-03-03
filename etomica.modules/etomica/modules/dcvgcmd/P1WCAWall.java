@@ -12,6 +12,7 @@ import etomica.atom.AtomSet;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -22,7 +23,7 @@ import etomica.space.Space;
 public class P1WCAWall extends Potential1 implements PotentialSoft {
 
     private static final long serialVersionUID = 1L;
-    private final IVector[] gradient;
+    private final IVectorRandom[] gradient;
     private double sigma;
     private double epsilon;
     private double cutoff;
@@ -35,7 +36,7 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
-        gradient = new IVector[1];
+        gradient = new IVectorRandom[1];
         gradient[0] = space.makeVector();
     }
 

@@ -6,6 +6,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 import etomica.species.Species;
 
@@ -43,7 +44,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
     
     //Different because we know the bond angle
     //All moves are accepted,
-    protected IVector calcRandomBondWithAngle(IVector v){
+    protected IVector calcRandomBondWithAngle(IVectorRandom v){
         IVector vax = phase.getSpace().makeVector();
         double ubb;
         v.normalize();
@@ -70,7 +71,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
         IVector vux = phase.getSpace().makeVector();
         double theta;
         double ubb, utors, usum;
-        IVector tempCloser = phase.getSpace().makeVector();
+        IVectorRandom tempCloser = phase.getSpace().makeVector();
         IVector tempFarther = phase.getSpace().makeVector();
         
         tempFarther.E(b.getCoord().getPosition());

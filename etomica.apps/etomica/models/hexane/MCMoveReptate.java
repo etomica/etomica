@@ -12,6 +12,7 @@ import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.IVectorRandom;
 import etomica.space.IVector;
 
 public class MCMoveReptate extends MCMovePhaseStep {
@@ -192,7 +193,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected boolean fixOverlap;
-    private IVector tempV;
+    private IVectorRandom tempV;
     private IVector positionOld;
     private boolean forward;
     private double bondLength;

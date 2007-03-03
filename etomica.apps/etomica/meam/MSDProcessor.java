@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.space.Space;
 
 public class MSDProcessor {
@@ -45,7 +45,7 @@ public class MSDProcessor {
             throw new RuntimeException("Problem reading "+inputFile+", caught IOException: " + e.getMessage());
         }
         
-        coordBlock1 = new IVector[numAtoms];
+        coordBlock1 = new IVectorRandom[numAtoms];
         coordVector2 = space.makeVector();
         
         for (int j=0; j<numAtoms; j++){
@@ -141,8 +141,8 @@ public class MSDProcessor {
         }
     }
     
-	private IVector [] coordBlock1;
-	private IVector coordVector2;
+	private IVectorRandom [] coordBlock1;
+	private IVectorRandom coordVector2;
 	private int numAtoms;
     private int numBlocks;
     private int deltaTmax;
