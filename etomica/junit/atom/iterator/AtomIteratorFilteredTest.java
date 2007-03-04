@@ -3,10 +3,10 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFilter;
-import etomica.atom.AtomList;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorFiltered;
-import etomica.atom.iterator.AtomIteratorListSimple;
 
 /**
  * Unit test of AtomIteratorFiltered
@@ -37,9 +37,9 @@ public class AtomIteratorFilteredTest extends IteratorTestAbstract {
 
     public void testIterator() {
 
-        AtomList list = new AtomList();
+        AtomArrayList list = new AtomArrayList();
 
-        AtomIteratorListSimple listIterator = new AtomIteratorListSimple(list);
+        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(list);
 
         MyFilter filter = new MyFilter();
 

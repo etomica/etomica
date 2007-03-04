@@ -3,7 +3,7 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomList;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesRoot;
@@ -42,7 +42,8 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
                 new int[] {nAtoms},2,new int[] {nAtoms},null,null);
         AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.getNode();
         SpeciesAgent agent = (SpeciesAgent)rootNode.getDescendant(new int[] {0,0});
-        AtomList atomList = new AtomList(((AtomTreeNodeGroup)agent.getNode()).getChildList().toArray());
+        AtomArrayList atomList = new AtomArrayList();
+        atomList.addAll(((AtomTreeNodeGroup)agent.getNode()).getChildList());
 
         //atom in middle of list
         Atom atom = atomList.get(5);
@@ -128,7 +129,8 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
 
         //short list
         agent.setNMolecules(1);
-        atomList = new AtomList(((AtomTreeNodeGroup)agent.getNode()).getChildList().toArray());
+        atomList = new AtomArrayList();
+        atomList.addAll(((AtomTreeNodeGroup)agent.getNode()).getChildList());
         assertEquals(atomList.size(), 1);
         atom = atomList.get(0);
         iteratorUp.setAtom(atom);

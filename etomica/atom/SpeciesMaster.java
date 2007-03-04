@@ -25,7 +25,6 @@ import etomica.species.SpeciesSpheresMono;
 public final class SpeciesMaster extends Atom {
 
     protected int moleculeCount;
-    public final static int SPECIES_TAB = AtomLinker.Tab.requestTabType();
     protected final PhaseEventManager phaseEventManager;
 
     private int[] indexReservoir;

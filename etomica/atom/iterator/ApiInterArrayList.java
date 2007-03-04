@@ -1,12 +1,7 @@
-/*
- * History
- * Created on Sep 13, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLinker;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 
@@ -182,9 +177,9 @@ public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable
         return innerList;
     }
 
+    private static final long serialVersionUID = 1L;
     private AtomArrayList outerList, innerList;
     private int nextOuterIndex, nextInnerIndex;
-    private AtomLinker nextOuter, nextInner;
     private final AtomArrayList emptyList = new AtomArrayList();
     private final AtomPair atoms = new AtomPair();
 

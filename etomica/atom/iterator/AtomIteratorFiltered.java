@@ -9,7 +9,6 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
-import etomica.atom.AtomList;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
@@ -81,8 +80,6 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
             key += (1 << 2);//4
         if (iterator instanceof AtomsetIteratorTargetable)
             key += (1 << 3);//8
-        if (iterator instanceof AtomsetIteratorListDependent)
-            key += (1 << 4);//16
         boolean basis = iterator instanceof AtomsetIteratorBasisDependent;
 
         switch (key) {
@@ -125,8 +122,6 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
         case 15:
             return basis ? new AIFAtomPhaseBasisDirectable(iterator, filter)
                     : new AIFAtomPhaseTargetDirectable(iterator, filter);
-        case 16:
-            return new AIFList(iterator, filter);
         default:
             throw new IllegalArgumentException(
                     " not ready for that kind of iterator");
@@ -226,6 +221,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
         return iterator;
     }
 
+    private static final long serialVersionUID = 1L;
     protected final AtomIterator iterator;
     private final AtomFilter filter;
     private Atom next;
@@ -250,11 +246,6 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
         }
     }
     
-    private static class AIFList extends AtomIteratorFiltered implements AtomsetIteratorListDependent {
-        AIFList(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setList(AtomList list) {((AtomsetIteratorListDependent)iterator).setList(list);}
-        public AtomList getList() {return ((AtomsetIteratorListDependent)iterator).getList();}
-    }
     private static class AIFAtom extends AtomIteratorFiltered implements AtomIteratorAtomDependent {
         AIFAtom(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
