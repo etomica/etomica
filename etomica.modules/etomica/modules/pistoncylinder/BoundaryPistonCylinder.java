@@ -4,6 +4,7 @@ import etomica.potential.P1HardMovingBoundary;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
+import etomica.util.IRandom;
 
 /**
  * Boundary class for PistonCylinder that accounts for the piston and collision
@@ -14,11 +15,11 @@ public class BoundaryPistonCylinder extends BoundaryRectangularNonperiodic {
 
 
     public BoundaryPistonCylinder(Simulation sim) {
-        this(sim.getSpace());
+        this(sim.getSpace(), sim.getRandom());
     }
 
-    public BoundaryPistonCylinder(Space space) {
-        super(space);
+    public BoundaryPistonCylinder(Space space, IRandom random) {
+        super(space, random);
     }
     
     public void setPistonPotential(P1HardMovingBoundary newPistonPotential) {

@@ -92,7 +92,7 @@ public class TestHexane extends Simulation {
          moveMolecule.setStepSize(0.024);
          rot.setStepSize(0.042);
 
-         growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(), integrator, species);
+         growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(), getRandom(), integrator, species);
          growMolecule.setPhase(phase);
          
         //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
@@ -178,7 +178,7 @@ public class TestHexane extends Simulation {
 //        
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
 
-        bdry =  new BoundaryDeformableLattice(primitive, new int[]{4,6,6});
+        bdry =  new BoundaryDeformableLattice(primitive, getRandom(), new int[]{4,6,6});
         phase.setBoundary(bdry);
 
         //Initialize the positions of the atoms.

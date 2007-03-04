@@ -187,7 +187,7 @@ public class TestHexaneHarmonic extends Simulation {
 //        
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
 
-        bdry =  new BoundaryDeformableLattice(primitive, new int[]{4,6,6});
+        bdry =  new BoundaryDeformableLattice(primitive, getRandom(), new int[]{4,6,6});
         phase.setBoundary(bdry);
 
         //Initialize the positions of the atoms.

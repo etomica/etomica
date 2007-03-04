@@ -36,7 +36,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 		if (selectedAtoms[0] == null) selectAtoms();
         uOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedAtoms.length; i++) {
-            translationVectors[i].setRandomCube();
+            translationVectors[i].setRandomCube(random);
             translationVectors[i].TE(stepSize);
             selectedAtoms[i].getCoord().getPosition().PE(translationVectors[i]);
         }

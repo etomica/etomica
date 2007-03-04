@@ -54,7 +54,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         if (selectedAtoms[0] == null) selectMolecules();
         uOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedAtoms.length; i++) {
-            translationVectors[i].setRandomCube();
+            translationVectors[i].setRandomCube(random);
             translationVectors[i].TE(stepSize);
             groupTranslationVector.E(translationVectors[i]);
             moveMoleculeAction.actionPerformed(selectedAtoms[i]);

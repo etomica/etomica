@@ -1,6 +1,7 @@
 package etomica.space;
 
 import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 /**
  * Boundary that is not periodic in any direction.  Volume is specified,
@@ -14,14 +15,14 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
      * Make a boundary with unit volume.
      */
     public BoundaryRectangularNonperiodic(Simulation sim) {
-        this(sim.getSpace());
+        this(sim.getSpace(), sim.getRandom());
     }
 
     /**
      * Make a boundary with unit volume.
      */
-    public BoundaryRectangularNonperiodic(Space space) {
-        super(space, new boolean[space.D()], 1.0);//boolean elements will all be false
+    public BoundaryRectangularNonperiodic(Space space, IRandom random) {
+        super(space, random, new boolean[space.D()], 1.0);//boolean elements will all be false
         zero = space.makeVector();
     }
 

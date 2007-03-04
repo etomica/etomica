@@ -12,20 +12,23 @@ import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
+import etomica.space.IVectorRandom;
+import etomica.util.IRandom;
 
 public class MCMoveReptate extends MCMovePhaseStep {
     
     public MCMoveReptate(Simulation sim){
-        this(sim.getPotentialMaster(), sim.getDefaults().atomSize, 
+        this(sim.getPotentialMaster(), sim.getRandom(), sim.getDefaults().atomSize, 
                 sim.getDefaults().boxSize/2, sim.getDefaults().ignoreOverlap /*, con*/);
     }
     
-    public MCMoveReptate(PotentialMaster potentialMaster, double stepSize,
-            double stepSizeMax, boolean fixOverlap){
+    public MCMoveReptate(PotentialMaster potentialMaster, IRandom random, 
+            double stepSize, double stepSizeMax, boolean fixOverlap){
         super(potentialMaster);
+        this.random = random;
         atomSource = new AtomSourceRandomMolecule();
+        ((AtomSourceRandomMolecule)atomSource).setRandom(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
 //        conf = con;
 //        if(!(conf instanceof ConformationChainZigZag)){
@@ -94,7 +97,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
                position.E(position2);
                position = position2;
            }
-           tempV.setRandomSphere();
+           tempV.setRandomSphere(random);
            tempV.TE(bondLength);
            ((AtomLeaf)childlist.get(0)).getCoord().getPosition().PE(tempV);
        }
@@ -106,7 +109,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
                position.E(position2);
                position = position2;
            }
-           tempV.setRandomSphere();
+           tempV.setRandomSphere(random);
            tempV.TE(bondLength);
            ((AtomLeaf)childlist.get(numChildren - 1)).getCoord().getPosition().PE(tempV);
            
@@ -197,6 +200,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
     private IVector positionOld;
     private boolean forward;
     private double bondLength;
+    protected final IRandom random;
     
     
 }

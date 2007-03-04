@@ -51,7 +51,7 @@ public class PistonCylinder extends Simulation {
         species = new SpeciesSpheresMono(this);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(112);
-        phase.setBoundary(new BoundaryPistonCylinder(space));
+        phase.setBoundary(new BoundaryPistonCylinder(space, getRandom()));
         IVector newDim;
         Configuration config;
         if (space.D() == 2) {

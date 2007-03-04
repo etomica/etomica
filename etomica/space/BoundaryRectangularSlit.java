@@ -1,6 +1,7 @@
 package etomica.space;
 
 import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 /**
  * Class for implementing slit periodic boundary conditions, in which
@@ -29,7 +30,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
     public BoundaryRectangularSlit(Simulation sim, int slitDim) {
-        this(sim.getSpace(), slitDim, sim.getDefaults().boxSize);
+        this(sim.getSpace(), sim.getRandom(), slitDim, sim.getDefaults().boxSize);
     }
     
     /**
@@ -38,8 +39,8 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * @param space
      * @param slitDim slit dimension (in which PBC is not imposed).
      */
-    public BoundaryRectangularSlit(Space space, int slitDim, double boxSize) {
-        super(space,makePeriodicity(space.D(),slitDim),boxSize);
+    public BoundaryRectangularSlit(Space space, IRandom random, int slitDim, double boxSize) {
+        super(space,random,makePeriodicity(space.D(),slitDim),boxSize);
         sDim = slitDim;
         dimensionsHalf = space.makeVector();
         tempImage = space.makeVector();

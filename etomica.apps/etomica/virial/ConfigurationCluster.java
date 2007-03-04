@@ -8,8 +8,9 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
 import etomica.phase.Phase;
-import etomica.space.IVectorRandom;
 import etomica.space.IVector;
+import etomica.space.IVectorRandom;
+import etomica.util.IRandom;
 
 /**
  * @author kofke
@@ -22,8 +23,9 @@ public class ConfigurationCluster extends Configuration {
 	/**
 	 * Constructor for ConfigurationCluster.
 	 */
-	public ConfigurationCluster() {
+	public ConfigurationCluster(IRandom random) {
 		super();
+        this.random = random;
 	}
 
 	/**
@@ -68,7 +70,7 @@ public class ConfigurationCluster extends Configuration {
             iterator.reset();
 			iterator.nextAtom();
 			while(iterator.hasNext()) {
-                translationVector.setRandomCube();
+                translationVector.setRandomCube(random);
                 translationVector.TE(dimVector);
                 Atom a = iterator.nextAtom();
                 
@@ -85,5 +87,6 @@ public class ConfigurationCluster extends Configuration {
 		}
 	}
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
+    private final IRandom random;
 }

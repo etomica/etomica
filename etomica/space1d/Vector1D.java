@@ -1,9 +1,9 @@
 package etomica.space1d;
 
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.util.Function;
+import etomica.util.IRandom;
 
 /**
  * Implementation of the Vector class for a 1-dimensional space. In this case the vector
@@ -117,20 +117,20 @@ public final class Vector1D implements IVectorRandom, java.io.Serializable {
         x = 1.0;
     }
 
-    public void setRandomCube() {
-        x = Simulation.random.nextDouble() - 0.5;
+    public void setRandomCube(IRandom random) {
+        x = random.nextDouble() - 0.5;
     }
 
-    public void setRandomInSphere() {
-        x = Simulation.random.nextDouble() - 0.5;
+    public void setRandomInSphere(IRandom random) {
+        x = random.nextDouble() - 0.5;
     }
 
-    public void setRandomSphere() {
-        randomDirection();
+    public void setRandomSphere(IRandom random) {
+        randomDirection(random);
     }
 
-    public void randomDirection() {
-        x = (Simulation.random.nextBoolean()) ? -1.0 : +1.0;
+    public void randomDirection(IRandom random) {
+        x = random.nextInt(2) * 2 - 1;
     }
 
     public void E(IVector u) {

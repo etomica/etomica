@@ -21,7 +21,7 @@ import etomica.util.IRandom;
  */
 public class MCMoveAtom extends MCMovePhaseStep {
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
     protected final IVectorRandom translationVector;
@@ -30,6 +30,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;
     protected boolean fixOverlap;
+    protected final IRandom random;
 
     public MCMoveAtom(Simulation sim) {
         this(sim.getPotentialMaster(), sim.getRandom(), sim.getDefaults().atomSize,
@@ -39,6 +40,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
     public MCMoveAtom(PotentialMaster potentialMaster, IRandom random, double stepSize, double stepSizeMax,
             boolean fixOverlap) {
         super(potentialMaster);
+        this.random = random;
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -63,7 +65,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
         if(uOld > 1e10 && !fixOverlap) {
             throw new RuntimeException(new ConfigurationOverlapException(atom.getNode().parentPhase()));
         }
-        translationVector.setRandomCube();
+        translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         ((AtomLeaf)atom).getCoord().getPosition().PE(translationVector);
         uNew = Double.NaN;

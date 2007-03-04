@@ -120,7 +120,7 @@ public class SimulationVirialOverlap extends Simulation {
                 }
             }
             
-            ConfigurationCluster configuration = new ConfigurationCluster();
+            ConfigurationCluster configuration = new ConfigurationCluster(getRandom());
             configuration.initializeCoordinates(phase[iPhase]);
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]});
             setMeter(meter,iPhase);

@@ -13,6 +13,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space3d.Vector3D;
+import etomica.util.IRandom;
 
 /**
  * An MC move for cluster simulations which performs reptation moves on molecules.
@@ -24,12 +25,13 @@ import etomica.space3d.Vector3D;
  */
 public class MCMoveClusterReptateMulti extends MCMovePhase {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private final MeterClusterWeight weightMeter;
     private final MeterPotentialEnergy energyMeter;
+    protected final IRandom random;
 
     public MCMoveClusterReptateMulti(Simulation sim, int nAtoms) {
-    	this(sim.getPotentialMaster(), nAtoms);
+    	this(sim.getPotentialMaster(), sim.getRandom(), nAtoms);
         setBondLength(1.0);
     }
     
@@ -40,8 +42,9 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
      * phase should be at least one greater than this value (greater
      * because first atom is never moved)
      */
-    public MCMoveClusterReptateMulti(PotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterReptateMulti(PotentialMaster potentialMaster, IRandom random, int nAtoms) {
         super(potentialMaster);
+        this.random = random;
         this.nAtoms = nAtoms;
         selectedMolecules = new Atom[nAtoms];
         oldPositions = new Vector3D[nAtoms];
@@ -98,7 +101,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
                     position.E(position2);
                     position = position2;
                 }
-                work1.setRandomSphere();
+                work1.setRandomSphere(random);
                 work1.TE(bondLength);
                 ((AtomLeaf)childList.get(0)).getCoord().getPosition().PE(work1);
             }
@@ -110,7 +113,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
                     position.E(position2);
                     position = position2;
                 }
-                work1.setRandomSphere();
+                work1.setRandomSphere(random);
                 work1.TE(bondLength);
                 ((AtomLeaf)childList.get(numChildren-1)).getCoord().getPosition().PE(work1);
             }

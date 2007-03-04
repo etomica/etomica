@@ -6,6 +6,7 @@ package etomica.models.hexane;
 import etomica.lattice.crystal.Primitive;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.IVector;
+import etomica.util.IRandom;
 
 /**
  * Deformable boundary that takes the shape of a primitive with some number
@@ -18,8 +19,8 @@ public class BoundaryDeformableLattice extends BoundaryDeformablePeriodic {
      * number of cells for each dimension.  Changes to the primitive after
      * creating this instance will not affect the boundary.
      */
-    public BoundaryDeformableLattice(Primitive primitive, int[] nCells){
-        super(primitive.getSpace(), makeDimensionVectors(primitive, nCells));
+    public BoundaryDeformableLattice(Primitive primitive, IRandom random, int[] nCells){
+        super(primitive.getSpace(), random, makeDimensionVectors(primitive, nCells));
     }
     
     /**

@@ -4,6 +4,7 @@ import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.util.Function;
+import etomica.util.IRandom;
 
 /**
  * Implementation of the Vector class for a 3-dimensional space.
@@ -187,12 +188,6 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
                 * ((Vector3D) u).z;
     }
 
-    public void setRandomCube() {
-        x = Simulation.random.nextDouble() - 0.5;
-        y = Simulation.random.nextDouble() - 0.5;
-        z = Simulation.random.nextDouble() - 0.5;
-    }
-
     public void setX(int a, double d) {
         if (a == 0)
             x = d;
@@ -202,27 +197,13 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
             z = d;
     }
 
-    //random point on a unit sphere
-    public void setRandomSphere() {//check before using
-        double z1 = 0.0;
-        double z2 = 0.0;
-        double z3 = 0.0;
-        double rsq;
-        do {
-            z1 = 1.0 - 2.0 * Simulation.random.nextDouble();
-            z2 = 1.0 - 2.0 * Simulation.random.nextDouble();
-            z3 = 1.0 - 2.0 * Simulation.random.nextDouble();
-
-            rsq = z1 * z1 + z2 * z2 + z3 * z3;
-        } while (rsq > 1.0);
-        double r = Math.sqrt(rsq);
-        x = z1 / r;
-        y = z2 / r;
-        z = z3 / r;
+    public void setRandomCube(IRandom random) {
+        x = random.nextDouble() - 0.5;
+        y = random.nextDouble() - 0.5;
+        z = random.nextDouble() - 0.5;
     }
 
-    // random point in a unit-radius sphere
-    public void setRandomInSphere() {//check before using
+    public void setRandomInSphere(IRandom random) {//check before using
         double z1 = 0.0;
         double z2 = 0.0;
         double z3 = 0.0;
@@ -244,41 +225,22 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
      * Creating a random unit vector on unit sphere Uses only two random number
      * generator at a time
      * 
+     * Based on M.P. Allen and D.J. Tildesley, Computer Simulation of Liquids, p 349.
+     * 
      * @author Jayant Singh
      */
-    public void randomVectorOnUnitSphere() {
-        double z1 = 0.0, z2 = 0.0, zsq = 20.0;
-        while (zsq > 1.0) {
+    public void setRandomSphere(IRandom random) {
+        double z1, z2, zsq;
+        do  {
             z1 = 2.0 * Simulation.random.nextDouble() - 1.0;
             z2 = 2.0 * Simulation.random.nextDouble() - 1.0;
             zsq = z1 * z1 + z2 * z2;
-        }
+        } while (zsq > 1.0);
 
         double ranh = 2.0 * Math.sqrt(1.0 - zsq);
         x = z1 * ranh;
         y = z2 * ranh;
         z = 1.0 - 2.0 * zsq;
-    }
-
-    public void randomRotate(double thetaStep) {//check before using
-        //could be made more efficient by merging with setRandomSphere
-        if (thetaStep == 0.0)
-            return;
-        if (Math.abs(thetaStep) > Math.PI) {
-            setRandomSphere();
-            return;
-        }
-        double xOld = x;
-        double yOld = y;
-        double zOld = z;
-        double r = Math.sqrt(x * x + y * y + z * z);
-        double dotMin = r * Math.cos(thetaStep);
-        do {
-            setRandomSphere();
-        } while (xOld * x + yOld * y + zOld * z < dotMin);
-        x *= r;
-        y *= r;
-        z *= r;
     }
 
     public void XE(Vector3D u) {//cross product

@@ -13,11 +13,13 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.util.Constants;
+import etomica.util.IRandom;
 
 public abstract class MCMoveCBMC extends MCMovePhase {
 
-    public MCMoveCBMC(PotentialMaster potentialMaster, IntegratorMC integrator){
+    public MCMoveCBMC(PotentialMaster potentialMaster, IRandom random, IntegratorMC integrator){
         super(potentialMaster);
+        this.random = random;
 
         beta = 1.0/integrator.getTemperature()/Constants.BOLTZMANN_K;
         atomList = new AtomArrayList(chainlength);
@@ -108,4 +110,5 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     protected AtomArrayList atomList;
     protected int numTrial;
     protected AtomSource moleculeSource;
+    protected final IRandom random;
 }

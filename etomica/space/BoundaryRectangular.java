@@ -7,6 +7,7 @@ import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Rectangle;
 import etomica.math.geometry.Rectangular;
 import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 /**
  * Boundary that is in the shape of a rectangular parallelepiped.  
@@ -19,14 +20,14 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * given by the Simulation. 
      */
     public BoundaryRectangular(Simulation sim, boolean[] periodicity) {
-        this(sim.getSpace(), periodicity, sim.getDefaults().boxSize);
+        this(sim.getSpace(), sim.getRandom(), periodicity, sim.getDefaults().boxSize);
     }
 
     /**
      * Constructs cubic boundary of the given periodicity with each edge of length boxSize
      */
-    public BoundaryRectangular(Space space, boolean[] periodicity, double boxSize) {
-        this(space, periodicity, makeArray(space.D(), boxSize));
+    public BoundaryRectangular(Space space, IRandom random, boolean[] periodicity, double boxSize) {
+        this(space, random, periodicity, makeArray(space.D(), boxSize));
     }
     
     private static final double[] makeArray(int n, double d) {
@@ -41,8 +42,9 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * Constructs rectangular boundary of the given periodicity with edges given by the
      * values in the array boxSize.  Length of arrays must equal dimension of space.
      */
-    public BoundaryRectangular(Space space, boolean[] periodicity, double[] boxSize) {
+    public BoundaryRectangular(Space space, IRandom random, boolean[] periodicity, double[] boxSize) {
         super(space, makeShape(space));
+        this.random = random;
         isPeriodic = (boolean[])periodicity.clone();
         dimensions = space.makeVector();
         dimensions.E(boxSize);
@@ -83,7 +85,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * a new random point each time.
      */
     public IVector randomPosition() {
-        temp.setRandomCube();
+        temp.setRandomCube(random);
         temp.TE(dimensions);
         return temp;
     }
@@ -200,5 +202,6 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     private final boolean[] needShift;
     protected boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];
+    protected final IRandom random;
 
 }

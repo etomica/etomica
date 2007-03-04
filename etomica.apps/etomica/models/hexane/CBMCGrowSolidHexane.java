@@ -9,6 +9,7 @@ import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.species.Species;
+import etomica.util.IRandom;
 
 /**
  * Contains specifics for the solid hexane model:
@@ -21,8 +22,8 @@ import etomica.species.Species;
  */
 public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
 
-    public CBMCGrowSolidHexane(PotentialMaster p, IntegratorMC integrator, Species species){
-        super(p, integrator, species);
+    public CBMCGrowSolidHexane(PotentialMaster p, IRandom random, IntegratorMC integrator, Species species){
+        super(p, random, integrator, species);
         setBondLength(0.4);
         setPrefactor(1.0);
         setNumberOfTrials(20);  //number picked randomly/ off F&S's reference.

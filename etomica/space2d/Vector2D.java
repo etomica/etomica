@@ -1,10 +1,10 @@
 package etomica.space2d;
 
-import etomica.math.SpecialFunctions;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.util.Function;
+import etomica.util.IRandom;
 
 /**
  * Implementation of the Vector class for a 2-dimensional space.
@@ -175,26 +175,25 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
         y *= norm;
     }
 
-    public void setRandomCube() {
-        x = Simulation.random.nextDouble() - 0.5;
-        y = Simulation.random.nextDouble() - 0.5;
+    public void setRandomCube(IRandom random) {
+        x = random.nextDouble() - 0.5;
+        y = random.nextDouble() - 0.5;
     }
 
-    public void setRandomSphere() {
-        x = Math.cos(2 * Math.PI * Simulation.random.nextDouble());
+    public void setRandomSphere(IRandom random) {
+        x = Math.cos(2 * Math.PI * random.nextDouble());
         y = Math.sqrt(1.0 - x * x);
         if (Simulation.random.nextDouble() < 0.5)
             y = -y;
     }
 
-    // random point in a unit sphere
-    public void setRandomInSphere() {//check before using
+    public void setRandomInSphere(IRandom random) {
         double z1 = 0.0;
         double z2 = 0.0;
         double rsq;
         do {
-            z1 = 1.0 - 2.0 * Simulation.random.nextDouble();
-            z2 = 1.0 - 2.0 * Simulation.random.nextDouble();
+            z1 = 1.0 - 2.0 * random.nextDouble();
+            z2 = 1.0 - 2.0 * random.nextDouble();
             rsq = z1 * z1 + z2 * z2;
         } while (rsq > 1.0);
         x = z1;

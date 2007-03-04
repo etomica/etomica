@@ -29,9 +29,9 @@ public class MCMoveClusterAtom extends MCMoveAtom {
     
 	public boolean doTrial() {
         AtomArrayList leafList = phase.getSpeciesMaster().leafList;
-		atom = leafList.get(Simulation.random.nextInt(1+leafList.size()-1));
+		atom = leafList.get(random.nextInt(1+leafList.size()-1));
 		uOld = weightMeter.getDataAsScalar();
-        translationVector.setRandomCube();
+        translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         ((AtomLeaf)atom).getCoord().getPosition().PE(translationVector);
 		((PhaseCluster)phase).trialNotify();

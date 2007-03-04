@@ -12,6 +12,7 @@ import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
+import etomica.util.IRandom;
 
 /**
  * Grows a straight-chain alkane of specified length.
@@ -33,8 +34,8 @@ import etomica.species.Species;
  */
 public abstract class CBMCGrowAlkane extends MCMoveCBMC {
 
-    public CBMCGrowAlkane(PotentialMaster potentialMaster, IntegratorMC integrator, Species species){
-        super(potentialMaster, integrator);
+    public CBMCGrowAlkane(PotentialMaster potentialMaster, IRandom random, IntegratorMC integrator, Species species){
+        super(potentialMaster, random, integrator);
         
         sumW = 0.0;
         setPrefactor(1.0);
@@ -111,7 +112,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                     bondlength = calcBondL(); //possibly generated
                     
                     if (i == 0) { //if we're starting with methane
-                        vex.setRandomSphere();
+                        vex.setRandomSphere(random);
                         (((AtomLeaf)atomList.get(0)).getCoord().getPosition()).E(vex);
                     } else if(i == 1) { //ethane
                         vex.E(calcRandomBond());
@@ -171,7 +172,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
                     bondlength = calcBondL();
                     
                     if (i == chainlength-1) { //if we're starting with methane
-                        vex.setRandomSphere();
+                        vex.setRandomSphere(random);
                         (((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition()).E(vex);
                     } else if(i == chainlength - 2) {  //ethane
                         vex.E(calcRandomBond());
@@ -262,7 +263,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
      */
     protected IVector calcRandomBond(){
         IVectorRandom vax = (IVectorRandom)phase.getSpace().makeVector();
-        vax.setRandomSphere();
+        vax.setRandomSphere(random);
         vax.TE(calcBondL());
         return vax;
     }
@@ -282,7 +283,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
         
         boolean ready = false;
         do {
-           vax.setRandomSphere();
+           vax.setRandomSphere(random);
            IVector vux = phase.getSpace().makeVector();
            vux.E(vax);
            
@@ -328,7 +329,7 @@ public abstract class CBMCGrowAlkane extends MCMoveCBMC {
         
         boolean ready = false;
         do{
-            vax.setRandomSphere();
+            vax.setRandomSphere(random);
             vux.E(vax);
 
             phi = Math.acos(vux.dot(tempCloser));

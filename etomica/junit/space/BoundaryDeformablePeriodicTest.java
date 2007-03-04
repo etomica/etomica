@@ -15,13 +15,14 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
+import etomica.util.RandomNumberGenerator;
 
 public class BoundaryDeformablePeriodicTest extends TestCase {
 
     public BoundaryDeformablePeriodicTest() {
 //        space = Space2D.getInstance();
         space = Space3D.getInstance();
-        boundary = new BoundaryDeformablePeriodic(space, 1.0);
+        boundary = new BoundaryDeformablePeriodic(space, new RandomNumberGenerator(), 1.0);
 //        Tensor2D deformation = new Tensor2D(new double[] {1.0, -0.5, 
 //                                                          0.8, 1.0});
 //        Tensor2D deformation = new Tensor2D(new double[] {1.0, 12.0,

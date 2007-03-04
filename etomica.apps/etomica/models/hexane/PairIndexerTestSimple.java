@@ -72,7 +72,7 @@ public class PairIndexerTestSimple extends Simulation {
         PairIndexerTestSimple pit = new PairIndexerTestSimple(Space3D.getInstance(), FCC);
         
 //      nan it will need to be changed*/
-        PairIndexerMolecule pi = new PairIndexerMolecule(pit.phase, pit.prim);
+        PairIndexerMolecule pi = new PairIndexerMolecule(pit.phase, pit.getRandom(), pit.prim);
       
         OutputFile printer = new OutputFile("Simple.txt");      
       

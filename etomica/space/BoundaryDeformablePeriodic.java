@@ -10,6 +10,7 @@ import etomica.math.geometry.Polytope;
 import etomica.simulation.Simulation;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
+import etomica.util.IRandom;
 
 /**
  * Boundary shaped as an arbitrary parallelepiped.  Applicable only for a 2D or 3D spaces.
@@ -23,14 +24,14 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * periodic in every direction.
      */
 	public BoundaryDeformablePeriodic(Simulation sim) {
-		this(sim.getSpace(), sim.getDefaults().boxSize);
+		this(sim.getSpace(), sim.getRandom(), sim.getDefaults().boxSize);
 	}
 
     /**
      * Make a cubic boundary of specified edge length and periodicity.
      */
-	public BoundaryDeformablePeriodic(Space space, double boxSize) {
-	    this(space, makeVectors(space, boxSize));	
+	public BoundaryDeformablePeriodic(Space space, IRandom random, double boxSize) {
+	    this(space, random, makeVectors(space, boxSize));
 	}
 	
     /**
@@ -42,8 +43,9 @@ public class BoundaryDeformablePeriodic extends Boundary {
      *  @throws IllegalArgumentException if the dimension of space is not 2 or 3
      *  @throws IllegalArgumentException if the vex.length is not equal to the dimension of the space
      */
-	public BoundaryDeformablePeriodic(Space space,  IVector[] vex) {
+	public BoundaryDeformablePeriodic(Space space, IRandom random, IVector[] vex) {
         super(space, makeShape(space, vex));
+        this.random = random;
         D = space.D();
         if(D != 2 && D != 3) {
             throw new IllegalArgumentException("BoundaryDeformablePeriodic is appropriate only for 2-D or 3-D spaces");
@@ -130,7 +132,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Returns a point selected randomly from within the boundary region.
      */
     public IVector randomPosition() {
-        temp1.setRandomCube();
+        temp1.setRandomCube(random);
         h.transform(temp1);
         return temp1;
     }
@@ -499,6 +501,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private final PeriodicTransform3[] edgeTripletTransforms;
     private final IndexIteratorSequential indexIterator;
     private double[][] origins = new double[0][];
+    protected final IRandom random;
 
     private static final long serialVersionUID = 1L;
     

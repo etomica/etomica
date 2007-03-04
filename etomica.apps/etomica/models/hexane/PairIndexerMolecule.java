@@ -8,6 +8,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
 import etomica.space.Tensor;
+import etomica.util.IRandom;
 
 /**
  * Given molecules in the form of an AtomPair, this class returns an integer
@@ -29,7 +30,7 @@ public class PairIndexerMolecule {
     // the type or the species
     //
 
-    public PairIndexerMolecule(Phase ph, Primitive pr) {
+    public PairIndexerMolecule(Phase ph, IRandom random, Primitive pr) {
         // Initialize everything we can.
         this.phase = ph;
         this.prim = pr.copy();
@@ -41,7 +42,7 @@ public class PairIndexerMolecule {
         // assume we have a rectangular box.  make our own little boundary
         // instance instead of using actual boundary so that boundary changes
         // don't affect us (since we work off original coordinates)
-        bdry = new BoundaryRectangularPeriodic(phase.getSpace(), 1);
+        bdry = new BoundaryRectangularPeriodic(phase.getSpace(), random, 1);
         bdry.setDimensions(phase.getBoundary().getDimensions());
 
         dim = phase.getSpace().D();

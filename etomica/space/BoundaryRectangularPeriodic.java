@@ -1,6 +1,7 @@
 package etomica.space;
 
 import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 /**
  * Rectangular boundary that is periodic in every dimension.
@@ -11,14 +12,14 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
      * Constructs cubic boundary with the default box-size given by the Simulation.
      */
     public BoundaryRectangularPeriodic(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().boxSize);
+        this(sim.getSpace(), sim.getRandom(), sim.getDefaults().boxSize);
     }
     
     /**
      * Constructs cubic boundary for the given Space, with each edge of length boxSize.
      */
-    public BoundaryRectangularPeriodic(Space space, double boxSize) {
-        super(space, makePeriodicity(space.D()), boxSize);
+    public BoundaryRectangularPeriodic(Space space, IRandom random, double boxSize) {
+        super(space, random, makePeriodicity(space.D()), boxSize);
         dimensionsHalf = space.makeVector();
         tempImage = (IVectorRandom)space.makeVector();
         // call updateDimensions again so dimensionsHalf is updated

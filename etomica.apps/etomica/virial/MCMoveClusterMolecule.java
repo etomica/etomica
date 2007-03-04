@@ -42,7 +42,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
         }
         
         uOld = weightMeter.getDataAsScalar();
-        groupTranslationVector.setRandomCube();
+        groupTranslationVector.setRandomCube(random);
         groupTranslationVector.TE(stepSize);
         moveMoleculeAction.actionPerformed(atom);
         uNew = Double.NaN;
