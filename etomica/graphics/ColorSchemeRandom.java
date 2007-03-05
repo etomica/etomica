@@ -11,8 +11,8 @@ import etomica.util.IRandom;
 public class ColorSchemeRandom extends ColorScheme implements AgentSource {
     
     public ColorSchemeRandom(Phase phase, IRandom random) {
-        agentManager = new AtomAgentManager(this, phase);
-        this.random = random;
+      this.random = random;
+      agentManager = new AtomAgentManager(this, phase);
     }
     
     public Color getAtomColor(AtomLeaf a) {
