@@ -1,6 +1,6 @@
 package g3dsys.control;
 
-import g3dsys.images.Figure;
+import g3dsys.images.*;
 
 import javax.vecmath.Point3f;
 import javax.vecmath.Tuple3f;
@@ -30,6 +30,7 @@ class FigureManager {
         figs = new Figure[0];
         idMax = -1;
         gsys = g;
+        images = new ImageShell(gsys);
 	}
 	
 	/** Get the depth of the model in Angstroms
@@ -141,7 +142,12 @@ class FigureManager {
       //and /1 shrinks the model too much at 100% zoom; /1.5f compromise
       //note that if an atom radius causes it to extend well outside the box
       //there may still be clipping
-      return min.distance(max)/1.5f;
+      if(imagesOn) {
+        //return a different radius to account for image shell
+        //getLayers*2 for symmetry, +1 for original center image
+        return (min.distance(max)/1.5f)*(2*images.getLayers()+1);
+      }
+      else return min.distance(max)/1.5f;
     }
 
     public Point3f getBoundingBoxCenter() {
@@ -155,4 +161,35 @@ class FigureManager {
       average.scale(1f / figs.length);
       return average;
     }
+
+    /* **********************************************************
+     * Image shell code 
+     ************************************************************/
+
+    ImageShell images;
+    private boolean imagesOn = false;
+    
+    /**
+     * For use only by ImageShell class for iteration
+     * @return returns the array of current Figures
+     */
+    public Figure[] getFigs() {
+      return figs;
+    }
+
+    //stores old values while image shell is on; may cause problems
+    //with dynamic system...
+    Point3f oldmin = new Point3f();
+    Point3f oldmax = new Point3f();
+    
+    public boolean isEnableImages() { return imagesOn; }
+    public void setEnableImages(boolean b) {
+      //save some array overhead with these checks
+      if(imagesOn && b) return; //no change
+      if(!imagesOn && !b) return; //no change
+      if(!imagesOn && b) addFig(images); //toggle on
+      if(imagesOn && !b) removeFig(images); //toggle off
+      imagesOn = b;
+    }
+
 }

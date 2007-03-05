@@ -35,4 +35,7 @@ public class Line extends Figure {
     public void setEnd(float x, float y, float z) {
         end.set(x, y, z);
     }
+    
+    public Point3f getStart() { return start; }
+    public Point3f getEnd() { return end; }
 }

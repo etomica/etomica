@@ -27,6 +27,8 @@ class Display extends JPanel {
 //		g3d.beginRendering(0, 0, gsys.getPixelWidth(),
 //				gsys.getPixelHeight(), m, false);
 		
+        //Rotation matrix m may be needed to draw figures with orientation,
+        //i.e.; cylinders. Currently unimplemented, but will be needed later. 
 		g3d.beginRendering(0,0,0,0, m, false); // ?!?!
 		gsys.draw(); //dispatch to FigureManager
 		g3d.endRendering();

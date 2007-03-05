@@ -90,6 +90,10 @@ class KeyboardControl implements KeyListener {
       master.setPerspectiveDepth(!master.getPerspectiveDepth());
       master.fastRefresh();
     }
+    if( e.getKeyChar() == 'i' ) {
+      master.setEnableImages(!master.isEnableImages());
+      master.fastRefresh();
+    }
   }
 
 }

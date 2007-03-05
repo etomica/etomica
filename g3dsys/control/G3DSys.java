@@ -50,19 +50,21 @@ public class G3DSys {
     //init infrastructure
     parent = window;
     dm = new Display(this);
-
+    dm.setSize(parent.getSize());
+    
+    //init g3d
+    //3/5/2007 rearranged init sequence so g3d is set earlier
+    //  needed for imageshell
+    g3d = new Graphics3D(dm);
+    g3d.setWindowSize(window.getWidth()-10, window.getHeight()-60, false);
+    g3d.setBackgroundArgb(0xFF000000);
+    g3d.setSlabAndDepthValues(0, Integer.MAX_VALUE);
+    
     fm = new FigureManager(this);
     tm = new TransformManager(this);
     tm.clear();
     tm.zoomToPercent(100f);
     tm.setDefaultRotation();
-    dm.setSize(parent.getSize());
-
-    //init g3d
-    g3d = new Graphics3D(dm);
-    g3d.setWindowSize(window.getWidth()-10, window.getHeight()-60, false);
-    g3d.setBackgroundArgb(0xFF000000);
-    g3d.setSlabAndDepthValues(0, Integer.MAX_VALUE);
 
     //enable scaling resize
     parent.addComponentListener(new ComponentListener() {
@@ -372,12 +374,21 @@ public class G3DSys {
     System.out.println(", zbufferFront: "+zbufferFront);
   }
 
-
-
-
   public double getSlabPercent() { return tm.getSlabPercentSetting(); }
   public double getDepthPercent() { return tm.getDepthPercentSetting();  }
   public void setSlabPercent(float val) { tm.slabToPercent(val); }
   public void setDepthPercent(float val) { tm.depthToPercent(val); }
 
+  
+  //image shell code follows
+  /**
+   * For use only by ImageShell class for iteration
+   * @return returns the array of current Figures
+   */
+  public Figure[] getFigs() {
+    return fm.getFigs();
+  }
+
+  public void setEnableImages(boolean b) { fm.setEnableImages(b); }
+  public boolean isEnableImages() { return fm.isEnableImages(); }
 }
