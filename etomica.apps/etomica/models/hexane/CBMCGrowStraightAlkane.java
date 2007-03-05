@@ -2,15 +2,14 @@ package etomica.models.hexane;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
+import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
+import etomica.util.IRandom;
 
 /**
  * Grows a straight-chain alkane of specified length.
@@ -33,8 +32,8 @@ import etomica.species.Species;
 
 public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
-    public CBMCGrowStraightAlkane(PotentialMaster potentialMaster, IntegratorMC integrator, Species species, int n){
-        super(potentialMaster, integrator);
+    public CBMCGrowStraightAlkane(PotentialMaster potentialMaster, IRandom random, IntegratorMC integrator, Species species, int n){
+        super(potentialMaster, random, integrator);
         
         setChainlength(n);
         sumW = 0.0;
@@ -43,7 +42,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         sp[0] = species;
 
         vex = phase.getSpace().makeVector();
-        vax = phase.getSpace().makeVector();
+        vax = (IVectorRandom)phase.getSpace().makeVector();
         vux = phase.getSpace().makeVector();
 
         a = new double[numTrial];
@@ -67,7 +66,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         
         //Pick a direction and an atom to start with
         forward = Simulation.random.nextBoolean();
-        short direction;
+        int direction;
         if(forward){
             direction = 1;
         } else {
@@ -92,7 +91,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             for(int i = chainlength-1; i >= startIndex; i--){
                 uExt = externalMeter.getDataAsScalar();               
                 b[i] = Math.exp(-beta*uExt);
-                if(i == 0)  {b[i] *= getPrefactor();}
+//                if(i == 0)  {b[i] *= getPrefactor();}
                 sumA += b[i];
                 wOld *= sumA;
             }// end of i loop
@@ -101,7 +100,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             for(int i = 0; i >= startIndex; i++){
                 uExt = externalMeter.getDataAsScalar();
                 b[i] = Math.exp(-beta*uExt);
-                if(i == chainlength - 1)  {b[i] *= getPrefactor();}
+//                if(i == chainlength - 1)  {b[i] *= getPrefactor();}
                 sumA += b[i];
                 wOld *= sumA;
             }//end of i loop
@@ -119,7 +118,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                 for(int k = 0; k < numTrial; k++){  //This loops through the trials
                     
                     if (i == 0) { //if we're starting with methane
-                        vex.setRandomSphere();
+                        vex.E(phase.getBoundary().randomPosition());
                         (((AtomLeaf)atomList.get(0)).getCoord().getPosition()).E(vex);
                     } else if(i == 1) { //ethane
                         vex.E(calcRandomBond());
@@ -149,7 +148,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                     // and store it.
                     uExt = externalMeter.getDataAsScalar();
                     a[k] = Math.exp(-beta*uExt);
-                    if(i == 0)  {a[k] *= getPrefactor();}
+//                    if(i == 0)  {a[k] *= getPrefactor();}
                     sumA += a[k];
                 }//end of k loop
                 
@@ -179,7 +178,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                     bondlength = calcBondL();
                     
                     if (i == chainlength-1) { //if we're starting with methane
-                        vex.setRandomSphere();
+                        vex.E(phase.getBoundary().randomPosition());
                         (((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition()).E(vex);
                     } else if(i == chainlength - 2) {  //ethane
                         vex.E(calcRandomBond());
@@ -209,7 +208,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                     // and store it.
                     uExt = externalMeter.getDataAsScalar();
                     a[k] = Math.exp(-beta*uExt);
-                    if(i == chainlength-1) {a[k] *= getPrefactor();}
+//                    if(i == chainlength-1) {a[k] *= getPrefactor();}
                     sumA += a[k];
                 }//end of k loop
                 
@@ -250,11 +249,11 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
     protected abstract double calcBondL();
     
     /**
-     * Generates a random bond on a unit sphere
+     * Generates a random bond.
      * @return a new bond vector
      */
     protected IVector calcRandomBond(){
-        vax.setRandomSphere();
+        vax.setRandomSphere(random);
         vax.TE(calcBondL());
         return vax;
     }
@@ -272,7 +271,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         v.normalize();
         
         do{
-           vax.setRandomSphere();
+           vax.setRandomSphere(random);
            
            phi = Math.acos(vax.dot(v));
            ubb = calcBondBendingEnergy(phi);
@@ -309,7 +308,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         tempCloser.normalize();
         
         do{
-            vax.setRandomSphere();
+            vax.setRandomSphere(random);
             vux.E(vax);
 
             phi = Math.acos(vux.dot(tempCloser));
@@ -347,7 +346,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
     boolean forward;    //indicates direction of growth
     protected double bondlength;
     double sumW;
-    IVector vex, vax, vux;
+    IVector vex, vux;
+    IVectorRandom vax;
     double[] a;
     double[] b;
     IVector[] storePos;
