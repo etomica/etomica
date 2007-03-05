@@ -6,6 +6,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMovePhase;
@@ -23,6 +24,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
 
         beta = 1.0/integrator.getTemperature()/Constants.BOLTZMANN_K;
         atomList = new AtomArrayList(chainlength);
+        affectedAtomIterator = new AtomIteratorSinglet();
         
         externalMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -59,32 +61,29 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     public boolean doTrial() {
         //pick a molecule & get its childlist.
         atom = moleculeSource.getAtom();
+        if(atom == null) return false;
+        affectedAtomIterator.setAtom(atom);
+        
         uOld = energyMeter.getDataAsScalar();
         
+        //we assume that that atoms that make the molecule are children of the molecule.
         atomList = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
         chainlength = atomList.size();
         //store the old locations of every atom in the molecule in positionOld.
+        
         for(int i = 0; i < chainlength; i++){
             positionOld[i].E((IVector)((AtomLeaf)atomList.get(i)).getCoord().getPosition());
         }
         
         calcRosenbluthFactors();
-        
-        //Accept or reject the move.
-        if(Math.random() <= wNew/wOld){
-            acceptNotify();
-            return true;
-        } else {
-            rejectNotify();
-            return false;
-        }
+
+        return true;    //this means we were able to propose a move.
     }
 
-    public abstract double getA();
-    public abstract double getB();
+    public double getA() {return wNew/wOld;}
+    public double getB() {return 0.0;}
     protected abstract void calcRosenbluthFactors();
     protected abstract int calcNumberOfTrials();
-    public abstract AtomIterator affectedAtoms();
     
     protected void setChainlength(int n) {chainlength = n;}
     public int getNumTrial(){return numTrial;}
@@ -94,6 +93,10 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         for(int i = 0; i < chainlength; i++){
             ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(positionOld[i]);
         }
+    }
+    
+    public AtomIterator affectedAtoms(){
+        return affectedAtomIterator;
     }
     
     private static final long serialVersionUID = 1L;
@@ -110,5 +113,6 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     protected AtomArrayList atomList;
     protected int numTrial;
     protected AtomSource moleculeSource;
+    private AtomIteratorSinglet affectedAtomIterator;
     protected final IRandom random;
 }
