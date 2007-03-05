@@ -128,5 +128,6 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     public void setPhase(Phase p) {
         super.setPhase(p);
         energyMeter.setPhase(p);
+        moleculeSource.setPhase(p);
     }
 }
