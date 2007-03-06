@@ -92,6 +92,8 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
      */
     public abstract IVector randomPosition();
 
+    public abstract IVector[] getPeriodicVectors();
+    
     /**
      * Provides information needed so that drawing can be done of portions of
      * the periodic images of an atom that overflow into the volume (because the

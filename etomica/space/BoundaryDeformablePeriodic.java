@@ -410,6 +410,10 @@ public class BoundaryDeformablePeriodic extends Boundary {
             edgeTripletTransforms[i].update();
         }
     }
+
+    public IVector[] getPeriodicVectors() {
+        return edgeVectors;
+    }
     
 	public double[][] imageOrigins(int nShells) {
         int shellFormula = (2 * nShells) + 1;

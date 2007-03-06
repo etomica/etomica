@@ -123,6 +123,24 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         return isPeriodic;
     }
 
+    public IVector[] getPeriodicVectors() {
+        int n = 0;
+        for (int i=0; i<isPeriodic.length; i++) {
+            if (isPeriodic[i]) {
+                n++;
+            }
+        }
+        IVector[] vectors = new IVector[n];
+        int d = 0;
+        for  (int i=0; i<isPeriodic.length; i++) {
+            if (isPeriodic[i]) {
+                vectors[d] = space.makeVector();
+                vectors[d].setX(i,dimensions.x(i));
+            }
+        }
+        return vectors;
+    }
+    
     /**
      * Returns a set of image origins for a set of periodic image shells.  
      * The returned array is of dimension [(2*nShells+1)^D][D], where D

@@ -74,6 +74,10 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         dimensions.E(v);
         updateDimensions();
     }
+    
+    public IVector[] getPeriodicVectors() {
+        throw new RuntimeException("Not yet.  Gimme a break!");
+    }
 
     public double[][] imageOrigins(int nShells) {
         if(nShells == 0) {
