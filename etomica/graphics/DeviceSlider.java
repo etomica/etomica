@@ -339,8 +339,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
     
     public double getValue(){return slider.getDecimalSliderValue();}    
     public void setValue(double d){
+        //updating the slider will update the text field
         slider.setDecimalSliderValue(d);
-        textField.setText(String.valueOf(d));
     }
     
     /**
@@ -402,8 +402,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
       */
      private class SliderListener implements ChangeListener, java.io.Serializable {
          public void stateChanged(ChangeEvent evt) {
+             double newValue = slider.getDecimalSliderValue();
              if(modifyAction!=null) {
-                 double newValue = slider.getDecimalSliderValue();
                  modifyAction.setValueForAction(unit.toSim(newValue));
                  try {
                      doAction(targetAction);
@@ -420,8 +420,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
                      slider.setDecimalSliderValue(newValue);
                      modifyAction = actualModifyAction;
                  }
-                 textField.setText(String.valueOf(newValue));
              }
+             textField.setText(String.valueOf(newValue));
          }
      }
 }
