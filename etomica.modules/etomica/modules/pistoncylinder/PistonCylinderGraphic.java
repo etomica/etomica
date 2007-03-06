@@ -138,6 +138,7 @@ public class PistonCylinderGraphic {
     public DeviceSlider doSleepSlider, integratorTimeStepSlider;
     public int repaintSleep = 100;
     public int integratorSleep = 10;
+    public int integratorSleep3D = 0;
     Default defaults;
     private boolean initialized;
     private boolean doConfigButton;
@@ -336,7 +337,6 @@ public class PistonCylinderGraphic {
         doSleepSlider.setMinimum(0);
         doSleepSlider.setMaximum(100);
         doSleepSlider.setNMajor(5);
-        doSleepSlider.setValue(integratorSleep);
         
         integratorTimeStepSlider = new DeviceSlider(null);
         integratorTimeStepSlider.setShowValues(false);
@@ -591,25 +591,28 @@ public class PistonCylinderGraphic {
 
         tUnit = Kelvin.UNIT;
 
+        int thisSleep = -1;
         if (pc.getSpace().D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
                                     new MKS().area());
             Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
             double[] exponents = new double[] {1.0, 1.0};
             pUnit = new CompoundUnit(units, exponents);
+            thisSleep = integratorSleep;
         }
         else {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
             pUnit = Bar.UNIT;
+            thisSleep = integratorSleep3D;
         }
-
+        
         densityDisplayBox.setLabel("Density ("+dUnit.symbol()+")");
         pressureDisplayBox.setLabel("Pressure ("+pUnit.symbol()+")");
 
         // set up GUI
         displayPhase.setPixelUnit(new Pixel(600/pc.phase.getBoundary().getDimensions().x(1)));
-        pc.ai.setDoSleep(integratorSleep > 0);
-        pc.ai.setSleepPeriod(integratorSleep);
+        pc.ai.setDoSleep(thisSleep > 0);
+        pc.ai.setSleepPeriod(thisSleep);
         pc.integrator.removeAllListeners();
 
         pc.wallPotential.setLongWall(0,true,true);  // left wall
@@ -721,9 +724,15 @@ public class PistonCylinderGraphic {
             public String getLabel() {return "";}
             public Dimension getDimension() {return Undefined.DIMENSION;}
             public void setValue(double v) {
-                integratorSleep = (int)v;
-                pc.ai.setDoSleep(integratorSleep > 0);
-                pc.ai.setSleepPeriod(integratorSleep);
+                int mySleep = (int)v;
+                if (pc.getSpace().D() == 3) {
+                    integratorSleep3D = mySleep;
+                }
+                else {
+                    integratorSleep = mySleep;
+                }
+                pc.ai.setDoSleep(mySleep > 0);
+                pc.ai.setSleepPeriod(mySleep);
             }
             public double getValue() {return integratorSleep;}
         });
@@ -737,6 +746,7 @@ public class PistonCylinderGraphic {
             }
             public double getValue() {return pc.integrator.getTimeStep();}
         });
+        doSleepSlider.setValue(thisSleep);
         
         //  data panel
         // the data channel sending the DataTable should be cut off (and hopefully garbage collected)
