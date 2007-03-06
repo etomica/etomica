@@ -142,7 +142,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         temp1.E(vertices[0]);
         temp2.E(vertices[0]);
         for(int i=1; i<vertices.length; i++) {
-            for (int j=0; i<space.D(); i++) {
+            for (int j=0; j<space.D(); j++) {
                 temp1.setX(j,Math.min(vertices[i].x(j),temp1.x(j)));
                 temp2.setX(j,Math.max(vertices[i].x(j),temp2.x(j)));
             }
