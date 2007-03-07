@@ -28,9 +28,17 @@ public class BoundaryPistonCylinder extends BoundaryRectangularNonperiodic {
 
     public double volume() {
         double collisionDiameter = pistonPotential.getCollisionRadius()*2;
-        // bottom of the phase is +dimensions/2, top is wall position
-        return (dimensions.x(0) - collisionDiameter) * 
-               (0.5*dimensions.x(1) - pistonPotential.getWallPosition() - collisionDiameter);
+        double v = 1;
+        for (int i=0; i<space.D(); i++) {
+            if (i == 1) {
+                // bottom of the phase is +dimensions/2, top is wall position
+                v *= (0.5*dimensions.x(i) - pistonPotential.getWallPosition() - collisionDiameter);
+            }
+            else {
+                v *= dimensions.x(i) - collisionDiameter;
+            }
+        }
+        return v;
     }
 
     private P1HardMovingBoundary pistonPotential;
