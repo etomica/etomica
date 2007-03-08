@@ -58,6 +58,7 @@ public class IndexIteratorSequential implements IndexIteratorSizable, java.io.Se
     
     /**
      * Sets range of all indexes to the given value
+     * Indices returned vary from 0 to size-1
      * @param size
      */
     public void setSize(int size) {
