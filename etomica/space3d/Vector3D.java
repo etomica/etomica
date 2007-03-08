@@ -1,6 +1,5 @@
 package etomica.space3d;
 
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.util.Function;
@@ -210,9 +209,9 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         double rsq;
         do {
 
-            z1 = 1.0 - 2.0 * Simulation.random.nextDouble();
-            z2 = 1.0 - 2.0 * Simulation.random.nextDouble();
-            z3 = 1.0 - 2.0 * Simulation.random.nextDouble();
+            z1 = 1.0 - 2.0 * random.nextDouble();
+            z2 = 1.0 - 2.0 * random.nextDouble();
+            z3 = 1.0 - 2.0 * random.nextDouble();
 
             rsq = z1 * z1 + z2 * z2 + z3 * z3;
         } while (rsq > 1.0);
@@ -232,8 +231,8 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
     public void setRandomSphere(IRandom random) {
         double z1, z2, zsq;
         do  {
-            z1 = 2.0 * Simulation.random.nextDouble() - 1.0;
-            z2 = 2.0 * Simulation.random.nextDouble() - 1.0;
+            z1 = 2.0 * random.nextDouble() - 1.0;
+            z2 = 2.0 * random.nextDouble() - 1.0;
             zsq = z1 * z1 + z2 * z2;
         } while (zsq > 1.0);
 
