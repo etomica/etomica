@@ -5,6 +5,10 @@ package etomica.simulation.prototypes;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeLeaf;
+import etomica.atom.iterator.ApiBuilder;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
 import etomica.graphics.SimulationGraphic;
@@ -13,7 +17,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
-import etomica.potential.P1BondedHardSpheres;
+import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
@@ -45,7 +49,6 @@ public class ChainHSMD3D extends Simulation {
         defaults.atomSize = 1.0;
         defaults.boxSize = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
         ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
-//FIXME        ((PotentialMasterNbr)potentialMaster).setAtomPositionDefinition(new AtomPositionCOM(space));
 
         integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
@@ -69,40 +72,17 @@ public class ChainHSMD3D extends Simulation {
         integrator.addListener(new IntervalActionAdapter(pbc));
         pbc.setApplyToMolecules(true);
         
-        PotentialGroup p1Intra = P1BondedHardSpheres.makeP1BondedHardSpheres(this);
+        PotentialGroup p1Intra = potentialMaster.makePotentialGroup(1);
+        p1Intra.addPotential(new P2HardBond(this), ApiBuilder.makeAdjacentPairIterator());
         potentialMaster.addPotential(p1Intra,new Species[]{species});
         
         //PotentialGroup p2Inter = new PotentialGroup(2, space);
         potential = new P2HardSphere(this);
-//        NeighborCriterion criterion = new CriterionSimple(this,potential.getRange(),neighborRangeFac*potential.getRange());
-//FIXME        ApiFiltered interIterator = new ApiFiltered(new ApiIntergroup(),criterion);
-//FIXME        p2Inter.addPotential(potential,interIterator);
-//FIXME        NeighborCriterionWrapper moleculeCriterion = new NeighborCriterionWrapper(new NeighborCriterion[]{criterion});
-//FIXME        moleculeCriterion.setNeighborRange(3.45 + criterion.getNeighborRange());
-//FIXME        ((PotentialMasterNbr)potentialMaster).setSpecies(p2Inter,new Species[]{species,species},moleculeCriterion);
-        
-        //        Crystal crystal = new LatticeCubicFcc(space);
-//        ConfigurationLattice conformation = new ConfigurationLattice(space, crystal);
-//        phase.setConfiguration(conformation);
-//        potential = new P2HardSphere(space);
-//        this.potentialMaster.setSpecies(potential,new Species[]{species,species});
+        AtomTypeLeaf leafType = (AtomTypeLeaf)((AtomTypeGroup)species.getMoleculeType()).getChildTypes()[0];
+        potentialMaster.addPotential(potential, new AtomType[]{leafType,leafType});
 
-//        NeighborCriterion criterion = new NeighborCriterionSimple(space,potential.getRange(),neighborRangeFac*potential.getRange());
-//        ((PotentialMasterNbr)potentialMaster).setSpecies(potential,new Species[]{species,species},criterion);
-
-//      elementCoordinator.go();
-        //explicit implementation of elementCoordinator activities
         integrator.setPhase(phase);
- //       integrator.addIntervalListener(new PhaseImposePbc(phase));
-        
-        //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
-
- //       MeterPressureHard meterPressure = new MeterPressureHard(integrator);
- //       DataManager accumulatorManager = new DataManager(meterPressure);
-        // 	DisplayBox box = new DisplayBox();
-        // 	box.setDatumSource(meterPressure);
- //       phase.setDensity(0.7);
-    } //end of constructor
+    }
 
     public static void main(String[] args) {
       final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
