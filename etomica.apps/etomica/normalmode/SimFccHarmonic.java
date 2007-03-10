@@ -3,7 +3,6 @@ package etomica.normalmode;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
@@ -47,6 +46,7 @@ public class SimFccHarmonic extends Simulation {
         defaults.atomSize = 1.0;
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
 
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);

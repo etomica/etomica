@@ -139,6 +139,7 @@ public class ZeoliteSimulation extends Simulation {
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){
         	species[i] = new SpeciesSpheresMono(this);
+            getSpeciesRoot().addSpecies(species[i]);
         	phase.getAgent(species[i]).setNMolecules(numAtoms[i]);
         	((etomica.atom.AtomTypeSphere)species[i].getFactory().getType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){

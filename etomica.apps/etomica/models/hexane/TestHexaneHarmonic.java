@@ -83,6 +83,7 @@ public class TestHexaneHarmonic extends Simulation {
         defaults.ignoreOverlap = false;
 
         SpeciesHexane species = new SpeciesHexane(this);
+        getSpeciesRoot().addSpecies(species);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numMolecules);
 //        config.initializeCoordinates(phase);

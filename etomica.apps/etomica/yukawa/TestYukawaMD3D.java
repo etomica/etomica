@@ -73,6 +73,7 @@ public class TestYukawaMD3D extends Simulation{
 		getController().addAction(activityIntegrate);
 		
 		species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
 		phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);
 		potential = new P2Yukawa(this);
