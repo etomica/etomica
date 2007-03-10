@@ -50,7 +50,7 @@ public class MCMoveRotate extends MCMovePhaseStep {
     }
      
     /**
-     * Sets the AtomSource used to select Atoms acted on by MC trials.
+     * Returns the AtomSource used to select Atoms acted on by MC trials.
      */
     public AtomSource getAtomSource() {
         return atomSource;
