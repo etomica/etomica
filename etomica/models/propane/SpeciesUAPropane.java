@@ -12,11 +12,13 @@ import etomica.species.SpeciesSignature;
  */
 public class SpeciesUAPropane extends Species implements EtomicaElement {
     
+    private static final long serialVersionUID = 1L;
+
     public SpeciesUAPropane(Simulation sim) {
         this(sim, Species.makeAgentType(sim));
     }
     private SpeciesUAPropane(Simulation sim, AtomTypeGroup agentType) {
-       super(sim, new AtomFactoryUAPropane(sim, agentType),
+       super(new AtomFactoryUAPropane(sim, agentType),
                agentType);
        
     }

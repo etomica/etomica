@@ -12,11 +12,13 @@ import etomica.species.SpeciesSignature;
  */
 public class SpeciesWater4P extends Species implements EtomicaElement {
     
+    private static final long serialVersionUID = 1L;
+
     public SpeciesWater4P(Simulation sim) {
         this(sim, Species.makeAgentType(sim));
     }
     private SpeciesWater4P(Simulation sim, AtomTypeGroup agentType) {
-       super(sim, new AtomFactoryWater4P(sim, agentType),
+       super(new AtomFactoryWater4P(sim, agentType),
                agentType);
     }
     
