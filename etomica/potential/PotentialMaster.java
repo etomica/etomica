@@ -10,6 +10,8 @@ import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
+import etomica.chem.models.Model;
+import etomica.chem.models.Model.PotentialAndIterator;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -24,7 +26,6 @@ import etomica.species.Species;
  *
  * @author David Kofke
  */
- 
 public class PotentialMaster implements java.io.Serializable {
     
     public PotentialMaster(Space space) {
@@ -84,7 +85,8 @@ public class PotentialMaster implements java.io.Serializable {
     	Atom targetAtom = id.getTargetAtom();
     	boolean phaseChanged = (phase != mostRecentPhase);
     	mostRecentPhase = phase;
-    	for(PotentialLinker link=first; link!=null; link=link.next) {
+
+        for(PotentialLinker link=first; link!=null; link=link.next) {
     	    if(!link.enabled) continue;
     	    if(phaseChanged) {
     	        link.iterator.setPhase(phase);
@@ -93,11 +95,28 @@ public class PotentialMaster implements java.io.Serializable {
     	    link.iterator.setTarget(targetAtom);
     	    link.iterator.setDirection(id.direction());
     	    pc.doCalculation(link.iterator, id, link.potential);
-        }//end for
+        }
+        
         if(lrcMaster != null) {
             lrcMaster.calculate(phase, id, pc);
         }
-    }//end calculate
+    }
+    
+    /**
+     * Add the given Model's intramolecular potentials to this PotentialMaster
+     */
+    public void addModel(Model newModel) {
+        if (getPotential(new AtomType[]{newModel.getSpecies().getMoleculeType()}) != null) {
+            throw new IllegalArgumentException(newModel+" has already been added");
+        }
+        PotentialAndIterator[] potentialsAndIterators = newModel.getPotentials();
+        PotentialGroup pGroup = makePotentialGroup(1);
+        for (int i=0; i<potentialsAndIterators.length; i++) {
+            pGroup.addPotential(potentialsAndIterators[i].getPotential(),
+                    potentialsAndIterators[i].getIterator());
+        }
+        addPotential(pGroup, new Species[]{newModel.getSpecies()});
+    }
     
     /**
      * Indicates to the PotentialMaster that the given potential should apply to 
@@ -361,6 +380,7 @@ public class PotentialMaster implements java.io.Serializable {
         return potentials;
     }
     
+    private static final long serialVersionUID = 1L;
 	protected PotentialMasterLrc lrcMaster;
 	protected Phase mostRecentPhase = null;
 	protected IteratorFactory iteratorFactory;
@@ -371,6 +391,7 @@ public class PotentialMaster implements java.io.Serializable {
     private Simulation simulation;
     
     static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
+        private static final long serialVersionUID = 1L;
         AtomIterator0() {
             super(AtomSet.NULL);
         }
@@ -380,6 +401,7 @@ public class PotentialMaster implements java.io.Serializable {
     }
 
     public static class PotentialLinker implements java.io.Serializable {
+        private static final long serialVersionUID = 1L;
         public final Potential potential;
         public final AtomsetIteratorPDT iterator;
         public final AtomType[] types;

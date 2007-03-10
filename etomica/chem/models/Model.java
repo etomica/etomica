@@ -1,34 +1,79 @@
-/*
- * Created on Jan 16, 2004
- */
 package etomica.chem.models;
-import etomica.atom.AtomFactory;
+import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.potential.Potential;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
+import etomica.species.Species;
 
 /**
  * Top-level class for a molecular model.
+ * @author Andrew Schultz
  */
-//TODO provide means to introduce truncation scheme
 public abstract class Model implements java.io.Serializable {
 	
-	public Model() {
-	}
-	
-	public abstract AtomFactory makeAtomFactory(Simulation sim);
-	
-	public abstract Potential makePotential(Space space);
-	
 	/**
-	 * NeighborIteration indicates if atoms at this hierarchy in the model
-	 * should be subject to neighbor-based iteration.  Default is such that
-	 * neighbor iteration is performed at highest level of hierarchy.
-	 * @return boolean true if this level is subject to neighbor iteration 
+     * Returns the species associated with this Model, if it has already been
+     * created.  If the species has not been made yet, getSpecies returns null.
 	 */
-	public boolean doNeighborIteration() {return doNeighborIteration;}
-	public void setDoNeighborIteration(boolean b) {doNeighborIteration = b;}
-	
-	private boolean doNeighborIteration = false;
+    public Species getSpecies() {
+        return species;
+    }
+    
+    /**
+     * Creates a species in the given simulation and returns it.
+     */
+	public final Species makeSpecies(Simulation sim) {
+        if (species == null) {
+            species = makeSpeciesInternal(sim);
+            initPotentials(sim);
+            sim.getPotentialMaster().addModel(this);
+        }
+        return species;
+    }
 
+    /**
+     * Internal method to be implemented by subclasses to create the actual
+     * Species object for the given Simulation.
+     */
+    protected abstract Species makeSpeciesInternal(Simulation sim);
+	
+    /**
+     * Internal method to be implemented by subclasses the intramolecular
+     * potentials associated with this model.  Potential objects might be
+     * created earlier, but this method gives the subclass an opportunity to
+     * create the potentials after the species.  This method will only be
+     * called after the species has been created.
+     */
+    protected abstract void initPotentials(Simulation sim);
+    
+    /**
+     * Returns an array of objects wrapping bonding Potentials and the 
+     * AtomsetIteratorBasisDependents that return atoms appropriate for those
+     * potentials.
+     */
+	public abstract PotentialAndIterator[] getPotentials();
+    
+    private Species species;
+    protected PotentialAndIterator[] potentialsAndIterators;
+
+    /**
+     * Wrapper class for a Potential and an AtomsetIteratorBasisDependent that
+     * is associated with the potential.
+     */
+    public static class PotentialAndIterator {
+        protected PotentialAndIterator(Potential potential, AtomsetIteratorBasisDependent iterator) {
+            this.potential = potential;
+            this.iterator = iterator;
+        }
+        
+        public Potential getPotential() {
+            return potential;
+        }
+        
+        public AtomsetIteratorBasisDependent getIterator() {
+            return iterator;
+        }
+        
+        private final Potential potential;
+        private final AtomsetIteratorBasisDependent iterator;
+    }
 }
