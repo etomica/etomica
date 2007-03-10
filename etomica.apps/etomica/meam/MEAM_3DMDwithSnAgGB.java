@@ -186,8 +186,16 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         snB = new SpeciesSpheresMono(this, Tin.INSTANCE);
         agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
         cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
-        
-        
+
+        getSpeciesRoot().addSpecies(snFixedA);
+        getSpeciesRoot().addSpecies(snA);
+        getSpeciesRoot().addSpecies(agA);
+        getSpeciesRoot().addSpecies(cuA);
+        getSpeciesRoot().addSpecies(agFixedB);
+        getSpeciesRoot().addSpecies(snB);
+        getSpeciesRoot().addSpecies(agB);
+        getSpeciesRoot().addSpecies(cuB);
+
         double aA, bA, cA, aB, bB, cB;
         
         int nCellsAx, nCellsAy, nCellsAz, nAMobile, nAFixed, basisA,

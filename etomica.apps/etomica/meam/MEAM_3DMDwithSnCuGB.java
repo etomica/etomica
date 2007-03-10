@@ -188,6 +188,14 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
         cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
         
+        getSpeciesRoot().addSpecies(snFixedA);
+        getSpeciesRoot().addSpecies(snA);
+        getSpeciesRoot().addSpecies(agA);
+        getSpeciesRoot().addSpecies(cuA);
+        getSpeciesRoot().addSpecies(cuFixedB);
+        getSpeciesRoot().addSpecies(snB);
+        getSpeciesRoot().addSpecies(agB);
+        getSpeciesRoot().addSpecies(cuB);
         
         phase = new Phase(this);
         phase.setBoundary(new BoundaryRectangularSlit(this, 2));
