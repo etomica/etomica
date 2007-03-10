@@ -72,7 +72,7 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
     
     private SpeciesSpheresHetero(Simulation sim, Element[] leafElements, int nA, 
             AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryHetero(sim, agentType), agentType);
+        super(new AtomFactoryHetero(sim, agentType), agentType);
         if (leafElements.length > 0) {
             AtomFactoryMono[] childFactories = new AtomFactoryMono[leafElements.length];
             for (int i=0; i<leafElements.length; i++) {
@@ -106,4 +106,5 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
             new Integer(((AtomFactoryHetero)factory).getNumChildAtoms())});
     }
     
+    private static final long serialVersionUID = 1L;
 }

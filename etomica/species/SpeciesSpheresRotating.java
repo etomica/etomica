@@ -18,18 +18,14 @@ import etomica.space.CoordinateFactoryAngular;
  * @see AtomTypeOrientedSphere
  * 
  */
-
 public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
-    /**
-     * Constructs instance with default number of molecules given by
-     * Default.MOLECULE_COUNT.
-     */
     public SpeciesSpheresRotating(Simulation sim) {
         this(sim, Species.makeAgentType(sim));
     }
+
     private SpeciesSpheresRotating(Simulation sim, AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
+        super(new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
                 new AtomTypeOrientedSphere(new ElementSimple(sim),sim.getDefaults().atomSize)), agentType);
         // factory.getType is the AtomTypeOrientedSphere instance we just passed to the AtomFactoryMono
         // we need to finish setting it up by setting its parent
@@ -51,4 +47,6 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
         }
         return new SpeciesSignature(getName(),constructor,new Object[]{});
     }
+
+    private static final long serialVersionUID = 1L;
 }

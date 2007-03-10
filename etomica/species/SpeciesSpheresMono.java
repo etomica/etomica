@@ -22,12 +22,10 @@ import etomica.space.CoordinateFactorySphere;
  * 
  * @author David Kofke
  */
-
 public class SpeciesSpheresMono extends Species implements EtomicaElement {
 
     /**
-     * Constructs instance with default number of molecules given by
-     * Default.MOLECULE_COUNT.
+     * Constructs instance with a default element
      */
     public SpeciesSpheresMono(Simulation sim) {
         this(sim, new ElementSimple(sim));
@@ -38,7 +36,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     }
     
     private SpeciesSpheresMono(Simulation sim, Element element, AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, element)),
+        super(new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, element)),
                 agentType);
         // factory.getType is the AtomTypeSphere instance we just passed to the AtomFactoryMono
         // we need to finish setting it up by setting its parent
@@ -61,4 +59,5 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
         return new SpeciesSignature(getName(),constructor,new Object[]{((AtomTypeLeaf)factory.getType()).getElement()});
     }
     
+    private static final long serialVersionUID = 1L;
 }

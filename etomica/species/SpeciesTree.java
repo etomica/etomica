@@ -41,7 +41,7 @@ public class SpeciesTree extends Species implements EtomicaElement {
     
     //TODO extend to permit specification of Conformation[], perhaps AtomSequencerFactory[]
     private SpeciesTree(Simulation sim, int[] nA, AtomTypeGroup agentType) {
-        super(sim, new AtomFactoryTree(sim.getSpace(), agentType, nA), agentType);
+        super(new AtomFactoryTree(sim.getSpace(), agentType, nA), agentType);
         AtomTypeSphere atomType = new AtomTypeSphere(sim);
         //getLeafType will return the an AtomTypeGroup because leaf factory is not yet set
         atomType.setParentType((AtomTypeGroup)((AtomFactoryTree)factory).getLeafType());

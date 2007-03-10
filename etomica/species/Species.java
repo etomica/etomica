@@ -40,43 +40,18 @@ import etomica.util.NameMaker;
   * @see SpeciesAgent
   * @see PotentialMaster
   */
- 
-public class Species implements Comparable, java.io.Serializable {
+public class Species implements java.io.Serializable {
 
     /**
      * Constructs species with molecules built by the given atom factory.
      * Species agents made by this species will have the given type for 
      * their (common) AtomType.
      */
-    public Species(Simulation sim, AtomFactory factory, AtomType agentType) {
+    public Species(AtomFactory factory, AtomType agentType) {
         this.factory = factory;
         this.agentType = agentType;
         setName(NameMaker.makeName(this.getClass()));
         agentType.setSpecies(this);
-        index = sim.getSpeciesRoot().addSpecies(this);
-    }
-    
-    /**
-     * Constructs species with an atom factory that makes molecules from
-     * the given model for the given space.
-     */
-//    public Species(Simulation sim, Model model) {
-//    	this(sim, model.makeAtomFactory(sim.space));
-//    }
-
-    public int getIndex() {
-        return index;
-    }
-    
-    /**
-     * Implementation of Comparable interface according to the relative order of this and the
-     * given species' indexes.  If this index is greater, returns +1; if they are equal, returns 0;
-     * if the given species index is greater, returns -1.
-     * 
-     * @throws ClassCastException if the given object is not an instance of Species
-     */
-    public int compareTo(Object species) {
-        return ((Species)species).index > index ? -1 : (((Species)species).index == index ? 0 : +1);       
     }
     
     /**
@@ -159,10 +134,8 @@ public class Species implements Comparable, java.io.Serializable {
         return null;
     }
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     final AtomType agentType;
     protected final AtomFactory factory;
     private String name;
-    private final int index;
-    
 }
