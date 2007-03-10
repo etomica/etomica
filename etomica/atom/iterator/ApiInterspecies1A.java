@@ -1,7 +1,6 @@
 package etomica.atom.iterator;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
@@ -74,7 +73,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         apiDown = new ApiInnerFixed(aiOuter, aiInner, true);
         iterator = apiUp;
 
-        Arrays.sort(species);
+        // we need to sort these.  we'll do that once we have the phase
         species0 = species[0];
         species1 = species[1];
         setPhase(null);
@@ -89,6 +88,15 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         if (phase != null) {
             agentNode0 = (AtomTreeNodeGroup) phase.getAgent(species0).getNode();
             agentNode1 = (AtomTreeNodeGroup) phase.getAgent(species1).getNode();
+            if (agentNode0.getIndex() > agentNode1.getIndex()) {
+                // species were out of order.  swap them
+                Species tempSpecies = species0;
+                species0 = species1;
+                species1 = tempSpecies;
+                AtomTreeNodeGroup tempNode = agentNode0;
+                agentNode0 = agentNode1;
+                agentNode1 = tempNode;
+            }
             identifyTargetMolecule();
         } else {
             targetMolecule = null;
@@ -219,7 +227,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
     private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple aiInner;
     private final AtomIteratorSinglet aiOuter;
-    private final Species species0, species1;
+    private Species species0, species1;
     private final ApiInnerFixed apiUp, apiDown;
     private ApiInnerFixed iterator;
     private IteratorDirective.Direction direction, allowedDirection;

@@ -1,7 +1,5 @@
 package etomica.atom.iterator;
 
-import java.util.Arrays;
-
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.phase.Phase;
@@ -35,7 +33,8 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
         if(species.length != 2) {
             throw new IllegalArgumentException("Incorrect array length; must be 2 but length is "+species.length);
         }
-        Arrays.sort(species);
+
+        // we need to sort these.  we'll do that once we have the phase
         species0 = species[0];
         species1 = species[1];
         if (species0 == null || species1 == null) {
@@ -57,6 +56,17 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
             emptyList.clear();
             apiInterList.setOuterList(emptyList);
         } else {
+            AtomTreeNodeGroup agentNode0 = (AtomTreeNodeGroup) phase.getAgent(species0).getNode();
+            AtomTreeNodeGroup agentNode1 = (AtomTreeNodeGroup) phase.getAgent(species1).getNode();
+            if (agentNode0.getIndex() > agentNode1.getIndex()) {
+                // species were out of order.  swap them
+                Species tempSpecies = species0;
+                species0 = species1;
+                species1 = tempSpecies;
+                AtomTreeNodeGroup tempNode = agentNode0;
+                agentNode0 = agentNode1;
+                agentNode1 = tempNode;
+            }
             apiInterList.setOuterList(((AtomTreeNodeGroup) phase
                     .getAgent(species0).getNode()).getChildList());
             apiInterList.setInnerList(((AtomTreeNodeGroup) phase
@@ -66,6 +76,6 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
 
     private static final long serialVersionUID = 1L;
     private final ApiInterArrayList apiInterList;
-    private final Species species0, species1;
+    private Species species0, species1;
     private final AtomArrayList emptyList = new AtomArrayList();
 }

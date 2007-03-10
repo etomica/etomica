@@ -1,7 +1,6 @@
 package etomica.tests;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomSourceRandomLeaf;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -27,9 +26,9 @@ import etomica.species.SpeciesSpheresMono;
  * Simple Lennard-Jones Monte Carlo simulation in 3D.
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  */
- 
 public class TestLJMC3D extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
@@ -54,6 +53,7 @@ public class TestLJMC3D extends Simulation {
         activityIntegrate.setMaxSteps(200000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
 	    phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);
         phase.setDensity(0.65);

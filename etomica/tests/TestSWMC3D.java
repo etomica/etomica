@@ -12,6 +12,7 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
@@ -26,9 +27,9 @@ import etomica.species.SpeciesSpheresMono;
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  * @author David Kofke
  */
- 
 public class TestSWMC3D extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
@@ -43,12 +44,14 @@ public class TestSWMC3D extends Simulation {
 	    integrator = new IntegratorMC(this);
 	    mcMoveAtom = new MCMoveAtom(this);
         mcMoveAtom.setStepSize(defaults.atomSize);
+        ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.setEquilibrating(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setMaxSteps(500000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
         phase.getAgent(species).setNMolecules(numAtoms);
 	    phase = new Phase(this);
         phase.setDensity(0.7);

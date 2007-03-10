@@ -28,7 +28,6 @@ import etomica.util.Default;
 public abstract class AtomType implements java.io.Serializable, Comparable {
 
     AtomFactory creator;//set in constructor of AtomFactory
-    protected int speciesIndex = -1;
     protected Species species;
     private int index;
     private int typeTreeAddress;
@@ -215,14 +214,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      */
     public void setSpecies(Species species) {
         this.species = species;
-        speciesIndex = species.getIndex();
-    }
-
-    /**
-     * @return Returns the speciesIndex.
-     */
-    public final int getSpeciesIndex() {
-        return speciesIndex;
     }
 
     public void setInteracting(boolean b) {

@@ -56,6 +56,7 @@ public class HSMD2D_noNbr extends Simulation {
         activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
 	    phase = new Phase(this);
         phase.getAgent(species).setNMolecules(64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);

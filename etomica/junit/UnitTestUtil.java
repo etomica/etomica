@@ -81,14 +81,17 @@ public class UnitTestUtil {
         int nPhase = 0;
         if (n0 != null) {
             species0 = new SpeciesSpheres(sim, nA0);
+            sim.getSpeciesRoot().addSpecies(species0);
             nPhase = n0.length;
         }
         if (n1 != null) {
             species1 = new SpeciesSpheresMono(sim);
+            sim.getSpeciesRoot().addSpecies(species1);
             nPhase = n1.length;
         }
         if (n2 != null) {
             species2 = new SpeciesTree(sim, n2Tree);
+            sim.getSpeciesRoot().addSpecies(species2);
             nPhase = n2.length;
         }
         for (int i = 0; i < nPhase; i++) {
@@ -145,15 +148,15 @@ public class UnitTestUtil {
             }
             factory.setChildFactory(childFactories);
             factory.setChildCount(nAtoms[i]);
-            Species species = new MySpecies(sim, factory, agentType);
+            Species species = new MySpecies(factory, agentType);
             phase.getAgent(species).setNMolecules(nMolecules[i]);
         }
         return sim.getSpeciesRoot();
     }
     
     private static class MySpecies extends Species {
-        MySpecies(Simulation sim, AtomFactory factory, AtomType type) {
-            super(sim, factory, type);
+        MySpecies(AtomFactory factory, AtomType type) {
+            super(factory, type);
         }
         
         public SpeciesSignature getSpeciesSignature() {

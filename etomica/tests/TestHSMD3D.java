@@ -23,6 +23,7 @@ import etomica.util.Default;
  
 public class TestHSMD3D extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species, species2;
     public Phase phase;
@@ -48,7 +49,12 @@ public class TestHSMD3D extends Simulation {
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(20000000/numAtoms);
         species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
         species2 = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species2);
+        speciesRoot.removeSpecies(species);
+        species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
 
         potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species,species});
 

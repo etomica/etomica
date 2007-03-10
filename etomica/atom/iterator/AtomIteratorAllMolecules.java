@@ -40,6 +40,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         treeIterator.setRoot((phase == null) ? null : phase.getSpeciesMaster());
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorTree treeIterator;
 
     /**
@@ -51,6 +52,9 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         Species species2 = new SpeciesSpheresMono(sim);
         Species species1 = new SpeciesSpheres(sim, 3);
         Species species0 = new SpeciesSpheres(sim, 2);
+        sim.getSpeciesRoot().addSpecies(species2);
+        sim.getSpeciesRoot().addSpecies(species1);
+        sim.getSpeciesRoot().addSpecies(species0);
         Phase phase = new Phase(sim);
         phase.getAgent(species0).setNMolecules(3);
         phase.getAgent(species1).setNMolecules(2);

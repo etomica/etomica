@@ -45,6 +45,7 @@ public class SwMd2D extends Simulation {
         integrator.setTemperature(300.);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);

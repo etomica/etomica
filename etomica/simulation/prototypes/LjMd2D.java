@@ -45,6 +45,7 @@ public class LjMd2D extends Simulation {
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);

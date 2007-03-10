@@ -73,6 +73,7 @@ public class SWMD3D extends Simulation {
     potential.setLambda(1.6);
 
     species  = new etomica.species.SpeciesSpheresMono(this);
+    getSpeciesRoot().addSpecies(species);
     phase.getAgent(species).setNMolecules(108);
 
 	

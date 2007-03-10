@@ -26,6 +26,7 @@ import etomica.util.EtomicaObjectInputStream;
 
 public class HSMD3DNoNbr extends Simulation {
 
+    private static final long serialVersionUID = 1L;
     public Phase phase;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
@@ -55,6 +56,7 @@ public class HSMD3DNoNbr extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
         potential = new P2HardSphere(this);
         this.potentialMaster.addPotential(potential,new Species[]{species,species});
 
