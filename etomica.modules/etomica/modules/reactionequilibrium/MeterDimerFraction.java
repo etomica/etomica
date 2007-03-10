@@ -11,6 +11,7 @@ import etomica.data.types.DataTable;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.phase.Phase;
+import etomica.species.Species;
 import etomica.units.Fraction;
 import etomica.util.NameMaker;
 
@@ -33,6 +34,10 @@ public final class MeterDimerFraction implements Meter {
         return tag;
     }
     
+    public void setSpeciesA(Species newSpeciesA) {
+        speciesA = newSpeciesA;
+    }
+    
     public Data getData() {
         agents = agentSource.getAgents(phase);
         for(int i=0; i<count.length; i++) {count[i] = 0;}
@@ -41,11 +46,11 @@ public final class MeterDimerFraction implements Meter {
         	Atom a = iterator.nextAtom();
         	Atom partner = agents[a.getGlobalIndex()];
   //      	if(partner != null) System.out.println(a.node.index()+" "+partner.node.index());
-            if(a.getType().getSpeciesIndex()== 1) {
+            if(a.getType().getSpecies()== speciesA) {
                if(partner == null) {
                  count[0]++;  //A radical
                }
-               else if(partner.getType().getSpeciesIndex()== 1) {
+               else if(partner.getType().getSpecies()== speciesA) {
                  count[2]++;  //A-A
                }
                else {
@@ -56,7 +61,7 @@ public final class MeterDimerFraction implements Meter {
                if(partner == null) {
                  count[1]++;  //B radical
                }
-               else if(partner.getType().getSpeciesIndex()== 1) {
+               else if(partner.getType().getSpecies() == speciesA) {
                  count[3]++;  //A-B
                }
                else {
@@ -101,6 +106,7 @@ public final class MeterDimerFraction implements Meter {
 
     private String name;
     private Phase phase;
+    private Species speciesA;
     private final DataTable data;
     private final DataInfoTable dataInfo;
     private int[] count = new int[5];

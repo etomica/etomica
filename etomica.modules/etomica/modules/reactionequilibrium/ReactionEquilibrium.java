@@ -93,6 +93,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
                 new Species[] { speciesB, speciesB });
 
         meterDimerFraction = new MeterDimerFraction(this);
+        meterDimerFraction.setSpeciesA(speciesA);
         meterDimerFraction.setPhase(phase1);
         thermometer = new MeterTemperature();
         thermometer.setPhase(phase1);
