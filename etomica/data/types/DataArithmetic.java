@@ -12,10 +12,6 @@ import etomica.util.Function;
  * @author David Kofke and Andrew Schultz
  *  
  */
-
-/*
- * History Created on Jun 15, 2005 by kofke
- */
 public interface DataArithmetic extends Data {
 
     /**
