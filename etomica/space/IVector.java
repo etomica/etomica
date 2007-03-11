@@ -3,8 +3,8 @@ package etomica.space;
 import etomica.util.Function;
 
 /**
- * Basic vector interface containing needed for basic vector operations and
- * other commonly used methods.
+ * Basic vector interface containing methods needed for basic vector operations
+ * and other commonly used methods.
  */
 public interface IVector {
 
