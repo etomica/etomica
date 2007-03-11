@@ -67,10 +67,8 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
                 agentNode0 = agentNode1;
                 agentNode1 = tempNode;
             }
-            apiInterList.setOuterList(((AtomTreeNodeGroup) phase
-                    .getAgent(species0).getNode()).getChildList());
-            apiInterList.setInnerList(((AtomTreeNodeGroup) phase
-                    .getAgent(species1).getNode()).getChildList());
+            apiInterList.setOuterList(agentNode0.getChildList());
+            apiInterList.setInnerList(agentNode1.getChildList());
         }
     }
 
