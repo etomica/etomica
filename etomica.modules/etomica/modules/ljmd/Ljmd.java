@@ -18,6 +18,7 @@ import etomica.species.SpeciesSpheresMono;
 
 public class Ljmd extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono species;
     public Phase phase;
     public IntegratorVelocityVerlet integrator;
@@ -45,6 +46,7 @@ public class Ljmd extends Simulation {
 	    //species and potentials
 	//    SpeciesSphereWells disks = new SpeciesSphereWells(this);//index 1
 	    species = new SpeciesSpheresMono(this);//index 1
+        getSpeciesRoot().addSpecies(species);
 	    species.setName("");
         
         //instantiate several potentials for selection in combo-box

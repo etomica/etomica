@@ -39,6 +39,7 @@ public class CrystalViewer {
         phase  = new Phase(sim);
 
         species = new SpeciesSpheresMono(sim);
+        sim.getSpeciesRoot().addSpecies(species);
         
         panel = new JPanel();
         

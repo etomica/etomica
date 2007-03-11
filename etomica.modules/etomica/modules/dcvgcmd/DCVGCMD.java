@@ -78,6 +78,8 @@ public class DCVGCMD extends Simulation {
 
         species = new SpeciesSpheresMono(this);
         species1 = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
+        getSpeciesRoot().addSpecies(species1);
         speciesTube = new SpeciesTube(this, 20, 40);
         AtomType tubetype = ((AtomFactoryHomo) speciesTube.moleculeFactory())
                 .getChildFactory().getType();

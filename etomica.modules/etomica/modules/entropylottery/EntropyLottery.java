@@ -31,6 +31,7 @@ public class EntropyLottery extends Simulation {
         getController().addAction(activityIntegrate);
 
 	    species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
         
         //construct phase
 	    phase = new Phase(this);

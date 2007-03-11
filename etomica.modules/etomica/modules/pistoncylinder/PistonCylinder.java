@@ -49,6 +49,7 @@ public class PistonCylinder extends Simulation {
         controller = getController();
         defaults.atomMass = 16;
         species = new SpeciesSpheresMono(this);
+        getSpeciesRoot().addSpecies(species);
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(112);
         phase.setBoundary(new BoundaryPistonCylinder(space, getRandom()));

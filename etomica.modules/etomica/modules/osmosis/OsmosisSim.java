@@ -46,8 +46,10 @@ public class OsmosisSim extends Simulation {
 
 	    speciesA = new SpeciesSpheresMono(this);
 	    speciesA.setName("Solvent");
+        getSpeciesRoot().addSpecies(speciesA);
 	    speciesB = new SpeciesSpheresMono(this);
 	    speciesB.setName("Solute");
+        getSpeciesRoot().addSpecies(speciesB);
 
 	    potentialAA = new P2HardSphere(this);
         potentialMaster.addPotential(potentialAA, new Species[]{speciesA, speciesA});
