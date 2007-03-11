@@ -149,6 +149,7 @@ public class UnitTestUtil {
             factory.setChildFactory(childFactories);
             factory.setChildCount(nAtoms[i]);
             Species species = new MySpecies(factory, agentType);
+            sim.getSpeciesRoot().addSpecies(species);
             phase.getAgent(species).setNMolecules(nMolecules[i]);
         }
         return sim.getSpeciesRoot();
