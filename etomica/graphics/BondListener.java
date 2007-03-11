@@ -16,7 +16,7 @@ import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.chem.models.Model;
 import etomica.phase.Phase;
-import etomica.potential.Potential2;
+import etomica.potential.Potential;
 import etomica.species.Species;
 
 /**
@@ -75,7 +75,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
             // we have an molecule, now grab all of its bonds
 
             for (int i=0; i<bondIterators.length; i++) {
-                Potential2 bondedPotential = bondIterators[i].getPotential();
+                Potential bondedPotential = bondIterators[i].getPotential();
                 AtomsetIteratorBasisDependent iterator = bondIterators[i].getIterator();
                 if (iterator instanceof AtomsetIteratorDirectable) {
                     // these should all be directable, but perhaps not
@@ -140,7 +140,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
             
             if (bondIterators != null) {
                 for (int i=0; i<bondIterators.length; i++) {
-                    Potential2 bondedPotential = bondIterators[i].getPotential();
+                    Potential bondedPotential = bondIterators[i].getPotential();
                     AtomsetIteratorBasisDependent iterator = bondIterators[i].getIterator();
                     // We only want bonds where our atom of interest is the "up" atom.
                     // We'll pick up bonds where this atom is the "down" atom when
@@ -158,8 +158,8 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     iterator.setTarget(newAtom);
                     iterator.reset();
                     while (iterator.hasNext()) {
-                        AtomSet bondedPair = iterator.next();
-                        Object bond = bondManager.makeBond(bondedPair, bondedPotential);
+                        AtomSet bondedAtoms = iterator.next();
+                        Object bond = bondManager.makeBond(bondedAtoms, bondedPotential);
                         bondList.add(bond);
                     }
                 }
