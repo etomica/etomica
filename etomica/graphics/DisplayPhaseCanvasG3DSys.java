@@ -11,6 +11,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -26,7 +27,7 @@ import g3dsys.images.Line;
 //TODO: rewrite doPaint and drawAtom
 
 public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
-	implements AgentSource {
+	implements AgentSource, BondManager {
 
 	private TextField scaleText = new TextField();
 	private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
@@ -149,7 +150,34 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 		gsys.fastRefresh();
 		
 	}
-
+    
+    /**
+     * Add a bond to the graphical display between the given pairs.  The given
+     * bondType is used to decide how the bond should be drawn.
+     */
+    public Object makeBond(AtomSet pair, Object bondType) {
+        Ball ball0 = (Ball)aam.getAgent(pair.getAtom(0));
+        Ball ball1 = (Ball)aam.getAgent(pair.getAtom(1));
+        // if ball0 or ball1 are null, then their Ball figures haven't been
+        // created, so we might have to do something to remind ourselves to
+        // make the bond later
+        
+        // make a bond object
+        return null;
+    }
+    
+    /**
+     * Removes the given bond from the graphical display.  The bond must be an
+     * Object returned by the makeBond method.
+     */
+    public void releaseBond(Object bond) {
+        Figure figure = (Figure)bond;
+        if (figure.getID() == -1) {
+            throw new RuntimeException(figure+" has already been removed");
+        }
+        gsys.removeFig(figure);
+    }
+    
 	/* ******************************************************
 	 * AgentSource methods
 	 * ******************************************************/
@@ -171,7 +199,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	public void releaseAgent(Object agent, Atom atom) {
 		gsys.removeFig((Figure) agent);
 	}
-    
     
     public void setSlab(double slab) {
       gsys.setSlabPercent((int)slab);
