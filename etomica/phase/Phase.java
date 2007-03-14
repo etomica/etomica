@@ -230,20 +230,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     }
 
     /**
-     * @return the first atom in the linked list of atoms in this Phase
-     */
-    public final Atom firstAtom() {
-        return speciesMaster.firstLeafAtom();
-    }
-    
-    /**
-     * @return the last atom in the linked list of atoms in this Phase
-     */
-    public final Atom lastAtom() {
-        return speciesMaster.lastLeafAtom();
-    }
-
-    /**
      * returns the number of molecules in the phase
      */
     public int moleculeCount() {return speciesMaster.moleculeCount();}

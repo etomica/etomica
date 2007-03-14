@@ -55,26 +55,6 @@ public class AtomGroup extends Atom {
     
     public boolean isLeaf() {return false;}
     
-    public AtomLeaf firstLeafAtom() {
-        for (int i = 0; i < childList.size(); i++) {
-            AtomLeaf a1 = childList.get(i).firstLeafAtom();
-            if(a1 != null) return a1;
-        }
-        return null;
-    }
-    
-    /**
-     * Returns the last leaf atom descended from this group.
-     */
-    public AtomLeaf lastLeafAtom() {
-        for (int i = childList.size()-1; i > -1; i--) {
-            AtomLeaf a1 = childList.get(i).lastLeafAtom();
-            if(a1 != null) return a1;
-        }
-        return null;
-    }
-    
-    public int leafAtomCount() {return leafAtomCount;}
     public int childAtomCount() {return childList.size();}
 
     /**
@@ -88,19 +68,11 @@ public class AtomGroup extends Atom {
         return childList.toArray();
     }
     
-    public void removeAllChildren() {
-        Atom[] array = childAtomArray();
-        for(int i=0; i<array.length; i++) {
-            array[i].dispose();
-        }
-    }
-    
     /**
      * Notifies this atom group that an atom has been added to it 
      * or one of its descendants.
      */
     public void addAtomNotify(Atom childAtom) {
-        leafAtomCount += childAtom.leafAtomCount();
         if (parent != null) {
             parent.addAtomNotify(childAtom);
         }
@@ -111,7 +83,6 @@ public class AtomGroup extends Atom {
      * one of its descendants.
      */
     public void removeAtomNotify(Atom childAtom) {
-        leafAtomCount -= childAtom.leafAtomCount();
         if(parent != null) {
             parent.removeAtomNotify(childAtom);
         }
@@ -125,7 +96,6 @@ public class AtomGroup extends Atom {
     }
 
     private static final long serialVersionUID = 1L;
-    protected int leafAtomCount;
     
     //nobody should not add/remove atoms except via AtomGroup's methods.
     //consider a mechanism to ensure this; a inner mutator class made available only

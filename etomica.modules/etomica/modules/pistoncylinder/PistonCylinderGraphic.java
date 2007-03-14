@@ -907,7 +907,7 @@ public class PistonCylinderGraphic {
 
         public void setValue(double d) {
             //assume one type of atom
-            ((AtomTypeSphere)pc.phase.firstAtom().getType()).setDiameter(d);
+            ((AtomTypeSphere)pc.species.getMoleculeType()).setDiameter(d);
             PistonCylinderGraphic.this.potentialHS.setCollisionDiameter(d);
             PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
             pc.pistonPotential.setCollisionRadius(0.5*d);

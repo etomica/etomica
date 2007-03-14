@@ -49,6 +49,10 @@ public final class SpeciesMaster extends AtomGroup {
     public int moleculeCount() {
         return moleculeCount;
     }
+    
+    public int leafAtomCount() {
+        return leafList.size();
+    }
 
     public String signature() {
         Phase phase = parentPhase();
@@ -197,7 +201,6 @@ public final class SpeciesMaster extends AtomGroup {
                     .getNMolecules();
         }
 
-        leafAtomCount += newAtom.leafAtomCount();
         if (newAtom.isLeaf()) {
             newAtom.setGlobalIndex(this);
             ((AtomLeaf)newAtom).setLeafIndex(leafList.size());
@@ -232,7 +235,6 @@ public final class SpeciesMaster extends AtomGroup {
         
         phaseEventManager.fireEvent(new PhaseAtomRemovedEvent(parentPhase, oldAtom));
         if (oldAtom.isLeaf()) {
-            leafAtomCount--;
             int leafIndex = ((AtomLeaf)oldAtom).getLeafIndex();
             returnGlobalIndex(oldAtom.getGlobalIndex());
             leafList.removeAndReplace(leafIndex);
@@ -241,7 +243,6 @@ public final class SpeciesMaster extends AtomGroup {
                 ((AtomLeaf)leafList.get(leafIndex)).setLeafIndex(leafIndex);
             }
         } else {
-            leafAtomCount -= oldAtom.leafAtomCount();
             treeIterator.setRootAtom(oldAtom);
             treeIterator.reset();
             while (treeIterator.hasNext()) {

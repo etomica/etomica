@@ -65,7 +65,7 @@ public class P2XOrder extends Potential2 implements PotentialHard {
         dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getCoord().getPosition(), ((AtomLeaf)((AtomPair)pair).atom0).getCoord().getPosition());
         drOld.E(dr);
         int dI = ((AtomPair)pair).atom1.getIndex() - ((AtomPair)pair).atom0.getIndex();
-        if (dI == ((AtomPair)pair).atom1.parentGroup().childAtomCount()-1) {
+        if (dI == ((AtomPair)pair).atom1.parentGroup().getChildList().size()-1) {
             dr.ME(phase.getBoundary().getDimensions());
             return (dr.x(0) * dI > 0.0) ? Double.POSITIVE_INFINITY : 0.0;
         }

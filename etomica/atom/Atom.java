@@ -13,8 +13,6 @@ import etomica.util.EtomicaObjectInputStream;
   * <ul>
   * <li>an AtomType instance (fieldname: type) that holds information this atom
   * has in common with other atoms made by the same factory
-  * <li>an instance of AtomTreeNode (fieldname: node) that is used to place it
-  * in the species hierarchy
   * </ul>
   * <p>
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
@@ -162,15 +160,6 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
     }
 
     public abstract boolean isLeaf();
-    public abstract AtomLeaf firstLeafAtom();
-    
-    /**
-     * Returns the last leaf atom descended from this group.
-     */
-    public abstract AtomLeaf lastLeafAtom();
-    
-    public abstract int leafAtomCount();
-    public abstract int childAtomCount();
     
     public void dispose() {
         setParent(null);

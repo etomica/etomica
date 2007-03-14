@@ -61,7 +61,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       final ColorSchemeColliders ccld =
         new ColorSchemeColliders((IntegratorHard)sim.getIntegratorList().getFirst());
       final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim,sim.phase);
-      nghb.setAtom(sim.phase.firstAtom());
+      nghb.setAtom(sim.phase.getSpeciesMaster().leafList.get(0));
       final ColorSchemeRandom rand = new ColorSchemeRandom(sim.phase, sim.getRandom());
       final ColorSchemeCell cell = new ColorSchemeCell(sim,sim.phase);
       cell.setLattice(((PotentialMasterList)sim.getPotentialMaster()).getNbrCellManager(sim.phase).getLattice());
@@ -69,7 +69,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       Action act = new Action() {
         public void actionPerformed() {
           DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
-          ct.setColor(dp.getPhase().firstAtom().getType(), 
+          ct.setColor(sim.species.getMoleculeType(), 
               new java.awt.Color(sim.getRandom().nextInt(256),
                   sim.getRandom().nextInt(256),
                   sim.getRandom().nextInt(256))
@@ -119,7 +119,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       };
       Action act6 = new Action() {
         public void actionPerformed() {
-          ct.setColor(sim.phase.firstAtom().getType(), java.awt.Color.red);
+          ct.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
           DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
           dp.setColorScheme(ct);
         }
