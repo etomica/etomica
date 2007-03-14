@@ -136,6 +136,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
             if (isPeriodic[i]) {
                 vectors[d] = space.makeVector();
                 vectors[d].setX(i,dimensions.x(i));
+                d++;
             }
         }
         return vectors;
