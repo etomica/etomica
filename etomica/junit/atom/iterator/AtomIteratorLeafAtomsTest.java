@@ -2,7 +2,6 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.junit.UnitTestUtil;
@@ -30,7 +29,6 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         int[] n2Tree = new int[] { 3, 4 };
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
                 n2Tree);
-        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup) root.getNode();
 
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
 
@@ -39,13 +37,13 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         
         Species[] species = new Species[3];
         for(int i=0; i<species.length; i++) {
-            species[i] = rootNode.getDescendant(new int[] {0,i}).getType().getSpecies();
+            species[i] = root.getDescendant(new int[] {0,i}).getType().getSpecies();
         }
         
         Phase[] phase = new Phase[3];
         int[][] moleculeCount = new int[3][];
         for(int i=0; i<phase.length; i++) {
-            phase[i] = rootNode.getDescendant(new int[] { i }).getNode().parentPhase();
+            phase[i] = root.getDescendant(new int[] { i }).parentPhase();
             moleculeCount[i] = new int[] {n0[i], n1[i], n2[i]};
         }
 

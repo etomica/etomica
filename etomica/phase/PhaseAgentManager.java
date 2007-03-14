@@ -2,7 +2,6 @@ package etomica.phase;
 
 import java.lang.reflect.Array;
 
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.simulation.SimulationEvent;
@@ -59,11 +58,11 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         speciesRoot.getEventManager().addListener(this, isBackend);
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
-        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(((AtomTreeNodeGroup)speciesRoot.getNode()).getChildList());
+        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(speciesRoot.getChildList());
         listIterator.reset();
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),listIterator.size());
         while(listIterator.hasNext()) {
-            addAgent(listIterator.nextAtom().getNode().parentPhase());
+            addAgent(listIterator.nextAtom().parentPhase());
         }
     }
     

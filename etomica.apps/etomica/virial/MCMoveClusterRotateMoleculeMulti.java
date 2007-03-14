@@ -1,10 +1,9 @@
 package etomica.virial;
 
 import etomica.action.AtomAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -29,7 +28,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         weightMeter = new MeterClusterWeight(potential);
         setName("MCMoveClusterMolecule");
         nMolecules = numMolecules;
-        selectedMolecules = new Atom[nMolecules];
+        selectedMolecules = new AtomGroup[nMolecules];
         oldPositions = new IVector[nMolecules][];
     }
     
@@ -39,7 +38,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         selectMolecules();
         for (int i=0; i<nMolecules; i++) {
             molecule = selectedMolecules[i];
-            oldPositions[i] = new IVector[((AtomTreeNodeGroup)molecule.getNode()).getChildList().size()];
+            oldPositions[i] = new IVector[molecule.getChildList().size()];
             for (int j=0; j<oldPositions[i].length; j++) {
                 oldPositions[i][j] = p.getSpace().makeVector();
             }
@@ -55,7 +54,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         }
         for (int i=0; i<selectedMolecules.length; i++) {
             molecule = selectedMolecules[i];
-            leafAtomIterator.setRoot(molecule);
+            leafAtomIterator.setRootAtom(molecule);
             leafAtomIterator.reset();
             r0.E(molecule.getType().getPositionDefinition().position(molecule));
         
@@ -82,7 +81,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     public void selectMolecules() {
-        AtomArrayList atomList = ((AtomTreeNodeGroup)((AtomTreeNodeGroup)phase.getSpeciesMaster().getNode()).getChildList().get(0).getNode()).getChildList();
+        AtomArrayList atomList = ((AtomGroup)phase.getSpeciesMaster().getChildList().get(0)).getChildList();
         System.arraycopy(atomList.toArray(),1,selectedMolecules,0,atomList.size()-1);
     }
 
@@ -102,7 +101,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     public void rejectNotify() {
         for (int i=0; i<selectedMolecules.length; i++) {
             molecule = selectedMolecules[i];
-            leafAtomIterator.setRoot(molecule);
+            leafAtomIterator.setRootAtom(molecule);
             leafAtomIterator.reset();
             int j=0;
             while (leafAtomIterator.hasNext()) {
@@ -118,7 +117,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
-    private final Atom[] selectedMolecules;
+    private final AtomGroup[] selectedMolecules;
     private final IVector[][] oldPositions;
     private final int nMolecules;
     private int trialCount, relaxInterval = 100;

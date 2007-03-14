@@ -12,9 +12,9 @@ package etomica.meam;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionDefinitionSimple;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.atom.iterator.IteratorDirective;
@@ -172,10 +172,10 @@ public class GrainBoundaryConfiguration extends Configuration {
             	a = atomIteratorMobileA.nextAtom();	
             	//System.out.println(ii[2] + "  |  " + a);
             }
-            if (!a.getNode().isLeaf()) {
+            if (!a.isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup) a.getNode()).getChildList());
+                config.initializePositions(((AtomGroup)a).getChildList());
             }
             IVector site = (IVector) myLatA.site(ii);
             if (((AtomLeaf)a).getCoord().getPosition() == firstAtomPosition) {
@@ -200,10 +200,10 @@ public class GrainBoundaryConfiguration extends Configuration {
             	a = atomIteratorMobileB.nextAtom();
             	
             }
-            if (!a.getNode().isLeaf()) {
+            if (!a.isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup) a.getNode()).getChildList());
+                config.initializePositions(((AtomGroup)a).getChildList());
             }
             IVector site = (IVector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);

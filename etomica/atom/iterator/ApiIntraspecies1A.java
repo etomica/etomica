@@ -3,8 +3,7 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomTreeNode;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesAgent;
 import etomica.phase.Phase;
 import etomica.species.Species;
 
@@ -58,7 +57,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     public void setPhase(Phase phase) {
         this.phase = phase;
         if (phase != null) {
-            agentNode = (AtomTreeNodeGroup) phase.getAgent(species).getNode();
+            agent = phase.getAgent(species);
             identifyTargetMolecule();
         } else {
             targetMolecule = null;
@@ -93,9 +92,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
         if (phase == null || targetAtom == null) {
             targetMolecule = null;
         } else {
-            AtomTreeNode targetNode = targetAtom.getNode()
-                    .childWhereDescendedFrom(agentNode);
-            targetMolecule = (targetNode != null) ? targetNode.atom() : null;
+            targetMolecule = targetAtom.childWhereDescendedFrom(agent);
         }
         //targetMolecule may be null here
         setAtom(targetMolecule);
@@ -104,7 +101,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     private static final long serialVersionUID = 1L;
     private final Species species;
 
-    private AtomTreeNodeGroup agentNode;
+    private SpeciesAgent agent;
     private Phase phase;
     private Atom targetAtom, targetMolecule;
 

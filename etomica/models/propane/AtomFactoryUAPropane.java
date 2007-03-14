@@ -27,7 +27,7 @@ public class AtomFactoryUAPropane extends AtomFactory {
 	 * @param sequencerFactory
 	 */
     public AtomFactoryUAPropane(Simulation sim, AtomTypeGroup agentType) {
-		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())), AtomTreeNodeUAPropane.FACTORY);
+		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
         atomType.setParentType(agentType);
         AtomTypeSphere UAType = new AtomTypeSphere(new ElementSimple("UA", 15), 3.75);
         UAType.setParentType((AtomTypeGroup)atomType);
@@ -43,16 +43,15 @@ public class AtomFactoryUAPropane extends AtomFactory {
 	 * @see etomica.atom.AtomFactory#build(etomica.Atom)
 	 */
 	public Atom makeAtom() {
-        Atom group = newParentAtom();
-		AtomTreeNodeUAPropane propaneNode = (AtomTreeNodeUAPropane)group.getNode();
+        AtomUAPropane propane = new AtomUAPropane(atomType);
 //		waterNode.O = (AtomLeaf)oFactory.makeAtom();
-        propaneNode.UA1 = (AtomLeaf)UAFactory.makeAtom();
-        propaneNode.UA2 = (AtomLeaf)UAFactory.makeAtom();
+        propane.UA1 = (AtomLeaf)UAFactory.makeAtom();
+        propane.UA2 = (AtomLeaf)UAFactory.makeAtom();
 //        waterNode.O.node.setParent(waterNode);
-        propaneNode.UA1.getNode().setParent(propaneNode);
-        propaneNode.UA2.getNode().setParent(propaneNode);
-		conformation.initializePositions(propaneNode.getChildList());
-		return group;
+        propane.UA1.setParent(propane);
+        propane.UA2.setParent(propane);
+		conformation.initializePositions(propane.getChildList());
+		return propane;
 	}
     
     public void setSpecies(Species species) {

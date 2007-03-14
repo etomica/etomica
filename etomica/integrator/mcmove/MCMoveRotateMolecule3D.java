@@ -1,5 +1,5 @@
 package etomica.integrator.mcmove;
-import etomica.atom.Atom;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
@@ -27,7 +27,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     
     protected transient double uOld;
     protected transient double uNew = Double.NaN;
-    protected transient Atom molecule;
+    protected transient AtomGroup molecule;
     protected transient IVector r0;
     protected transient RotationTensor rotationTensor;
     public int count;
@@ -64,7 +64,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     public boolean doTrial() {
         if(phase.moleculeCount()==0) {molecule = null; return false;}
             
-        molecule = moleculeSource.getAtom();
+        molecule = (AtomGroup)moleculeSource.getAtom();
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         if(uOld < Double.MAX_VALUE) uOldSave = uOld;
@@ -72,7 +72,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
 
-        leafAtomIterator.setRoot(molecule);
+        leafAtomIterator.setRootAtom(molecule);
         r0.E(molecule.getType().getPositionDefinition().position(molecule));
         doTransform();
             
@@ -86,7 +86,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
             AtomLeaf a = (AtomLeaf)leafAtomIterator.nextAtom();
             IVector r = a.getCoord().getPosition();
             r.ME(r0);
-            a.getNode().parentPhase().getBoundary().nearestImage(r);
+            phase.getBoundary().nearestImage(r);
             rotationTensor.transform(r0);
             r.PE(r0);
         }

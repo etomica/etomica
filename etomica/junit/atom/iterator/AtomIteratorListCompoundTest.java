@@ -7,9 +7,11 @@ import java.util.LinkedList;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListCompound;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.junit.UnitTestUtil;
+import etomica.space3d.Space3D;
 
 /**
  * Unit test for AtomIteratorListCompound.
@@ -104,7 +106,7 @@ public class AtomIteratorListCompoundTest extends IteratorTestAbstract {
 //                System.out.println();
                 testIterates(iterator, makeArray(lists));
             }
-            lists[varIndex].add(new Atom());
+            lists[varIndex].add(new AtomLeaf(Space3D.getInstance()));
         }
         generalIteratorMethodTests(iterator);
     }

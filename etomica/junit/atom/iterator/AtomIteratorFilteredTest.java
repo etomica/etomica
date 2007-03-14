@@ -5,8 +5,10 @@ import java.util.LinkedList;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorFiltered;
+import etomica.space3d.Space3D;
 
 /**
  * Unit test of AtomIteratorFiltered
@@ -30,7 +32,7 @@ public class AtomIteratorFilteredTest extends IteratorTestAbstract {
 
         public boolean accept(Atom a) {
             if(n == 0) return true;
-            return ((a.getNode().getIndex()+1) % n != 0);
+            return ((a.getIndex()+1) % n != 0);
         }
 
     }
@@ -56,8 +58,8 @@ public class AtomIteratorFilteredTest extends IteratorTestAbstract {
                 //add n atoms at a time, numbering ordinals 1 to n
                 int n = Math.max(filter.n,1);
                 for (int k = 0; k < n; k++) {
-                    Atom atom = new Atom();
-                    atom.getNode().setIndex(k);
+                    Atom atom = new AtomLeaf(Space3D.getInstance());
+                    atom.setIndex(k);
                     list.add(atom);
                 }
             }

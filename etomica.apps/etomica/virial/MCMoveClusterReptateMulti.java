@@ -2,8 +2,8 @@ package etomica.virial;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -46,7 +46,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         super(potentialMaster);
         this.random = random;
         this.nAtoms = nAtoms;
-        selectedMolecules = new Atom[nAtoms];
+        selectedMolecules = new AtomGroup[nAtoms];
         oldPositions = new Vector3D[nAtoms];
         for (int i=0; i<nAtoms; i++) {
             oldPositions[i] = new Vector3D();
@@ -79,7 +79,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         wOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedMolecules.length; i++) {
             forward[i] = Simulation.random.nextBoolean();
-            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].getNode()).getChildList();
+            AtomArrayList childList = selectedMolecules[i].getChildList();
             int numChildren = childList.size();
             for (int k=0; k<numChildren; k++) {
 //                System.out.println(i+" before "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
@@ -153,14 +153,14 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         iterator.next();
         int i=0;
         while (iterator.hasNext()) {
-            selectedMolecules[i++] = iterator.nextAtom();
+            selectedMolecules[i++] = (AtomGroup)iterator.nextAtom();
         }
         return selectedMolecules;
     }
 	
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.length; i++) {
-            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].getNode()).getChildList();
+            AtomArrayList childList = selectedMolecules[i].getChildList();
             int numChildren = childList.size();
             if (!forward[i]) {
                 IVector position = ((AtomLeaf)childList.get(numChildren-1)).getCoord().getPosition();
@@ -206,7 +206,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
     }
 	
     private final int nAtoms;
-    private final Atom[] selectedMolecules;
+    private final AtomGroup[] selectedMolecules;
     private double bondLength;
     private final Vector3D work1;
     private final Vector3D[] oldPositions;

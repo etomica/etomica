@@ -7,8 +7,8 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTreeNodeGroup;
 
 /**
  * Elementary basis-dependent iterator that gives atoms meeting specification
@@ -108,9 +108,9 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
             return true;
         }
         if(target.getType().getDepth() <= basis.getType().getDepth()) { 
-            return basis.getNode().isDescendedFrom(target);
+            return basis.isDescendedFrom(target);
         }
-        return target.getNode().isDescendedFrom(basis);
+        return target.isDescendedFrom(basis);
     }
 
     /**
@@ -156,53 +156,49 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      */
     private void setupIterator() {
         needSetupIterator = false;
-        try {
+        list = littleList;
+        list.clear();
+        if (basis != null) {
             if (targetAtom == null) {
                 setupBasisIteration();
-            } else if(targetDepth <= basis.getType().getDepth()) {
-                if(basis.getNode().isDescendedFrom(targetAtom)) {
-                    setupBasisIteration();
-                } else {
-                    littleList.clear();
-                    list = littleList;
-                }
-            } else {//targetAtom is not null, and is not in hierarchy above
-                    // basis
-                //return child of basis that is or is above targetAtom (if in
-                // hierarchy of basis)
-                //do no looping if not in hierarchy of basis
-                Atom targetNode = targetAtom.getNode().childWhereDescendedFrom(
-                        basis.getNode()).atom();
-                littleList.clear();
-                littleList.add(targetNode);
-                list = littleList;
             }
-        } catch (Exception e) {
-            littleList.clear();
-            list = littleList;
-        }//this could happen if basis==null or childWhereDescendedFrom returns
-         // null
-
+            else if(targetDepth <= basis.getType().getDepth()) {
+                if(basis.isDescendedFrom(targetAtom)) {
+                    // target is a parent atom of the basis atom
+                    setupBasisIteration();
+                }
+            }
+            else {
+                //targetAtom is not null, and is not in hierarchy above basis
+                //return child of basis that is or is above targetAtom (if in
+                //hierarchy of basis)
+                //do looping only if in hierarchy of basis
+                Atom targetNode = targetAtom.childWhereDescendedFrom(basis);
+                if (targetNode != null) {
+                    littleList.add(targetNode);
+                }
+            }
+        }
     }
 
     /**
      * Convenience method used by setupIterator
      */
     private void setupBasisIteration() {
-        if (basis.getNode().isLeaf()) {//if the basis is a leaf atom, we
-                                  // define the iterates to be just the
-                                  // basis atom itself
+        if (basis.isLeaf()) {
+            //if the basis is a leaf atom, we define the iterates to be just
+            //the basis atom itself
             littleList.clear();
             littleList.add(basis);
             list = littleList;
         } else {
-            list = ((AtomTreeNodeGroup) basis.getNode()).getChildList();
+            list = ((AtomGroup)basis).getChildList();
         }
     }
 
     private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple listIterator;//the wrapped iterator
-    private final AtomArrayList littleList = new AtomArrayList();//used to form a list of
+    private final AtomArrayList littleList = new AtomArrayList(1);//used to form a list of
                                                        // one iterate if target
                                                        // is specified
     private Atom targetAtom;

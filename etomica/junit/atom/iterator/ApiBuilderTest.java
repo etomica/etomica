@@ -3,8 +3,8 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.SpeciesRoot;
@@ -37,9 +37,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         n1a = 10;
         n2a = 3;
         nTree = new int[] { 5, 4, 3 };
-        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(new int[] { n0a, 1 },
+        root = UnitTestUtil.makeStandardSpeciesTree(new int[] { n0a, 1 },
                 nAtoms, new int[] { n1a, 2}, new int[] { n2a, 3 }, nTree);
-        rootNode = (AtomTreeNodeGroup) root.getNode();
     }
     
     /**
@@ -86,16 +85,15 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //species 0 has 5 molecules, each with 5 atoms, 3 of one type, 2 of another
         //species 1 has 7 molecules, each with 11 atoms, 4 of one type, 1 of another, and 6 of another
         //iterator must loop over pairs formed from molecules of each species
-        SpeciesRoot root = UnitTestUtil.makeMultitypeSpeciesTree(new int[] {5,7}, 
+        root = UnitTestUtil.makeMultitypeSpeciesTree(new int[] {5,7}, 
                 new int[][] {{3,2},{4,1,6}});
-        rootNode = (AtomTreeNodeGroup)root.getNode();
         AtomTypeGroup rootType = (AtomTypeGroup)root.getType();
         AtomType[] types = new AtomType[2];
         AtomPair basisPair = new AtomPair();
 
         //test 3-atom type and 4-atom type, no target
-        basisPair.atom0 = rootNode.getDescendant(new int[] {0,0,2});
-        basisPair.atom1 = rootNode.getDescendant(new int[] {0,1,1});
+        basisPair.atom0 = root.getDescendant(new int[] {0,0,2});
+        basisPair.atom1 = root.getDescendant(new int[] {0,1,1});
         types[0] = rootType.getDescendant(new int[] {0,0,0,0});
         types[1] = rootType.getDescendant(new int[] {0,1,0,0});
         ApiIntergroup api = ApiBuilder.makeIntergroupTypeIterator(types);
@@ -103,21 +101,21 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         LinkedList list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 12);
         //test 3 and 4, one of the 3 given as target
-        Atom target0 = rootNode.getDescendant(new int[] {0,0,2,1});
+        Atom target0 = root.getDescendant(new int[] {0,0,2,1});
         api.setTarget(target0);
         LinkedList list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 4);
         //test 3 and 4, one of the 4 given as target
-        Atom target1 = rootNode.getDescendant(new int[] {0,1,1,0});
+        Atom target1 = root.getDescendant(new int[] {0,1,1,0});
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
         //give target that isn't the specified type
-        target0 = rootNode.getDescendant(new int[] {0,0,2,4});
+        target0 = root.getDescendant(new int[] {0,0,2,4});
         api.setTarget(target0);
         testNoIterates(api);
         //again
-        target1 = rootNode.getDescendant(new int[] {0,1,1,10});
+        target1 = root.getDescendant(new int[] {0,1,1,10});
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
@@ -127,26 +125,26 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         
         //same tests, but switch order of basis; nothing should give iterates
         //test 3-atom type and 4-atom type, no target
-        basisPair.atom1 = rootNode.getDescendant(new int[] {0,0,2});
-        basisPair.atom0 = rootNode.getDescendant(new int[] {0,1,1});
+        basisPair.atom1 = root.getDescendant(new int[] {0,0,2});
+        basisPair.atom0 = root.getDescendant(new int[] {0,1,1});
         types[0] = rootType.getDescendant(new int[] {0,0,0,0});
         types[1] = rootType.getDescendant(new int[] {0,1,0,0});
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         testNoIterates(api);
         //test 3 and 4, one of the 3 given as target
-        target0 = rootNode.getDescendant(new int[] {0,0,2,1});
+        target0 = root.getDescendant(new int[] {0,0,2,1});
         api.setTarget(target0);
         testNoIterates(api);
         //test 3 and 4, one of the 4 given as target
-        target1 = rootNode.getDescendant(new int[] {0,1,1,0});
+        target1 = root.getDescendant(new int[] {0,1,1,0});
         api.setTarget(target1);
         testNoIterates(api);
 
         //same tests, but switch order of basis and switch order of types
         //test 3-atom type and 4-atom type, no target
-        basisPair.atom1 = rootNode.getDescendant(new int[] {0,0,2});
-        basisPair.atom0 = rootNode.getDescendant(new int[] {0,1,1});
+        basisPair.atom1 = root.getDescendant(new int[] {0,0,2});
+        basisPair.atom0 = root.getDescendant(new int[] {0,1,1});
         types[1] = rootType.getDescendant(new int[] {0,0,0,0});
         types[0] = rootType.getDescendant(new int[] {0,1,0,0});
         api = ApiBuilder.makeIntergroupTypeIterator(types);
@@ -154,19 +152,19 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 12);
         //test 3 and 4, one of the 3 given as target
-        target0 = rootNode.getDescendant(new int[] {0,0,2,1});
+        target0 = root.getDescendant(new int[] {0,0,2,1});
         api.setTarget(target0);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 4);
         //test 3 and 4, one of the 4 given as target
-        target1 = rootNode.getDescendant(new int[] {0,1,1,0});
+        target1 = root.getDescendant(new int[] {0,1,1,0});
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
 
         //test 3-atom type and 1-atom type, no target
-        basisPair.atom0 = rootNode.getDescendant(new int[] {0,0,2});
-        basisPair.atom1 = rootNode.getDescendant(new int[] {0,1,1});
+        basisPair.atom0 = root.getDescendant(new int[] {0,0,2});
+        basisPair.atom1 = root.getDescendant(new int[] {0,1,1});
         types[0] = rootType.getDescendant(new int[] {0,0,0,0});
         types[1] = rootType.getDescendant(new int[] {0,1,0,1});
         api = ApiBuilder.makeIntergroupTypeIterator(types);
@@ -174,21 +172,21 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 3);
         //test 3 and 1, one of the 3 given as target
-        target0 = rootNode.getDescendant(new int[] {0,0,2,1});
+        target0 = root.getDescendant(new int[] {0,0,2,1});
         api.setTarget(target0);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 1);
         //test 3 and 1, the 1 given as target
-        target1 = rootNode.getDescendant(new int[] {0,1,1,4});
+        target1 = root.getDescendant(new int[] {0,1,1,4});
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
         //give target that isn't the specified type
-        target0 = rootNode.getDescendant(new int[] {0,0,2,4});
+        target0 = root.getDescendant(new int[] {0,0,2,4});
         api.setTarget(target0);
         testNoIterates(api);
         //again
-        target1 = rootNode.getDescendant(new int[] {0,1,1,10});
+        target1 = root.getDescendant(new int[] {0,1,1,10});
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
@@ -196,8 +194,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         list1 = generalIteratorMethodTests(api);
         assertEquals(list0, list1);
 
-        basisPair.atom0 = rootNode.getDescendant(new int[] {0,0,2});
-        basisPair.atom1 = rootNode.getDescendant(new int[] {0,1,1});
+        basisPair.atom0 = root.getDescendant(new int[] {0,0,2});
+        basisPair.atom1 = root.getDescendant(new int[] {0,1,1});
         types[0] = rootType.getDescendant(new int[] {0,0,0,0});
         types[1] = rootType.getDescendant(new int[] {0,1,0,0});
         api = ApiBuilder.makeIntergroupTypeIterator(types);
@@ -253,8 +251,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //******* adjacent/nonadjacent setup -- basis has only one child
     private void setup4() {
-        parent = rootNode.getDescendant(new int[] {1,0});//phase1, species0
-        target = rootNode.getDescendant(new int[] {1,0,0});//the only species0 molecule
+        parent = root.getDescendant(new int[] {1,0});//phase1, species0
+        target = root.getDescendant(new int[] {1,0,0});//the only species0 molecule
         targetFirst = target;
         targetLast = target;
         up = dn = upFirst = dnLast = null;
@@ -266,109 +264,109 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //************ adjacent/nonadjacent setup -- target is descended from but not direct child of basis
     private void setup3() {
-        parent = rootNode.getDescendant(new int[] {0,2,2});//phase0, species2, molecule2
-        target = rootNode.getDescendant(new int[] {0,2,2,1,0,1});
-        targetFirst = rootNode.getDescendant(new int[] {0,2,2,0,0,2});
-        targetLast = rootNode.getDescendant(new int[] {0,2,2,4,1});
-        up = rootNode.getDescendant(new int[] {0,2,2,2});
+        parent = root.getDescendant(new int[] {0,2,2});//phase0, species2, molecule2
+        target = root.getDescendant(new int[] {0,2,2,1,0,1});
+        targetFirst = root.getDescendant(new int[] {0,2,2,0,0,2});
+        targetLast = root.getDescendant(new int[] {0,2,2,4,1});
+        up = root.getDescendant(new int[] {0,2,2,2});
         upNon = new Atom[] {
-                rootNode.getDescendant(new int[] {0,2,2,3}),
-                rootNode.getDescendant(new int[] {0,2,2,4})};
-        upFirst = rootNode.getDescendant(new int[] {0,2,2,1});
+                root.getDescendant(new int[] {0,2,2,3}),
+                root.getDescendant(new int[] {0,2,2,4})};
+        upFirst = root.getDescendant(new int[] {0,2,2,1});
         upFirstNon = new Atom[] {
-                rootNode.getDescendant(new int[] {0,2,2,2}),
-                rootNode.getDescendant(new int[] {0,2,2,3}),
-                rootNode.getDescendant(new int[] {0,2,2,4})};
-        dn = rootNode.getDescendant(new int[] {0,2,2,0});
+                root.getDescendant(new int[] {0,2,2,2}),
+                root.getDescendant(new int[] {0,2,2,3}),
+                root.getDescendant(new int[] {0,2,2,4})};
+        dn = root.getDescendant(new int[] {0,2,2,0});
         dnNon = new Atom[0];
-        dnLast = rootNode.getDescendant(new int[] {0,2,2,3});
+        dnLast = root.getDescendant(new int[] {0,2,2,3});
         dnLastNon = new Atom[] {
-                rootNode.getDescendant(new int[] {0,2,2,2}),
-                rootNode.getDescendant(new int[] {0,2,2,1}),
-                rootNode.getDescendant(new int[] {0,2,2,0})};
-        iterate = rootNode.getDescendant(new int[] {0,2,2,1});
-        iterateFirst = rootNode.getDescendant(new int[] {0,2,2,0});
-        iterateLast = rootNode.getDescendant(new int[] {0,2,2,4});
+                root.getDescendant(new int[] {0,2,2,2}),
+                root.getDescendant(new int[] {0,2,2,1}),
+                root.getDescendant(new int[] {0,2,2,0})};
+        iterate = root.getDescendant(new int[] {0,2,2,1});
+        iterateFirst = root.getDescendant(new int[] {0,2,2,0});
+        iterateLast = root.getDescendant(new int[] {0,2,2,4});
     }
 
 
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
-        parent = rootNode.getDescendant(new int[] {0,1,5});//leaf-atom basis
-        target = rootNode.getDescendant(new int[] {0,1,5});//atom5 
-        targetFirst = rootNode.getDescendant(new int[] {0,1,0});//atom0 
-        targetLast = rootNode.getDescendant(new int[] {0,1,9});//atom9
-        up = rootNode.getDescendant(new int[] {0,1,6});
+        parent = root.getDescendant(new int[] {0,1,5});//leaf-atom basis
+        target = root.getDescendant(new int[] {0,1,5});//atom5 
+        targetFirst = root.getDescendant(new int[] {0,1,0});//atom0 
+        targetLast = root.getDescendant(new int[] {0,1,9});//atom9
+        up = root.getDescendant(new int[] {0,1,6});
         upNon = new Atom[] {
-                rootNode.getDescendant(new int[] {0,1,7}),
-                rootNode.getDescendant(new int[] {0,1,8}),
-                rootNode.getDescendant(new int[] {0,1,9})};
-        upFirst = rootNode.getDescendant(new int[] {0,1,1});
+                root.getDescendant(new int[] {0,1,7}),
+                root.getDescendant(new int[] {0,1,8}),
+                root.getDescendant(new int[] {0,1,9})};
+        upFirst = root.getDescendant(new int[] {0,1,1});
         upFirstNon = new Atom[] {
-                rootNode.getDescendant(new int[] {0,1,2}),
-                rootNode.getDescendant(new int[] {0,1,3}),
-                rootNode.getDescendant(new int[] {0,1,4}),
-                rootNode.getDescendant(new int[] {0,1,5}),
-                rootNode.getDescendant(new int[] {0,1,6}),
-                rootNode.getDescendant(new int[] {0,1,7}),
-                rootNode.getDescendant(new int[] {0,1,8}),
-                rootNode.getDescendant(new int[] {0,1,9})};
-        dn = rootNode.getDescendant(new int[] {0,1,4});
+                root.getDescendant(new int[] {0,1,2}),
+                root.getDescendant(new int[] {0,1,3}),
+                root.getDescendant(new int[] {0,1,4}),
+                root.getDescendant(new int[] {0,1,5}),
+                root.getDescendant(new int[] {0,1,6}),
+                root.getDescendant(new int[] {0,1,7}),
+                root.getDescendant(new int[] {0,1,8}),
+                root.getDescendant(new int[] {0,1,9})};
+        dn = root.getDescendant(new int[] {0,1,4});
         dnNon = new Atom[] {
-                rootNode.getDescendant(new int[] {0,1,3}),
-                rootNode.getDescendant(new int[] {0,1,2}),
-                rootNode.getDescendant(new int[] {0,1,1}),
-                rootNode.getDescendant(new int[] {0,1,0})};
-        dnLast = rootNode.getDescendant(new int[] {0,1,8});
+                root.getDescendant(new int[] {0,1,3}),
+                root.getDescendant(new int[] {0,1,2}),
+                root.getDescendant(new int[] {0,1,1}),
+                root.getDescendant(new int[] {0,1,0})};
+        dnLast = root.getDescendant(new int[] {0,1,8});
         dnLastNon = new Atom[] {
-                rootNode.getDescendant(new int[] {0,1,7}),
-                rootNode.getDescendant(new int[] {0,1,6}),
-                rootNode.getDescendant(new int[] {0,1,5}),
-                rootNode.getDescendant(new int[] {0,1,4}),
-                rootNode.getDescendant(new int[] {0,1,3}),
-                rootNode.getDescendant(new int[] {0,1,2}),
-                rootNode.getDescendant(new int[] {0,1,1}),
-                rootNode.getDescendant(new int[] {0,1,0})};
+                root.getDescendant(new int[] {0,1,7}),
+                root.getDescendant(new int[] {0,1,6}),
+                root.getDescendant(new int[] {0,1,5}),
+                root.getDescendant(new int[] {0,1,4}),
+                root.getDescendant(new int[] {0,1,3}),
+                root.getDescendant(new int[] {0,1,2}),
+                root.getDescendant(new int[] {0,1,1}),
+                root.getDescendant(new int[] {0,1,0})};
 
     }
 
     //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
-        parent = rootNode.getDescendant(new int[] {0,0,2});
-        target = rootNode.getDescendant(new int[] {0,0,2,5});
-        targetFirst = rootNode.getDescendant(new int[] {0,0,2,0});
-        targetLast = rootNode.getDescendant(new int[] {0,0,2,9});
-        up = rootNode.getDescendant(new int[] {0,0,2,6});
+        parent = root.getDescendant(new int[] {0,0,2});
+        target = root.getDescendant(new int[] {0,0,2,5});
+        targetFirst = root.getDescendant(new int[] {0,0,2,0});
+        targetLast = root.getDescendant(new int[] {0,0,2,9});
+        up = root.getDescendant(new int[] {0,0,2,6});
         upNon = new Atom[] {
-                        rootNode.getDescendant(new int[] {0,0,2,7}),
-                        rootNode.getDescendant(new int[] {0,0,2,8}),
-                        rootNode.getDescendant(new int[] {0,0,2,9})};
-        upFirst = rootNode.getDescendant(new int[] {0,0,2,1});
+                        root.getDescendant(new int[] {0,0,2,7}),
+                        root.getDescendant(new int[] {0,0,2,8}),
+                        root.getDescendant(new int[] {0,0,2,9})};
+        upFirst = root.getDescendant(new int[] {0,0,2,1});
         upFirstNon = new Atom[] {
-                        rootNode.getDescendant(new int[] {0,0,2,2}),
-                        rootNode.getDescendant(new int[] {0,0,2,3}),
-                        rootNode.getDescendant(new int[] {0,0,2,4}),
-                        rootNode.getDescendant(new int[] {0,0,2,5}),
-                        rootNode.getDescendant(new int[] {0,0,2,6}),
-                        rootNode.getDescendant(new int[] {0,0,2,7}),
-                        rootNode.getDescendant(new int[] {0,0,2,8}),
-                        rootNode.getDescendant(new int[] {0,0,2,9})};
-        dn = rootNode.getDescendant(new int[] {0,0,2,4});
+                        root.getDescendant(new int[] {0,0,2,2}),
+                        root.getDescendant(new int[] {0,0,2,3}),
+                        root.getDescendant(new int[] {0,0,2,4}),
+                        root.getDescendant(new int[] {0,0,2,5}),
+                        root.getDescendant(new int[] {0,0,2,6}),
+                        root.getDescendant(new int[] {0,0,2,7}),
+                        root.getDescendant(new int[] {0,0,2,8}),
+                        root.getDescendant(new int[] {0,0,2,9})};
+        dn = root.getDescendant(new int[] {0,0,2,4});
         dnNon = new Atom[] {
-                        rootNode.getDescendant(new int[] {0,0,2,3}),
-                        rootNode.getDescendant(new int[] {0,0,2,2}),
-                        rootNode.getDescendant(new int[] {0,0,2,1}),
-                        rootNode.getDescendant(new int[] {0,0,2,0})};
-        dnLast = rootNode.getDescendant(new int[] {0,0,2,8});
+                        root.getDescendant(new int[] {0,0,2,3}),
+                        root.getDescendant(new int[] {0,0,2,2}),
+                        root.getDescendant(new int[] {0,0,2,1}),
+                        root.getDescendant(new int[] {0,0,2,0})};
+        dnLast = root.getDescendant(new int[] {0,0,2,8});
         dnLastNon = new Atom[] {
-                        rootNode.getDescendant(new int[] {0,0,2,7}),
-                        rootNode.getDescendant(new int[] {0,0,2,6}),
-                        rootNode.getDescendant(new int[] {0,0,2,5}),
-                        rootNode.getDescendant(new int[] {0,0,2,4}),
-                        rootNode.getDescendant(new int[] {0,0,2,3}),
-                        rootNode.getDescendant(new int[] {0,0,2,2}),
-                        rootNode.getDescendant(new int[] {0,0,2,1}),
-                        rootNode.getDescendant(new int[] {0,0,2,0})};
+                        root.getDescendant(new int[] {0,0,2,7}),
+                        root.getDescendant(new int[] {0,0,2,6}),
+                        root.getDescendant(new int[] {0,0,2,5}),
+                        root.getDescendant(new int[] {0,0,2,4}),
+                        root.getDescendant(new int[] {0,0,2,3}),
+                        root.getDescendant(new int[] {0,0,2,2}),
+                        root.getDescendant(new int[] {0,0,2,1}),
+                        root.getDescendant(new int[] {0,0,2,0})};
         iterate = target;
         iterateFirst = targetFirst;
         iterateLast = targetLast;
@@ -431,7 +429,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //no target, n-1 iterates
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        assertEquals(list0.size(), ((AtomTreeNodeGroup)parent.getNode()).getChildList().size()-1);
+        assertEquals(list0.size(), ((AtomGroup)parent).getChildList().size()-1);
         
         //if no target, direction doesn't matter
         api.setDirection(null);
@@ -503,7 +501,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //(first and last have n-2, the other n-2 have n-3)
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        int n = ((AtomTreeNodeGroup)parent.getNode()).getChildList().size();
+        int n = ((AtomGroup)parent).getChildList().size();
         assertEquals(list0.size(), (2*(n-2) + (n-2)*(n-3))/2);
         
         //if no target, direction doesn't matter
@@ -518,7 +516,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         testNoIterates(api);
     }
 
-    private AtomTreeNodeGroup rootNode;
+    private SpeciesRoot root;
     int n0a, nAtoms, n1a, n2a, n3a;
     int[] nTree;
     private static final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;

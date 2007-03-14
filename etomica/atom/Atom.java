@@ -3,6 +3,8 @@ package etomica.atom;
 import java.io.IOException;
 
 import etomica.chem.elements.ElementSimple;
+import etomica.phase.Phase;
+import etomica.util.Debug;
 import etomica.util.EtomicaObjectInputStream;
 
  /**
@@ -18,11 +20,10 @@ import etomica.util.EtomicaObjectInputStream;
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
   */
-public class Atom implements AtomSet, Comparable, java.io.Serializable {
+public abstract class Atom implements AtomSet, Comparable, java.io.Serializable {
 
-    public Atom(AtomType type, AtomTreeNodeFactory nodeFactory) {
+    public Atom(AtomType type) {
         this.type = type;
-        node = nodeFactory.makeNode(this);
     }
     
     /**
@@ -31,8 +32,8 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * depth is 0.
      */
     public Atom() {
-        this(makeAtomTypeSphere(), AtomTreeNodeLeaf.FACTORY);                        
-        getNode().setIndex(++INSTANCE_COUNT);//default index; changed when added to parent after construction
+        this(makeAtomTypeSphere());                        
+        setIndex(++INSTANCE_COUNT);//default index; changed when added to parent after construction
     }
     
     /**
@@ -84,7 +85,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSameSpecies(Atom atom) {
-        return type.getAddressManager().sameSpecies(getNode().getAddress(), atom.getNode().getAddress());
+        return type.getAddressManager().sameSpecies(getAddress(), atom.getAddress());
     }
     /**
      * Returns true if this atom is in the same molecule as the given atom.
@@ -93,7 +94,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSameMolecule(Atom atom) {
-        return type.getAddressManager().sameMolecule(getNode().getAddress(), atom.getNode().getAddress());
+        return type.getAddressManager().sameMolecule(getAddress(), atom.getAddress());
     }
     /**
      * Returns true if this atoms is in the same phase as the given atom.
@@ -102,7 +103,7 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      *             if the argument is null
      */
     public boolean inSamePhase(Atom atom) {
-        return type.getAddressManager().samePhase(getNode().getAddress(), atom.getNode().getAddress());
+        return type.getAddressManager().samePhase(getAddress(), atom.getAddress());
     }
     
     /**
@@ -112,11 +113,12 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * from only the ordinal.
      */
     public String signature() {
-        if(getNode().parentGroup() != null) {
-            return getNode().parentGroup().signature() + " " + getNode().getIndex();
+        if(parent != null) {
+            return parent.signature() + " " + getIndex();
         }
-        return Integer.toString(getNode().getIndex());
+        return Integer.toString(getIndex());
     }
+    
     /**
      * Returns a string formed by concatenating the signature of this atom
      * to a string that identifies it as a species master, species agent, 
@@ -126,8 +128,8 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
 //        return Integer.toBinaryString(node.index());
     	if(this instanceof SpeciesMaster) return "Master(" + signature() + ")";
     	else if(this instanceof SpeciesAgent) return "Agent(" + signature() + ")";
-    	if(getNode().parentGroup() instanceof SpeciesAgent) return "Molecule(" + signature() + ")";
-    	else if(getNode().isLeaf()) return "Atom(" + signature() + ")";
+    	if(parent instanceof SpeciesAgent) return "Molecule(" + signature() + ")";
+    	else if(isLeaf()) return "Atom(" + signature() + ")";
     	else return "Group(" + signature() + ")";
     }    
 
@@ -137,8 +139,10 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
      * is less, equal, or greater, respectively, than this Atom.  
      * Order is determined by compareTo method of atoms' nodes.
      */
-    public int compareTo(Object atom) {
-        return getNode().compareTo(((Atom)atom).getNode());
+    public int compareTo(Object otherAtom) {
+        int otherAddress = ((Atom)otherAtom).atomTreeAddress;
+        //use "<" for ">" because atomIndex is negative
+        return otherAddress < atomTreeAddress ? 1 : (otherAddress == atomTreeAddress ? 0 : -1);
     }
     
     public void setGlobalIndex(SpeciesMaster speciesMaster) {
@@ -157,15 +161,127 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
         return type;
     }
 
+    public abstract boolean isLeaf();
+    public abstract AtomLeaf firstLeafAtom();
+    
     /**
-     * @return the node, used to place the atom in the species tree.
+     * Returns the last leaf atom descended from this group.
      */
-    public final AtomTreeNode getNode() {
-        return node;
+    public abstract AtomLeaf lastLeafAtom();
+    
+    public abstract int leafAtomCount();
+    public abstract int childAtomCount();
+    
+    public void dispose() {
+        setParent(null);
     }
 
-    private static final long serialVersionUID = 1L;
-    protected final AtomTreeNode node;
+    public void setParent(AtomGroup newParent) {
+        
+        //old parent is not null; remove from it
+        if(parent != null) {
+            int index = getIndex();
+            parent.getChildList().removeAndReplace(index);
+            parent.getChildList().maybeTrimToSize();
+            if (parent.getChildList().size() > index) {
+                parent.getChildList().get(index).setIndex(index);
+            }
+            parent.removeAtomNotify(this);
+        }
+        
+        parent = newParent;
+
+        if(parent == null) {//new parent is null
+            return;
+        }
+
+        setIndex(parent.getChildList().size());
+        
+        parent.getChildList().add(this);
+        parent.addAtomNotify(this);
+    }//end of addAtom
+
+    public AtomGroup parentGroup() {
+        return parent;
+    }
+    
+    /**
+     * Returns the molecule in which this atom resides.  A "molecule" is an atomgroup
+     * that is one step below a species agent in the hierarchy of atomgroups.
+     */
+    public Atom parentMolecule() {
+        if(parent == null) return null;
+        return (parent instanceof SpeciesAgent) ? this : parent.parentMolecule();
+    }
+                
+    /**
+     * Phase in which this atom resides
+     */
+    public Phase parentPhase() {
+        return (parent != null) ? parent.parentPhase() : null;
+    }
+    
+    public SpeciesAgent parentSpeciesAgent() {
+        return (parent != null) ? parent.parentSpeciesAgent() : null;
+    }
+    
+    /**
+     * Integer assigned to this atom by its parent molecule.
+     */
+    public final int getAddress() {return atomTreeAddress;}
+
+    public void setIndex(int index) {
+        setIndex((parent != null) ? parent.getAddress() : 0, index);
+    }
+    
+    protected void setIndex(int parentAddress, int index) {
+        atomTreeAddress = parentAddress + type.getAddressManager().shiftIndex(index);
+        if (Debug.ON && type.getAddressManager().getIndex(atomTreeAddress) != index) {
+            type.getAddressManager().getIndex(atomTreeAddress);
+            throw new RuntimeException(atomTreeAddress+" "+index+" "+(type.getAddressManager().getIndex(atomTreeAddress)));
+        }
+    }
+    
+    public int getIndex() {
+        return type.getAddressManager().getIndex(atomTreeAddress);
+    }
+    
+    public int getMoleculeIndex() {
+        return type.getAddressManager().getMoleculeIndex(atomTreeAddress);
+    }
+
+    public int getPhaseIndex() {
+        return type.getAddressManager().getPhaseIndex(atomTreeAddress);
+    }
+
+    public int getSpeciesIndex() {
+        return type.getAddressManager().getSpeciesIndex(atomTreeAddress);
+    }
+
+    public boolean inSimulation() {
+        return atomTreeAddress < 0;
+    }
+    
+    /**
+     * Returns true if the given atom is in the hierarchy of parents of this atom,
+     * or if the given atom is this atom.  Returns true, for example, if the given
+     * atom is this atom's parent, or its parent's parent, etc.
+     */ 
+    public boolean isDescendedFrom(Atom group) {
+        if(group == null) return false;
+        return group.getType().getAddressManager().sameAncestry(group.atomTreeAddress,this.atomTreeAddress);
+    }
+    
+    /**
+     * Returns the child of the given node through which this node is derived.
+     * If given node is parent node of this, returns this.
+     * If this node is not descended from the given node, returns null.
+     */
+    public Atom childWhereDescendedFrom(Atom atom) {
+        if(parent == null) return null;
+        return (parent == atom) ? this : parent.childWhereDescendedFrom(atom);
+    }
+    
     protected final AtomType type;
     
     /**
@@ -175,6 +291,8 @@ public class Atom implements AtomSet, Comparable, java.io.Serializable {
     private static int INSTANCE_COUNT = 0;
     
     private int globalIndex = -1;
+    protected int atomTreeAddress;
+    protected AtomGroup parent;
     
     private void readObject(java.io.ObjectInputStream in)
     throws IOException, ClassNotFoundException

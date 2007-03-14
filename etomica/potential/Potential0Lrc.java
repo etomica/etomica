@@ -101,10 +101,10 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
                             }
                         }
                     };
-                    treeIterator.setRoot(agents[i]);
+                    treeIterator.setRootAtom(agents[i]);
                     treeIterator.setIterationDepth(types[i].getDepth());
                     treeIterator.allAtoms(counter);
-                    lrcAtomsPerMolecule[i] = counter.callCount()/agents[i].getNode().childAtomCount();
+                    lrcAtomsPerMolecule[i] = counter.callCount()/agents[i].childAtomCount();
                 }
             }
         }

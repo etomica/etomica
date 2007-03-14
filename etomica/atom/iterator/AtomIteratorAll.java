@@ -5,8 +5,8 @@ import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomsetArrayList;
+import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -58,8 +58,8 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         AtomArrayList arrayList = next.getArrayList();
         arrayList.clear();
         for (int i=0; i<species.length; i++) {
-            AtomTreeNodeGroup speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species[i]).getNode();
-            arrayList.addAll(speciesAgentNode.getChildList());
+            SpeciesAgent speciesAgent = phase.getAgent(species[i]);
+            arrayList.addAll(speciesAgent.getChildList());
         }
         nextCursor = 0;
     }

@@ -72,7 +72,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         space = phase.getSpace();
         atomIterator = new AtomIteratorTree();
         atomIterator.setDoAllNodes(true);
-        atomIterator.setRoot(phase.getSpeciesMaster());
+        atomIterator.setRootAtom(phase.getSpeciesMaster());
 
         lattice = new CellLattice(phase.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
@@ -251,8 +251,8 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             iterator.reset();
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
-                if (!atom.getNode().isLeaf()) {
-                    treeIterator.setRoot(atom);
+                if (!atom.isLeaf()) {
+                    treeIterator.setRootAtom(atom);
                     treeIterator.reset();
                     while (treeIterator.hasNext()) {
                         Atom childAtom = treeIterator.nextAtom();
@@ -269,7 +269,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             if (atom.getType().isInteracting()) {
                 Boundary boundary = phase.getBoundary();
                 neighborCellManager.removeFromCell(atom);
-                if (!atom.getNode().isLeaf()) {
+                if (!atom.isLeaf()) {
                     IVector shift = boundary.centralImage(moleculePosition.position(atom));
                     if (!shift.isZero()) {
                         translator.setTranslationVector(shift);

@@ -2,8 +2,8 @@ package etomica.virial;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -50,7 +50,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
         this.nAtoms = nAtoms;
         setStepSizeMax(Math.PI);
-        selectedMolecules = new Atom[nAtoms];
+        selectedMolecules = new AtomGroup[nAtoms];
         selectedAtoms = new AtomLeaf[nAtoms];
         translationVectors = new Vector3D[nAtoms];
         for (int i=0; i<nAtoms; i++) {
@@ -77,7 +77,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         wOld = weightMeter.getDataAsScalar();
 
         for(int i=0; i<selectedMolecules.length; i++) {
-            AtomArrayList childList = ((AtomTreeNodeGroup)selectedMolecules[i].getNode()).getChildList();
+            AtomArrayList childList = selectedMolecules[i].getChildList();
             int numChildren = childList.size();
 
             int j = Simulation.random.nextInt(numChildren);
@@ -183,7 +183,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         iterator.reset();
         int i=0;
         while (iterator.hasNext()) {
-            selectedMolecules[i++] = iterator.nextAtom();
+            selectedMolecules[i++] = (AtomGroup)iterator.nextAtom();
         }
         return selectedMolecules;
     }
@@ -212,7 +212,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     }
 	
     private final int nAtoms;
-    private final Atom[] selectedMolecules;
+    private final AtomGroup[] selectedMolecules;
     private final AtomLeaf[] selectedAtoms;
     private double bondLength;
     private final Vector3D work1, work2, work3;

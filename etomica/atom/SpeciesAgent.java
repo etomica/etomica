@@ -11,24 +11,37 @@ import etomica.units.Quantity;
  * @author David Kofke
  */
  
-public final class SpeciesAgent extends Atom {
+public final class SpeciesAgent extends AtomGroup {
 
     public SpeciesAgent(AtomType type, Species species) {
-        super(type, NODE_FACTORY);
+        super(type);
         type.setSpecies(species);
     }
         
     public final AtomFactory moleculeFactory() {return type.getSpecies().moleculeFactory();}
       
-    public int getNMolecules() {return ((AtomTreeNodeGroup)node).childAtomCount();}
+    public int getNMolecules() {return childAtomCount();}
             
     public Atom addNewAtom() {
         Atom aNew = moleculeFactory().makeAtom();
-        aNew.getNode().setParent((AtomTreeNodeGroup)node);
+        aNew.setParent(this);
         return aNew;
     }    
     
     /**
+     * Overrides parent class method and terminates recursive call to identify this
+     * as a constituent atom's species agent.
+     */
+     public final SpeciesAgent parentSpeciesAgent() {return this;}
+
+     /**
+      * Throws a RuntimeException, because a species agent is not contained within a molecule.
+      */
+     public final Atom parentMolecule() {
+         throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesAgent");
+     }
+
+     /**
      * Sets the number of molecules for this species.  Makes the given number
      * of new molecules, linked-list orders and initializes them.
      * Any previously existing molecules for this species in this phase are abandoned
@@ -38,58 +51,25 @@ public final class SpeciesAgent extends Atom {
      * @param n  the new number of molecules for this species
      */
     public void setNMolecules(int n) {
-        ((SpeciesMaster)node.parentGroup()).notifyNewAtoms((n-getNMolecules())*moleculeFactory().getNumTreeAtoms());
-        AtomTreeNodeGroup treeNode = (AtomTreeNodeGroup)node;
-        if(n > treeNode.childAtomCount()) {
-            for(int i=treeNode.childAtomCount(); i<n; i++) addNewAtom();
+        ((SpeciesMaster)parent).notifyNewAtoms((n-getNMolecules())*moleculeFactory().getNumTreeAtoms());
+        if(n > childAtomCount()) {
+            for(int i=childAtomCount(); i<n; i++) addNewAtom();
         }
-        else if(n < treeNode.childAtomCount()) {
+        else if(n < childAtomCount()) {
             if(n < 0) n = 0;
-            for (int i=treeNode.getChildList().size(); i>n; i--) {
-                treeNode.getChildList().get(i-1).getNode().dispose();
+            for (int i=getChildList().size(); i>n; i--) {
+                getChildList().get(i-1).dispose();
             }
         }
         if (n == 0) {
             // if there are no molecules of this Species, the factory can be mutable
             // yes, this is horrible.
-            AtomTreeNodeGroup speciesRootNode = node.parentNode().parentNode();
-            type.getSpecies().getFactory().checkMutable((SpeciesRoot)speciesRootNode.atom);
+            SpeciesRoot speciesRoot = (SpeciesRoot)parent.parentGroup();
+            type.getSpecies().getFactory().checkMutable(speciesRoot);
         }
     }
     
     public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
 
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * Special AtomTreeNode class for SpeciesAgent.
-     */
-    public static final class AgentAtomTreeNode extends AtomTreeNodeGroup {
-        
-        protected AgentAtomTreeNode(Atom atom) {
-            super(atom);
-        }
-        
-       /**
-        * Overrides parent class method and terminates recursive call to identify this
-        * as a constituent atom's species agent.
-        */
-        public final SpeciesAgent parentSpeciesAgent() {return (SpeciesAgent)this.atom;}
-        
-        /**
-         * Throws a RuntimeException, because a species agent is not contained within a molecule.
-         */
-        public final Atom parentMolecule() {
-            throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesAgent");
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
-    
-    private final static AtomTreeNodeFactory NODE_FACTORY = new AtomTreeNodeFactory() {
-        public AtomTreeNode makeNode(Atom atom) {
-            return new AgentAtomTreeNode(atom);
-        }
-    };
-    
+    private static final long serialVersionUID = 2L;
 }

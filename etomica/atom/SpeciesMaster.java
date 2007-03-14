@@ -22,16 +22,7 @@ import etomica.species.SpeciesSpheresMono;
  * @author David Kofke and Andrew Schultz
  */
 
-public final class SpeciesMaster extends Atom {
-
-    protected int moleculeCount;
-    protected final PhaseEventManager phaseEventManager;
-
-    private int[] indexReservoir;
-    private int reservoirSize = 50;
-    private int reservoirCount;
-    private int maxIndex;
-    private static final long serialVersionUID = 1L;
+public final class SpeciesMaster extends AtomGroup {
 
     //reference to phase is kept in node
 
@@ -42,12 +33,15 @@ public final class SpeciesMaster extends Atom {
     public final AtomArrayList leafList = new AtomArrayList();
 
     public SpeciesMaster(Simulation sim, Phase p, PhaseEventManager eventManager) {
-        super(sim.getSpeciesRoot().getSpeciesMasterType(), new NodeFactory(p));
+        super(sim.getSpeciesRoot().getSpeciesMasterType());
         phaseEventManager = eventManager;
         indexReservoir = new int[reservoirSize];
         maxIndex = -1;
         reservoirCount = 0;
         setGlobalIndex(this);
+        parentPhase = p;
+        treeIterator.setDoAllNodes(true);
+        treeIterator.setIterationDepth(Integer.MAX_VALUE);
     }
 
     //    public int atomCount() {return atomList.size();}//or could use
@@ -57,19 +51,19 @@ public final class SpeciesMaster extends Atom {
     }
 
     public String signature() {
-        Phase phase = node.parentPhase();
+        Phase phase = parentPhase();
         return (phase != null) ? phase.getName()
                 : "SpeciesMaster without phase";
     }
     
     public void removeSpecies(Species species) {
-        AtomArrayList speciesAgents = ((AtomTreeNodeGroup)node).getChildList();
+        AtomArrayList speciesAgents = getChildList();
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(speciesAgents);
         iterator.reset();
         while (iterator.hasNext()) {
             Atom speciesAgent = iterator.nextAtom();
             if (speciesAgent.getType().getSpecies() == species) {
-                speciesAgent.getNode().dispose();
+                speciesAgent.dispose();
             }
         }
     }
@@ -115,13 +109,14 @@ public final class SpeciesMaster extends Atom {
             }
             j++;
         }
-        AtomIteratorTree treeIterator = new AtomIteratorTree(this,Integer.MAX_VALUE,true);
+        treeIterator.setDoAllNodes(true);
+        treeIterator.setRootAtom(this);
         treeIterator.reset();
         // loop over all the atoms.  Any atoms whose index is 
         while (treeIterator.hasNext()) {
             Atom a = treeIterator.nextAtom();
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
-                PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(node.parentPhase(), a, a.getGlobalIndex());
+                PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(parentPhase(), a, a.getGlobalIndex());
                 // Just re-invoke the Atom's method without first "returning"
                 // the index to the reservoir.  The old index gets dropped on the
                 // floor.
@@ -130,7 +125,7 @@ public final class SpeciesMaster extends Atom {
             }
         }
         maxIndex -= reservoirSize;
-        PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(node.parentPhase(), maxIndex);
+        PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(parentPhase(), maxIndex);
         phaseEventManager.fireEvent(event);
         if (reservoirCount != 0) {
             System.out.println("reservoir still has atoms:");
@@ -147,7 +142,7 @@ public final class SpeciesMaster extends Atom {
         // max index has actually increased, there's no harm since there's 
         // nothing that says the max index can't be too large.
         if (numNewAtoms > reservoirCount) {
-            PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(getNode().parentPhase(), maxIndex + numNewAtoms - reservoirCount);
+            PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(parentPhase(), maxIndex + numNewAtoms - reservoirCount);
             phaseEventManager.fireEvent(event);
         }            
     }
@@ -171,139 +166,114 @@ public final class SpeciesMaster extends Atom {
         return reservoirSize-1;
     }
 
-    private static final class MasterAtomTreeNode extends AtomTreeNodeGroup {
+    public Phase parentPhase() {
+        return parentPhase;
+    }
 
-        MasterAtomTreeNode(Phase parentPhase, Atom atom) {
-            super(atom);
-            speciesMaster = (SpeciesMaster) atom;
-            this.parentPhase = parentPhase;
-            treeIterator.setDoAllNodes(true);
-            treeIterator.setIterationDepth(Integer.MAX_VALUE);
+    public Species parentSpecies() {
+        throw new RuntimeException(
+                "Error:  Unexpected call to parentSpecies in SpeciesMaster");
+    }
+
+    public SpeciesAgent parentSpeciesAgent() {
+        throw new RuntimeException(
+                "Error:  Unexpected call to parentSpeciesAgent in SpeciesMaster");
+    }
+
+    /**
+     * Throws a RuntimeException, because a species master is not contained
+     * within a molecule.
+     */
+    public final Atom parentMolecule() {
+        throw new RuntimeException(
+                "Error:  Unexpected call to parentMolecule in SpeciesMaster");
+    }
+
+    public void addAtomNotify(Atom newAtom) {
+        if (newAtom.parentGroup() instanceof SpeciesAgent) {
+            moleculeCount++;
+        } else if (newAtom instanceof SpeciesAgent) {
+            moleculeCount += ((SpeciesAgent) newAtom)
+                    .getNMolecules();
         }
 
-        public Phase parentPhase() {
-            return parentPhase;
-        }
-
-        public Species parentSpecies() {
-            throw new RuntimeException(
-                    "Error:  Unexpected call to parentSpecies in SpeciesMaster");
-        }
-
-        public SpeciesAgent parentSpeciesAgent() {
-            throw new RuntimeException(
-                    "Error:  Unexpected call to parentSpeciesAgent in SpeciesMaster");
-        }
-
-        /**
-         * Throws a RuntimeException, because a species master is not contained
-         * within a molecule.
-         */
-        public final Atom parentMolecule() {
-            throw new RuntimeException(
-                    "Error:  Unexpected call to parentMolecule in SpeciesMaster");
-        }
-
-        /**
-         * Returns true, because children are SpeciesAgent instances.
-         */
-        public final boolean childrenAreGroups() {
-            return true;
-        }
-
-        public void addAtomNotify(Atom newAtom) {
-            if (newAtom.getNode().parentGroup() instanceof SpeciesAgent) {
-                speciesMaster.moleculeCount++;
-            } else if (newAtom instanceof SpeciesAgent) {
-                speciesMaster.moleculeCount += ((SpeciesAgent) newAtom)
-                        .getNMolecules();
-            }
-
-            leafAtomCount += newAtom.getNode().leafAtomCount();
-            if (newAtom.getNode().isLeaf()) {
-                newAtom.setGlobalIndex((SpeciesMaster)atom);
-                ((AtomTreeNodeLeaf)newAtom.getNode()).setLeafIndex(speciesMaster.leafList.size());
-                speciesMaster.leafList.add(newAtom);
-            } else {
-                treeIterator.setRoot(newAtom);
-                treeIterator.reset();
-                while (treeIterator.hasNext()) {
-                    Atom childAtom = treeIterator.nextAtom();
-                    if (childAtom.getType().isLeaf()) {
-                        ((AtomTreeNodeLeaf)childAtom.getNode()).setLeafIndex(speciesMaster.leafList.size());
-                        speciesMaster.leafList.add(childAtom);
-                    }
-                    childAtom.setGlobalIndex((SpeciesMaster)atom);
+        leafAtomCount += newAtom.leafAtomCount();
+        if (newAtom.isLeaf()) {
+            newAtom.setGlobalIndex(this);
+            ((AtomLeaf)newAtom).setLeafIndex(leafList.size());
+            leafList.add(newAtom);
+        } else {
+            treeIterator.setRootAtom(newAtom);
+            treeIterator.reset();
+            while (treeIterator.hasNext()) {
+                Atom childAtom = treeIterator.nextAtom();
+                if (childAtom.getType().isLeaf()) {
+                    ((AtomLeaf)childAtom).setLeafIndex(leafList.size());
+                    leafList.add(childAtom);
                 }
+                childAtom.setGlobalIndex(this);
             }
-            ((SpeciesMaster)atom).phaseEventManager.fireEvent(new PhaseAtomAddedEvent(parentPhase, newAtom));
-            if (parentNode() != null) {
-                parentNode().addAtomNotify(newAtom);
-            }
-       }
+        }
+        phaseEventManager.fireEvent(new PhaseAtomAddedEvent(parentPhase, newAtom));
+        if (parent != null) {
+            parent.addAtomNotify(newAtom);
+        }
+   }
 
-        //updating of leaf atomList may not be efficient enough for repeated
-        // use, but is probably ok
-        public void removeAtomNotify(Atom oldAtom) {
-            if (oldAtom.getNode().parentGroup() instanceof SpeciesAgent) {
-                speciesMaster.moleculeCount--;
-            } else if (oldAtom instanceof SpeciesAgent) {
-                speciesMaster.moleculeCount -= ((SpeciesAgent) oldAtom)
-                        .getNMolecules();
-//                ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
+    //updating of leaf atomList may not be efficient enough for repeated
+    // use, but is probably ok
+    public void removeAtomNotify(Atom oldAtom) {
+        if (oldAtom.parentGroup() instanceof SpeciesAgent) {
+            moleculeCount--;
+        } else if (oldAtom instanceof SpeciesAgent) {
+            moleculeCount -= ((SpeciesAgent)oldAtom).getNMolecules();
+//            ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
+        }
+        
+        phaseEventManager.fireEvent(new PhaseAtomRemovedEvent(parentPhase, oldAtom));
+        if (oldAtom.isLeaf()) {
+            leafAtomCount--;
+            int leafIndex = ((AtomLeaf)oldAtom).getLeafIndex();
+            returnGlobalIndex(oldAtom.getGlobalIndex());
+            leafList.removeAndReplace(leafIndex);
+            leafList.maybeTrimToSize();
+            if (leafList.size() > leafIndex) {
+                ((AtomLeaf)leafList.get(leafIndex)).setLeafIndex(leafIndex);
             }
-            
-            ((SpeciesMaster)atom).phaseEventManager.fireEvent(new PhaseAtomRemovedEvent(parentPhase, oldAtom));
-            if (oldAtom.getNode().isLeaf()) {
-                leafAtomCount--;
-                int leafIndex = ((AtomTreeNodeLeaf)oldAtom.getNode()).getLeafIndex();
-                ((SpeciesMaster)atom).returnGlobalIndex(oldAtom.getGlobalIndex());
-                speciesMaster.leafList.removeAndReplace(leafIndex);
-                speciesMaster.leafList.maybeTrimToSize();
-                if (speciesMaster.leafList.size() > leafIndex) {
-                    ((AtomTreeNodeLeaf)speciesMaster.leafList.get(leafIndex).getNode()).setLeafIndex(leafIndex);
-                }
-            } else {
-                leafAtomCount -= oldAtom.getNode().leafAtomCount();
-                treeIterator.setRoot(oldAtom);
-                treeIterator.reset();
-                while (treeIterator.hasNext()) {
-                    Atom childAtom = treeIterator.nextAtom();
-                    ((SpeciesMaster)atom).returnGlobalIndex(childAtom.getGlobalIndex());
-                    if (childAtom.getType().isLeaf()) {
-                        int leafIndex = ((AtomTreeNodeLeaf)childAtom.getNode()).getLeafIndex();
-                        speciesMaster.leafList.removeAndReplace(leafIndex);
-                        if (speciesMaster.leafList.size() > leafIndex) {
-                            ((AtomTreeNodeLeaf)speciesMaster.leafList.get(leafIndex).getNode()).setLeafIndex(leafIndex);
-                        }
+        } else {
+            leafAtomCount -= oldAtom.leafAtomCount();
+            treeIterator.setRootAtom(oldAtom);
+            treeIterator.reset();
+            while (treeIterator.hasNext()) {
+                Atom childAtom = treeIterator.nextAtom();
+                returnGlobalIndex(childAtom.getGlobalIndex());
+                if (childAtom.getType().isLeaf()) {
+                    int leafIndex = ((AtomLeaf)childAtom).getLeafIndex();
+                    leafList.removeAndReplace(leafIndex);
+                    if (leafList.size() > leafIndex) {
+                        ((AtomLeaf)leafList.get(leafIndex)).setLeafIndex(leafIndex);
                     }
                 }
             }
-            if (parentNode() != null) {
-                parentNode().removeAtomNotify(oldAtom);
-            }
         }
-
-        private static final long serialVersionUID = 1L;
-        private final Phase parentPhase;
-        private final SpeciesMaster speciesMaster;
-        private final AtomIteratorTree treeIterator = new AtomIteratorTree();
-    } //end of MasterAtomTreeNode
-
-    private static final class NodeFactory implements AtomTreeNodeFactory, java.io.Serializable {
-
-        private static final long serialVersionUID = 1L;
-        Phase phase;
-
-        NodeFactory(Phase p) {
-            phase = p;
-        }
-
-        public AtomTreeNode makeNode(Atom atom) {
-            return new MasterAtomTreeNode(phase, atom);
+        if (parent != null) {
+            parent.removeAtomNotify(oldAtom);
         }
     }
 
+
+    private static final long serialVersionUID = 2L;
+    private final Phase parentPhase;
+    private final AtomIteratorTree treeIterator = new AtomIteratorTree();
+
+    protected int moleculeCount;
+    protected final PhaseEventManager phaseEventManager;
+
+    private int[] indexReservoir;
+    private int reservoirSize = 50;
+    private int reservoirCount;
+    private int maxIndex;
+    
     /**
      * non-graphic main method to test handling of leaf atom list.
      */

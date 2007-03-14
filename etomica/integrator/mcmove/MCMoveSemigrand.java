@@ -5,7 +5,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -146,7 +145,7 @@ public class MCMoveSemigrand extends MCMovePhase {
         else while(iInsert == iDelete) {iInsert = random.nextInt(nSpecies);}
         insertAgent = agentSet[iInsert];
   
-        AtomArrayList moleculeList = ((AtomTreeNodeGroup)deleteAgent.getNode()).getChildList();
+        AtomArrayList moleculeList = deleteAgent.getChildList();
         deleteMolecule = moleculeList.get(random.nextInt(moleculeList.size()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();

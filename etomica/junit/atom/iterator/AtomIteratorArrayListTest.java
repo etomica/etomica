@@ -5,12 +5,11 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.junit.UnitTestUtil;
-import etomica.space.Space;
-import etomica.space1d.Space1D;
+import etomica.space3d.Space3D;
 
 /**
  * Unit test for AtomIteratorArrayList.
@@ -37,7 +36,7 @@ public class AtomIteratorArrayListTest extends IteratorTestAbstract {
         for(int i=0; i<=10; i++) {
             list = generalIteratorMethodTests(iterator);
             assertEquals(list.size(), i);
-            atomList.add(new Atom());
+            atomList.add(new AtomLeaf(Space3D.getInstance()));
         }
         list = generalIteratorMethodTests(iterator);
         
@@ -46,7 +45,7 @@ public class AtomIteratorArrayListTest extends IteratorTestAbstract {
         iterator.setList(arrayList);
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 0);
-        arrayList.add(new Atom());
+        arrayList.add(new AtomLeaf(Space3D.getInstance()));
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         

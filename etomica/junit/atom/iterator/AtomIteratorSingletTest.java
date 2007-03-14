@@ -3,7 +3,9 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.space3d.Space3D;
 
 
 /**
@@ -12,24 +14,16 @@ import etomica.atom.iterator.AtomIteratorSinglet;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on May 30, 2005 by kofke
- */
 public class AtomIteratorSingletTest extends IteratorTestAbstract {
 
-    /**
-     * 
-     */
     public AtomIteratorSingletTest() {
         super();
     }
     
     public void setUp() {
         singletIterator = new AtomIteratorSinglet();
-        testAtom1 = new Atom();
-        testAtom2 = new Atom();
+        testAtom1 = new AtomLeaf(Space3D.getInstance());
+        testAtom2 = new AtomLeaf(Space3D.getInstance());
         list1 = makeTestList(new Atom[] {testAtom1});
         list2 = makeTestList(new Atom[] {testAtom2});
     }

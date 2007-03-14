@@ -110,7 +110,7 @@ public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
         for (int i=0; i<upList.length; i++) {
             atomListInts[0][i] = new int[upList[i].size()];
             for (int j=0; j<atomListInts[0][i].length; j++) {
-                atomListInts[0][i][j] = upList[i].get(j).getNode().getAddress();
+                atomListInts[0][i][j] = upList[i].get(j).getAddress();
                 
             }
         }
@@ -119,7 +119,7 @@ public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
         for (int i=0; i<upList.length; i++) {
             atomListInts[1][i] = new int[downList[i].size()];
             for (int j=0; j<atomListInts[1][i].length; j++) {
-                atomListInts[1][i][j] = downList[i].get(j).getNode().getAddress();
+                atomListInts[1][i][j] = downList[i].get(j).getAddress();
             }
         }
         out.writeObject(atomListInts);

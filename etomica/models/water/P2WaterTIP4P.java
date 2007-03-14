@@ -30,18 +30,18 @@ public class P2WaterTIP4P extends Potential2 {
         double r2 = 0.0;
 
         AtomPair pair = (AtomPair)atoms;
-        AtomTreeNodeWater4P node1 = (AtomTreeNodeWater4P)pair.atom0.getNode();
-        AtomTreeNodeWater4P node2 = (AtomTreeNodeWater4P)pair.atom1.getNode();
+        AtomWater4P water1 = (AtomWater4P)pair.atom0;
+        AtomWater4P water2 = (AtomWater4P)pair.atom1;
 
-        IVector O1r = node1.O.getCoord().getPosition();
-        IVector O2r = node2.O.getCoord().getPosition();
-        IVector H11r = node1.H1.getCoord().getPosition();
-        IVector H12r = node1.H2.getCoord().getPosition();
-        IVector H21r = node2.H1.getCoord().getPosition();
-        IVector H22r = node2.H2.getCoord().getPosition();
+        IVector O1r = water1.O.getCoord().getPosition();
+        IVector O2r = water2.O.getCoord().getPosition();
+        IVector H11r = water1.H1.getCoord().getPosition();
+        IVector H12r = water1.H2.getCoord().getPosition();
+        IVector H21r = water2.H1.getCoord().getPosition();
+        IVector H22r = water2.H2.getCoord().getPosition();
 
-        IVector M1r = node1.M.getCoord().getPosition();
-        IVector M2r = node2.M.getCoord().getPosition();
+        IVector M1r = water1.M.getCoord().getPosition();
+        IVector M2r = water2.M.getCoord().getPosition();
         
 		
         final double core = 0.1;

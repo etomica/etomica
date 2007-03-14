@@ -22,13 +22,7 @@ public class AtomFactoryHetero extends AtomFactory {
 
     public AtomFactoryHetero(Space space, AtomTypeGroup parentType,
             Conformation config) {
-        this(space, parentType, AtomTreeNodeGroup.FACTORY,
-                config);
-    }
-
-    public AtomFactoryHetero(Space space, AtomTypeGroup parentType,
-            AtomTreeNodeFactory nodeFactory, Conformation config) {
-        super(new AtomTypeGroup(new AtomPositionCOM(space)), nodeFactory);
+        super(new AtomTypeGroup(new AtomPositionCOM(space)));
         atomType.setParentType(parentType);
         conformation = config;
         childFactory = new AtomFactory[0];
@@ -42,13 +36,12 @@ public class AtomFactoryHetero extends AtomFactory {
      */
     public Atom makeAtom() {
         isMutable = false;
-        Atom group = newParentAtom();
-        AtomTreeNodeGroup node = (AtomTreeNodeGroup) group.getNode();
+        AtomGroup group = new AtomGroup(atomType);
         // make block copolymers
         for (int i = 0; i < childFactory.length; i++) {
             for(int j = 0; j < childCount[i]; j++) {
                 Atom childAtom = childFactory[i].makeAtom();
-                childAtom.getNode().setParent(node);
+                childAtom.setParent(group);
             }
         }
         return group;

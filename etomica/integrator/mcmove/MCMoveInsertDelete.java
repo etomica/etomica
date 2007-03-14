@@ -4,7 +4,6 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFactory;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -62,7 +61,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
         species = s;
         if(phase != null) {
             speciesAgent = species.getAgent(phase);
-            moleculeList = ((AtomTreeNodeGroup)speciesAgent.getNode()).getChildList();
+            moleculeList = speciesAgent.getChildList();
         }
         moleculeFactory = species.moleculeFactory();
     }
@@ -73,7 +72,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
         energyMeter.setPhase(phase);
         if(species != null) {
             speciesAgent = species.getAgent(phase);
-            moleculeList = ((AtomTreeNodeGroup)speciesAgent.getNode()).getChildList();
+            moleculeList = speciesAgent.getChildList();
         }
     }
     

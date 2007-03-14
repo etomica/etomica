@@ -13,7 +13,7 @@ public class AtomToIndexChild implements AtomToIndex, Serializable {
      * @throws NullPointerException if the atom is null.
      */
     public int getIndex(Atom atom) {
-        return atom.getNode().getIndex();
+        return atom.getIndex();
     }
     
     private static final long serialVersionUID = 1L;

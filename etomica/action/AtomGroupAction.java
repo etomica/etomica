@@ -2,7 +2,7 @@ package etomica.action;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomGroup;
 
 /**
  * Wraps an AtomAction, and performs the wrapped action on the atom
@@ -25,14 +25,15 @@ public class AtomGroupAction extends AtomActionAdapter {
      * @see etomica.action.AtomAction#actionPerformed(etomica.Atom)
      */
     public void actionPerformed(Atom atom) {
-        if(atom.getNode().isLeaf()) {
-            action.actionPerformed(atom);
-        } else {
-            AtomArrayList atomList = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
+        if(atom instanceof AtomGroup) {
+            AtomArrayList atomList = ((AtomGroup)atom).getChildList();
             int size = atomList.size();
             for(int i=0; i<size; i++) {
                 this.actionPerformed(atomList.get(i));
             }
+        }
+        else {
+            action.actionPerformed(atom);
         }
     }
 

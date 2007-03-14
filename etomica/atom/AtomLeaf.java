@@ -32,8 +32,8 @@ import etomica.space.Space;
   */
 public class AtomLeaf extends Atom {
 
-    public AtomLeaf(ICoordinate coord, AtomType type, AtomTreeNodeFactory nodeFactory) {
-        super(type, nodeFactory);
+    public AtomLeaf(ICoordinate coord, AtomType type) {
+        super(type);
         this.coord = coord;
     }
     
@@ -54,7 +54,43 @@ public class AtomLeaf extends Atom {
         return coord;
     }
 
-    private static final long serialVersionUID = 1L;
+    public boolean isLeaf() {return true;}
+    
+    /**
+     * Returns this node's atom.
+     */
+    public AtomLeaf firstLeafAtom() {return this;}
+    
+    /**
+     * Returns this node's atom.
+     */
+    public AtomLeaf lastLeafAtom() {return this;}
+    
+    /**
+     * Returns 1.
+     */
+    public int leafAtomCount() {return 1;}
+    
+    /**
+     * Returns 0.
+     */
+    public int childAtomCount() {return 0;}
+
+    public final void setLeafIndex(int newLeafIndex) {
+        leafIndex = newLeafIndex;
+    }
+    
+    public final int getLeafIndex() {
+        return leafIndex;
+    }
+    
+    /**
+     * leafIndex is an index to the AtomArrayList of all leaf atoms in the phase.
+     * List is maintained by the speciesMaster node.
+     */
+    private int leafIndex;
+
+    private static final long serialVersionUID = 2L;
     private final ICoordinate coord;
     
 }

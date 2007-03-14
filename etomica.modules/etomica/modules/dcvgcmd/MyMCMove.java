@@ -3,7 +3,6 @@ package etomica.modules.dcvgcmd;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
@@ -117,7 +116,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private Vector3D position;
 	private boolean nearOrigin;
 	private final AtomArrayList activeAtoms;
-	private final AtomIteratorArrayListSimple atomIterator;// = new AtomIteratorList();
+	private final AtomIteratorArrayListSimple atomIterator;
 	private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorPhase integrator;
     protected int testMoleculeIndex;
@@ -145,6 +144,6 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 */
 	public void setSpecies(Species s) {
 		super.setSpecies(s);
-		atomIterator.setList(((AtomTreeNodeGroup)speciesAgent.getNode()).getChildList());
+		atomIterator.setList(speciesAgent.getChildList());
 	}
 }

@@ -3,8 +3,8 @@ package etomica.modules.dcvgcmd;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.config.Conformation;
@@ -121,10 +121,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         // first species (mono spheres)
         while(iterator.hasNext()) {
             Atom a = iterator.nextAtom();
-            if (!a.getNode().isLeaf()) {
+            if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).getChildList());
+                config.initializePositions(((AtomGroup)a).getChildList());
             }
             
             int[] ii = indexIterator.next();
@@ -143,10 +143,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         // second species (mono spheres)
         while(iterator.hasNext()) {
             Atom a = iterator.nextAtom();
-            if (!a.getNode().isLeaf()) {
+            if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).getChildList());
+                config.initializePositions(((AtomGroup)a).getChildList());
             }
             
             int[] ii = indexIterator.next();
@@ -164,7 +164,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         while (iterator.hasNext()){
         	Atom a = iterator.nextAtom();
         	Conformation config = a.getType().creator().getConformation();
-            config.initializePositions(((AtomTreeNodeGroup)a.getNode()).getChildList());
+            config.initializePositions(((AtomGroup)a).getChildList());
             atomActionTranslateTo.actionPerformed(a);
         }
         

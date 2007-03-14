@@ -13,19 +13,10 @@ import etomica.phase.Phase;
 public abstract class AtomFactory implements java.io.Serializable {
     
     protected Conformation conformation;
-    protected final AtomTreeNodeFactory nodeFactory;
     protected final AtomType atomType;
     protected boolean isMutable;
     
-    /**
-     * Makes an atom factory with atoms having AtomTreeNodeGroup for node.
-     */
     public AtomFactory(AtomType atomType) {
-        this(atomType, AtomTreeNodeGroup.FACTORY);
-    }
-    
-    public AtomFactory(AtomType atomType, AtomTreeNodeFactory nodeFactory) {
-        this.nodeFactory = nodeFactory;
         this.atomType = atomType;
         atomType.creator = this;
         isMutable = true;
@@ -58,14 +49,6 @@ public abstract class AtomFactory implements java.io.Serializable {
     public abstract int getNumLeafAtoms();
     
     /**
-     * Method used by subclasses to make the root atom of the group it is building.
-     */
-    protected Atom newParentAtom() {
-        Atom atom = new Atom(atomType, nodeFactory);
-        return atom;
-    }
-
-    /**
      * Returns the atomType instance given to all atoms made by this factory.
      */
     public AtomType getType() {
@@ -89,9 +72,9 @@ public abstract class AtomFactory implements java.io.Serializable {
         if (isMutable) {
             return;
         }
-        AtomArrayList speciesMasterList = ((AtomTreeNodeGroup)speciesRoot.getNode()).getChildList();
+        AtomArrayList speciesMasterList = speciesRoot.getChildList();
         for (int i=0; i<speciesMasterList.size(); i++) {
-            Phase iPhase = speciesMasterList.get(i).getNode().parentPhase();
+            Phase iPhase = speciesMasterList.get(i).parentPhase();
             SpeciesAgent iAgent = atomType.getSpecies().getAgent(iPhase);
             if (iAgent.getNMolecules() > 0) {
                 isMutable = false;

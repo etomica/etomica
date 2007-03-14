@@ -2,9 +2,9 @@ package etomica.models.hexane;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -67,12 +67,12 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         uOld = energyMeter.getDataAsScalar();
         
         //we assume that that atoms that make the molecule are children of the molecule.
-        atomList = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
+        atomList = ((AtomGroup)atom).getChildList();
         chainlength = atomList.size();
         //store the old locations of every atom in the molecule in positionOld.
         
         for(int i = 0; i < chainlength; i++){
-            positionOld[i].E((IVector)((AtomLeaf)atomList.get(i)).getCoord().getPosition());
+            positionOld[i].E(((AtomLeaf)atomList.get(i)).getCoord().getPosition());
         }
         
         calcRosenbluthFactors();

@@ -37,21 +37,9 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      * @param config the conformation applied to each group that is built (default is Linear).
      */
-    public AtomFactoryHomo(Space space, AtomTypeGroup parentType,
-                            int atoms, Conformation config) {  
-        this(space, parentType, AtomTreeNodeGroup.FACTORY, atoms, config);
-    }
- 
-    /**
-     * @param space the coordinate factory
-     * @param parentType the type instance of the atoms that are parents of those made by this factory
-     * @param nodeFactory makes nodes for each of the atoms built by this factory
-     * @param atoms the number of identical children per group (default is 1).
-     * @param config the conformation applied to each group that is built (default is Linear).
-     */
-    public AtomFactoryHomo(Space space, AtomTypeGroup parentType,
-                            AtomTreeNodeFactory nodeFactory, int atoms, Conformation config) {
-        super(new AtomTypeGroup(new AtomPositionGeometricCenter(space)), nodeFactory);
+   public AtomFactoryHomo(Space space, AtomTypeGroup parentType,
+                            int atoms, Conformation config) {
+        super(new AtomTypeGroup(new AtomPositionGeometricCenter(space)));
         atomType.setParentType(parentType);
         atomsPerGroup = atoms;
         setConformation(config);
@@ -62,11 +50,10 @@ public class AtomFactoryHomo extends AtomFactory {
      */
      public Atom makeAtom() {
          isMutable = false;
-         Atom group = newParentAtom();
-         AtomTreeNodeGroup node = (AtomTreeNodeGroup)group.getNode();
+         AtomGroup group = new AtomGroup(atomType);
          for(int i=0; i<atomsPerGroup; i++) {
              Atom childAtom = childFactory.makeAtom();
-             childAtom.getNode().setParent(node);
+             childAtom.setParent(group);
          }
          return group;
      }

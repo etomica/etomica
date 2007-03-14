@@ -11,7 +11,7 @@ import etomica.space.CoordinateFactory;
 public class AtomFactoryMono extends AtomFactory {
     
     public AtomFactoryMono(CoordinateFactory coordFactory, AtomTypeLeaf atomType) {
-        super(atomType, AtomTreeNodeLeaf.FACTORY);
+        super(atomType);
         this.coordFactory = coordFactory;
     }
 
@@ -36,7 +36,7 @@ public class AtomFactoryMono extends AtomFactory {
      */
     public Atom makeAtom() {
         isMutable = false;
-        return new AtomLeaf(coordFactory.makeCoordinate(), atomType, nodeFactory);
+        return new AtomLeaf(coordFactory.makeCoordinate(), atomType);
     }
     
     /**

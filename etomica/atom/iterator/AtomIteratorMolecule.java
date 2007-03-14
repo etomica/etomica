@@ -2,8 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTreeNode;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -34,8 +33,8 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * phase conditions iterator to give no iterates.
      */
     public void setPhase(Phase phase) {
-        if(phase == null) speciesAgentNode = null;
-        else speciesAgentNode = (AtomTreeNodeGroup)phase.getAgent(species).getNode();
+        if(phase == null) speciesAgent = null;
+        else speciesAgent= phase.getAgent(species);
         setList();
     }
 
@@ -69,18 +68,18 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      */
     private void setList() {
         //no phase is specified
-        if(speciesAgentNode == null) {
+        if(speciesAgent == null) {
             listIterator.setList(null);
             
         //no target -- iterate all molecules of species
         } else if(targetAtom == null) {
-            listIterator.setList(speciesAgentNode.getChildList());
+            listIterator.setList(speciesAgent.getChildList());
         
         //target specified -- give it as only iterate if descended from species
         } else {
-            AtomTreeNode moleculeNode = targetAtom.getNode().childWhereDescendedFrom(speciesAgentNode);
+            Atom molecule = targetAtom.childWhereDescendedFrom(speciesAgent);
             littleList.clear();
-            if(moleculeNode != null) littleList.add(moleculeNode.atom());
+            if(molecule != null) littleList.add(molecule);
             listIterator.setList(littleList);
         }
     }
@@ -89,6 +88,6 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     private final AtomIteratorArrayListSimple listIterator;
     private final Species species;
     private final AtomArrayList littleList = new AtomArrayList();
-    private AtomTreeNodeGroup speciesAgentNode;
+    private SpeciesAgent speciesAgent;
     private Atom targetAtom;
 }

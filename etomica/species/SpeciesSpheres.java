@@ -61,7 +61,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");
         }
-        return new SpeciesSignature(getName(),constructor,new Object[]{new Integer(((AtomFactoryHomo)factory).getNumChildAtoms())});
+        return new SpeciesSignature(getName(),constructor,new Object[]{new Integer(factory.getNumChildAtoms())});
     }
     
     private static final long serialVersionUID = 1L;

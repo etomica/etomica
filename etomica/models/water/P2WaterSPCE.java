@@ -31,15 +31,15 @@ public class P2WaterSPCE extends Potential2 {
         double r2 = 0.0;
 
         AtomPair pair = (AtomPair)atoms;
-        AtomTreeNodeWater3P node1 = (AtomTreeNodeWater3P)pair.atom0.getNode();
-        AtomTreeNodeWater3P node2 = (AtomTreeNodeWater3P)pair.atom1.getNode();
+        AtomWater3P water1 = (AtomWater3P)pair.atom0;
+        AtomWater3P water2 = (AtomWater3P)pair.atom1;
 
-        IVector O1r = node1.O.getCoord().getPosition();
-        IVector O2r = node2.O.getCoord().getPosition();
-        IVector H11r = node1.H1.getCoord().getPosition();
-        IVector H12r = node1.H2.getCoord().getPosition();
-        IVector H21r = node2.H1.getCoord().getPosition();
-        IVector H22r = node2.H2.getCoord().getPosition();
+        IVector O1r = water1.O.getCoord().getPosition();
+        IVector O2r = water2.O.getCoord().getPosition();
+        IVector H11r = water1.H1.getCoord().getPosition();
+        IVector H12r = water1.H2.getCoord().getPosition();
+        IVector H21r = water2.H1.getCoord().getPosition();
+        IVector H22r = water2.H2.getCoord().getPosition();
 
         final double core = 0.1;
 

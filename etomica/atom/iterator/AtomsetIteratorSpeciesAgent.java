@@ -83,7 +83,7 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
             }
     		boolean match = false;
     		for (int j=0; j<basisSize; j++) {
-    			if (!agentUsed[j] && newTargetAtom.getNode().isDescendedFrom(agents[j])) {
+    			if (!agentUsed[j] && newTargetAtom.isDescendedFrom(agents[j])) {
     				agentUsed[j] = true;
     				match = true;
     				break;

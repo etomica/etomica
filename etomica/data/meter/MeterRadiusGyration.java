@@ -66,7 +66,7 @@ public class MeterRadiusGyration extends DataSourceScalar implements Meter {
         double r2Tot = 0.0;
         while (iterator.hasNext()) {
             // loop over molecules
-            leafIterator.setRoot(iterator.nextAtom());
+            leafIterator.setRootAtom(iterator.nextAtom());
             leafIterator.reset();
             if (!leafIterator.hasNext()) {
                 continue;

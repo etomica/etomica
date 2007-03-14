@@ -28,7 +28,7 @@ public class AtomFactoryWater4P extends AtomFactory {
 	 * @param sim
 	 */
     public AtomFactoryWater4P(Simulation sim, AtomTypeGroup agentType) {
-		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())), AtomTreeNodeWater4P.FACTORY);
+		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
 		atomType.setParentType(agentType);
         
         AtomTypeSphere hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
@@ -51,18 +51,17 @@ public class AtomFactoryWater4P extends AtomFactory {
 	 */
 	public Atom makeAtom() {
         isMutable = false;
-        Atom group = newParentAtom();
-		AtomTreeNodeWater4P waterNode = (AtomTreeNodeWater4P)group.getNode();
-		waterNode.O = (AtomLeaf)oFactory.makeAtom();
-        waterNode.H1 = (AtomLeaf)hFactory.makeAtom();
-        waterNode.H2 = (AtomLeaf)hFactory.makeAtom();
-        waterNode.M = (AtomLeaf)mFactory.makeAtom();
-        waterNode.O.getNode().setParent(waterNode);
-        waterNode.H1.getNode().setParent(waterNode);
-        waterNode.H2.getNode().setParent(waterNode);
-        waterNode.M.getNode().setParent(waterNode);
-		conformation.initializePositions(waterNode.getChildList());
-		return group;
+        AtomWater4P water = new AtomWater4P(atomType);
+		water.O = (AtomLeaf)oFactory.makeAtom();
+        water.H1 = (AtomLeaf)hFactory.makeAtom();
+        water.H2 = (AtomLeaf)hFactory.makeAtom();
+        water.M = (AtomLeaf)mFactory.makeAtom();
+        water.O.setParent(water);
+        water.H1.setParent(water);
+        water.H2.setParent(water);
+        water.M.setParent(water);
+		conformation.initializePositions(water.getChildList());
+		return water;
 	}
     
     /**

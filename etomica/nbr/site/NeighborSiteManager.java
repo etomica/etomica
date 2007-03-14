@@ -90,7 +90,7 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
     }
 
     public Object makeAgent(Atom atom) {
-        if (!atom.getNode().isLeaf()) {
+        if (!atom.isLeaf()) {
             return null;
         }
         AtomSite site = (AtomSite)siteIterator.next();

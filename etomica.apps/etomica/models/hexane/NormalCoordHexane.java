@@ -1,8 +1,8 @@
 package etomica.models.hexane;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.normalmode.NormalCoordMolecule;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
@@ -43,9 +43,9 @@ public class NormalCoordHexane extends NormalCoordMolecule {
         //Now we play with the molecule we are measuring.
         
         //Long rotational axis of atom 1
-        IVector leafPos1 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(0)).getCoord().getPosition();
-        IVector leafPos2 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(1)).getCoord().getPosition();
-        IVector leafPos3 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(2)).getCoord().getPosition();
+        IVector leafPos1 = ((AtomLeaf)((AtomGroup)molecule).getChildList().get(0)).getCoord().getPosition();
+        IVector leafPos2 = ((AtomLeaf)((AtomGroup)molecule).getChildList().get(1)).getCoord().getPosition();
+        IVector leafPos3 = ((AtomLeaf)((AtomGroup)molecule).getChildList().get(2)).getCoord().getPosition();
         axis0prime.Ev1Mv2(leafPos3, leafPos1);
         //axis0Prime goes from the 1st atom on the molecule to the 3rd atom on the molecule
         axis0prime.TE(1/Math.sqrt(axis0prime.squared()));
@@ -151,9 +151,9 @@ public class NormalCoordHexane extends NormalCoordMolecule {
         if (atomCount == 0) {
             //Set up all the axes based on the molecule atom0, the reference molecule
             //Long rotational axis of atom 0
-            IVector leafPos1 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(0)).getCoord().getPosition();
-            IVector leafPos2 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(1)).getCoord().getPosition();
-            IVector leafPos3 = ((AtomLeaf)((AtomTreeNodeGroup)molecule.getNode()).getChildList().get(2)).getCoord().getPosition();
+            IVector leafPos1 = ((AtomLeaf)((AtomGroup)molecule).getChildList().get(0)).getCoord().getPosition();
+            IVector leafPos2 = ((AtomLeaf)((AtomGroup)molecule).getChildList().get(1)).getCoord().getPosition();
+            IVector leafPos3 = ((AtomLeaf)((AtomGroup)molecule).getChildList().get(2)).getCoord().getPosition();
             //axes[0] should point from the 0th atom on the molecule to the 2nd atom on the molecule
             axes[0].Ev1Mv2(leafPos3, leafPos1);
             //Now we take the midpoint between the 0th atom and the 2nd atom.

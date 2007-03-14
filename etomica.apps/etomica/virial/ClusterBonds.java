@@ -157,7 +157,7 @@ public class ClusterBonds implements java.io.Serializable {
 	 * @return double value of the cluster
 	 */
 	public double value(Atom atom, double[][][] fPairs) {
-		int i = atom.getNode().getIndex();
+		int i = atom.getIndex();
 		double p = 1.0;
 		for(int j=0; j<nPoints; j++) {
             int protoIndex = bondIndexArray[i][j];
@@ -182,8 +182,8 @@ public class ClusterBonds implements java.io.Serializable {
 	 */
 
 	public double value(Atom atom1, Atom atom2, double[][][] fPairs) {
-		int i = atom1.getNode().getIndex();
-		int j = atom2.getNode().getIndex();
+		int i = atom1.getIndex();
+		int j = atom2.getIndex();
         int protoIndex = bondIndexArray[i][j];
 		return (protoIndex==-1) ? 1.0 : fPairs[protoIndex][i][j];
 	}

@@ -96,7 +96,7 @@ public class SimulationVirialPT extends Simulation {
             
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
-            if (phase[iTemp].molecule(0).getNode().isLeaf()) {
+            if (phase[iTemp].molecule(0).isLeaf()) {
                 mcMoveAtom1[iTemp] = new MCMoveClusterAtom(this);
                 mcMoveAtom1[iTemp].setStepSize(1.15);
                 moveManager.addMCMove(mcMoveAtom1[iTemp]);

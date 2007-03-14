@@ -4,7 +4,6 @@ package etomica.util;
  * Interface for the basic features of a function that maps a double onto
  * another double.
  */
-
 public interface Function {
 
     public double f(double x);

@@ -2,8 +2,8 @@ package etomica.nbr.list;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.iterator.ApiInnerFixed;
@@ -360,7 +360,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
-            Atom parentAtom = targetAtom.getNode().parentGroup();
+            Atom parentAtom = targetAtom.parentGroup();
             while (parentAtom.getType().getDepth() > 2) {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
@@ -368,7 +368,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     potentials[i].setPhase(phase);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
                 }
-                parentAtom = parentAtom.getNode().parentGroup();
+                parentAtom = parentAtom.parentGroup();
             }                
             PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
             Potential[] potentials = potentialArray.getPotentials();
@@ -453,7 +453,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }//end of for
         
         //if atom has children, repeat process with them
-        if(!atom.getNode().isLeaf()) {
+        if(!atom.isLeaf()) {
             potentialArray = getIntraPotentials(atom.getType());
             potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
@@ -461,7 +461,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }
             
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((AtomTreeNodeGroup) atom.getNode()).getChildList();
+            AtomArrayList list = ((AtomGroup)atom).getChildList();
             int size = list.size();
             for (int i=0; i<size; i++) {
                 Atom a = list.get(i);

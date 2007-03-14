@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesAgent;
 import etomica.phase.Phase;
 import etomica.species.Species;
 
@@ -56,19 +56,19 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
             emptyList.clear();
             apiInterList.setOuterList(emptyList);
         } else {
-            AtomTreeNodeGroup agentNode0 = (AtomTreeNodeGroup) phase.getAgent(species0).getNode();
-            AtomTreeNodeGroup agentNode1 = (AtomTreeNodeGroup) phase.getAgent(species1).getNode();
-            if (agentNode0.getIndex() > agentNode1.getIndex()) {
+            SpeciesAgent agent0 = phase.getAgent(species0);
+            SpeciesAgent agent1 = phase.getAgent(species1);
+            if (agent0.getIndex() > agent1.getIndex()) {
                 // species were out of order.  swap them
                 Species tempSpecies = species0;
                 species0 = species1;
                 species1 = tempSpecies;
-                AtomTreeNodeGroup tempNode = agentNode0;
-                agentNode0 = agentNode1;
-                agentNode1 = tempNode;
+                SpeciesAgent tempAgent = agent0;
+                agent0 = agent1;
+                agent1 = tempAgent;
             }
-            apiInterList.setOuterList(agentNode0.getChildList());
-            apiInterList.setInnerList(agentNode1.getChildList());
+            apiInterList.setOuterList(agent0.getChildList());
+            apiInterList.setInnerList(agent1.getChildList());
         }
     }
 

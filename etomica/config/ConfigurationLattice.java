@@ -2,7 +2,7 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -182,10 +182,10 @@ public class ConfigurationLattice extends Configuration {
         indexIterator.reset();
         while (atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            if (!a.getNode().isLeaf()) {
+            if (!a.isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup) a.getNode()).getChildList());
+                config.initializePositions(((AtomGroup)a).getChildList());
             }
 
             int[] ii = indexIterator.next();

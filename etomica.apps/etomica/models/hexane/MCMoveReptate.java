@@ -2,10 +2,10 @@ package etomica.models.hexane;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMovePhaseStep;
@@ -86,7 +86,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
        
        //Pick direction & set up list of atoms to iterate
        forward = Simulation.random.nextBoolean();
-       AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
+       AtomArrayList childlist = ((AtomGroup)atom).getChildList();
        int numChildren = childlist.size();
        
        if(forward){
@@ -133,7 +133,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
     }
     
     public void rejectNotify(){
-        AtomArrayList childlist = ((AtomTreeNodeGroup)atom.getNode()).getChildList();
+        AtomArrayList childlist = ((AtomGroup)atom).getChildList();
         int numChildren = childlist.size();
         if (!forward) {
             IVector position = ((AtomLeaf)childlist.get(numChildren-1)).getCoord().getPosition();

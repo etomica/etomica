@@ -7,7 +7,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
     public void setPhase(Phase p) {
         super.setPhase(p);
         speciesMaster = p.getSpeciesMaster();
-        agentList = ((AtomTreeNodeGroup)speciesMaster.getNode()).getChildList();
+        agentList = speciesMaster.getChildList();
         reset();
     }
     
@@ -24,7 +24,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
         
         for ( ; agentIndex<agentList.size(); agentIndex++) {
             // advance through the species if needed
-            moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).getNode()).getChildList();
+            moleculeList = ((AtomGroup)agentList.get(agentIndex)).getChildList();
             int count = moleculeList.size();
             if (prevIndex+lookAhead < count) {
                 prevIndex += lookAhead;
@@ -35,7 +35,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
         if (lookAhead > -1) {
             // we ran out of species, so start over with the first species
             for (agentIndex=0 ; agentIndex<agentList.size(); agentIndex++) {
-                moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).getNode()).getChildList();
+                moleculeList = ((AtomGroup)agentList.get(agentIndex)).getChildList();
                 int count = moleculeList.size();
                 if (prevIndex+lookAhead < count) {
                     prevIndex += lookAhead;
@@ -59,7 +59,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
         prevIndex = random.nextInt(size);
         
         for (agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
-            moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).getNode()).getChildList();
+            moleculeList = ((AtomGroup)agentList.get(agentIndex)).getChildList();
             int count = moleculeList.size();
             if (prevIndex < count) {
                 break;

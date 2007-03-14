@@ -6,8 +6,7 @@ import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTreeNode;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -86,16 +85,16 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
     public void setPhase(Phase phase) {
         this.phase = phase;
         if (phase != null) {
-            agentNode0 = (AtomTreeNodeGroup) phase.getAgent(species0).getNode();
-            agentNode1 = (AtomTreeNodeGroup) phase.getAgent(species1).getNode();
-            if (agentNode0.getIndex() > agentNode1.getIndex()) {
+            agent0 = phase.getAgent(species0);
+            agent1 = phase.getAgent(species1);
+            if (agent0.getIndex() > agent1.getIndex()) {
                 // species were out of order.  swap them
                 Species tempSpecies = species0;
                 species0 = species1;
                 species1 = tempSpecies;
-                AtomTreeNodeGroup tempNode = agentNode0;
-                agentNode0 = agentNode1;
-                agentNode1 = tempNode;
+                SpeciesAgent tempAgent = agent0;
+                agent0 = agent1;
+                agent1 = tempAgent;
             }
             identifyTargetMolecule();
         } else {
@@ -145,26 +144,23 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
     private void identifyTargetMolecule() {
         if (phase == null || targetAtom == null) {
             targetMolecule = null;
-        } else {
-            AtomTreeNode targetNode = targetAtom.getNode()
-                    .childWhereDescendedFrom(agentNode0);
-            if (targetNode != null) { //target is species0
+        }
+        else {
+            targetMolecule = targetAtom.childWhereDescendedFrom(agent0);
+            if (targetMolecule != null) {
+                //target is species0
                 allowedDirection = IteratorDirective.Direction.UP;
                 iterator = apiUp;
-                targetMolecule = targetNode.atom();
-                aiInner.setList(agentNode1.getChildList());
-            } else { //target is not species0
-                targetNode = targetAtom.getNode()
-                        .childWhereDescendedFrom(agentNode1);
+                aiInner.setList(agent1.getChildList());
+            }
+            else {
+                //target is not species0, try species1
+                targetMolecule = targetAtom.childWhereDescendedFrom(agent1);
 
-                if (targetNode != null) {//target is species1
+                if (targetMolecule != null) {//target is species1
                     allowedDirection = IteratorDirective.Direction.DOWN;
                     iterator = apiDown;
-                    targetMolecule = targetNode.atom();
-                    aiInner.setList(agentNode0.getChildList());
-
-                } else { //target not in either species
-                    targetMolecule = null;
+                    aiInner.setList(agent0.getChildList());
                 }
             }
         }
@@ -231,7 +227,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
     private final ApiInnerFixed apiUp, apiDown;
     private ApiInnerFixed iterator;
     private IteratorDirective.Direction direction, allowedDirection;
-    private AtomTreeNodeGroup agentNode0, agentNode1;
+    private SpeciesAgent agent0, agent1;
     private Phase phase;
     private Atom targetAtom, targetMolecule;
 }

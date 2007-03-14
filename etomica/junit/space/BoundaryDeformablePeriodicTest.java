@@ -1,8 +1,8 @@
 package etomica.junit.space;
 
 import junit.framework.TestCase;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.IndexIteratorSequential;
@@ -139,9 +139,9 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         BoundaryDeformablePeriodicTest test = new BoundaryDeformablePeriodicTest();
         test.simGraphic = makeDisplay(test);
         test.sim = test.simGraphic.getSimulation();
-        test.atom0 = (AtomLeaf)((AtomTreeNodeGroup)test.sim.getSpeciesRoot().getNode()).getDescendant(new int[] {0, 0, 0});
-        test.atom1 = (AtomLeaf)((AtomTreeNodeGroup)test.sim.getSpeciesRoot().getNode()).getDescendant(new int[] {0, 0, 1});
-        test.atom2 = (AtomLeaf)((AtomTreeNodeGroup)test.sim.getSpeciesRoot().getNode()).getDescendant(new int[] {0, 0, 2});
+        test.atom0 = (AtomLeaf)((AtomGroup)test.sim.getSpeciesRoot()).getDescendant(new int[] {0, 0, 0});
+        test.atom1 = (AtomLeaf)((AtomGroup)test.sim.getSpeciesRoot()).getDescendant(new int[] {0, 0, 1});
+        test.atom2 = (AtomLeaf)((AtomGroup)test.sim.getSpeciesRoot()).getDescendant(new int[] {0, 0, 2});
         test.display = ((DisplayPhase)test.simGraphic.displayList().getFirst());
         test.interactive = true;
         test.testNearestImage();

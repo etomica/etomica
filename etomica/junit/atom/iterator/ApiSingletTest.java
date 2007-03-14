@@ -3,9 +3,11 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiSinglet;
+import etomica.space3d.Space3D;
 
 /**
  * Unit test for ApiSinglet class.
@@ -28,9 +30,9 @@ public class ApiSingletTest extends IteratorTestAbstract {
 
     public void setUp() {
         iterator = new ApiSinglet();
-        testAtom1 = new Atom();
-        testAtom2 = new Atom();
-        testAtom3 = new Atom();
+        testAtom1 = new AtomLeaf(Space3D.getInstance());
+        testAtom2 = new AtomLeaf(Space3D.getInstance());
+        testAtom3 = new AtomLeaf(Space3D.getInstance());
         list1 = makeTestList(new AtomSet[] { new AtomPair(testAtom1, testAtom2) });
         list2 = makeTestList(new AtomSet[] { new AtomPair(testAtom2, testAtom1) });
         list3 = makeTestList(new AtomSet[] { new AtomPair(testAtom2, testAtom3) });

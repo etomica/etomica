@@ -1,8 +1,8 @@
 package etomica.virial;
 
 import etomica.action.AtomAction;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -22,7 +22,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     public void setPhase(Phase p) {
         super.setPhase(p);
         weightMeter.setPhase(p);
-        oldPositions = new IVector[((AtomTreeNodeGroup)molecule.getNode()).getChildList().size()-1];
+        oldPositions = new IVector[molecule.getChildList().size()-1];
         for (int j=0; j<oldPositions.length; j++) {
             oldPositions[j] = p.getSpace().makeVector();
         }
@@ -31,16 +31,16 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     public boolean doTrial() {
         if(phase.moleculeCount()==1) {molecule = null; return false;}
             
-        molecule = moleculeSource.getAtom();
-        while (molecule.getNode().getIndex() == 0) {
-            molecule = moleculeSource.getAtom();
+        molecule = (AtomGroup)moleculeSource.getAtom();
+        while (molecule.getIndex() == 0) {
+            molecule = (AtomGroup)moleculeSource.getAtom();
         }
         uOld = weightMeter.getDataAsScalar();
         
         double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(Simulation.random.nextInt(3),dTheta);
 
-        leafAtomIterator.setRoot(molecule);
+        leafAtomIterator.setRootAtom(molecule);
         leafAtomIterator.reset();
         AtomLeaf first = (AtomLeaf)leafAtomIterator.nextAtom();
         int j=0;

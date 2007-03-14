@@ -75,8 +75,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
             Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
-            phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().getNode().parentGroup());
-            phaseAgentManager1Body.setRoot((SpeciesRoot)phase.getSpeciesMaster().getNode().parentGroup());
+            phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().parentGroup());
+            phaseAgentManager1Body.setRoot((SpeciesRoot)phase.getSpeciesMaster().parentGroup());
             updateLists(phase);
             reset(phase);
         }
@@ -91,7 +91,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
         potentialListManager = (AtomAgentManager)phaseAgentManager1Body.getAgent(phase);
 
-        iterator.setRoot(phase.getSpeciesMaster());
+        iterator.setRootAtom(phase.getSpeciesMaster());
         iterator.reset();
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
@@ -146,7 +146,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         for (int j = 0; j < criteriaArray.length; j++) {
             criteriaArray[j].setPhase(phase);
         }
-        iterator.setRoot(phase.getSpeciesMaster());
+        iterator.setRootAtom(phase.getSpeciesMaster());
         iterator.allAtoms(neighborCheck);
         if (neighborCheck.needUpdate) {
             if (Debug.ON && Debug.DEBUG_NOW) {
@@ -270,7 +270,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
         agentManager1Body = (AtomAgentManager)phaseAgentManager1Body.getAgent(phase);
 
-        iterator.setRoot(phase.getSpeciesMaster());
+        iterator.setRootAtom(phase.getSpeciesMaster());
         neighborReset.setNeighborLists(agentManager,agentManager1Body);
         iterator.allAtoms(neighborReset);
         

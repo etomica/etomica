@@ -6,8 +6,8 @@ package etomica.nbr.site;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
@@ -179,7 +179,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
             Atom pseudoTargetAtom = targetAtom;
             while (pseudoTargetAtom.getType().getDepth() > 3) {
-                pseudoTargetAtom = pseudoTargetAtom.getNode().parentGroup();
+                pseudoTargetAtom = pseudoTargetAtom.parentGroup();
                 PotentialArray potentialArray = getIntraPotentials(pseudoTargetAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
@@ -234,7 +234,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
             
 		//if atom has children, repeat process with them
-		if(!atom.getNode().isLeaf()) {
+		if(!atom.isLeaf()) {
             potentialArray = getIntraPotentials(atom.getType());
             potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
@@ -242,7 +242,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
 
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((AtomTreeNodeGroup) atom.getNode()).getChildList();
+            AtomArrayList list = ((AtomGroup)atom).getChildList();
             int size = list.size();
             for (int i=0; i<size; i++) {
                 Atom a = list.get(i);

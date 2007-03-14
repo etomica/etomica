@@ -103,7 +103,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                         treeIterator.setDoAllNodes(true);
                     }
                     // add all atoms below this atom
-                    treeIterator.setRoot(a);
+                    treeIterator.setRootAtom(a);
                     treeIterator.reset();
                     while (treeIterator.hasNext()) {
                         addAgent(treeIterator.nextAtom());
@@ -125,7 +125,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                         treeIterator.setDoAllNodes(true);
                     }
                     // nuke all atoms below this atom
-                    treeIterator.setRoot(a);
+                    treeIterator.setRootAtom(a);
                     treeIterator.reset();
                     while (treeIterator.hasNext()) {
                         Atom childAtom = treeIterator.nextAtom();

@@ -1,14 +1,9 @@
 package etomica.atom;
 
+public class AtomGroup extends Atom {
 
-/**
- * Implementation of AtomTreeNode for non-leaf node.
- */
-  
-public class AtomTreeNodeGroup extends AtomTreeNode {
-    
-    public AtomTreeNodeGroup(Atom atom) {
-        super(atom);
+    public AtomGroup(AtomType type) {
+        super(type);
         childList = new AtomArrayList();
         assignChildOrdinals();
     }
@@ -29,7 +24,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      */
     private void assignChildOrdinals() {
         for (int i = 0; i < childList.size(); i++) {
-            childList.get(i).getNode().setIndex(i);
+            childList.get(i).setIndex(i);
         }
     }
 
@@ -50,19 +45,19 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     private Atom getDescendant(int n, int[] path) {
         Atom child = childList.get(path[n]);
         if(path.length - 1 > n) {//go further down hierarchy
-            if(child.getNode().isLeaf()) {//no more there
+            if(child.isLeaf()) {//no more there
                 throw new IllegalArgumentException("Depth of requested descendant exceeds depth of atom hierarchy");
             }//get indicated descendant recursively
-            child = ((AtomTreeNodeGroup)child.getNode()).getDescendant(n+1, path);
+            child = ((AtomGroup)child).getDescendant(n+1, path);
         }
         return child;
     }
-	
+    
     public boolean isLeaf() {return false;}
     
     public AtomLeaf firstLeafAtom() {
         for (int i = 0; i < childList.size(); i++) {
-            AtomLeaf a1 = childList.get(i).getNode().firstLeafAtom();
+            AtomLeaf a1 = childList.get(i).firstLeafAtom();
             if(a1 != null) return a1;
         }
         return null;
@@ -73,7 +68,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      */
     public AtomLeaf lastLeafAtom() {
         for (int i = childList.size()-1; i > -1; i--) {
-            AtomLeaf a1 = childList.get(i).getNode().lastLeafAtom();
+            AtomLeaf a1 = childList.get(i).lastLeafAtom();
             if(a1 != null) return a1;
         }
         return null;
@@ -96,7 +91,7 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     public void removeAllChildren() {
         Atom[] array = childAtomArray();
         for(int i=0; i<array.length; i++) {
-            array[i].getNode().dispose();
+            array[i].dispose();
         }
     }
     
@@ -105,9 +100,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      * or one of its descendants.
      */
     public void addAtomNotify(Atom childAtom) {
-        leafAtomCount += childAtom.getNode().leafAtomCount();
-        if (parentNode() != null) {
-            parentNode().addAtomNotify(childAtom);
+        leafAtomCount += childAtom.leafAtomCount();
+        if (parent != null) {
+            parent.addAtomNotify(childAtom);
         }
     }
     
@@ -116,9 +111,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
      * one of its descendants.
      */
     public void removeAtomNotify(Atom childAtom) {
-        leafAtomCount -= childAtom.getNode().leafAtomCount();
-        if(parentNode() != null) {
-            parentNode().removeAtomNotify(childAtom);
+        leafAtomCount -= childAtom.leafAtomCount();
+        if(parent != null) {
+            parent.removeAtomNotify(childAtom);
         }
     }
 
@@ -132,18 +127,9 @@ public class AtomTreeNodeGroup extends AtomTreeNode {
     private static final long serialVersionUID = 1L;
     protected int leafAtomCount;
     
-    //childlist is public, but should not add/remove atoms except via node's methods.
+    //nobody should not add/remove atoms except via AtomGroup's methods.
     //consider a mechanism to ensure this; a inner mutator class made available only
     //to list's creator, for example (still wouldn't prevent modification via direct
     //access of entry classes).
-    private final AtomArrayList childList;
-        
-    public static final AtomTreeNodeFactory FACTORY = new AtomTreeNodeGroup.Factory();
-    
-    protected static final class Factory implements AtomTreeNodeFactory, java.io.Serializable {
-        public AtomTreeNode makeNode(Atom atom) {
-            return new AtomTreeNodeGroup(atom);
-        }
-        private static final long serialVersionUID = 1L;
-    }
+    protected final AtomArrayList childList;
 }

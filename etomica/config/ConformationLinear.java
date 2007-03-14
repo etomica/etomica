@@ -3,7 +3,7 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
@@ -79,10 +79,10 @@ public class ConformationLinear extends Conformation {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom a = atomIterator.nextAtom();
-            if (!a.getNode().isLeaf()) {
+            if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomTreeNodeGroup)a.getNode()).getChildList());
+                config.initializePositions(((AtomGroup)a).getChildList());
             }
             moveToOrigin.actionPerformed(a);
             translationVector.Ea1Tv1(xNext, orientation);

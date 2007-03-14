@@ -37,7 +37,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
         if(phase.moleculeCount()==1) return false;
         
         atom = atomSource.getAtom();
-        while (atom.getNode().getIndex() == 0) {
+        while (atom.getIndex() == 0) {
             atom = atomSource.getAtom();
         }
         

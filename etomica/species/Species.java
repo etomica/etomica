@@ -1,6 +1,6 @@
 package etomica.species;
 import etomica.atom.AtomFactory;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.SpeciesAgent;
@@ -90,7 +90,7 @@ public class Species implements java.io.Serializable {
      */
     public SpeciesAgent makeAgent(SpeciesMaster parent) {
         SpeciesAgent agent = new SpeciesAgent(agentType, this);
-        agent.getNode().setParent((AtomTreeNodeGroup)parent.getNode());
+        agent.setParent(parent);
         return agent;
     }
 

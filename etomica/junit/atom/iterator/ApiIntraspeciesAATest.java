@@ -4,7 +4,6 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiIntraspeciesAA;
 import etomica.junit.UnitTestUtil;
@@ -33,16 +32,15 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         int[] n2 = new int[] {1, 7, 2};
         int[] n2Tree = new int[] {3,4};
         SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
-        AtomTreeNodeGroup rootNode = (AtomTreeNodeGroup)root.getNode();
         
         Species[] species = new Species[3];
-        species[0] = rootNode.getDescendant(new int[] {0,0}).getType().getSpecies();
-        species[1] = rootNode.getDescendant(new int[] {0,1}).getType().getSpecies();
-        species[2] = rootNode.getDescendant(new int[] {0,2}).getType().getSpecies();
+        species[0] = root.getDescendant(new int[] {0,0}).getType().getSpecies();
+        species[1] = root.getDescendant(new int[] {0,1}).getType().getSpecies();
+        species[2] = root.getDescendant(new int[] {0,2}).getType().getSpecies();
 
-        phaseTest(rootNode, species, 0);
-        phaseTest(rootNode, species, 1);
-        phaseTest(rootNode, species, 2);
+        phaseTest(root, species, 0);
+        phaseTest(root, species, 1);
+        phaseTest(root, species, 2);
         
         
         //test new iterator gives no iterates
@@ -80,23 +78,23 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular phase.
      */
-    private void phaseTest(AtomTreeNodeGroup rootNode, Species[] species, int phaseIndex) {
-        speciesTestForward(rootNode, species, phaseIndex, 0);
-        speciesTestForward(rootNode, species, phaseIndex, 1);
-        speciesTestForward(rootNode, species, phaseIndex, 2);
+    private void phaseTest(SpeciesRoot root, Species[] species, int phaseIndex) {
+        speciesTestForward(root, species, phaseIndex, 0);
+        speciesTestForward(root, species, phaseIndex, 1);
+        speciesTestForward(root, species, phaseIndex, 2);
     }
 
     /**
      * Test iteration in various directions with different targets.  Iterator constructed with
      * index of first species less than index of second.
      */
-    private void speciesTestForward(AtomTreeNodeGroup rootNode, Species[] species, int phaseIndex, int species0Index) {
+    private void speciesTestForward(SpeciesRoot root, Species[] species, int phaseIndex, int species0Index) {
         ApiIntraspeciesAA api = new ApiIntraspeciesAA(species[species0Index]);
-        Phase phase = rootNode.getDescendant(new int[] {phaseIndex}).getNode().parentPhase();
+        Phase phase = root.getDescendant(new int[] {phaseIndex}).parentPhase();
         AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
 
         api.setPhase(phase);
-        Atom[] molecules0 = ((AtomTreeNodeGroup)phase.getAgent(species[species0Index]).getNode()).getChildList().toArray();
+        Atom[] molecules0 = phase.getAgent(species[species0Index]).getChildList().toArray();
         
         int count = molecules0.length * (molecules0.length - 1) / 2;
         

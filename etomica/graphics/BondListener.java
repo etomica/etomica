@@ -6,9 +6,10 @@ import java.util.HashMap;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTreeNode;
+import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
@@ -110,7 +111,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         AtomIteratorTree leafIterator = new AtomIteratorTree();
         while(moleculeIterator.hasNext()) {
             Atom molecule = moleculeIterator.nextAtom();
-            leafIterator.setRoot(molecule);
+            leafIterator.setRootAtom(molecule);
             leafIterator.reset();
             while (leafIterator.hasNext()) {
                 Atom leafAtom = leafIterator.nextAtom();
@@ -130,8 +131,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     }
     
     public Object makeAgent(Atom newAtom) {
-        AtomTreeNode node = newAtom.getNode();
-        if (node.parentGroup() == node.parentMolecule() && node.isLeaf()) {
+        if (!(newAtom.parentGroup() instanceof SpeciesAgent) && newAtom.isLeaf()) {
             // we got a leaf atom in a mult-atom molecule
             ArrayList bondList = new ArrayList(); 
             Model.PotentialAndIterator[] bondIterators = 
@@ -139,6 +139,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     get(newAtom.getType().getSpecies());
             
             if (bondIterators != null) {
+                AtomGroup molecule = (AtomGroup)newAtom.parentMolecule();
                 for (int i=0; i<bondIterators.length; i++) {
                     Potential bondedPotential = bondIterators[i].getPotential();
                     AtomsetIteratorBasisDependent iterator = bondIterators[i].getIterator();
@@ -154,7 +155,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     else {
                         System.err.println("iterator wasn't directable, strange things may happen");
                     }
-                    iterator.setBasis(node.parentMolecule());
+                    iterator.setBasis(molecule);
                     iterator.setTarget(newAtom);
                     iterator.reset();
                     while (iterator.hasNext()) {

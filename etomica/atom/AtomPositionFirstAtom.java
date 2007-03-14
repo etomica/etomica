@@ -10,7 +10,7 @@ import etomica.space.IVector;
 public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Serializable {
 
     public IVector position(Atom atom) {
-        return atom.getNode().firstLeafAtom().getCoord().getPosition();
+        return atom.firstLeafAtom().getCoord().getPosition();
     }
 
     private static final long serialVersionUID = 1L;

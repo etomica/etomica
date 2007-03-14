@@ -10,8 +10,8 @@ import etomica.EtomicaElement;
 import etomica.action.PhaseInflate;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
-import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.atom.iterator.AtomIterator;
@@ -78,14 +78,14 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         eventManager = new PhaseEventManager();
         speciesMaster = new SpeciesMaster(sim, this, eventManager);
         setBoundary(new BoundaryRectangularPeriodic(sim));
-        speciesMaster.getNode().setParent((AtomTreeNodeGroup)sim.getSpeciesRoot().getNode());
+        speciesMaster.setParent(sim.getSpeciesRoot());
         setName(null);
 
         inflateEvent = new PhaseInflateEvent(this);
     }
 
     public int getIndex() {
-        return speciesMaster.getNode().getIndex();
+        return speciesMaster.getIndex();
     }
     
     /**
@@ -141,9 +141,9 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         if(i >= moleculeCount() || i < 0) 
             throw new IndexOutOfBoundsException("Index: "+i+
                                                 ", Number of molecules: "+moleculeCount());
-        AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.getNode()).getChildList();
+        AtomArrayList agentList = speciesMaster.getChildList();
         for (int agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
-            AtomArrayList moleculeList = ((AtomTreeNodeGroup)agentList.get(agentIndex).getNode()).getChildList();
+            AtomArrayList moleculeList = ((AtomGroup)agentList.get(agentIndex)).getChildList();
             int count = moleculeList.size();
             if (i < count) {
                 return moleculeList.get(i);
@@ -204,7 +204,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      */
     public final SpeciesAgent getAgent(Species s) {
         //brute force it
-        AtomArrayList agentList = ((AtomTreeNodeGroup)speciesMaster.getNode()).getChildList();
+        AtomArrayList agentList = speciesMaster.getChildList();
         for (int i=0; i<agentList.size(); i++) {
             if (((SpeciesAgent)agentList.get(i)).getType().getSpecies() == s) {
                 return (SpeciesAgent)agentList.get(i);
@@ -233,14 +233,14 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * @return the first atom in the linked list of atoms in this Phase
      */
     public final Atom firstAtom() {
-        return speciesMaster.getNode().firstLeafAtom();
+        return speciesMaster.firstLeafAtom();
     }
     
     /**
      * @return the last atom in the linked list of atoms in this Phase
      */
     public final Atom lastAtom() {
-        return speciesMaster.getNode().lastLeafAtom();
+        return speciesMaster.lastLeafAtom();
     }
 
     /**
@@ -251,7 +251,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     /**
      * returns the number of leaf atoms in the phase
      */
-    public int atomCount() {return speciesMaster.getNode().leafAtomCount();}
+    public int atomCount() {return speciesMaster.leafAtomCount();}
         
     /**
      * Adds the given molecule to this phase.
@@ -259,7 +259,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * @param s the species agent in this phase for the molecule's species.
      */
     public void addMolecule(Atom a, SpeciesAgent s) {
-        a.getNode().setParent((AtomTreeNodeGroup)s.getNode());
+        a.setParent(s);
     }
     
     /**
@@ -267,7 +267,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      */
     public void removeMolecule(Atom a) {
         if(a == null) return;
-        a.getNode().dispose();
+        a.dispose();
     }
     
     /**
@@ -279,7 +279,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 
     public void writePhase(ObjectOutputStream out) throws IOException {
         out.writeObject(boundary);
-        AtomArrayList agents = ((AtomTreeNodeGroup)speciesMaster.getNode()).getChildList();
+        AtomArrayList agents = speciesMaster.getChildList();
         out.writeInt(agents.size());
         for (int i=0; i<agents.size(); i++) {
             Species species = agents.get(i).getType().getSpecies();

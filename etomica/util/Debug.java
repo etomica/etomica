@@ -90,7 +90,7 @@ public final class Debug {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if ((ATOM1_INDEX > -1 && globalIndex == ATOM1_INDEX) || (ATOM2_INDEX > -1 && globalIndex == ATOM2_INDEX)) return true;
             if (atoms.getAtom(i).getType().getDepth() > 2) {
-                globalIndex = atoms.getAtom(i).getNode().parentMolecule().getGlobalIndex();
+                globalIndex = atoms.getAtom(i).parentMolecule().getGlobalIndex();
                 if ((MOLECULE1_INDEX > -1 && globalIndex == MOLECULE1_INDEX) || (MOLECULE2_INDEX > -1 && globalIndex == MOLECULE2_INDEX)) return true;
             }
 		}
@@ -108,7 +108,7 @@ public final class Debug {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if (globalIndex != ATOM1_INDEX && globalIndex != ATOM2_INDEX) return false;  
             if (atoms.getAtom(i).getType().getDepth() > 2) {
-                globalIndex = atoms.getAtom(i).getNode().parentMolecule().getGlobalIndex();
+                globalIndex = atoms.getAtom(i).parentMolecule().getGlobalIndex();
                 if (globalIndex != MOLECULE1_INDEX && globalIndex != MOLECULE2_INDEX) return false;
             }
 		}

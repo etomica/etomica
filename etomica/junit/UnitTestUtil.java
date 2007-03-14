@@ -168,7 +168,7 @@ public class UnitTestUtil {
     public static void main(String[] arg) {
         SpeciesRoot root = makeStandardSpeciesTree();
         AtomIteratorTree iterator = new AtomIteratorTree();
-        iterator.setRoot(root);
+        iterator.setRootAtom(root);
         iterator.setDoAllNodes(true);
         iterator.reset();
         while (iterator.hasNext()) {
