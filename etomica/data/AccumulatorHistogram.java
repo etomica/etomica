@@ -5,7 +5,6 @@
 package etomica.data;
 
 import etomica.data.types.CastToDoubleArray;
-import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -50,9 +49,8 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Adds each value in the given Data to its own histogram.
      */
     protected void addData(Data inputData) {
-        DataArithmetic values = (DataArithmetic)inputData;
         for (int i = nData-1; i >= 0; i--) {
-            histogram[i].addValue(values.getValue(i));
+            histogram[i].addValue(inputData.getValue(i));
         }
     }
 
@@ -192,6 +190,7 @@ public class AccumulatorHistogram extends DataAccumulator {
         return dataInfo;
     }
     
+    private static final long serialVersionUID = 1L;
     protected Histogram[] histogram = new Histogram[0];
     protected DataSourceIndependentSimple[] xDataSources = new DataSourceIndependentSimple[0];
     private DataGroup data;

@@ -4,9 +4,7 @@
  */
 package etomica.data;
 
-import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataGroup;
-import etomica.data.types.DataArithmetic.DataInfoArithmetic;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.simulation.Simulation;
 import etomica.util.EnumeratedType;
@@ -33,7 +31,7 @@ import etomica.util.Function;
  * confidence limits for the overall average is obtained as the standard error
  * of the mean of these block averages.
  * <p>
- * Incoming Data must implement DataArithmetic.
+ * Incoming Data must implement Data.
  */
 public class AccumulatorAverage extends DataAccumulator {
 
@@ -80,16 +78,12 @@ public class AccumulatorAverage extends DataAccumulator {
     }
 
     /**
-     * Checks that incoming Data implements DataArithmetic, and returns null if
+     * Checks that incoming Data implements Data, and returns null if
      * this is so. Otherwise throws a ClassCastException, as there is no data
-     * caster to DataArithmetic.
+     * caster to Data.
      */
     public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
-        if (incomingDataInfo instanceof DataInfoArithmetic) {
-            return null;
-        }
-        throw new ClassCastException(
-                "Data type cannot be handled by AccumulatorAverage");
+        return null;
     }
 
     /**
@@ -97,7 +91,7 @@ public class AccumulatorAverage extends DataAccumulator {
      * values is NaN, method returns with no effect on accumulation sums.
      */
     public void addData(Data data) {
-        DataArithmetic value = (DataArithmetic) data;
+        Data value =  data;
         if (value.isNaN())
             return;
 
@@ -237,20 +231,20 @@ public class AccumulatorAverage extends DataAccumulator {
      *            addData
      */
     public DataInfo processDataInfo(DataInfo incomingDataInfo) {
-        sum = (DataArithmetic)incomingDataInfo.makeData();
-        sumSquare = (DataArithmetic)incomingDataInfo.makeData();
-        sumSquareBlock = (DataArithmetic)incomingDataInfo.makeData();
-        standardDeviation = (DataArithmetic)incomingDataInfo.makeData();
-        average = (DataArithmetic)incomingDataInfo.makeData();
-        error = (DataArithmetic)incomingDataInfo.makeData();
-        blockSum = (DataArithmetic)incomingDataInfo.makeData();
-        blockSumSq = (DataArithmetic)incomingDataInfo.makeData();
-        mostRecent = (DataArithmetic)incomingDataInfo.makeData();
-        mostRecentBlock = (DataArithmetic)incomingDataInfo.makeData();
-        blockCorrelation = (DataArithmetic)incomingDataInfo.makeData();
-        firstBlock = (DataArithmetic)incomingDataInfo.makeData();
-        correlationSum = (DataArithmetic)incomingDataInfo.makeData();
-        work = (DataArithmetic)incomingDataInfo.makeData();
+        sum = incomingDataInfo.makeData();
+        sumSquare = incomingDataInfo.makeData();
+        sumSquareBlock = incomingDataInfo.makeData();
+        standardDeviation = incomingDataInfo.makeData();
+        average = incomingDataInfo.makeData();
+        error = incomingDataInfo.makeData();
+        blockSum = incomingDataInfo.makeData();
+        blockSumSq = incomingDataInfo.makeData();
+        mostRecent = incomingDataInfo.makeData();
+        mostRecentBlock = incomingDataInfo.makeData();
+        blockCorrelation = incomingDataInfo.makeData();
+        firstBlock = incomingDataInfo.makeData();
+        correlationSum = incomingDataInfo.makeData();
+        work = incomingDataInfo.makeData();
 
         dataGroup = new DataGroup(new Data[] { mostRecent, average, error,
                         standardDeviation, mostRecentBlock, blockCorrelation});
@@ -340,21 +334,22 @@ public class AccumulatorAverage extends DataAccumulator {
             return new StatType[] {MOST_RECENT,AVERAGE,ERROR,STANDARD_DEVIATION,MOST_RECENT_BLOCK,BLOCK_CORRELATION};
         }
         
+        private static final long serialVersionUID = 1L;
         public final int index;
-    }//end of ValueType
+    }
 
 
     private static final long serialVersionUID = 1L;
-    protected DataArithmetic sum; //sum(blockSum/blkSize) = sum(blockAvg)
-    protected DataArithmetic sumSquare;//sum(blockAvg^2)
-    protected DataArithmetic blockSum;//block(value)
-    protected DataArithmetic blockSumSq;//block(value^2)
-    protected DataArithmetic sumSquareBlock;//sum(value^2)
-    protected DataArithmetic mostRecent;//most recent value
-    protected DataArithmetic mostRecentBlock;//most recent blockAvg
-    protected DataArithmetic average, error, standardDeviation;
-    protected DataArithmetic correlationSum, blockCorrelation, firstBlock;
-    protected DataArithmetic work;
+    protected Data sum; //sum(blockSum/blkSize) = sum(blockAvg)
+    protected Data sumSquare;//sum(blockAvg^2)
+    protected Data blockSum;//block(value)
+    protected Data blockSumSq;//block(value^2)
+    protected Data sumSquareBlock;//sum(value^2)
+    protected Data mostRecent;//most recent value
+    protected Data mostRecentBlock;//most recent blockAvg
+    protected Data average, error, standardDeviation;
+    protected Data correlationSum, blockCorrelation, firstBlock;
+    protected Data work;
     protected DataGroup dataGroup;
     protected int count, blockCountDown;
     protected int blockSize;

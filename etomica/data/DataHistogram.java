@@ -5,7 +5,6 @@
 package etomica.data;
 
 import etomica.data.types.CastToDoubleArray;
-import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
@@ -50,10 +49,9 @@ public class DataHistogram extends DataProcessor {
      * Adds each value in the given Data to a single histogram.
      */
     protected Data processData(Data inputData) {
-        DataArithmetic values = (DataArithmetic)inputData;
         histogram.reset();
         for (int i = 0; i <nData; i++) {
-            histogram.addValue(values.getValue(i));
+            histogram.addValue(inputData.getValue(i));
         }
 
         // check to see if current data function is the right length

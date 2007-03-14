@@ -17,10 +17,6 @@ import etomica.simulation.Simulation;
  * @author David Kofke
  *  
  */
-
-/*
- * History Created on Apr 10, 2005 by kofke
- */
 public class DataTableAverages extends DataSinkTable {
 
     /**
@@ -111,6 +107,7 @@ public class DataTableAverages extends DataSinkTable {
         return (AccumulatorAverage[]) accumulators.clone();
     }
 
+    private static final long serialVersionUID = 1L;
     private AccumulatorAverage[] accumulators = new AccumulatorAverage[0];
     private final StatType[] types;
     private final ActionGroupSeries actionGroup;

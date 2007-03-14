@@ -18,7 +18,7 @@ import etomica.util.Function;
  * @author David Kofke
  *  
  */
-public class DataVector implements DataArithmetic, java.io.Serializable {
+public class DataVector implements Data, java.io.Serializable {
 
     /**
      * Constructs a new instance with the given DataInfo, wrapping a new Vector
@@ -54,28 +54,28 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
     /**
      * Minus-equals (-=) operation.  Performed element-by-element.
      */
-    public void ME(DataArithmetic y) {
+    public void ME(Data y) {
         x.ME(((DataVector) y).x);
     }
 
     /**
      * Plus-equals (+=) operation. Performed element-by-element.
      */
-    public void PE(DataArithmetic y) {
+    public void PE(Data y) {
         x.PE(((DataVector) y).x);
     }
 
     /**
      * Times-equals (*=) operation. Performed element-by-element.
      */
-    public void TE(DataArithmetic y) {
+    public void TE(Data y) {
         x.TE(((DataVector) y).x);
     }
 
     /**
      * Divide-equals (/=) operation. Performed element-by-element.
      */
-    public void DE(DataArithmetic y) {
+    public void DE(Data y) {
         x.DE(((DataVector) y).x);
     }
 
@@ -143,7 +143,7 @@ public class DataVector implements DataArithmetic, java.io.Serializable {
      */
     public final IVector x;
     
-    public static class DataInfoVector extends DataInfo implements DataInfoArithmetic {
+    public static class DataInfoVector extends DataInfo {
         
         public DataInfoVector(String label, Dimension dimension, Space space) {
             super(label, dimension);

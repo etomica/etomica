@@ -17,7 +17,7 @@ import etomica.util.Function;
  * @author David Kofke and Andrew Schultz
  *  
  */
-public class DataDouble implements DataArithmetic, java.io.Serializable {
+public class DataDouble implements Data, java.io.Serializable {
 
     /**
      * Constructs a new instance with given descriptors.
@@ -46,7 +46,7 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
      * Minus-equals (-=) operation. Subtracts the value in the given instance
      * from this instance's value.
      */
-    public void ME(DataArithmetic y) {
+    public void ME(Data y) {
         x -= ((DataDouble) y).x;
     }
 
@@ -54,7 +54,7 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
      * Plus-equals (+=) operation. Adds the value in the given instance to this
      * instance's value.
      */
-    public void PE(DataArithmetic y) {
+    public void PE(Data y) {
         x += ((DataDouble) y).x;
     }
 
@@ -62,7 +62,7 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
      * Times-equals (*=) operation. Replaces the value in this instance with its
      * value times the value in the given instance.
      */
-    public void TE(DataArithmetic y) {
+    public void TE(Data y) {
         x *= ((DataDouble) y).x;
     }
 
@@ -70,7 +70,7 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
      * Divide-equals (/=) operation. Divides this value by the value in the
      * given instance.
      */
-    public void DE(DataArithmetic y) {
+    public void DE(Data y) {
         x /= ((DataDouble) y).x;
     }
 
@@ -148,7 +148,7 @@ public class DataDouble implements DataArithmetic, java.io.Serializable {
      */
     public double x;
     
-    public static class DataInfoDouble extends DataInfo implements DataInfoArithmetic {
+    public static class DataInfoDouble extends DataInfo {
         public DataInfoDouble(String label, Dimension dimension) {
             super(label, dimension);
         }

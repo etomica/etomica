@@ -60,4 +60,5 @@ public class DataSourceAcceptanceRatio extends DataSourceScalar {
         return move.getTracker().acceptanceRatio();
     }
     
+    private static final long serialVersionUID = 1L;
 }

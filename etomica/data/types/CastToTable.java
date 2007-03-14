@@ -10,7 +10,6 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.data.types.DataInteger.DataInfoInteger;
 import etomica.data.types.DataTable.DataInfoTable;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.data.types.DataVector.DataInfoVector;
@@ -103,16 +102,12 @@ public class CastToTable extends DataProcessor implements Serializable {
             inputType = 2;
             nColumns = 1;
             nRows = 1;
-        } else if (inputDataInfo instanceof DataInfoInteger) {
-            inputType = 3;
-            nColumns = 1;
-            nRows = 1;
         } else if (inputDataInfo instanceof DataInfoVector) {
-            inputType = 4;
+            inputType = 3;
             nColumns = 1;
             nRows = ((DataInfoVector)inputDataInfo).getSpace().D();
         } else if (inputDataInfo instanceof DataInfoTensor) {
-            inputType = 5;
+            inputType = 4;
             int D = ((DataInfoTensor)inputDataInfo).getSpace().D();
             nColumns = D;
             nRows = D;
@@ -157,13 +152,10 @@ public class CastToTable extends DataProcessor implements Serializable {
         case 2: //DataDouble
             outputData.E(((DataDouble) data).x);
             break;
-        case 3: //DataInteger
-            ((DataDoubleArray)outputData.getData(0)).getData()[0] = ((DataInteger) data).x;
-            break;
-        case 4: //DataVector
+        case 3: //DataVector
             ((DataVector) data).x.assignTo(((DataDoubleArray)outputData.getData(0)).getData());
             break;
-        case 5: //DataTensor
+        case 4: //DataTensor
             Tensor x = ((DataTensor) data).x;
             for (int i = 0; i < x.D(); i++) {
                 for (int j = 0; j < x.D(); j++) {
@@ -171,7 +163,7 @@ public class CastToTable extends DataProcessor implements Serializable {
                 }
             }
             break;
-        case 6: //DataFunction
+        case 5: //DataFunction
             if (outputData == null) {
                 outputData = new DataTable(new DataDoubleArray[]{xDataSource.getIndependentData(0),(DataDoubleArray)data});
             }

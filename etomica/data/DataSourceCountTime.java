@@ -21,7 +21,7 @@ import etomica.units.Unit;
 public class DataSourceCountTime extends DataSourceScalar implements
 		IntegratorIntervalListener, IntegratorNonintervalListener, EtomicaElement {
 
-	/**
+    /**
 	 * Sets up data source with no integrator specified.  Requires
 	 * call to addIntegrator or setIntegrator before use.
 	 */
@@ -79,5 +79,6 @@ public class DataSourceCountTime extends DataSourceScalar implements
      */
     public int getPriority() {return 1;}
 
+    private static final long serialVersionUID = 1L;
 	double elapsedTime;
 }

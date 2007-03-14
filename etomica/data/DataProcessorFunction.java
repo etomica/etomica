@@ -1,7 +1,5 @@
 package etomica.data;
 
-import etomica.data.types.DataArithmetic;
-import etomica.data.types.DataArithmetic.DataInfoArithmetic;
 import etomica.util.Function;
 
 
@@ -27,7 +25,7 @@ public class DataProcessorFunction extends DataProcessor {
      * @throws ClassCastException if the input data does not implement DataArithmetic
      */
     protected Data processData(Data inputData) {
-        ((DataArithmetic)inputData).map(function);
+        inputData.map(function);
         return inputData;
     }
 
@@ -38,9 +36,6 @@ public class DataProcessorFunction extends DataProcessor {
      * implement DataArithmetic
      */
     protected DataInfo processDataInfo(DataInfo inputDataInfo) {
-        if (!(inputDataInfo instanceof DataInfoArithmetic)) {
-            throw new IllegalArgumentException("DataProcessorFunction can only handle DataArithmetic");
-        }
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(getTag());
         return dataInfo;
@@ -49,9 +44,10 @@ public class DataProcessorFunction extends DataProcessor {
     /**
      * Always returns null.
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
+    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
         return null;
     }
 
+    private static final long serialVersionUID = 1L;
     private final Function function;
 }

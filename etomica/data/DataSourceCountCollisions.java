@@ -1,8 +1,8 @@
 package etomica.data;
 
 import etomica.EtomicaElement;
-import etomica.data.types.DataInteger;
-import etomica.data.types.DataInteger.DataInfoInteger;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
@@ -15,7 +15,6 @@ import etomica.util.NameMaker;
  * This is a data source to count the number of collisions processed by a
  * hard-potential integrator.
  */
-
 public class DataSourceCountCollisions implements DataSource,
         IntegratorNonintervalListener, IntegratorHard.CollisionListener,
         EtomicaElement, java.io.Serializable {
@@ -25,9 +24,9 @@ public class DataSourceCountCollisions implements DataSource,
      * addIntegrator or setIntegrator before use.
      */
     public DataSourceCountCollisions() {
-        dataInfo = new DataInfoInteger("Number of Collisions",
+        dataInfo = new DataInfoDouble("Number of Collisions",
                 Quantity.DIMENSION);
-        data = new DataInteger();
+        data = new DataDouble();
         setName(NameMaker.makeName(this.getClass()));
         tag = new DataTag();
         dataInfo.addTag(tag);
@@ -92,7 +91,8 @@ public class DataSourceCountCollisions implements DataSource,
         this.name = name;
     }
 
-    private final DataInteger data;
+    private static final long serialVersionUID = 1L;
+    private final DataDouble data;
     private String name;
     private final DataInfo dataInfo;
     protected final DataTag tag;

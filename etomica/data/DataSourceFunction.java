@@ -17,11 +17,6 @@ import etomica.util.Function;
  * two Data components; the first (0) is x, and the second (1) is y.
  * Useful for displaying a fixed function on a plot.
  */
- 
- /* History
-  * 09/08/02 (DAK) new
-  */
-  
 public class DataSourceFunction implements DataSource, DataSourceIndependent, Serializable {
     
     public DataSourceFunction() {
@@ -131,10 +126,11 @@ public class DataSourceFunction implements DataSource, DataSourceIndependent, Se
         }
     }
     
+    private static final long serialVersionUID = 1L;
     private DataFunction data;
     private DataInfo dataInfo;
     private final DataSourceUniform xSource;
     private DataDoubleArray xData;
     private Function function;
     protected final DataTag tag;
-}//end of DataSourceFunction
+}

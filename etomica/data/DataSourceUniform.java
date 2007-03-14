@@ -16,12 +16,6 @@ import etomica.util.EnumeratedType;
  * 
  * @author David Kofke
  */
-/*
- * History
- * ?? 		DAK				Created
- * 8/4/04	DAK,AJS,NRC	Add Index method
- */
-
 public class DataSourceUniform implements DataSource, java.io.Serializable {
     
     /**
@@ -238,8 +232,10 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         public static LimitType[] choices() {
             return new LimitType[] {INCLUSIVE,HALF_STEP,EXCLUSIVE};
         }
-    }//end of LimitType
+        private static final long serialVersionUID = 1L;
+    }
     
+    private static final long serialVersionUID = 1L;
     private LimitType typeMin, typeMax;
     private double xMin, xMax;
     private double[] x;
@@ -272,6 +268,6 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         System.out.println("");
         System.out.println("Done");
         
-    }//end of main
+    }
     
- }//end of class
+ }

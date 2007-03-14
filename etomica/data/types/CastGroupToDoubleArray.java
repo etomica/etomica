@@ -7,7 +7,6 @@ import etomica.data.DataProcessor;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.data.types.DataInteger.DataInfoInteger;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.data.types.DataVector.DataInfoVector;
 import etomica.space.IVector;
@@ -97,27 +96,24 @@ public class CastGroupToDoubleArray extends DataProcessor {
         } else if (subDataInfo instanceof DataInfoDouble) {
             inputType = 3;
             outputArrayShape = new int[]{numSubData};
-        } else if (subDataInfo instanceof DataInfoInteger) {
-            inputType = 4;
-            outputArrayShape = new int[]{numSubData};
         } else if (subDataInfo instanceof DataInfoVector) {
             int D = ((DataInfoVector)subDataInfo).getSpace().D();
             if (numSubData == 1) {
-                inputType = 5;
+                inputType = 4;
                 outputArrayShape = new int[]{D};
             }
             else {
-                inputType = 6;
+                inputType = 5;
                 outputArrayShape = new int[]{numSubData, D};
             }
         } else if (subDataInfo instanceof DataInfoTensor) {
             int D = ((DataInfoTensor)subDataInfo).getSpace().D();
             if (numSubData == 1) {
-                inputType = 7;
+                inputType = 6;
                 outputArrayShape = new int[]{D,D};
             }
             else {
-                inputType = 8;
+                inputType = 7;
                 outputArrayShape = new int[]{numSubData,D,D};
             }
         } else {
@@ -157,15 +153,10 @@ public class CastGroupToDoubleArray extends DataProcessor {
                 outputData.getData()[i] = ((DataDouble)group.getData(i)).x;
             }
             return outputData;
-        case 4:  // DataInteger(s)
-            for (int i=0; i<group.getNData(); i++) {
-                outputData.getData()[i] = ((DataInteger)group.getData(i)).x;
-            }
-            return outputData;
-        case 5:  // a single DataVector
+        case 4:  // a single DataVector
             ((DataVector)group.getData(0)).assignTo(outputData.getData());
             return outputData;
-        case 6:  // multiple DataVectors
+        case 5:  // multiple DataVectors
             double[] x = outputData.getData();
             int k=0;
             for (int i=0; i<group.getNData(); i++) {
@@ -175,10 +166,10 @@ public class CastGroupToDoubleArray extends DataProcessor {
                 }
             }
             return outputData;
-        case 7:  // a single DataTensor
+        case 6:  // a single DataTensor
             ((DataTensor)group.getData(0)).assignTo(outputData.getData());
             return outputData;
-        case 8:  // multiple DataTensors
+        case 7:  // multiple DataTensors
             x = outputData.getData();
             k=0;
             for (int i=0; i<group.getNData(); i++) {

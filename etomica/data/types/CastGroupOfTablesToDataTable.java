@@ -4,7 +4,6 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
-import etomica.data.DataTag;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
@@ -30,10 +29,6 @@ import etomica.util.Arrays;
  * 
  * @author David Kofke
  *  
- */
-
-/*
- * History Created on Jul 21, 2005 by kofke
  */
 public class CastGroupOfTablesToDataTable extends DataProcessor {
 
@@ -122,6 +117,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
         return null;
     }
 
+    private static final long serialVersionUID = 1L;
     private DataTable outputData;
     private DataInfoTable outputDataInfo;
 }

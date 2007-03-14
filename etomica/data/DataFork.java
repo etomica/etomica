@@ -14,10 +14,6 @@ import etomica.util.Arrays;
  * DataFork.  If a caster is added, it is not accessible externally to this class; all public methods deal
  * only with the DataSinks.
  */
-
-/*
- * Created July 21, 2005
- */
 public class DataFork implements DataPipeForked, java.io.Serializable {
 
     /**
@@ -142,10 +138,12 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
         }
     }
 
+    private static final long serialVersionUID = 1L;
     protected DataSinkWrapper[] dataSinkList = new DataSinkWrapper[0];
     protected DataInfo dataInfo;
     
     private static class DataSinkWrapper implements Serializable {
+        private static final long serialVersionUID = 1L;
         DataSink dataSink;
         final DataSink trueDataSink;
         DataSinkWrapper(DataSink dataSink) {
@@ -153,5 +151,4 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
             trueDataSink = dataSink;
         }
     }
-
 }

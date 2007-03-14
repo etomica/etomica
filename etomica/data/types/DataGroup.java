@@ -28,7 +28,7 @@ import etomica.util.Function;
  *
  */
 
-public class DataGroup implements DataArithmetic, java.io.Serializable {
+public class DataGroup implements Data, java.io.Serializable {
 
     /**
      * Forms a data group from the given array of data objects. Given data array
@@ -104,7 +104,7 @@ public class DataGroup implements DataArithmetic, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     protected final Data[] data;
     
-    public static class DataInfoGroup extends DataInfo implements DataInfoArithmetic {
+    public static class DataInfoGroup extends DataInfo {
         public DataInfoGroup(String label, Dimension dimension, DataInfo[] subDataInfo) {
             super(label, dimension);
             this.subDataInfo = (DataInfo[])subDataInfo.clone();
@@ -180,26 +180,26 @@ public class DataGroup implements DataArithmetic, java.io.Serializable {
 
     public void assignTo(double[] array) {
         for (int i=0; i<data.length; i++) {
-            ((DataArithmetic)data[i]).assignTo(array);
+            data[i].assignTo(array);
         }
     }
 
-    public void DE(DataArithmetic y) {
+    public void DE(Data y) {
         for (int i=0; i<data.length; i++) {
-            ((DataArithmetic)data[i]).DE((DataArithmetic)((DataGroup)y).getData(i));
+            data[i].DE(((DataGroup)y).getData(i));
         }
     }
 
     public void E(double y) {
         for (int i=0; i<data.length; i++) {
-            ((DataArithmetic)data[i]).E(y);
+            data[i].E(y);
         }
     }
 
     public int getLength() {
         int l = 0;
         for (int i=0; i<data.length; i++) {
-            l += ((DataArithmetic)data[i]).getLength();
+            l += data[i].getLength();
         }
         return l;
     }
@@ -207,18 +207,18 @@ public class DataGroup implements DataArithmetic, java.io.Serializable {
     public double getValue(int i) {
         int l = 0;
         for (int j=0; j<data.length; j++) {
-            int jl = ((DataArithmetic)data[j]).getLength();
+            int jl = data[j].getLength();
             if (jl > i) {
-                return ((DataArithmetic)data[j]).getValue(jl-i);
+                return data[j].getValue(jl-i);
             }
-            l += ((DataArithmetic)data[j]).getLength();
+            l += data[j].getLength();
         }
         throw new IllegalArgumentException("Length is only "+getLength());
     }
 
     public boolean isNaN() {
         for (int i=0; i<data.length; i++) {
-            if (((DataArithmetic)data[i]).isNaN()) {
+            if (data[i].isNaN()) {
                 return true;
             }
         }
@@ -227,37 +227,37 @@ public class DataGroup implements DataArithmetic, java.io.Serializable {
 
     public void map(Function function) {
         for (int i=0; i<data.length; i++) {
-            ((DataArithmetic)data[i]).map(function);
+            data[i].map(function);
         }
     }
 
-    public void ME(DataArithmetic y) {
+    public void ME(Data y) {
         for (int i=0; i<data.length; i++) {
-            ((DataArithmetic)data[i]).ME((DataArithmetic)((DataGroup)y).getData(i));
+            data[i].ME(((DataGroup)y).getData(i));
         }
     }
 
-    public void PE(DataArithmetic y) {
+    public void PE(Data y) {
         for (int i=0; i<data.length; i++) {
-            ((DataArithmetic)data[i]).PE((DataArithmetic)((DataGroup)y).getData(i));
+            data[i].PE(((DataGroup)y).getData(i));
         }
     }
 
     public void PE(double y) {
         for (int i=0; i<data.length; i++) {
-            ((DataArithmetic)data[i]).PE(y);
+            data[i].PE(y);
         }
     }
 
-    public void TE(DataArithmetic y) {
+    public void TE(Data y) {
         for (int i=0; i<data.length; i++) {
-            ((DataArithmetic)data[i]).TE((DataArithmetic)((DataGroup)y).getData(i));
+            data[i].TE(((DataGroup)y).getData(i));
         }
     }
 
     public void TE(double y) {
         for (int i=0; i<data.length; i++) {
-            ((DataArithmetic)data[i]).TE(y);
+            data[i].TE(y);
         }
     }
 }

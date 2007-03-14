@@ -34,7 +34,7 @@ import etomica.util.Function;
  * @author David Kofke and Andrew Schultz
  *  
  */
-public class DataTable extends DataGroup implements DataArithmetic, Serializable {
+public class DataTable extends DataGroup implements Data, Serializable {
 
     /**
      * Creates a new table with a specified number of columns all of a given
@@ -99,40 +99,40 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
     /**
      * Plus-equals (+=) operation.
      */
-    public void PE(DataArithmetic y) {
+    public void PE(Data y) {
         DataTable table = (DataTable) y;
         for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).PE((DataDoubleArray)table.getData(i));
+            ((DataDoubleArray)data[i]).PE(table.getData(i));
         }
     }
 
     /**
      * Minus-equals (-=) operation.
      */
-    public void ME(DataArithmetic y) {
+    public void ME(Data y) {
         DataTable table = (DataTable) y;
         for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).ME((DataDoubleArray)table.getData(i));
+            ((DataDoubleArray)data[i]).ME(table.getData(i));
         }
     }
 
     /**
      * Times-equals (*=) operation.
      */
-    public void TE(DataArithmetic y) {
+    public void TE(Data y) {
         DataTable table = (DataTable) y;
         for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).TE((DataDoubleArray)table.getData(i));
+            ((DataDoubleArray)data[i]).TE(table.getData(i));
         }
     }
 
     /**
      * Divide-equals (/=) operation.
      */
-    public void DE(DataArithmetic y) {
+    public void DE(Data y) {
         DataTable table = (DataTable) y;
         for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).DE((DataDoubleArray)table.getData(i));
+            ((DataDoubleArray)data[i]).DE(table.getData(i));
         }
     }
 
@@ -237,7 +237,7 @@ public class DataTable extends DataGroup implements DataArithmetic, Serializable
 
     private static final long serialVersionUID = 1L;
 
-    public static class DataInfoTable extends DataInfoGroup implements DataInfoArithmetic {
+    public static class DataInfoTable extends DataInfoGroup {
         public DataInfoTable(String label, DataInfo[] columnInfo, int nRows, String[] rowHeaders) {
             super(label, Null.DIMENSION, columnInfo);
             this.nRows = nRows;

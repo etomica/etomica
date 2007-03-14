@@ -1,16 +1,12 @@
-/*
- * History
- * Created on Jul 28, 2004 by kofke
- */
 package etomica.data;
 
-import etomica.data.types.DataInteger;
-import etomica.data.types.DataInteger.DataInfoInteger;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.units.Quantity;
 
 /**
  * Data processor that simply counts the number of times its
- * <code>addData</code> method is invoked. Output is a DataInteger.
+ * <code>addData</code> method is invoked. Output is a DataDouble.
  */
 public class AccumulatorCounter extends DataAccumulator {
 
@@ -19,8 +15,8 @@ public class AccumulatorCounter extends DataAccumulator {
      * @param dataSource
      */
     public AccumulatorCounter() {
-        dataInfo = new DataInfoInteger("Counter", Quantity.DIMENSION);
-        data = new DataInteger();
+        dataInfo = new DataInfoDouble("Counter", Quantity.DIMENSION);
+        data = new DataDouble();
     }
     
     /**
@@ -63,5 +59,7 @@ public class AccumulatorCounter extends DataAccumulator {
         data.x = 0;
     }
 
-    protected final DataInteger data;
+    private static final long serialVersionUID = 1L;
+
+    protected final DataDouble data;
 }

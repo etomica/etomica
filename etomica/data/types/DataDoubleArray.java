@@ -37,7 +37,7 @@ import etomica.util.Function;
 //for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
 //note that number of sites = size[0]*jumpCount[0]
 
-public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
+public class DataDoubleArray implements Data, java.io.Serializable {
 
     /**
      * Constructs a new one-dimensional array of the given length.
@@ -129,7 +129,7 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
-    public void PE(DataArithmetic y) {
+    public void PE(Data y) {
         double[] yx = ((DataDoubleArray) y).x;
         for (int i = 0; i < x.length; i++) {
             x[i] += yx[i];
@@ -145,7 +145,7 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
-    public void ME(DataArithmetic y) {
+    public void ME(Data y) {
         double[] yx = ((DataDoubleArray) y).x;
         for (int i = 0; i < x.length; i++) {
             x[i] -= yx[i];
@@ -159,7 +159,7 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
-    public void TE(DataArithmetic y) {
+    public void TE(Data y) {
         double[] yx = ((DataDoubleArray) y).x;
         for (int i = 0; i < x.length; i++) {
             x[i] *= yx[i];
@@ -174,7 +174,7 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
      *             if the array in the given object is smaller than this
      *             instance's array.
      */
-    public void DE(DataArithmetic y) {
+    public void DE(Data y) {
         double[] yx = ((DataDoubleArray) y).x;
         for (int i = 0; i < x.length; i++) {
             x[i] /= yx[i];
@@ -284,7 +284,7 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
     }
 
     /**
-     * Returns the encapsulated array, implementing the DataArithmetic interface.
+     * Returns the encapsulated array, implementing the Data interface.
      */
     public void assignTo(double[] array) {
         System.arraycopy(x, 0, array, 0, x.length);
@@ -334,7 +334,7 @@ public class DataDoubleArray implements DataArithmetic, java.io.Serializable {
     private final int[] jumpCount;
     private final int[] arrayShape;
     
-    public static class DataInfoDoubleArray extends DataInfo implements DataInfoArithmetic {
+    public static class DataInfoDoubleArray extends DataInfo {
         protected final int[] arrayShape;
         
         public DataInfoDoubleArray(String label, Dimension dimension, int[] arrayShape) {

@@ -20,7 +20,7 @@ import etomica.util.Function;
  *  
  */
 
-public class DataTensor implements DataArithmetic, java.io.Serializable {
+public class DataTensor implements Data, java.io.Serializable {
 
     /**
      * Constructs a new instance with the given DataInfo, wrapping a new Tensor
@@ -56,28 +56,28 @@ public class DataTensor implements DataArithmetic, java.io.Serializable {
     /**
      * Minus-equals (-=) operation. Performed element-by-element.
      */
-    public void ME(DataArithmetic y) {
+    public void ME(Data y) {
         x.ME(((DataTensor) y).x);
     }
 
     /**
      * Plus-equals (+=) operation. Performed element-by-element.
      */
-    public void PE(DataArithmetic y) {
+    public void PE(Data y) {
         x.PE(((DataTensor) y).x);
     }
 
     /**
      * Times-equals (*=) operation. Performed element-by-element.
      */
-    public void TE(DataArithmetic y) {
+    public void TE(Data y) {
         x.TE(((DataTensor) y).x);
     }
 
     /**
      * Divide-equals (/=) operation. Performed element-by-element.
      */
-    public void DE(DataArithmetic y) {
+    public void DE(Data y) {
         x.DE(((DataTensor) y).x);
     }
 
@@ -152,7 +152,7 @@ public class DataTensor implements DataArithmetic, java.io.Serializable {
      */
     public final Tensor x;
     
-    public static class DataInfoTensor extends DataInfo implements DataInfoArithmetic {
+    public static class DataInfoTensor extends DataInfo {
         
         public DataInfoTensor(String label, Dimension dimension, Space space) {
             super(label, dimension);

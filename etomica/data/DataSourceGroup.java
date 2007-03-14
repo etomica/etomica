@@ -14,11 +14,6 @@ import etomica.util.Arrays;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on Apr 8, 2005 by kofke
- */
 public class DataSourceGroup implements DataSource, java.io.Serializable {
 
     /**
@@ -94,6 +89,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
         return subDataInfo;
     }
     
+    private static final long serialVersionUID = 1L;
     private DataSource[] dataSources = new DataSource[0];
     private Data[] latestData = new Data[0];
     private DataGroup data;

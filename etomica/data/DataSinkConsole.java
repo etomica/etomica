@@ -82,6 +82,7 @@ public class DataSinkConsole implements DataSink, EtomicaElement, java.io.Serial
         this.name = name;
     }
 
+    private static final long serialVersionUID = 1L;
     private PrintStream out = System.out;
     private String name;
 }

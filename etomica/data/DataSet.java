@@ -208,6 +208,7 @@ public class DataSet implements Serializable {
                 oldListener);
     }
 
+    private static final long serialVersionUID = 1L;
     protected DataSetListener[] listeners = new DataSetListener[0];
     private boolean updatingOnAnyChange;
     private int[] dataChangedBits = new int[0];
@@ -259,6 +260,7 @@ public class DataSet implements Serializable {
             return data;
         }
 
+        private static final long serialVersionUID = 1L;
         private final DataCasterJudge dataCasterJudge;
         private DataInfo incomingDataInfo;
         private final DataSet dataSet;

@@ -5,7 +5,6 @@
 package etomica.data;
 
 import etomica.data.types.CastToDoubleArray;
-import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -102,9 +101,8 @@ public class AccumulatorHistory extends DataAccumulator {
      * can be modified by overriding the setNData method).
      */
     protected void addData(Data newData) {
-        DataArithmetic values = (DataArithmetic)newData;
         for (int i = nData-1; i >= 0; i--) {
-            history[i].addValue(timeDataSource.getDataAsScalar(), values.getValue(i));
+            history[i].addValue(timeDataSource.getDataAsScalar(), newData.getValue(i));
         }
     }
 
@@ -215,6 +213,7 @@ public class AccumulatorHistory extends DataAccumulator {
         return dataInfo;
     }
     
+    private static final long serialVersionUID = 1L;
     protected History[] history = new History[0];
     protected DataSourceIndependentSimple[] xDataSources = new DataSourceIndependentSimple[0];
     private DataGroup data;
@@ -229,6 +228,7 @@ public class AccumulatorHistory extends DataAccumulator {
      * the number of times it's been called.
      */
     protected static class DataSourceCount extends DataSourceScalar {
+
         public DataSourceCount() {
             super("Count",Quantity.DIMENSION);
         }
@@ -237,6 +237,7 @@ public class AccumulatorHistory extends DataAccumulator {
             return count++;
         }
         
+        private static final long serialVersionUID = 1L;
         private int count = 0;
     }
 }

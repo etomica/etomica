@@ -3,10 +3,8 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
-import etomica.data.DataTag;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.data.types.DataInteger.DataInfoInteger;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.data.types.DataVector.DataInfoVector;
 
@@ -41,10 +39,6 @@ import etomica.data.types.DataVector.DataInfoVector;
  * @author David Kofke and Andrew Schultz
  *  
  */
-
-/*
- * History Created on Jul 21, 2005 by kofke
- */
 public class CastToDoubleArray extends DataProcessor {
 
     /**
@@ -69,14 +63,11 @@ public class CastToDoubleArray extends DataProcessor {
         } else if (inputDataInfo instanceof DataInfoDouble) {
             inputType = 1;
             arrayShape = new int[]{1};
-        } else if (inputDataInfo instanceof DataInfoInteger) {
-            inputType = 2;
-            arrayShape = new int[]{1};
         } else if (inputDataInfo instanceof DataInfoVector) {
-            inputType = 3;
+            inputType = 2;
             arrayShape = new int[]{((DataInfoVector)inputDataInfo).getSpace().D()};
         } else if (inputDataInfo instanceof DataInfoTensor) {
-            inputType = 4;
+            inputType = 3;
             int D = ((DataInfoTensor)inputDataInfo).getSpace().D();
             arrayShape = new int[]{D,D};
         } else {
@@ -105,12 +96,9 @@ public class CastToDoubleArray extends DataProcessor {
             outputData.E(((DataDouble) data).x);
             break;
         case 2:
-            outputData.E(((DataInteger) data).x);
-            break;
-        case 3:
             ((DataVector) data).x.assignTo(outputData.getData());
             break;
-        case 4:
+        case 3:
             // both Tensor and DataDoubleArray sequence data by rows
             ((DataTensor) data).x.assignTo(outputData.getData());
             break;
@@ -126,6 +114,7 @@ public class CastToDoubleArray extends DataProcessor {
         return null;
     }
 
+    private static final long serialVersionUID = 1L;
     private DataDoubleArray outputData;
     private int inputType;
 }

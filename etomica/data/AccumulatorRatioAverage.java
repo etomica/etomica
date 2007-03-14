@@ -1,6 +1,5 @@
 package etomica.data;
 
-import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;
 import etomica.simulation.Simulation;
@@ -89,9 +88,9 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     public DataInfo processDataInfo(DataInfo incomingDataInfo) {
         super.processDataInfo(incomingDataInfo);
 
-        ratio = (DataArithmetic)incomingDataInfo.makeData();
-        ratioError = (DataArithmetic)incomingDataInfo.makeData();
-        ratioStandardDeviation = (DataArithmetic)incomingDataInfo.makeData();
+        ratio = incomingDataInfo.makeData();
+        ratioError = incomingDataInfo.makeData();
+        ratioStandardDeviation = incomingDataInfo.makeData();
 
         Data[] dataGroups = new Data[dataGroup.getNData()+3];
         int i;
@@ -143,6 +142,6 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
     }
 
     //need separate fields because ratio values are calculated from the non-ratio values.
-    protected DataArithmetic ratio, ratioStandardDeviation, ratioError;
+    protected Data ratio, ratioStandardDeviation, ratioError;
     private final DataTag ratioTag, ratioStandardDeviationTag, ratioErrorTag;
 }

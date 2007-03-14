@@ -3,10 +3,8 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
-import etomica.data.DataTag;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.data.types.DataInteger.DataInfoInteger;
 
 /**
  * A DataProcessor that converts a Data instance into a DataDouble. Copies an
@@ -27,10 +25,6 @@ import etomica.data.types.DataInteger.DataInfoInteger;
  * <p>
  * @author David Kofke
  *  
- */
-
-/*
- * History Created on Jul 21, 2005 by kofke
  */
 public class CastToDouble extends DataProcessor {
 
@@ -54,8 +48,6 @@ public class CastToDouble extends DataProcessor {
             inputType = 0;
         } else if (inputDataInfo instanceof DataInfoDoubleArray) {
             inputType = 1;
-        } else if (inputDataInfo instanceof DataInfoInteger) {
-            inputType = 2;
         } else {
             throw new IllegalArgumentException("Cannot cast to double from "
                     + inputDataInfo.getClass());
@@ -88,12 +80,6 @@ public class CastToDouble extends DataProcessor {
             //we don't add ourselves
             dataDouble.x = ((DataDoubleArray) data).getData()[0];
             return dataDouble;
-        case 2:
-            //we don't add ourselves
-            dataDouble.x = ((DataInteger) data).x;
-            return dataDouble;
-        case 3:
-            return dataDouble;
         default:
             throw new Error("Assertion error.  Input type out of range: "+inputType);
         }
@@ -106,6 +92,7 @@ public class CastToDouble extends DataProcessor {
         return null;
     }
 
+    private static final long serialVersionUID = 1L;
     private DataDouble dataDouble;
     private int inputType;
 }

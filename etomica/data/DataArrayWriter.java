@@ -4,15 +4,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.data.DataLogger.DataWriter;
-import etomica.data.types.CastGroupOfTablesToDataTable;
 import etomica.data.types.CastGroupToDoubleArray;
 import etomica.data.types.CastToDoubleArray;
-import etomica.data.types.CastToTable;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataTable;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.data.types.DataTable.DataInfoTable;
 
 /**
  * A DataWriter that writes out data as a table with optional column headings
@@ -105,6 +101,7 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
         firstWrite = true;
     }
 
+    private static final long serialVersionUID = 1L;
     private FileWriter fileWriter;
     private boolean firstWrite;
     private DataInfo dataInfo;

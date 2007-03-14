@@ -8,7 +8,7 @@ import etomica.action.Action;
  */
 public class DataPump extends DataProcessor implements Action {
 
-	/**
+    /**
 	 * Constructs DataPump with the given DataSource and
 	 * DataSink.  Data source cannot be null.  Data sink can 
      * be null and must be identified via setDataSink if DataPump
@@ -85,6 +85,7 @@ public class DataPump extends DataProcessor implements Action {
         this.label = label;
     }
     
+    private static final long serialVersionUID = 1L;
     private DataInfo dataSourceInfo;
     private final DataSource dataSource;
     private String label;

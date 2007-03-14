@@ -38,4 +38,6 @@ public class DataSourceAcceptanceProbability extends DataSourceAcceptanceRatio {
         if (move == null) return Double.NaN;
         return move.getTracker().acceptanceProbability();
     }
+
+    private static final long serialVersionUID = 1L;
 }
