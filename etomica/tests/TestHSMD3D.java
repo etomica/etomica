@@ -52,9 +52,6 @@ public class TestHSMD3D extends Simulation {
         getSpeciesRoot().addSpecies(species);
         species2 = new SpeciesSpheresMono(this);
         getSpeciesRoot().addSpecies(species2);
-        speciesRoot.removeSpecies(species);
-        species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
 
         potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species,species});
 
