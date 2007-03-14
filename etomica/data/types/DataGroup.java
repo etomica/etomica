@@ -20,14 +20,9 @@ import etomica.util.Function;
  * Data sinks typically need to manipulate DataGroups to extract the individual
  * data elements in them.
  * <p>
- * The DataInfo instance for the DataGroup has a label that describes the collection,
- * and a dimension that is the dimension of all of the data objects it holds (if they
- * are all the same) or MIXED (if they are not).
  *
  * @author David Kofke and Andrew Schultz
- *
  */
-
 public class DataGroup implements Data, java.io.Serializable {
 
     /**
@@ -38,8 +33,6 @@ public class DataGroup implements Data, java.io.Serializable {
      * holds have different dimensions; otherwise dimension is the common
      * dimension of the grouped Data instances.
      * 
-     * @param label
-     *            a descriptive label for the data collection
      * @param data
      *            array of data to be encapsulated in this group
      * 

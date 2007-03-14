@@ -10,7 +10,6 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArrayFactory;
 import etomica.units.Null;
 import etomica.util.Arrays;
-import etomica.util.Function;
 
 /**
  * Data object that holds <tt>double[]</tt> arrays as if they are columns in a
@@ -39,14 +38,8 @@ public class DataTable extends DataGroup implements Data, Serializable {
     /**
      * Creates a new table with a specified number of columns all of a given
      * length. The assigned heading for each column is its ordinal (starting
-     * from 0), e.g., the heading of the first column is '0'.  All columns are
-     * assigned the given Dimension, which is also the Dimension of the DataTable
-     * (as kept in DataInfo).  No row headers are defined.
+     * from 0), e.g., the heading of the first column is '0'.
      * 
-     * @param label
-     *            a descriptive label for the table
-     * @param dimension
-     *            indicates the common Dimension for all columns
      * @param nColumns
      *            the number of columns to make
      * @param nRows
@@ -74,19 +67,6 @@ public class DataTable extends DataGroup implements Data, Serializable {
     }
     
     /**
-     * Copies all data values from the given table to this one.
-     * 
-     * @throws ClassCastException
-     *             if the argument is not an instance of DataTable
-     */
-    public void E(Data otherData) {
-        DataTable table = (DataTable) otherData;
-        for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).E(table.getData(i));
-        }
-    }
-
-    /**
      * Returns the number of rows in each and every column of the table.
      * 
      * @throws ArrayIndexOutOfBoundsException
@@ -96,84 +76,6 @@ public class DataTable extends DataGroup implements Data, Serializable {
         return ((DataDoubleArray)data[0]).getLength();
     }
     
-    /**
-     * Plus-equals (+=) operation.
-     */
-    public void PE(Data y) {
-        DataTable table = (DataTable) y;
-        for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).PE(table.getData(i));
-        }
-    }
-
-    /**
-     * Minus-equals (-=) operation.
-     */
-    public void ME(Data y) {
-        DataTable table = (DataTable) y;
-        for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).ME(table.getData(i));
-        }
-    }
-
-    /**
-     * Times-equals (*=) operation.
-     */
-    public void TE(Data y) {
-        DataTable table = (DataTable) y;
-        for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).TE(table.getData(i));
-        }
-    }
-
-    /**
-     * Divide-equals (/=) operation.
-     */
-    public void DE(Data y) {
-        DataTable table = (DataTable) y;
-        for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).DE(table.getData(i));
-        }
-    }
-
-    /**
-     * Equals (=) operation, sets all values in data equal to the given value.
-     */
-    public void E(double y) {
-        for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).E(y);
-        }
-    }
-
-    /**
-     * Plus-equals (+=) operation, adding given value to all values in data.
-     */
-    public void PE(double y) {
-        for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).PE(y);
-        }
-    }
-
-    /**
-     * Times-equals (*=) operation, multiplying all values in data by given
-     * value.
-     */
-    public void TE(double y) {
-        for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).TE(y);
-        }
-    }
-
-    /**
-     * Maps the function on all data values, replace each with the value given
-     * by the function applied to it.
-     */
-    public void map(Function function) {
-        for (int i = 0; i < data.length; i++) {
-            ((DataDoubleArray)data[i]).map(function);
-        }
-    }
-
     /**
      * Returns the number of values held by the data instance.
      */
@@ -221,18 +123,6 @@ public class DataTable extends DataGroup implements Data, Serializable {
         for(int i=0; i<data.length; i++) {
             System.arraycopy(((DataDoubleArray)data[i]).getData(), 0, array, i*nRows, nRows);
         }
-    }
-
-    /**
-     * Returns true if any data value is true for Double.isNaN
-     */
-    public boolean isNaN() {
-        for (int i = 0; i < data.length; i++) {
-            if (((DataDoubleArray)data[i]).isNaN()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static final long serialVersionUID = 1L;
