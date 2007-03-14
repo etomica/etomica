@@ -13,7 +13,6 @@ import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -228,6 +227,7 @@ public class TestFccHarmonic extends Simulation {
      * DataProcessor that sums up the logs of all incoming values
      */
     public static class DataProcessorFoo extends DataProcessor {
+
         public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
             return null;
         }
@@ -241,13 +241,14 @@ public class TestFccHarmonic extends Simulation {
         
         public Data processData(Data incomingData) {
             data.x = 0;
-            int nData = ((DataArithmetic)incomingData).getLength();
+            int nData = incomingData.getLength();
             for (int i=0; i<nData; i++) {
-                data.x += Math.log(((DataArithmetic)incomingData).getValue(i));
+                data.x += Math.log(incomingData.getValue(i));
             }
             return data;
         }
         
+        private static final long serialVersionUID = 1L;
         private DataDouble data;
     }
 }

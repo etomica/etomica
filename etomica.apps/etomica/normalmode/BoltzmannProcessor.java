@@ -4,7 +4,6 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataProcessor;
-import etomica.data.types.DataArithmetic;
 import etomica.units.Null;
 import etomica.util.Function;
 
@@ -24,8 +23,8 @@ public class BoltzmannProcessor extends DataProcessor {
     
     public Data processData(Data incomingData) {
         data.E(incomingData);
-        ((DataArithmetic)data).TE(-1/temperature);
-        ((DataArithmetic)data).map(Function.Exp.INSTANCE);
+        data.TE(-1/temperature);
+        data.map(Function.Exp.INSTANCE);
         return data;
     }
     
@@ -41,6 +40,7 @@ public class BoltzmannProcessor extends DataProcessor {
         return temperature;
     }
     
+    private static final long serialVersionUID = 1L;
     private Data data;
     private double temperature;
 }

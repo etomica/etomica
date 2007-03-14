@@ -4,7 +4,6 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.data.types.CastToDoubleArray;
-import etomica.data.types.DataArithmetic;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -44,11 +43,11 @@ public class EntropyProcessor extends DataProcessor {
         double sum = 0;
         DataDoubleArray inData = (DataDoubleArray)incomingData;
         double totalCount = 0;
-        for (int i=0; i<((DataArithmetic)incomingData).getLength(); i++) {
+        for (int i=0; i<incomingData.getLength(); i++) {
             totalCount += inData.getValue(i);
         }
         // - k sum (n log n/N)
-        for (int i=0; i<((DataArithmetic)incomingData).getLength(); i++) {
+        for (int i=0; i<incomingData.getLength(); i++) {
             double x = inData.getValue(i);
             if (x > 0) {
                 sum += x * Math.log(x/totalCount);

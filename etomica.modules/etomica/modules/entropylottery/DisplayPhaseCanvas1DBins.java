@@ -5,8 +5,8 @@ import java.util.Iterator;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.Data;
 import etomica.data.DataSource;
-import etomica.data.types.DataArithmetic;
 import etomica.graphics.ColorSchemeCollective;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.DisplayPhase;
@@ -15,14 +15,10 @@ import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.species.Species;
 
-    /* History of changes
-     * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
-     * 09/07/02 (DAK) added atomFilter
-     */
-
-//Class used to define canvas onto which configuration is drawn
+/**
+ * Class used to define canvas onto which configuration is drawn
+ */
 public class DisplayPhaseCanvas1DBins extends DisplayCanvas {
-    //  private int annotationHeight = font.getFontMetrics().getHeight();
     private double yScale = 0.4;
     private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     private int[] atomCount;
@@ -142,7 +138,7 @@ public class DisplayPhaseCanvas1DBins extends DisplayCanvas {
             return;
         }
         
-        DataArithmetic extraData = (DataArithmetic)extraDataSource.getData();
+        Data extraData = extraDataSource.getData();
         if (extraData.getLength() != atomCount.length) {
             // we caught it at a bad time.  we'll call back later.
             return;
