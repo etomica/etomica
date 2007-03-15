@@ -3,8 +3,8 @@ package etomica.potential;
 import java.util.Arrays;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
+import etomica.atom.AtomsetArray;
 import etomica.atom.iterator.AtomIteratorAll;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
@@ -393,7 +393,7 @@ public class PotentialMaster implements java.io.Serializable {
     static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
         private static final long serialVersionUID = 1L;
         AtomIterator0() {
-            super(AtomSet.NULL);
+            super(new AtomsetArray(0));
         }
         public void setPhase(Phase phase) {}
         public void setTarget(Atom target) {}

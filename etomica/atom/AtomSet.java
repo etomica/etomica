@@ -5,11 +5,6 @@ package etomica.atom;
  * Interface for classes that represent a (typically small) collection
  * of atoms.  Implemented in particular by Atom and AtomPair.
  */
-
-/*
- * History
- * Created on Feb 18, 2005 by kofke
- */
 public interface AtomSet extends java.io.Serializable {
 
     /**
@@ -32,24 +27,4 @@ public interface AtomSet extends java.io.Serializable {
      * check for instanceof AtomSet and pass on to this method.
      */
     public boolean equals(AtomSet atoms);
-    
-    /**
-     * A convenient instance of a zero-length atom set.
-     */
-    public static final AtomSet NULL = new AtomSet() {
-        public Atom getAtom(int i) {
-            throw new IllegalArgumentException("Cannot get an atom from a NULL AtomSet");
-        }
-        public int count() {
-            return 0;
-        }
-        public boolean equals(Object object) {
-            if(!(object instanceof AtomSet)) return false;
-            return equals((AtomSet)object);
-        }
-        public boolean equals(AtomSet atoms) {
-            return atoms.count() == 0;
-        }
-    };
-    
 }
