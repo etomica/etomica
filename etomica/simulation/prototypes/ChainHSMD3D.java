@@ -70,8 +70,6 @@ public class ChainHSMD3D extends Simulation {
         integrator.addListener(new IntervalActionAdapter(pbc));
         pbc.setApplyToMolecules(true);
         
-        potentialMaster.addModel(model);
-        
         potential = new P2HardSphere(this);
         AtomTypeLeaf leafType = (AtomTypeLeaf)((AtomTypeGroup)species.getMoleculeType()).getChildTypes()[0];
         potentialMaster.addPotential(potential, new AtomType[]{leafType,leafType});
