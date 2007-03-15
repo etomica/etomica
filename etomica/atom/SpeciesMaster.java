@@ -55,8 +55,7 @@ public final class SpeciesMaster extends AtomGroup {
     }
 
     public String signature() {
-        Phase phase = getParentPhase();
-        return (phase != null) ? phase.getName()
+        return (parentPhase != null) ? parentPhase.getName()
                 : "SpeciesMaster without phase";
     }
     
@@ -120,7 +119,7 @@ public final class SpeciesMaster extends AtomGroup {
         while (treeIterator.hasNext()) {
             Atom a = treeIterator.nextAtom();
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
-                PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(getParentPhase(), a, a.getGlobalIndex());
+                PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(parentPhase, a, a.getGlobalIndex());
                 // Just re-invoke the Atom's method without first "returning"
                 // the index to the reservoir.  The old index gets dropped on the
                 // floor.
@@ -129,7 +128,7 @@ public final class SpeciesMaster extends AtomGroup {
             }
         }
         maxIndex -= reservoirSize;
-        PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(getParentPhase(), maxIndex);
+        PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(parentPhase, maxIndex);
         phaseEventManager.fireEvent(event);
         if (reservoirCount != 0) {
             System.out.println("reservoir still has atoms:");
@@ -146,7 +145,7 @@ public final class SpeciesMaster extends AtomGroup {
         // max index has actually increased, there's no harm since there's 
         // nothing that says the max index can't be too large.
         if (numNewAtoms > reservoirCount) {
-            PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(getParentPhase(), maxIndex + numNewAtoms - reservoirCount);
+            PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(parentPhase, maxIndex + numNewAtoms - reservoirCount);
             phaseEventManager.fireEvent(event);
         }            
     }

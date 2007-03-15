@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.simulation.Simulation;
@@ -40,7 +39,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	}
     
 	public double energy(AtomSet a) {
-		IVector dimensions = ((Atom)a).getParentPhase().getBoundary().getDimensions();
+		IVector dimensions = boundary.getDimensions();
 		double rx = ((AtomLeaf)a).getCoord().getPosition().x(0);
 		double ry = ((AtomLeaf)a).getCoord().getPosition().x(1);
 		double dx1 = (dimensions.x(0) - rx);

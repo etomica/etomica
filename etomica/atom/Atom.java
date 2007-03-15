@@ -85,6 +85,7 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
     public boolean inSameSpecies(Atom atom) {
         return type.getAddressManager().sameSpecies(getAddress(), atom.getAddress());
     }
+    
     /**
      * Returns true if this atom is in the same molecule as the given atom.
      * 

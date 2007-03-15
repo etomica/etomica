@@ -63,7 +63,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         if(uOld > 1e10 && !fixOverlap) {
-            throw new RuntimeException(new ConfigurationOverlapException(atom.getParentPhase()));
+            throw new RuntimeException(new ConfigurationOverlapException(phase));
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
