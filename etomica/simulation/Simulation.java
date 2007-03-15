@@ -67,7 +67,7 @@ public class Simulation implements java.io.Serializable  {
         listIterator.reset();
         int i=0;
         while(listIterator.hasNext()) {
-            phases[i++] = listIterator.nextAtom().parentPhase();
+            phases[i++] = listIterator.nextAtom().getParentPhase();
         }
         return phases;
     }

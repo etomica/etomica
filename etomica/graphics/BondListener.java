@@ -131,7 +131,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     }
     
     public Object makeAgent(Atom newAtom) {
-        if (!(newAtom.parentGroup() instanceof SpeciesAgent) && newAtom.isLeaf()) {
+        if (!(newAtom.getParentGroup() instanceof SpeciesAgent) && newAtom.isLeaf()) {
             // we got a leaf atom in a mult-atom molecule
             ArrayList bondList = new ArrayList(); 
             Model.PotentialAndIterator[] bondIterators = 
@@ -139,7 +139,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     get(newAtom.getType().getSpecies());
             
             if (bondIterators != null) {
-                AtomGroup molecule = (AtomGroup)newAtom.parentMolecule();
+                AtomGroup molecule = (AtomGroup)newAtom.getParentMolecule();
                 for (int i=0; i<bondIterators.length; i++) {
                     Potential bondedPotential = bondIterators[i].getPotential();
                     AtomsetIteratorBasisDependent iterator = bondIterators[i].getIterator();

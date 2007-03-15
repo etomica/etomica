@@ -75,8 +75,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
             Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
-            phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().parentGroup());
-            phaseAgentManager1Body.setRoot((SpeciesRoot)phase.getSpeciesMaster().parentGroup());
+            phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().getParentGroup());
+            phaseAgentManager1Body.setRoot((SpeciesRoot)phase.getSpeciesMaster().getParentGroup());
             updateLists(phase);
             reset(phase);
         }

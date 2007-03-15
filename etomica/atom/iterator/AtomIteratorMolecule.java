@@ -77,7 +77,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         
         //target specified -- give it as only iterate if descended from species
         } else {
-            Atom molecule = targetAtom.childWhereDescendedFrom(speciesAgent);
+            Atom molecule = targetAtom.getChildWhereDescendedFrom(speciesAgent);
             littleList.clear();
             if(molecule != null) littleList.add(molecule);
             listIterator.setList(littleList);

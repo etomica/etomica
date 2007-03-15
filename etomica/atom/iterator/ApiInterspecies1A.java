@@ -146,7 +146,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
             targetMolecule = null;
         }
         else {
-            targetMolecule = targetAtom.childWhereDescendedFrom(agent0);
+            targetMolecule = targetAtom.getChildWhereDescendedFrom(agent0);
             if (targetMolecule != null) {
                 //target is species0
                 allowedDirection = IteratorDirective.Direction.UP;
@@ -155,7 +155,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
             }
             else {
                 //target is not species0, try species1
-                targetMolecule = targetAtom.childWhereDescendedFrom(agent1);
+                targetMolecule = targetAtom.getChildWhereDescendedFrom(agent1);
 
                 if (targetMolecule != null) {//target is species1
                     allowedDirection = IteratorDirective.Direction.DOWN;

@@ -29,9 +29,9 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         testNoIterates(api);
         
         Phase[] phase = new Phase[3];
-        phase[0] = root.getDescendant(new int[] {0}).parentPhase();
-        phase[1] = root.getDescendant(new int[] {1}).parentPhase();
-        phase[2] = root.getDescendant(new int[] {2}).parentPhase();
+        phase[0] = root.getDescendant(new int[] {0}).getParentPhase();
+        phase[1] = root.getDescendant(new int[] {1}).getParentPhase();
+        phase[2] = root.getDescendant(new int[] {2}).getParentPhase();
         
         for(int i=0; i<phase.length; i++) {
             api.setPhase(phase[i]);

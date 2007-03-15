@@ -360,7 +360,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
-            Atom parentAtom = targetAtom.parentGroup();
+            Atom parentAtom = targetAtom.getParentGroup();
             while (parentAtom.getType().getDepth() > 2) {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
@@ -368,7 +368,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     potentials[i].setPhase(phase);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
                 }
-                parentAtom = parentAtom.parentGroup();
+                parentAtom = parentAtom.getParentGroup();
             }                
             PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
             Potential[] potentials = potentialArray.getPotentials();

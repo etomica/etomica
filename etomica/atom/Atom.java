@@ -190,7 +190,7 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
         parent.addAtomNotify(this);
     }//end of addAtom
 
-    public AtomGroup parentGroup() {
+    public AtomGroup getParentGroup() {
         return parent;
     }
     
@@ -198,20 +198,20 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
      * Returns the molecule in which this atom resides.  A "molecule" is an atomgroup
      * that is one step below a species agent in the hierarchy of atomgroups.
      */
-    public Atom parentMolecule() {
+    public Atom getParentMolecule() {
         if(parent == null) return null;
-        return (parent instanceof SpeciesAgent) ? this : parent.parentMolecule();
+        return (parent instanceof SpeciesAgent) ? this : parent.getParentMolecule();
     }
                 
     /**
      * Phase in which this atom resides
      */
-    public Phase parentPhase() {
-        return (parent != null) ? parent.parentPhase() : null;
+    public Phase getParentPhase() {
+        return (parent != null) ? parent.getParentPhase() : null;
     }
     
-    public SpeciesAgent parentSpeciesAgent() {
-        return (parent != null) ? parent.parentSpeciesAgent() : null;
+    public SpeciesAgent getParentSpeciesAgent() {
+        return (parent != null) ? parent.getParentSpeciesAgent() : null;
     }
     
     /**
@@ -266,9 +266,9 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
      * If given node is parent node of this, returns this.
      * If this node is not descended from the given node, returns null.
      */
-    public Atom childWhereDescendedFrom(Atom atom) {
+    public Atom getChildWhereDescendedFrom(Atom atom) {
         if(parent == null) return null;
-        return (parent == atom) ? this : parent.childWhereDescendedFrom(atom);
+        return (parent == atom) ? this : parent.getChildWhereDescendedFrom(atom);
     }
     
     protected final AtomType type;

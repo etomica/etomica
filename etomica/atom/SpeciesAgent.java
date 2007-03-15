@@ -32,12 +32,12 @@ public final class SpeciesAgent extends AtomGroup {
      * Overrides parent class method and terminates recursive call to identify this
      * as a constituent atom's species agent.
      */
-     public final SpeciesAgent parentSpeciesAgent() {return this;}
+     public final SpeciesAgent getParentSpeciesAgent() {return this;}
 
      /**
       * Throws a RuntimeException, because a species agent is not contained within a molecule.
       */
-     public final Atom parentMolecule() {
+     public final Atom getParentMolecule() {
          throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesAgent");
      }
 
@@ -64,7 +64,7 @@ public final class SpeciesAgent extends AtomGroup {
         if (n == 0) {
             // if there are no molecules of this Species, the factory can be mutable
             // yes, this is horrible.
-            SpeciesRoot speciesRoot = (SpeciesRoot)parent.parentGroup();
+            SpeciesRoot speciesRoot = (SpeciesRoot)parent.getParentGroup();
             type.getSpecies().getFactory().checkMutable(speciesRoot);
         }
     }

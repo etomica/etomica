@@ -62,7 +62,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         listIterator.reset();
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),listIterator.size());
         while(listIterator.hasNext()) {
-            addAgent(listIterator.nextAtom().parentPhase());
+            addAgent(listIterator.nextAtom().getParentPhase());
         }
     }
     

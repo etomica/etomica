@@ -94,17 +94,17 @@ public final class SpeciesRoot extends AtomGroup {
         return speciesMasterType;
     }
     
-    public Phase parentPhase() {
+    public Phase getParentPhase() {
         throw new RuntimeException("Error:  Unexpected call to parentPhase in SpeciesRoot");
     }
     
-    public SpeciesAgent parentSpeciesAgent() {
+    public SpeciesAgent getParentSpeciesAgent() {
         throw new RuntimeException("Error:  Unexpected call to parentSpeciesAgent in SpeciesRoot");
     }
     /**
     * Returns null, because a species master is not contained within a molecule.
     */
-    public final Atom parentMolecule() {
+    public final Atom getParentMolecule() {
         throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesRoot");
     }
     
@@ -112,7 +112,7 @@ public final class SpeciesRoot extends AtomGroup {
      * Ends recursive chain to determine child of given node from which this
      * node is descended.  Always returns null.
      */
-    public Atom childWhereDescendedFrom(Atom atom) {
+    public Atom getChildWhereDescendedFrom(Atom atom) {
         return null;
     }
 
@@ -125,7 +125,7 @@ public final class SpeciesRoot extends AtomGroup {
             for(int i=0; i<speciesList.length; i++) {
                 speciesList[i].makeAgent((SpeciesMaster)newAtom);
             }
-            eventManager.fireEvent(new SimulationPhaseAddedEvent(newAtom.parentPhase()));
+            eventManager.fireEvent(new SimulationPhaseAddedEvent(newAtom.getParentPhase()));
         }
 
     }
@@ -133,7 +133,7 @@ public final class SpeciesRoot extends AtomGroup {
     public void removeAtomNotify(Atom oldAtom) {
         if(oldAtom instanceof SpeciesMaster) {
 //            ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
-            eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldAtom.parentPhase()));
+            eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldAtom.getParentPhase()));
         }
     }
 

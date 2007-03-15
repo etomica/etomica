@@ -50,7 +50,7 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
      */
     private void phaseTest(SpeciesRoot root, Species[] species, int phaseIndex) {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules();
-        Phase phase = root.getDescendant(new int[] { phaseIndex }).parentPhase();
+        Phase phase = root.getDescendant(new int[] { phaseIndex }).getParentPhase();
 
         iterator.setPhase(phase);
         

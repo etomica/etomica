@@ -92,7 +92,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
         if (phase == null || targetAtom == null) {
             targetMolecule = null;
         } else {
-            targetMolecule = targetAtom.childWhereDescendedFrom(agent);
+            targetMolecule = targetAtom.getChildWhereDescendedFrom(agent);
         }
         //targetMolecule may be null here
         setAtom(targetMolecule);

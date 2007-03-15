@@ -89,7 +89,7 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
      */
     private void speciesTestForward(SpeciesRoot root, Species[] species, int phaseIndex, int species0Index, int species1Index) {
         ApiInterspeciesAA api = new ApiInterspeciesAA(new Species[] {species[species0Index], species[species1Index]});
-        Phase phase = root.getDescendant(new int[] {phaseIndex}).parentPhase();
+        Phase phase = root.getDescendant(new int[] {phaseIndex}).getParentPhase();
         AtomsetAction speciesTest = new SpeciesTestAction();
 
         api.setPhase(phase);

@@ -108,11 +108,11 @@ public class AtomIndexManagerTest extends TestCase {
         int falseCount = 0;
         int undefinedCount = 0;
         for(int i=1; i<atoms.length; i++) {//skip speciesRoot
-            Phase phaseA = atoms[i].parentPhase();
+            Phase phaseA = atoms[i].getParentPhase();
             assertFalse(atoms[i].inSamePhase(atom));
             assertFalse(atom.inSamePhase(atoms[i]));
             for(int j=1; j<atoms.length; j++) {
-                Phase phaseB = atoms[j].parentPhase();
+                Phase phaseB = atoms[j].getParentPhase();
                 boolean inSamePhase = atoms[i].inSamePhase(atoms[j]);
                 if(phaseA == null || phaseB == null) {
                     if(inSamePhase) System.out.println(inSamePhase+" "+i+" "+j+" "+atoms[i]+" "+atoms[j]);
@@ -180,7 +180,7 @@ public class AtomIndexManagerTest extends TestCase {
     private boolean isDescendedFrom(Atom a1, Atom a2) {
         if(a1.getType().getAddressManager().getDepth() < a2.getType().getAddressManager().getDepth()) return false;
         else if(a1 == a2) return true;
-        else return isDescendedFrom(a1.parentGroup(), a2);
+        else return isDescendedFrom(a1.getParentGroup(), a2);
     }
 
     
@@ -206,7 +206,7 @@ public class AtomIndexManagerTest extends TestCase {
     private boolean typeIsDescendedFrom(Atom a1, Atom a2) {
         if(a1.getType().getAddressManager().getDepth() < a2.getType().getAddressManager().getDepth()) return false;
         else if(a1.getType() == a2.getType()) return true;
-        else return typeIsDescendedFrom(a1.parentGroup(), a2);
+        else return typeIsDescendedFrom(a1.getParentGroup(), a2);
     }
     
     public void testSameMolecule() {
@@ -217,9 +217,9 @@ public class AtomIndexManagerTest extends TestCase {
             if(atoms[i].inSameMolecule(atom)) System.out.println(i+" "+atoms[i]+" "+atom);
             assertFalse(atoms[i].inSameMolecule(atom));
             assertFalse(atom.inSameMolecule(atoms[i]));
-            Atom moleculeA = atoms[i].parentMolecule();
+            Atom moleculeA = atoms[i].getParentMolecule();
             for(int j=i0; j<atoms.length; j++) {
-                Atom moleculeB = atoms[j].parentMolecule();
+                Atom moleculeB = atoms[j].getParentMolecule();
                 boolean inSameMolecule = atoms[i].inSameMolecule(atoms[j]);
                 if(moleculeA == null || moleculeB == null) {
                     if(inSameMolecule) System.out.println(inSameMolecule+" "+i+" "+j+" "+atoms[i]+" "+atoms[j]);
