@@ -119,6 +119,9 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
         Boundary boundary = displayPhase.getPhase().getBoundary();
         Polytope polytope = boundary.getShape();
         if (polytope != oldPolytope) {
+          
+
+          
             if (polytopeLines != null) {
                 for (int i=0; i<polytopeLines.length; i++) {
                     gsys.removeFig(polytopeLines[i]);
@@ -143,6 +146,18 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
                 polytopeLines[i].setEnd((float)vertices[1].x(0), (float)vertices[1].x(1), (float)vertices[1].x(2));
             }
         }
+        
+        // set boundary vectors for image shell
+        IVector[] vecs = boundary.getPeriodicVectors();
+        double[] dvecs = new double[vecs.length*3]; //assuming 3-dimensional vectors
+        for(int i=0; i<vecs.length; i++) {
+          if(vecs[i] == null) continue;
+          dvecs[i*3] = vecs[i].x(0);
+          dvecs[i*3+1] = vecs[i].x(1);
+          dvecs[i*3+2] = vecs[i].x(2);
+        }
+        gsys.setBoundaryVectors(dvecs);
+        
         IVector bounds = boundary.getBoundingBox();
         gsys.setBoundingBox((float)(-bounds.x(0)*0.5), (float)(-bounds.x(1)*0.5), (float)(-bounds.x(2)*0.5),
                             (float)( bounds.x(0)*0.5), (float)( bounds.x(1)*0.5), (float)( bounds.x(2)*0.5));
