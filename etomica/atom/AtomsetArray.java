@@ -5,10 +5,6 @@ package etomica.atom;
  * AtomSet formed by wrapping an Atom array.  Size of array
  * cannot be changed after construction.
  */
-
-/*
- * History Created on Feb 18, 2005 by kofke
- */
 public class AtomsetArray implements AtomSet, java.io.Serializable {
 
     /**
@@ -120,7 +116,7 @@ public class AtomsetArray implements AtomSet, java.io.Serializable {
             return false;
         }
         for (int i = 0; i < this.atoms.length; i++) {
-            if (atoms[i] != candidateAtoms.getAtom(i))
+            if (!atoms[i].equals(candidateAtoms.getAtom(i)))
                 return false;
         }
         return true;
@@ -138,5 +134,6 @@ public class AtomsetArray implements AtomSet, java.io.Serializable {
         return str;
     }
 
+    private static final long serialVersionUID = 1L;
     private final Atom[] atoms;
 }
