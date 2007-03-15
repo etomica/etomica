@@ -5,7 +5,7 @@ package etomica.threads;
  * 
  * TenThreads -- split up a matrix among ten threads, threads find local max, then main finds global max.
  * 		
- * 		This example shows a program that creates then threads, each of which do some work.  It waits
+ * 		This example shows a program that creates ten threads, each of which do some work.  It waits
  * for them all to finish, then gathers the results.  Notice how we can create multiple threads with
  * a FOR loop.
  * 
