@@ -1,15 +1,16 @@
 package g3dsys.images;
 
+import g3dsys.control.G3DSys;
+import g3dsys.control.IndexIteratorSequential;
+
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
 
 import org.jmol.g3d.Graphics3D;
 
-import g3dsys.control.G3DSys;
-
 public class ImageShell extends Figure {
 
-  private int numLayers = 4;
+  private int numLayers = 1;
   private Graphics3D g3d;
   
   //reusable point objects for conversions
@@ -27,50 +28,65 @@ public class ImageShell extends Figure {
   public int getLayers() { return numLayers; }
   
   public void draw() {
-    Figure[] figs = _gsys.getFigs();
-    float dx = _gsys.getAngstromWidth();
-    float dy = _gsys.getAngstromHeight();
-    float dz = _gsys.getAngstromHeight();
+    double[] vectors = _gsys.getBoundaryVectors();
+    int D = vectors.length/3; //dimensionality of boundary; assume 3-dim vectors
+    if(D == 0) return; //no vectors, or low dimensionality
     
-    for(int z=-numLayers; z<=numLayers; z++) { //front to back...
-      for(int y=-numLayers; y<=numLayers; y++) { //top to bottom...
-        for(int x=-numLayers; x<=numLayers; x++) { //left to right...
-          if(x == y && y == z && z == 0) continue; //don't redraw original
-          
-          for(int i=0; i<figs.length; i++) {
-            Figure f = figs[i];
-            if(f == null) continue;
-            if(!f.drawme) continue;
-            if(f instanceof Ball) {
-              p.set(f.getX()+(dx*x),f.getY()+(dy*y),f.getZ()+(dz*z));
-              _gsys.screenSpace(p, s);
-              g3d.fillSphereCentered(f.getColor(), _gsys.perspective(s.z, f.getD()), s);
-            }
-            else if(f instanceof g3dsys.images.Box) {
-            }
-            else if(f instanceof g3dsys.images.Line) {
-              p.set(((Line)f).getStart().x+(dx*x),
-                    ((Line)f).getStart().y+(dy*y),
-                    ((Line)f).getStart().z+(dz*z));
-              q.set(((Line)f).getEnd().x+(dx*x),
-                    ((Line)f).getEnd().y+(dy*y),
-                    ((Line)f).getEnd().z+(dz*z));
-              _gsys.screenSpace(p, s);
-              _gsys.screenSpace(q, t);
-              g3d.drawDashedLine(f.getColor(),0,0,s.x,s.y,s.z,t.x,t.y,t.z);
-            }
-            else if(f instanceof g3dsys.images.Axes) {
-            }
-            else if(f instanceof g3dsys.images.Cylinder) {
-            }
-          }
-          
+    //still bound to axis directions; need to use vector orientation instead
+    float dx = 0, dy = 0, dz = 0; //for linear combinations
+    Figure[] figs = _gsys.getFigs();
+    
+    IndexIteratorSequential iter = new IndexIteratorSequential(D,numLayers);
+    iter.reset();
+    while(iter.hasNext()) {
+      int[] ia = iter.next();
+      if(ia.length != 3) break; //unexpected dimensionality: bail
+      
+      //build offsets as linear combination of vectors
+      for(int i=0; i<D; i++) {
+        dx += (float)( (ia[i]-numLayers) * vectors[3*i]);
+        dy += (float)( (ia[i]-numLayers) * vectors[3*i+1]);
+        dz += (float)( (ia[i]-numLayers) * vectors[3*i+2]);
+      }
+      
+      if(dx == dy && dy == dz && dz == 0) continue; //don't redraw original
+      
+      for(int i=0; i<figs.length; i++) {
+        Figure f = figs[i];
+        if(f == null) continue;
+        if(!f.drawme) continue;
+        if(f instanceof Ball) {
+          p.set(f.getX()+dx,f.getY()+dy,f.getZ()+dz);
+          _gsys.screenSpace(p, s);
+          g3d.fillSphereCentered(f.getColor(), _gsys.perspective(s.z, f.getD()), s);
+        }
+        else if(f instanceof g3dsys.images.Box) {
+        }
+        else if(f instanceof g3dsys.images.Line) {
+          p.set(((Line)f).getStart().x+dx,
+                ((Line)f).getStart().y+dy,
+                ((Line)f).getStart().z+dz);
+          q.set(((Line)f).getEnd().x+dx,
+                ((Line)f).getEnd().y+dy,
+                ((Line)f).getEnd().z+dz);
+          _gsys.screenSpace(p, s);
+          _gsys.screenSpace(q, t);
+          g3d.drawDashedLine(f.getColor(),0,0,s.x,s.y,s.z,t.x,t.y,t.z);
+        }
+        else if(f instanceof g3dsys.images.Axes) {
+        }
+        else if(f instanceof g3dsys.images.Cylinder) {
         }
       }
+
+      //reset offsets for next iteration
+      dx = 0;
+      dy = 0;
+      dz = 0;
     }
     
   }
-
+  
   public float getD() { return 0; }
 
 }

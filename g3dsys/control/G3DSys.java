@@ -1,13 +1,12 @@
 package g3dsys.control;
 
-import g3dsys.images.*;
+import g3dsys.images.Figure;
 
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
-import javax.vecmath.Tuple3f;
 
 import org.jmol.g3d.Graphics3D;
 
@@ -85,9 +84,18 @@ public class G3DSys {
     parent.repaint();
   }
 
-
-
-
+  /**
+   * Gets boundary of the first phase, used by ImageShell
+   * @return the boundary used by the first phase
+   */
+  public void setBoundaryVectors(double[] values) {
+    fm.setBoundaryVectors(values);
+  }
+  
+  public double[] getBoundaryVectors() {
+    return fm.getBoundaryVectors();
+  }
+  
   /* ****************************************************************
    * G3D-related methods
    * ****************************************************************/

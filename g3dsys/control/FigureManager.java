@@ -1,9 +1,9 @@
 package g3dsys.control;
 
-import g3dsys.images.*;
+import g3dsys.images.Figure;
+import g3dsys.images.ImageShell;
 
 import javax.vecmath.Point3f;
-import javax.vecmath.Tuple3f;
 
 /**
  *	Class that stores figures and delegates draw commands to them 
@@ -21,7 +21,6 @@ class FigureManager {
      */
     private Point3f min = new Point3f(0,0,0);
     private Point3f max = new Point3f(0,0,0);
-    private Point3f tempP = new Point3f();
 
     private G3DSys gsys;
 
@@ -192,4 +191,16 @@ class FigureManager {
       imagesOn = b;
     }
 
+    private double[] vectors;
+    
+    /**
+     * Sets the boundary vectors for the phase; used by ImageShell
+     * @param values an array representation of the boundary vectors
+     */
+    public void setBoundaryVectors(double[] values) { vectors = values; }
+    /**
+     * Gets the boundary vectors for the phase; used by ImageShell
+     * @return returns an array representation of the vectors
+     */
+    public double[] getBoundaryVectors() { return vectors; }
 }
