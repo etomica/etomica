@@ -116,7 +116,7 @@ public class AtomsetArray implements AtomSet, java.io.Serializable {
             return false;
         }
         for (int i = 0; i < this.atoms.length; i++) {
-            if (!atoms[i].equals(candidateAtoms.getAtom(i)))
+            if (atoms[i] != candidateAtoms.getAtom(i))
                 return false;
         }
         return true;
