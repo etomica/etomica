@@ -15,7 +15,11 @@ package etomica.threads;
  */
 
 public class TenThreads {
-
+		// Pay no attention to the value behind the method.
+		public static int[][] getBigHairyMatrix() {
+			return null;
+		}
+	
 		private static class WorkerThread extends Thread {
 			int max = Integer.MIN_VALUE;
 			int[] ourArray;
@@ -39,6 +43,10 @@ public class TenThreads {
 			WorkerThread[] threads = new WorkerThread[10];
 			int[][] bigMatrix = getBigHairyMatrix();
 			int max = Integer.MIN_VALUE;
+			
+		
+			
+			
 			
 			// Give each thread a slice of the matrix to work with
 			for (int i=0; i<10; i++) {
