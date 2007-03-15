@@ -18,6 +18,9 @@ package etomica.threads;
 public class SyncExample {
 	private static Object lockObject = new Object();
 	
+	static int x = 0;
+	static int y = 0;
+	
 	private static class Thread1 extends Thread {
 		public void run() {
 			synchronized (lockObject) {
