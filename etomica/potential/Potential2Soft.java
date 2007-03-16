@@ -9,6 +9,8 @@ import etomica.atom.AtomSet;
  */
 public interface Potential2Soft extends PotentialSoft {
     
+    public double virial(AtomSet atoms);
+
 	public double hyperVirial(AtomSet pair);
 
 	/**

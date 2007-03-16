@@ -308,7 +308,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                 nearestImageTransformer.nearestImage(dr);
 
                 double r2 = dr.squared();
-                u += potentialSoft.energy(pair);
+                u += ((Potential)potentialSoft).energy(pair);
                 w += potentialSoft.virial(pair);
                 double hv = potentialSoft.hyperVirial(pair);
                 x += hv;

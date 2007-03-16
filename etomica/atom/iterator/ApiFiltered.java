@@ -21,7 +21,7 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 public class ApiFiltered implements AtomsetIteratorDirectable, 
             AtomsetIteratorBasisDependent, AtomPairIterator, java.io.Serializable {
 	
-	/**
+    /**
 	 * Returns the iterates of the given iterator that meet
 	 * the critertia of the given filter.
 	 */
@@ -32,19 +32,6 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
         next = new AtomPair();
 	}
 
-	
-	/**
-	 * Returns true if the iterator contains the given atom and
-	 * atom meets the filter's criteria.  Returns false if the 
-     * argument is null, or is not an instance of AtomPair.
-	 */
-	public boolean contains(AtomSet pair) {
-        if(!(pair instanceof AtomPair)) {
-            return false;
-        }
-		return filter.accept((AtomPair)pair) && iterator.contains(pair);
-	}
-	
 	/**
 	 * Indicates whether iterator has another iterate to return.
 	 */
@@ -178,6 +165,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
         }
 	}
 
+    private static final long serialVersionUID = 1L;
 	protected final AtomPairIterator iterator;
 	protected final AtomPairFilter filter;
 	private AtomPair next;

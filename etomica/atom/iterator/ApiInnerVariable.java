@@ -20,11 +20,6 @@ import etomica.atom.AtomSet;
  * afterwards.  Default behavior has outer loop atoms as atom0, and inner loop atoms
  * as atom1.
  */
-
-/*
- * History of changes 08/25/04 (DAK et al) new
- */
-
 public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io.Serializable {
 
     /**
@@ -81,25 +76,6 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
      */
     public void unset() {
         hasNext = false;
-    }
-
-    /**
-     * Indicates whether the given atom pair will be returned by the iterator
-     * during its iteration. The order of the atoms in the pair is significant
-     * (this means that a value of true is returned only if one of the pairs
-     * returned by the iterator will have the same two atoms in the same
-     * atom1/atom2 position as the given pair). Not dependent on state of
-     * hasNext.
-     */
-    public boolean contains(AtomSet pair) {
-        if(pair == null || pair.count() != 2) {
-            return false;
-        }
-        if (aiOuter.contains(pair.getAtom(doSwap ? 1 : 0))) {
-            aiInner.setAtom(pair.getAtom(doSwap ? 1 : 0));
-            return aiInner.contains(pair.getAtom(doSwap ? 0 : 1));
-        }
-        return false;
     }
 
     /**
@@ -253,6 +229,7 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
         return 2;
     }
 
+    private static final long serialVersionUID = 1L;
     protected final AtomPair pair = new AtomPair();
     protected boolean hasNext, needUpdate1;
     protected Atom atom1;
@@ -264,5 +241,5 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
     protected final AtomIterator aiOuter;
     protected final boolean doSwap;
 
-} //end of class ApiInnerVariable
+}
 

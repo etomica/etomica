@@ -1,5 +1,6 @@
 package etomica.junit.atom.iterator;
 
+import etomica.atom.SpeciesMaster;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.junit.UnitTestUtil;
@@ -29,9 +30,9 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         testNoIterates(api);
         
         Phase[] phase = new Phase[3];
-        phase[0] = root.getDescendant(new int[] {0}).getParentPhase();
-        phase[1] = root.getDescendant(new int[] {1}).getParentPhase();
-        phase[2] = root.getDescendant(new int[] {2}).getParentPhase();
+        phase[0] = ((SpeciesMaster)root.getChildList().get(0)).getPhase();
+        phase[1] = ((SpeciesMaster)root.getChildList().get(1)).getPhase();
+        phase[2] = ((SpeciesMaster)root.getChildList().get(2)).getPhase();
         
         for(int i=0; i<phase.length; i++) {
             api.setPhase(phase[i]);

@@ -125,15 +125,14 @@ public final class SpeciesRoot extends AtomGroup {
             for(int i=0; i<speciesList.length; i++) {
                 speciesList[i].makeAgent((SpeciesMaster)newAtom);
             }
-            eventManager.fireEvent(new SimulationPhaseAddedEvent(newAtom.getParentPhase()));
+            eventManager.fireEvent(new SimulationPhaseAddedEvent(((SpeciesMaster)newAtom).getPhase()));
         }
 
     }
 
     public void removeAtomNotify(Atom oldAtom) {
         if(oldAtom instanceof SpeciesMaster) {
-//            ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
-            eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldAtom.getParentPhase()));
+            eventManager.fireEvent(new SimulationPhaseRemovedEvent(((SpeciesMaster)oldAtom).getPhase()));
         }
     }
 

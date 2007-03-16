@@ -35,5 +35,6 @@ public class ApiLeafAtoms extends AtomPairIteratorAdapter implements
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomArrayList emptyList = new AtomArrayList();
 }

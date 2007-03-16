@@ -3,7 +3,6 @@ import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
@@ -45,18 +44,6 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
 
     public void setTarget(Atom newTargetAtom) {
         targetAtom = newTargetAtom;
-    }
-
-    public boolean contains(AtomSet atomsd) {
-        if(atomsd == null || atomsd.count() != 2) return false;
-        if(detector == null) {
-            detector = new AtomsetDetect(atomsd);
-        } else {
-            detector.setAtoms(atomsd);
-            detector.reset();
-        }
-        allAtoms(detector);
-        return detector.detectedAtom();
     }
 
     public boolean hasNext() {
@@ -177,6 +164,5 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
     protected final AtomsetArray next;
     protected final Atom[] atomArray;
     protected AtomsetCount counter;
-    protected AtomsetDetect detector;
     private static final long serialVersionUID = 1L;
 }

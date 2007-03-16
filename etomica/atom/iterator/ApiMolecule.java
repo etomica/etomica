@@ -76,16 +76,6 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
     }
 
     /**
-     * Returns true if the iterator as currently conditioned will return
-     * the given set of atoms.  Does not require reset; clobbers iteration
-     * state.
-     */
-    public boolean contains(AtomSet atom) {
-        ((AtomIteratorPhaseDependent)iterator).setPhase(phase);
-        return iterator.contains(atom);
-    }
-
-    /**
      * Indicates if iterator has another iterate.
      */
     public boolean hasNext() {
@@ -168,6 +158,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
         return apiAA;
     }
     
+    private static final long serialVersionUID = 1L;
     private AtomPairIterator iterator;
     private final AtomsetIteratorPDT api1A;
     private final AtomsetIteratorPhaseDependent apiAA;

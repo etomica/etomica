@@ -19,7 +19,6 @@ import etomica.atom.iterator.IteratorDirective.Direction;
  * depending on presence of adjacent atoms and specification of iteration
  * direction.
  */
-
 public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent, java.io.Serializable {
 
     /**
@@ -39,24 +38,6 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
         this.atomToIndex = atomToIndex;
         this.atomToArrayList = atomToArrayList;
         unset();
-    }
-
-    /**
-     * Returns true if the given AtomSet has count == 1 and 
-     * its atom is one of the iterates for the current condition
-     * of the iterator (independent of hasNext status).
-     */
-    public boolean contains(AtomSet atom) {
-        if(atom == null || atom.count() != 1) return false;
-        Atom testAtom = atom.getAtom(0);
-        if(testAtom == null) return false;
-        if(direction != IteratorDirective.Direction.DOWN && firstCursor < list.size()-1 && list.get(firstCursor+1) == testAtom) {
-            return true;
-        }
-        if(direction != IteratorDirective.Direction.UP && firstCursor > 0 && list.get(firstCursor-1) == testAtom) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -176,6 +157,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
         firstCursor = atomToIndex.getIndex(atom);
     }
 
+    private static final long serialVersionUID = 1L;
     private int firstCursor;
     private final Direction direction;
     private boolean upListNow;

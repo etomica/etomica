@@ -6,7 +6,6 @@ package etomica.nbr.cell;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.action.AtomsetDetect;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
@@ -26,7 +25,7 @@ import etomica.space.BoundaryPeriodic;
 
 public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, java.io.Serializable {
 
-	/**
+    /**
      * Constructor makes iterator that must have phase specified and then be
      * reset() before iteration.
      * 
@@ -107,18 +106,6 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
         return counter.callCount();
 	}
 	
-	/**
-     * Indicates whether the given atom pair will be among the iterates given by
-     * the iterator if reset in its present state. True only if an iterated pair
-     * would match the atoms as ordered in the given array.
-     */
-	public boolean contains(AtomSet atoms) {
-        if(!(atoms instanceof AtomPair) || ((AtomPair)atoms).atom0 == ((AtomPair)atoms).atom1) return false;
-        AtomsetDetect detector = new AtomsetDetect(atoms);
-        allAtoms(detector);
-        return detector.detectedAtom();
-	}
-
     public boolean hasNext() {
         return listIterator.hasNext();
     }
@@ -202,6 +189,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
         return neighborIterator;
     }
    
+    private static final long serialVersionUID = 1L;
     private AtomPairIterator listIterator;
     private Phase phase;
     private final ApiIntraArrayList intraListIterator;

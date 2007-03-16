@@ -10,6 +10,7 @@ import etomica.units.Dimension;
  * new DataInfo objects.
  */
 public abstract class DataInfoFactory implements java.io.Serializable {
+
     /**
      * Creates a new instance using the info held by the template.  The 
      * template is not modified.

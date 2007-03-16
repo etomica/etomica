@@ -129,15 +129,6 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
     }
 
     /**
-     * Returns true if the iterator contains the given atom and atom meets the
-     * filter's criteria.
-     */
-    public boolean contains(AtomSet atom) {
-        if(atom == null || atom.count() != 1 || atom.getAtom(0) == null) return false;
-        return filter.accept(atom.getAtom(0)) && iterator.contains(atom);
-    }
-
-    /**
      * Indicates whether iterator has another iterate to return.
      */
     public boolean hasNext() {

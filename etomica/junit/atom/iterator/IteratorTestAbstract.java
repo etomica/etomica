@@ -94,8 +94,16 @@ public abstract class IteratorTestAbstract extends TestCase {
         int j=0;
         while (iterator.hasNext()) {
             AtomSet peekAtom = iterator.peek();
-            atoms[j] = new AtomsetArray(peekAtom);
-            assertEquals(atoms[j], iterator.next());
+            if (peekAtom instanceof Atom) {
+                atoms[j] = peekAtom;
+            }
+            else {
+                atoms[j] = new AtomsetArray(peekAtom);
+            }
+            AtomSet nextAtom = iterator.next();
+            for (int i=0; i<nextAtom.count(); i++) {
+                assertTrue(atoms[j].getAtom(i) == nextAtom.getAtom(i));
+            }
             lister[1].actionPerformed(peekAtom);
             j++;
         }
@@ -137,26 +145,6 @@ public abstract class IteratorTestAbstract extends TestCase {
             assertFalse(iterator.hasNext());
         }
         print("Just tested unset method");
-
-
-        //******* test of contains
-        if (iterator != null) {
-            AtomSet nextAtom = null;
-            for(int i=0; i<atoms.length; i++) {
-                nextAtom = atoms[i];
-                print("nextAtom = " + nextAtom);
-                assertTrue(iterator.contains(nextAtom));
-                print("Contains works with hasNext method, contains equals "
-                                    + iterator.contains(nextAtom));
-            }
-            //check handling of null AtomSet
-            assertFalse(iterator.contains(null));
-            //check handling of null atoms in AtomSet
-            assertFalse(iterator.contains(new AtomsetArray(iterator.nBody())));
-            //check handling of general form of AtomSet (not Atom, AtomPair)
-            if(nextAtom != null) assertTrue(iterator.contains(new AtomsetArray(nextAtom)));
-        }
-        print("Just tested contains method");
 
         //******* test of nBody
         iterator.reset();

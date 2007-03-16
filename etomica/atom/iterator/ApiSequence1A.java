@@ -6,7 +6,6 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 
@@ -36,10 +35,6 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
     
     public void setAtom(Atom atom) {
         aiOuter.setAtom(atom);
-    }
-    
-    public void setList(AtomArrayList list) {
-        arrayList = list;
     }
     
     /**
@@ -97,19 +92,6 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
         return count;
     }
     
-    public boolean contains(AtomSet atoms) {
-        if(atoms == null || atoms.count() != 2) return false;
-        if (direction != IteratorDirective.Direction.DOWN
-                && apiUp.contains(atoms)) {
-            return true;
-        }
-        if (direction != IteratorDirective.Direction.UP
-                && apiDown.contains(atoms)) {
-            return true;
-        }
-        return false;
-    }
-    
     public boolean hasNext() {
         return upListNow ? apiUp.hasNext() : apiDown.hasNext();
     }
@@ -150,9 +132,9 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
         }
     }
 	
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorSinglet aiOuter;
     private IteratorDirective.Direction direction;
     private final ApiInnerVariable apiUp, apiDown;
     private boolean doGoDown, upListNow;
-    private AtomArrayList arrayList;
 }

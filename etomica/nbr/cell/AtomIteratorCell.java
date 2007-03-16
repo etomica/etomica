@@ -6,7 +6,6 @@ package etomica.nbr.cell;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
@@ -23,7 +22,7 @@ import etomica.phase.PhaseAgentManager;
 
 public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
 
-	/**
+    /**
      * Constructor makes iterator that must have phase specified and then be
      * reset() before iteration.
      * 
@@ -70,17 +69,6 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         return counter.callCount();
 	}
 	
-	/**
-     * Indicates whether the given atom will be among the iterates given by
-     * the iterator if reset in its present state.
-     */
-	public boolean contains(AtomSet atoms) {
-        if(!(atoms instanceof Atom)) return false;
-        AtomsetDetect detector = new AtomsetDetect(atoms);
-        allAtoms(detector);
-        return detector.detectedAtom();
-	}
-
     public boolean hasNext() {
         return atomIterator.hasNext();
     }
@@ -135,8 +123,8 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
     }//end of advanceCell
     
    
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple atomIterator;
     private final RectangularLattice.Iterator cellIterator;
     private final PhaseAgentManager phaseAgentManager;
-
 }

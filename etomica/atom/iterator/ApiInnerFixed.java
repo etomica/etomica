@@ -19,11 +19,6 @@ import etomica.atom.AtomSet;
  * afterwards.  Default behavior has outer loop atoms as atom0, and inner loop atoms
  * as atom1.
  */
-
-/*
- * History of changes 08/25/04 (DAK et al) new
- */
-
 public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java.io.Serializable {
 
     /**
@@ -79,26 +74,6 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java
      */
     public void unset() {
         hasNext = false;
-    }
-
-    /**
-     * Indicates whether the given atom pair will be returned by the iterator
-     * during its iteration. The order of the atoms in the pair is significant
-     * (this means that a value of true is returned only if one of the pairs
-     * returned by the iterator will have the same two atoms in the same
-     * atom1/atom2 position as the given pair). Not dependent on state of
-     * hasNext. Returns false if pair is null.
-     */
-    public boolean contains(AtomSet pair) {
-        if (pair == null || pair.count() != 2) {
-            return false;
-        }
-        if(doSwap) {
-            return aiOuter.contains(pair.getAtom(1))
-                        && aiInner.contains(pair.getAtom(0));
-        }
-        return aiOuter.contains(pair.getAtom(0))
-                    && aiInner.contains(pair.getAtom(1));
     }
 
     /**
@@ -235,10 +210,11 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java
         return 2;
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomPair pair = new AtomPair();
     private boolean hasNext;
     private final AtomIterator aiInner, aiOuter;
     private final boolean doSwap;
 
-} //end of class ApiInnerFixed
+}
 

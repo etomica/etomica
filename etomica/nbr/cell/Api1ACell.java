@@ -6,7 +6,6 @@ package etomica.nbr.cell;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
@@ -32,7 +31,6 @@ import etomica.space.BoundaryPeriodic;
  * Direction is related to ordering of cells and, within a cell, ordering of
  * molecules in cell's occupant list.
  */
-
 public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular, 
         AtomPairIterator, java.io.Serializable {
     
@@ -131,19 +129,6 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         return counter.callCount();
 	}
 	
-	/**
-	 * Indicates whether the given atom pair will be among the iterates
-	 * given by the iterator if reset in its present state.  True only
-	 * if an iterated pair would match the atoms as ordered in the given
-	 * array.
-	 */
-	public boolean contains(AtomSet atoms) {
-        if(!(atoms instanceof AtomPair) || ((AtomPair)atoms).atom0 == ((AtomPair)atoms).atom1) return false;
-        AtomsetDetect detector = new AtomsetDetect(atoms);
-        allAtoms(detector);
-        return detector.detectedAtom();
-	}
-
     public boolean hasNext() {
         return aiInner.hasNext();
     }
@@ -295,6 +280,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         return neighborIterator;
     }
    
+    private static final long serialVersionUID = 1L;
     private final ApiSequence1A nbrCellListIteratorInner;//used only by allAtoms
     private final ApiInnerFixed nbrCellListIteratorUp;//used only by allAtoms
     private final ApiInnerFixed nbrCellListIteratorDn;//used only by allAtoms

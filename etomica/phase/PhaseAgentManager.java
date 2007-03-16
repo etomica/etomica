@@ -2,6 +2,7 @@ package etomica.phase;
 
 import java.lang.reflect.Array;
 
+import etomica.atom.SpeciesMaster;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.simulation.SimulationEvent;
@@ -62,7 +63,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         listIterator.reset();
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),listIterator.size());
         while(listIterator.hasNext()) {
-            addAgent(listIterator.nextAtom().getParentPhase());
+            addAgent(((SpeciesMaster)listIterator.nextAtom()).getPhase());
         }
     }
     

@@ -10,7 +10,6 @@ import etomica.atom.AtomSet;
   * sequence).  Iterator will fail if element are added to or removed 
   * from list while iteration is proceeding.
   */
-
 public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serializable {
 
     /**
@@ -110,16 +109,8 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
  		cursor = 0;
  	}
  	
-    /**
-     * Returns true if the given atom is in the list.
-     */
- 	public boolean contains(AtomSet atom) {
-        if(atom == null || atom.count() != 1) {
-            return false;
-        }
- 		return list.contains(atom.getAtom(0));
- 	}
- 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Index of element to be returned by subsequent call to next.
      */

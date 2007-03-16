@@ -65,11 +65,8 @@ public class ApiSingletTest extends IteratorTestAbstract {
         assertEquals(list.size(), 0);
 
         iterator.setPair(testAtom2, testAtom1);
-        assertFalse(new AtomPair(testAtom1, testAtom2).equals(iterator.getPair()));
-        assertEquals(new AtomPair(testAtom2, testAtom1), iterator.getPair());
-        assertFalse(iterator.contains(new AtomPair(testAtom1, testAtom2)));
-        assertFalse(iterator.contains(new AtomPair(testAtom2, testAtom3)));
-        assertTrue(iterator.contains(new AtomPair(testAtom2, testAtom1)));
+        assertEquals(testAtom2, iterator.getPair().atom0);
+        assertEquals(testAtom1, iterator.getPair().atom1);
 
         iterator.getPair().atom1 = null;
         list = generalIteratorMethodTests(iterator);

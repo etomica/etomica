@@ -2,9 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomToArrayList;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
@@ -118,19 +116,6 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
     }
  	
     /**
-     * Returns true if the given atom is in the list.
-     */
- 	public boolean contains(AtomSet atom) {
-        if(atom == null || atom.count() != 1) {
-            return false;
-        }
-        detector.setAtoms(atom);
-        detector.reset();
-        allAtoms(detector);
-        return detector.detectedAtom();
- 	}
- 
-    /**
      * Sets the first atom for iteration. Iteration proceeds from this atom up
      * and/or down the list, depending on how iterator was configured at
      * construction.
@@ -140,9 +125,9 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
         firstCursor = atomToIndex.getIndex(atom);
     }
 
+    private static final long serialVersionUID = 1L;
     protected final boolean upListNow;
     private final AtomsetCount counter = new AtomsetCount();
-    private final AtomsetDetect detector = new AtomsetDetect(null);
     private final int numToSkip;
     private int firstCursor;
     private final AtomToIndex atomToIndex;

@@ -12,7 +12,6 @@ import etomica.atom.AtomSet;
  *
  * @author David Kofke
  */
- 
 public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, java.io.Serializable {
     
     /**
@@ -55,13 +54,6 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
 	}
         
     /**
-     * Returns true if the given atom equals the atom passed to the last call to setAtom(Atom).
-     */
-    public boolean contains(AtomSet a) {
-    	return (a != null && a.equals(atom));
-    }
-    
-    /**
      * Returns true if the an atom has been set and a call to reset() has been
      * performed, without any subsequent calls to next().
      */
@@ -102,7 +94,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     
     public final int nBody() {return 1;}
     
+    private static final long serialVersionUID = 1L;
     private boolean hasNext = false;
     private Atom atom;
-
-}//end of AtomIteratorSinglet
+}

@@ -9,7 +9,6 @@ import etomica.units.Dimension;
  * the modifier can be passed to a generic Device, thereby connecting the device to the property.
  * @author David Kofke
  */
-
 public interface Modifier {
     
     /**

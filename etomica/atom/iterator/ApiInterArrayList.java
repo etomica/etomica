@@ -37,20 +37,6 @@ public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable
     }
 
     /**
-     * Returns true if the given pair of atoms are both in the current lists,
-     * with the first atom considered from the outer list, and the second atom
-     * from the inner list.
-     */
-    public boolean contains(AtomSet pair) {
-        if (pair == null || pair.count() != 2 ||
-                pair.getAtom(0) == pair.getAtom(1)) {
-            return false;
-        }
-        return outerList.contains(pair.getAtom(0))
-                && innerList.contains(pair.getAtom(1));
-    }
-
-    /**
      * Indicates whether iterator has another iterate.
      */
     public boolean hasNext() {

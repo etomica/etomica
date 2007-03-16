@@ -2,7 +2,6 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
@@ -67,7 +66,6 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
         setIterationDepth(depth);
         setRootAtom(root);
         setDoAllNodes(doAllNodes);
-        detector = new AtomsetDetect(null);
         counter = new AtomsetCount();
     }
     
@@ -114,16 +112,6 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
      * Returns true if the given atom is among the iterates as
      * currently configured (independent of reset state).  Clobbers iteration state.
      */
-    public boolean contains(AtomSet atoms) {
-    	unset();
-    	if(atoms == null || atoms.count() != 1) return false;
-        if(doAllNodes && rootAtom != null && rootAtom == atoms.getAtom(0)) return true;
-        detector.setAtoms(atoms);
-        detector.reset();
-        allAtoms(detector);
-        return detector.detectedAtom();
-    }
-    
     /**
      * Reinitializes the iterator according to the most recently specified basis,
      * iteration depth, and doAllNodes flag.
@@ -283,7 +271,6 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
     private Atom next;
     private boolean doAllNodes = false;
     private boolean wealreadyknowyourstupid = false;
-    private final AtomsetDetect detector;
     private final AtomsetCount counter;
         
 }//end of AtomIteratorTree

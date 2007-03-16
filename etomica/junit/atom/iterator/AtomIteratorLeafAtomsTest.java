@@ -2,6 +2,7 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
+import etomica.atom.SpeciesMaster;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.junit.UnitTestUtil;
@@ -43,7 +44,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         Phase[] phase = new Phase[3];
         int[][] moleculeCount = new int[3][];
         for(int i=0; i<phase.length; i++) {
-            phase[i] = root.getDescendant(new int[] { i }).getParentPhase();
+            phase[i] = ((SpeciesMaster)root.getChildList().get(i)).getPhase();
             moleculeCount[i] = new int[] {n0[i], n1[i], n2[i]};
         }
 

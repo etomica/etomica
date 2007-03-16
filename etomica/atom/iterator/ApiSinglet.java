@@ -60,14 +60,6 @@ public class ApiSinglet implements AtomPairIterator, java.io.Serializable {
     }
 
     /**
-     * Returns true if the given atom set has the same two atoms passed to the
-     * last call to setAtom(Atom).  Returns false if any relevant atoms are null.
-     */
-    public boolean contains(AtomSet a) {
-        return (a != null && pair.atom0 != null && pair.atom1 != null && a.equals(pair));
-    }
-
-    /**
      * Returns true if two non-null atoms have set and a call to reset() has
      * been performed, without any subsequent calls to next() or nextPair().
      */
@@ -122,7 +114,8 @@ public class ApiSinglet implements AtomPairIterator, java.io.Serializable {
         return 2;
     }
 
+    private static final long serialVersionUID = 1L;
     private boolean expired;
     private final AtomPair pair;
 
-}//end of ApiSinglet
+}

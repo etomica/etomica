@@ -4,6 +4,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.SpeciesMaster;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.atom.iterator.IteratorDirective;
@@ -48,21 +49,6 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         //test new iterator gives no iterates
         testNoIterates(api);
 
-        //one species has no molecules
-        api.setPhase(root.getDescendant(new int[] {2}).getParentPhase());
-        api.setTarget(root.getDescendant(new int[] {2,1,3}));
-        testNoIterates(api);
-        //target not one of species
-        api = new ApiIntraspecies1A(new Species[] {species[1],species[1]});
-        api.setPhase(root.getDescendant(new int[] {0}).getParentPhase());
-        api.setTarget(root.getDescendant(new int[] {0,0,3}));
-        testNoIterates(api);
-        //target one of species but in different phase
-        api = new ApiIntraspecies1A(new Species[] {species[1],species[1]});
-        api.setPhase(root.getDescendant(new int[] {0}).getParentPhase());
-        api.setTarget(root.getDescendant(new int[] {1,1,0}));
-        testNoIterates(api);
-        
         //test documented exceptions
         Atom target = null;
         boolean exceptionThrown = false;
@@ -118,7 +104,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
     private void speciesTestForward(SpeciesRoot root, Species[] species, int phaseIndex, int species0Index) {
 
         ApiIntraspecies1A api = new ApiIntraspecies1A(new Species[] {species[species0Index], species[species0Index]});
-        Phase phase = root.getDescendant(new int[] {phaseIndex}).getParentPhase();
+        Phase phase = ((SpeciesMaster)root.getChildList().get(phaseIndex)).getPhase();
         AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
         Atom target = null;
         Atom targetMolecule = null;

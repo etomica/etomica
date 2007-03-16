@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Aug 31, 2004 by kofke
- */
 package etomica.potential;
 
 import etomica.atom.AtomSet;
@@ -15,10 +11,6 @@ import etomica.space.IVector;
  */
 public interface PotentialSoft {
 	   
-	public double energy(AtomSet atoms);
-    
-    public double virial(AtomSet atoms);
-
 	/**
 	 * Returns the gradient of the potential as it applies to each atom in the 
      * given AtomSet, indicating how the energy would change as the position of 

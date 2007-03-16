@@ -12,7 +12,6 @@ import etomica.util.Debug;
  *
  * @author David Kofke
  */
- 
 public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializable {
     
     /**
@@ -54,13 +53,6 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
 	}
     
     /**
-     * Returns true if the given atom equals the atom passed to the last call to setAtom(Atom).
-     */
-    public boolean contains(AtomSet a) {
-    	return !(atom == null || a == null) && atom.equals(a);
-    }
-    
-    /**
      * Returns true if the an atom has been set and a call to reset() has been
      * performed, without any subsequent calls to next().
      */
@@ -97,9 +89,10 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
     
     public final int nBody() {return nBody;}
     
+    private static final long serialVersionUID = 1L;
     private final int nBody;
     private boolean hasNext = false;
     private AtomSet atom;
 
-}//end of AtomsetIteratorSinglet
+}
         

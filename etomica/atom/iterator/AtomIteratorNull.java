@@ -14,12 +14,11 @@ import etomica.atom.AtomSet;
  * @author kofke
  */
 public final class AtomIteratorNull implements AtomIterator, Serializable {
+
     // prevent instantiation.  Consumers should use the INSTANCE field.
     private AtomIteratorNull() {}
     
     public void allAtoms(AtomsetAction action) {}
-
-    public boolean contains(AtomSet atom) {return false;}
 
     public boolean hasNext() {return false;}
 
@@ -37,5 +36,6 @@ public final class AtomIteratorNull implements AtomIterator, Serializable {
 
     public int nBody() {return 1;}
     
+    private static final long serialVersionUID = 1L;
     public static final AtomIteratorNull INSTANCE = new AtomIteratorNull();
 }

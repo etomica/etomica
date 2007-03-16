@@ -34,18 +34,6 @@ public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable
     }
 
     /**
-     * Returns true if the given pair of atoms are both in the current list.
-     * Does not consider order of atoms.
-     */
-    public boolean contains(AtomSet pair) {
-        if (pair == null || pair.count() != 2 
-                || pair.getAtom(0) == pair.getAtom(1))
-            return false;
-        return list.contains(pair.getAtom(0))
-                && list.contains(pair.getAtom(1));
-    }
-
-    /**
      * Indicates whether iterator has another iterate.
      */
     public boolean hasNext() {
@@ -164,8 +152,8 @@ public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private AtomArrayList list;
     private int nextOuterIndex, nextInnerIndex;
     private final AtomPair atoms = new AtomPair();
-
 }

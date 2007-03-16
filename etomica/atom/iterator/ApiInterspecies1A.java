@@ -179,11 +179,6 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         }
     }
 
-    public boolean contains(AtomSet pair) {
-        return iterator.contains(pair);
-
-    }
-
     public AtomSet peek() {
         return iterator.peek();
     }

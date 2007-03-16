@@ -4,6 +4,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.SpeciesMaster;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiIntraspeciesAA;
 import etomica.junit.UnitTestUtil;
@@ -90,7 +91,7 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
      */
     private void speciesTestForward(SpeciesRoot root, Species[] species, int phaseIndex, int species0Index) {
         ApiIntraspeciesAA api = new ApiIntraspeciesAA(species[species0Index]);
-        Phase phase = root.getDescendant(new int[] {phaseIndex}).getParentPhase();
+        Phase phase = ((SpeciesMaster)root.getChildList().get(phaseIndex)).getPhase();
         AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
 
         api.setPhase(phase);

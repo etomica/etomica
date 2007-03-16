@@ -9,16 +9,19 @@ import etomica.atom.iterator.AtomsetIterator;
  */
 public class PotentialCalculationVirialSum extends PotentialCalculation {
 		
-	/**
+    /**
 	 * Adds to the virial sum the energy values obtained from application of the given potential to the
 	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
 	 */
 	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
 //        AtomPairIterator pairIterator = (AtomPairIterator)iterator;
+        if (!(potential instanceof Potential2Soft)) {
+            return;
+        }
 		iterator.reset();
 		while(iterator.hasNext()) {
 //            sum += ((Potential2Soft)potential).virial(pairIterator.nextPair());
-            sum += ((PotentialSoft)potential).virial(iterator.next());
+            sum += ((Potential2Soft)potential).virial(iterator.next());
 		}
 	}
 	
@@ -31,6 +34,8 @@ public class PotentialCalculationVirialSum extends PotentialCalculation {
 		sum = 0.0;
 		return this;
 	}
+
+    private static final long serialVersionUID = 1L;
 
 	/**
 	 * Returns the current value of the energy sum.

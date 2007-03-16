@@ -8,7 +8,6 @@ import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
@@ -23,7 +22,7 @@ public final class ApiIntragroup implements AtomPairIterator,
 		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable,
         Serializable {
 
-	/**
+    /**
 	 * Constructor makes iterator that must have basis specified and then be 
 	 * reset() before iteration.
 	 */
@@ -123,18 +122,6 @@ public final class ApiIntragroup implements AtomPairIterator,
         return counter.callCount();
 	}
     
-    public boolean contains(AtomSet atoms) {
-        if(atoms == null || atoms.count() != 2) return false;
-        if(detector == null) {
-            detector = new AtomsetDetect(atoms);
-        } else {
-            detector.setAtoms(atoms);
-            detector.reset();
-        }
-        allAtoms(detector);
-        return detector.detectedAtom();
-    }
-    
     public boolean hasNext() {
         return upListNow ? apiUp.hasNext() : apiDown.hasNext();
     }
@@ -181,11 +168,11 @@ public final class ApiIntragroup implements AtomPairIterator,
 		return 1;
 	}
     
+    private static final long serialVersionUID = 1L;
 	private final AtomsetIteratorBasisDependent aiOuter;//local, specifically typed copy
 	private Atom targetAtom;
     private IteratorDirective.Direction direction;
     private AtomsetCount counter;
-    private AtomsetDetect detector;
     private final ApiInnerVariable apiUp, apiDown;
     private boolean doGoDown, upListNow;
 }

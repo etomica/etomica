@@ -4,11 +4,6 @@ package etomica.atom;
 /**
  * Data structure that contains two mutable atom instances.
  */
-
-/*
- * History
- * Created on Feb 18, 2005 by kofke
- */
 public class AtomPair implements AtomSet, Comparable, java.io.Serializable {
 
     public AtomPair() {
@@ -40,17 +35,6 @@ public class AtomPair implements AtomSet, Comparable, java.io.Serializable {
         pair.atom1 = atom1;
     }
     
-    public boolean equals(Object object) {
-        if(!(object instanceof AtomSet)) return false;
-        return equals((AtomSet)object);
-    }
-    
-    public boolean equals(AtomSet pair) {
-        return pair.count() == 2
-                && pair.getAtom(0) == atom0
-                && pair.getAtom(1) == atom1;
-    }
-    
     public String toString() {
         return "["+atom0.toString()+","+atom1.toString()+"]";
     }
@@ -65,6 +49,7 @@ public class AtomPair implements AtomSet, Comparable, java.io.Serializable {
         return (i0 != 0) ? i0 : atom1.compareTo(((AtomPair)pair).atom1);
     }
     
+    private static final long serialVersionUID = 1L;
     public Atom atom0, atom1;
 
 }

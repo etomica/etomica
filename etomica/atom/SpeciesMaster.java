@@ -169,7 +169,7 @@ public final class SpeciesMaster extends AtomGroup {
         return reservoirSize-1;
     }
 
-    public Phase getParentPhase() {
+    public Phase getPhase() {
         return parentPhase;
     }
 

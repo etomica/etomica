@@ -6,7 +6,6 @@ package etomica.nbr.site;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
@@ -25,10 +24,9 @@ import etomica.space.BoundaryPeriodic;
  * Iteration is performed using site lists.
  * Direction is related to ordering of sites.
  */
-
 public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.Serializable {
     
-	/**
+    /**
 	 * Constructor makes iterator that must have phase specified and then be 
 	 * reset() before iteration.
      * 
@@ -96,19 +94,6 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
         return counter.callCount();
 	}
 	
-	/**
-	 * Indicates whether the given atom pair will be among the iterates
-	 * given by the iterator if reset in its present state.  True only
-	 * if an iterated pair would match the atoms as ordered in the given
-	 * array.
-	 */
-	public boolean contains(AtomSet atoms) {
-        if(!(atoms instanceof AtomPair) || ((AtomPair)atoms).atom0 == ((AtomPair)atoms).atom1) return false;
-        AtomsetDetect detector = new AtomsetDetect(atoms);
-        allAtoms(detector);
-        return detector.detectedAtom();
-	}
-
     public boolean hasNext() {
         return next != null;
     }
@@ -210,6 +195,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
     }
 
     
+    private static final long serialVersionUID = 1L;
     private final RectangularLatticeNbrIterator neighborIterator;
     private final AtomPair pair = new AtomPair();
     private final int[] latticeIndex;

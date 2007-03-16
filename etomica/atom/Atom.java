@@ -3,7 +3,6 @@ package etomica.atom;
 import java.io.IOException;
 
 import etomica.chem.elements.ElementSimple;
-import etomica.phase.Phase;
 import etomica.util.Debug;
 import etomica.util.EtomicaObjectInputStream;
 
@@ -59,34 +58,6 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
     }
     
     /**
-     * Returns true if the given object is this atom instance, or if it is
-     * a length-1 AtomSet holding this instance.
-     */
-    public boolean equals(Object object) {
-        if(!(object instanceof AtomSet) || ((AtomSet)object).count() != 1) return false;
-        return this == ((AtomSet)object).getAtom(0);
-    }
-
-    /**
-     * Returns true if the given object is this atom instance, or if it is
-     * a length-1 AtomSet holding this instance.
-     */
-    public final boolean equals(AtomSet atoms) {
-        if (atoms == null || atoms.count() != 1) return false;
-        return this == atoms.getAtom(0);
-    }
-
-    /**
-     * Returns true if this atom is in the same species as the given atom.
-     * 
-     * @throws NullPointerException
-     *             if the argument is null
-     */
-    public boolean inSameSpecies(Atom atom) {
-        return type.getAddressManager().sameSpecies(getAddress(), atom.getAddress());
-    }
-    
-    /**
      * Returns true if this atom is in the same molecule as the given atom.
      * 
      * @throws NullPointerException
@@ -94,15 +65,6 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
      */
     public boolean inSameMolecule(Atom atom) {
         return type.getAddressManager().sameMolecule(getAddress(), atom.getAddress());
-    }
-    /**
-     * Returns true if this atoms is in the same phase as the given atom.
-     * 
-     * @throws NullPointerException
-     *             if the argument is null
-     */
-    public boolean inSamePhase(Atom atom) {
-        return type.getAddressManager().samePhase(getAddress(), atom.getAddress());
     }
     
     /**
@@ -205,17 +167,6 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
     }
                 
     /**
-     * Phase in which this atom resides
-     */
-    public Phase getParentPhase() {
-        return (parent != null) ? parent.getParentPhase() : null;
-    }
-    
-    public SpeciesAgent getParentSpeciesAgent() {
-        return (parent != null) ? parent.getParentSpeciesAgent() : null;
-    }
-    
-    /**
      * Integer assigned to this atom by its parent molecule.
      */
     public final int getAddress() {return atomTreeAddress;}
@@ -234,22 +185,6 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
     
     public int getIndex() {
         return type.getAddressManager().getIndex(atomTreeAddress);
-    }
-    
-    public int getMoleculeIndex() {
-        return type.getAddressManager().getMoleculeIndex(atomTreeAddress);
-    }
-
-    public int getPhaseIndex() {
-        return type.getAddressManager().getPhaseIndex(atomTreeAddress);
-    }
-
-    public int getSpeciesIndex() {
-        return type.getAddressManager().getSpeciesIndex(atomTreeAddress);
-    }
-
-    public boolean inSimulation() {
-        return atomTreeAddress < 0;
     }
     
     /**

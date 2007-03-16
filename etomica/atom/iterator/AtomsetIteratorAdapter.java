@@ -30,13 +30,6 @@ public abstract class AtomsetIteratorAdapter implements AtomsetIterator, java.io
 	}
 
 	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#contains(etomica.Atom)
-	 */
-	public boolean contains(AtomSet atom) {
-		return iterator.contains(atom);
-	}
-
-	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#hasNext()
 	 */
 	public boolean hasNext() {

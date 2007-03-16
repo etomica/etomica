@@ -98,29 +98,6 @@ public class AtomsetArray implements AtomSet, java.io.Serializable {
     public int count() {
         return atoms.length;
     }
-
-    public boolean equals(Object object) {
-        if (!(object instanceof AtomSet)) {
-            return false;
-        }
-        return equals((AtomSet) object);
-    }
-
-    /**
-     * Returns true if elements of the wrapped array are equal to those in the
-     * given atom set, with the comparison performed element-by-element.  Returns
-     * false otherwise, or if argument is null, or if atoms.count() != count().
-     */
-    public boolean equals(AtomSet candidateAtoms) {
-        if (candidateAtoms == null || candidateAtoms.count() != count()) {
-            return false;
-        }
-        for (int i = 0; i < this.atoms.length; i++) {
-            if (atoms[i] != candidateAtoms.getAtom(i))
-                return false;
-        }
-        return true;
-    }
     
     public String toString() {
         String str = "[";

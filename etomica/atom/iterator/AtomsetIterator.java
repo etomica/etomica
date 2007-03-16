@@ -15,14 +15,6 @@ import etomica.atom.AtomSet;
 
 public interface AtomsetIterator {
     
-	/**
-	 * Indicates whether the atom is among those returned by the iterator.
-	 * @param atom the atom in question
-	 * @return true if the atom is among the iterates; false if
-	 * otherwise, or if atom is null.
-	 */
-    public boolean contains(AtomSet atom);
-    
     /**
      * Indicates whether the iterator has another atom.  
      * Once the iterator expires, this remains false, and will 
@@ -72,20 +64,4 @@ public interface AtomsetIterator {
      * @return
      */
     public int nBody();
-    
-    /**
-     * Static iterator that returns no atoms.
-     * @author kofke
-     */
-    public static AtomsetIterator NULL = new AtomsetIterator() {
-    	public void allAtoms(AtomsetAction action) {}
-    	public boolean contains(AtomSet atom) {return false;}
-    	public boolean hasNext() {return false;}
-    	public AtomSet next() {return null;}
-    	public void reset() {}
-    	public int size() {return 0;}
-    	public AtomSet peek() {return null;}
-    	public void unset() {}
-    	public int nBody() {return 0;}
-    };
 }

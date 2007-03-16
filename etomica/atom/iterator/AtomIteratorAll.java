@@ -1,7 +1,6 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.action.AtomsetDetect;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
@@ -127,21 +126,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         return next.count();
     }
 
-    /**
-     * Returns true if given atom set is among the iterates, if iterated after a
-     * call to reset().
-     */
-    public boolean contains(AtomSet atom) {
-        if (atom == null)
-            return false;
-        detector.setAtoms(atom);
-        detector.reset();
-        allAtoms(detector);
-        return detector.detectedAtom();
-    }
-
     private static final long serialVersionUID = 1L;
-    private final AtomsetDetect detector = new AtomsetDetect(null);
     private final Species[] species;
     private Phase phase;
     private int nextCursor;

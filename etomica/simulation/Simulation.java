@@ -3,6 +3,7 @@ package etomica.simulation;
 import java.util.LinkedList;
 
 import etomica.action.activity.Controller;
+import etomica.atom.SpeciesMaster;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.DataSource;
@@ -67,7 +68,7 @@ public class Simulation implements java.io.Serializable  {
         listIterator.reset();
         int i=0;
         while(listIterator.hasNext()) {
-            phases[i++] = listIterator.nextAtom().getParentPhase();
+            phases[i++] = ((SpeciesMaster)listIterator.nextAtom()).getPhase();
         }
         return phases;
     }

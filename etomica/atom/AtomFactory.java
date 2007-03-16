@@ -74,7 +74,7 @@ public abstract class AtomFactory implements java.io.Serializable {
         }
         AtomArrayList speciesMasterList = speciesRoot.getChildList();
         for (int i=0; i<speciesMasterList.size(); i++) {
-            Phase iPhase = speciesMasterList.get(i).getParentPhase();
+            Phase iPhase = ((SpeciesMaster)speciesMasterList.get(i)).getPhase();
             SpeciesAgent iAgent = atomType.getSpecies().getAgent(iPhase);
             if (iAgent.getNMolecules() > 0) {
                 isMutable = false;

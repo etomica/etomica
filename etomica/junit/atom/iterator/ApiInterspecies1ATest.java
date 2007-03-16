@@ -6,6 +6,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.SpeciesMaster;
 import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
@@ -50,21 +51,6 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
                 species[0], species[1] });
 
         //test new iterator gives no iterates
-        testNoIterates(api);
-
-        //one species has no molecules
-        api.setPhase(root.getDescendant(new int[] { 2 }).getParentPhase());
-        api.setTarget(root.getDescendant(new int[] { 2, 1, 3 }));
-        testNoIterates(api);
-        //target not one of species
-        api = new ApiInterspecies1A(new Species[] { species[1], species[2] });
-        api.setPhase(root.getDescendant(new int[] { 0 }).getParentPhase());
-        api.setTarget(root.getDescendant(new int[] { 0, 0, 3 }));
-        testNoIterates(api);
-        //target one of species but in different phase
-        api = new ApiInterspecies1A(new Species[] { species[1], species[2] });
-        api.setPhase(root.getDescendant(new int[] { 0 }).getParentPhase());
-        api.setTarget(root.getDescendant(new int[] { 1, 1, 0 }));
         testNoIterates(api);
 
         //test documented exceptions
@@ -133,7 +119,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
             int species1Index) {
         ApiInterspecies1A api = new ApiInterspecies1A(new Species[] {
                 species[species0Index], species[species1Index] });
-        Phase phase = root.getDescendant(new int[] { phaseIndex }).getParentPhase();
+        Phase phase = ((SpeciesMaster)root.getChildList().get(phaseIndex)).getPhase();
         AtomsetAction speciesTest = new SpeciesTestAction(
                 species[species0Index], species[species1Index]);
         Atom target = null;
