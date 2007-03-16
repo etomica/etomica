@@ -190,11 +190,11 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         
         getSpeciesRoot().addSpecies(snFixedA);
         getSpeciesRoot().addSpecies(snA);
-        getSpeciesRoot().addSpecies(agA);
-        getSpeciesRoot().addSpecies(cuA);
+//        getSpeciesRoot().addSpecies(agA);
+//        getSpeciesRoot().addSpecies(cuA);
         getSpeciesRoot().addSpecies(cuFixedB);
-        getSpeciesRoot().addSpecies(snB);
-        getSpeciesRoot().addSpecies(agB);
+//        getSpeciesRoot().addSpecies(snB);
+//        getSpeciesRoot().addSpecies(agB);
         getSpeciesRoot().addSpecies(cuB);
         
         phase = new Phase(this);
@@ -237,11 +237,11 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 	        
 	    snFixedA.getAgent(phase).setNMolecules(nAFixed);
 	    snA.getAgent(phase).setNMolecules(nAMobile);
-	    agA.getAgent(phase).setNMolecules(0);
-	    cuA.getAgent(phase).setNMolecules(0);
+//	    agA.getAgent(phase).setNMolecules(0);
+//	    cuA.getAgent(phase).setNMolecules(0);
 	    cuFixedB.getAgent(phase).setNMolecules(nBFixed);
-	    snB.getAgent(phase).setNMolecules(0);
-	    agB.getAgent(phase).setNMolecules(0);
+//	    snB.getAgent(phase).setNMolecules(0);
+//	    agB.getAgent(phase).setNMolecules(0);
 	    cuB.getAgent(phase).setNMolecules(nBMobile);
 	    
 	        

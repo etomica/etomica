@@ -189,12 +189,12 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 
         getSpeciesRoot().addSpecies(snFixedA);
         getSpeciesRoot().addSpecies(snA);
-        getSpeciesRoot().addSpecies(agA);
-        getSpeciesRoot().addSpecies(cuA);
+//        getSpeciesRoot().addSpecies(agA);
+//        getSpeciesRoot().addSpecies(cuA);
         getSpeciesRoot().addSpecies(agFixedB);
-        getSpeciesRoot().addSpecies(snB);
+//        getSpeciesRoot().addSpecies(snB);
         getSpeciesRoot().addSpecies(agB);
-        getSpeciesRoot().addSpecies(cuB);
+//        getSpeciesRoot().addSpecies(cuB);
 
         double aA, bA, cA, aB, bB, cB;
         
@@ -238,12 +238,12 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 	        
 	    snFixedA.getAgent(phase).setNMolecules(nAFixed);
 	    snA.getAgent(phase).setNMolecules(nAMobile);
-	    agA.getAgent(phase).setNMolecules(0);
-	    cuA.getAgent(phase).setNMolecules(0);
+//	    agA.getAgent(phase).setNMolecules(0);
+//	    cuA.getAgent(phase).setNMolecules(0);
 	    agFixedB.getAgent(phase).setNMolecules(nBFixed);
-	    snB.getAgent(phase).setNMolecules(0);
+//	    snB.getAgent(phase).setNMolecules(0);
 	    agB.getAgent(phase).setNMolecules(nBMobile);
-	    cuB.getAgent(phase).setNMolecules(0);
+//	    cuB.getAgent(phase).setNMolecules(0);
 	    
 	        
 	    /** The following values come from either the ASM Handbook or Cullity & Stock's 
