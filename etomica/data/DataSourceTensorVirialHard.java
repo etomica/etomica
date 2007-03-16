@@ -37,7 +37,7 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
         return info;
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

@@ -30,7 +30,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
         }
     }
     
-    public void putDataInfo(DataInfo newDataInfo) {
+    public void putDataInfo(IDataInfo newDataInfo) {
         dataInfo = newDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(tag);
         insertTransformerIfNeeded();
@@ -55,7 +55,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
         dataSink.putDataInfo(dataInfo);
     }
 
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
+    public DataProcessor getDataCaster(IDataInfo dataInfo) {
         // we don't care about the type although the DataWriter might
         return null;
     }
@@ -255,7 +255,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
     private boolean writeOnInterval = true;
     private DataWriter dataWriter;
     private DataSink dataSink;
-    private DataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected final DataTag tag;
 
     private void readObject(java.io.ObjectInputStream in)

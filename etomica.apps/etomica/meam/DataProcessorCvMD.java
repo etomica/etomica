@@ -7,9 +7,9 @@
 package etomica.meam;
 
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -39,11 +39,11 @@ final class DataProcessorCvMD extends DataProcessor {
 		return data;
 	}
 
-	public DataProcessor getDataCaster(DataInfo inputDataInfo){
+	public DataProcessor getDataCaster(IDataInfo inputDataInfo){
 		return null;
 	}
 
-	public DataInfo processDataInfo(DataInfo inputDataInfo){
+	public IDataInfo processDataInfo(IDataInfo inputDataInfo){
 		Dimension cvDimension = new CompoundDimension(new Dimension[]{Energy.DIMENSION, Temperature.DIMENSION, Quantity.DIMENSION}, new double[]{1,-1,-1});
 		data = new DataDouble();
 		dataInfo = new DataInfoDouble("Heat Capacity", cvDimension);

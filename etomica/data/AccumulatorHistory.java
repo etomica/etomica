@@ -63,7 +63,7 @@ public class AccumulatorHistory extends DataAccumulator {
     /**
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
-    public DataProcessor getDataCaster(DataInfo newInputDataInfo) {
+    public DataProcessor getDataCaster(IDataInfo newInputDataInfo) {
         if(newInputDataInfo instanceof DataInfoDoubleArray || 
                 newInputDataInfo instanceof DataInfoTable) {
             return null;
@@ -76,7 +76,7 @@ public class AccumulatorHistory extends DataAccumulator {
      * 
      * @param nData
      */
-    protected DataInfo processDataInfo(DataInfo newInputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo newInputDataInfo) {
         inputDataInfo = newInputDataInfo;
         if (inputDataInfo instanceof DataInfoDoubleArray) {
             nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
@@ -209,7 +209,7 @@ public class AccumulatorHistory extends DataAccumulator {
             history[i].reset();
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -221,7 +221,7 @@ public class AccumulatorHistory extends DataAccumulator {
     private History.Factory historyFactory;
     private int historyLength;
     private DataSourceScalar timeDataSource;
-    private DataInfo inputDataInfo;
+    private IDataInfo inputDataInfo;
 
     /**
      * Simple DataSource to use as a default time DataSource.  It just returns

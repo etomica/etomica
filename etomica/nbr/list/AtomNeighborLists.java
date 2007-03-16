@@ -111,7 +111,6 @@ public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
             atomListInts[0][i] = new int[upList[i].size()];
             for (int j=0; j<atomListInts[0][i].length; j++) {
                 atomListInts[0][i][j] = upList[i].get(j).getAddress();
-                
             }
         }
         

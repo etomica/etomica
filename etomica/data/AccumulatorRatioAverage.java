@@ -85,7 +85,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         ratioStandardDeviation.E(Double.NaN);
     }
     
-    public DataInfo processDataInfo(DataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         super.processDataInfo(incomingDataInfo);
 
         ratio = incomingDataInfo.makeData();
@@ -104,23 +104,23 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         reset();
 
         DataInfoGroupFactory groupFactory = (DataInfoGroupFactory)dataInfo.getFactory();
-        DataInfo[] subDataInfo = groupFactory.getSubDataInfo();
+        IDataInfo[] subDataInfo = groupFactory.getSubDataInfo();
 
         DataInfoFactory factory = incomingDataInfo.getFactory();
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel+" ratio");
-        DataInfo ratioInfo = factory.makeDataInfo();
+        IDataInfo ratioInfo = factory.makeDataInfo();
         ratioInfo.addTag(ratioTag);
         factory.setLabel(incomingLabel+" ratio error");
-        DataInfo ratioErrorInfo = factory.makeDataInfo();
+        IDataInfo ratioErrorInfo = factory.makeDataInfo();
         ratioErrorInfo.addTag(ratioErrorTag);
         factory.setLabel(incomingLabel+" ratio");
-        DataInfo ratioStandardDeviationInfo = factory.makeDataInfo();
+        IDataInfo ratioStandardDeviationInfo = factory.makeDataInfo();
         ratioStandardDeviationInfo.addTag(ratioStandardDeviationTag);
         
-        subDataInfo = (DataInfo[])Arrays.addObject(subDataInfo, ratioInfo);
-        subDataInfo = (DataInfo[])Arrays.addObject(subDataInfo, ratioErrorInfo);
-        subDataInfo = (DataInfo[])Arrays.addObject(subDataInfo, ratioStandardDeviationInfo);
+        subDataInfo = (IDataInfo[])Arrays.addObject(subDataInfo, ratioInfo);
+        subDataInfo = (IDataInfo[])Arrays.addObject(subDataInfo, ratioErrorInfo);
+        subDataInfo = (IDataInfo[])Arrays.addObject(subDataInfo, ratioStandardDeviationInfo);
         groupFactory.setSubDataInfo(subDataInfo);
 
         dataInfo = groupFactory.makeDataInfo();

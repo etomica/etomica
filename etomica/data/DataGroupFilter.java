@@ -66,7 +66,7 @@ public class DataGroupFilter extends DataProcessor {
      * the index specification given at construction.  Returns the DataInfo
      * of the data that will be output.
      */
-    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         outputData = null;
         int nData = ((DataInfoGroup)inputDataInfo).getNDataInfo();
         if(singleInstance) {
@@ -75,7 +75,7 @@ public class DataGroupFilter extends DataProcessor {
             }
             throw new ArrayIndexOutOfBoundsException("DataFilter was constructed to extract a Data element with an index that is larger than the number of Data elements wrapped in the DataGroup. Number of elements: "+nData+"; index array: "+Arrays.toString(indexes));
         }
-        DataInfo[] pushedDataInfo = new DataInfo[indexes.length];
+        IDataInfo[] pushedDataInfo = new IDataInfo[indexes.length];
         try {
             for (int i=0; i<indexes.length; i++) {
                 pushedDataInfo[i] = ((DataInfoGroup)inputDataInfo).getSubDataInfo(indexes[i]);
@@ -90,7 +90,7 @@ public class DataGroupFilter extends DataProcessor {
      * Returns null if the given DataInfo is for a DataGroup; otherwise
      * throws an exception.
      */
-    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
         if(!(incomingDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("DataGroupFilter must operate on a DataGroup");
         }

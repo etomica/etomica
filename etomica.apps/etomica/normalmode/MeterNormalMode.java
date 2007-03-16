@@ -6,8 +6,8 @@ import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -105,7 +105,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
         return waveVectors;
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -193,7 +193,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
     private Phase phase;
     private String name;
     private final DataTag tag;
-    private DataInfo dataInfo;
+    private IDataInfo dataInfo;
     private DataGroup data;
     private final AtomIteratorAllMolecules iterator;
     private IVector[] latticePositions;

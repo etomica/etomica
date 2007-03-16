@@ -4,6 +4,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
@@ -181,7 +182,7 @@ public class DataTensor implements Data, java.io.Serializable {
             space = template.space;
         }
         
-        public DataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoTensor dataInfo = new DataInfoTensor(label, dimension, space);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

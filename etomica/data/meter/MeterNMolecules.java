@@ -3,9 +3,9 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceScalar;
+import etomica.data.IDataInfo;
 import etomica.phase.Phase;
 import etomica.species.Species;
 import etomica.units.Quantity;
@@ -40,7 +40,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
         return data;
     }
     
-    public DataInfo getAtomDataInfo() {
+    public IDataInfo getAtomDataInfo() {
         return dataInfo;
     }
     

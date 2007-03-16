@@ -3,8 +3,8 @@ package etomica.modules.reactionequilibrium;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTable;
@@ -26,7 +26,7 @@ public final class MeterDimerFraction implements Meter {
         dataInfo.addTag(tag);
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

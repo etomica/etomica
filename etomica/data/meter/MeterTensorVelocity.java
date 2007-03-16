@@ -6,9 +6,9 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.phase.Phase;
@@ -44,7 +44,7 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
         return info;
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -52,7 +52,7 @@ public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Ser
         return tag;
     }
        
-    public DataInfo getAtomDataInfo() {
+    public IDataInfo getAtomDataInfo() {
         return dataInfo;
     }
        

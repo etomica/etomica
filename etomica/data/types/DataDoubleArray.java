@@ -6,6 +6,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -378,7 +379,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
             arrayShape = (int[])template.arrayShape.clone();
         }
         
-        public DataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoDoubleArray dataInfo = new DataInfoDoubleArray(label, dimension, arrayShape);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));

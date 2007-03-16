@@ -3,9 +3,9 @@ package etomica.data.types;
 import java.io.Serializable;
 
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArrayFactory;
 import etomica.units.Null;
@@ -128,7 +128,7 @@ public class DataTable extends DataGroup implements Data, Serializable {
     private static final long serialVersionUID = 1L;
 
     public static class DataInfoTable extends DataInfoGroup {
-        public DataInfoTable(String label, DataInfo[] columnInfo, int nRows, String[] rowHeaders) {
+        public DataInfoTable(String label, IDataInfo[] columnInfo, int nRows, String[] rowHeaders) {
             super(label, Null.DIMENSION, columnInfo);
             this.nRows = nRows;
             if (rowHeaders != null) {
@@ -187,7 +187,7 @@ public class DataTable extends DataGroup implements Data, Serializable {
             }
         }
         
-        public DataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoDoubleArray[] columnInfo = new DataInfoDoubleArray[columnInfoFactories.length];
             for (int i=0; i<columnInfo.length; i++) {
                 columnInfo[i] = (DataInfoDoubleArray)columnInfoFactories[i].makeDataInfo();

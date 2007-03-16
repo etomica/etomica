@@ -4,6 +4,7 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -98,9 +99,9 @@ public class DataGroup implements Data, java.io.Serializable {
     protected final Data[] data;
     
     public static class DataInfoGroup extends DataInfo {
-        public DataInfoGroup(String label, Dimension dimension, DataInfo[] subDataInfo) {
+        public DataInfoGroup(String label, Dimension dimension, IDataInfo[] subDataInfo) {
             super(label, dimension);
-            this.subDataInfo = (DataInfo[])subDataInfo.clone();
+            this.subDataInfo = (IDataInfo[])subDataInfo.clone();
         }
 
         public DataInfoFactory getFactory() {
@@ -115,7 +116,7 @@ public class DataGroup implements Data, java.io.Serializable {
          * Returns the DataInfo corresponding to the group's given wrapped 
          * Data object.
          */
-        public DataInfo getSubDataInfo(int i) {
+        public IDataInfo getSubDataInfo(int i) {
             return subDataInfo[i];
         }
         
@@ -142,33 +143,33 @@ public class DataGroup implements Data, java.io.Serializable {
         }
 
         private static final long serialVersionUID = 1L;
-        protected final DataInfo[] subDataInfo;
+        protected final IDataInfo[] subDataInfo;
     }
     
     public static class DataInfoGroupFactory extends DataInfoFactory {
 
         protected DataInfoGroupFactory(DataInfoGroup template) {
             super(template);
-            subDataInfo = (DataInfo[])template.subDataInfo.clone();
+            subDataInfo = (IDataInfo[])template.subDataInfo.clone();
         }
         
-        public DataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             DataInfoGroup dataInfo = new DataInfoGroup(label, dimension, subDataInfo);
             DataTag[] tagArray = new DataTag[tags.size()];
             dataInfo.addTags((DataTag[])tags.toArray(tagArray));
             return dataInfo;
         }
      
-        public void setSubDataInfo(DataInfo[] newSubDataInfo) {
-            subDataInfo = (DataInfo[])newSubDataInfo.clone();
+        public void setSubDataInfo(IDataInfo[] newSubDataInfo) {
+            subDataInfo = (IDataInfo[])newSubDataInfo.clone();
         }
         
-        public DataInfo[] getSubDataInfo() {
+        public IDataInfo[] getSubDataInfo() {
             return subDataInfo;
         }
         
         private static final long serialVersionUID = 1L;
-        protected DataInfo[] subDataInfo;
+        protected IDataInfo[] subDataInfo;
     }
 
     public void assignTo(double[] array) {

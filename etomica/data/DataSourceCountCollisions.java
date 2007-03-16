@@ -32,7 +32,7 @@ public class DataSourceCountCollisions implements DataSource,
         dataInfo.addTag(tag);
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -94,6 +94,6 @@ public class DataSourceCountCollisions implements DataSource,
     private static final long serialVersionUID = 1L;
     private final DataDouble data;
     private String name;
-    private final DataInfo dataInfo;
+    private final IDataInfo dataInfo;
     protected final DataTag tag;
 }

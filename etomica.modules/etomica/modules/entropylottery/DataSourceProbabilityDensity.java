@@ -3,9 +3,9 @@ package etomica.modules.entropylottery;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorIntervalEvent;
@@ -33,7 +33,7 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
         return data;
     }
 
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

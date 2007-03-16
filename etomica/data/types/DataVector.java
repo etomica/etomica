@@ -3,6 +3,7 @@ package etomica.data.types;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
+import etomica.data.IDataInfo;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -172,7 +173,7 @@ public class DataVector implements Data, java.io.Serializable {
             space = template.space;
         }
         
-        public DataInfo makeDataInfo() {
+        public IDataInfo makeDataInfo() {
             return new DataInfoVector(label, dimension, space);
         }
         

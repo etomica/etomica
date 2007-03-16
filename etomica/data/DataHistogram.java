@@ -82,7 +82,7 @@ public class DataHistogram extends DataProcessor {
     /**
      * Sets up the histogram, discarding any previous results.
      */
-    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
         nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
         histogram = histogramFactory.makeHistogram();
@@ -94,7 +94,7 @@ public class DataHistogram extends DataProcessor {
     /**
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
-    public DataProcessor getDataCaster(DataInfo inputDataInfo) {
+    public DataProcessor getDataCaster(IDataInfo inputDataInfo) {
         if(inputDataInfo instanceof DataInfoDoubleArray) {
             return null;
         }
@@ -141,7 +141,7 @@ public class DataHistogram extends DataProcessor {
     /**
      * Returns the DataInfo for the output Data.
      */
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -149,7 +149,7 @@ public class DataHistogram extends DataProcessor {
     protected Histogram histogram;
     protected DataSourceIndependentSimple xDataSource;
     private DataFunction data;
-    private DataInfo binnedDataInfo;
+    private IDataInfo binnedDataInfo;
     protected int nData;
     private Histogram.Factory histogramFactory;
     private int nBins;

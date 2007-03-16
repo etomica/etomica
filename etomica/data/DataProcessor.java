@@ -36,7 +36,7 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
      * @return the DataInfo of the Data that will be output by this
      *         DataProcessor
      */
-    protected abstract DataInfo processDataInfo(DataInfo inputDataInfo);
+    protected abstract IDataInfo processDataInfo(IDataInfo inputDataInfo);
 
     /**
      * Processes input Data and pushes it downstream if output Data and DataSink
@@ -54,7 +54,7 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
      * DataInfo to the dataSink (if not null).  Will insert a data caster before
      * the DataSink if appropriate.
      */
-    public void putDataInfo(DataInfo inputDataInfo) {
+    public void putDataInfo(IDataInfo inputDataInfo) {
         dataInfo = processDataInfo(inputDataInfo);
         insertTransformerIfNeeded();
         if (dataSink != null) {
@@ -62,7 +62,7 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
         }
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 
@@ -103,6 +103,6 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
 
     protected DataSink dataSink;
     protected DataSink trueDataSink;
-    protected DataInfo dataInfo;
+    protected IDataInfo dataInfo;
     protected final DataTag tag;
 }

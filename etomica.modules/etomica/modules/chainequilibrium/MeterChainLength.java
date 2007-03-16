@@ -13,9 +13,9 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -164,7 +164,7 @@ public class MeterChainLength implements Meter, Serializable, AgentSource, DataS
         iterator.setPhase(phase);
     }
 
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

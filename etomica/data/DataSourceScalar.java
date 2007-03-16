@@ -19,7 +19,7 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
         dataInfo.addTag(tag);
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -58,7 +58,7 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
         this.name = name;
     }
 	protected final DataDouble data;
-    protected final DataInfo dataInfo;
+    protected final IDataInfo dataInfo;
     private String name;
     protected final DataTag tag;
 }

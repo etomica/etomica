@@ -32,7 +32,7 @@ public class DataSourceCountSteps extends DataSourceScalar implements
 		return info;
 	}
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

@@ -35,11 +35,11 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
         return includeHeader;
     }
     
-    public void putDataInfo(DataInfo newDataInfo) {
+    public void putDataInfo(IDataInfo newDataInfo) {
         dataInfo = newDataInfo;
     }
 
-    public DataProcessor getDataCaster(DataInfo newDataInfo) {
+    public DataProcessor getDataCaster(IDataInfo newDataInfo) {
         if (newDataInfo instanceof DataInfoDoubleArray) {
             // we like tables
             return null;
@@ -49,9 +49,9 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
                 //it's empty, turn it into an empty array
                 return new CastGroupToDoubleArray();
             }
-            DataInfo dataInfo0 = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
+            IDataInfo dataInfo0 = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
             for (int i = 1; i<((DataInfoGroup)newDataInfo).getNDataInfo(); i++) {
-                DataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
+                IDataInfo subDataInfo = ((DataInfoGroup)newDataInfo).getSubDataInfo(0);
                 if (subDataInfo.getClass() != dataInfo0.getClass()){
                     throw new IllegalArgumentException("DataSinkTable can only handle homogeneous groups");
                 }
@@ -104,6 +104,6 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private FileWriter fileWriter;
     private boolean firstWrite;
-    private DataInfo dataInfo;
+    private IDataInfo dataInfo;
     private boolean includeHeader;
 }

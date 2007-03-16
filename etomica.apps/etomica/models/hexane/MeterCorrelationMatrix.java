@@ -5,8 +5,8 @@ import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
@@ -174,7 +174,7 @@ public class MeterCorrelationMatrix implements Meter {
         tempTenAgain.E(0.0);
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
 

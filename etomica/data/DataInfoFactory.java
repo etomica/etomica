@@ -14,7 +14,7 @@ public abstract class DataInfoFactory implements java.io.Serializable {
      * Creates a new instance using the info held by the template.  The 
      * template is not modified.
      */
-    protected DataInfoFactory(DataInfo template) {
+    protected DataInfoFactory(IDataInfo template) {
         label = template.getLabel();
         dimension = template.getDimension();
         tags = new ArrayList();
@@ -27,7 +27,7 @@ public abstract class DataInfoFactory implements java.io.Serializable {
     /**
      * Creates a new DataInfo object using the information held by this factory.
      */
-    public abstract DataInfo makeDataInfo();
+    public abstract IDataInfo makeDataInfo();
     
     /**
      * Sets the label

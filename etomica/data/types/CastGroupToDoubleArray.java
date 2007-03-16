@@ -2,8 +2,8 @@ package etomica.data.types;
 
 
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -54,7 +54,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
      *             if DataInfo does not indicate a DataGroup, or if DataInfo
      *             indicates that expected DataGroup will not be homogeneous
      */
-    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         if (!(inputDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
@@ -64,11 +64,11 @@ public class CastGroupToDoubleArray extends DataProcessor {
         if (numSubData == 0) {
             inputType = 0;
             outputData = new DataDoubleArray(0);
-            DataInfo outputDataInfo = new DataInfoDoubleArray(label, dimension, new int[]{0});
+            IDataInfo outputDataInfo = new DataInfoDoubleArray(label, dimension, new int[]{0});
             outputDataInfo.addTags(inputDataInfo.getTags());
             return outputDataInfo;
         }
-        DataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
+        IDataInfo subDataInfo = ((DataInfoGroup)inputDataInfo).getSubDataInfo(0);
 
         Class subDataInfoClass = subDataInfo.getClass();
         for (int i = 1; i<numSubData; i++) {
@@ -189,7 +189,7 @@ public class CastGroupToDoubleArray extends DataProcessor {
     /**
      * Returns null.
      */
-    public DataProcessor getDataCaster(DataInfo info) {
+    public DataProcessor getDataCaster(IDataInfo info) {
         return null;
     }
 

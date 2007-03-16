@@ -21,7 +21,7 @@ public interface DataSource {
      * setting up the data stream and for providing annotation when
      * displaying or writing the Data.
      */
-    public DataInfo getDataInfo();
+    public IDataInfo getDataInfo();
     
     public DataTag getTag();
 }

@@ -3,9 +3,9 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.mcmove.MCMove;
@@ -123,7 +123,7 @@ public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement 
             dataInfo.addTag(tag);
         }
         
-        public DataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
         

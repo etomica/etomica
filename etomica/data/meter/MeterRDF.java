@@ -5,11 +5,11 @@ import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -58,7 +58,7 @@ public class MeterRDF implements DataSource, Meter, DataSourceIndependent, java.
         return info;
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -175,7 +175,7 @@ public class MeterRDF implements DataSource, Meter, DataSourceIndependent, java.
     private Phase phase;
     private final Space space;
     protected DataFunction data;
-    private DataInfo dataInfo;
+    private IDataInfo dataInfo;
     private DataDoubleArray rData;
     private AtomsetIteratorPhaseDependent iterator;
     private final IVector dr;

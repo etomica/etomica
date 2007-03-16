@@ -17,7 +17,7 @@ import etomica.util.Debug;
  * 
  * @see Data
  */
-public abstract class DataInfo implements java.io.Serializable {
+public abstract class DataInfo implements java.io.Serializable, IDataInfo {
 
     /**
      * Constructs new instance with descriptive label and dimension.
@@ -96,19 +96,8 @@ public abstract class DataInfo implements java.io.Serializable {
         return tagArray;
     }
     
-    /**
-     * Returns a mutable factory that can make copies of this instance of
-     * DataInfo.
-     */
-    public abstract DataInfoFactory getFactory();
-
-    /**
-     * Returns a Data object appropriate for this DataInfo instance.
-     */
-    public abstract Data makeData();
-
     private final String label;
     private final Dimension dimension;
-    private ArrayList tags;
+    private final ArrayList tags;
     private DataTag[] tagArray;
 }

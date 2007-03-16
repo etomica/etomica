@@ -9,9 +9,9 @@ import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -243,7 +243,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
             dataInfo.addTag(tag);
         }
         
-        public DataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return dataInfo;
         }
         
@@ -267,7 +267,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         private static final long serialVersionUID = 1L;
         private DataDoubleArray data;
         private IntegratorGear4NPH integrator;
-        private DataInfo dataInfo;
+        private IDataInfo dataInfo;
         private DataTag tag;
     }
         

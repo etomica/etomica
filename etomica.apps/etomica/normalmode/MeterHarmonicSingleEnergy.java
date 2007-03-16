@@ -3,8 +3,8 @@ package etomica.normalmode;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -38,7 +38,7 @@ public class MeterHarmonicSingleEnergy implements Meter {
         return normalCoordMapper;
     }
 
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

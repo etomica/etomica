@@ -9,8 +9,8 @@ import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorHistory;
-import etomica.data.DataInfo;
 import etomica.data.DataPump;
+import etomica.data.IDataInfo;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
@@ -52,7 +52,7 @@ public class MEAM_MC extends Simulation {
 	public DisplayPlot plot;
 	public MeterEnergy energy;
 	public ActivityIntegrate activityIntegrate;
-	public DataInfo info2;
+	public IDataInfo info2;
 
 	public static void main(String[] args) {
 	    MEAM_MC sim = new MEAM_MC();

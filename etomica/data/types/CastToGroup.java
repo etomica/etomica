@@ -1,8 +1,8 @@
 package etomica.data.types;
 
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup.DataInfoGroup;
 
 /**
@@ -23,7 +23,7 @@ public class CastToGroup extends DataProcessor {
     public CastToGroup() {
     }
 
-    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         Class inputClass = inputDataInfo.getClass();
         dataGroup = null;
         if (inputClass == DataGroup.class) {
@@ -33,7 +33,7 @@ public class CastToGroup extends DataProcessor {
         }
         inputType = 1;
         dataGroup = null;
-        DataInfoGroup outputDataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new DataInfo[]{inputDataInfo});
+        DataInfoGroup outputDataInfo = new DataInfoGroup(inputDataInfo.getLabel(), inputDataInfo.getDimension(), new IDataInfo[]{inputDataInfo});
         return outputDataInfo;
     }
     
@@ -64,7 +64,7 @@ public class CastToGroup extends DataProcessor {
     /**
      * Returns null, indicating that this DataProcessor can accept any Data type.
      */
-    public DataProcessor getDataCaster(DataInfo info) {
+    public DataProcessor getDataCaster(IDataInfo info) {
         return null;
     }
 

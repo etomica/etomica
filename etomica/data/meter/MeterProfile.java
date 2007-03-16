@@ -4,11 +4,11 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -47,7 +47,7 @@ public class MeterProfile implements Meter, DataSourceIndependent, java.io.Seria
         return info;
     }
 
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -157,7 +157,7 @@ public class MeterProfile implements Meter, DataSourceIndependent, java.io.Seria
     private String name;
     private DataSourceUniform xDataSource;
     private DataFunction data;
-    private DataInfo dataInfo;
+    private IDataInfo dataInfo;
     /**
      * Vector describing the orientation of the profile.
      * For example, (1,0) is along the x-axis.

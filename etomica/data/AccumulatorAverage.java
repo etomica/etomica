@@ -82,7 +82,7 @@ public class AccumulatorAverage extends DataAccumulator {
      * this is so. Otherwise throws a ClassCastException, as there is no data
      * caster to Data.
      */
-    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 
@@ -230,7 +230,7 @@ public class AccumulatorAverage extends DataAccumulator {
      *            the DataInfo instance for the data that will be given to
      *            addData
      */
-    public DataInfo processDataInfo(DataInfo incomingDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         sum = incomingDataInfo.makeData();
         sumSquare = incomingDataInfo.makeData();
         sumSquareBlock = incomingDataInfo.makeData();
@@ -255,25 +255,25 @@ public class AccumulatorAverage extends DataAccumulator {
         factory.getTags().add(getTag());
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel+" most recent");
-        DataInfo mostRecentInfo = factory.makeDataInfo();
+        IDataInfo mostRecentInfo = factory.makeDataInfo();
         mostRecentInfo.addTag(mostRecentTag);
         factory.setLabel(incomingLabel+" avg");
-        DataInfo averageInfo = factory.makeDataInfo();
+        IDataInfo averageInfo = factory.makeDataInfo();
         averageInfo.addTag(averageTag);
         factory.setLabel(incomingLabel+" error");
-        DataInfo errorInfo = factory.makeDataInfo();
+        IDataInfo errorInfo = factory.makeDataInfo();
         errorInfo.addTag(errorTag);
         factory.setLabel(incomingLabel+" stddev");
-        DataInfo standardDeviationInfo = factory.makeDataInfo();
+        IDataInfo standardDeviationInfo = factory.makeDataInfo();
         standardDeviationInfo.addTag(standardDeviationTag);
         factory.setLabel(incomingLabel+" most recent blk");
-        DataInfo mostRecentBlockInfo = factory.makeDataInfo();
+        IDataInfo mostRecentBlockInfo = factory.makeDataInfo();
         mostRecentBlockInfo.addTag(mostRecentBlockTag);
         factory.setLabel(incomingLabel+" blk correlation");
-        DataInfo correlationInfo = factory.makeDataInfo();
+        IDataInfo correlationInfo = factory.makeDataInfo();
         correlationInfo.addTag(blockCorrelationTag);
         
-        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new DataInfo[]{
+        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IDataInfo[]{
             mostRecentInfo, averageInfo, errorInfo, standardDeviationInfo, mostRecentBlockInfo,
             correlationInfo});
         dataInfo.addTag(getTag());

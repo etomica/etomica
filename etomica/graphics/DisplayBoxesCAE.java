@@ -7,10 +7,10 @@ import javax.swing.JPanel;
 
 import etomica.data.AccumulatorAverage;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
+import etomica.data.IDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
@@ -48,7 +48,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         this("", Null.UNIT);
     }
     
-	public DisplayBoxesCAE(DataInfo info) {
+	public DisplayBoxesCAE(IDataInfo info) {
         this(info.getLabel(), info.getDimension().getUnit(UnitSystem.SIM));
     }
     
@@ -71,7 +71,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
     /* (non-Javadoc)
      * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo) {
+    public DataProcessor getDataCaster(IDataInfo dataInfo) {
         if(!(dataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("DisplayBoxesCAE strangely is being given something other than a DataGroup");
         }
@@ -80,7 +80,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
     /* (non-Javadoc)
      * @see etomica.DataSink#putDataInfo(etomica.DataInfo)
      */
-    public void putDataInfo(DataInfo dataInfo) {
+    public void putDataInfo(IDataInfo dataInfo) {
         if(getLabel().equals("")) {
             setLabel(dataInfo.getLabel());
         }

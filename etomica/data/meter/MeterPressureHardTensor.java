@@ -4,10 +4,10 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
@@ -34,7 +34,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         return info;
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -111,6 +111,6 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     private String name;
     private Phase phase;
     private final DataTensor data;
-    private final DataInfo dataInfo;
+    private final IDataInfo dataInfo;
     protected final DataTag tag;
 }

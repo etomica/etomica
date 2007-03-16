@@ -2,8 +2,8 @@ package etomica.data.types;
 
 
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
@@ -50,7 +50,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
      *             if DataInfo indicates that the DataTables have different
      *             numbers of rows
      */
-    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         if (!(inputDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }
@@ -110,7 +110,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
     /**
      * Returns null.
      */
-    public DataProcessor getDataCaster(DataInfo info) {
+    public DataProcessor getDataCaster(IDataInfo info) {
         if (!(info instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }

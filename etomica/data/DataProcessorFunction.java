@@ -35,7 +35,7 @@ public class DataProcessorFunction extends DataProcessor {
      * @throws IllegalArgumentException if the input data class does not 
      * implement DataArithmetic
      */
-    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(getTag());
         return dataInfo;
@@ -44,7 +44,7 @@ public class DataProcessorFunction extends DataProcessor {
     /**
      * Always returns null.
      */
-    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 

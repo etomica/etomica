@@ -57,9 +57,9 @@ public class DataSet implements Serializable {
     /**
      * Returns the ith DataInfo from the set.
      */
-    public DataInfo getDataInfo(int i) {
+    public IDataInfo getDataInfo(int i) {
         int iData = backwardDataMap[i];
-        DataInfo dataInfo = psuedoSinks[iData].getDataInfo();
+        IDataInfo dataInfo = psuedoSinks[iData].getDataInfo();
         if (dataInfo instanceof DataInfoGroup) {
             dataInfo = ((DataInfoGroup)dataInfo).getSubDataInfo(i-forwardDataMap[iData]);
         }
@@ -165,7 +165,7 @@ public class DataSet implements Serializable {
         int dataCount = 0;
         for (int i=0; i<psuedoSinks.length; i++) {
             forwardDataMap[i] = dataCount;
-            DataInfo dataInfo = psuedoSinks[i].getDataInfo();
+            IDataInfo dataInfo = psuedoSinks[i].getDataInfo();
             if (dataInfo instanceof DataInfoGroup) {
                 dataCount += ((DataInfoGroup)dataInfo).getNDataInfo();
             }
@@ -219,7 +219,7 @@ public class DataSet implements Serializable {
     protected int[] backwardDataMap;
     
     public interface DataCasterJudge {
-        public DataProcessor getDataCaster(DataInfo inputDataInfo);
+        public DataProcessor getDataCaster(IDataInfo inputDataInfo);
     }
     
     /**
@@ -235,7 +235,7 @@ public class DataSet implements Serializable {
             index = -1;
         }
         
-        public void putDataInfo(DataInfo newDataInfo) {
+        public void putDataInfo(IDataInfo newDataInfo) {
             incomingDataInfo = newDataInfo;
             dataSet.dataInfoChanged(this);
         }
@@ -245,14 +245,14 @@ public class DataSet implements Serializable {
             dataSet.dataChanged(this);
         }
         
-        public DataProcessor getDataCaster(DataInfo newIncomingDataInfo) {
+        public DataProcessor getDataCaster(IDataInfo newIncomingDataInfo) {
             if (dataCasterJudge == null) {
                 return null;
             }
             return dataCasterJudge.getDataCaster(newIncomingDataInfo);
         }
         
-        public DataInfo getDataInfo() {
+        public IDataInfo getDataInfo() {
             return incomingDataInfo;
         }
         
@@ -262,7 +262,7 @@ public class DataSet implements Serializable {
 
         private static final long serialVersionUID = 1L;
         private final DataCasterJudge dataCasterJudge;
-        private DataInfo incomingDataInfo;
+        private IDataInfo incomingDataInfo;
         private final DataSet dataSet;
         private Data data;
         // index exists solely to indicate whether this DataSetSink is not in

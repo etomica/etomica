@@ -9,8 +9,8 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
-import etomica.data.DataInfo;
 import etomica.data.DataPump;
+import etomica.data.IDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
@@ -74,7 +74,7 @@ public class MEAMMd3D extends Simulation {
     public DisplayPlot plot;
     public MeterEnergy energy;
     public ActivityIntegrate activityIntegrate;
-    public DataInfo info2;
+    public IDataInfo info2;
 
     public static void main(String[] args) {
     	MEAMMd3D sim = new MEAMMd3D();

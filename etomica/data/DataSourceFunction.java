@@ -39,7 +39,7 @@ public class DataSourceFunction implements DataSource, DataSourceIndependent, Se
         dataInfo.addTag(tag);
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -128,7 +128,7 @@ public class DataSourceFunction implements DataSource, DataSourceIndependent, Se
     
     private static final long serialVersionUID = 1L;
     private DataFunction data;
-    private DataInfo dataInfo;
+    private IDataInfo dataInfo;
     private final DataSourceUniform xSource;
     private DataDoubleArray xData;
     private Function function;

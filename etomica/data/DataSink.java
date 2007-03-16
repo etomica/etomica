@@ -14,7 +14,7 @@ public interface DataSink {
     /**
      * Informs the DataSink of the type of Data it should expect to receive.
      */
-    public abstract void putDataInfo(DataInfo dataInfo);
+    public abstract void putDataInfo(IDataInfo dataInfo);
 
     /**
      * Returns a DataProcessor that casts the data that will be given 
@@ -25,5 +25,5 @@ public interface DataSink {
      * 
      * @param dataInfo the DataInfo for the Data that will fed to the sink's putData method
      */
-    public DataProcessor getDataCaster(DataInfo dataInfo);
+    public DataProcessor getDataCaster(IDataInfo dataInfo);
 }

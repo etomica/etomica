@@ -50,7 +50,7 @@ public class DataPump extends DataProcessor implements Action {
     /**
      * Returns the given DataInfo.
      */
-    public DataInfo processDataInfo(DataInfo inputDataInfo) {
+    public IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         dataInfo = inputDataInfo.getFactory().makeDataInfo();
         dataInfo.addTag(getTag());
         return dataInfo;
@@ -59,7 +59,7 @@ public class DataPump extends DataProcessor implements Action {
     /**
      * Returns null, indicating that this DataSink can handle any type of Data without casting.
      */
-    public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
     
@@ -86,7 +86,7 @@ public class DataPump extends DataProcessor implements Action {
     }
     
     private static final long serialVersionUID = 1L;
-    private DataInfo dataSourceInfo;
+    private IDataInfo dataSourceInfo;
     private final DataSource dataSource;
     private String label;
 }

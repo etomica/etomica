@@ -9,9 +9,9 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.Data;
 import etomica.data.DataFork;
 import etomica.data.DataHistogram;
-import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.IDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
@@ -228,11 +228,11 @@ public class TestFccHarmonic extends Simulation {
      */
     public static class DataProcessorFoo extends DataProcessor {
 
-        public DataProcessor getDataCaster(DataInfo incomingDataInfo) {
+        public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
             return null;
         }
         
-        public DataInfo processDataInfo(DataInfo incomingDataInfo) {
+        public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
             dataInfo = new DataInfoDouble("free energy difference", Null.DIMENSION);
             data = new DataDouble();
             return dataInfo;

@@ -22,7 +22,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
      */
     public DataSourceGroup() {
         data = new DataGroup(new Data[0]);
-        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new DataInfo[0]);
+        dataInfo = new DataInfoGroup("Data Group", Null.DIMENSION, new IDataInfo[0]);
         dataSources = new DataSource[0];
         tag = new DataTag();
         dataInfo.addTag(tag);
@@ -41,7 +41,7 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
         }
     }
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -81,8 +81,8 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
         data = new DataGroup(latestData);
     }
     
-    protected DataInfo[] getSubDataInfo() {
-        DataInfo[] subDataInfo = new DataInfo[dataSources.length];
+    protected IDataInfo[] getSubDataInfo() {
+        IDataInfo[] subDataInfo = new IDataInfo[dataSources.length];
         for (int i=0; i<subDataInfo.length; i++) {
             subDataInfo[i] = dataSources[i].getDataInfo();
         }
@@ -93,6 +93,6 @@ public class DataSourceGroup implements DataSource, java.io.Serializable {
     private DataSource[] dataSources = new DataSource[0];
     private Data[] latestData = new Data[0];
     private DataGroup data;
-    private DataInfo dataInfo;
+    private IDataInfo dataInfo;
     protected final DataTag tag;
 }

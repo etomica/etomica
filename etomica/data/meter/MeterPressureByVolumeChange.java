@@ -3,10 +3,10 @@ import etomica.EtomicaInfo;
 import etomica.action.PhaseInflate;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorPhase;
@@ -68,7 +68,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         return integrator;
     }
 
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -156,7 +156,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
 
     private static final long serialVersionUID = 1L;
     private DataDoubleArray data;
-    private DataInfo dataInfo;
+    private IDataInfo dataInfo;
     private final DataTag tag;
     private double[] dataArray;
     private final PhaseInflate inflater;

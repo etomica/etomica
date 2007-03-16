@@ -107,7 +107,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Sets up data and histograms, discarding any previous results.
      */
-    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
         nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
         histogram = new Histogram[nData];
@@ -122,7 +122,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
-    public DataProcessor getDataCaster(DataInfo inputDataInfo) {
+    public DataProcessor getDataCaster(IDataInfo inputDataInfo) {
         if(inputDataInfo instanceof DataInfoDoubleArray) {
             return null;
         }
@@ -186,7 +186,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     /**
      * Returns the DataInfo for the output Data.
      */
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -194,7 +194,7 @@ public class AccumulatorHistogram extends DataAccumulator {
     protected Histogram[] histogram = new Histogram[0];
     protected DataSourceIndependentSimple[] xDataSources = new DataSourceIndependentSimple[0];
     private DataGroup data;
-    private DataInfo binnedDataInfo;
+    private IDataInfo binnedDataInfo;
     protected int nData;
     private Histogram.Factory histogramFactory;
     private int nBins;

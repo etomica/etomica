@@ -95,7 +95,7 @@ public class DataSourceUniform implements DataSource, java.io.Serializable {
         typeMax = newTypeMax;
     }//end of calculateX
     
-    public DataInfo getDataInfo() {
+    public IDataInfo getDataInfo() {
         return dataInfo;
     }
     

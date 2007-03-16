@@ -1,8 +1,8 @@
 package etomica.models.hexane;
 
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataProcessor;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 
@@ -27,7 +27,7 @@ public class DataProcessorArrayFlatten extends DataProcessor {
         return outputData;
     }
 
-    protected DataInfo processDataInfo(DataInfo inputDataInfo) {
+    protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         if(!(inputDataInfo instanceof DataInfoDoubleArray)){
             throw new IllegalArgumentException("DataProcessorArrayFlatten needs DataDoubleArray argument");
         }
@@ -56,7 +56,7 @@ public class DataProcessorArrayFlatten extends DataProcessor {
     /**
      * returns null (non-Javadoc)
      */
-    public DataProcessor getDataCaster(DataInfo newDataInfo) {
+    public DataProcessor getDataCaster(IDataInfo newDataInfo) {
         return null;
     }
 

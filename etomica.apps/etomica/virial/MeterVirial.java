@@ -1,9 +1,9 @@
 package etomica.virial;
 
 import etomica.data.Data;
-import etomica.data.DataInfo;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Null;
@@ -25,7 +25,7 @@ public class MeterVirial implements DataSource, java.io.Serializable {
         dataInfo.addTag(tag);
 	}
 
-	public DataInfo getDataInfo() {
+	public IDataInfo getDataInfo() {
         return dataInfo;
     }
     
@@ -54,7 +54,7 @@ public class MeterVirial implements DataSource, java.io.Serializable {
 
     protected final ClusterAbstract clusters[];
 	private final DataDoubleArray data;
-	private final DataInfo dataInfo;
+	private final IDataInfo dataInfo;
     private final DataTag tag;
     private PhaseCluster phase;
     private static final long serialVersionUID = 1L;

@@ -7,8 +7,8 @@ import etomica.chem.elements.Silver;
 import etomica.chem.elements.Tin;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
-import etomica.data.DataInfo;
 import etomica.data.DataPump;
+import etomica.data.IDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
@@ -80,7 +80,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     public DisplayPlot plot;
     public MeterEnergy energy;
     public ActivityIntegrate activityIntegrate;
-    public DataInfo info2;
+    public IDataInfo info2;
 
     public static void main(String[] args) {
     	MEAM_3DMDwithSnAgGB sim = new MEAM_3DMDwithSnAgGB();
