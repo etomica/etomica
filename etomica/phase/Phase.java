@@ -30,16 +30,6 @@ import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
 import etomica.units.Volume;
 
-/* History of changes
- * 09/01/02 (DAK) setConfiguration sets new configuration so that it zeros total momentum
- *                when used.  Change made while modify behavior of momentum initiation
- *                in Configuration and randomizeMomentum methods in Space.Coord...
- * 01/21/04 (DAK) changed initializeCoordinate calls to take this phase as
- * argument.  As a result, Configuration will set its dimensions equal to that
- * of this phase before assigning coordinates.
- * 01/29/04 (DAK) added nearestAtom method.
- */
-
 /**
  * A Phase collects all atoms that interact with one another; atoms in different
  * phases do not interact. These are the important features of a Phase:
@@ -57,7 +47,7 @@ import etomica.units.Volume;
  * construction. This index is useful when collecting things in reference to the
  * phase.
  * </ol>
- * A phase acted upon by an Integrator instance to move its atoms around and
+ * A phase is acted upon by an Integrator instance to move its atoms around and
  * generate configurations. Properties of a phase are measured by MeterAbstract
  * instances which are simply DataSource objects that require a phase to
  * generate their data. <br>
@@ -65,7 +55,7 @@ import etomica.units.Volume;
  * registered with the simulation specified upon their construction, and
  * may be accessed via the simulation's getPhases method.
  * 
- * @author David Kofke
+ * @author David Kofke, Andrew Schultz
  * @see Boundary
  */
 public class Phase implements EtomicaElement, java.io.Serializable {
