@@ -239,7 +239,7 @@ public class GrainBoundaryConfiguration extends Configuration {
         MyLattice(SpaceLattice l, IVector offset) {
             lattice = l;
             this.offset = offset;
-
+            this.site = l.getSpace().makeVector();
         }
 
         public Space getSpace() {
@@ -250,8 +250,11 @@ public class GrainBoundaryConfiguration extends Configuration {
             return lattice.D();
         }
 
+        /**
+         * Returns the same IVector instance with each call.
+         */
         public Object site(int[] index) {
-            IVector site = (IVector) lattice.site(index);
+            site.E((IVector) lattice.site(index));
             site.PE(offset);
             return site;
         }
@@ -263,6 +266,7 @@ public class GrainBoundaryConfiguration extends Configuration {
 
         SpaceLattice lattice;
         IVector offset;
+        private final IVector site;
     }
 
     private final BravaisLatticeCrystal latticeA, latticeB;

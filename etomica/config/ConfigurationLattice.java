@@ -86,7 +86,7 @@ public class ConfigurationLattice extends Configuration {
      * array is made with each call to initializeCoordinates.
      * 
      * @throws IllegalStateException
-     *             if isRememberingIndices if false.
+     *             if isRememberingIndices if false, or if initializeCoordinates has not previously been called.
      */
     public int[][] getIndices() {
         if (indices == null) {
@@ -94,7 +94,7 @@ public class ConfigurationLattice extends Configuration {
                     "ConfigurationLattice is not set to remember the indices.");
         }
         if (indices[0].length == 0) {
-            throw new RuntimeException("InitializeCoordinates has not been called for this phase");
+            throw new IllegalStateException("initializeCoordinates has not been called for this phase");
         }
         return indices;
     }
@@ -155,6 +155,7 @@ public class ConfigurationLattice extends Configuration {
         offset.E(phase.getBoundary().getDimensions());
         IVector vectorOfMax = phase.getSpace().makeVector();
         IVector vectorOfMin = phase.getSpace().makeVector();
+        IVector site = phase.getSpace().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -164,7 +165,7 @@ public class ConfigurationLattice extends Configuration {
         indexIterator.reset();
 
         while (indexIterator.hasNext()) {
-            IVector site = (IVector) lattice.site(indexIterator.next());
+            site.E((IVector) lattice.site(indexIterator.next()));
             site.TE(latticeScaling);
             for (int i=0; i<site.getD(); i++) {
                 vectorOfMax.setX(i, Math.max(site.x(i),vectorOfMax.x(i)));
@@ -189,11 +190,10 @@ public class ConfigurationLattice extends Configuration {
             }
 
             int[] ii = indexIterator.next();
-            IVector site = (IVector) myLat.site(ii);
             if (indices != null) {
                 indices[a.getGlobalIndex()] = (int[]) ii.clone();
             }
-            atomActionTranslateTo.setDestination(site);
+            atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(a);
         }
     }
@@ -309,6 +309,7 @@ public class ConfigurationLattice extends Configuration {
             lattice = l;
             this.latticeScaling = latticeScaling;
             this.offset = offset;
+            this.site = l.getSpace().makeVector();
         }
 
         public Space getSpace() {
@@ -319,8 +320,11 @@ public class ConfigurationLattice extends Configuration {
             return lattice.D();
         }
 
+        /**
+         * Returns the same instance of IVector with each call.
+         */
         public Object site(int[] index) {
-            IVector site = (IVector) lattice.site(index);
+            site.E((IVector) lattice.site(index));
             site.TE(latticeScaling);
             site.PE(offset);
 
@@ -335,9 +339,10 @@ public class ConfigurationLattice extends Configuration {
             return lat;
         }
 
-        SpaceLattice lattice;
-        public IVector latticeScaling;
-        IVector offset;
+        final SpaceLattice lattice;
+        final public IVector latticeScaling;
+        final IVector offset;
+        final IVector site;
 
     }
 

@@ -59,8 +59,10 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
         return sites;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.lattice.AbstractLattice#site(int[])
+    /**
+     * Returns the instance of the object associated with the given index.
+     * Repeated calls with the same index will return the same instance, and
+     * calls with different indexes will return different instances. 
      */
     public Object site(int[] index) {
         return sites[arrayIndex(index)];
