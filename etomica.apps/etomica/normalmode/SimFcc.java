@@ -88,6 +88,8 @@ public class SimFcc extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
+        
+        //defaults
         int D = 3;
         int nA = 108;
         double density = 1.04;
@@ -97,6 +99,8 @@ public class SimFcc extends Simulation {
         }
         String filename = "normal_modes3D";
         double simTime = 400;
+        
+        //parse arguments
         if (args.length > 0) {
             filename = args[0];
         }
@@ -115,8 +119,10 @@ public class SimFcc extends Simulation {
         System.out.println(simTime+" time units");
         System.out.println("output data to "+filename);
 
+        //construct simulation
         SimFcc sim = new SimFcc(Space.getInstance(D), nA, density);
         
+        //set up initial configuration and save nominal positions
         Primitive primitive = sim.lattice.getPrimitive();
         if (D == 3) {
             primitive = ((LatticeCubicFcc)sim.lattice).getPrimitiveFcc();

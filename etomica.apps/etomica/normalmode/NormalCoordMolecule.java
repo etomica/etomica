@@ -8,10 +8,11 @@ import etomica.space.IVector;
 import etomica.space.Space;
 
 /**
- * NormalCoordWrapper implementation for molecules.  The class takes
+ * NormalCoordMapper implementation for molecules.  The class takes
  * the first space.D values of u to be real space displacements of the molecule
  * center of mass from its nominal position.  Subclasses should add 
  * additional u values for intramolecular degrees of freedom.
+ * 
  * @author Andrew Schultz
  */
 public class NormalCoordMolecule implements NormalCoordMapper, Serializable {
