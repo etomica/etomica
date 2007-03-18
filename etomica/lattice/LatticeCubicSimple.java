@@ -58,5 +58,5 @@ public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
      */
     public String toString() {return "Simple cubic";}
     
-    PrimitiveCubic primitive;//shadows superclass field
+    private PrimitiveCubic primitive;//shadows superclass field
 }

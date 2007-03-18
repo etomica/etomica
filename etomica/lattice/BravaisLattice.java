@@ -52,9 +52,8 @@ public class BravaisLattice implements SpaceLattice, java.io.Serializable {
     }
     
     /**
-     * Returns the primitive object used to construct this lattice. Note that if
-     * the primitive is modified, changes will not be reflected in this lattice
-     * until the update() method is called.
+     * Returns the primitive object used to construct this lattice. The returned
+     * object is not a clone, and changes to it will affect the lattice.
      */
     public Primitive getPrimitive() {
         return primitive;
