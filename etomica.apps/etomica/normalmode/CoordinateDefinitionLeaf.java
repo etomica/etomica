@@ -8,43 +8,45 @@ import etomica.space.IVector;
 import etomica.space.Space;
 
 /**
- * NormalCoordWrapper implementation for leaf atoms. The class simply takes the
- * u values to be real space displacements from the nominal positions.
+ * CoordinateDefinition implementation for monatomic molecules that are simply
+ * leaf atoms. The class simply takes the u values to be real space
+ * displacements from the nominal positions.
  * 
  * @author Andrew Schultz
  */
-public class NormalCoordLeaf implements NormalCoordMapper, Serializable {
+public class CoordinateDefinitionLeaf implements CoordinateDefinition,
+        Serializable {
 
-    public NormalCoordLeaf(Space space) {
+    public CoordinateDefinitionLeaf(Space space) {
         this.space = space;
     }
 
     public void setNumAtoms(int numAtoms) {
-        nominalU = new double[numAtoms][getNormalDim()];
+        nominalU = new double[numAtoms][getCoordinateDim()];
     }
 
-    public int getNormalDim() {
+    public int getCoordinateDim() {
         return space.D();
     }
 
-    public void calcU(Atom atom, int atomCount, double[] u) {
+    public void calcU(Atom atom, int index, double[] u) {
         IVector pos = ((AtomLeaf) atom).getCoord().getPosition();
         for (int i = 0; i < pos.getD(); i++) {
-            u[i] = pos.x(i) - nominalU[atomCount][i];
+            u[i] = pos.x(i) - nominalU[index][i];
         }
     }
 
-    public void initNominalU(Atom atom, int atomCount) {
+    public void initNominalU(Atom atom, int index) {
         IVector pos = ((AtomLeaf) atom).getCoord().getPosition();
         for (int i = 0; i < pos.getD(); i++) {
-            nominalU[atomCount][i] = pos.x(i);
+            nominalU[index][i] = pos.x(i);
         }
     }
 
-    public void setToU(Atom atom, int atomCount, double[] u) {
+    public void setToU(Atom atom, int index, double[] u) {
         IVector pos = ((AtomLeaf) atom).getCoord().getPosition();
         for (int i = 0; i < pos.getD(); i++) {
-            pos.setX(i, nominalU[atomCount][i] + u[i]);
+            pos.setX(i, nominalU[index][i] + u[i]);
         }
     }
 

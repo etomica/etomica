@@ -231,13 +231,13 @@ public class TestHexaneHarmonic extends Simulation {
         }
         double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
 
-        NormalCoordHexane normalCoordHexane = new NormalCoordHexane();
+        CoordinateDefinitionHexane coordinateDefinitionHexane = new CoordinateDefinitionHexane();
         
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicEnergy.setNormalCoordWrapper(normalCoordHexane);
+        harmonicEnergy.setCoordinateDefinition(coordinateDefinitionHexane);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -259,7 +259,7 @@ public class TestHexaneHarmonic extends Simulation {
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
         harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicSingleEnergy.setNormalCoordMapper(normalCoordHexane);
+        harmonicSingleEnergy.setCoordinateDefinition(coordinateDefinitionHexane);
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());

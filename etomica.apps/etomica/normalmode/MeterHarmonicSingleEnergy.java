@@ -29,13 +29,13 @@ public class MeterHarmonicSingleEnergy implements Meter {
         return tag;
     }
     
-    public void setNormalCoordMapper(NormalCoordMapper newNormalCoordWrapper) {
-        normalCoordMapper = newNormalCoordWrapper;
-        normalDim = normalCoordMapper.getNormalDim();
+    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
+        coordinateDefinition = newCoordinateDefinition;
+        coordinateDim = coordinateDefinition.getCoordinateDim();
     }
     
-    public NormalCoordMapper getNormalCoordWrapper() {
-        return normalCoordMapper;
+    public CoordinateDefinition getCoordinateDefinition() {
+        return coordinateDefinition;
     }
 
     public IDataInfo getDataInfo() {
@@ -46,7 +46,7 @@ public class MeterHarmonicSingleEnergy implements Meter {
     public Data getData() {
         double[] x = data.getData();
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
-            for (int i=0; i<normalDim; i++) {
+            for (int i=0; i<coordinateDim; i++) {
                 realT[i] = 0;
                 imaginaryT[i] = 0;
             }
@@ -55,11 +55,11 @@ public class MeterHarmonicSingleEnergy implements Meter {
             // sum T over atoms
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
-                normalCoordMapper.calcU(atom, atomCount, u);
+                coordinateDefinition.calcU(atom, atomCount, u);
                 double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                for (int i=0; i<normalDim; i++) {
+                for (int i=0; i<coordinateDim; i++) {
                     realT[i] += coskR * u[i];
                     imaginaryT[i] += sinkR * u[i];
                 }
@@ -69,15 +69,15 @@ public class MeterHarmonicSingleEnergy implements Meter {
             
             // we want to calculate Q = A T
             // where A is made up of eigenvectors as columns
-            for (int i=0; i<normalDim; i++) {
+            for (int i=0; i<coordinateDim; i++) {
                 double realCoord = 0, imaginaryCoord = 0;
-                for (int j=0; j<normalDim; j++) {
+                for (int j=0; j<coordinateDim; j++) {
                     realCoord += realT[j] * eigenVectors[iVector][j][i];
                     imaginaryCoord += imaginaryT[j] * eigenVectors[iVector][j][i];
                 }
                 // we were supposed to divide T by sqrt(atomCount), but it's easier to handle that here
                 double normalCoord = (realCoord*realCoord + imaginaryCoord*imaginaryCoord)/atomCount;
-                x[iVector*normalDim+i] = Math.exp(-0.5 * waveVectorCoefficients[iVector] * 
+                x[iVector*coordinateDim+i] = Math.exp(-0.5 * waveVectorCoefficients[iVector] * 
                         normalCoord * omegaSquared[iVector][i] / temperature);
             }
         }
@@ -91,8 +91,8 @@ public class MeterHarmonicSingleEnergy implements Meter {
     public void setPhase(Phase newPhase) {
         phase = newPhase;
         iterator.setPhase(phase);
-        dataInfo = new DataInfoDoubleArray("Harmonic single energy", Energy.DIMENSION, new int[]{waveVectors.length,normalDim});
-        data = new DataDoubleArray(new int[]{waveVectors.length,normalDim});
+        dataInfo = new DataInfoDoubleArray("Harmonic single energy", Energy.DIMENSION, new int[]{waveVectors.length,coordinateDim});
+        data = new DataDoubleArray(new int[]{waveVectors.length,coordinateDim});
 
         latticePositions = new IVector[phase.getSpeciesMaster().moleculeCount()];
 
@@ -106,17 +106,17 @@ public class MeterHarmonicSingleEnergy implements Meter {
             atomCount++;
         }
 
-        normalCoordMapper.setNumAtoms(iterator.size());
-        u = new double[normalDim];
-        realT = new double[normalDim];
-        imaginaryT = new double[normalDim];
+        coordinateDefinition.setNumAtoms(iterator.size());
+        u = new double[coordinateDim];
+        realT = new double[coordinateDim];
+        imaginaryT = new double[coordinateDim];
         
         // fills in elements of nominalU using NormalCoordWrapper
         iterator.reset();
         atomCount = 0;
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            normalCoordMapper.initNominalU(atom, atomCount);
+            coordinateDefinition.initNominalU(atom, atomCount);
             atomCount++;
         }
     }
@@ -151,8 +151,8 @@ public class MeterHarmonicSingleEnergy implements Meter {
     }
     
     private static final long serialVersionUID = 1L;
-    protected NormalCoordMapper normalCoordMapper;
-    protected int normalDim;
+    protected CoordinateDefinition coordinateDefinition;
+    protected int coordinateDim;
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     private final DataTag tag;

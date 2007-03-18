@@ -145,7 +145,7 @@ public class SimFccHarmonic extends Simulation {
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicEnergy.setNormalCoordWrapper(new NormalCoordLeaf(sim.getSpace()));
+        harmonicEnergy.setCoordinateDefinition(new CoordinateDefinitionLeaf(sim.getSpace()));
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -164,7 +164,7 @@ public class SimFccHarmonic extends Simulation {
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
         harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicSingleEnergy.setNormalCoordMapper(new NormalCoordLeaf(sim.getSpace()));
+        harmonicSingleEnergy.setCoordinateDefinition(new CoordinateDefinitionLeaf(sim.getSpace()));
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(sim);

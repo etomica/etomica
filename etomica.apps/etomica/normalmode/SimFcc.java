@@ -31,7 +31,8 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * A monatomic fcc hard sphere simulation to test a new energy method.
+ * MD simulation of hard spheres in 1D or 3D with tabulation of the collective-coordinate S-matrix.
+ * No graphic display of simulation. 
  * 
  * @author nancycribbin
  * 
@@ -90,14 +91,14 @@ public class SimFcc extends Simulation {
     public static void main(String[] args) {
         
         //defaults
-        int D = 3;
+        int D = 1;
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
             nA = 5;
             density = 0.5;
         }
-        String filename = "normal_modes3D";
+        String filename = "normal_modes"+D+"D";
         double simTime = 400;
         
         //parse arguments
@@ -123,17 +124,18 @@ public class SimFcc extends Simulation {
         SimFcc sim = new SimFcc(Space.getInstance(D), nA, density);
         
         //set up initial configuration and save nominal positions
-        Primitive primitive = sim.lattice.getPrimitive();
+        Primitive primitive = sim.lattice.getPrimitive();//lattice used to position atoms, not scaled to phase volume
         if (D == 3) {
             primitive = ((LatticeCubicFcc)sim.lattice).getPrimitiveFcc();
         }
         ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config
-                .getLatticeMemento();
+                .getLatticeMemento();//lattice indicating atom positions
         IVector scaling = myLattice.latticeScaling;
-        primitive.scaleSize(scaling.x(0));
+        primitive.scaleSize(scaling.x(0));//rescale primitive to indicate actual positioning of atoms
 
+        //set up normal-mode meter
         MeterNormalMode meterNormalMode = new MeterNormalMode();
-        meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.getSpace()));
+        meterNormalMode.setCoordinateDefinition(new CoordinateDefinitionLeaf(sim.getSpace()));
         WaveVectorFactory waveVectorFactory;
         if (D == 1) {
             waveVectorFactory = new WaveVectorFactory1D(primitive);
@@ -147,19 +149,21 @@ public class SimFcc extends Simulation {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setPhase(sim.phase);
 
-        int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-
-        sim.activityIntegrate.setMaxSteps(nSteps);
-
         IntervalActionAdapter fooAdapter = new IntervalActionAdapter(meterNormalMode);
         fooAdapter.setActionInterval(2);
         sim.integrator.addListener(fooAdapter);
+
+        //start simulation
+        int nSteps = (int) (simTime / sim.integrator.getTimeStep());
+        sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
         
+        //normalize averages
         DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
         normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-        int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
+        int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
         
+        //write results to file
         IVector[] waveVectors = waveVectorFactory.getWaveVectors();
         double[] coefficients = waveVectorFactory.getCoefficients();
         

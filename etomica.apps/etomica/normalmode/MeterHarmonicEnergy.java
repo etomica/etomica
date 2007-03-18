@@ -20,12 +20,12 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
         iterator = new AtomIteratorAllMolecules();
     }
     
-    public void setNormalCoordWrapper(NormalCoordMapper newNormalCoordWrapper) {
-        normalCoordMapper = newNormalCoordWrapper;
+    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
+        coordinateDefinition = newCoordinateDefinition;
     }
     
-    public NormalCoordMapper getNormalCoordWrapper() {
-        return normalCoordMapper;
+    public CoordinateDefinition getCoordinateDefinition() {
+        return coordinateDefinition;
     }
 
     public double getDataAsScalar() {
@@ -40,7 +40,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
             // sum T over atoms
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
-                normalCoordMapper.calcU(atom, atomCount, u);
+                coordinateDefinition.calcU(atom, atomCount, u);
                 double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
@@ -75,7 +75,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
     public void setPhase(Phase newPhase) {
         phase = newPhase;
         iterator.setPhase(phase);
-        normalDim = normalCoordMapper.getNormalDim();
+        normalDim = coordinateDefinition.getCoordinateDim();
 
         latticePositions = new IVector[phase.getSpeciesMaster().moleculeCount()];
 
@@ -89,7 +89,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
             atomCount++;
         }
 
-        normalCoordMapper.setNumAtoms(iterator.size());
+        coordinateDefinition.setNumAtoms(iterator.size());
         u = new double[normalDim];
         realT = new double[normalDim];
         imaginaryT = new double[normalDim];
@@ -99,7 +99,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
         atomCount = 0;
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            normalCoordMapper.initNominalU(atom, atomCount);
+            coordinateDefinition.initNominalU(atom, atomCount);
             atomCount++;
         }
     }
@@ -118,7 +118,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
     }
     
     private static final long serialVersionUID = 1L;
-    protected NormalCoordMapper normalCoordMapper;
+    protected CoordinateDefinition coordinateDefinition;
     protected IVector[] latticePositions;
     protected final AtomIteratorAllMolecules iterator;
     protected Phase phase;

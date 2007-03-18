@@ -27,24 +27,36 @@ public class MeterNormalMode implements Meter, Action, Serializable {
         iterator = new AtomIteratorAllMolecules();
     }
     
-    public void setNormalCoordWrapper(NormalCoordMapper newNormalCoordWrapper) {
-        normalCoordMapper = newNormalCoordWrapper;
+    /**
+     * Sets the object that defines the real-space generalized coordinates.
+     */
+    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
+        coordinateDefinition = newCoordinateDefinition;
     }
     
-    public NormalCoordMapper getNormalCoordWrapper() {
-        return normalCoordMapper;
+    /**
+     * @return the CoordinateDefinition last given via the set method.
+     */
+    public CoordinateDefinition getCoordinateDefinition() {
+        return coordinateDefinition;
     }
     
+    /**
+     * Sets the object that defines the normal-coordinate wave vectors.
+     */
     public void setWaveVectorFactory(WaveVectorFactory newWaveVectorFactory) {
         waveVectorFactory = newWaveVectorFactory;
     }
-     
+
+    /**
+     * @return the WaveVectorFactory last given via the set methods.
+     */
     public WaveVectorFactory getWaveVectorFactory() {
         return waveVectorFactory;
     }
     
     /**
-     * Sets the phase.  This method should be called when the Atoms are in 
+     * Sets the phase, and should be called while the Atoms are in 
      * their lattice positions.
      */
     public void setPhase(Phase newPhase) {
@@ -52,7 +64,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
 
         phase = newPhase;
         latticePositions = new IVector[phase.getSpeciesMaster().moleculeCount()];
-        normalDim = normalCoordMapper.getNormalDim();
+        coordinateDim = coordinateDefinition.getCoordinateDim();
 
         iterator.setPhase(phase);
         iterator.reset();
@@ -72,27 +84,27 @@ public class MeterNormalMode implements Meter, Action, Serializable {
         DataDoubleArray[] S = new DataDoubleArray[numWaveVectors];
         for (int i=0; i<S.length; i++) {
             // real and imaginary parts
-            S[i] = new DataDoubleArray(new int[]{normalDim,normalDim});
+            S[i] = new DataDoubleArray(new int[]{coordinateDim,coordinateDim});
         }
         data = new DataGroup(S);
         DataInfoDoubleArray[] Sinfo = new DataInfoDoubleArray[numWaveVectors];
         CompoundDimension area = new CompoundDimension(new Dimension[]{Length.DIMENSION}, new double[]{2});
         for (int i=0; i<Sinfo.length; i++) {
-            Sinfo[i] = new DataInfoDoubleArray("S", area, new int[]{normalDim,normalDim});
+            Sinfo[i] = new DataInfoDoubleArray("S", area, new int[]{coordinateDim,coordinateDim});
         }
         dataInfo = new DataInfoGroup("all S", Null.DIMENSION, Sinfo);
 
-        u = new double[normalDim];
-        realT = new double[normalDim];
-        imaginaryT = new double[normalDim];
+        u = new double[coordinateDim];
+        realT = new double[coordinateDim];
+        imaginaryT = new double[coordinateDim];
         
-        // notifies NormalCoordWrapper of the nominal position of each atom
-        normalCoordMapper.setNumAtoms(iterator.size());
+        // notifies CoordinateDefinition of the nominal position of each atom
+        coordinateDefinition.setNumAtoms(iterator.size());
         iterator.reset();
         atomCount = 0;
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            normalCoordMapper.initNominalU(atom, atomCount);
+            coordinateDefinition.initNominalU(atom, atomCount);
             atomCount++;
         }
     }
@@ -118,7 +130,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
         // |data.E(0)| here to calculate the current value rather than the sum
         // loop over wave vectors
         for (int iVector = 0; iVector < numWaveVectors; iVector++) {
-            for (int i=0; i<normalDim; i++) {
+            for (int i=0; i<coordinateDim; i++) {
                 realT[i] = 0;
                 imaginaryT[i] = 0;
             }
@@ -127,11 +139,11 @@ public class MeterNormalMode implements Meter, Action, Serializable {
             // sum T over atoms
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();
-                normalCoordMapper.calcU(atom, atomCount, u);
+                coordinateDefinition.calcU(atom, atomCount, u);
                 double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                for (int i=0; i<normalDim; i++) {
+                for (int i=0; i<coordinateDim; i++) {
                     realT[i] += coskR * u[i];
                     imaginaryT[i] += sinkR * u[i];
                 }
@@ -140,9 +152,9 @@ public class MeterNormalMode implements Meter, Action, Serializable {
 
             // add to S(k).  imaginary part of S is 0
             double[] sValues = ((DataDoubleArray)data.getData(iVector)).getData();
-            for (int i=0; i<normalDim; i++) {
-                for (int j=0; j<normalDim; j++) {
-                    sValues[i*normalDim+j] += realT[i]*realT[j] + imaginaryT[i]*imaginaryT[j];
+            for (int i=0; i<coordinateDim; i++) {
+                for (int j=0; j<coordinateDim; j++) {
+                    sValues[i*coordinateDim+j] += realT[i]*realT[j] + imaginaryT[i]*imaginaryT[j];
                 }
             }
         }
@@ -188,7 +200,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
     private static final long serialVersionUID = 1L;
     private IVector[] waveVectors;
     private WaveVectorFactory waveVectorFactory;
-    protected NormalCoordMapper normalCoordMapper;
+    protected CoordinateDefinition coordinateDefinition;
     private int numWaveVectors;
     private Phase phase;
     private String name;
@@ -199,7 +211,7 @@ public class MeterNormalMode implements Meter, Action, Serializable {
     private IVector[] latticePositions;
     private int callCount;
 
-    protected int normalDim;
+    protected int coordinateDim;
     protected double[] u;
     protected double[] realT, imaginaryT;
 }

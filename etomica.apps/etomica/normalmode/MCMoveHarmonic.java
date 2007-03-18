@@ -17,13 +17,13 @@ public class MCMoveHarmonic extends MCMovePhase {
         iterator = new AtomIteratorAllMolecules();
     }
     
-    public void setNormalCoordWrapper(NormalCoordMapper newNormalCoordWrapper) {
-        normalCoordMapper = newNormalCoordWrapper;
-        normalDim = normalCoordMapper.getNormalDim();
+    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
+        coordinateDefinition = newCoordinateDefinition;
+        normalDim = coordinateDefinition.getCoordinateDim();
     }
     
-    public NormalCoordMapper getNormalCoordWrapper() {
-        return normalCoordMapper;
+    public CoordinateDefinition getCoordinateDefinition() {
+        return coordinateDefinition;
     }
 
     public void setEigenValues(double[][] newEigenValues) {
@@ -72,12 +72,12 @@ public class MCMoveHarmonic extends MCMovePhase {
         
         // fills in elements of nominalU using NormalCoordWrapper
         iterator.reset();
-        normalCoordMapper.setNumAtoms(iterator.size());
+        coordinateDefinition.setNumAtoms(iterator.size());
         iterator.reset();
         atomCount = 0;
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            normalCoordMapper.initNominalU(atom, atomCount);
+            coordinateDefinition.initNominalU(atom, atomCount);
             atomCount++;
         }
     }
@@ -123,7 +123,7 @@ public class MCMoveHarmonic extends MCMovePhase {
             for (int i=0; i<normalDim; i++) {
                 u[i] *= normalization;
             }
-            normalCoordMapper.setToU(atom, atomCount, u);
+            coordinateDefinition.setToU(atom, atomCount, u);
             atomCount++;
         }
         return true;
@@ -151,7 +151,7 @@ public class MCMoveHarmonic extends MCMovePhase {
     }
 
     private static final long serialVersionUID = 1L;
-    protected NormalCoordMapper normalCoordMapper;
+    protected CoordinateDefinition coordinateDefinition;
     private final AtomIteratorAllMolecules iterator;
     private IVector[] latticePositions;
     private double[][] eigenValuesSqrt;

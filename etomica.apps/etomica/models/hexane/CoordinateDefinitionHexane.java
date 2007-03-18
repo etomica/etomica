@@ -3,15 +3,15 @@ package etomica.models.hexane;
 import etomica.atom.Atom;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
-import etomica.normalmode.NormalCoordMolecule;
+import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
 
 /**
- * Implementation of NormalCoordMolecule that handles hexane.  
- * NormalCoordMolecule handles the molecular center of mass.  This class adds
+ * Implementation of CoordinateDefinitionMolecule that handles hexane.  
+ * CoordinateDefinitionMolecule handles the molecular center of mass.  This class adds
  * 3 measures of the molecule orientation.  Two that describe the deviation of
  * the molecule's primary orientation and a third that describes rotation about
  * that axis.
@@ -19,9 +19,9 @@ import etomica.space3d.Vector3D;
  * @author Andrew Schultz
  * @author Nancy Cribbin
  */
-public class NormalCoordHexane extends NormalCoordMolecule {
+public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
-    public NormalCoordHexane() {
+    public CoordinateDefinitionHexane() {
         super(Space3D.getInstance());
         axes = new Vector3D[3];
         axes[0] = new Vector3D();
@@ -36,9 +36,9 @@ public class NormalCoordHexane extends NormalCoordMolecule {
         deltaV = new Vector3D();
     }
 
-    public void calcU(Atom molecule, int atomCount, double[] u) {
+    public void calcU(Atom molecule, int index, double[] u) {
         // handle center-of-mass part
-        super.calcU(molecule, atomCount, u);
+        super.calcU(molecule, index, u);
 
         //Now we play with the molecule we are measuring.
         
@@ -140,15 +140,15 @@ public class NormalCoordHexane extends NormalCoordMolecule {
         
     }
 
-    public int getNormalDim() {
+    public int getCoordinateDim() {
         return 6;
     }
 
-    public void initNominalU(Atom molecule, int atomCount) {
+    public void initNominalU(Atom molecule, int index) {
         // handle center-of-mass part
-        super.initNominalU(molecule, atomCount);
+        super.initNominalU(molecule, index);
         //assume they're all oriented the same way.
-        if (atomCount == 0) {
+        if (index == 0) {
             //Set up all the axes based on the molecule atom0, the reference molecule
             //Long rotational axis of atom 0
             IVector leafPos1 = ((AtomLeaf)((AtomGroup)molecule).getChildList().get(0)).getCoord().getPosition();
@@ -173,8 +173,8 @@ public class NormalCoordHexane extends NormalCoordMolecule {
         }
     }
     
-    public void setToU(Atom atom, int atomCount, double[] u) {
-        super.setToU(atom, atomCount, u);
+    public void setToU(Atom atom, int index, double[] u) {
+        super.setToU(atom, index, u);
         throw new RuntimeException("Don't yet know how to set orientation");
     }
     

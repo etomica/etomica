@@ -32,7 +32,7 @@ import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * A monatomic fcc hard sphere simulation to test a new energy method.
+ * MD simulation of 3D hard spheres. Permits graphic display of simulation in progress.  3D only.
  * 
  * @author nancycribbin
  * 
@@ -90,7 +90,7 @@ public class TestFcc extends Simulation {
      */
     public static void main(String[] args) {
         int nA = 108;
-        boolean graphic = false;
+        boolean graphic = true;
         TestFcc sim = new TestFcc(Space3D.getInstance(), nA);
         
         if(graphic){
@@ -110,7 +110,7 @@ public class TestFcc extends Simulation {
 
             MeterNormalMode meterNormalMode = new MeterNormalMode();
             meterNormalMode.setWaveVectorFactory(new WaveVectorFactoryFcc(primitive));
-            meterNormalMode.setNormalCoordWrapper(new NormalCoordLeaf(sim.getSpace()));
+            meterNormalMode.setCoordinateDefinition(new CoordinateDefinitionLeaf(sim.getSpace()));
             meterNormalMode.setPhase(sim.phase);
 
             if (false) {
@@ -160,29 +160,25 @@ public class TestFcc extends Simulation {
                     }
                 }
                 meterNormalMode.actionPerformed();
-            }            
+            }//end if(false)           
             
+            //run simulation
             double simTime = 400.0;
             int nSteps = (int) (simTime / sim.integrator.getTimeStep());
-
-            String filename = "normal_modes4000";
-            if (args.length > 0) {
-                filename = args[0];
-            }
-            
             sim.activityIntegrate.setMaxSteps(nSteps);
-
             IntervalActionAdapter fooAdapter = new IntervalActionAdapter(meterNormalMode);
             fooAdapter.setActionInterval(2);
             sim.integrator.addListener(fooAdapter);
             sim.getController().actionPerformed();
             
+            //normalize averages
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
             normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-            int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
+            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
             
+            //write results
             IVector[] waveVectors = meterNormalMode.getWaveVectors();
-            
+            String filename = (args.length>0) ? args[0] : "normal_modes4000";
             try {
                 FileWriter fileWriterQ = new FileWriter(filename+".Q");
                 FileWriter fileWriterS = new FileWriter(filename+".S");
@@ -207,7 +203,7 @@ public class TestFcc extends Simulation {
             catch (IOException e) {
                 throw new RuntimeException("Oops, failed to write data "+e);
             }
-        }
+        }//end if(graphic)/else
         
         System.out.println("Peace be unto you.");
 

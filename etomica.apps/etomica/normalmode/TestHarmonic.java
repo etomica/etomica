@@ -93,7 +93,7 @@ public class TestHarmonic extends Simulation {
         move.setEigenVectors(eigenvectors);
         move.setWaveVectors(waveVectors);
         move.setWaveVectorCoefficients(coefficients);
-        move.setNormalCoordWrapper(new NormalCoordLeaf(space));
+        move.setCoordinateDefinition(new CoordinateDefinitionLeaf(space));
         
         if (space.D() == 1) {
             lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
@@ -147,7 +147,7 @@ public class TestHarmonic extends Simulation {
         IntervalActionAdapter iaa = new IntervalActionAdapter(pump);
         sim.integrator.addListener(iaa);
         
-        NormalCoordLeaf normalCoordLeaf = new NormalCoordLeaf(sim.getSpace());
+        CoordinateDefinitionLeaf coordinateDefinitionLeaf = new CoordinateDefinitionLeaf(sim.getSpace());
         double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
         IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
         double[] coefficients = new double[waveVectors.length];
@@ -173,7 +173,7 @@ public class TestHarmonic extends Simulation {
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicEnergy.setNormalCoordWrapper(normalCoordLeaf);
+        harmonicEnergy.setCoordinateDefinition(coordinateDefinitionLeaf);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
@@ -187,7 +187,7 @@ public class TestHarmonic extends Simulation {
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
         harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicSingleEnergy.setNormalCoordMapper(normalCoordLeaf);
+        harmonicSingleEnergy.setCoordinateDefinition(coordinateDefinitionLeaf);
         harmonicSingleEnergy.setTemperature(1.0);
         harmonicSingleEnergy.setPhase(sim.phase);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
@@ -209,7 +209,7 @@ public class TestHarmonic extends Simulation {
         IVector scaling = myLattice.latticeScaling;
         primitive.scaleSize(scaling.x(0));
         MeterNormalMode meterNormalMode = new MeterNormalMode();
-        meterNormalMode.setNormalCoordWrapper(normalCoordLeaf);
+        meterNormalMode.setCoordinateDefinition(coordinateDefinitionLeaf);
         WaveVectorFactory waveVectorFactory;
         if (D == 1) {
             waveVectorFactory = new WaveVectorFactory1D(primitive);
@@ -254,7 +254,7 @@ public class TestHarmonic extends Simulation {
             
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
             normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-            int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
+            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
             
             
             try {

@@ -216,7 +216,7 @@ public class TestHexane extends Simulation {
             // the meter can grab the lattice points
             MeterNormalMode meterNormalMode = new MeterNormalMode();
             meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-            meterNormalMode.setNormalCoordWrapper(new NormalCoordHexane());
+            meterNormalMode.setCoordinateDefinition(new CoordinateDefinitionHexane());
             meterNormalMode.setPhase(sim.phase);
             System.out.println("0");
             
@@ -239,7 +239,7 @@ public class TestHexane extends Simulation {
             
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
             normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-            int normalDim = meterNormalMode.getNormalCoordWrapper().getNormalDim();
+            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
             
             IVector[] waveVectors = waveVectorFactory.getWaveVectors();
             double[] coefficients = waveVectorFactory.getCoefficients();
