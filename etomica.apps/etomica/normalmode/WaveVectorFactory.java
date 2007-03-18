@@ -12,7 +12,7 @@ import etomica.space.IVector;
 public interface WaveVectorFactory {
 
     /**
-     * Tells the instance to make wave vectors appropraite for the given phase. 
+     * Tells the instance to make wave vectors appropriate for the given phase. 
      * The wave vectors will not include the 0 vector, any two  vectors which 
      * are opposites or any wave vector that is redundant with another.
      */
