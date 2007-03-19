@@ -1,11 +1,11 @@
 package etomica.modules.dcvgcmd;
 
+import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.data.meter.Meter;
 import etomica.phase.Phase;
 import etomica.units.Undefined;
 
-public class MeterFlux extends DataSourceScalar implements Meter {
+public class MeterFlux extends DataSourceScalar implements DataSource {
     
 	public MeterFlux(MyMCMove move, IntegratorDCVGCMD integrator) {
 		super("Flux",Undefined.DIMENSION);

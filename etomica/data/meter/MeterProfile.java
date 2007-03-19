@@ -4,6 +4,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
+import etomica.data.DataSource;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
@@ -29,7 +30,7 @@ import etomica.units.Length;
  * 
  * @author Rob Riggleman
  */
-public class MeterProfile implements DataSourceIndependent, java.io.Serializable {
+public class MeterProfile implements DataSource, DataSourceIndependent, java.io.Serializable {
     
     /**
      * Default constructor sets profile along the y-axis, with 100 histogram points.
