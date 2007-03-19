@@ -160,9 +160,9 @@ public class AtomDecomposition {
 			//Main Simulation, dishing atoms to threads.
 			int nsteps = 10000;
 			int istep = 0;
-			double[][] coordPass = new double[atomsPerThread][3];
-			double[][] velocityPass = new double[atomsPerThread][3];
-			double[][] forcePass = new double[atomsPerThread][3];
+			double[][] coordPass = new double[numAtoms][3];
+			double[][] velocityPass = new double[numAtoms][3];
+			double[][] forcePass = new double[numAtoms][3];
 			
 			for (istep=0; istep<nsteps; istep++) {
 								
