@@ -13,10 +13,10 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
+import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
-import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -30,7 +30,7 @@ import etomica.util.NameMaker;
  * @author Matt Moynihan MoleuclarCount returns an array with the number of
  *         atoms In molecules with [1,2,3,4,5,6,7-10,10-13,13-25, <25] atoms
  */
-public class MeterChainLength implements Meter, Serializable, AgentSource, DataSourceIndependent {
+public class MeterChainLength implements DataSource, Serializable, AgentSource, DataSourceIndependent {
 
     public MeterChainLength(ReactionEquilibrium sim) {
         setName(NameMaker.makeName(this.getClass()));

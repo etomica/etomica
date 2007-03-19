@@ -3,9 +3,9 @@ package etomica.modules.reactionequilibrium;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
+import etomica.data.DataSource;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
-import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -15,7 +15,7 @@ import etomica.species.Species;
 import etomica.units.Fraction;
 import etomica.util.NameMaker;
 
-public final class MeterDimerFraction implements Meter {
+public final class MeterDimerFraction implements DataSource {
     public MeterDimerFraction(ReactionEquilibrium sim) {
         data = new DataTable(1,5);
         DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Dimer Fraction", Fraction.DIMENSION, new int[]{5});
