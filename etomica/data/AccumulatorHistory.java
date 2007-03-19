@@ -1,10 +1,5 @@
-/*
- * History
- * Created on Aug 11, 2004 by kofke
- */
 package etomica.data;
 
-import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -61,14 +56,10 @@ public class AccumulatorHistory extends DataAccumulator {
     }
     
     /**
-     * Returns caster that ensures accumulator will receive a DataDoubleArray.
+     * Returns null.  AccumulatorHistogram can take an type of Data.
      */
     public DataProcessor getDataCaster(IDataInfo newInputDataInfo) {
-        if(newInputDataInfo instanceof DataInfoDoubleArray || 
-                newInputDataInfo instanceof DataInfoTable) {
-            return null;
-        }
-        return new CastToDoubleArray();
+        return null;
     }
     
     /**
