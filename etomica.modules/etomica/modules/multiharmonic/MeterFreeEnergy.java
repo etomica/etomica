@@ -2,8 +2,8 @@ package etomica.modules.multiharmonic;
 
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.data.meter.Meter;
 import etomica.phase.Phase;
 import etomica.potential.P1Harmonic;
 import etomica.units.Energy;
@@ -17,12 +17,7 @@ import etomica.units.Energy;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on Oct 28, 2005 by kofke
- */
-public class MeterFreeEnergy extends DataSourceScalar implements Meter {
+public class MeterFreeEnergy extends DataSourceScalar implements DataSource {
     
     public MeterFreeEnergy(P1Harmonic reference, P1Harmonic target) {
         super("Free energy", Energy.DIMENSION);

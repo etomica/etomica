@@ -14,7 +14,7 @@ import etomica.units.Fraction;
 /**
  * Meter for measurement of species mole fraction within a specified subvolume
  */
-public class MeterLocalMoleFraction extends DataSourceScalar implements Meter {
+public class MeterLocalMoleFraction extends DataSourceScalar {
 
     public MeterLocalMoleFraction() {
         super("Local Mole Fraction",Fraction.DIMENSION);

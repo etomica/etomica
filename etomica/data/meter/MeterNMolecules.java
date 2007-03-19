@@ -13,7 +13,7 @@ import etomica.units.Quantity;
 /**
  * Meter for recording the total number of molecules in the phase
  */
-public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomic, Meter {
+public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomic {
     
     private static final long serialVersionUID = 1L;
     private Species species;

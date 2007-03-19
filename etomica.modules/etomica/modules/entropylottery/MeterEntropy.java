@@ -2,8 +2,8 @@ package etomica.modules.entropylottery;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.data.meter.Meter;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.units.Null;
@@ -13,7 +13,7 @@ import etomica.units.Null;
  * using Stirling's approximation.
  * @author Andrew Schultz
  */
-public class MeterEntropy extends DataSourceScalar implements Meter {
+public class MeterEntropy extends DataSourceScalar implements DataSource {
 
     public MeterEntropy() {
         super("entropy", Null.DIMENSION);

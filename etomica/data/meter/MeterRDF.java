@@ -28,7 +28,7 @@ import etomica.util.NameMaker;
  *
  * @author David Kofke
  */
-public class MeterRDF implements DataSource, Meter, DataSourceIndependent, java.io.Serializable {
+public class MeterRDF implements DataSource, DataSourceIndependent, java.io.Serializable {
 	
 	/**
 	 * Creates meter with default to compute pair correlation for all

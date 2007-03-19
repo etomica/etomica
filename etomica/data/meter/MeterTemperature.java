@@ -11,7 +11,7 @@ import etomica.units.Temperature;
  * equipartition
  */
 
-public class MeterTemperature extends DataSourceScalar implements Meter {
+public class MeterTemperature extends DataSourceScalar {
 
     public MeterTemperature() {
 		super("Temperature", Temperature.DIMENSION);

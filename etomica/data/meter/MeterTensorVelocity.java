@@ -25,7 +25,7 @@ import etomica.units.Energy;
  * @author Rob Riggleman
  */
 
-public class MeterTensorVelocity implements Meter, DataSourceAtomic, java.io.Serializable {
+public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializable {
     /**
      * Iterator of atoms.
      */

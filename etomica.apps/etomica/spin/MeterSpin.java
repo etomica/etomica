@@ -2,8 +2,8 @@ package etomica.spin;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.data.meter.Meter;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -18,7 +18,7 @@ import etomica.units.Undefined;
  * @author David Kofke
  *
  */
-public class MeterSpin extends DataSourceScalar implements Meter {
+public class MeterSpin extends DataSourceScalar implements DataSource {
 
     /**
      * 

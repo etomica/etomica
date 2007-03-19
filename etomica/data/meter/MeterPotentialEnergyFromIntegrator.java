@@ -10,7 +10,7 @@ import etomica.units.Energy;
 /**
  * Acts as a DataSource to retrieve the energy from the integrator 
  */
-public class MeterPotentialEnergyFromIntegrator extends DataSourceScalar implements Meter, IntegratorNonintervalListener, java.io.Serializable {
+public class MeterPotentialEnergyFromIntegrator extends DataSourceScalar implements IntegratorNonintervalListener, java.io.Serializable {
 
     public MeterPotentialEnergyFromIntegrator() {
         super("Potential Energy",Energy.DIMENSION);

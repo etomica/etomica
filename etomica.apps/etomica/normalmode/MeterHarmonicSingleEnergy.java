@@ -3,9 +3,9 @@ package etomica.normalmode;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.Data;
+import etomica.data.DataSource;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
-import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.phase.Phase;
@@ -17,7 +17,7 @@ import etomica.units.Energy;
  * configuration given eigenvectors and omegas corresponding to wave vectors.
  * @author Andrew Schultz
  */
-public class MeterHarmonicSingleEnergy implements Meter {
+public class MeterHarmonicSingleEnergy implements DataSource {
 
     public MeterHarmonicSingleEnergy() {
         dataInfo = new DataInfoDoubleArray("Harmonic single energy", Energy.DIMENSION, new int[]{0});

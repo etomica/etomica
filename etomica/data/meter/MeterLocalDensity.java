@@ -15,7 +15,7 @@ import etomica.units.Volume;
  * Meter for measurement of density within a specified subvolume
  */
  
-public abstract class MeterLocalDensity extends DataSourceScalar implements Meter {
+public abstract class MeterLocalDensity extends DataSourceScalar {
     public MeterLocalDensity() {
         super("Local Density",new DimensionRatio(Quantity.DIMENSION, Volume.DIMENSION));
     }

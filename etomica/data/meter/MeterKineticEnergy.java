@@ -18,7 +18,7 @@ import etomica.units.Energy;
  * over a particular set of atoms in the phase.
  */
  
-public class MeterKineticEnergy extends DataSourceScalar implements Meter {
+public class MeterKineticEnergy extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     private AtomIteratorPhaseDependent iterator;
     

@@ -3,7 +3,6 @@ package etomica.normalmode;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.DataSourceScalar;
-import etomica.data.meter.Meter;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.units.Energy;
@@ -13,7 +12,7 @@ import etomica.units.Energy;
  * eigenvectors and omegas corresponding to wave vectors.
  * @author Andrew Schultz
  */
-public class MeterHarmonicEnergy extends DataSourceScalar implements Meter {
+public class MeterHarmonicEnergy extends DataSourceScalar {
 
     public MeterHarmonicEnergy() {
         super("Harmonic Energy", Energy.DIMENSION);

@@ -16,7 +16,7 @@ import etomica.units.Energy;
  * @author David Kofke
  */
  
-public class MeterPotentialEnergy extends DataSourceScalar implements Meter {
+public class MeterPotentialEnergy extends DataSourceScalar {
     
     public MeterPotentialEnergy(PotentialMaster potentialMaster) {
         super("Potential Energy",Energy.DIMENSION);
@@ -73,9 +73,9 @@ public class MeterPotentialEnergy extends DataSourceScalar implements Meter {
         this.phase = phase;
     }
 
+    private static final long serialVersionUID = 1L;
     private Phase phase;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private final PotentialMaster potential;
-    
-}//end of MeterPotentialEnergy
+}

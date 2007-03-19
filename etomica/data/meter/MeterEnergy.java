@@ -11,8 +11,9 @@ import etomica.units.Energy;
  * This meter is constructed from kinetic-energy and a potential-energy meters
  * An instance of this meter is placed in each phase to allow for energy measurements in the phase
  */
-public final class MeterEnergy extends DataSourceScalar implements Meter {
+public final class MeterEnergy extends DataSourceScalar {
 
+    private static final long serialVersionUID = 1L;
     private MeterKineticEnergy kinetic;
     private MeterPotentialEnergy potential;
     

@@ -13,7 +13,7 @@ import etomica.units.Volume;
  * Meter for measurement of the total molecule number density in a phase
  * Molecule number density is defined (number of molecules)/(volume of phase)
  */
-public class MeterDensity extends DataSourceScalar implements Meter {
+public class MeterDensity extends DataSourceScalar {
     
     public MeterDensity(Space space) {
         super("Number Density",new DimensionRatio(Quantity.DIMENSION, Volume.dimension(space.D())));
@@ -52,6 +52,7 @@ public class MeterDensity extends DataSourceScalar implements Meter {
         this.phase = phase;
     }
 
+    private static final long serialVersionUID = 1L;
     private Phase phase;
     private Species species;
 }

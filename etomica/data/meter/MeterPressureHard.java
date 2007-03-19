@@ -17,7 +17,7 @@ import etomica.units.Pressure;
  */
 public class MeterPressureHard extends DataSourceScalar implements
                                                 IntegratorHard.CollisionListener,
-                                                MeterCollisional,
+                                                DataSourceCollisional,
                                                 EtomicaElement {
     
     public MeterPressureHard(Space space) {

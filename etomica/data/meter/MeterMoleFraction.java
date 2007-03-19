@@ -12,7 +12,8 @@ import etomica.units.Fraction;
  *
  * @author David Kofke
  */
-public class MeterMoleFraction extends DataSourceScalar implements Meter {
+public class MeterMoleFraction extends DataSourceScalar {
+    private static final long serialVersionUID = 1L;
     private Species species;
    
     public MeterMoleFraction() {

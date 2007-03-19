@@ -10,7 +10,7 @@ import etomica.units.Energy;
 /**
  * Acts as a DataSource to retrieve the energy from the integrator 
  */
-public class MeterKineticEnergyFromIntegrator extends DataSourceScalar implements Meter, IntegratorNonintervalListener, java.io.Serializable {
+public class MeterKineticEnergyFromIntegrator extends DataSourceScalar implements IntegratorNonintervalListener, java.io.Serializable {
 
     public MeterKineticEnergyFromIntegrator() {
         super("Kinetic Energy",Energy.DIMENSION);

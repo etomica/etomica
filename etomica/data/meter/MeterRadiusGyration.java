@@ -16,7 +16,7 @@ import etomica.units.Length;
  * 
  * @author David Kofke
  */
-public class MeterRadiusGyration extends DataSourceScalar implements Meter {
+public class MeterRadiusGyration extends DataSourceScalar {
 
     public MeterRadiusGyration(Space space) {
         super("Radius of Gyration", Length.DIMENSION);

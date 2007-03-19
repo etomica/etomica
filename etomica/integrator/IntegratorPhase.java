@@ -3,7 +3,6 @@ package etomica.integrator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
-import etomica.phase.PhaseDependent;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
@@ -18,7 +17,7 @@ import etomica.units.Temperature;
  * @author David Kofke and Andrew Schultz
  */
 
-public abstract class IntegratorPhase extends Integrator implements PhaseDependent {
+public abstract class IntegratorPhase extends Integrator {
 
     protected Phase phase;
     protected double temperature;

@@ -6,9 +6,9 @@ import etomica.action.Action;
 import etomica.atom.Atom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.Data;
+import etomica.data.DataSource;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
-import etomica.data.meter.Meter;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -20,7 +20,7 @@ import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Null;
 
-public class MeterNormalMode implements Meter, Action, Serializable {
+public class MeterNormalMode implements DataSource, Action, Serializable {
 
     public MeterNormalMode() {
         tag = new DataTag();

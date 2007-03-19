@@ -7,7 +7,6 @@ import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.data.DataSourceAcceptanceProbability;
 import etomica.data.DataSourceAcceptanceRatio;
-import etomica.data.meter.Meter;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntervalActionAdapter;
@@ -53,7 +52,7 @@ public class SimulationVirialPT extends Simulation {
 
         phase = new PhaseCluster[temperature.length];
         integrator = new IntegratorMC[temperature.length];
-        meter = new Meter[temperature.length];
+        meter = new MeterVirial[temperature.length];
         accumulator = new DataAccumulator[temperature.length];
         accumulatorPump = new DataPump[temperature.length];
         dumb = new IntervalActionAdapter[temperature.length];
@@ -136,7 +135,7 @@ public class SimulationVirialPT extends Simulation {
 	}
 	
     private static final long serialVersionUID = 1L;
-	public DataSource[] meter;
+	public MeterVirial[] meter;
     public DataSource[] meterAccept;
     public DataSource[] meterAcceptP;
 	public DataAccumulator[] accumulator;
@@ -153,7 +152,7 @@ public class SimulationVirialPT extends Simulation {
     public MCMovePhaseStep[] mcMoveMulti;
     public IntegratorPT integratorPT;
 
-	public void setMeter(int i, DataSource newMeter) {
+	public void setMeter(int i, MeterVirial newMeter) {
 		if (accumulator[i] != null) { 
 			if (accumulatorPump[i] != null) {
                 integrator[i].removeListener(dumb[i]);
@@ -163,8 +162,8 @@ public class SimulationVirialPT extends Simulation {
 			accumulator[i] = null;
 		}
 		meter[i] = newMeter;
-		if (meter[i] != null && meter[i] instanceof Meter) {
-			((Meter)meter[i]).setPhase(phase[i]);
+		if (meter[i] != null) {
+			meter[i].setPhase(phase[i]);
 		}
 	}
 

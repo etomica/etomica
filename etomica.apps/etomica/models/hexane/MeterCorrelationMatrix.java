@@ -5,9 +5,9 @@ import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
+import etomica.data.DataSource;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
-import etomica.data.meter.Meter;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataGroup.DataInfoGroup;
@@ -23,7 +23,7 @@ import etomica.units.Null;
  * @author nancycribbin
  *
  */
-public class MeterCorrelationMatrix implements Meter {
+public class MeterCorrelationMatrix implements DataSource {
 
     public MeterCorrelationMatrix(Phase ph, PairIndexerMolecule pi) {
         this.phase = ph;
