@@ -18,7 +18,6 @@ import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.crystal.PrimitiveFcc;
-import etomica.models.hexane.MeterCorrelationMatrix;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -212,7 +211,6 @@ public class TestFcc extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMD integrator;
     public ActivityIntegrate activityIntegrate;
-    public MeterCorrelationMatrix meterCorrelation;
     public Phase phase;
     public BoundaryRectangularPeriodic bdry;
     public LatticeCubicFcc lattice;

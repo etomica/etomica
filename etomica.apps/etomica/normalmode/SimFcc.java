@@ -18,7 +18,6 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveFcc;
-import etomica.models.hexane.MeterCorrelationMatrix;
 import etomica.phase.Phase;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
@@ -196,7 +195,6 @@ public class SimFcc extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMD integrator;
     public ActivityIntegrate activityIntegrate;
-    public MeterCorrelationMatrix meterCorrelation;
     public Phase phase;
     public BoundaryRectangularPeriodic bdry;
     public BravaisLattice lattice;
