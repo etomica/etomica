@@ -1,7 +1,5 @@
 package etomica.normalmode;
 
-import etomica.atom.Atom;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
@@ -13,25 +11,21 @@ import etomica.space.IVector;
 import etomica.units.Energy;
 
 /**
- * Meter that calculates the harmonic energy of each normal mode for a 
+ * Meter that calculates the Boltzmann-factored harmonic energy of each normal mode for a 
  * configuration given eigenvectors and omegas corresponding to wave vectors.
+ * 
  * @author Andrew Schultz
  */
 public class MeterHarmonicSingleEnergy implements DataSource {
 
-    public MeterHarmonicSingleEnergy() {
+    public MeterHarmonicSingleEnergy(CoordinateDefinition coordinateDefinition) {
+        this.coordinateDefinition = coordinateDefinition;
         dataInfo = new DataInfoDoubleArray("Harmonic single energy", Energy.DIMENSION, new int[]{0});
-        iterator = new AtomIteratorAllMolecules();
         tag = new DataTag();
     }
     
     public DataTag getTag() {
         return tag;
-    }
-    
-    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
-        coordinateDefinition = newCoordinateDefinition;
-        coordinateDim = coordinateDefinition.getCoordinateDim();
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -45,38 +39,20 @@ public class MeterHarmonicSingleEnergy implements DataSource {
 
     public Data getData() {
         double[] x = data.getData();
+        
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
-            for (int i=0; i<coordinateDim; i++) {
-                realT[i] = 0;
-                imaginaryT[i] = 0;
-            }
-            iterator.reset();
-            int atomCount = 0;
-            // sum T over atoms
-            while (iterator.hasNext()) {
-                Atom atom = iterator.nextAtom();
-                coordinateDefinition.calcU(atom, atomCount, u);
-                double kR = waveVectors[iVector].dot(latticePositions[atomCount]);
-                double coskR = Math.cos(kR);
-                double sinkR = Math.sin(kR);
-                for (int i=0; i<coordinateDim; i++) {
-                    realT[i] += coskR * u[i];
-                    imaginaryT[i] += sinkR * u[i];
-                }
-                
-                atomCount++;
-            }
+            coordinateDefinition.calcT(waveVectors[iVector], realT, imaginaryT);
             
             // we want to calculate Q = A T
             // where A is made up of eigenvectors as columns
+            int coordinateDim = coordinateDefinition.getCoordinateDim();
             for (int i=0; i<coordinateDim; i++) {
                 double realCoord = 0, imaginaryCoord = 0;
                 for (int j=0; j<coordinateDim; j++) {
                     realCoord += realT[j] * eigenVectors[iVector][j][i];
                     imaginaryCoord += imaginaryT[j] * eigenVectors[iVector][j][i];
                 }
-                // we were supposed to divide T by sqrt(atomCount), but it's easier to handle that here
-                double normalCoord = (realCoord*realCoord + imaginaryCoord*imaginaryCoord)/atomCount;
+                double normalCoord = (realCoord*realCoord + imaginaryCoord*imaginaryCoord);
                 x[iVector*coordinateDim+i] = Math.exp(-0.5 * waveVectorCoefficients[iVector] * 
                         normalCoord * omegaSquared[iVector][i] / temperature);
             }
@@ -85,40 +61,19 @@ public class MeterHarmonicSingleEnergy implements DataSource {
     }
     
     public Phase getPhase() {
-        return phase;
+        return coordinateDefinition.getPhase();
     }
 
     public void setPhase(Phase newPhase) {
-        phase = newPhase;
-        iterator.setPhase(phase);
+        coordinateDefinition.setPhase(newPhase);
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        
         dataInfo = new DataInfoDoubleArray("Harmonic single energy", Energy.DIMENSION, new int[]{waveVectors.length,coordinateDim});
         data = new DataDoubleArray(new int[]{waveVectors.length,coordinateDim});
 
-        latticePositions = new IVector[phase.getSpeciesMaster().moleculeCount()];
 
-        iterator.reset();
-        int atomCount = 0;
-        while (iterator.hasNext()) {
-            latticePositions[atomCount] = phase.getSpace().makeVector();
-            Atom atom = iterator.nextAtom();
-            IVector atomPos = atom.getType().getPositionDefinition().position(atom);
-            latticePositions[atomCount].E(atomPos);
-            atomCount++;
-        }
-
-        coordinateDefinition.setNumAtoms(iterator.size());
-        u = new double[coordinateDim];
         realT = new double[coordinateDim];
         imaginaryT = new double[coordinateDim];
-        
-        // fills in elements of nominalU using NormalCoordWrapper
-        iterator.reset();
-        atomCount = 0;
-        while (iterator.hasNext()) {
-            Atom atom = iterator.nextAtom();
-            coordinateDefinition.initNominalU(atom, atomCount);
-            atomCount++;
-        }
     }
     
     public void setWaveVectors(IVector[] newWaveVectors, double[] coefficients) {
@@ -151,16 +106,11 @@ public class MeterHarmonicSingleEnergy implements DataSource {
     }
     
     private static final long serialVersionUID = 1L;
-    protected CoordinateDefinition coordinateDefinition;
-    protected int coordinateDim;
+    protected final CoordinateDefinition coordinateDefinition;
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     private final DataTag tag;
-    protected IVector[] latticePositions;
-    protected final AtomIteratorAllMolecules iterator;
-    protected Phase phase;
     protected double temperature;
-    protected double[] u;
     protected double[] realT, imaginaryT;
     protected IVector[] waveVectors;
     protected double[] waveVectorCoefficients;

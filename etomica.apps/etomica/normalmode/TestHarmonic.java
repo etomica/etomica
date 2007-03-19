@@ -169,11 +169,10 @@ public class TestHarmonic extends Simulation {
             }
         }
 
-        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
+        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionLeaf);
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicEnergy.setCoordinateDefinition(coordinateDefinitionLeaf);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
@@ -183,11 +182,10 @@ public class TestHarmonic extends Simulation {
         adapter.setActionInterval(1);
         sim.integrator.addListener(adapter);
 
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy();
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionLeaf);
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
         harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicSingleEnergy.setCoordinateDefinition(coordinateDefinitionLeaf);
         harmonicSingleEnergy.setTemperature(1.0);
         harmonicSingleEnergy.setPhase(sim.phase);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());

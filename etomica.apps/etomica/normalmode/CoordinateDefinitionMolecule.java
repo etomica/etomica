@@ -15,22 +15,15 @@ import etomica.space.Space;
  * 
  * @author Andrew Schultz
  */
-public class CoordinateDefinitionMolecule implements CoordinateDefinition, Serializable {
+public class CoordinateDefinitionMolecule extends CoordinateDefinition implements Serializable {
 
-    public CoordinateDefinitionMolecule(Space space) {
+    public CoordinateDefinitionMolecule(Space space, int orientationDim) {
+        super(space.D()+orientationDim);
         this.space = space;
         work1 = space.makeVector();
         atomActionTranslateTo = new AtomActionTranslateTo(space);
     }
     
-    public void setNumAtoms(int numAtoms) {
-        nominalU = new double[numAtoms][getCoordinateDim()];
-    }
-    
-    public int getCoordinateDim() {
-        return space.D();
-    }
-
     public void calcU(Atom molecule, int index, double[] u) {
         IVector pos = molecule.getType().getPositionDefinition().position(molecule);
         for (int i=0; i<pos.getD(); i++) {

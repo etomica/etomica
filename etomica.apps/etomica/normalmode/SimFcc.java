@@ -160,14 +160,14 @@ public class SimFcc extends Simulation {
         
         //normalize averages
         DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
-        normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-        int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
+        normalModeData.TE(1.0/meterNormalMode.getCallCount());
         
         //write results to file
         IVector[] waveVectors = waveVectorFactory.getWaveVectors();
         double[] coefficients = waveVectorFactory.getCoefficients();
         
         try {
+            int coordinateDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
             FileWriter fileWriterQ = new FileWriter(filename+".Q");
             FileWriter fileWriterS = new FileWriter(filename+".S");
             for (int i=0; i<waveVectors.length; i++) {
@@ -177,10 +177,10 @@ public class SimFcc extends Simulation {
                 }
                 fileWriterQ.write("\n");
                 DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
-                for (int k=0; k<normalDim; k++) {
-                    fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
-                    for (int l=1; l<normalDim; l++) {
-                        fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
+                for (int k=0; k<coordinateDim; k++) {
+                    fileWriterS.write(Double.toString(dataS.getValue(k*coordinateDim)));
+                    for (int l=1; l<coordinateDim; l++) {
+                        fileWriterS.write(" "+dataS.getValue(k*coordinateDim+l));
                     }
                     fileWriterS.write("\n");
                 }

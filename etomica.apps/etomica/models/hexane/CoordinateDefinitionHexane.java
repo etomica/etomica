@@ -22,7 +22,7 @@ import etomica.space3d.Vector3D;
 public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
     public CoordinateDefinitionHexane() {
-        super(Space3D.getInstance());
+        super(Space3D.getInstance(), 3);
         axes = new Vector3D[3];
         axes[0] = new Vector3D();
         axes[1] = new Vector3D();
@@ -138,10 +138,6 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             u[5] = -u[5];
         }
         
-    }
-
-    public int getCoordinateDim() {
-        return 6;
     }
 
     public void initNominalU(Atom molecule, int index) {

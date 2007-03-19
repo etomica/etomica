@@ -233,11 +233,10 @@ public class TestHexaneHarmonic extends Simulation {
 
         CoordinateDefinitionHexane coordinateDefinitionHexane = new CoordinateDefinitionHexane();
         
-        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
+        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionHexane);
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicEnergy.setCoordinateDefinition(coordinateDefinitionHexane);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -255,11 +254,10 @@ public class TestHexaneHarmonic extends Simulation {
         harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
         sim.register(harmonicEnergy, pump);
         
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy();
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionHexane);
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
         harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicSingleEnergy.setCoordinateDefinition(coordinateDefinitionHexane);
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());

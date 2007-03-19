@@ -106,6 +106,8 @@ public class TestFccHarmonic extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
+        
+        //set up simulation parameters
         int nA = 108;
         boolean graphic = true;
         TestFccHarmonic sim = new TestFccHarmonic(Space3D.getInstance(), nA);
@@ -117,6 +119,7 @@ public class TestFccHarmonic extends Simulation {
         
         double harmonicFudge = .25;
         
+        //get and process eigenstuff
         double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
         for (int i=0; i<omegaSquared.length; i++) {
             for (int j=0; j<omegaSquared[i].length; j++) {
@@ -124,6 +127,9 @@ public class TestFccHarmonic extends Simulation {
                 omegaSquared[i][j] = 1/omegaSquared[i][j]/harmonicFudge;
             }
         }
+        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
+
+        //get and process wave vectors
         double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
         IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
         double[] coefficients = new double[waveVectors.length];
@@ -133,13 +139,13 @@ public class TestFccHarmonic extends Simulation {
                     waveVectorsAndCoefficients[i][2],
                     waveVectorsAndCoefficients[i][3]);
         }
-        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
 
-        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy();
+        //add meters to for FEP averages, and logarithms of averages
+        //this one does averaging of total energy and its Boltzmann factor
+       MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(new CoordinateDefinitionLeaf(sim.getSpace()));
         harmonicEnergy.setEigenvectors(eigenvectors);
         harmonicEnergy.setOmegaSquared(omegaSquared);
         harmonicEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicEnergy.setCoordinateDefinition(new CoordinateDefinitionLeaf(sim.getSpace()));
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -156,11 +162,11 @@ public class TestFccHarmonic extends Simulation {
         DataProcessorFoo fooer = new DataProcessorFoo();
         harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
         
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy();
+        //this one does averaging of Boltzmann factors of each mode
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(new CoordinateDefinitionLeaf(sim.getSpace()));
         harmonicSingleEnergy.setEigenvectors(eigenvectors);
         harmonicSingleEnergy.setOmegaSquared(omegaSquared);
         harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
-        harmonicSingleEnergy.setCoordinateDefinition(new CoordinateDefinitionLeaf(sim.getSpace()));
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
@@ -176,6 +182,7 @@ public class TestFccHarmonic extends Simulation {
         DataProcessorFoo fooerSingle = new DataProcessorFoo();
         harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{StatType.AVERAGE});
 
+        //set up display, if indicated, for interactive use
         if(graphic){
             SimulationGraphic simG = new SimulationGraphic(sim);
             
@@ -201,6 +208,8 @@ public class TestFccHarmonic extends Simulation {
             simG.add(diffA);
             
             simG.makeAndDisplayFrame();
+
+            //otherwise, don't set up display; just run batch
         } else {
             double simTime = 400.0;
             int nSteps = (int) (simTime / sim.integrator.getTimeStep());

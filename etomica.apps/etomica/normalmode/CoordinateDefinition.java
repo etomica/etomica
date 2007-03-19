@@ -1,6 +1,9 @@
 package etomica.normalmode;
 
 import etomica.atom.Atom;
+import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.phase.Phase;
+import etomica.space.IVector;
 
 /**
  * An interface that defines the real-space generalized coordinates that are
@@ -10,22 +13,24 @@ import etomica.atom.Atom;
  * For non-spherical molecules it will also include elements related to the
  * orientation.
  * 
- * @author Andrew Schultz
+ * @author Andrew Schultz, David Kofke
  */
-public interface CoordinateDefinition {
+public abstract class CoordinateDefinition {
+
+    public CoordinateDefinition(int coordinateDim) {
+        this.coordinateDim = coordinateDim;
+        u = new double[coordinateDim];
+        iterator = new AtomIteratorAllMolecules();
+    }
 
     /**
      * Returns the number of generalized coordinates associated with each
      * molecule. If no orientational coordinates are involved, this value is
      * typically equal to the space dimension.
      */
-    public int getCoordinateDim();
-
-    /**
-     * Notifies the coord definition how many atoms will be tracked. The
-     * |index| parameter in other methods must not exceed |numAtoms-1|.
-     */
-    public void setNumAtoms(int numAtoms);
+    public int getCoordinateDim() {
+        return coordinateDim;
+    }
 
     /**
      * Calculates the generalized coordinates for the given molecule in its
@@ -39,7 +44,7 @@ public interface CoordinateDefinition {
      *            Upon return, the atom's generalized coordinates. |u| must be
      *            of length getCoordinateDim()
      */
-    public void calcU(Atom molecule, int index, double[] u);
+    public abstract void calcU(Atom molecule, int index, double[] u);
 
     /**
      * Initializes the CoordinateDefinition for the given molecule and
@@ -48,7 +53,7 @@ public interface CoordinateDefinition {
      * the generalized coordinates for the molecule will be defined with respect
      * to this nominal case.
      */
-    public void initNominalU(Atom molecule, int index);
+    public abstract void initNominalU(Atom molecule, int index);
 
     /**
      * Set the molecule to a position and orientation that corresponds to the
@@ -62,5 +67,88 @@ public interface CoordinateDefinition {
      *            The generalized coordinate that defines the position and
      *            orientation to which the molecule will be set by this method.
      */
-    public void setToU(Atom molecule, int index, double[] u);
+    public abstract void setToU(Atom molecule, int index, double[] u);
+
+    /**
+     * Calculates the complex "T vector", which is collective coordinate given by
+     * the Fourier sum (over atoms) of the generalized coordinate vector.
+     * 
+     * @param k
+     *            the wave vector
+     * @param realT
+     *            outputs the real component of the T vector
+     * @param imaginaryT
+     *            outputs the imaginary component of the T vector
+     */
+    public void calcT(IVector k, double[] realT, double[] imaginaryT) {
+        for (int i = 0; i < coordinateDim; i++) {
+            realT[i] = 0;
+            imaginaryT[i] = 0;
+        }
+        iterator.reset();
+        int index = 0;
+        // sum T over atoms
+        while (iterator.hasNext()) {
+            Atom atom = iterator.nextAtom();
+            calcU(atom, index, u);
+            double kR = k.dot(latticePositions[index]);
+            double coskR = Math.cos(kR);
+            double sinkR = Math.sin(kR);
+            for (int i = 0; i < coordinateDim; i++) {
+                realT[i] += coskR * u[i];
+                imaginaryT[i] += sinkR * u[i];
+            }
+            index++;
+        }
+        
+        for (int i = 0; i < coordinateDim; i++) {
+            realT[i] /= sqrtN;
+            imaginaryT[i] /= sqrtN;
+        }
+
+    }
+
+    public Phase getPhase() {
+        return phase;
+    }
+
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+        N = phase.getSpeciesMaster().moleculeCount();
+        sqrtN = Math.sqrt((double)N);
+        latticePositions = new IVector[N];
+
+        iterator.setPhase(phase);
+        iterator.reset();
+        int index = 0;
+        while (iterator.hasNext()) {
+            latticePositions[index] = phase.getSpace().makeVector();
+            Atom atom = iterator.nextAtom();
+            latticePositions[index].E(atom.getType().getPositionDefinition().position(atom));
+            index++;
+        }
+
+        // record nominal position of each atom
+        nominalU = new double[iterator.size()][getCoordinateDim()];
+        index = 0;
+        iterator.reset();
+        while (iterator.hasNext()) {
+            initNominalU(iterator.nextAtom(), index++);
+        }
+
+    }
+    
+    public IVector[] getLatticePositions() {
+        return latticePositions;
+    }
+
+    protected final int coordinateDim;
+    protected double[][] nominalU;
+    private final double[] u;
+    protected Phase phase;
+    private int N;
+    private double sqrtN;
+    private IVector[] latticePositions;
+    private final AtomIteratorAllMolecules iterator;
+
 }

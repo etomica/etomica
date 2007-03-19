@@ -19,7 +19,6 @@ public class MCMoveHarmonic extends MCMovePhase {
     
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
         coordinateDefinition = newCoordinateDefinition;
-        normalDim = coordinateDefinition.getCoordinateDim();
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -50,9 +49,9 @@ public class MCMoveHarmonic extends MCMovePhase {
     public void setPhase(Phase newPhase) {
         super.setPhase(newPhase);
         iterator.setPhase(newPhase);
-        normalDim = getNormalDim();
 
-        latticePositions = new IVector[phase.getSpeciesMaster().moleculeCount()];
+        coordinateDefinition.setPhase(newPhase);
+        latticePositions = coordinateDefinition.getLatticePositions();
 
         iterator.reset();
         int atomCount = 0;
@@ -63,29 +62,14 @@ public class MCMoveHarmonic extends MCMovePhase {
             atomCount++;
         }
 
-        u = new double[normalDim];
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
+        u = new double[coordinateDim];
 
-        rRand = new double[waveVectors.length][normalDim];
-        iRand = new double[waveVectors.length][normalDim];
+        rRand = new double[waveVectors.length][coordinateDim];
+        iRand = new double[waveVectors.length][coordinateDim];
         
         normalization = 1/Math.sqrt(phase.getSpeciesMaster().moleculeCount());
         
-        // fills in elements of nominalU using NormalCoordWrapper
-        iterator.reset();
-        coordinateDefinition.setNumAtoms(iterator.size());
-        iterator.reset();
-        atomCount = 0;
-        while (iterator.hasNext()) {
-            Atom atom = iterator.nextAtom();
-            coordinateDefinition.initNominalU(atom, atomCount);
-            atomCount++;
-        }
-    }
-
-    protected int getNormalDim() {
-        //x, y, z
-        // subclasses can override this to reserve space for other normal mode coordinates
-        return phase.getSpace().D();
     }
 
     public AtomIterator affectedAtoms() {
@@ -95,16 +79,17 @@ public class MCMoveHarmonic extends MCMovePhase {
     public boolean doTrial() {
         iterator.reset();
         int atomCount = 0;
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
 
         for (int iVector=0; iVector<waveVectors.length; iVector++) {
-            for (int j=0; j<normalDim; j++) {
+            for (int j=0; j<coordinateDim; j++) {
                 rRand[iVector][j] = Simulation.random.nextGaussian() * eigenValuesSqrt[iVector][j];
                 iRand[iVector][j] = Simulation.random.nextGaussian() * eigenValuesSqrt[iVector][j];
             }
         }
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            for (int i=0; i<normalDim; i++) {
+            for (int i=0; i<coordinateDim; i++) {
                 u[i] = 0;
             }
             for (int iVector=0; iVector<waveVectors.length; iVector++) {
@@ -113,14 +98,14 @@ public class MCMoveHarmonic extends MCMovePhase {
                 double sinkR = Math.sin(kR);
                 
 
-                for (int i=0; i<normalDim; i++) {
-                    for (int j=0; j<normalDim; j++) {
+                for (int i=0; i<coordinateDim; i++) {
+                    for (int j=0; j<coordinateDim; j++) {
                         u[j] += Math.sqrt(waveVectorCoefficients[iVector])*eigenVectors[iVector][i][j]*
                                   (rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
                     }
                 }
             }
-            for (int i=0; i<normalDim; i++) {
+            for (int i=0; i<coordinateDim; i++) {
                 u[i] *= normalization;
             }
             coordinateDefinition.setToU(atom, atomCount, u);
@@ -158,7 +143,6 @@ public class MCMoveHarmonic extends MCMovePhase {
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
     private double[] waveVectorCoefficients;
-    protected int normalDim;
     protected double[] u;
     protected double[][] rRand;
     protected double[][] iRand;
