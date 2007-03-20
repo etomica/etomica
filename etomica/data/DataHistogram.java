@@ -94,7 +94,7 @@ public class DataHistogram extends DataProcessor {
     /**
      * Returns caster that ensures accumulator will receive a DataDoubleArray.
      */
-    public DataProcessor getDataCaster(IDataInfo inputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo inputDataInfo) {
         if(inputDataInfo instanceof DataInfoDoubleArray) {
             return null;
         }

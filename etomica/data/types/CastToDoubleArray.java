@@ -1,6 +1,7 @@
 package etomica.data.types;
 
 import etomica.data.Data;
+import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -110,7 +111,7 @@ public class CastToDoubleArray extends DataProcessor {
         return outputData;
     }
 
-    public DataProcessor getDataCaster(IDataInfo info) {
+    public DataPipe getDataCaster(IDataInfo info) {
         return null;
     }
 

@@ -82,7 +82,7 @@ public class AccumulatorAverage extends DataAccumulator {
      * this is so. Otherwise throws a ClassCastException, as there is no data
      * caster to Data.
      */
-    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 

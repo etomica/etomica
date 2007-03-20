@@ -58,7 +58,7 @@ public class AccumulatorHistory extends DataAccumulator {
     /**
      * Returns null.  AccumulatorHistogram can take an type of Data.
      */
-    public DataProcessor getDataCaster(IDataInfo newInputDataInfo) {
+    public DataPipe getDataCaster(IDataInfo newInputDataInfo) {
         return null;
     }
     

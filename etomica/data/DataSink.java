@@ -25,5 +25,5 @@ public interface DataSink {
      * 
      * @param dataInfo the DataInfo for the Data that will fed to the sink's putData method
      */
-    public DataProcessor getDataCaster(IDataInfo dataInfo);
+    public DataPipe getDataCaster(IDataInfo dataInfo);
 }

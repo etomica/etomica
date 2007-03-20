@@ -90,7 +90,7 @@ public class DataGroupFilter extends DataProcessor {
      * Returns null if the given DataInfo is for a DataGroup; otherwise
      * throws an exception.
      */
-    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         if(!(incomingDataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("DataGroupFilter must operate on a DataGroup");
         }

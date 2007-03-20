@@ -39,7 +39,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
     /**
      * Returns null, indicating that this DataSink can accept any type of Data.
      */
-    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
     
@@ -131,7 +131,7 @@ public class DataFork implements DataPipeForked, java.io.Serializable {
         //remove transformer if one was previously inserted
         dataSinkList[i].dataSink = dataSinkList[i].trueDataSink;
 
-        DataProcessor caster = dataSinkList[i].trueDataSink.getDataCaster(dataInfo);
+        DataPipe caster = dataSinkList[i].trueDataSink.getDataCaster(dataInfo);
         if(caster != null) {
             caster.setDataSink(dataSinkList[i].trueDataSink);
             dataSinkList[i].dataSink = caster;

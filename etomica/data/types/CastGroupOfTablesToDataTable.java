@@ -2,6 +2,7 @@ package etomica.data.types;
 
 
 import etomica.data.Data;
+import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
@@ -110,7 +111,7 @@ public class CastGroupOfTablesToDataTable extends DataProcessor {
     /**
      * Returns null.
      */
-    public DataProcessor getDataCaster(IDataInfo info) {
+    public DataPipe getDataCaster(IDataInfo info) {
         if (!(info instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("can only cast from DataGroup");
         }

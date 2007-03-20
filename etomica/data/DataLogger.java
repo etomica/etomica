@@ -47,7 +47,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
         if(dataWriter == null || dataInfo == null) return;
         //remove transformer if one was previously inserted
         dataSink = dataWriter;
-        DataProcessor caster = dataWriter.getDataCaster(dataInfo);
+        DataPipe caster = dataWriter.getDataCaster(dataInfo);
         if(caster != null) {
             caster.setDataSink(dataWriter);
             dataSink = caster;
@@ -55,7 +55,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
         dataSink.putDataInfo(dataInfo);
     }
 
-    public DataProcessor getDataCaster(IDataInfo dataInfo) {
+    public DataPipe getDataCaster(IDataInfo dataInfo) {
         // we don't care about the type although the DataWriter might
         return null;
     }

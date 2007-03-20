@@ -34,7 +34,7 @@ public class DataSinkConsole implements DataSink, EtomicaElement, java.io.Serial
     /**
      * Returns null, indicating that any type of Data can be put here without casting.
      */
-    public DataProcessor getDataCaster(IDataInfo dataInfo) {
+    public DataPipe getDataCaster(IDataInfo dataInfo) {
         return null;
     }
     

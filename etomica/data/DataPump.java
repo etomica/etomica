@@ -59,7 +59,7 @@ public class DataPump extends DataProcessor implements Action {
     /**
      * Returns null, indicating that this DataSink can handle any type of Data without casting.
      */
-    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
     

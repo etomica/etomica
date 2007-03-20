@@ -44,7 +44,7 @@ public class DataProcessorFunction extends DataProcessor {
     /**
      * Always returns null.
      */
-    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 

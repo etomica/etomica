@@ -3,6 +3,7 @@ package etomica.data.types;
 import java.io.Serializable;
 
 import etomica.data.Data;
+import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataSourceIndependent;
 import etomica.data.IDataInfo;
@@ -176,7 +177,7 @@ public class CastToTable extends DataProcessor implements Serializable {
      * Returns null, indicating the this DataProcessor can handle (almost) any
      * Data type.
      */
-    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         if (incomingDataInfo instanceof DataInfoGroup) {
             throw new IllegalArgumentException("Cannot cast to DataTable from "
                     + incomingDataInfo.getClass());

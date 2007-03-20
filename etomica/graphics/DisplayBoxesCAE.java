@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 
 import etomica.data.AccumulatorAverage;
 import etomica.data.Data;
-import etomica.data.DataProcessor;
+import etomica.data.DataPipe;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.IDataInfo;
@@ -71,7 +71,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
     /* (non-Javadoc)
      * @see etomica.DataSink#getDataCaster(etomica.DataInfo)
      */
-    public DataProcessor getDataCaster(IDataInfo dataInfo) {
+    public DataPipe getDataCaster(IDataInfo dataInfo) {
         if(!(dataInfo instanceof DataInfoGroup)) {
             throw new IllegalArgumentException("DisplayBoxesCAE strangely is being given something other than a DataGroup");
         }

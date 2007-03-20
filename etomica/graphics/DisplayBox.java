@@ -7,7 +7,7 @@ import javax.swing.JTextField;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.Data;
-import etomica.data.DataProcessor;
+import etomica.data.DataPipe;
 import etomica.data.DataSink;
 import etomica.data.IDataInfo;
 import etomica.data.types.CastToDouble;
@@ -103,7 +103,7 @@ public class DisplayBox extends Display implements DataSink, EtomicaElement, jav
     /**
      * Returns caster needed to convert type indicated by DataInfo to a DataDouble.
      */
-    public DataProcessor getDataCaster(IDataInfo dataInfo) {
+    public DataPipe getDataCaster(IDataInfo dataInfo) {
         if(dataInfo instanceof DataInfoDouble) return null;
         return new CastToDouble();
     }

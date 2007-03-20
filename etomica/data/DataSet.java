@@ -245,7 +245,7 @@ public class DataSet implements Serializable {
             dataSet.dataChanged(this);
         }
         
-        public DataProcessor getDataCaster(IDataInfo newIncomingDataInfo) {
+        public DataPipe getDataCaster(IDataInfo newIncomingDataInfo) {
             if (dataCasterJudge == null) {
                 return null;
             }

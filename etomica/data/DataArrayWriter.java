@@ -39,7 +39,7 @@ public class DataArrayWriter implements DataWriter, java.io.Serializable {
         dataInfo = newDataInfo;
     }
 
-    public DataProcessor getDataCaster(IDataInfo newDataInfo) {
+    public DataPipe getDataCaster(IDataInfo newDataInfo) {
         if (newDataInfo instanceof DataInfoDoubleArray) {
             // we like tables
             return null;

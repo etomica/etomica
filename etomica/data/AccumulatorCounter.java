@@ -22,7 +22,7 @@ public class AccumulatorCounter extends DataAccumulator {
     /**
      * Returns null, indicating that any Data type is acceptable for input.
      */
-    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
 

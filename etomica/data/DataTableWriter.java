@@ -41,7 +41,7 @@ public class DataTableWriter implements DataWriter, java.io.Serializable {
         dataInfo = newDataInfo;
     }
 
-    public DataProcessor getDataCaster(IDataInfo newDataInfo) {
+    public DataPipe getDataCaster(IDataInfo newDataInfo) {
         if (newDataInfo instanceof DataInfoTable) {
             // we like tables
             return null;

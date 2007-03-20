@@ -94,7 +94,7 @@ public abstract class DataProcessor implements DataPipe, java.io.Serializable {
             return;
         //remove transformer if one was previously inserted
         dataSink = trueDataSink;
-        DataProcessor caster = dataSink.getDataCaster(dataInfo);
+        DataPipe caster = dataSink.getDataCaster(dataInfo);
         if (caster != null) {
             caster.setDataSink(trueDataSink);
             dataSink = caster;
