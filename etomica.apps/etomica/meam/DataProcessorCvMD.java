@@ -7,8 +7,8 @@
 package etomica.meam;
 
 import etomica.data.Data;
+import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
-import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDouble.DataInfoDouble;
@@ -39,7 +39,7 @@ final class DataProcessorCvMD extends DataProcessor {
 		return data;
 	}
 
-	public DataProcessor getDataCaster(IDataInfo inputDataInfo){
+	public DataPipe getDataCaster(IDataInfo inputDataInfo){
 		return null;
 	}
 

@@ -9,6 +9,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.Data;
 import etomica.data.DataFork;
 import etomica.data.DataHistogram;
+import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.IDataInfo;
@@ -237,7 +238,7 @@ public class TestFccHarmonic extends Simulation {
      */
     public static class DataProcessorFoo extends DataProcessor {
 
-        public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
+        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
             return null;
         }
         

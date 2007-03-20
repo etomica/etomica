@@ -2,6 +2,7 @@ package etomica.normalmode;
 
 import etomica.data.Data;
 import etomica.data.DataInfoFactory;
+import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.IDataInfo;
 import etomica.units.Null;
@@ -28,7 +29,7 @@ public class BoltzmannProcessor extends DataProcessor {
         return data;
     }
     
-    public DataProcessor getDataCaster(IDataInfo incomingDataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         return null;
     }
     
