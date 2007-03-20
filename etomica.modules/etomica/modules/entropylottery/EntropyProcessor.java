@@ -2,6 +2,7 @@ package etomica.modules.entropylottery;
 
 import etomica.data.Data;
 import etomica.data.DataPipe;
+import etomica.data.DataProcessor;
 import etomica.data.IDataInfo;
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataDouble;
