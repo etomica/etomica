@@ -1,7 +1,7 @@
 package etomica.modules.entropylottery;
 
 import etomica.data.Data;
-import etomica.data.DataProcessor;
+import etomica.data.DataPipe;
 import etomica.data.IDataInfo;
 import etomica.data.types.CastToDoubleArray;
 import etomica.data.types.DataDouble;
@@ -21,7 +21,7 @@ public class EntropyProcessor extends DataProcessor {
         super();
     }
     
-    public DataProcessor getDataCaster(IDataInfo newDataInfo) {
+    public DataPipe getDataCaster(IDataInfo newDataInfo) {
         // we actually just want DataArithmetic, but array is probably
         // reasonable
         if (!(newDataInfo instanceof DataInfoDoubleArray)) {
