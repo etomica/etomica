@@ -126,7 +126,6 @@ public class EquilibrationProduction extends ActivityGroupSeries {
 	 * same integrator instance.
 	 */
 	private static class MyAction implements Action {
-		private String label = "Set integrator for production";
         private Integrator integrator;
 
         public MyAction(Integrator integrator) {
@@ -135,14 +134,6 @@ public class EquilibrationProduction extends ActivityGroupSeries {
         
 		public void actionPerformed() {
 			integrator.setEquilibrating(false);
-		}
-
-		public String getLabel() {
-			return label;
-		}
-
-		public void setLabel(String label) {
-			this.label = label;
 		}
 	};
 }

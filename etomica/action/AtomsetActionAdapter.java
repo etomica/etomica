@@ -18,7 +18,6 @@ import etomica.atom.AtomSet;
 public abstract class AtomsetActionAdapter implements AtomsetAction, java.io.Serializable {
     
     protected AtomSet atoms;
-    String label;
 
     public void setAtoms(AtomSet a) {atoms = a;}
     public AtomSet getAtoms() {return atoms;}
@@ -36,12 +35,4 @@ public abstract class AtomsetActionAdapter implements AtomsetAction, java.io.Ser
      * @param a Atom passed to method by iterator
      */
     public abstract void actionPerformed(AtomSet a);
-        
-    public String getLabel() {
-    	return label;
-    }
-    public void setLabel(String label) {
-    	this.label = label;
-    }
-    
-} //end of AtomsetActionAdapter   
+}   

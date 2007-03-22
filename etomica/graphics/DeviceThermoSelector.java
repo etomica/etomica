@@ -100,9 +100,6 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
                     }
                 }
             }
-            public String getLabel() {
-                return DeviceThermoSelector.this.getLabel().toString();
-            }
         };
     }
     

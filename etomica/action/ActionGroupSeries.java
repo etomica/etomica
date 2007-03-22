@@ -23,20 +23,10 @@ public class ActionGroupSeries implements Action, java.io.Serializable, ActionGr
     
     /**
      * Defines group via the given array of actions.  Copy
-     * of array is made and used internally.  Assigns an uninformative
-     * default label to group.
+     * of array is made and used internally.
      */
     public ActionGroupSeries(Action[] actions) {
-        this("Action group", actions);
-    }
-    
-    /**
-     * Defines group via the given array of action and with the given label.
-     * Copy of action array is made and used internally.
-     */
-    public ActionGroupSeries(String label, Action[] actions) {
         this.actions = (Action[])actions.clone();
-        setLabel(label);
     }
 
     /**
@@ -72,21 +62,6 @@ public class ActionGroupSeries implements Action, java.io.Serializable, ActionGr
     	return (Action[])actions.clone();
     }
     
-    /**
-     * Returns a string describing the group of actions.
-     */
-    public String getLabel() {
-        return label;
-    }
-
-    /**
-     * @param label The label to set.
-     */
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
     private static final long serialVersionUID = 1L;
     private Action[] actions;
-    private String label;
 }

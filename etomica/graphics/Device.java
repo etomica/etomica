@@ -117,9 +117,5 @@ public abstract class Device implements GraphicalElement, Dimensioned {
             action.actionPerformed();
             if(postAction != null) postAction.actionPerformed();
         }
-        
-        public String getLabel() {
-            return action.getLabel();
-        }
     }
 }

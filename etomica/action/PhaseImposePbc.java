@@ -27,7 +27,6 @@ public final class PhaseImposePbc extends PhaseActionAdapter {
 	 * the atom rather than molecule level.
 	 */
 	public PhaseImposePbc() {
-		super("Impose PBC");
 		setApplyToMolecules(false);
 	}
     

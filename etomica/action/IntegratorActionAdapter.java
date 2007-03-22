@@ -17,9 +17,8 @@ public abstract class IntegratorActionAdapter implements IntegratorAction, java.
     /**
 	 * Constructs the Action with the given descriptive label.
 	 */
-	public IntegratorActionAdapter(Integrator integrator, String label) {
+	public IntegratorActionAdapter(Integrator integrator) {
 	    setIntegrator(integrator);
-        setLabel(label);
 	}
 
 	/**
@@ -37,23 +36,5 @@ public abstract class IntegratorActionAdapter implements IntegratorAction, java.
 		this.integrator = integrator;
 	}
 
-	/**
-	 * Returns a descriptive label for this action.
-	 */
-	public String getLabel() {
-		return label;
-	}
-
-	/**
-	 * Sets a descriptive label for this action. This might be referenced, for
-	 * example, by a button invoking this action in a graphical interface.
-	 */
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	private String label;
-
 	protected Integrator integrator;
-
 }

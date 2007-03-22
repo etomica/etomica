@@ -9,17 +9,12 @@ import etomica.util.NameMaker;
  * 
  * @author Andrew Schultz and David Kofke
  */
-
-/*
- * History Created on Oct 25, 2004
- */
 public abstract class Activity implements Action, java.io.Serializable {
 
     /**
      * Create class with a simple default label.
      */
     public Activity() {
-        setLabel("Activity");
         setName(NameMaker.makeName(this.getClass()));
     }
     
@@ -27,7 +22,6 @@ public abstract class Activity implements Action, java.io.Serializable {
      * Copy constructor.
      */
     protected Activity(Activity activity) {
-        label = activity.label;
         name = activity.name;
     }
 
@@ -155,20 +149,6 @@ public abstract class Activity implements Action, java.io.Serializable {
     }
 
     /**
-     * Descriptive label used to describe what this activity does.
-     */
-    public String getLabel() {
-        return label;
-    }
-
-    /**
-     * Sets descriptive label used to describe what this activity does.
-     */
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    /**
      * Name used to reference this particular instance of Activity.
      */
     public String getName() {
@@ -187,6 +167,5 @@ public abstract class Activity implements Action, java.io.Serializable {
     protected boolean haltRequested = false;
     protected boolean pauseRequested = false;
     private boolean isPaused = false;
-    private String label;
     private String name;
 }

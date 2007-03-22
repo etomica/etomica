@@ -21,7 +21,6 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 	 * @param space
 	 */
 	public PhaseTranslate(Space space) {
-		super("PhaseTranslate");
 		translationVector = space.makeVector();
         iterator = new AtomIteratorLeafAtoms();
         

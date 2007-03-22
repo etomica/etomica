@@ -88,9 +88,6 @@ public class DeviceTrioControllerButton extends Device {
                 }
                 c.reset();
             }
-            public String getLabel() {
-                return "";
-            }
         });
         resetButton.setController(c);
         reinitButton.setAction(new SimulationRestart(sim));

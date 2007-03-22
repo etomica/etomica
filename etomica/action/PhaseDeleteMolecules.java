@@ -11,10 +11,6 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
  * @author David Kofke
  *  
  */
-
-/*
- * History Created on Jun 14, 2005 by kofke
- */
 public class PhaseDeleteMolecules extends PhaseActionAdapter {
 
     /**
@@ -23,7 +19,6 @@ public class PhaseDeleteMolecules extends PhaseActionAdapter {
      *            for which filter.accept returns false are deleted
      */
     public PhaseDeleteMolecules(AtomFilter filter) {
-        super("Delete molecules");
         this.filter = filter;
         iterator = new AtomIteratorAllMolecules();
     }
@@ -44,6 +39,7 @@ public class PhaseDeleteMolecules extends PhaseActionAdapter {
         }
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomFilter filter;
     private final AtomIteratorAllMolecules iterator;
 }

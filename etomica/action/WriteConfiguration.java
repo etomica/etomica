@@ -55,13 +55,6 @@ public class WriteConfiguration implements Action {
     }
     
     /**
-     * Returns a label.
-     */
-    public String getLabel() {
-        return "Configuration Writer";
-    }
-    
-    /**
      * Directs the writer to apply periodic boundary conditions or not (true 
      * by default).
      */

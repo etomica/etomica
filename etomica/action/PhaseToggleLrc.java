@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Oct 27, 2004 by kofke
- */
 package etomica.action;
 
 /**
@@ -10,12 +6,10 @@ package etomica.action;
  */
 public class PhaseToggleLrc extends PhaseActionAdapter {
     
-	public PhaseToggleLrc() {
-		super("Toggle LRC");
-	}
-	
     public void actionPerformed() {
     	if(phase == null) return;
         phase.setLrcEnabled(!phase.isLrcEnabled());
     }
+
+    private static final long serialVersionUID = 1L;
 }

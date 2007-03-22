@@ -31,14 +31,5 @@ public abstract class DataStreamAction implements Action, java.io.Serializable {
     
     public abstract void dataWalkerAction(Object obj);
     
-    public String getLabel() {
-        return label;
-    }
-    
-    public void setLabel(String label) {
-        this.label = label;
-    }
-    
     private Object start;
-    private String label;
 }

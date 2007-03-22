@@ -14,10 +14,4 @@ public interface Action {
      */
 	public void actionPerformed();
 
-	/**
-	 * Returns a descriptive label for this action. This might be referenced, for
-     * example, by a button invoking this action in a graphical interface.
-	 */
-	public String getLabel();
-
 }

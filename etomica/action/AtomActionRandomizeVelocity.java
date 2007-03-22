@@ -23,7 +23,6 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
      * May be subsequently changed with setTemperature method.
      */
     public AtomActionRandomizeVelocity(double temperature, IRandom random) {
-        setLabel("Randomize velocity");
         setTemperature(temperature);
         this.random = random;
     }

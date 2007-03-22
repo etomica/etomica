@@ -33,10 +33,6 @@ public class PDBWriter implements Action, Serializable {
         }
     }
 
-    public String getLabel() {
-        return "PDB Writer";
-    }
-    
     /**
      * Sets the file to write to.  This method (or setFileName) must be called
      * before calling actionPerformed and again before calling 

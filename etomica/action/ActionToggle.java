@@ -1,4 +1,3 @@
-//This class includes a main method to demonstrate its use
 package etomica.action;
 
 import etomica.EtomicaInfo;
@@ -14,6 +13,7 @@ import etomica.modifier.ModifierBoolean;
  */
 public class ActionToggle implements Action, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
     private ModifierBoolean modifier;
     private String trueLabel = "True";
     private String falseLabel = "False";

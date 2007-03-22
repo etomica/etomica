@@ -112,7 +112,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 //define a thread to run the activity
                 Thread localRunner = new Thread(new Runnable() {
                     public void run() {
-                        Thread.currentThread().setName(currentAction.getLabel()+" thread");
+                        Thread.currentThread().setName(currentAction+" thread");
                         try {
                             currentAction.actionPerformed();
                         }

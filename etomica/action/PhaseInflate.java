@@ -23,7 +23,6 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
      * to setPhase before action can have any effect.
      */
     public PhaseInflate(Space space) {
-        super("Inflate");
         translator = new AtomActionTranslateBy(space);
         groupScaler = new AtomGroupAction(translator);
         moleculeIterator = new AtomIteratorAllMolecules();

@@ -29,10 +29,6 @@ public class XYZWriter implements Action, Serializable {
         elementAtomType = new LinkedList();
     }
 
-    public String getLabel() {
-        return "XYZ Writer";
-    }
-    
     /**
      * Sets the file to write to.  This method (or setFileName) must be called
      * before calling actionPerformed and again before calling 

@@ -97,7 +97,6 @@ public class SimulationGraphic implements SimulationContainer {
              add(display);
              IntervalActionAdapter iaa = new IntervalActionAdapter(new Action() {
             	 public void actionPerformed() {display.repaint();}
-            	 public String getLabel() {return "Phase";}
              });
              integrator.addListener(iaa);
              iaa.setActionInterval(100);

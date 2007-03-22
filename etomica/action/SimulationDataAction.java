@@ -15,10 +15,7 @@ import etomica.simulation.Simulation;
  */
 public class SimulationDataAction implements Action, java.io.Serializable {
 
-	/**
-	 * 
-	 */
-	public SimulationDataAction(Simulation sim, DataStreamAction action) {
+    public SimulationDataAction(Simulation sim, DataStreamAction action) {
 		simulation = sim;
         streamAction = action;
 	}
@@ -31,15 +28,7 @@ public class SimulationDataAction implements Action, java.io.Serializable {
         }
     }
 
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
+    private static final long serialVersionUID = 1L;
 	private final Simulation simulation;
     private DataStreamAction streamAction;
-	private String label = "Simulation Data Action";
 }

@@ -13,7 +13,6 @@ import etomica.space.ICoordinateKinetic;
 public class PhaseQuench extends PhaseActionAdapter {
 
     public PhaseQuench() {
-        super("Quench");
         meterTemperature = new MeterTemperature();
     }
     

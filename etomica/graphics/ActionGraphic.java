@@ -6,16 +6,10 @@ package etomica.graphics;
  *
  * @author David Kofke
  */
- 
-/* History of changes
- * 7/03/02 (DAK/SKK) modified so that instance gets value of label of wrapped action.
- */
- 
 public class ActionGraphic implements etomica.action.Action, java.awt.event.ActionListener, java.io.Serializable { 
     
     public ActionGraphic(etomica.action.Action action) {
         simulationAction = action;
-        setLabel(action.getLabel());
     }
     
     public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -26,14 +20,6 @@ public class ActionGraphic implements etomica.action.Action, java.awt.event.Acti
         simulationAction.actionPerformed();
     }
     
-    public String getLabel() {
-        return label;
-    }
-    public void setLabel(String label) {
-        this.label = label;
-    }
-    
+    private static final long serialVersionUID = 1L;
     private final etomica.action.Action simulationAction;
-    private String label;
-
- }
+}

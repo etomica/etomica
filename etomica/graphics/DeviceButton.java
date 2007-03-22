@@ -35,7 +35,6 @@ public class DeviceButton extends Device implements EtomicaElement {
     public DeviceButton(Controller controller, Action action) {
         this(controller);
         setAction(action);
-        setLabel(action.getLabel());
     }
     
     public static EtomicaInfo getEtomicaInfo() {

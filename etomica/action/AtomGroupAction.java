@@ -37,13 +37,6 @@ public class AtomGroupAction extends AtomActionAdapter {
         }
     }
 
-    /* (non-Javadoc)
-     * @see etomica.Action#getLabel()
-     */
-    public String getLabel() {
-        return action.getLabel();
-    }
-    
     /**
      * @return Returns the wrapped action.
      */

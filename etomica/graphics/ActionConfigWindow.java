@@ -25,10 +25,6 @@ public class ActionConfigWindow implements Action {
         iterator = new AtomIteratorLeafAtoms(phase);
     }
     
-    public String getLabel() {
-        return "a label";
-    }
-    
     public void actionPerformed() {
         JFrame f = new JFrame();
         TextArea textArea = new TextArea();

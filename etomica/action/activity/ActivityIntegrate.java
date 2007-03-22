@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Oct 26, 2004 by kofke
- */
 package etomica.action.activity;
 
 import etomica.action.Activity;
@@ -17,7 +13,7 @@ import etomica.util.Debug;
  */
 public class ActivityIntegrate extends Activity {
 
-	/**
+    /**
 	 * Constructs activity to generate configurations with
 	 * the given integrator (which is final).  Defaults include
 	 * interval = 1, doSleep given by Default class, and sleepPeriod = 10.
@@ -34,7 +30,6 @@ public class ActivityIntegrate extends Activity {
         this.ignoreOverlap = ignoreOverlap;
         sleepPeriod = 10;
         setMaxSteps(Integer.MAX_VALUE);
-        setLabel("ActivityIntegrate");
 	}
     
     protected ActivityIntegrate(ActivityIntegrate activity) {
@@ -189,7 +184,6 @@ public class ActivityIntegrate extends Activity {
 		return resetRequested;
 	}
 
-
 	/**
 	 * @return Returns the integrator.
 	 */
@@ -197,10 +191,7 @@ public class ActivityIntegrate extends Activity {
 		return integrator;
 	}
     
-    public String toString() {
-        return getLabel();
-    }
-	
+    private static final long serialVersionUID = 1L;
 	private final Integrator integrator;
 	protected int interval;
 	private boolean resetRequested;
@@ -209,5 +200,4 @@ public class ActivityIntegrate extends Activity {
 	private int sleepPeriod;
 	protected long maxSteps;
 	IntegratorIntervalEvent intervalEvent;
-
 }

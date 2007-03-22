@@ -100,10 +100,6 @@ public class DeviceToggleButton extends DeviceButton {
         public void actionPerformed() {
             DeviceToggleButton.this.setLabel(toggleAction.getLabel());
         }
-
-        public String getLabel() {
-            return "";
-        }
     };
 
     /**

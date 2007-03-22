@@ -76,18 +76,11 @@ public abstract class ColorScheme implements java.io.Serializable {
               );
           dp.setColorScheme(ct);
         }
-
-        public String getLabel() {
-          return "Global Random";
-        }        
       };
       Action act2 = new Action() {
         public void actionPerformed() {
           DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
           dp.setColorScheme(ctemp);
-        }
-        public String getLabel() {
-          return "By Temperature (0-5)";
         }
       };
       Action act3 = new Action() {
@@ -95,26 +88,17 @@ public abstract class ColorScheme implements java.io.Serializable {
           DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
           dp.setColorScheme(ccld);
         }
-        public String getLabel() {
-          return "Colliders";
-        }
       };
       Action act4 = new Action() {
         public void actionPerformed() {
           DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
           dp.setColorScheme(nghb);
         }
-        public String getLabel() {
-          return "Neighbors";
-        }
       };
       Action act5 = new Action() {
         public void actionPerformed() {
           DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
           dp.setColorScheme(rand);
-        }
-        public String getLabel() {
-          return "Unique Random";
         }
       };
       Action act6 = new Action() {
@@ -123,27 +107,28 @@ public abstract class ColorScheme implements java.io.Serializable {
           DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
           dp.setColorScheme(ct);
         }
-        public String getLabel() {
-          return "Default Red";
-        }
       };
       Action act7 = new Action() {
         public void actionPerformed() {
           DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
           dp.setColorScheme(cell);
         }
-        public String getLabel() {
-          return "Cell";
-        }
       };
 
       DeviceButton colorer = new DeviceButton(sim.getController(),act);
+      colorer.setLabel("Global Random");
       DeviceButton tempcolorer = new DeviceButton(sim.getController(),act2);
+      tempcolorer.setLabel("By Temperature (0-5)");
       DeviceButton colliders = new DeviceButton(sim.getController(),act3);
+      colliders.setLabel("Colliders");
       DeviceButton neighbors = new DeviceButton(sim.getController(),act4);
+      neighbors.setLabel("Neighbors");
       DeviceButton randomcol = new DeviceButton(sim.getController(),act5);
+      randomcol.setLabel("Unique Random");
       DeviceButton def = new DeviceButton(sim.getController(),act6);
+      def.setLabel("Default Red");
       DeviceButton cellbtn = new DeviceButton(sim.getController(),act7);
+      cellbtn.setLabel("Cell");
       
       DeviceSlider slabslide = new DeviceSlider(sim.getController());
       slabslide.setMinimum(0);
@@ -177,12 +162,6 @@ public abstract class ColorScheme implements java.io.Serializable {
 //        public void actionPerformed() {
 //          //d.setS
 //        }
-//
-//        public String getLabel() {
-//          // TODO Auto-generated method stub
-//          return null;
-//        }
-//        
 //      };
       
       simGraphic.makeAndDisplayFrame();

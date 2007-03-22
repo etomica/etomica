@@ -359,7 +359,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     private void setLabelDefault() {
         String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
         if(modifyAction != null) 
-            setLabel(Strings.capitalize(modifyAction.getLabel())+suffix);
+            setLabel(Strings.capitalize(modifyAction.getWrappedModifier().getLabel())+suffix);
     }
 
     /**

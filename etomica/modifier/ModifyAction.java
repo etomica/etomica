@@ -14,11 +14,6 @@ import etomica.units.Dimension;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on Feb 1, 2005 by kofke
- */
 public class ModifyAction implements Action, java.io.Serializable {
 
     /**
@@ -36,13 +31,6 @@ public class ModifyAction implements Action, java.io.Serializable {
      */
     public void actionPerformed() {
         modifier.setValue(value);
-    }
-
-    /* (non-Javadoc)
-     * @see etomica.Modifier#getLabel()
-     */
-    public String getLabel() {
-        return modifier.getLabel();
     }
 
     /**
@@ -71,6 +59,7 @@ public class ModifyAction implements Action, java.io.Serializable {
         return modifier;
     }
         
+    private static final long serialVersionUID = 1L;
     private final Modifier modifier;
     private double value;
 }

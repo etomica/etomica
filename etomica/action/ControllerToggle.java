@@ -6,10 +6,6 @@ package etomica.action;
  */
 public class ControllerToggle extends ControllerActionAdapter {
         
-    public ControllerToggle() {
-        super("Start/pause/resume");
-    }
-    
     public void actionPerformed() {
     	if(controller == null) return;
         if(!controller.isActive()) {
@@ -31,5 +27,5 @@ public class ControllerToggle extends ControllerActionAdapter {
         else controller.unPause();
     }
 
-}//end of ControllerToggle
-    
+    private static final long serialVersionUID = 1L;
+}

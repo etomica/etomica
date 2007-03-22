@@ -16,19 +16,9 @@ import etomica.simulation.Simulation;
  * Action that invokes reset method of all registered simulation elements,
  * effectively initializing the entire simulation.
  */
- 
- /* History of changes
-  * 7/03/02 (DAK/SKK) Modified to loop through all elements, using reset method (new to SimulationElement).
-  */
-
 public final class SimulationRestart extends SimulationActionAdapter {
     
-    public SimulationRestart() {
-        super("Reset");
-    }
-    
     public SimulationRestart(Simulation sim) {
-        this();
         setSimulation(sim);
     }
     
