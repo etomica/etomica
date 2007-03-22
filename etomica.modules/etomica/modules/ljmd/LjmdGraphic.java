@@ -148,7 +148,7 @@ public class LjmdGraphic {
 		DataSourceUniform mbX = mbSource.getXSource();
 		mbX.setTypeMax(LimitType.HALF_STEP);
 		mbX.setTypeMin(LimitType.HALF_STEP);
-		mbX.setNValues(((DataInfoFunction)meterVelocity.getDataInfo()).getArrayLength());
+		mbX.setNValues(((DataInfoFunction)meterVelocity.getDataInfo()).getLength());
 		mbX.setXMin(vMin);
 		mbX.setXMax(vMax);
 		mbSource.update();
