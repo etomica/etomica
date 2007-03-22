@@ -102,19 +102,22 @@ public class LjmdGraphic {
         timer.setUnit(new Unit(LennardJones.Time.UNIT));
 	*/    
 	    //meters and displays
-        MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
+        final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
+        IntervalActionAdapter rdfIAA = new IntervalActionAdapter(new Action() {
+            public void actionPerformed() {rdfMeter.actionPerformed();}
+            public String getLabel() {return "a really bad label";}
+        });
+        rdfIAA.setActionInterval(10);
+        sim.integrator.addListener(rdfIAA);
         rdfMeter.getXDataSource().setXMax(4.0);
         rdfMeter.setPhase(sim.phase);
-        AccumulatorAverage rdfAverage = new AccumulatorAverage(10);
-        DataPump rdfPump = new DataPump(rdfMeter,rdfAverage);
+        DisplayPlot rdfPlot = new DisplayPlot();
+        DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
         IntervalActionAdapter rdfAdapter =  new IntervalActionAdapter(rdfPump);
-        rdfAdapter.setActionInterval(20);
+        rdfAdapter.setActionInterval(10);
         sim.integrator.addListener(rdfAdapter);
         sim.register(rdfMeter,rdfPump);
         
-        DisplayPlot rdfPlot = new DisplayPlot();
-        rdfAverage.addDataSink(rdfPlot.getDataSet().makeDataSink(),new StatType[]{StatType.AVERAGE});
-        rdfAverage.setPushInterval(1);
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
 		
@@ -173,12 +176,23 @@ public class LjmdGraphic {
         control.getReinitButton().setPostAction(new Action() {
             public void actionPerformed() {
                 displayPhase.repaint();
+                rdfMeter.reset();
             }
             public String getLabel() {
                 return "";
             }
         });
-		
+
+        control.getResetAveragesButton().setPostAction(new Action() {
+            public void actionPerformed() {
+                rdfMeter.reset();
+            }
+            public String getLabel() {
+                return "";
+            }
+        });
+
+        
 /*		double[] xHist = vHistogram.xValues();
 		double[] xMB = mbSource.xValues();
 		for(int i=0; i<xHist.length; i++) {

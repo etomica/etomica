@@ -29,8 +29,7 @@ public class Ljmd extends Simulation {
         defaults.makeLJDefaults();
         defaults.boxSize = 14.0;
         
-        final int N = 182;  //number of atoms
-        
+        int N = 182;  //number of atoms
         
         //controller and integrator
 	    integrator = new IntegratorVelocityVerlet(this);

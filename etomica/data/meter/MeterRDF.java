@@ -1,5 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.action.Action;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.ApiLeafAtoms;
@@ -24,11 +25,13 @@ import etomica.units.Null;
 import etomica.util.NameMaker;
 
 /**
- * Meter for tabulation of the atomic radial distribution function (RDF).
+ * Meter for tabulation of the atomic radial distribution function (RDF).  The
+ * meter takes data via actionPerformed and returns the average RDF via
+ * getData.
  *
  * @author David Kofke
  */
-public class MeterRDF implements DataSource, DataSourceIndependent, java.io.Serializable {
+public class MeterRDF implements Action, DataSource, DataSourceIndependent, java.io.Serializable {
 	
 	/**
 	 * Creates meter with default to compute pair correlation for all
@@ -44,6 +47,7 @@ public class MeterRDF implements DataSource, DataSourceIndependent, java.io.Seri
         
         rData = (DataDoubleArray)xDataSource.getData();
         data = new DataFunction(new int[] {rData.getLength()});
+        gSum = new long[rData.getLength()];
         dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
 
 	    iterator = new ApiLeafAtoms();
@@ -51,6 +55,10 @@ public class MeterRDF implements DataSource, DataSourceIndependent, java.io.Seri
         dr = space.makeVector();
         tag = new DataTag();
         dataInfo.addTag(tag);
+    }
+    
+    public String getLabel() {
+        throw new RuntimeException("You deserve this");
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -67,68 +75,64 @@ public class MeterRDF implements DataSource, DataSourceIndependent, java.io.Seri
     }
     
     /**
-     * Mutator method for the iterator that generates the atom pairs used to tabulate
-     * the radial distribution function.  By setting this iterator the meter can be
-     * configured to compute pair distribution for any set of atom pairs.  At construction
-     * the default is an instance of ApiLeafAtoms, which generates pairs from all leaf
-     * atoms in the phase.
+     * Zero's out the RDF sum tracked by this meter.
      */
-    public void setIterator(AtomsetIteratorPhaseDependent iter) {
-        iterator = iter;
+    public void reset() {
+        rData = (DataDoubleArray)xDataSource.getData();
+        xMax = xDataSource.getXMax();
+        data = new DataFunction(new int[] {rData.getLength()});
+        gSum = new long[rData.getLength()];
+        dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
+        dataInfo.addTag(tag);
+        callCount = 0;
     }
     
     /**
-     * Accessor method for the iterator that generates the atom pairs used to
-     * tabulate the radial distribution function.
+     * Takes the RDF for the current configuration of the given phase.
      */
-    public AtomsetIteratorPhaseDependent getIterator() {
-        return iterator;
+    public void actionPerformed() {
+        if (rData != xDataSource.getData() ||
+            data.getLength() != rData.getLength() ||
+            xDataSource.getXMax() != xMax) {
+            reset();
+        }
+        
+        double xMaxSquared = xMax*xMax;
+        iterator.setPhase(phase);
+        iterator.reset();
+        while(iterator.hasNext()) {                 //iterate over all pairs
+            AtomPair pair = (AtomPair)iterator.next();
+            dr.Ev1Mv2(((AtomLeaf)pair.atom1).getCoord().getPosition(),((AtomLeaf)pair.atom0).getCoord().getPosition());
+            nearestImageTransformer.nearestImage(dr);
+            double r2 = dr.squared();       //compute pair separation
+            if(r2 < xMaxSquared) {
+                int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
+                gSum[index]++;                        //add once for each atom
+            }
+        }
+        callCount++;
     }
     
 	/**
-	 * Computes RDF for the current configuration of the given phase.
+	 * Returns the RDF, averaged over the calls to actionPerformed since the
+     * meter was reset or had some parameter changed (xMax or # of bins).
 	 */
 	public Data getData() {
-        boolean needUpdate = false;
-        if (rData != xDataSource.getData()) {
-            rData = (DataDoubleArray)xDataSource.getData();
-            needUpdate = true;
-        }
-        if (data.getLength() != rData.getLength()) {
-            needUpdate = true;
-        }
-        if (needUpdate) {
-            data = new DataFunction(new int[] {rData.getLength()});
-            dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
-            dataInfo.addTag(tag);
+        if (rData != xDataSource.getData() ||
+            data.getLength() != rData.getLength() ||
+            xDataSource.getXMax() != xMax) {
+            reset();
+            //that zeroed everything.  just return the zeros.
+            return data;
         }
         
         final double[] y = data.getData();
-	    for(int i=0; i<y.length; i++) {y[i] = 0.0;}  //zero histogram
-	    double xMax = xDataSource.getXMax();
-	    double xMaxSquared = xMax*xMax;
-	    int count = 0;
-		iterator.setPhase(phase);
-	    iterator.reset();
-	    while(iterator.hasNext()) {                 //iterate over all pairs
-	    	AtomPair pair = (AtomPair)iterator.next();
-            dr.Ev1Mv2(((AtomLeaf)pair.atom1).getCoord().getPosition(),((AtomLeaf)pair.atom0).getCoord().getPosition());
-            nearestImageTransformer.nearestImage(dr);
-	    	double r2 = dr.squared();       //compute pair separation
-	        if(r2 < xMaxSquared) {
-	            int index = xDataSource.getIndex(Math.sqrt(r2));  //determine histogram index
-	            y[index]++;                        //add once for each atom
-	        }
-	        //TODO consider if this (count) is being used correctly
-	        count++;
-	    }
-//	    int n = phase.atomCount();             //compute normalization: divide by
-	    double norm = count/phase.volume();    //n, and density*(volume of shell)
+	    double norm = 0.5 * callCount * phase.getDensity()*(phase.getSpeciesMaster().leafAtomCount()-1);
 	    double[] r = rData.getData();
 	    double dx2 = 0.5*(xMax - xDataSource.getXMin())/r.length;
 	    for(int i=0;i<r.length; i++) {
 	        double vShell = space.sphereVolume(r[i]+dx2)-space.sphereVolume(r[i]-dx2);
-	        y[i] /= (norm*vShell);
+	        y[i] = gSum[i] / (norm*vShell);
 	    }
 	    return data;
 	}
@@ -172,15 +176,18 @@ public class MeterRDF implements DataSource, DataSourceIndependent, java.io.Seri
     }
     
     private static final long serialVersionUID = 1L;
-    private Phase phase;
-    private final Space space;
+    protected Phase phase;
+    protected final Space space;
+    protected long[] gSum;
     protected DataFunction data;
     private IDataInfo dataInfo;
-    private DataDoubleArray rData;
-    private AtomsetIteratorPhaseDependent iterator;
+    protected DataDoubleArray rData;
+    protected AtomsetIteratorPhaseDependent iterator;
     private final IVector dr;
     private NearestImageTransformer nearestImageTransformer;
-    private final DataSourceUniform xDataSource;
+    protected final DataSourceUniform xDataSource;
+    protected double xMax;
     private String name;
     protected final DataTag tag;
+    protected int callCount;
 }

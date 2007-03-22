@@ -854,17 +854,27 @@ public class PistonCylinderGraphic {
         if (doRDF) {
             plotRDF.getDataSet().reset();
             double rdfCutoff = 10;
-            MeterRDF meterRDF = new MeterRDF(pc.getSpace()); //pc.phase.getBoundary(), pc.pistonPotential);
+            final MeterRDFCylinder meterRDF = new MeterRDFCylinder(pc.getSpace());
             meterRDF.setPhase(pc.phase);
-            AtomPairFilter filter = new AtomFilterInCylinder(pc.phase.getBoundary(), pc.pistonPotential, rdfCutoff);
-            meterRDF.setIterator(new ApiFilteredCylinder(new ApiLeafAtoms(), filter));
             meterRDF.getXDataSource().setXMax(rdfCutoff);
-            AccumulatorAverage avgRDF = new AccumulatorAverage(pc);
-            pump = new DataPump(meterRDF, avgRDF);
+            meterRDF.setPotential(pc.pistonPotential);
+            pump = new DataPump(meterRDF, plotRDF.getDataSet().makeDataSink());
+            pc.integrator.addListener(new IntervalActionAdapter(new Action() {
+                public void actionPerformed() {meterRDF.actionPerformed();}
+                public String getLabel() {return "an even worse label";}
+            }));
             pc.register(meterRDF, pump);
             adapter = new IntervalActionAdapter(pump);
             pc.integrator.addListener(adapter);
-            avgRDF.addDataSink(plotRDF.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
+            
+            controlButtons.getResetAveragesButton().setPostAction(new Action() {
+                public void actionPerformed() {
+                    meterRDF.reset();
+                }
+                public String getLabel() {
+                    return "";
+                }
+            });
         }
         
         if (doConfigButton) {

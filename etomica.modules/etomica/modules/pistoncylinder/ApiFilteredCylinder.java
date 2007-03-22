@@ -47,17 +47,10 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorP
             for (int i=0; i<2; i++) {
                 IVector pos = ((AtomLeaf)atoms.getAtom(i)).getCoord().getPosition();
                 if (pos.x(0) < -0.5*dimensions.x(0)+radius ||
-                    pos.x(0) >  0.5*dimensions.x(0)-radius) {
+                    pos.x(0) >  0.5*dimensions.x(0)-radius ||
+                    pos.x(1) >  0.5*dimensions.x(1)-radius ||
+                    pos.x(1) < pistonPotential.getWallPosition()+radius) {
                     numOut++;
-                    continue;
-                }
-                if (pos.x(1) >  0.5*dimensions.x(1)-radius) {
-                    numOut++;
-                    continue;
-                }
-                if (pos.x(1) < pistonPotential.getWallPosition()+radius) {
-                    numOut++;
-                    continue;
                 }
             }
             return numOut < Simulation.random.nextInt(2)+1;
