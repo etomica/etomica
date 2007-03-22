@@ -94,7 +94,6 @@ public class LjmdGraphic {
         displayPhase.setColorScheme(new ColorSchemeByType());
         sim.integrator.addListener(new IntervalActionAdapter(new Action() {
             public void actionPerformed() {displayPhase.repaint();}
-            public String getLabel() {return "Phase";}
         }));
         
    /*     DisplayTimer timer = new DisplayTimer(integrator);
@@ -105,7 +104,6 @@ public class LjmdGraphic {
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
         IntervalActionAdapter rdfIAA = new IntervalActionAdapter(new Action() {
             public void actionPerformed() {rdfMeter.actionPerformed();}
-            public String getLabel() {return "a really bad label";}
         });
         rdfIAA.setActionInterval(10);
         sim.integrator.addListener(rdfIAA);
@@ -178,17 +176,11 @@ public class LjmdGraphic {
                 displayPhase.repaint();
                 rdfMeter.reset();
             }
-            public String getLabel() {
-                return "";
-            }
         });
 
         control.getResetAveragesButton().setPostAction(new Action() {
             public void actionPerformed() {
                 rdfMeter.reset();
-            }
-            public String getLabel() {
-                return "";
             }
         });
 
