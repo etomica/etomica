@@ -58,7 +58,7 @@ public class MEAM_MC extends Simulation {
 	    MEAM_MC sim = new MEAM_MC();
 	    MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
 	    energyMeter.setPhase(sim.phase);
-	    AccumulatorHistory energyAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
+	    AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
 	    DisplayPlot plot = new DisplayPlot();
 	    energyAccumulator.setDataSink(plot.getDataSet().makeDataSink());
 	    DataPump energyManager = new DataPump(energyMeter,energyAccumulator);

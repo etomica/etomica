@@ -85,8 +85,8 @@ public class MEAMMd3D extends Simulation {
     	energyMeter.setPhase(sim.phase);
     	kineticMeter.setPhase(sim.phase);
         
-        AccumulatorHistory energyAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
-        AccumulatorHistory kineticAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
+        AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
+        AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         
         AccumulatorAverage accumulatorAveragePE = new AccumulatorAverage(50);
     	AccumulatorAverage accumulatorAverageKE = new AccumulatorAverage(50);

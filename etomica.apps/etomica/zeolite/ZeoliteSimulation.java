@@ -246,7 +246,7 @@ public class ZeoliteSimulation extends Simulation {
         MeterEnergy eMeter = new MeterEnergy(sim.getPotentialMaster());
         eMeter.setPhase(sim.phase);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
-        energyHistory.setHistoryLength(history);
+        energyHistory.getHistory().setHistoryLength(history);
         AccumulatorAverage enAcc = new AccumulatorAverage(sim);
         enAcc.setPushInterval(20);
         DataFork enFork = new DataFork(new DataSink[]{energyHistory, enAcc});

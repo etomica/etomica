@@ -9,6 +9,7 @@ import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.species.Species;
 import etomica.util.HistoryCollapsing;
+import etomica.util.HistoryCollapsingAverage;
 
 public class ZeoliteSimStart extends IntegratorActionAdapter{
 
@@ -38,8 +39,8 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	//Keeping another graphic of the total energy drift
         	MeterEnergy eMeter = new MeterEnergy(sim.getPotentialMaster());
         	eMeter.setPhase(sim.phase);
-        	AccumulatorHistory energyHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY);
-        	energyHistory.setHistoryLength(sim.getInterval()*500);
+        	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsing());
+        	energyHistory.getHistory().setHistoryLength(sim.getInterval()*500);
         	//AccumulatorAverage enAcc = new AccumulatorAverage(sim);
         	//enAcc.setPushInterval(20);
         	//DataFork enFork = new DataFork(new DataSink[]{energyHistory, enAcc});
