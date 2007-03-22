@@ -1,17 +1,12 @@
 package etomica.zeolite;
 
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorHistory;
-import etomica.data.DataFork;
-import etomica.data.DataPump;
-import etomica.data.DataSink;
-import etomica.data.meter.MeterEnergy;
-import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.DisplayPlot;
-import etomica.integrator.Integrator;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.action.IntegratorActionAdapter;
+import etomica.data.AccumulatorHistory;
+import etomica.data.DataPump;
+import etomica.data.meter.MeterEnergy;
+import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntervalActionAdapter;
 import etomica.species.Species;
 import etomica.util.HistoryCollapsing;
 
@@ -24,7 +19,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
 	}
     
     public ZeoliteSimStart(IntegratorMD integrator, boolean ignoreOverlap,int interval) {
-        super(integrator,"Reset integrator");
+        super(integrator);
         this.ignoreOverlap = ignoreOverlap;
         this.interval = interval;
         

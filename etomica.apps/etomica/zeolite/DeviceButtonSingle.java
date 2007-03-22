@@ -10,7 +10,6 @@ import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.graphics.Device;
-import etomica.graphics.DeviceButton;
 
 /**
  * Button that causes an action to be performed.
@@ -37,7 +36,6 @@ public class DeviceButtonSingle extends Device implements EtomicaElement {
     public DeviceButtonSingle(Controller controller, Action action) {
         this(controller);
         setAction(action);
-        setLabel(action.getLabel());
     }
     
     public static EtomicaInfo getEtomicaInfo() {
