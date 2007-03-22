@@ -1,10 +1,8 @@
 package etomica.data;
 
 import etomica.data.types.DataFunction;
-import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.Null;
 import etomica.util.Histogram;
 import etomica.util.HistogramCollapsing;
@@ -21,32 +19,30 @@ public class AccumulatorHistogram extends DataAccumulator {
      * having 100 bins.
      */
     public AccumulatorHistogram() {
-        this(HistogramCollapsing.FACTORY);
+        this(new HistogramCollapsing());
     }
 
     /**
      * Creates instance using given histogram factory with default nBins of 100.
      */
-    public AccumulatorHistogram(Histogram.Factory factory) {
-        this(factory, 100);
+    public AccumulatorHistogram(Histogram histogram) {
+        this(histogram, 100);
     }
 
     /**
      * Creates instance using the given histogram factory making histograms having
      * the given number of bins.
      */
-    public AccumulatorHistogram(Histogram.Factory factory, int nBins) {
+    public AccumulatorHistogram(Histogram histogram, int nBins) {
         this.nBins = nBins;
-        histogramFactory = factory;
+        this.histogram = histogram;
     }
 
     /**
      * Adds each value in the given Data to its own histogram.
      */
     protected void addData(Data inputData) {
-        for (int i = nData-1; i >= 0; i--) {
-            histogram[i].addValue(inputData.getValue(i));
-        }
+        histogram.addValue(inputData.getValue(0));
     }
 
     /**
@@ -55,45 +51,11 @@ public class AccumulatorHistogram extends DataAccumulator {
     public Data getData() {
         // check to see if current data functions are the right length
         // histogram might change the number of bins on its own.
-        boolean success = true;
-        for (int i=0; i<nData; i++) {
-            DataFunction dataFunction = (DataFunction)data.getData(i);
-            // covertly call getHistogram() here.  We have to call it anyway
-            // so that the array data gets updated.
-            if (dataFunction.getData() != histogram[i].getHistogram() ||
-                    xDataSources[i].getIndependentData(0).getData() != histogram[i].xValues()) {
-                success = false;
-            }
-        }
-        
-        if (!success) {
-            DataFunction[] dataFunctions = new DataFunction[nData];
-            DataInfoFunction[] dataInfoFunctions = new DataInfoFunction[nData];
-            // attempt to re-use old DataFunctions
-            for (int i=0; i<nData; i++) {
-                DataFunction dataFunction = (DataFunction)data.getData(i);
-                DataInfoFunction dataInfoFunction = (DataInfoFunction)((DataInfoGroup)dataInfo).getSubDataInfo(i);
-                if (dataFunction.getData() == histogram[i].getHistogram() &&
-                        xDataSources[i].getIndependentData(0).getData() == histogram[i].xValues()) {
-                    dataFunctions[i] = dataFunction;
-                    dataInfoFunctions[i] = dataInfoFunction;
-                }
-                else {
-                    DataInfoDoubleArray independentInfo = new DataInfoDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),new int[]{histogram[i].getNBins()});
-                    dataFunctions[i] = new DataFunction(new int[]{histogram[i].getNBins()}, histogram[i].getHistogram());
-                    xDataSources[i] = new DataSourceIndependentSimple(histogram[i].xValues(), independentInfo);
-                    dataInfoFunctions[i] = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, xDataSources[i]);
-                }
-            }
-            // creating a new data instance might confuse downstream data sinks, but
-            // we have little choice and they should deal.
-            data = new DataGroup(dataFunctions);
-            dataInfo = new DataInfoGroup("Histogram", binnedDataInfo.getDimension(), dataInfoFunctions);
-
-            // if we have have our own DataSink, we need to notify it that something changed.
-            if(dataSink != null) {
-                dataSink.putDataInfo(dataInfo);
-            }
+        // covertly call getHistogram() here.  We have to call it anyway
+        // so that the array data gets updated.
+        if (data.getData() != histogram.getHistogram() ||
+                xDataSource.getIndependentData(0).getData() != histogram.xValues()) {
+            setupData();
         }
         
         return data;
@@ -104,11 +66,8 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
-        nData = ((DataInfoDoubleArray)inputDataInfo).getLength();
-        histogram = new Histogram[nData];
-        for (int i = 0; i < nData; i++) {
-            histogram[i] = histogramFactory.makeHistogram();
-            histogram[i].setNBins(nBins);
+        if (((DataInfoDoubleArray)inputDataInfo).getLength() != 1) {
+            throw new IllegalArgumentException("AccumulatorHistogram can only handle single data");
         }
         setupData();
         return dataInfo;
@@ -125,19 +84,15 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Constructs the Data objects used by this class.
      */
     private void setupData() {
-        DataFunction[] dataFunctions = new DataFunction[nData];
-        DataInfoFunction[] dataInfoFunctions = new DataInfoFunction[nData];
-        xDataSources = new DataSourceIndependentSimple[nData];
-        for (int i=0; i<nData; i++) {
-            DataInfoDoubleArray independentInfo = new DataInfoDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),new int[]{histogram[i].getNBins()});
-            dataFunctions[i] = new DataFunction(new int[]{histogram[i].getNBins()}, histogram[i].getHistogram());
-            xDataSources[i] = new DataSourceIndependentSimple(histogram[i].xValues(), independentInfo);
-            dataInfoFunctions[i] = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, xDataSources[i]);
-            dataInfoFunctions[i].addTags(binnedDataInfo.getTags());
-        }
-        data = new DataGroup(dataFunctions);
-        dataInfo = new DataInfoGroup("Histogram", binnedDataInfo.getDimension(), dataInfoFunctions);
+        DataInfoDoubleArray independentInfo = new DataInfoDoubleArray(binnedDataInfo.getLabel(),binnedDataInfo.getDimension(),new int[]{histogram.getNBins()});
+        data = new DataFunction(new int[]{histogram.getNBins()}, histogram.getHistogram());
+        xDataSource = new DataSourceIndependentSimple(histogram.xValues(), independentInfo);
+        dataInfo = new DataInfoFunction(binnedDataInfo.getLabel()+" Histogram", Null.DIMENSION, xDataSource);
+        dataInfo.addTags(binnedDataInfo.getTags());
         dataInfo.addTag(getTag());
+        if (dataSink != null) {
+            dataSink.putDataInfo(dataInfo);
+        }
     }
     
     /**
@@ -154,9 +109,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     public void setNBins(int nBins) {
         this.nBins = nBins;
-        for (int i = 0; i < nData; i++) {
-            histogram[i].setNBins(nBins);
-        }
+        histogram.setNBins(nBins);
         setupData();
         if(dataSink != null) {
             dataSink.putDataInfo(dataInfo);
@@ -167,12 +120,17 @@ public class AccumulatorHistogram extends DataAccumulator {
      * Zeros histograms, discarding any previous contributions. 
      */
     public void reset() {
-        for (int i = 0; i < nData; i++)
-            histogram[i].reset();
+        histogram.reset();
+        setupData();
     }
     
-    public Histogram[] getHistograms() {
+    public Histogram getHistograms() {
         return histogram;
+    }
+
+    public void setHistogram(Histogram newHistogram) {
+        histogram = newHistogram;
+        reset();
     }
 
     /**
@@ -182,12 +140,10 @@ public class AccumulatorHistogram extends DataAccumulator {
         return dataInfo;
     }
     
-    private static final long serialVersionUID = 1L;
-    protected Histogram[] histogram = new Histogram[0];
-    protected DataSourceIndependentSimple[] xDataSources = new DataSourceIndependentSimple[0];
-    private DataGroup data;
+    private static final long serialVersionUID = 2L;
+    protected Histogram histogram;
+    protected DataSourceIndependentSimple xDataSource;
+    private DataFunction data;
     private IDataInfo binnedDataInfo;
-    protected int nData;
-    private Histogram.Factory histogramFactory;
     private int nBins;
 }

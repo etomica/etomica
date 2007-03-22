@@ -48,7 +48,6 @@ public class EntropyLotteryGraphic {
 
         sim.integrator.addListener(new IntervalActionAdapter(new Action() {
             public void actionPerformed() {displayPhase.repaint();}
-            public String getLabel() {return "Phase";}
         }));
         
    /*     DisplayTimer timer = new DisplayTimer(integrator);
@@ -65,7 +64,7 @@ public class EntropyLotteryGraphic {
         
         MeterEntropy meterEntropy = new MeterEntropy();
         meterEntropy.setPhase(sim.phase);
-        AccumulatorHistory entropyHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY, 100);
+        AccumulatorHistory entropyHistory = new AccumulatorHistory(new HistoryCollapsing(100));
         DataSourceCountSteps stepCounter = new DataSourceCountSteps();
         sim.integrator.addListener(stepCounter);
         entropyHistory.setTimeDataSource(stepCounter);
@@ -82,7 +81,7 @@ public class EntropyLotteryGraphic {
         iaa = new IntervalActionAdapter(pump);
         iaa.setActionInterval(20);
         sim.integrator.addListener(iaa);
-        AccumulatorHistory probabilityEntropyHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY, 100);
+        AccumulatorHistory probabilityEntropyHistory = new AccumulatorHistory(new HistoryCollapsing(100));
         stepCounter = new DataSourceCountSteps();
         sim.integrator.addListener(stepCounter);
         probabilityEntropyHistory.setTimeDataSource(stepCounter);
@@ -119,10 +118,6 @@ public class EntropyLotteryGraphic {
                 }
                 ((DisplayPhaseCanvas1DBins)displayPhase.canvas).setYScale(yScale);
                 displayPhase.repaint();
-            }
-            public String getLabel() {
-                // because you deserve it
-                return null;
             }
         };
         nUrnSelector.setPostAction(new ActionGroupSeries(new Action[]{resetDisplay, restartAction}));

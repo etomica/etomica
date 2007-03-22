@@ -8,11 +8,6 @@ package etomica.data;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on Jul 23, 2005 by kofke
- */
 public abstract class DataProcessorForked extends DataProcessor implements DataPipeForked {
 
     public DataProcessorForked() {
@@ -20,9 +15,6 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
         dataSink = dataFork;
     }
        
-    /* (non-Javadoc)
-     * @see etomica.data.DataProcessor#getDataSink()
-     */
     public DataSink getDataSink() {
         DataSink[] dataSinks = getDataSinks();
         if (dataSinks.length == 0) {
@@ -35,9 +27,6 @@ public abstract class DataProcessorForked extends DataProcessor implements DataP
         return dataFork.getDataSinks();
     }
     
-    /* (non-Javadoc)
-     * @see etomica.data.DataPipe#setDataSink(etomica.DataSink)
-     */
     public void setDataSink(DataSink dataSink) {
         dataFork.setDataSink(dataSink);
     }

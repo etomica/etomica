@@ -13,7 +13,6 @@ import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceScalar;
-import etomica.data.types.CastGroupToDoubleArray;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayPhase;
@@ -31,19 +30,6 @@ import etomica.units.Pixel;
 import etomica.util.Function;
 import etomica.util.HistoryCollapsing;
 
-
-/**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- *
- * @author David Kofke
- *
- */
-
-/*
- * History
- * Created on Oct 28, 2005 by kofke
- */
 public class MultiharmonicGraphic {
 
     /**
@@ -62,7 +48,6 @@ public class MultiharmonicGraphic {
                     public void actionPerformed() {
                         displayPhase.repaint();
                     }
-                    public String getLabel() {return "";}
                 }));
         displayPhase.setPixelUnit(new Pixel(400/sim.phase.getBoundary().getDimensions().x(0)));
 
@@ -87,7 +72,7 @@ public class MultiharmonicGraphic {
               return 0.0;
           }});
         sim.accumulator.addDataSink(log, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
-        AccumulatorHistory history = new AccumulatorHistory(HistoryCollapsing.FACTORY);
+        AccumulatorHistory history = new AccumulatorHistory(new HistoryCollapsing());
         history.setTimeDataSource(sim.timeCounter);
         log.setDataSink(history);
         history.setDataSink(plot.getDataSet().makeDataSink());
@@ -146,7 +131,7 @@ public class MultiharmonicGraphic {
             }
         };
         
-        AccumulatorHistory deltaHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY,sim.historyEnergy.getDataLength());
+        AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(sim.historyEnergy.getHistory().getHistoryLength()));
         DataPump exactPump = new DataPump(delta, deltaHistory);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
         IntervalActionAdapter adapter = new IntervalActionAdapter(exactPump);
@@ -155,7 +140,7 @@ public class MultiharmonicGraphic {
         sim.register(delta, exactPump);
         deltaHistory.setTimeDataSource(sim.timeCounter);
         
-        AccumulatorHistory uAvgHistory = new AccumulatorHistory(HistoryCollapsing.FACTORY,sim.historyEnergy.getDataLength());
+        AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsing(sim.historyEnergy.getHistory().getHistoryLength()));
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
         uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         adapter = new IntervalActionAdapter(uPump);

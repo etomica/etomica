@@ -15,6 +15,9 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
+import etomica.data.DataSplitter;
+import etomica.data.DataTag;
+import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
@@ -54,7 +57,6 @@ public class ReactionEquilibriumGraphic {
                     public void actionPerformed() {
                         displayPhase1.repaint();
                     }
-                    public String getLabel() {return "";}
                 }));
         
 		tSelect.setTemperatures(new double[] { 50., 100., 300., 600., 1000.,
@@ -198,16 +200,26 @@ public class ReactionEquilibriumGraphic {
 		DisplayTable table = new DisplayTable();
 		dimerfractionaccum.setDataSink(table.getDataTable().makeDataSink());
 
+        DataSplitter splitter = new DataSplitter();
+        
+        dimerFork.addDataSink(splitter);
+        
 		//display for history of mole fractions
-		AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
         DataSourceCountTime timeCounter = new DataSourceCountTime();
         sim.integratorHard1.addListener(timeCounter);
-        dimerfractionhistory.setTimeDataSource(timeCounter);
-        
-		dimerFork.addDataSink(dimerfractionhistory);
-		DisplayPlot plot = new DisplayPlot();
-		dimerfractionhistory.addDataSink (plot.getDataSet().makeDataSink());
-		plot.setLabel("Composition");
+        DisplayPlot plot = new DisplayPlot();
+        plot.setLabel("Composition");
+        plot.setDoLegend(true);
+        int nData = sim.meterDimerFraction.getDataInfo().getLength();
+        DataTable.DataInfoTable dimerInfo = (DataTable.DataInfoTable)sim.meterDimerFraction.getDataInfo();
+        for (int i=0; i<nData; i++) {
+            AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
+            dimerfractionhistory.setTimeDataSource(timeCounter);
+            
+    		splitter.setDataSink(i, dimerfractionhistory);
+    		dimerfractionhistory.addDataSink (plot.getDataSet().makeDataSink());
+    		plot.setLegend(new DataTag[]{dimerfractionhistory.getTag()}, dimerInfo.getRowHeader(i));
+        }
 
 		//************* Lay out components ****************//
 
@@ -434,7 +446,6 @@ public class ReactionEquilibriumGraphic {
             nSlider.setMinimum(0);
             nSlider.setMaximum(40);
             nSlider.setPostAction(new Action() {
-                public String getLabel() {return "";}
                 public void actionPerformed() {
                     Atom[] agents = sim.getAgents(sim.phase1);
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
@@ -632,5 +643,5 @@ public class ReactionEquilibriumGraphic {
 		}
 	}//end of WellModulator
 	boolean initializing;
-    private DisplayPhase displayPhase1;
+    protected DisplayPhase displayPhase1;
 }
