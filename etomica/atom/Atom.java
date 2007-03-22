@@ -17,7 +17,7 @@ import etomica.util.EtomicaObjectInputStream;
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
   */
-public abstract class Atom implements AtomSet, Comparable, java.io.Serializable {
+public abstract class Atom implements AtomSet, java.io.Serializable {
 
     public Atom(AtomType type) {
         this.type = type;
@@ -53,7 +53,7 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
      * @throws IllegalArgumentException if i != 0
      */
     public final Atom getAtom(int i) {
-        if(i == 0 ) return this;
+        if (i == 0) return this;
         throw new IllegalArgumentException();
     }
     
@@ -94,18 +94,6 @@ public abstract class Atom implements AtomSet, Comparable, java.io.Serializable 
     	else return "Group(" + signature() + ")";
     }    
 
-    /**
-     * Implementation of Comparable interface, with order decided by 
-     * placement in Atom hierarchy.  Returns -1, 0, 1 if given Atom
-     * is less, equal, or greater, respectively, than this Atom.  
-     * Order is determined by compareTo method of atoms' nodes.
-     */
-    public int compareTo(Object otherAtom) {
-        int otherAddress = ((Atom)otherAtom).atomTreeAddress;
-        //use "<" for ">" because atomIndex is negative
-        return otherAddress < atomTreeAddress ? 1 : (otherAddress == atomTreeAddress ? 0 : -1);
-    }
-    
     public void setGlobalIndex(SpeciesMaster speciesMaster) {
         globalIndex = speciesMaster.requestGlobalIndex();
     }

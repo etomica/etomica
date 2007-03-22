@@ -4,7 +4,7 @@ package etomica.atom;
 /**
  * Data structure that contains two mutable atom instances.
  */
-public class AtomPair implements AtomSet, Comparable, java.io.Serializable {
+public class AtomPair implements AtomSet, java.io.Serializable {
 
     public AtomPair() {
     }
@@ -39,16 +39,6 @@ public class AtomPair implements AtomSet, Comparable, java.io.Serializable {
         return "["+atom0.toString()+","+atom1.toString()+"]";
     }
 
-    /**
-     * Returns result of compareTo applied between first atoms 
-     * of the two pairs, and if that is zero, returns comparison
-     * of second atoms of pair.  Implementation of Comparable interface.
-     */
-    public int compareTo(Object pair) {
-        int i0 = atom0.compareTo(((AtomPair)pair).atom0);
-        return (i0 != 0) ? i0 : atom1.compareTo(((AtomPair)pair).atom1);
-    }
-    
     private static final long serialVersionUID = 1L;
     public Atom atom0, atom1;
 
