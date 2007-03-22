@@ -5,7 +5,6 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.data.types.DataTable.DataInfoTable;
 import etomica.units.Quantity;
 import etomica.util.History;
 import etomica.util.HistoryScrolling;
@@ -69,14 +68,7 @@ public class AccumulatorHistory extends DataAccumulator {
      */
     protected IDataInfo processDataInfo(IDataInfo newInputDataInfo) {
         inputDataInfo = newInputDataInfo;
-        if (inputDataInfo instanceof DataInfoDoubleArray) {
-            nData = ((DataInfoDoubleArray)inputDataInfo).getLength();
-        }
-        else {
-            //if it's not a DataDoubleArray, it must be a DataTable
-            nData = ((DataInfoTable)inputDataInfo).getNRows()
-                  * ((DataInfoTable)inputDataInfo).getNDataInfo();
-        }
+        nData = inputDataInfo.getLength();
         history = new History[nData];
         for (int i = 0; i < nData; i++) {
             history[i] = historyFactory.makeHistory(historyLength);
