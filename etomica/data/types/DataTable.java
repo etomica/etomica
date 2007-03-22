@@ -3,9 +3,9 @@ package etomica.data.types;
 import java.io.Serializable;
 
 import etomica.data.Data;
-import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArrayFactory;
 import etomica.units.Null;
@@ -139,7 +139,7 @@ public class DataTable extends DataGroup implements Data, Serializable {
             }
         }
         
-        public DataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoTableFactory(this);
         }
         

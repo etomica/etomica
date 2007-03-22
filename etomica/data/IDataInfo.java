@@ -22,6 +22,11 @@ public interface IDataInfo {
     public String toString();
 
     /**
+     * Returns the number of numerical values held by the IData object.
+     */
+    public int getLength();
+    
+    /**
      * Adds the tag to this IDataInfo object.  You should only call this method
      * if you created this IDataInfo (You should not call this for IDataInfo
      * you receive.  Make a new instance with the DataInfoFactory and then add
@@ -54,7 +59,7 @@ public interface IDataInfo {
      * Returns a mutable factory that can make copies of this instance of
      * DataInfo.
      */
-    public DataInfoFactory getFactory();
+    public IDataInfoFactory getFactory();
 
     /**
      * Returns a Data object appropriate for this DataInfo instance.

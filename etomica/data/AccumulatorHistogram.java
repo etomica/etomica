@@ -104,7 +104,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
-        nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
+        nData = ((DataInfoDoubleArray)inputDataInfo).getLength();
         histogram = new Histogram[nData];
         for (int i = 0; i < nData; i++) {
             histogram[i] = histogramFactory.makeHistogram();

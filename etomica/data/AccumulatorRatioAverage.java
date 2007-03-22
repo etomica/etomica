@@ -106,7 +106,7 @@ public class AccumulatorRatioAverage extends AccumulatorAverage {
         DataInfoGroupFactory groupFactory = (DataInfoGroupFactory)dataInfo.getFactory();
         IDataInfo[] subDataInfo = groupFactory.getSubDataInfo();
 
-        DataInfoFactory factory = incomingDataInfo.getFactory();
+        IDataInfoFactory factory = incomingDataInfo.getFactory();
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel+" ratio");
         IDataInfo ratioInfo = factory.makeDataInfo();

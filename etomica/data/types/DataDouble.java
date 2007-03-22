@@ -5,6 +5,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -154,7 +155,11 @@ public class DataDouble implements Data, java.io.Serializable {
             super(label, dimension);
         }
         
-        public DataInfoFactory getFactory() {
+        public int getLength() {
+            return 1;
+        }
+        
+        public IDataInfoFactory getFactory() {
             return new DataInfoDoubleFactory(this);
         }
         

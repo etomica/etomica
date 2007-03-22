@@ -9,7 +9,7 @@ import etomica.units.Dimension;
  * an existing DataInfo object, but can be modified before being used to create
  * new DataInfo objects.
  */
-public abstract class DataInfoFactory implements java.io.Serializable {
+public abstract class DataInfoFactory implements java.io.Serializable, IDataInfoFactory {
 
     /**
      * Creates a new instance using the info held by the template.  The 
@@ -58,12 +58,15 @@ public abstract class DataInfoFactory implements java.io.Serializable {
         return dimension;
     }
     
-    public ArrayList getTags() {
-        return tags;
+    public DataTag[] getTags() {
+        return (DataTag[])tags.toArray();
     }
     
-    public void setTags(ArrayList newTags) {
-        tags = (ArrayList)newTags.clone();
+    public void setTags(DataTag[] newTags) {
+        tags.clear();
+        for (int i=0; i<newTags.length; i++) {
+            tags.add(newTags[i]);
+        }
     }
 
     protected String label;

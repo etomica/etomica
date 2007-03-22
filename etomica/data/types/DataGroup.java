@@ -5,6 +5,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -104,8 +105,16 @@ public class DataGroup implements Data, java.io.Serializable {
             this.subDataInfo = (IDataInfo[])subDataInfo.clone();
         }
 
-        public DataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoGroupFactory(this);
+        }
+        
+        public int getLength() {
+            int l = 0;
+            for (int i=0; i<subDataInfo.length; i++) {
+                l += subDataInfo[i].getLength();
+            }
+            return l;
         }
         
         public int getNDataInfo() {

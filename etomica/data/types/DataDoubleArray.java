@@ -7,6 +7,7 @@ import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.units.Dimension;
 import etomica.util.Function;
 
@@ -354,7 +355,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
          * Returns the total number of elements in the constructed DataDoubleArray.
          * This is the product of the elements in the array returned by getArrayShape().
          */
-        public int getArrayLength() {
+        public int getLength() {
             int n = 1;
             for(int i=arrayShape.length-1; i>=0; i--) {
                 n *= arrayShape[i];
@@ -362,7 +363,7 @@ public class DataDoubleArray implements Data, java.io.Serializable {
             return n;
         }
         
-        public DataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoDoubleArrayFactory(this);
         }
 

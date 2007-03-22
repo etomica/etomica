@@ -70,7 +70,7 @@ public class AccumulatorHistory extends DataAccumulator {
     protected IDataInfo processDataInfo(IDataInfo newInputDataInfo) {
         inputDataInfo = newInputDataInfo;
         if (inputDataInfo instanceof DataInfoDoubleArray) {
-            nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
+            nData = ((DataInfoDoubleArray)inputDataInfo).getLength();
         }
         else {
             //if it's not a DataDoubleArray, it must be a DataTable

@@ -84,7 +84,7 @@ public class DataHistogram extends DataProcessor {
      */
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
-        nData = ((DataInfoDoubleArray)inputDataInfo).getArrayLength();
+        nData = ((DataInfoDoubleArray)inputDataInfo).getLength();
         histogram = histogramFactory.makeHistogram();
         histogram.setNBins(nBins);
         setupData();

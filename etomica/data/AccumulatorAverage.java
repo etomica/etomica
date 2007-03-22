@@ -251,8 +251,7 @@ public class AccumulatorAverage extends DataAccumulator {
         
         reset();
         
-        DataInfoFactory factory = incomingDataInfo.getFactory();
-        factory.getTags().add(getTag());
+        IDataInfoFactory factory = incomingDataInfo.getFactory();
         String incomingLabel = incomingDataInfo.getLabel();
         factory.setLabel(incomingLabel+" most recent");
         IDataInfo mostRecentInfo = factory.makeDataInfo();

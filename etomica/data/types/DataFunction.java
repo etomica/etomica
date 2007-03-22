@@ -1,10 +1,10 @@
 package etomica.data.types;
 
 import etomica.data.Data;
-import etomica.data.DataInfoFactory;
 import etomica.data.DataSourceIndependent;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
+import etomica.data.IDataInfoFactory;
 import etomica.units.Dimension;
 
 
@@ -84,7 +84,7 @@ public class DataFunction extends DataDoubleArray {
             return xDataSource;
         }
         
-        public DataInfoFactory getFactory() {
+        public IDataInfoFactory getFactory() {
             return new DataInfoFunctionFactory(this);
         }
         
