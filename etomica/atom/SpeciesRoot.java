@@ -1,7 +1,6 @@
 package etomica.atom;
 
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.phase.Phase;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationPhaseAddedEvent;
 import etomica.simulation.SimulationPhaseRemovedEvent;
@@ -94,13 +93,6 @@ public final class SpeciesRoot extends AtomGroup {
         return speciesMasterType;
     }
     
-    public Phase getParentPhase() {
-        throw new RuntimeException("Error:  Unexpected call to parentPhase in SpeciesRoot");
-    }
-    
-    public SpeciesAgent getParentSpeciesAgent() {
-        throw new RuntimeException("Error:  Unexpected call to parentSpeciesAgent in SpeciesRoot");
-    }
     /**
     * Returns null, because a species master is not contained within a molecule.
     */
