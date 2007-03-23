@@ -8,7 +8,6 @@ import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.phase.Phase;
 import etomica.potential.P1HardMovingBoundary;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.IVector;
 
@@ -34,6 +33,8 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorP
             dimensions = boundary.getDimensions();
             this.pistonPotential = pistonPotential;
             this.padding = padding;
+            // bit flipper goes back and forth between 1 and 2
+            bitFlipper = 1;
         }
         
         public boolean accept(AtomPair atoms) {
@@ -53,11 +54,15 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorP
                     numOut++;
                 }
             }
-            return numOut < Simulation.random.nextInt(2)+1;
+            // twiddle the last two bits, 1=>2, 2=>1
+            // numOut=0 is always accepted, numOut=2 is never accepted
+            bitFlipper ^= 3;
+            return numOut < bitFlipper;
         }
         
         private double padding;
         private final IVector dimensions;
         private final P1HardMovingBoundary pistonPotential;
+        private int bitFlipper;
     }
 }
