@@ -14,7 +14,7 @@ import etomica.space.IVector;
  */
 public class PotentialCalculationForceSum extends PotentialCalculation {
         
-    private IVector[] f;
+    private static final long serialVersionUID = 1L;
     protected AtomAgentManager integratorAgentManager;
     
     public void setAgentManager(AtomAgentManager agentManager) {
@@ -31,7 +31,7 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			AtomSet atoms = iterator.next();
-			f = potentialSoft.gradient(atoms);
+			IVector[] f = potentialSoft.gradient(atoms);
 			switch(nBody) {
 				case 1:
 					((IntegratorPhase.Forcible)integratorAgentManager.getAgent((Atom)atoms)).force().ME(f[0]);
