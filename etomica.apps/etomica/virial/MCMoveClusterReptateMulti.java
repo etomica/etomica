@@ -78,7 +78,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
 //        System.out.println("old energy done");
         wOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedMolecules.length; i++) {
-            forward[i] = Simulation.random.nextBoolean();
+            forward[i] = random.nextInt(2) == 0;
             AtomArrayList childList = selectedMolecules[i].getChildList();
             int numChildren = childList.size();
             for (int k=0; k<numChildren; k++) {

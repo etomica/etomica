@@ -80,7 +80,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             AtomArrayList childList = selectedMolecules[i].getChildList();
             int numChildren = childList.size();
 
-            int j = Simulation.random.nextInt(numChildren);
+            int j = random.nextInt(numChildren);
             selectedAtoms[i] = (AtomLeaf)childList.get(j);
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
             IVector position = selectedAtoms[i].getCoord().getPosition();
@@ -121,7 +121,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 work3.XE(work2);
                 work3.TE(1.0/bondLength);
                 
-                double phi = (Simulation.random.nextDouble()-0.5)*Math.PI;
+                double phi = (random.nextDouble()-0.5)*Math.PI;
                 work2.TE(Math.cos(phi));
                 work2.PEa1Tv1(Math.sin(phi),work3);
             }
@@ -146,7 +146,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 work2.TE(Math.sqrt(work1.squared()/work2.squared()));
             }
             
-            double theta = (Simulation.random.nextDouble()-0.5)*stepSize;
+            double theta = (random.nextDouble()-0.5)*stepSize;
             position.PEa1Tv1(Math.cos(theta),work1);
             position.PEa1Tv1(Math.sin(theta),work2);
 

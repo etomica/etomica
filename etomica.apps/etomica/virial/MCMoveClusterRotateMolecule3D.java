@@ -6,7 +6,6 @@ import etomica.atom.AtomLeaf;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.util.IRandom;
 
@@ -37,8 +36,8 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         }
         uOld = weightMeter.getDataAsScalar();
         
-        double dTheta = (2*Simulation.random.nextDouble() - 1.0)*stepSize;
-        rotationTensor.setAxial(Simulation.random.nextInt(3),dTheta);
+        double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
+        rotationTensor.setAxial(random.nextInt(3),dTheta);
 
         leafAtomIterator.setRootAtom(molecule);
         leafAtomIterator.reset();
@@ -90,5 +89,4 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     protected int trialCount, relaxInterval = 100;
     protected AtomAction relaxAction;
     private IVector[] oldPositions;
-
 }
