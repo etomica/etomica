@@ -28,12 +28,6 @@ public final class SpeciesAgent extends AtomGroup {
         return aNew;
     }    
     
-    /**
-     * Overrides parent class method and terminates recursive call to identify this
-     * as a constituent atom's species agent.
-     */
-     public final SpeciesAgent getParentSpeciesAgent() {return this;}
-
      /**
       * Throws a RuntimeException, because a species agent is not contained within a molecule.
       */
