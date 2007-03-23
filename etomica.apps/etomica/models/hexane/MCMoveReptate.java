@@ -85,7 +85,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
 //       }
        
        //Pick direction & set up list of atoms to iterate
-       forward = Simulation.random.nextBoolean();
+       forward = random.nextInt(2) == 0;
        AtomArrayList childlist = ((AtomGroup)atom).getChildList();
        int numChildren = childlist.size();
        
