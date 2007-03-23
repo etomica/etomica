@@ -231,5 +231,5 @@ public class IntegratorManagerMC extends Integrator {
     protected int nIntegrators;
     private final MCMoveTrialInitiatedEvent trialEvent;
     private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
-    private final IRandom random;
+    protected final IRandom random;
 }

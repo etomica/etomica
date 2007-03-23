@@ -62,7 +62,7 @@ public class TestHarmonic extends Simulation {
                 integrator);
         getController().addAction(activityIntegrate);
 
-        MCMoveHarmonic move = new MCMoveHarmonic(potentialMaster);
+        MCMoveHarmonic move = new MCMoveHarmonic(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(move);
         
         bdry = new BoundaryRectangularPeriodic(this);

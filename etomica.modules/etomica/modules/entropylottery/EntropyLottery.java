@@ -25,7 +25,7 @@ public class EntropyLottery extends Simulation {
         
         //controller and integrator
 	    integrator = new IntegratorMC(this);
-        MCMoveAtomAdjacent move = new MCMoveAtomAdjacent();
+        MCMoveAtomAdjacent move = new MCMoveAtomAdjacent(getRandom());
         integrator.getMoveManager().addMCMove(move);
         activityIntegrate = new ActivityIntegrate(this, integrator);
         getController().addAction(activityIntegrate);

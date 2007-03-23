@@ -89,8 +89,8 @@ public class MCMoveHarmonic extends MCMovePhase {
 
         for (int iVector=0; iVector<waveVectors.length; iVector++) {
             for (int j=0; j<coordinateDim; j++) {
-                rRand[iVector][j] = Simulation.random.nextGaussian() * eigenValuesSqrt[iVector][j];
-                iRand[iVector][j] = Simulation.random.nextGaussian() * eigenValuesSqrt[iVector][j];
+                rRand[iVector][j] = random.nextGaussian() * eigenValuesSqrt[iVector][j];
+                iRand[iVector][j] = random.nextGaussian() * eigenValuesSqrt[iVector][j];
             }
         }
         while (iterator.hasNext()) {
