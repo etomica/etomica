@@ -8,7 +8,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 
 /**
@@ -24,8 +24,9 @@ public class MCMoveSpinFlip extends MCMovePhase {
      * @param potentialMaster
      * @param nPhases
      */
-    public MCMoveSpinFlip(PotentialMaster potentialMaster) {
+    public MCMoveSpinFlip(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
+        this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
@@ -43,7 +44,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
      */
     public boolean doTrial() {
         AtomArrayList leafList = phase.getSpeciesMaster().leafList;
-        atom = (AtomLeaf)leafList.get(Simulation.random.nextInt(leafList.size()));
+        atom = (AtomLeaf)leafList.get(random.nextInt(leafList.size()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         atom.getCoord().getPosition().TE(-1);
@@ -96,6 +97,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
     }
 
     private static final long serialVersionUID = 1L;
+    protected final IRandom random;
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
     protected AtomLeaf atom;

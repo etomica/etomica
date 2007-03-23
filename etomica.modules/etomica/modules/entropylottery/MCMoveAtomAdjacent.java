@@ -8,9 +8,9 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.IVector;
+import etomica.util.IRandom;
 
 /**
  * Monte Carlo move that moves an atom by +/- 1 unit in a random dimension.
@@ -23,9 +23,11 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
     protected IVector translationVector;
     protected Atom atom;
     protected AtomSource atomSource;
+    protected final IRandom random;
 
-    public MCMoveAtomAdjacent() {
+    public MCMoveAtomAdjacent(IRandom random) {
         super(null);
+        this.random = random;
         atomSource = new AtomSourceRandomLeaf();
         perParticleFrequency = true;
     }
@@ -37,8 +39,8 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
         atom = atomSource.getAtom();
         if (atom == null) return false;
         translationVector.E(0);
-        int i = Simulation.random.nextInt(translationVector.getD());
-        translationVector.setX(i, Simulation.random.nextInt(2)*2-1);
+        int i = random.nextInt(translationVector.getD());
+        translationVector.setX(i, random.nextInt(2)*2-1);
         ((AtomLeaf)atom).getCoord().getPosition().PE(translationVector);
         return true;
     }

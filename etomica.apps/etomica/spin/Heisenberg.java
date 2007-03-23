@@ -31,11 +31,6 @@ import etomica.units.systems.LJ;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on May 22, 2005 by kofke
- */
 public class Heisenberg extends Simulation {
 
     public Heisenberg() {
@@ -59,7 +54,7 @@ public class Heisenberg extends Simulation {
         potential = new P2Spin(space);
         field = new P1MagneticField(space);
         integrator = new IntegratorMC(this);
-        mcmove = new MCMoveSpinFlip(potentialMaster);
+        mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
         
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);

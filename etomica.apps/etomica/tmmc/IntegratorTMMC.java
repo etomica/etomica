@@ -81,7 +81,7 @@ public class IntegratorTMMC extends IntegratorMC {
         C[iStateOld][1] += (1.0 - r); //new to tmmc
         lnChi += weightDifference;  //new to tmmc
         if(lnChi <= -Double.MAX_VALUE || 
-                (lnChi < 0.0 && Math.exp(lnChi) < Simulation.random.nextDouble())) {//reject
+                (lnChi < 0.0 && Math.exp(lnChi) < random.nextDouble())) {//reject
             move.rejectNotify();
             eventManager.fireEvent(rejectedEvent);
             move.getTracker().updateCounts(false,r);

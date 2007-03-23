@@ -5,7 +5,6 @@ import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorPhase;
 import etomica.modifier.ModifierBoolean;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.util.IRandom;
 
 public class IntegratorJT extends IntegratorManagerMC {
@@ -30,7 +29,7 @@ public class IntegratorJT extends IntegratorManagerMC {
     }
 
     public void doStep() {
-        if(Simulation.random.nextDouble() < globalMoveProbability) {
+        if(random.nextDouble() < globalMoveProbability) {
             doGlobalMoves();
         } else {
             if (nveCount > 0) {

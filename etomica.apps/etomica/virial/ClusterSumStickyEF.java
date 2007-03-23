@@ -1,30 +1,20 @@
-/*
- * Created on Oct 1, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.virial;
 
-import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
-/**
- * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 public class ClusterSumStickyEF extends ClusterSumEF {
 
-    public ClusterSumStickyEF(ClusterBonds[] subClusters, double[] subClusterWeights, MayerFunction[] fArray, ClusterSumStickyEF[] buddies) {
+    public ClusterSumStickyEF(ClusterBonds[] subClusters, double[] subClusterWeights,
+            MayerFunction[] fArray, ClusterSumStickyEF[] buddies, IRandom random) {
         super(subClusters,subClusterWeights,fArray);
+        this.random = random;
         iDiagram = 0; // full star, hopefully
         numDiagrams = clusters.length;
         clusterBuddies = buddies;
     }
     
-    public ClusterSumStickyEF(ClusterSumEF cluster, ClusterSumStickyEF[] buddies) {
-        this(cluster.clusters,cluster.clusterWeights,chopF(cluster.f),buddies);
+    public ClusterSumStickyEF(ClusterSumEF cluster, ClusterSumStickyEF[] buddies, IRandom random) {
+        this(cluster.clusters,cluster.clusterWeights,chopF(cluster.f),buddies, random);
     }
     
     public double value(CoordinatePairLeafSet cPairs, AtomPairSet aPairs) {
@@ -65,7 +55,7 @@ public class ClusterSumStickyEF extends ClusterSumEF {
     public void randomizeDiagram() {
         oldDiagram = iDiagram;
         while (oldDiagram == iDiagram) {
-            iDiagram = Simulation.random.nextInt(numDiagrams);
+            iDiagram = random.nextInt(numDiagrams);
         }
 //        System.out.println("LJ => "+iDiagram);
         for (int i=0; i<clusterBuddies.length; i++) {
@@ -90,7 +80,9 @@ public class ClusterSumStickyEF extends ClusterSumEF {
         return eArray;
     }
     
+    private static final long serialVersionUID = 1L;
     public int iDiagram, oldDiagram;
+    protected final IRandom random;
     private boolean isTrial;
     private final int numDiagrams;
     private final ClusterSumStickyEF[] clusterBuddies;
