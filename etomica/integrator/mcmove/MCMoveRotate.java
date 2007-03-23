@@ -10,6 +10,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Orientation;
+import etomica.util.IRandom;
 
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
@@ -26,13 +27,16 @@ public class MCMoveRotate extends MCMovePhaseStep {
     private transient double uOld;
     private transient double uNew = Double.NaN;
     private transient Orientation orientation;
+    
+    protected final IRandom random;
 
     public MCMoveRotate(Simulation sim) {
-        this(sim.getPotentialMaster());
+        this(sim.getPotentialMaster(), sim.getRandom());
     }
     
-    public MCMoveRotate(PotentialMaster potentialMaster) {
+    public MCMoveRotate(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
+        this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         oldOrientation = potentialMaster.getSpace().makeOrientation();
         setStepSizeMax(Math.PI);
@@ -64,7 +68,7 @@ public class MCMoveRotate extends MCMovePhaseStep {
         uOld = energyMeter.getDataAsScalar();
         orientation = ((ICoordinateAngular)molecule.getCoord()).getOrientation(); 
         oldOrientation.E(orientation);  //save old orientation
-        orientation.randomRotation(stepSize);
+        orientation.randomRotation(random, stepSize);
         uNew = Double.NaN;
         return true;
     }//end of doTrial

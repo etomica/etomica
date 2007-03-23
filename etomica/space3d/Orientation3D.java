@@ -1,22 +1,17 @@
 package etomica.space3d;
 
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.util.Constants;
+import etomica.util.IRandom;
 
-
-
-
-/*
- * History
- * Created on Jan 24, 2005 by kofke
- */
 public class Orientation3D extends etomica.space.Orientation {
     public Orientation3D() {
         throw new RuntimeException("Space3D.Orientation should be checked for correctness before using");
     }
-     //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
-     //components in the body-fixed frame
+
+    private static final long serialVersionUID = 1L;
+    //The rotation matrix A operates on the components of a vector in the space-fixed frame to yield the
+    //components in the body-fixed frame
     private final double[][] A = new double[3][3];
     private final Vector3D[] bodyFrame = new Vector3D[] {new Vector3D(1.0,0.0, 0.0), new Vector3D(0.0,1.0,0.0), new Vector3D(0.0,0.0,1.0)};
     private final double[] angle = new double[3];
@@ -56,9 +51,9 @@ public class Orientation3D extends etomica.space.Orientation {
     * Choose one of the three spaced fixed axes at random and rotate 
     * it by t (in radian).
     */
-    public void randomRotation(double stepsize) {
-        double t = (2.0*Simulation.random.nextDouble()-1.0)*stepsize;
-        int i = (int)(3.0 *(Simulation.random.nextDouble()));
+    public void randomRotation(IRandom random, double stepsize) {
+        double t = (2.0*random.nextDouble()-1.0)*stepsize;
+        int i = (int)(3.0 *(random.nextDouble()));
         double ct,st;
         
         ct= Math.cos(t);st =Math.sin(t);
@@ -135,6 +130,6 @@ public class Orientation3D extends etomica.space.Orientation {
             v[i].E(v1);
         }
      }
-    public void convertToBodyFrame(IVector v) {convertToBodyFrame((Vector3D)v);}
-    public void convertToSpaceFrame(IVector v) {convertToSpaceFrame((Vector3D)v);}
+    public void convertToBodyFrame(IVector v) {convertToBodyFrame(v);}
+    public void convertToSpaceFrame(IVector v) {convertToSpaceFrame(v);}
 }

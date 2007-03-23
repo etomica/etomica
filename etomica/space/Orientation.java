@@ -1,5 +1,7 @@
 package etomica.space;
 
+import etomica.util.IRandom;
+
 /**
  * Interface for a class that specifies an orientation in space.
  */
@@ -32,7 +34,7 @@ public abstract class Orientation implements java.io.Serializable {
      * Perform a rotation by a random amount in the solid angle theta on the 
      * present orientation.
      */
-    public abstract void randomRotation(double theta);
+    public abstract void randomRotation(IRandom random, double theta);
 
     /**
      * Changes the components of all vectors in the given array 

@@ -1,6 +1,5 @@
 package etomica.space2d;
 
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.util.Function;
@@ -183,7 +182,7 @@ public final class Vector2D implements IVectorRandom, java.io.Serializable {
     public void setRandomSphere(IRandom random) {
         x = Math.cos(2 * Math.PI * random.nextDouble());
         y = Math.sqrt(1.0 - x * x);
-        if (Simulation.random.nextDouble() < 0.5)
+        if (random.nextDouble() < 0.5)
             y = -y;
     }
 

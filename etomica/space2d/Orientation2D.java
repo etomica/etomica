@@ -1,11 +1,11 @@
 package etomica.space2d;
 
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Orientation;
 import etomica.units.Angle;
 import etomica.units.Dimension;
 import etomica.util.Constants;
+import etomica.util.IRandom;
 
 /**
  * Orientation in a 2-dimensional space. Orientation can be expressed in terms
@@ -102,8 +102,8 @@ public class Orientation2D extends Orientation {
      * Applies a random rotation of angle selected uniformly within plus or minus tStep 
      * from the current value.
      */
-    public void randomRotation(double tStep) {
-        rotateBy((2. * Simulation.random.nextDouble() - 1.0) * tStep);
+    public void randomRotation(IRandom random, double tStep) {
+        rotateBy((2. * random.nextDouble() - 1.0) * tStep);
     }
 
     /**
@@ -137,6 +137,6 @@ public class Orientation2D extends Orientation {
         
     }
 
+    private static final long serialVersionUID = 1L;
     private final double[] angle = new double[1];
-
 }
