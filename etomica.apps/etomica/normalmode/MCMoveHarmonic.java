@@ -9,11 +9,17 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
+import etomica.util.IRandom;
 
 public class MCMoveHarmonic extends MCMovePhase {
 
-    public MCMoveHarmonic(PotentialMaster potentialMaster) {
+    public MCMoveHarmonic(Simulation sim) {
+        this(sim.getPotentialMaster(), sim.getRandom());
+    }
+    
+    public MCMoveHarmonic(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster, new MCMoveTracker());
+        this.random = random;
         iterator = new AtomIteratorAllMolecules();
     }
     
@@ -147,5 +153,5 @@ public class MCMoveHarmonic extends MCMovePhase {
     protected double[][] rRand;
     protected double[][] iRand;
     protected double normalization;
-    public double msd;
+    protected final IRandom random;
 }

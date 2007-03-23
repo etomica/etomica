@@ -5,11 +5,9 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumEF;
-import etomica.virial.ClusterSumStickyEF;
 import etomica.virial.ClusterTree;
 import etomica.virial.ClusterTreeEF;
 import etomica.virial.MayerFunction;
-import etomica.virial.MayerHardSphere;
 
 /**
  * @author kofke
@@ -17,9 +15,9 @@ import etomica.virial.MayerHardSphere;
  * Class that provides some standard pair sets (via static methods or fields of
  * integer arrays) used in specification of clusters.
  */
-public final class Standard implements java.io.Serializable {
+public final class Standard {
 
-	/**
+    /**
 	 * Private constructor to prevent instantiation.
 	 */
 	private Standard() {

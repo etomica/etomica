@@ -1,6 +1,6 @@
 package etomica.virial.cluster;
 
-import etomica.simulation.Simulation;
+import etomica.util.IRandom;
 
 /**
  * Holds information about a cluster diagram, including the bonds, root points,
@@ -8,6 +8,7 @@ import etomica.simulation.Simulation;
  * @author andrew
  */
 public class ClusterDiagramTree implements java.io.Serializable, DiagramSource {
+
     /**
      * Constructs a cluster having numBody points and numRootPoints root points.
      */
@@ -41,6 +42,10 @@ public class ClusterDiagramTree implements java.io.Serializable, DiagramSource {
         if (doDiagramSampling) {
             values = new double[numDiagrams];
         }
+    }
+    
+    public void setRandom(IRandom newRandom) {
+        random = newRandom;
     }
     
     /**
@@ -268,7 +273,7 @@ outer:      while (true) {
                 // now go back up.
                 if (nBonds == 0) {
                     if (doDiagramSampling) {
-                        double r = Simulation.random.nextDouble()*sumAbs;
+                        double r = random.nextDouble()*sumAbs;
                         double sum2 = 0;
                         for (pickedDiagram = 0; pickedDiagram<numDiagrams; pickedDiagram++) {
                             sum2 += Math.abs(values[pickedDiagram]);
@@ -301,7 +306,9 @@ outer:      while (true) {
     public int getPickedDiagram() {
         return pickedDiagram;
     }
-    
+
+    private static final long serialVersionUID = 1L;
+    protected IRandom random;
     private final int mNumBody;
     private final int mNumBondTypes;
     private final ClusterTreeNode mRootNode;
