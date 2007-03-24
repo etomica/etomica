@@ -121,18 +121,16 @@ public final class IntegratorVelocityVerlet extends IntegratorMD implements Etom
     }
 
     public final Object makeAgent(Atom a) {
-        return new MyAgent(potential.getSpace(),a);
+        return new MyAgent(potential.getSpace());
     }
     
     public void releaseAgent(Object agent, Atom atom) {}
             
     public final static class MyAgent implements IntegratorPhase.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;
-        public Atom atom;
         public IVector force;
 
-        public MyAgent(Space space, Atom a) {
-            atom = a;
+        public MyAgent(Space space) {
             force = space.makeVector();
         }
         

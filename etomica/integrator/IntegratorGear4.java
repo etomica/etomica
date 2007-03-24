@@ -200,19 +200,17 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     }
     
     public Object makeAgent(Atom a) {
-        return new Agent(phase.getSpace(),a);
+        return new Agent(phase.getSpace());
     }
     
     public void releaseAgent(Object agent, Atom atom) {}
             
     public static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
-        public Atom atom;
         public IVector force;
         public IVector dr1, dr2, dr3, dr4;
         public IVector dv1, dv2, dv3, dv4;
 
-        public Agent(Space space, Atom a) {
-            atom = a;
+        public Agent(Space space) {
             force = space.makeVector();
             dr1 = space.makeVector();
             dr2 = space.makeVector();

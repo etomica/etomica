@@ -156,18 +156,15 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     }
     
     public final Object makeAgent(Atom a) {
-        return new Agent(phase.getSpace(),a);
+        return new Agent(phase.getSpace());
     }
     
     public void releaseAgent(Object agent, Atom atom) {}
             
 	public final static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
-        public Atom atom;
         public IVector force;
-    
 
-        public Agent(Space space, Atom a) {
-            atom = a;
+        public Agent(Space space) {
             force = space.makeVector();
         }
         
