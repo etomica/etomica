@@ -8,6 +8,7 @@ import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space.Tensor;
 
 /**
  * 1-D potential that has a WCA form in the Z direction.
@@ -79,6 +80,10 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
         double gradz = gradient(rz + dzHalf) - gradient(dzHalf - rz);
         gradient[0].setX(2, gradz);
         return gradient;
+    }
+    
+    public IVector[] gradient(AtomSet atom, Tensor pressureTensor) {
+        return gradient(atom);
     }
     
     public double virial(AtomSet atoms) {

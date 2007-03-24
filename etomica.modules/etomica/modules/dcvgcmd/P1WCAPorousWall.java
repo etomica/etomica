@@ -8,6 +8,7 @@ import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space.Tensor;
 
 /**
  * This acts as a 1-body WCA potential wall perpendicular to the z direction 
@@ -97,6 +98,10 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
         }
         gradient[0].setX(2, gradz);
         return gradient;
+    }
+    
+    public IVector[] gradient(AtomSet atom, Tensor pressureTensor) {
+        return gradient(atom);
     }
 
     /**
