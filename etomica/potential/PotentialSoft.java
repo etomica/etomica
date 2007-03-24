@@ -2,6 +2,7 @@ package etomica.potential;
 
 import etomica.atom.AtomSet;
 import etomica.space.IVector;
+import etomica.space.Tensor;
 
 
 /**
@@ -22,5 +23,15 @@ public interface PotentialSoft {
 	 * @return
 	 */
 	public IVector[] gradient(AtomSet atoms);
+    
+    /**
+     * Returns the same gradient as gradient(AtomSet) and also adds in the
+     * contribution of the give AtomSet to the pressureTensor.  Their
+     * contribution is added to the given Tensor.  This combined method exists
+     * for computational efficiency.  Calculating the pressureTensor is
+     * generally trivial once the gradient is known but often requires
+     * intermediate information.
+     */
+    public IVector[] gradient(AtomSet atoms, Tensor pressureTensor);
 
 }

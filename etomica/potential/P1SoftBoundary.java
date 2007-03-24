@@ -7,6 +7,7 @@ import etomica.atom.AtomSet;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.units.Dimension;
 import etomica.units.Length;
 
@@ -73,6 +74,10 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 		gradient[0].setX(1,grady);
 		return gradient;
 	}
+    
+    public IVector[] gradient(AtomSet a, Tensor pressureTensor) {
+        return gradient(a);
+    }
 	
 	public double virial(AtomSet atoms) {
 	    return 0.0;

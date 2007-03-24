@@ -7,6 +7,7 @@ import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
+import etomica.space.Tensor;
 
 /**
  * Methods for a soft (non-impulsive), spherically-symmetric pair potential.
@@ -94,6 +95,12 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         double r2 = dr.squared();
         gradient[1].Ea1Tv1(du(r2)/r2,dr);
         gradient[0].Ea1Tv1(-1,gradient[1]);
+        return gradient;
+    }
+    
+    public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+        gradient(atoms);
+        pressureTensor.PEv1v2(gradient[1],dr);
         return gradient;
     }
     

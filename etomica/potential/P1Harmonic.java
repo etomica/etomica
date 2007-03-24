@@ -5,6 +5,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -68,7 +69,6 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         return 0.5*w*((AtomLeaf)a).getCoord().getPosition().Mv1Squared(x0);
     }
     
-    //XXX consider whether 1-body potentials should contribute to virial
     public double virial(AtomSet a) {
         return 0.0;
     }
@@ -81,5 +81,8 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
         return force;
     }
         
+    public IVector[] gradient(AtomSet a, Tensor pressureTensor){
+        return gradient(a);
+    }
 }
    

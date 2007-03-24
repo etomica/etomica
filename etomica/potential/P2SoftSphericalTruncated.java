@@ -4,6 +4,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space.Tensor;
 
 
 /**
@@ -12,11 +13,6 @@ import etomica.space.Space;
  * made of the infinite force existing at the cutoff point).  Lrc potential
  * is based on integration of energy from cutoff to infinity, assuming no
  * pair correlations beyond the cutoff.
- */
-
-/*
- * History
- * Created on Mar 28, 2005
  */
 public class P2SoftSphericalTruncated extends Potential2SoftSpherical
                implements PotentialTruncated {
@@ -106,6 +102,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
      */
     private static class P0Lrc extends Potential0Lrc {
         
+        private static final long serialVersionUID = 1L;
         private final double A;
         private final int D;
         private P2SoftSphericalTruncated potential;
@@ -128,6 +125,16 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         
         public IVector[] gradient(AtomSet atoms) {
             throw new RuntimeException("Should not be calling gradient on zero-body potential");
+        }
+        
+        public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+            double virial = virial(atoms);
+            for (int i=0; i<pressureTensor.D(); i++) {
+                pressureTensor.setComponent(i,i,pressureTensor.component(i,i)+virial);
+            }
+            // we'd like to throw an exception and return the tensor, but we can't.  return null
+            // instead.  it should work about as well as throwing an exception.
+            return null;
         }
         
         /**
@@ -166,6 +173,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         }
     }//end of P0lrc
     
+    private static final long serialVersionUID = 1L;
     protected double rCutoff, r2Cutoff;
     protected final Potential2SoftSpherical potential;
 }

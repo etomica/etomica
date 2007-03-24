@@ -14,13 +14,8 @@ import etomica.space.Tensor;
  * Useful as a placeholder where a potential is expected but it is desired to 
  * not have the atoms interact.
  */
-
-/*
- * History
- * Created on Jul 21, 2005 by kofke
- */
 public class P2Ideal extends Potential2 implements Potential2Soft,
-        Potential2Spherical, PotentialHard, PotentialSoft {
+        Potential2Spherical, PotentialHard {
 
     public P2Ideal(Space space) {
         super(space);
@@ -118,7 +113,13 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
         zeroVector[0].E(0.0);
         return zeroVector;
     }
+    
+    public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+        return gradient(atoms);
+    }
+        
 
+    private static final long serialVersionUID = 1L;
     private final IVector[] zeroVector;
     private final Tensor zeroTensor;
 }
