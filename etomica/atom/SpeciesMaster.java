@@ -24,8 +24,6 @@ import etomica.species.SpeciesSpheresMono;
 
 public final class SpeciesMaster extends AtomGroup {
 
-    //reference to phase is kept in node
-
     /**
      * Tabbed list of leaf atoms in phase, suitable for iteration via an
      * AtomIteratorTabbedList.
@@ -112,7 +110,6 @@ public final class SpeciesMaster extends AtomGroup {
             }
             j++;
         }
-        treeIterator.setDoAllNodes(true);
         treeIterator.setRootAtom(this);
         treeIterator.reset();
         // loop over all the atoms.  Any atoms whose index is 
@@ -210,7 +207,7 @@ public final class SpeciesMaster extends AtomGroup {
         if (parent != null) {
             parent.addAtomNotify(newAtom);
         }
-   }
+    }
 
     //updating of leaf atomList may not be efficient enough for repeated
     // use, but is probably ok
@@ -228,6 +225,8 @@ public final class SpeciesMaster extends AtomGroup {
             returnGlobalIndex(oldAtom.getGlobalIndex());
             leafList.removeAndReplace(leafIndex);
             leafList.maybeTrimToSize();
+            // if we removed didn't remove the last atom, removeAndReplace
+            // inserted the last atom in the emtpy spot.  Set its leaf index.
             if (leafList.size() > leafIndex) {
                 ((AtomLeaf)leafList.get(leafIndex)).setLeafIndex(leafIndex);
             }
@@ -245,6 +244,7 @@ public final class SpeciesMaster extends AtomGroup {
                     }
                 }
             }
+            leafList.maybeTrimToSize();
         }
         if (parent != null) {
             parent.removeAtomNotify(oldAtom);
