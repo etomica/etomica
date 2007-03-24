@@ -7,18 +7,36 @@ import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorPhase;
 import etomica.space.IVector;
+import etomica.space.Space;
+import etomica.space.Tensor;
 
 /**
  * Sums the force on each iterated atom and adds it to the integrator agent
- * associated with the atom.
+ * associated with the atom.  Additionally, this class has the potential
+ * calculate the pressureTensor (which can be done efficiently during the
+ * gradient calculation).
  */
-public class PotentialCalculationForceSum extends PotentialCalculation {
+public class PotentialCalculationForcePressureSum extends PotentialCalculation {
         
     private static final long serialVersionUID = 1L;
     protected AtomAgentManager integratorAgentManager;
+    protected final Tensor pressureTensor;
+    
+    public PotentialCalculationForcePressureSum(Space space) {
+        pressureTensor = space.makeTensor();
+    }
     
     public void setAgentManager(AtomAgentManager agentManager) {
         integratorAgentManager = agentManager;
+    }
+    
+    /**
+     * Zeros out the pressureTensor.  This method should be called before
+     * invoking potentialMaster.calculate so that the pressureTensor is
+     * correct at the end of the calculation.
+     */
+    public void reset() {
+        pressureTensor.E(0);
     }
     
     /**
@@ -31,7 +49,7 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
 			AtomSet atoms = iterator.next();
-			IVector[] f = potentialSoft.gradient(atoms);
+			IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
 			switch(nBody) {
 				case 1:
 					((IntegratorPhase.Forcible)integratorAgentManager.getAgent((Atom)atoms)).force().ME(f[0]);
@@ -50,4 +68,13 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 			}
 		}
 	}
+
+    /**
+     * Returns the pressure tensor calculated during the last potential
+     * calculation.  In order to be valid, reset() must be called before
+     * invoking potentialMaster.calculate.
+     */
+    public Tensor getPressureTensor() {
+        return pressureTensor;
+    }
 }

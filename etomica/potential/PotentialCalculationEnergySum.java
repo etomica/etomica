@@ -12,15 +12,9 @@ import etomica.atom.iterator.AtomsetIterator;
  *
  * @author David Kofke
  */
-
-/* History
- * 08/29/03 (DAK) added actionPerformed(AtomSet) method because method made
- * abstract in PotentialCalculation
- * 08/31/04 (DAK) overhauled with change in potentials/iterators
- */
 public final class PotentialCalculationEnergySum extends PotentialCalculation {
 
-	/**
+    /**
 	 * Adds to the energy sum the energy values obtained from application of the given potential to the
 	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
 	 */
@@ -49,6 +43,6 @@ public final class PotentialCalculationEnergySum extends PotentialCalculation {
         return sum;
     }
 	
+    private static final long serialVersionUID = 1L;
 	private  double sum = 0.0;
-        
 }
