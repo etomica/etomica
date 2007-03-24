@@ -1,6 +1,3 @@
-/*
- * Created on May 8, 2006
- */
 package etomica.meam;
 
 import etomica.atom.AtomLeaf;
@@ -11,15 +8,13 @@ import etomica.potential.PotentialSoft;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.util.Arrays;
 
 /**
- * @author ub2092
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * @author Kate Schadel
  */
 public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	
@@ -315,17 +310,31 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		nearestImageTransformer = phase.getBoundary();
 	}
 
-	/* (non-Javadoc)
-	 * @see etomica.potential.PotentialSoft#virial(etomica.atom.AtomSet)
-	 */
 	public double virial(AtomSet atoms) {
-		return 0.0;
+		return calcVirial(atoms, null);
 	}
 
-	/* (non-Javadoc)
-	 * @see etomica.potential.PotentialSoft#gradient(etomica.atom.AtomSet)
-	 */
-	public IVector[] gradient(AtomSet atoms) {
+    public IVector[] gradient(AtomSet atoms) {
+        calcVirial(atoms, null);
+        return gnEi;
+    }
+
+    public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
+        calcVirial(atoms, pressureTensor);
+        return gnEi;
+    }
+
+    /**
+     * This returns the virial (as you'd get from calling virial(atoms)), and
+     * fills in the pressureTensor (as you'd get from calling
+     * gradient(atoms,pressureTensor)).  It also calculates the gradient but
+     * doesn't return it.  virial() and both gradient methods from the
+     * PotentialSoft interface call this method and return what the particular
+     * method wants.
+     */
+	private double calcVirial(AtomSet atoms, Tensor pressureTensor) {
+        double virial = 0;
+        
 		if (atoms.count() > gnEi.length) {
 			gnEi = new Vector3D[atoms.count()];
 			for (int i = 0; i < atoms.count(); i++) {
@@ -1183,6 +1192,18 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		
 			gnEi[n].E(gnF);
 			gnEi[n].PEa1Tv1(0.5, sumGnPhi);
+            
+            // calculate contribution to pressure tensor and virial
+            if (pressureTensor != null) {
+                // pressure tensor might be null if we're actually looking for
+                // just the virial or just the gradient
+                pressureTensor.PEv1v2(gnEi[n], rin);
+            }
+
+            rin2.E(rin);
+            rin.TE(rin);
+            
+            virial += gnEi[n].dot(rin2);
         } //exit loop over atom n
         
         giRhoi0.E(sumGiRhoj0);
@@ -1251,7 +1272,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		gnEi[0].E(giF);
 		gnEi[0].PEa1Tv1(0.5, sumGiPhi);
 		
-		return gnEi;
+		return virial;
 	}
 
     private static final long serialVersionUID = 1L;
@@ -1515,4 +1536,6 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D giGamma = (Vector3D)space.makeVector();
     private final Vector3D giRhoi = (Vector3D)space.makeVector();
     private final Vector3D giF = (Vector3D)space.makeVector();
+    
+    private final Vector3D rin2 = (Vector3D)space.makeVector();
 }
