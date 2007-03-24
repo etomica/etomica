@@ -10,8 +10,10 @@ import etomica.space.IVector;
  * @author David Kofke
  */
 public interface PotentialSoft {
-	   
-	/**
+
+    public double virial(AtomSet atoms);
+
+    /**
 	 * Returns the gradient of the potential as it applies to each atom in the 
      * given AtomSet, indicating how the energy would change as the position of 
      * the first atom is varied.  The method is allowed to return an array of
