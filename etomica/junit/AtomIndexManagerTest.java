@@ -135,13 +135,13 @@ public class AtomIndexManagerTest extends TestCase {
             assertFalse(atoms[i].inSameMolecule(atom));
             assertFalse(atom.inSameMolecule(atoms[i]));
             Atom moleculeA = atoms[i];
-            while (!(atoms[i].getParentGroup() instanceof SpeciesAgent)) {
-                moleculeA = atoms[i].getParentGroup();
+            while (!(moleculeA.getParentGroup() instanceof SpeciesAgent)) {
+                moleculeA = moleculeA.getParentGroup();
             }
             for(int j=i0; j<atoms.length; j++) {
-                Atom moleculeB = atoms[i];
-                while (!(atoms[i].getParentGroup() instanceof SpeciesAgent)) {
-                    moleculeB = atoms[i].getParentGroup();
+                Atom moleculeB = atoms[j];
+                while (!(moleculeB.getParentGroup() instanceof SpeciesAgent)) {
+                    moleculeB = moleculeB.getParentGroup();
                 }
                 boolean inSameMolecule = atoms[i].inSameMolecule(atoms[j]);
                 if(moleculeA == null || moleculeB == null) {
