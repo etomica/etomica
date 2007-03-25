@@ -9,6 +9,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialMaster;
@@ -86,8 +87,12 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         }
     }
     
-    public void reset() throws ConfigurationOverlapException {
+    public void setPhase(Phase newPhase) {
+        super.setPhase(newPhase);
         forceSum.setAgentManager(agentManager);
+    }
+    
+    public void reset() throws ConfigurationOverlapException {
         calculateForces();
         super.reset();
     }

@@ -10,20 +10,23 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
-import etomica.potential.PotentialCalculationForceSum;
+import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space.Tensor;
 import etomica.util.IRandom;
 
 public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
 
     private static final long serialVersionUID = 1L;
-    public final PotentialCalculationForceSum forceSum;
+    protected final PotentialCalculationForcePressureSum forceSum;
     private final IteratorDirective allAtoms;
     private double t2;
+    protected final Tensor pressureTensor;
+    protected final Tensor workTensor;
 
     IVector work;
 
@@ -37,11 +40,16 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
     public IntegratorVerlet(PotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature) {
         super(potentialMaster,random,timeStep,temperature);
-        forceSum = new PotentialCalculationForceSum();
+        // if you're motivated to throw away information earlier, you can use 
+        // PotentialCalculationForceSum instead.
+        forceSum = new PotentialCalculationForcePressureSum(potentialMaster.getSpace());
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
         work = potentialMaster.getSpace().makeVector();
+        
+        pressureTensor = potentialMaster.getSpace().makeTensor();
+        workTensor = potentialMaster.getSpace().makeTensor();
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -61,6 +69,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         }
         super.setPhase(p);
         agentManager = new AtomAgentManager(this,p);
+        forceSum.setAgentManager(agentManager);
     }
     
 //--------------------------------------------------------------
@@ -73,12 +82,21 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         while(atomIterator.hasNext()) {   //zero forces on all atoms
             ((Agent)agentManager.getAgent(atomIterator.nextAtom())).force.E(0.0);
         }
+        
+        forceSum.reset();
         potential.calculate(phase, allAtoms, forceSum);
+        pressureTensor.E(forceSum.getPressureTensor());
 
         //take step
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+            pressureTensor.E(forceSum.getPressureTensor());
+            IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+            workTensor.Ev1v2(v,v);
+            workTensor.TE(((AtomTypeLeaf)a.getType()).getMass());
+            pressureTensor.PE(workTensor);
+            
             Agent agent = (Agent)agentManager.getAgent(a);
             IVector r = a.getCoord().getPosition();
             work.E(r);
@@ -88,13 +106,20 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
             agent.rMrLast.E(r);
             agent.rMrLast.ME(work);
         }
-    }//end of doStep
+    }
+
+    /**
+     * Returns the pressure tensor based on the forces calculated during the
+     * last time step.
+     */
+    public Tensor getPressureTensor() {
+        return pressureTensor;
+    }
     
 
     public void reset() throws ConfigurationOverlapException {
         // reset might be called because atoms were added or removed
         // calling getAgents ensures we have an up-to-date array.
-        forceSum.setAgentManager(agentManager);
 
         atomIterator.reset();
         while(atomIterator.hasNext()) {
