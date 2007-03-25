@@ -11,7 +11,10 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
+import etomica.data.Data;
 import etomica.data.DataFork;
+import etomica.data.DataPipe;
+import etomica.data.DataProcessor;
 import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.DataSourceCountTime;
@@ -19,15 +22,18 @@ import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceRmsVelocity;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
+import etomica.data.IDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.meter.MeterPressure;
+import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.meter.MeterRDF;
 import etomica.data.meter.MeterTemperature;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataTensor;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
@@ -266,17 +272,17 @@ public class LjmdGraphic {
 		
 		ePlot.setDoLegend(true);
 		
-		MeterPressure pMeter = new MeterPressure(sim.getSpace());
+        MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator();
         pMeter.setIntegrator(sim.integrator);
-        pMeter.setIncludeLrc(true);
         AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
-        DataPump pPump = new DataPump(pMeter,pAccumulator);
+        DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
+        DataPump pPump = new DataPump(pMeter, tracer);
+        tracer.setDataSink(pAccumulator);
         IntervalActionAdapter pAdapter = new IntervalActionAdapter(pPump);
-        pAdapter.setActionInterval(60);
         pAccumulator.setPushInterval(10);
         sim.register(pMeter,pPump);
         sim.integrator.addListener(pAdapter);
-        
+
         DisplayBoxesCAE pDisplay = new DisplayBoxesCAE();
         pDisplay.setAccumulator(pAccumulator);
         DisplayBoxesCAE peDisplay = new DisplayBoxesCAE();
@@ -421,6 +427,39 @@ public class LjmdGraphic {
     }
     
     protected JPanel panel;
+    
+    /**
+     * Inner class to find the total pressure of the system from the pressure
+     * tensor.
+     */
+    public static class DataProcessorTensorTrace extends DataProcessor {
+
+        public DataProcessorTensorTrace() {
+            data = new DataDouble();
+        }
+        
+        protected Data processData(Data inputData) {
+            // take the trace and divide by the dimensionality
+            data.x = ((DataTensor)inputData).x.trace()/((DataTensor)inputData).x.D();
+            return data;
+        }
+
+        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+            dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+            return dataInfo;
+        }
+
+        public DataPipe getDataCaster(IDataInfo inputDataInfo) {
+            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
+                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
+            }
+            return null;
+        }
+
+        private static final long serialVersionUID = 1L;
+        protected final DataDouble data;
+    }
+
 }
 
 
