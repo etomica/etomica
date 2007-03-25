@@ -45,4 +45,6 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
         }
         unset();
     }
+
+    private static final long serialVersionUID = 1L;
 }

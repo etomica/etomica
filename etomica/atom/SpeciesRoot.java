@@ -94,13 +94,6 @@ public final class SpeciesRoot extends AtomGroup {
     }
     
     /**
-    * Returns null, because a species master is not contained within a molecule.
-    */
-    public final Atom getParentMolecule() {
-        throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesRoot");
-    }
-    
-    /**
      * Ends recursive chain to determine child of given node from which this
      * node is descended.  Always returns null.
      */

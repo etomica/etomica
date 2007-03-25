@@ -26,15 +26,8 @@ public final class SpeciesAgent extends AtomGroup {
         Atom aNew = moleculeFactory().makeAtom();
         aNew.setParent(this);
         return aNew;
-    }    
+    }
     
-     /**
-      * Throws a RuntimeException, because a species agent is not contained within a molecule.
-      */
-     public final Atom getParentMolecule() {
-         throw new RuntimeException("Error:  Unexpected call to parentMolecule in SpeciesAgent");
-     }
-
      /**
      * Sets the number of molecules for this species.  Makes the given number
      * of new molecules, linked-list orders and initializes them.

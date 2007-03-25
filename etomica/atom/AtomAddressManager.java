@@ -20,10 +20,6 @@ package etomica.atom;
  * 
  * @see AtomTreeNode
  */
-
-/*
- * History Created on Mar 3, 2005 by kofke
- */
 public class AtomAddressManager implements java.io.Serializable {
 
     /**
@@ -240,6 +236,7 @@ public class AtomAddressManager implements java.io.Serializable {
         return newArray;
     }
     
+    private static final long serialVersionUID = 1L;
     private final int[] bitLength;
     private final int[] cumulativeBitLength;
     private final int[] bitShift;

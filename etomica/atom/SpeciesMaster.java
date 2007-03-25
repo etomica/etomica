@@ -170,15 +170,6 @@ public final class SpeciesMaster extends AtomGroup {
         return parentPhase;
     }
 
-    /**
-     * Throws a RuntimeException, because a species master is not contained
-     * within a molecule.
-     */
-    public final Atom getParentMolecule() {
-        throw new RuntimeException(
-                "Error:  Unexpected call to parentMolecule in SpeciesMaster");
-    }
-
     public void addAtomNotify(Atom newAtom) {
         if (newAtom.getParentGroup() instanceof SpeciesAgent) {
             moleculeCount++;

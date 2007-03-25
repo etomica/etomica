@@ -8,10 +8,8 @@ import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 
@@ -136,9 +134,15 @@ public class AtomIndexManagerTest extends TestCase {
             if(atoms[i].inSameMolecule(atom)) System.out.println(i+" "+atoms[i]+" "+atom);
             assertFalse(atoms[i].inSameMolecule(atom));
             assertFalse(atom.inSameMolecule(atoms[i]));
-            Atom moleculeA = atoms[i].getParentMolecule();
+            Atom moleculeA = atoms[i];
+            while (!(atoms[i].getParentGroup() instanceof SpeciesAgent)) {
+                moleculeA = atoms[i].getParentGroup();
+            }
             for(int j=i0; j<atoms.length; j++) {
-                Atom moleculeB = atoms[j].getParentMolecule();
+                Atom moleculeB = atoms[i];
+                while (!(atoms[i].getParentGroup() instanceof SpeciesAgent)) {
+                    moleculeB = atoms[i].getParentGroup();
+                }
                 boolean inSameMolecule = atoms[i].inSameMolecule(atoms[j]);
                 if(moleculeA == null || moleculeB == null) {
                     if(inSameMolecule) System.out.println(inSameMolecule+" "+i+" "+j+" "+atoms[i]+" "+atoms[j]);
