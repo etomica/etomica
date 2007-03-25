@@ -44,8 +44,9 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
         // PotentialCalculationForceSum instead.
         forceSum = new PotentialCalculationForcePressureSum(potentialMaster.getSpace());
         allAtoms = new IteratorDirective();
-        // allAtoms is used only for the force calculation, which has no LRC
-        allAtoms.setIncludeLrc(false);
+        // but we're also calculating the pressure tensor, which does have LRC.
+        // things deal with this OK.
+        allAtoms.setIncludeLrc(true);
         work = potentialMaster.getSpace().makeVector();
         
         pressureTensor = potentialMaster.getSpace().makeTensor();
