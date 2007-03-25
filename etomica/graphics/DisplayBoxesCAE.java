@@ -162,9 +162,9 @@ public class DisplayBoxesCAE extends Display implements DataSink {
     }
 
     public void setUnit(Unit unit) {
-    		currentBox.setUnit(unit);
-    		averageBox.setUnit(unit);
-    		errorBox.setUnit(unit);
+        currentBox.setUnit(unit);
+        averageBox.setUnit(unit);
+        errorBox.setUnit(unit);
     }
     
     public Unit getUnit() {

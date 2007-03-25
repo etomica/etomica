@@ -139,7 +139,11 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     get(newAtom.getType().getSpecies());
             
             if (bondIterators != null) {
-                AtomGroup molecule = (AtomGroup)newAtom.getParentMolecule();
+                AtomGroup molecule = newAtom.getParentGroup();
+                while (!(molecule.getParentGroup() instanceof SpeciesAgent)) {
+                    molecule = molecule.getParentGroup();
+                }
+                
                 for (int i=0; i<bondIterators.length; i++) {
                     Potential bondedPotential = bondIterators[i].getPotential();
                     AtomsetIteratorBasisDependent iterator = bondIterators[i].getIterator();
