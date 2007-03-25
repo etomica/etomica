@@ -21,7 +21,6 @@ public class MeterPressure extends DataSourceScalar {
     
     public MeterPressure(Space space) {
     	super("Pressure",Pressure.dimension(space.D()));
-        rD = 1.0/space.D();
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
         virial = new PotentialCalculationVirialSum();
@@ -77,11 +76,11 @@ public class MeterPressure extends DataSourceScalar {
     	virial.zeroSum();
         Phase phase = integrator.getPhase();
         integrator.getPotential().calculate(phase, iteratorDirective, virial);
-        return phase.getDensity()*integrator.getTemperature() - virial.getSum()*rD/phase.getBoundary().volume();
+        return phase.getDensity()*integrator.getTemperature() - virial.getSum()/(phase.getBoundary().volume()*phase.getSpace().D());
     }
 
+    private static final long serialVersionUID = 1L;
     private IntegratorPhase integrator;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;
-    private final double rD;
 }
