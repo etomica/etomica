@@ -100,7 +100,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     
     public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
         gradient(atoms);
-        pressureTensor.PEv1v2(gradient[1],dr);
+        pressureTensor.PEv1v2(gradient[0],dr);
         return gradient;
     }
     
