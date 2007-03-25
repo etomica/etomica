@@ -91,14 +91,14 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaEle
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();   //  finishing the momentum step
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             IVector velocity = ((ICoordinateKinetic)a.getCoord()).getVelocity();
-            workTensor.PEv1v2(velocity,velocity);
+            workTensor.Ev1v2(velocity,velocity);
             workTensor.TE(((AtomTypeLeaf)a.getType()).getMass());
             pressureTensor.PE(workTensor);
             velocity.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
         }
         
         pressureTensor.TE(1/phase.getBoundary().volume());
-        
+
         if(isothermal) {
             doThermostat();
         }
