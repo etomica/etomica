@@ -1,7 +1,6 @@
 package etomica.potential;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomsetIterator;
@@ -16,18 +15,13 @@ import etomica.space.Tensor;
  * calculate the pressureTensor (which can be done efficiently during the
  * gradient calculation).
  */
-public class PotentialCalculationForcePressureSum extends PotentialCalculation {
+public class PotentialCalculationForcePressureSum extends PotentialCalculationForceSum {
         
     private static final long serialVersionUID = 1L;
-    protected AtomAgentManager integratorAgentManager;
     protected final Tensor pressureTensor;
     
     public PotentialCalculationForcePressureSum(Space space) {
         pressureTensor = space.makeTensor();
-    }
-    
-    public void setAgentManager(AtomAgentManager agentManager) {
-        integratorAgentManager = agentManager;
     }
     
     /**
