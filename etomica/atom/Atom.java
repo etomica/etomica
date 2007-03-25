@@ -139,7 +139,7 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
         
         parent.getChildList().add(this);
         parent.addAtomNotify(this);
-    }//end of addAtom
+    }
 
     public AtomGroup getParentGroup() {
         return parent;
@@ -163,7 +163,7 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
         setIndex((parent != null) ? parent.getAddress() : 0, index);
     }
     
-    protected void setIndex(int parentAddress, int index) {
+    private void setIndex(int parentAddress, int index) {
         atomTreeAddress = parentAddress + type.getAddressManager().shiftIndex(index);
         if (Debug.ON && type.getAddressManager().getIndex(atomTreeAddress) != index) {
             type.getAddressManager().getIndex(atomTreeAddress);

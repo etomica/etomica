@@ -11,8 +11,8 @@ public class AtomGroup extends Atom {
     /**
      * Set this atom's index and update indexes of its descendants.
      */
-    protected void setIndex(int parentIndex, int ordinal) {
-        super.setIndex(parentIndex, ordinal);
+    public void setIndex(int parentIndex) {
+        super.setIndex(parentIndex);
         if (childList != null) {
             assignChildOrdinals();
         }
