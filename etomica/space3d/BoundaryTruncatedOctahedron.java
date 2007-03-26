@@ -75,8 +75,23 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         updateDimensions();
     }
     
+    private IVector[] vecs; 
     public IVector[] getPeriodicVectors() {
-        throw new RuntimeException("Not yet.  Gimme a break!");
+      //throw new RuntimeException("Not yet.  Gimme a break!");
+      double x = dimensions.x(0)*.5;
+      if(vecs == null || vecs[0].x(0) == 0) {
+        vecs = new IVector[] {
+            space.makeVector(new double[]{-x,x,x}),
+            space.makeVector(new double[]{x,-x,x}),
+            space.makeVector(new double[]{x,x,-x}) };
+      }
+      else if(vecs[1].x(0) != x) {
+        double ratio = x/vecs[1].x(0);
+        vecs[0].TE(ratio);
+        vecs[1].TE(ratio);
+        vecs[2].TE(ratio);
+      }
+      return vecs;
     }
 
     public double[][] imageOrigins(int nShells) {
