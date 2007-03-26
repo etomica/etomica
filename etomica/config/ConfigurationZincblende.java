@@ -108,8 +108,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         Phase phase = new Phase(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
-        sim.getSpeciesRoot().addSpecies(speciesSpheres0);
-        sim.getSpeciesRoot().addSpecies(speciesSpheres1);
+        sim.getSpeciesManager().addSpecies(speciesSpheres0);
+        sim.getSpeciesManager().addSpecies(speciesSpheres1);
         phase.getAgent(speciesSpheres0).setNMolecules(32);
         phase.getAgent(speciesSpheres1).setNMolecules(32);
         ConfigurationZincblende config = new ConfigurationZincblende(15);

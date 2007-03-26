@@ -5,9 +5,10 @@ import java.util.LinkedList;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.junit.UnitTestUtil;
+import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 
 
 /**
@@ -15,11 +16,6 @@ import etomica.junit.UnitTestUtil;
  *
  * @author David Kofke
  *
- */
-
-/*
- * History
- * Created on May 30, 2005 by kofke
  */
 public class AtomIteratorBasisTest extends IteratorTestAbstract {
 
@@ -36,7 +32,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         n1a = 10;
         n2a = 3;
         nTree = new int[] {5, 4, 3};
-        root = UnitTestUtil.makeStandardSpeciesTree(
+        sim = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {n0a},
                 nAtoms,
                 new int[] {n1a},
@@ -73,21 +69,22 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         assertEquals(list.size(), 0);
         
         //test no-target iteration of children of a basis
-        basis = root.getDescendant(new int[] {0,0,0});
+        Phase phase = sim.getPhases()[0];
+        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0});
         target = null;
         iterates = (AtomArrayList)((AtomGroup)basis).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
         //test no-target iteration of a leaf basis
-        basis = root.getDescendant(new int[] {0,0,0,1});
+        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0,1});
         target = null;
         iterate = basis;
         testOneIterate(basis, target, iterate);
         
         //test target is a child of the basis
-        basis = root.getDescendant(new int[] {0,0,0});
-        target = root.getDescendant(new int[] {0,0,0,1});
+        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0});
+        target = phase.getSpeciesMaster().getDescendant(new int[] {0,0,1});
         iterate = target;
         testOneIterate(basis, target, iterate);
 
@@ -100,45 +97,45 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         assertEquals(list, testLister.list);
 
         //test target is the basis, both not a leaf; should be same as target==null
-        basis = root.getDescendant(new int[] {0,0,0});
+        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0});
         target = basis;
         iterates = (AtomArrayList)((AtomGroup)basis).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
         //test target is the basis, both a leaf
-        basis = root.getDescendant(new int[] {0,1,0});
+        basis = phase.getSpeciesMaster().getDescendant(new int[] {1,0});
         target = basis;
         iterate = basis;
         testOneIterate(basis, target, iterate);
 
         //test target is in hierarchy above basis, a leaf; should be same as target==null
-        basis = root.getDescendant(new int[] {0,0,0,0});
-        target = root.getDescendant(new int[] {0,0,0});
+        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0,0});
+        target = phase.getSpeciesMaster().getDescendant(new int[] {0,0});
         iterate = basis;
         testOneIterate(basis, target, iterate);
 
         //test target is in hierarchy apart from basis; should return no iterates
-        basis = root.getDescendant(new int[] {0,0,0,0});
-        target = root.getDescendant(new int[] {0,1,0});
+        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0,0});
+        target = phase.getSpeciesMaster().getDescendant(new int[] {1,0});
         testNoIterates(basis, target);
 
         //test target is derived from basis, but is not a child of it
-        basis = root.getDescendant(new int[] {0,2,0});
-        target = root.getDescendant(new int[] {0,2,0,1,0});
-        iterate = root.getDescendant(new int[] {0,2,0,1});
+        basis = phase.getSpeciesMaster().getDescendant(new int[] {2,0});
+        target = phase.getSpeciesMaster().getDescendant(new int[] {2,0,1,0});
+        iterate = phase.getSpeciesMaster().getDescendant(new int[] {2,0,1});
         testOneIterate(basis, target, iterate);
         
         //test specifying null target
         //also test specifying deeper basis
-        basis = root.getDescendant(new int[] {0,2,1,2});
+        basis = phase.getSpeciesMaster().getDescendant(new int[] {2,1,2});
         target = null;
         iterates = (AtomArrayList)((AtomGroup)basis).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         
         //test null basis
         basis = null;
-        target = root.getDescendant(new int[] {0,2,0,1,0});
+        target = phase.getSpeciesMaster().getDescendant(new int[] {2,0,1,0});
         testNoIterates(basis, target);
         
         //test null basis with null target
@@ -183,7 +180,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
     }
     
     private AtomIteratorBasis basisIterator;
-    private SpeciesRoot root;
+    private Simulation sim;
     int n0a, nAtoms, n1a, n2a;
     int[] nTree;
 

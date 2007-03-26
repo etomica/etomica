@@ -1,10 +1,9 @@
 package etomica.junit.atom.iterator;
 
-import etomica.atom.SpeciesMaster;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 
 
 /**
@@ -22,17 +21,14 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         int[] n1 = new int[] {5, 0, 6};
         int[] n2 = new int[] {1, 7, 2};
         int[] n2Tree = new int[] {3,4};
-        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
         
         ApiLeafAtoms api = new ApiLeafAtoms();
         
         //test new iterator gives no iterates
         testNoIterates(api);
         
-        Phase[] phase = new Phase[3];
-        phase[0] = ((SpeciesMaster)root.getChildList().get(0)).getPhase();
-        phase[1] = ((SpeciesMaster)root.getChildList().get(1)).getPhase();
-        phase[2] = ((SpeciesMaster)root.getChildList().get(2)).getPhase();
+        Phase[] phase = sim.getPhases();
         
         for(int i=0; i<phase.length; i++) {
             api.setPhase(phase[i]);

@@ -1,13 +1,13 @@
-package etomica.atom;
+package etomica.simulation;
 
-import etomica.simulation.SimulationAtomTypeEvent;
+import etomica.atom.AtomType;
 
 /**
  * Simulation event that notifies listeners that the index of an AtomType has
  * changed.
  * @author Andrew Schultz
  */
-class SimulationAtomTypeIndexChangedEvent extends SimulationAtomTypeEvent {
+public class SimulationAtomTypeIndexChangedEvent extends SimulationAtomTypeEvent {
 
     SimulationAtomTypeIndexChangedEvent(AtomType atomType, int oldIndex) {
         super(atomType);
@@ -17,7 +17,7 @@ class SimulationAtomTypeIndexChangedEvent extends SimulationAtomTypeEvent {
     /**
      * Returns the first AtomType removed
      */
-    int getOldIndex() {
+    public int getOldIndex() {
         return oldIndex;
     }
     

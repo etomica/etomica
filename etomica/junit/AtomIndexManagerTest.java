@@ -19,11 +19,6 @@ import etomica.species.SpeciesSpheresMono;
  * if two atoms are in the same phase, species, molecule, etc., function 
  * correctly.
  */
-
-/*
- * History
- * Created on Mar 9, 2005 by kofke
- */
 public class AtomIndexManagerTest extends TestCase {
 
     /*
@@ -34,23 +29,22 @@ public class AtomIndexManagerTest extends TestCase {
         Simulation sim = new Simulation(Space2D.getInstance());
         SpeciesSpheresMono species0 = new SpeciesSpheresMono(sim);
         SpeciesSpheres species1 = new SpeciesSpheres(sim, 5);
-        sim.getSpeciesRoot().addSpecies(species0);
-        sim.getSpeciesRoot().addSpecies(species1);
+        sim.getSpeciesManager().addSpecies(species0);
+        sim.getSpeciesManager().addSpecies(species1);
         Phase phase0 = new Phase(sim);
         Phase phase1 = new Phase(sim);
         phase0.getAgent(species0).setNMolecules(20);
         phase0.getAgent(species1).setNMolecules(10);
         phase1.getAgent(species0).setNMolecules(20);
         phase1.getAgent(species1).setNMolecules(10);
-        atoms = new Atom[27];
+        atoms = new Atom[26];
         int i = 0;
-        atoms[i++] = sim.getSpeciesRoot();//0
-        atoms[i++] = master0 = phase0.getSpeciesMaster();//1
-        atoms[i++] = master1 = phase1.getSpeciesMaster();//2
-        atoms[i++] = agent00 = phase0.getAgent(species0);//3
-        atoms[i++] = agent01 = phase0.getAgent(species1);//4
-        atoms[i++] = agent10 = phase1.getAgent(species0);//5
-        atoms[i++] = agent11 = phase1.getAgent(species1);//6
+        atoms[i++] = master0 = phase0.getSpeciesMaster();//0
+        atoms[i++] = master1 = phase1.getSpeciesMaster();//1
+        atoms[i++] = agent00 = phase0.getAgent(species0);//2
+        atoms[i++] = agent01 = phase0.getAgent(species1);//3
+        atoms[i++] = agent10 = phase1.getAgent(species0);//4
+        atoms[i++] = agent11 = phase1.getAgent(species1);//5
         AtomGroup[][] node = new AtomGroup[2][2];
         node[0][0] = agent00;
         node[0][1] = agent01;
@@ -84,7 +78,19 @@ public class AtomIndexManagerTest extends TestCase {
         for(int i=0; i<atoms.length; i++) {
             assertFalse(atoms[i].isDescendedFrom(atom));
             assertFalse(atom.isDescendedFrom(atoms[i]));
+            Atom speciesMasteri = atoms[i];
+            while (!(speciesMasteri instanceof SpeciesMaster)) {
+                speciesMasteri = speciesMasteri.getParentGroup();
+            }
             for(int j=0; j<atoms.length; j++) {
+                Atom speciesMasterj = atoms[j];
+                while (!(speciesMasterj instanceof SpeciesMaster)) {
+                    speciesMasterj = speciesMasterj.getParentGroup();
+                }
+                if (speciesMasteri != speciesMasterj) {
+                    // different phases, so skip
+                    continue;
+                }
 //                System.out.println(i+" "+j);
                 if(isDescendedFrom(atoms[i],atoms[j])) {
                     assertTrue(atoms[i].isDescendedFrom(atoms[j]));
@@ -105,8 +111,19 @@ public class AtomIndexManagerTest extends TestCase {
         for(int i=0; i<atoms.length; i++) {
             assertFalse(atoms[i].getType().isDescendedFrom(atom.getType()));
             assertFalse(atom.getType().isDescendedFrom(atoms[i].getType()));
+            Atom speciesMasteri = atoms[i];
+            while (!(speciesMasteri instanceof SpeciesMaster)) {
+                speciesMasteri = speciesMasteri.getParentGroup();
+            }
             for(int j=0; j<atoms.length; j++) {
-//                System.out.println(i+" "+j);
+                Atom speciesMasterj = atoms[j];
+                while (!(speciesMasterj instanceof SpeciesMaster)) {
+                    speciesMasterj = speciesMasterj.getParentGroup();
+                }
+                if (speciesMasteri != speciesMasterj) {
+                    // different phases, so skip
+                    continue;
+                }
                 boolean is = atoms[i].getType().isDescendedFrom(atoms[j].getType());
                 if(typeIsDescendedFrom(atoms[i],atoms[j])) {
                     assertTrue(is);
@@ -131,6 +148,9 @@ public class AtomIndexManagerTest extends TestCase {
         int falseCount = 0;
         int undefinedCount = 0;
         for(int i=i0; i<atoms.length; i++) {
+            if (atoms[i] instanceof SpeciesMaster || atoms[i] instanceof SpeciesAgent) {
+                continue;
+            }
             if(atoms[i].inSameMolecule(atom)) System.out.println(i+" "+atoms[i]+" "+atom);
             assertFalse(atoms[i].inSameMolecule(atom));
             assertFalse(atom.inSameMolecule(atoms[i]));
@@ -138,7 +158,22 @@ public class AtomIndexManagerTest extends TestCase {
             while (!(moleculeA.getParentGroup() instanceof SpeciesAgent)) {
                 moleculeA = moleculeA.getParentGroup();
             }
+            Atom speciesMasteri = atoms[i];
+            while (!(speciesMasteri instanceof SpeciesMaster)) {
+                speciesMasteri = speciesMasteri.getParentGroup();
+            }
             for(int j=i0; j<atoms.length; j++) {
+                if (atoms[j] instanceof SpeciesMaster || atoms[j] instanceof SpeciesAgent) {
+                    continue;
+                }
+                Atom speciesMasterj = atoms[j];
+                while (!(speciesMasterj instanceof SpeciesMaster)) {
+                    speciesMasterj = speciesMasterj.getParentGroup();
+                }
+                if (speciesMasteri != speciesMasterj) {
+                    // different phases, so skip
+                    continue;
+                }
                 Atom moleculeB = atoms[j];
                 while (!(moleculeB.getParentGroup() instanceof SpeciesAgent)) {
                     moleculeB = moleculeB.getParentGroup();
@@ -159,7 +194,7 @@ public class AtomIndexManagerTest extends TestCase {
                 }
             }
         }
-        System.out.println("AtomIndexManagerTest(Molecule): trueCount = "+trueCount+"; falseCount = "+falseCount+"; undefinedCount = "+undefinedCount);
+        if(UnitTestUtil.VERBOSE) System.out.println("AtomIndexManagerTest(Molecule): trueCount = "+trueCount+"; falseCount = "+falseCount+"; undefinedCount = "+undefinedCount);
     }
 
     Atom atom;
@@ -168,6 +203,4 @@ public class AtomIndexManagerTest extends TestCase {
     Atom[] atoms;
     int[] moleculeIndex, phaseIndex, speciesIndex, atomIndex;
     int i0;
-    
-
 }

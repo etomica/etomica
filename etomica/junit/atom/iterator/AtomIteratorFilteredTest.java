@@ -16,10 +16,6 @@ import etomica.space3d.Space3D;
  * @author David Kofke
  *  
  */
-
-/*
- * History Created on Jul 2, 2005 by kofke
- */
 public class AtomIteratorFilteredTest extends IteratorTestAbstract {
 
     /**

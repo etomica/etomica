@@ -51,7 +51,7 @@ public class TestHarmonic extends Simulation {
         defaults.atomSize = 1.0;
 
         species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
 
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);

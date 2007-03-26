@@ -2,9 +2,7 @@ package etomica.phase;
 
 import java.lang.reflect.Array;
 
-import etomica.atom.SpeciesMaster;
-import etomica.atom.SpeciesRoot;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.simulation.Simulation;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationPhaseAddedEvent;
@@ -22,14 +20,14 @@ import etomica.util.Arrays;
  */
 public class PhaseAgentManager implements SimulationListener, java.io.Serializable {
 
-    public PhaseAgentManager(PhaseAgentSource source, SpeciesRoot speciesRoot) {
-        this(source, speciesRoot, true);
+    public PhaseAgentManager(PhaseAgentSource source, Simulation sim) {
+        this(source, sim, true);
     }
 
-    public PhaseAgentManager(PhaseAgentSource source, SpeciesRoot speciesRoot, boolean isBackend) {
+    public PhaseAgentManager(PhaseAgentSource source, Simulation sim, boolean isBackend) {
         agentSource = source;
-        if (speciesRoot != null) {
-            setRoot(speciesRoot);
+        if (sim != null) {
+            setSimulation(sim);
         }
         this.isBackend = isBackend;
     }
@@ -51,19 +49,18 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
     /**
      * Sets the species root parent in the Simulation for Phases to be tracked.
      */
-    public void setRoot(SpeciesRoot newSpeciesRoot) {
-        if (newSpeciesRoot == speciesRoot) {
+    public void setSimulation(Simulation newSimulation) {
+        if (newSimulation == sim) {
             return;
         }
-        speciesRoot = newSpeciesRoot;
-        speciesRoot.getEventManager().addListener(this, isBackend);
+        sim = newSimulation;
+        sim.getEventManager().addListener(this, isBackend);
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
-        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(speciesRoot.getChildList());
-        listIterator.reset();
-        agents = (Object[])Array.newInstance(agentSource.getAgentClass(),listIterator.size());
-        while(listIterator.hasNext()) {
-            addAgent(((SpeciesMaster)listIterator.nextAtom()).getPhase());
+        Phase[] phases = sim.getPhases();
+        agents = (Object[])Array.newInstance(agentSource.getAgentClass(),phases.length);
+        for (int i=0; i<phases.length; i++) {
+            addAgent(phases[i]);
         }
     }
     
@@ -73,7 +70,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
      */
     public void dispose() {
         // remove ourselves as a listener to the old phase
-        speciesRoot.getEventManager().removeListener(this);
+        sim.getEventManager().removeListener(this);
         for (int i=0; i<agents.length; i++) {
             if (agents[i] != null) {
                 agentSource.releaseAgent(agents[i]);
@@ -118,7 +115,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
     private static final long serialVersionUID = 1L;
     private final PhaseAgentSource agentSource;
     protected Object[] agents;
-    private SpeciesRoot speciesRoot;
+    private Simulation sim;
     private final boolean isBackend;
     
     /**

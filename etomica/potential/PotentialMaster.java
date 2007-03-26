@@ -52,7 +52,7 @@ public class PotentialMaster implements java.io.Serializable {
     /**
      * Returns the simulation associated with this PotentialMaster
      */
-    protected Simulation getSimulation() {
+    public Simulation getSimulation() {
         return simulation;
     }
     

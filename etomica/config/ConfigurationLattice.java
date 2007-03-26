@@ -253,7 +253,7 @@ public class ConfigurationLattice extends Configuration {
         sim.getDefaults().atomSize = 5.0;
         Phase phase = new Phase(sim);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
-        sim.getSpeciesRoot().addSpecies(species);
+        sim.getSpeciesManager().addSpecies(species);
         int k = 4;
         phase.getAgent(species).setNMolecules(4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim);

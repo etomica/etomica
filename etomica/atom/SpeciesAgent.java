@@ -42,7 +42,7 @@ public final class SpeciesAgent extends AtomGroup {
         if(n > childList.size()) {
             for(int i=childList.size(); i<n; i++) addNewAtom();
         }
-        else if(n < childAtomCount()) {
+        else if(n < childList.size()) {
             if(n < 0) n = 0;
             for (int i=getChildList().size(); i>n; i--) {
                 getChildList().get(i-1).dispose();
@@ -51,8 +51,7 @@ public final class SpeciesAgent extends AtomGroup {
         if (n == 0) {
             // if there are no molecules of this Species, the factory can be mutable
             // yes, this is horrible.
-            SpeciesRoot speciesRoot = (SpeciesRoot)parent.getParentGroup();
-            type.getSpecies().getFactory().checkMutable(speciesRoot);
+            type.getSpecies().getFactory().checkMutable(((SpeciesMaster)parent).getPhase().getSimulation());
         }
     }
     

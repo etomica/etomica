@@ -65,7 +65,7 @@ public class JouleThomsonSim extends Simulation {
 	    
 	    //species and potential
 	    species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
 	    potential = new P2LennardJones(this);
         potentialMaster.addPotential(potential, new Species[]{species, species});
 	    phase = new Phase(this);

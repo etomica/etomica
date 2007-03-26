@@ -2,22 +2,16 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.SpeciesMaster;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
-import etomica.species.Species;
+import etomica.simulation.Simulation;
 
 /**
  * Unit test for AtomIteratorLeafAtoms
  * 
  * @author David Kofke
  *  
- */
-
-/*
- * History Created on July 2, 2005 by kofke
  */
 public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
 
@@ -28,7 +22,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         int[] n1 = new int[] { 5, 0, 6 };
         int[] n2 = new int[] { 1, 7, 2 };
         int[] n2Tree = new int[] { 3, 4 };
-        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
                 n2Tree);
 
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
@@ -36,15 +30,9 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         //test new iterator gives no iterates
         testNoIterates(iterator);
         
-        Species[] species = new Species[3];
-        for(int i=0; i<species.length; i++) {
-            species[i] = root.getDescendant(new int[] {0,i}).getType().getSpecies();
-        }
-        
-        Phase[] phase = new Phase[3];
+        Phase[] phase = sim.getPhases();
         int[][] moleculeCount = new int[3][];
         for(int i=0; i<phase.length; i++) {
-            phase[i] = ((SpeciesMaster)root.getChildList().get(i)).getPhase();
             moleculeCount[i] = new int[] {n0[i], n1[i], n2[i]};
         }
 

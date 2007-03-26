@@ -1,6 +1,5 @@
-package etomica.atom;
+package etomica.simulation;
 
-import etomica.simulation.SimulationEvent;
 
 /**
  * Simulation event that notifies listeners that the number of AtomTypes in 
@@ -8,7 +7,7 @@ import etomica.simulation.SimulationEvent;
  * 
  * @author Andrew Schultz
  */
-class SimulationAtomTypeMaxIndexEvent extends SimulationEvent {
+public class SimulationAtomTypeMaxIndexEvent extends SimulationEvent {
 
     SimulationAtomTypeMaxIndexEvent(int maxIndex) {
         super();
@@ -18,7 +17,7 @@ class SimulationAtomTypeMaxIndexEvent extends SimulationEvent {
     /**
      * Returns the new maximum index
      */
-    int getMaxIndex() {
+    public int getMaxIndex() {
         return maxIndex;
     }
     

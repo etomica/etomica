@@ -45,7 +45,7 @@ public class GEMCWithRotation extends Simulation {
 	    activityIntegrate.setInterval(400);
 	    
 	    species = new SpeciesSpheresRotating(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
 
 	    phase1 = new Phase(this);
         phase1.getAgent(species).setNMolecules(200);

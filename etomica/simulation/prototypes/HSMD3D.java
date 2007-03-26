@@ -98,7 +98,7 @@ public class HSMD3D extends Simulation {
         getController().addAction(activityIntegrate);
         
         species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(this);
 
         potentialMaster.addPotential(potential,new Species[]{species,species});

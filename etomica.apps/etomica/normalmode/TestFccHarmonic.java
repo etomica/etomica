@@ -56,7 +56,7 @@ public class TestFccHarmonic extends Simulation {
         defaults.ignoreOverlap = true;
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
 
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);

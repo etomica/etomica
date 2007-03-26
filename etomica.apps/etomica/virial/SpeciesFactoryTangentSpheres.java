@@ -1,15 +1,13 @@
 package etomica.virial;
 
-import etomica.atom.AtomTypeRoot;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 
-
 /**
- * SpeciesFactory that makes SpeciesWater
+ * SpeciesFactory that makes a tangent sphere species.
  */
 public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Serializable {
     public SpeciesFactoryTangentSpheres(int nA, Conformation conformation) {
@@ -19,7 +17,7 @@ public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Ser
     
     public Species makeSpecies(Simulation sim) {
         return new SpeciesSpheres(sim, nA, new ElementSimple(
-                ((AtomTypeRoot)sim.getSpeciesRoot().getType()).makeUniqueElementSymbol("TS"), 
+                (sim.getSpeciesManager()).makeUniqueElementSymbol("TS"), 
                 sim.getDefaults().atomMass), conformation);
     }
     

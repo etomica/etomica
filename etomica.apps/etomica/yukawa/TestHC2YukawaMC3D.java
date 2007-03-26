@@ -54,7 +54,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
 		phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);
 		phase.setDensity(0.65);

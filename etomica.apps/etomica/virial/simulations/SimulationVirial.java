@@ -46,7 +46,7 @@ public class SimulationVirial extends Simulation {
 		phase = new PhaseCluster(this,sampleCluster);
         phase.getBoundary().setDimensions(Space.makeVector(new double[]{3.0,3.0,3.0}));
 		species = speciesFactory.makeSpecies(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
         phase.getAgent(species).setNMolecules(nMolecules);
         
         if (refCluster instanceof ClusterCoupled) {

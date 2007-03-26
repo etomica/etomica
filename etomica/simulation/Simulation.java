@@ -3,9 +3,6 @@ package etomica.simulation;
 import java.util.LinkedList;
 
 import etomica.action.activity.Controller;
-import etomica.atom.SpeciesMaster;
-import etomica.atom.SpeciesRoot;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.phase.Phase;
@@ -50,40 +47,41 @@ public class Simulation implements java.io.Serializable  {
         this.space = space;
         this.dynamic = isDynamic;
         this.defaults = defaults;
+        phaseList = new Phase[0];
         setName(NameMaker.makeName(this.getClass()));
         this.potentialMaster = potentialMaster;
         setController(new Controller());
-        speciesRoot = new SpeciesRoot((int[])bitLength.clone());
         potentialMaster.setSimulation(this);
         myRandom = new RandomNumberGenerator();
+        eventManager = new SimulationEventManager();
+        speciesManager = new SpeciesManager(this, bitLength);
     }
 
+    public final void addPhase(Phase newPhase) {
+        phaseList = (Phase[])Arrays.addObject(phaseList, newPhase);
+        Species[] speciesList = speciesManager.getSpecies();
+        for(int i=0; i<speciesList.length; i++) {
+            speciesList[i].makeAgent(newPhase.getSpeciesMaster());
+        }
+        eventManager.fireEvent(new SimulationPhaseAddedEvent(newPhase));
+    }
+    
+    public final void removePhase(Phase oldPhase) {
+        phaseList = (Phase[])Arrays.removeObject(phaseList, oldPhase);
+        eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldPhase));
+    }
+    
     /**
      * Returns an array of Phases contained in the Simulation
      */
     public final Phase[] getPhases() {
-        int nPhases = speciesRoot.getChildList().size();
-        Phase[] phases = new Phase[nPhases];
-        AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple(speciesRoot.getChildList());
-        listIterator.reset();
-        int i=0;
-        while(listIterator.hasNext()) {
-            phases[i++] = ((SpeciesMaster)listIterator.nextAtom()).getPhase();
-        }
-        return phases;
+        return phaseList;
     }
-    
+
     /**
      * Returns a list of Integrators that have been registered with the Simulation
      */
     public final LinkedList getIntegratorList() {return integratorList;}
-    
-    /**
-     * Returns an array of Species contained in the Simulation
-     */
-    public final Species[] getSpecies() {
-        return speciesRoot.getSpecies();
-    }
     
     /**
      * Returns an array of DataStreamsHeaders for data streams that have been
@@ -236,18 +234,19 @@ public class Simulation implements java.io.Serializable  {
         return space;
     }
 
-    /**
-     * @return the speciesRoot
-     */
-    public final SpeciesRoot getSpeciesRoot() {
-        return speciesRoot;
-    }
-
     public static final java.util.Random random = new java.util.Random();
 //    public static final java.util.Random random = new java.util.Random(1);
 
     public IRandom getRandom() {
         return myRandom;
+    }
+    
+    public SimulationEventManager getEventManager() {
+        return eventManager;
+    }
+    
+    public SpeciesManager getSpeciesManager() {
+        return speciesManager;
     }
     
     /**
@@ -265,13 +264,15 @@ public class Simulation implements java.io.Serializable  {
     // powers of 2, for reference:
     //  n | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |  14  |  15  |  16  |  17   |  18   |  19   |   20    |
     // 2^n| 2 | 4 | 8 | 16| 32| 64|128|256|512|1024|2048|4096|8192|16,384|32,768|65,536|131,072|262,144|524,288|1,048,576|
-    // {speciesRoot, phases, species, molecules, groups, atoms}
-    public int[] DEFAULT_BIT_LENGTH = new int[] {1, 4, 4, 14, 6, 3};
+    // {phase, species, molecules, groups, atoms}
+    public int[] DEFAULT_BIT_LENGTH = new int[] {1, 4, 18, 6, 3};
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
     protected final PotentialMaster potentialMaster;
     protected final Space space;
-    protected final SpeciesRoot speciesRoot;
+    protected final SimulationEventManager eventManager;
+    private Phase[] phaseList;
+    private final SpeciesManager speciesManager;
     protected final IRandom myRandom;
     private final boolean dynamic;
     private Controller controller;     

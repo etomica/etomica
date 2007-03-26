@@ -7,7 +7,6 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.integrator.IntegratorIntervalEvent;
@@ -60,7 +59,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         phaseAgentManager1Body = new PhaseAgentManager(new PhaseAgentSourceAtomManager(new AtomPotential1ListSource()),null);
         phaseClean = new boolean[0];
     }
-
+    
     /**
      * Reacts to an integrator INITIALIZE event, preparing the
      * neighbor-list facility. Performs the following actions:
@@ -74,9 +73,9 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      */
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
+            phaseAgentManager.setSimulation(potentialMaster.getSimulation());
+            phaseAgentManager1Body.setSimulation(potentialMaster.getSimulation());
             Phase phase = ((IntegratorPhase)evt.getSource()).getPhase();
-            phaseAgentManager.setRoot((SpeciesRoot)phase.getSpeciesMaster().getParentGroup());
-            phaseAgentManager1Body.setRoot((SpeciesRoot)phase.getSpeciesMaster().getParentGroup());
             updateLists(phase);
             reset(phase);
         }
@@ -426,7 +425,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         
         public void actionPerformed(Atom atom) {
             //TODO consider removing this check, for perf improvement
-            if (atom.getType().getDepth() < 3) {
+            if (atom.getType().getDepth() < 2) {
                 return;//don't want SpeciesMaster or SpeciesAgents
             }
             final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.getType());

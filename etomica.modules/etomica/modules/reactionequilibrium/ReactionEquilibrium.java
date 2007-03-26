@@ -60,8 +60,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         integratorHard1.setPhase(phase1);
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(speciesA);
-        getSpeciesRoot().addSpecies(speciesB);
+        getSpeciesManager().addSpecies(speciesA);
+        getSpeciesManager().addSpecies(speciesB);
         ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
         phase1.getAgent(speciesA).setNMolecules(30);
         phase1.getAgent(speciesB).setNMolecules(30);

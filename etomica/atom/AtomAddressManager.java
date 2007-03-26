@@ -1,6 +1,7 @@
 package etomica.atom;
 
 
+
 /**
  * Performs manipulations and interrogations related to the index assigned to
  * each atom. The atom index is held in the node field of the atom. It is an
@@ -53,21 +54,17 @@ public class AtomAddressManager implements java.io.Serializable {
         cumulativeBitLength = calculateCumulativeBitLength(bitLength);
         bitShift = calculateBitShift(cumulativeBitLength);
         this.depth = depth;
-        int rootMask = 1 << 31;
-        phaseOrdinalMask = ((power2(bitLength[1]) - 1) << bitShift[1]);
-        speciesOrdinalMask = ((power2(bitLength[2]) - 1) << bitShift[2]);
-        moleculeOrdinalMask = ((power2(bitLength[3]) - 1) << bitShift[3]);
+        int phaseMask = 1 << 31;
+        speciesOrdinalMask = ((power2(bitLength[1]) - 1) << bitShift[1]);
+        moleculeOrdinalMask = ((power2(bitLength[2]) - 1) << bitShift[2]);
         atomOrdinalMask = (power2(bitLength[depth]) - 1) << bitShift[depth];
         addressMask = (power2(cumulativeBitLength[depth])-1) << bitShift[depth];//addressMask has 1's in for all bits significant to the index
-        samePhaseMask = phaseOrdinalMask | rootMask;
-        sameSpeciesMask = speciesOrdinalMask | rootMask;
-        sameMoleculeMask = moleculeOrdinalMask | rootMask | samePhaseMask
-                | sameSpeciesMask;
+        sameSpeciesMask = speciesOrdinalMask;
+        sameMoleculeMask = phaseMask | sameSpeciesMask | moleculeOrdinalMask;
 //        System.out.println("depth, bitLength,cumulativeBitLength,bitShift: "+depth+Arrays.toString(bitLength)+Arrays.toString(cumulativeBitLength)+Arrays.toString(bitShift));
-//        System.out.println("samePhaseMask: "+Integer.toBinaryString(samePhaseMask));
 //        System.out.println("sameSpeciesMask: "+Integer.toBinaryString(sameSpeciesMask));
 //        System.out.println("sameMoleculeMask: "+Integer.toBinaryString(sameMoleculeMask));
-//        System.out.println("ordinalMask: "+Integer.toBinaryString(atomOrdinalMask|rootMask));
+//        System.out.println("ordinalMask: "+Integer.toBinaryString(atomOrdinalMask));
 //        System.out.println("addressMask: "+Integer.toBinaryString(addressMask));
     }
 
@@ -100,7 +97,7 @@ public class AtomAddressManager implements java.io.Serializable {
      * Constructs an index manager for the SpeciesRoot AtomType.  Called in
      * SpeciesRoot constructor.
      */
-    static AtomAddressManager makeRootIndexManager(int[] bitLength) {
+    public static AtomAddressManager makeRootIndexManager(int[] bitLength) {
         return new AtomAddressManager(bitLength, 0);
     }
     
@@ -110,7 +107,7 @@ public class AtomAddressManager implements java.io.Serializable {
      * null.
      */
     public static AtomAddressManager makeSimpleIndexManager(int[] bitLength) {
-        return new AtomAddressManager(bitLength, 3);
+        return new AtomAddressManager(bitLength, 2);
     }
 
     /**
@@ -145,19 +142,19 @@ public class AtomAddressManager implements java.io.Serializable {
         return ((atomAddress & atomOrdinalMask) >>> bitShift[depth]) - 1;
     }
 
-    /**
-     * Decodes an atom's address to determine the index of the phase it is in.
-     */
-    public int getPhaseIndex(int atomAddress) {
-        return ((atomAddress & phaseOrdinalMask) >>> bitShift[1]) - 1;
-    }
-
+//    /**
+//     * Decodes an atom's address to determine the index of the phase it is in.
+//     */
+//    public int getPhaseIndex(int atomAddress) {
+//        return ((atomAddress & phaseOrdinalMask) >>> bitShift[1]) - 1;
+//    }
+//
     /**
      * Decodes an atom's address to determine the ordinal of the species it is part
      * of.
      */
     public int getSpeciesIndex(int atomAddress) {
-        return ((atomAddress & speciesOrdinalMask) >>> bitShift[2]) - 1;
+        return ((atomAddress & speciesOrdinalMask) >>> bitShift[1]) - 1;
     }
 
     /**
@@ -165,20 +162,20 @@ public class AtomAddressManager implements java.io.Serializable {
      * is part of.
      */
     public int getMoleculeIndex(int atomAddress) {
-        return ((atomAddress & moleculeOrdinalMask) >>> bitShift[3]) - 1;
+        return ((atomAddress & moleculeOrdinalMask) >>> bitShift[2]) - 1;
     }
 
-    /**
-     * Returns true if the given addresses correspond to atoms that are in the 
-     * same phase.
-     * @param address0 address of an atom, as given by the index() method of its node.
-     * @param address1 address of another atom, as given by the index() method of its node.
-     * @return true if atoms are in the same phase (or are the same atom).
-     */
-    public boolean samePhase(int address0, int address1) {
-        return ((address0 ^ address1) & samePhaseMask) == 0;
-    }
-
+//    /**
+//     * Returns true if the given addresses correspond to atoms that are in the 
+//     * same phase.
+//     * @param address0 address of an atom, as given by the index() method of its node.
+//     * @param address1 address of another atom, as given by the index() method of its node.
+//     * @return true if atoms are in the same phase (or are the same atom).
+//     */
+//    public boolean samePhase(int address0, int address1) {
+//        return ((address0 ^ address1) & samePhaseMask) == 0;
+//    }
+//
     /**
      * Returns true if the given addresses correspond to atoms that are part of the 
      * same species.
@@ -241,10 +238,8 @@ public class AtomAddressManager implements java.io.Serializable {
     private final int[] cumulativeBitLength;
     private final int[] bitShift;
     private final int depth;
-    private final int samePhaseMask;
     private final int sameSpeciesMask;
     private final int sameMoleculeMask;
-    private final int phaseOrdinalMask;
     private final int speciesOrdinalMask;
     private final int moleculeOrdinalMask;
     private final int atomOrdinalMask;

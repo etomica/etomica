@@ -4,11 +4,10 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
 import etomica.atom.AtomSet;
-import etomica.atom.SpeciesMaster;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.ApiInterspeciesAA;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 
@@ -17,11 +16,6 @@ import etomica.species.Species;
  *
  * @author David Kofke
  *
- */
-
-/*
- * History
- * Created on Jun 28, 2005 by kofke
  */
 public class ApiInterspeciesAATest extends IteratorTestAbstract {
 
@@ -32,16 +26,13 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         int[] n1 = new int[] {5, 1, 6};
         int[] n2 = new int[] {1, 7, 2};
         int[] n2Tree = new int[] {3,4};
-        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
         
-        Species[] species = new Species[3];
-        species[0] = root.getDescendant(new int[] {0,0}).getType().getSpecies();
-        species[1] = root.getDescendant(new int[] {0,1}).getType().getSpecies();
-        species[2] = root.getDescendant(new int[] {0,2}).getType().getSpecies();
+        Species[] species = sim.getSpeciesManager().getSpecies();
 
-        phaseTest(root, species, 0);
-        phaseTest(root, species, 1);
-        phaseTest(root, species, 2);
+        phaseTest(sim.getPhases()[0], species);
+        phaseTest(sim.getPhases()[1], species);
+        phaseTest(sim.getPhases()[2], species);
         
         ApiInterspeciesAA api = new ApiInterspeciesAA(new Species[] {species[0], species[1]});
         
@@ -76,21 +67,20 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular phase.
      */
-    private void phaseTest(SpeciesRoot root, Species[] species, int phaseIndex) {
-        speciesTestForward(root, species, phaseIndex, 0, 1);
-        speciesTestForward(root, species, phaseIndex, 0, 2);
-        speciesTestForward(root, species, phaseIndex, 1, 2);
-        speciesTestForward(root, species, phaseIndex, 1, 0);
-        speciesTestForward(root, species, phaseIndex, 2, 0);
-        speciesTestForward(root, species, phaseIndex, 2, 1);
+    private void phaseTest(Phase phase, Species[] species) {
+        speciesTestForward(phase, species, 0, 1);
+        speciesTestForward(phase, species, 0, 2);
+        speciesTestForward(phase, species, 1, 2);
+        speciesTestForward(phase, species, 1, 0);
+        speciesTestForward(phase, species, 2, 0);
+        speciesTestForward(phase, species, 2, 1);
     }
 
     /**
      * Test iteration in various directions with different targets.
      */
-    private void speciesTestForward(SpeciesRoot root, Species[] species, int phaseIndex, int species0Index, int species1Index) {
+    private void speciesTestForward(Phase phase, Species[] species, int species0Index, int species1Index) {
         ApiInterspeciesAA api = new ApiInterspeciesAA(new Species[] {species[species0Index], species[species1Index]});
-        Phase phase = ((SpeciesMaster)root.getChildList().get(phaseIndex)).getPhase();
         AtomsetAction speciesTest = new SpeciesTestAction();
 
         api.setPhase(phase);

@@ -45,7 +45,7 @@ public class LjMd3D extends Simulation {
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
         phase.getAgent(species).setNMolecules(50);
         phase = new Phase(this);
         potential = new P2LennardJones(this);

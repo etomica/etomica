@@ -7,7 +7,6 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorTree;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -29,10 +28,6 @@ import etomica.util.Default;
  * @author David Kofke
  *  
  */
-
-/*
- * History Created on Apr 28, 2005 by kofke
- */
 public class UnitTestUtil {
 
     public static boolean VERBOSE = false;
@@ -44,7 +39,7 @@ public class UnitTestUtil {
         super();
     }
 
-    public static SpeciesRoot makeStandardSpeciesTree() {
+    public static Simulation makeStandardSpeciesTree() {
         return makeStandardSpeciesTree(new int[] { 5, 7 }, 3, new int[] { 10,
                 10 }, new int[] { 3, 3 }, new int[] { 5, 4, 3 });
     }
@@ -70,7 +65,7 @@ public class UnitTestUtil {
      * @return root of species hierarchy
      */
 
-    public static SpeciesRoot makeStandardSpeciesTree(int[] n0, int nA0,
+    public static Simulation makeStandardSpeciesTree(int[] n0, int nA0,
             int[] n1, int[] n2, int[] n2Tree) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new PotentialMaster(space),
@@ -81,17 +76,17 @@ public class UnitTestUtil {
         int nPhase = 0;
         if (n0 != null) {
             species0 = new SpeciesSpheres(sim, nA0);
-            sim.getSpeciesRoot().addSpecies(species0);
+            sim.getSpeciesManager().addSpecies(species0);
             nPhase = n0.length;
         }
         if (n1 != null) {
             species1 = new SpeciesSpheresMono(sim);
-            sim.getSpeciesRoot().addSpecies(species1);
+            sim.getSpeciesManager().addSpecies(species1);
             nPhase = n1.length;
         }
         if (n2 != null) {
             species2 = new SpeciesTree(sim, n2Tree);
-            sim.getSpeciesRoot().addSpecies(species2);
+            sim.getSpeciesManager().addSpecies(species2);
             nPhase = n2.length;
         }
         for (int i = 0; i < nPhase; i++) {
@@ -103,7 +98,7 @@ public class UnitTestUtil {
             if (species2 != null)
                 phase.getAgent(species2).setNMolecules(n2[i]);
         }
-        return sim.getSpeciesRoot();
+        return sim;
     }
 
     /**
@@ -130,7 +125,7 @@ public class UnitTestUtil {
      *            type used to form a molecule.
      * @return root of the species hierarchy
      */
-    public static SpeciesRoot makeMultitypeSpeciesTree(int[] nMolecules,
+    public static Simulation makeMultitypeSpeciesTree(int[] nMolecules,
             int[][] nAtoms) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new PotentialMaster(space),
@@ -149,10 +144,10 @@ public class UnitTestUtil {
             factory.setChildFactory(childFactories);
             factory.setChildCount(nAtoms[i]);
             Species species = new MySpecies(factory, agentType);
-            sim.getSpeciesRoot().addSpecies(species);
+            sim.getSpeciesManager().addSpecies(species);
             phase.getAgent(species).setNMolecules(nMolecules[i]);
         }
-        return sim.getSpeciesRoot();
+        return sim;
     }
     
     private static class MySpecies extends Species {
@@ -166,13 +161,16 @@ public class UnitTestUtil {
     }
 
     public static void main(String[] arg) {
-        SpeciesRoot root = makeStandardSpeciesTree();
-        AtomIteratorTree iterator = new AtomIteratorTree();
-        iterator.setRootAtom(root);
-        iterator.setDoAllNodes(true);
-        iterator.reset();
-        while (iterator.hasNext()) {
-            System.out.println(iterator.next().toString());
+        Simulation sim = makeStandardSpeciesTree();
+        Phase[] phases = sim.getPhases();
+        for (int i=0; i<phases.length; i++) {
+            AtomIteratorTree iterator = new AtomIteratorTree();
+            iterator.setRootAtom(phases[i].getSpeciesMaster());
+            iterator.setDoAllNodes(true);
+            iterator.reset();
+            while (iterator.hasNext()) {
+                System.out.println(iterator.next().toString());
+            }
         }
     }
 

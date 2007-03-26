@@ -37,7 +37,7 @@ public class Multiharmonic extends Simulation {
         defaults.atomSize = 0.02;
         double x0 = 1;
         species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
         phase = new Phase(this);
         phase.getBoundary().setDimensions(new Vector1D(3.0));
         controller = getController();

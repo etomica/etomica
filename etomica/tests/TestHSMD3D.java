@@ -13,7 +13,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 3D.
@@ -30,7 +29,7 @@ public class TestHSMD3D extends Simulation {
 
     public TestHSMD3D(Space space, int numAtoms) {
         // use custom bit lengths to allow for more "molecules"
-        super(space, true, new PotentialMasterList(space), new int[] {1, 4, 4, 21, 1, 1}, new Default());
+        super(space, true, new PotentialMasterList(space)); //, new int[] {1, 4, 4, 21, 1, 1}, new Default());
         
         double neighborRangeFac = 1.6;
         defaults.makeLJDefaults();
@@ -49,9 +48,9 @@ public class TestHSMD3D extends Simulation {
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(20000000/numAtoms);
         species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
         species2 = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species2);
+        getSpeciesManager().addSpecies(species2);
 
         potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species,species});
 

@@ -133,8 +133,11 @@ public class AtomTypeGroup extends AtomType {
     }
     
     protected void childTypeAddedNotify(AtomType newChildType) {
-        parentType.childTypeAddedNotify(newChildType);
+        if (parentType != null) {
+            parentType.childTypeAddedNotify(newChildType);
+        }
     }
 
+    private static final long serialVersionUID = 1L;
     protected AtomType[] childTypes = new AtomType[0];
 }

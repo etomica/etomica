@@ -66,12 +66,17 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     public Phase(Simulation sim) {
         space = sim.getSpace();
         eventManager = new PhaseEventManager();
-        speciesMaster = new SpeciesMaster(sim, this, eventManager);
+        speciesMaster = new SpeciesMaster(sim.getSpeciesManager().getSpeciesMasterType(), this, eventManager);
         setBoundary(new BoundaryRectangularPeriodic(sim));
-        speciesMaster.setParent(sim.getSpeciesRoot());
+        sim.addPhase(this);
         setName(null);
-
+        this.sim = sim;
+        
         inflateEvent = new PhaseInflateEvent(this);
+    }
+    
+    public Simulation getSimulation() {
+        return sim;
     }
 
     public int getIndex() {
@@ -275,7 +280,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         Phase newPhase = new Phase(sim);
         newPhase.setBoundary(newBoundary);
         
-        Species[] mySpecies = sim.getSpecies();
+        Species[] mySpecies = sim.getSpeciesManager().getSpecies();
         int numSpecies = in.readInt();
         for (int i = 0; i<numSpecies; i++) {
             SpeciesSignature speciesSignature = (SpeciesSignature)in.readObject();
@@ -327,5 +332,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     protected final Space space;
     private final PhaseEventManager eventManager;
     private final PhaseEvent inflateEvent;
+    private Simulation sim;
 } //end of Phase
         

@@ -22,6 +22,8 @@ import etomica.units.systems.UnitSystem;
 
 public class Default implements java.io.Serializable {
     
+    private static final long serialVersionUID = 1L;
+
     public double atomSize = 3.0;  //Angstroms
     public Dimension getAtomSizeDimension() {
         return Length.DIMENSION;
@@ -104,7 +106,7 @@ public class Default implements java.io.Serializable {
     //  n | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |  14  |  15  |  16  |  17   |  18   |  19   |   20    |
     // 2^n| 2 | 4 | 8 | 16| 32| 64|128|256|512|1024|2048|4096|8192|16,384|32,768|65,536|131,072|262,144|524,288|1,048,576|
     // {speciesRoot, phases, species, molecules, groups, atoms}
-    public static int[] BIT_LENGTH = new int[] {1, 4, 4, 14, 6, 3};
+    public static int[] BIT_LENGTH = new int[] {1, 4, 18, 6, 3};
 
     
     /**

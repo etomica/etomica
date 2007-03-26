@@ -122,7 +122,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         return index;
     }
     
-    void resetIndex() {
+    public void resetIndex() {
         index = parentType.requestIndex();
     }
     

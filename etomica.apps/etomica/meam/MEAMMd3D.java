@@ -172,9 +172,9 @@ public class MEAMMd3D extends Simulation {
         ag = new SpeciesSpheresMono(this, Silver.INSTANCE);
         cu = new SpeciesSpheresMono(this, Copper.INSTANCE);
 
-        getSpeciesRoot().addSpecies(sn);
-        getSpeciesRoot().addSpecies(ag);
-        getSpeciesRoot().addSpecies(cu);
+        getSpeciesManager().addSpecies(sn);
+        getSpeciesManager().addSpecies(ag);
+        getSpeciesManager().addSpecies(cu);
 
         /** The following values come from either the ASM Handbook or Cullity & Stock's 
          * "Elements of X-Ray Diffraction" (2001)

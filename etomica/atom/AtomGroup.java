@@ -1,5 +1,7 @@
 package etomica.atom;
 
+import java.util.ArrayList;
+
 public class AtomGroup extends Atom {
 
     public AtomGroup(AtomType type) {
@@ -65,6 +67,8 @@ public class AtomGroup extends Atom {
      * situations involving repeated calls (this should be avoided).
      */
     public Atom[] childAtomArray() {
+        ArrayList foo = new ArrayList();
+        foo.toArray();
         return childList.toArray();
     }
     

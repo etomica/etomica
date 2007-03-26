@@ -3,7 +3,10 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
+import etomica.simulation.Simulation;
 import etomica.simulation.SimulationAtomTypeAddedEvent;
+import etomica.simulation.SimulationAtomTypeIndexChangedEvent;
+import etomica.simulation.SimulationAtomTypeMaxIndexEvent;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
@@ -20,15 +23,15 @@ import etomica.util.Arrays;
  */
 public class AtomTypeAgentManager implements SimulationListener, java.io.Serializable {
 
-    public AtomTypeAgentManager(AgentSource source, SpeciesRoot root) {
-        this(source, root, true);
+    public AtomTypeAgentManager(AgentSource source, Simulation sim) {
+        this(source, sim, true);
     }
     
-    public AtomTypeAgentManager(AgentSource source, SpeciesRoot root, boolean isBackend) {
+    public AtomTypeAgentManager(AgentSource source, Simulation sim, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
-        if (root != null) {
-            setRoot(root);
+        if (sim != null) {
+            setSimulation(sim);
         }
     }        
     
@@ -114,8 +117,8 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      */
     public void dispose() {
         // remove ourselves as a listener to the old phase
-        root.getEventManager().removeListener(this);
-        releaseAgents(root.getType());
+        sim.getEventManager().removeListener(this);
+        releaseAgents(sim.getSpeciesManager().getSpeciesMasterType());
         agents = null;
     }
     
@@ -123,17 +126,17 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
      * AtomType agents.
      */
-    public void setRoot(SpeciesRoot newRoot) {
-        root = newRoot;
-        root.getEventManager().addListener(this, isBackend);
+    public void setSimulation(Simulation newSimulation) {
+        sim = newSimulation;
+        sim.getEventManager().addListener(this, isBackend);
 
-        int numTypes = getMaxIndexOfChildren((AtomTypeGroup)root.getType())+1;
+        int numTypes = getMaxIndexOfChildren(sim.getSpeciesManager().getSpeciesMasterType())+1;
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 numTypes);
         // fill in the array with agents from all the atoms
-        addAgent(root.getType());
-        makeChildAgents((AtomTypeGroup)root.getType());
+        addAgent(sim.getSpeciesManager().getSpeciesMasterType());
+        makeChildAgents(sim.getSpeciesManager().getSpeciesMasterType());
     }
     
     public void actionPerformed(SimulationEvent evt) {
@@ -194,7 +197,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
-    private SpeciesRoot root;
+    private Simulation sim;
     private final boolean isBackend;
 
     /**

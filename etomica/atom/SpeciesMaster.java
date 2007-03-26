@@ -30,8 +30,8 @@ public final class SpeciesMaster extends AtomGroup {
      */
     public final AtomArrayList leafList = new AtomArrayList();
 
-    public SpeciesMaster(Simulation sim, Phase p, PhaseEventManager eventManager) {
-        super(sim.getSpeciesRoot().getSpeciesMasterType());
+    public SpeciesMaster(AtomTypePhase speciesMasterType, Phase p, PhaseEventManager eventManager) {
+        super(speciesMasterType);
         phaseEventManager = eventManager;
         indexReservoir = new int[reservoirSize];
         maxIndex = -1;
@@ -40,6 +40,7 @@ public final class SpeciesMaster extends AtomGroup {
         parentPhase = p;
         treeIterator.setDoAllNodes(true);
         treeIterator.setIterationDepth(Integer.MAX_VALUE);
+        setIndex(0);
     }
 
     //    public int atomCount() {return atomList.size();}//or could use
@@ -195,9 +196,6 @@ public final class SpeciesMaster extends AtomGroup {
             }
         }
         phaseEventManager.fireEvent(new PhaseAtomAddedEvent(parentPhase, newAtom));
-        if (parent != null) {
-            parent.addAtomNotify(newAtom);
-        }
     }
 
     //updating of leaf atomList may not be efficient enough for repeated
@@ -237,9 +235,6 @@ public final class SpeciesMaster extends AtomGroup {
             }
             leafList.maybeTrimToSize();
         }
-        if (parent != null) {
-            parent.removeAtomNotify(oldAtom);
-        }
     }
 
 
@@ -264,9 +259,9 @@ public final class SpeciesMaster extends AtomGroup {
         Species species2 = new SpeciesSpheresMono(sim);
         Species species1 = new SpeciesSpheres(sim, 3);
         Species species0 = new SpeciesSpheres(sim, 2);
-        sim.getSpeciesRoot().addSpecies(species2);
-        sim.getSpeciesRoot().addSpecies(species1);
-        sim.getSpeciesRoot().addSpecies(species0);
+        sim.getSpeciesManager().addSpecies(species2);
+        sim.getSpeciesManager().addSpecies(species1);
+        sim.getSpeciesManager().addSpecies(species0);
         Phase phase = new Phase(sim);
         phase.getAgent(species0).setNMolecules(4);
         phase.getAgent(species1).setNMolecules(2);

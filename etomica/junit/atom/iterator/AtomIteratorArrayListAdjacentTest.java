@@ -5,10 +5,10 @@ import java.util.LinkedList;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomIteratorArrayListAdjacent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
+import etomica.simulation.Simulation;
 
 
 /**
@@ -16,11 +16,6 @@ import etomica.junit.UnitTestUtil;
  * 
  * @author David Kofke
  *
- */
-
-/*
- * History
- * Created on Jun 14, 2005 by kofke
  */
 public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
 
@@ -37,9 +32,9 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
     
     public void testIteration() {
         int nAtoms = 11;
-        SpeciesRoot root = UnitTestUtil.makeStandardSpeciesTree(
+        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {nAtoms},2,new int[] {nAtoms},null,null);
-        SpeciesAgent agent = (SpeciesAgent)root.getDescendant(new int[] {0,0});
+        SpeciesAgent agent = sim.getPhases()[0].getAgent(sim.getSpeciesManager().getSpecies()[0]);
         AtomArrayList atomList = new AtomArrayList();
         atomList.addAll(agent.getChildList());
 

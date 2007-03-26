@@ -53,7 +53,7 @@ public class TestLJMC3D extends Simulation {
         activityIntegrate.setMaxSteps(200000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
-        getSpeciesRoot().addSpecies(species);
+        getSpeciesManager().addSpecies(species);
 	    phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);
         phase.setDensity(0.65);

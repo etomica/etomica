@@ -2,6 +2,7 @@ package etomica.atom;
 
 import etomica.config.Conformation;
 import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)
@@ -68,14 +69,13 @@ public abstract class AtomFactory implements java.io.Serializable {
      * factory makes exist in any phase.  If no molecules exist, the factory
      * is made mutable.
      */
-    public void checkMutable(SpeciesRoot speciesRoot) {
+    public void checkMutable(Simulation sim) {
         if (isMutable) {
             return;
         }
-        AtomArrayList speciesMasterList = speciesRoot.getChildList();
-        for (int i=0; i<speciesMasterList.size(); i++) {
-            Phase iPhase = ((SpeciesMaster)speciesMasterList.get(i)).getPhase();
-            SpeciesAgent iAgent = atomType.getSpecies().getAgent(iPhase);
+        Phase[] phases = sim.getPhases();
+        for (int i=0; i<phases.length; i++) {
+            SpeciesAgent iAgent = atomType.getSpecies().getAgent(phases[i]);
             if (iAgent.getNMolecules() > 0) {
                 isMutable = false;
                 return;
