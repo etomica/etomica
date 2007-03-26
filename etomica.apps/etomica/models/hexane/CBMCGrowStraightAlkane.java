@@ -41,10 +41,9 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         Species[] sp = new Species[1];
         sp[0] = species;
 
-        vex = phase.getSpace().makeVector();
-        vax = (IVectorRandom)phase.getSpace().makeVector();
-        vux = phase.getSpace().makeVector();
-
+        vex = (IVectorRandom)phase.getSpace().makeVector();
+        temp = phase.getSpace().makeVector();
+        
         a = new double[numTrial];
         b = new double[chainlength];   //used to store old rosenbluth factors
     
@@ -65,15 +64,20 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
     protected void calcRosenbluthFactors(){
         
         //Pick a direction and an atom to start with
-        forward = Simulation.random.nextBoolean();
-        int direction;
+        forward = random.nextInt(2) == 0;
+        int dir, endIndex, beginIndex;
         if(forward){
-            direction = 1;
+            dir = 1;
+            endIndex = chainlength;
+            beginIndex = 0;
         } else {
-            direction = -1;
+            dir = -1;
+            endIndex = -1;
+            beginIndex = chainlength-1;
         }
         int startIndex = calcStartIndex();
-        int numTrial = calcNumberOfTrials() + 1;
+        //nan
+        int numTrial = getNumberOfTrials() + 1;
 
         double uExt;
         wOld = 1.0;
@@ -87,160 +91,137 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         // startIndex.  The startIndex value is calculated in the code that follows
         // the loops.  No loop is needed for trials, as trials are not occurring.
         sumA = 0.0;
-        if(forward){
-            for(int i = chainlength-1; i >= startIndex; i--){
-                uExt = externalMeter.getDataAsScalar();               
-                b[i] = Math.exp(-beta*uExt);
-//                if(i == 0)  {b[i] *= getPrefactor();}
-                sumA += b[i];
-                wOld *= sumA;
-            }// end of i loop
+        
+        for(int i = startIndex; i != endIndex; i += dir){//This loops through the atoms
+            for(int k = 0; k < numTrial-1; k++){  //This loops through the trials
+                
+                if(i == beginIndex){    //If we're placing the first atom of a molecule
+                    (((AtomLeaf)atomList.get(i)).getCoord().getPosition()).E(phase.getBoundary().randomPosition());
+                } else if(i == beginIndex + dir){  //If we're placing the second atom of a molecule
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBond());
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());
+                } else if(i == beginIndex + dir * 2){//If we're placing the third atom of a molecule
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBondWithAngle(
+                            (AtomLeaf)atomList.get(i-dir),
+                            (AtomLeaf)atomList.get(i-2*dir)));
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());                 
+                } else {//For the rest of the atoms in a molecule
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBondWithAngleAndTorsion(
+                            (AtomLeaf)atomList.get(i-dir), 
+                            (AtomLeaf)atomList.get(i-2*dir), 
+                            (AtomLeaf)atomList.get(i-3*dir)));
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());
+                }
+                
+                //evaluate the Boltzmann factor of this configuration
+                // (configuration of this molecule, for this trial)
+                // and store it.
+                uExt = calcExternalEnergy(((AtomLeaf)atomList.get(i)));
+                if(i == endIndex || i == 0){
+                    a[k] = numTrial * Math.exp(-beta*uExt);
+                } else {
+                    a[k] = Math.exp(-beta*uExt);
+                }
+                sumA += a[k];
+            }//end of k loop
             
-        } else {
-            for(int i = 0; i >= startIndex; i++){
-                uExt = externalMeter.getDataAsScalar();
-                b[i] = Math.exp(-beta*uExt);
-//                if(i == chainlength - 1)  {b[i] *= getPrefactor();}
-                sumA += b[i];
-                wOld *= sumA;
-            }//end of i loop
-        }//end of forward/reverse if-else statement
+            //do the k-loop stuff for the actual position of the molecule, since we are in the old section
+            ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(positionOld[i]);
+            uExt = calcExternalEnergy(((AtomLeaf)atomList.get(i)));
+            if(i == endIndex || i == 0){
+                a[numTrial] = numTrial * Math.exp(-beta*uExt);
+            } else {
+                a[numTrial] = Math.exp(-beta*uExt);
+            }
+            sumA += a[numTrial];
+            
+//          Calculate the probablilities
+            for(int k = 0; k < numTrial; k++){
+                a[k] /= sumA;
+            }
+
+            //Increment the Rosenbluth factor for the system.
+            wOld *= sumA;
+
+        }//end of i loop
         
         
         
 //NEW NEW NEW NEW NEW NEW NEW     
         //Calculate the NEW Rosenbluth factor
 
-        
         sumA = 0.0;
-        if(forward){
-            for(int i = startIndex; i < chainlength; i++){//This loops through the atoms
-                for(int k = 0; k < numTrial; k++){  //This loops through the trials
-                    
-                    if (i == 0) { //if we're starting with methane
-                        vex.E(phase.getBoundary().randomPosition());
-                        (((AtomLeaf)atomList.get(0)).getCoord().getPosition()).E(vex);
-                    } else if(i == 1) { //ethane
-                        vex.E(calcRandomBond());
-                        vex.PE(((AtomLeaf)atomList.get(0)).getCoord().getPosition());
-                        ((AtomLeaf)atomList.get(1)).getCoord().getPosition().E(vex);
-                    } else if(i == 2) { //propane
-                        IVector temp = phase.getSpace().makeVector();
-                        temp.E(((AtomLeaf)atomList.get(1)).getCoord().getPosition());
-                        temp.ME(((AtomLeaf)atomList.get(0)).getCoord().getPosition());        
-                        vex.E(calcRandomBondWithAngle(temp));
-                        vex.PE(((AtomLeaf)atomList.get(1)).getCoord().getPosition());
-                        ((AtomLeaf)atomList.get(2)).getCoord().getPosition().E(vex);
-                    } else {  //butane and up; has a torsional thing going.
-                        vex.E(calcRandomBondWithAngleAndTorsion(
-                                (AtomLeaf)atomList.get(i-1), 
-                                (AtomLeaf)atomList.get(i-2), 
-                                (AtomLeaf)atomList.get(i-3)));
-                        vex.PE(((AtomLeaf)atomList.get(i-1)).getCoord().getPosition());
-                        ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(vex);
-                    }
-                    
-                    //store new position
-                    storePos[k].E(((AtomLeaf)atomList.get(i)).getCoord().getPosition());
-                    
-                    //evaluate the Boltzmann factor of this configuration
-                    // (configuration of this molecule, for this trial)
-                    // and store it.
-                    uExt = externalMeter.getDataAsScalar();
+        
+        for(int i = startIndex; i != endIndex; i += dir){//This loops through the atoms
+            for(int k = 0; k < numTrial; k++){  //This loops through the trials
+                
+                if(i == beginIndex){    //If we're placing the first atom of a molecule
+                    (((AtomLeaf)atomList.get(i)).getCoord().getPosition()).E(phase.getBoundary().randomPosition());
+                } else if(i == beginIndex + dir){  //If we're placing the second atom of a molecule
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBond());
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());
+                } else if(i == beginIndex + dir * 2){//If we're placing the third atom of a molecule
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBondWithAngle(
+                            (AtomLeaf)atomList.get(i-dir),
+                            (AtomLeaf)atomList.get(i-2*dir)));
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());                 
+                } else {//For the rest of the atoms in a molecule
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBondWithAngleAndTorsion(
+                            (AtomLeaf)atomList.get(i-dir), 
+                            (AtomLeaf)atomList.get(i-2*dir), 
+                            (AtomLeaf)atomList.get(i-3*dir)));
+                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());
+                }
+                
+//              store new position
+                storePos[k].E(((AtomLeaf)atomList.get(i)).getCoord().getPosition());
+                
+                //evaluate the Boltzmann factor of this configuration
+                // (configuration of this molecule, for this trial)
+                // and store it.
+                uExt = calcExternalEnergy(((AtomLeaf)atomList.get(i)));  
+                if(i == endIndex || i == 0){
+                    a[k] = numTrial * Math.exp(-beta*uExt);
+                } else {
                     a[k] = Math.exp(-beta*uExt);
-//                    if(i == 0)  {a[k] *= getPrefactor();}
-                    sumA += a[k];
-                }//end of k loop
-                
-                //Calculate the probablilities
-                for(int k = 0; k < numTrial; k++){
-                    a[k] /= sumA;
                 }
-                
-                //Select the best (most probable move) 
-                int best = 0;
-                for(int k = 1; k < numTrial; k++){
-                    if(a[k] > a[best]){
-                        best = k;
-                    }
+//                if(i == 0)  {a[k] *= getPrefactor();}
+                sumA += a[k];
+            }//end of k loop
+            
+//          Calculate the probablilities
+            for(int k = 0; k < numTrial; k++){
+                a[k] /= sumA;
+            }
+            
+            //Per discussion with Andrew on 3/26/07 & Algorithm 41 in F&S p.577)
+            double rand = random.nextDouble();
+            double sum = 0.0;
+            int pickThisOne = -1;
+            
+            for(int j = 0; j < a.length; j++){
+                sum += a[j];
+                if(rand < sum){ 
+                    pickThisOne = j;
+                    break;
                 }
-                
-                //Move the atom to the selected position
-                ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(storePos[best]);
-                
-                //Increment the Rosenbluth factor for the system.
-                wNew *= sumA;
-            }//end of i loop
-
-        } else {
-            for(int i = startIndex; i >= 0; i--){
-                for(int k = 0; k < numTrial; k++){
-                    bondlength = calcBondL();
-                    
-                    if (i == chainlength-1) { //if we're starting with methane
-                        vex.E(phase.getBoundary().randomPosition());
-                        (((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition()).E(vex);
-                    } else if(i == chainlength - 2) {  //ethane
-                        vex.E(calcRandomBond());
-                        vex.PE(((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition());
-                        ((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition().E(vex);
-                    } else if(i == chainlength - 3) {  //propane
-                        IVector temp = phase.getSpace().makeVector();
-                        temp.E(((AtomLeaf)atomList.get(chainlength-1)).getCoord().getPosition());
-                        temp.ME(((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition());        
-                        vex.E(calcRandomBondWithAngle(temp));
-                        vex.PE(((AtomLeaf)atomList.get(chainlength-2)).getCoord().getPosition());
-                        ((AtomLeaf)atomList.get(chainlength-3)).getCoord().getPosition().E(vex);
-                    } else {    //butane and up
-                        vex.E(calcRandomBondWithAngleAndTorsion(
-                                (AtomLeaf)atomList.get(i+1),
-                                (AtomLeaf)atomList.get(i+2),
-                                (AtomLeaf)atomList.get(i+3)));
-                        vex.PE(((AtomLeaf)atomList.get(i+1)).getCoord().getPosition());
-                        ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(vex);
-                    }
-                    
-//                  store new position
-                    storePos[k].E(((AtomLeaf)atomList.get(i)).getCoord().getPosition());
-                    
-                    //evaluate the Boltzmann factor of this configuration
-                    // (configuration of this molecule, for this trial)
-                    // and store it.
-                    uExt = externalMeter.getDataAsScalar();
-                    a[k] = Math.exp(-beta*uExt);
-//                    if(i == chainlength-1) {a[k] *= getPrefactor();}
-                    sumA += a[k];
-                }//end of k loop
-                
-                //Calculate the probablilities
-                for(int k = 0; k < numTrial; k++){
-                    a[k] /= sumA;
-                }
-                
-                //Select the best (most probable move) 
-                int best = 0;
-                for(int k = 1; k < numTrial; k++){
-                    if(a[k] > a[best]){
-                        best = k;
-                    }
-                }
-                
-                //Move the atom to the selected position
-                ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(storePos[best]);
-                
-                //Increment the Rosenbluth factor for the system.
-                wNew *= sumA;
-                
-            }//end of i loop
-        }//end of forward/reverse if-else statement
+            }
+            
+            //Move the atom to the selected position
+            ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(storePos[pickThisOne]);
+            
+            //Increment the Rosenbluth factor for the system.
+            wNew *= sumA;
+        }//end of i loop
     }
 
     protected int calcStartIndex(){
-        return Simulation.random.nextInt(chainlength);
+        return random.nextInt(chainlength);
     }
 
-    protected abstract int calcNumberOfTrials();
-    
+    public int getNumberOfTrials(){
+        return numTrial;
+    }
     /**
      * Returns the bond length for the new atom in a test
      * Should take bonded potential into account.
@@ -253,35 +234,40 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
      * @return a new bond vector
      */
     protected IVector calcRandomBond(){
-        vax.setRandomSphere(random);
-        vax.TE(calcBondL());
-        return vax;
+        vex.setRandomSphere(random);
+        vex.TE(calcBondL());
+        return vex;
     }
     
     /**
+     * XXX METHOD NOT TESTED!  USE AT OWN PERIL!
      * Generates a random bond that accounts for bond angle in the calculation
      * This method will change its parameter.
-     * @param v a vector that represents the prior bond
+     * @param b the atom farther from the new atom
+     * @param a the atom nearer to the new atom
      * @return a new bond vector
      */
     //Based on algorithm 45 in Frenkel & Smit
-    protected IVector calcRandomBondWithAngle(IVector v){
+    protected IVector calcRandomBondWithAngle(AtomLeaf a, AtomLeaf b){
         double phi;
         double ubb;
-        v.normalize();
+
+        tempCloser.E(a.getCoord().getPosition());
+        tempCloser.ME(b.getCoord().getPosition());
+        tempCloser.normalize();
         
         do{
-           vax.setRandomSphere(random);
-           
-           phi = Math.acos(vax.dot(v));
-           ubb = calcBondBendingEnergy(phi);
-        } while(Simulation.random.nextDouble() < Math.exp(-beta*ubb));
+           vex.setRandomSphere(random);
+           phi = Math.acos(vex.dot(tempCloser));
+           ubb = calcBondAngleEnergy(phi);
+        } while(random.nextDouble() < Math.exp(-beta*ubb));
         
-        vax.TE(calcBondL());
-        return vax;
+        vex.TE(calcBondL());
+        return vex;
     }
     
     /**
+     * XXX METHOD NOT TESTED!  USE AT OWN PERIL!l dy
      * Generates a random bond that accounts for bond angle and torsion in 
      * the calculation.
      * This method will change its parameters.
@@ -308,46 +294,47 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         tempCloser.normalize();
         
         do{
-            vax.setRandomSphere(random);
-            vux.E(vax);
+            vex.setRandomSphere(random);
+            temp.E(vex);
 
-            phi = Math.acos(vux.dot(tempCloser));
-            ubb = calcBondBendingEnergy(phi);
+            phi = Math.acos(temp.dot(tempCloser));
+            ubb = calcBondAngleEnergy(phi);
             //nan put if ubb is larger than an exceptionally large ## in here, bail! (continue)
             
-            vux.E(vax);
-            ((Vector3D)vux).XE((Vector3D)tempCloser);
+            temp.E(vex);
+            ((Vector3D)temp).XE((Vector3D)tempCloser);
             ((Vector3D)tempCloser).XE((Vector3D)tempFarther);
-            theta = vux.dot(tempCloser);
+            theta = temp.dot(tempCloser);
             
             //nan pass all info to this method or calcBTE depends on theta only & pass only theta in.
             //nan this dude needs an actual length
             //nan calc BTE needs actual vector from 1-4, not vector from 3-4
-            utors = calcBondTorsionalEnergy(vax);
+            utors = calcBondTorsionalEnergy(vex);
             
             usum = utors + ubb;
             
-        } while (Simulation.random.nextDouble() < Math.exp(-beta*usum));
+        } while (random.nextDouble() < Math.exp(-beta*usum));
         
-        vax.TE(calcBondL());
-        return vax;
+        vex.TE(calcBondL());
+        return vex;
     }
     
     protected abstract double calcExternalEnergy(Atom a);
     
     //uub in algorithm 45, 46
-    protected abstract double calcBondBendingEnergy(double dub);
+    protected abstract double calcBondAngleEnergy(double dub);
     
     //utors in algorithm 46
     protected abstract double calcBondTorsionalEnergy(IVector v);
     
+    public abstract double energyChange();
 
     
     boolean forward;    //indicates direction of growth
     protected double bondlength;
     double sumW;
-    IVector vex, vux;
-    IVectorRandom vax;
+    IVector temp;
+    IVectorRandom vex;
     double[] a;
     double[] b;
     IVector[] storePos;

@@ -7,7 +7,8 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
-import etomica.space.IVectorRandom;
+import etomica.space.Tensor;
+import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.util.IRandom;
 
@@ -20,109 +21,177 @@ import etomica.util.IRandom;
  * @author cribbin
  *
  */
-public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
+public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     public CBMCGrowSolidHexane(PotentialMaster p, IRandom random, IntegratorMC integrator, Species species){
-        super(p, random, integrator, species);
-        setBondLength(0.4);
-        setPrefactor(1.0);
-        setNumberOfTrials(20);  //number picked randomly/ off F&S's reference.
-        setChainlength(6);
+        super(p, random, integrator, species, 6);
         
-        phi = 109.47 / 360.0 * 2 * Math.PI;
-        
-        pots = p.getPotentials();
-        potMast = p;
+        if(p.getSpace().D() != 3){
+            throw new IllegalArgumentException("Torsional bond is only used in 3D simulations");
         }
+        
+        setBondLength(0.4);
+//        setPrefactor(1.0);
+        setNumberOfTrials(20);  //number picked randomly off F&S's reference.
+        
+        phi = (180 - 109.47) / 360.0 * 2 * Math.PI; //makes sure the vector is pointing in the right direction on the cosine section
+        
+//        pots = p.getPotentials();
+//        potMast = p;
+    
+        rotor = p.getSpace().makeTensor();
+        temp2 = p.getSpace().makeVector();
+    }
     
     protected int calcStartAtom(){
-        int si;
-        do{
-            si = Simulation.random.nextInt(chainlength);//function will not pick chainlength
-        } while (si != 0);
-        return si;
+        return random.nextInt(chainlength-2) + 1 ;//function will not pick chainlength;
     }
     
     //Different because we know the bond angle
-    //All moves are accepted,
-    protected IVector calcRandomBondWithAngle(IVectorRandom v){
-        IVector vax = phase.getSpace().makeVector();
-        double ubb;
-        v.normalize();
+    //All moves are accepted
+    protected IVector calcRandomBondWithAngle(AtomLeaf a, AtomLeaf b){
         
-        boolean ready = false;
-        do {
-           double ang = Simulation.random.nextDouble();
-           ang *= 2*Math.PI;
-           ubb = calcBondBendingEnergy(phi);
-           if(Simulation.random.nextDouble() < Math.exp(-beta*ubb)) {ready = true;}
-        } while (ready == false);
+        //temp will be the radial vector
+        //vex will be the axial vector
         
-        vax.TE(getBondlength());
-        return vax;
+        temp.E(b.getCoord().getPosition());
+        temp.ME(a.getCoord().getPosition());
+        vex.E(temp);     //Store it because we need it, and we are going to change temp in the next line of code.
+       
+        temp.E(getNormal(temp));
+
+//      Subtract the projection of b-c(temp) onto a-b(vex) from temp,
+        // which leaves the radial part of bc as temp
+        vex.normalize();    
+        //This is the projection bit. (equivalent to multiplying by the cosine of the angle between the radial and axial vectors)
+        vex.TE(vex.dot(temp));
+        vex.TE(1/getBondlength()/getBondlength());
+        //This is the subtraction bit.
+        temp.ME(vex);
+        
+        //Create the rotation matrix for an arbitrary unit vector and an 
+        // arbitrary angle, and apply it
+        double randomAngle = random.nextDouble() * 2 * Math.PI;
+        double cosRA = Math.cos(randomAngle);
+        double sinRA = Math.sin(randomAngle);
+        
+        rotor.E(new double[]{
+                cosRA+(1-cosRA)*vex.x(0)*vex.x(0),                  //xx
+                (1-cosRA)*vex.x(0)*vex.x(1)-sinRA*vex.x(2),         //xy
+                (1-cosRA)*vex.x(0)*vex.x(2)+sinRA*vex.x(1),         //xz
+                (1-cosRA)*vex.x(1)*vex.x(0)+sinRA*vex.x(2),         //yx
+                cosRA+(1-cosRA)*vex.x(1)*vex.x(1),                  //yy
+                (1-cosRA)*vex.x(1)*vex.x(2)-sinRA*vex.x(0),         //yz
+                (1-cosRA)*vex.x(2)*vex.x(0)-sinRA*vex.x(1),         //zx
+                (1-cosRA)*vex.x(2)*vex.x(1)+sinRA*vex.x(0),         //zy
+                cosRA+(1-cosRA)*vex.x(2)*vex.x(2)                   //zz
+        });
+                
+        //Mulitply the rotation tensor by temp to get the rotated vector.
+        //We then have a vector perpendicular to the a-b axis, rotated a random
+        //angle.  This is the radial vector.
+        rotor.transform(temp);
+        
+        //we normalize our radial vector (temp). Our axial vector (vex) is 
+        //  already normalized.
+        temp.normalize();
+        
+        //we multiply the axial vector by the axial length and the radial
+        // vector by the radial length (worked out by hand, based on a bond
+        // length of 0.4 and a bond angle of 109.47 
+        temp.TE(getBondlength() * Math.cos(phi));
+        vex.TE(getBondlength() * Math.sin(phi));
+        
+        //Add these together, and return that value:
+        temp.PE(vex);
+        return temp;
+
     }
     
     protected IVector calcRandomBondWithAngleAndTorsion(AtomLeaf a, AtomLeaf b, 
             AtomLeaf c){
-        if(phase.getSpace().D() != 3){
-            throw new IllegalArgumentException("Torsional bond is only used in 3D simulations");
-        }
         
-        IVector vax = phase.getSpace().makeVector();
-        IVector vux = phase.getSpace().makeVector();
-        double theta;
-        double ubb, utors, usum;
-        IVector tempCloser = phase.getSpace().makeVector();
-        IVector tempFarther = phase.getSpace().makeVector();
+        //Get a random number, and place it between the limits on the new atom's
+        // placement.
+        //The angle must be between 108.6919204 degrees, and 251.23080979 deg.
+        double randomAngle = (251.23080979 - 108.6919204) * random.nextDouble() + 108.6919204;
+        //we convert from degrees to radians:
+        randomAngle = randomAngle * 2 * Math.PI / 360.0;
+        double cosRA = Math.cos(randomAngle);
+        double sinRA = Math.sin(randomAngle);
         
-        tempFarther.E(b.getCoord().getPosition());
-        tempFarther.ME(c.getCoord().getPosition()); 
-        tempCloser.E(a.getCoord().getPosition());
-        tempCloser.ME(b.getCoord().getPosition());
-     
-        boolean ready = false;
-        /*
-         * This bit here takes care of all the pairs that the internal energy
-         * needs to have called.  We aren't really calling pairs, we're just 
-         * constructing the system to comply with what we need as far as the 
-         * placement of the new atom in the molecule.  We do have a hard
-         * sphere system with rigid bond lengths and set bond angles, so we can
-         * "get away" with doing this.
-         * 
-         */
-        do{
-            vax = calcRandomBondWithAngle(tempCloser);
-            vux.E(vax);
-            vux.PE(tempCloser);
-            vux.PE(tempFarther);
-            utors = calcBondTorsionalEnergy(vux);
-            if(utors == 0.0){ready = true;}
-        } while (ready == false);
+        //get a normal vector to the a-b vector and the b-c vector
+        //This vector is, by definition, perpendicular to the a-b vector, which
+        // makes it a radius of a circle centered on that axis.
+        vex.E(b.getCoord().getPosition());
+        vex.ME(a.getCoord().getPosition());
+        temp.E(c.getCoord().getPosition());
+        temp.ME(b.getCoord().getPosition());
         
-        ubb = calcBondBendingEnergy(phi);
-        usum = ubb + utors;
-        vax.PE(a.getCoord().getPosition());
+        //get the cosine of the angle between a-to-b (vex, axial vector)
+        // and b-c (temp, radial vector)
+//        double cosAng = vex.dot(temp);
+//        cosAng /= (getBondlength() * getBondlength());
         
-        return vax;
+        //Subtract the projection of b-c(temp) onto a-b(vex) from temp,
+        // which leaves the radial part of bc as temp
+        vex.normalize();
+//        vex.TE(getBondlength()*cosAng);     
+        //This is the projection bit. (equivalent to multiplying by the cosine of the angle between the radial and axial vectors)
+        vex.TE(vex.dot(temp));
+        vex.TE(1/getBondlength()/getBondlength());
+        temp.ME(vex);           //This is the subtraction bit.
+        
+        //Create the rotation matrix for an arbitrary unit vector
+        vex.normalize();
+        rotor.E(new double[]{
+                cosRA+(1-cosRA)*vex.x(0)*vex.x(0),                  //xx
+                (1-cosRA)*vex.x(0)*vex.x(1)-sinRA*vex.x(2),         //xy
+                (1-cosRA)*vex.x(0)*vex.x(2)+sinRA*vex.x(1),         //xz
+                (1-cosRA)*vex.x(1)*vex.x(0)+sinRA*vex.x(2),         //yx
+                cosRA+(1-cosRA)*vex.x(1)*vex.x(1),                  //yy
+                (1-cosRA)*vex.x(1)*vex.x(2)-sinRA*vex.x(0),         //yz
+                (1-cosRA)*vex.x(2)*vex.x(0)-sinRA*vex.x(1),         //zx
+                (1-cosRA)*vex.x(2)*vex.x(1)+sinRA*vex.x(0),         //zy
+                cosRA+(1-cosRA)*vex.x(2)*vex.x(2)                   //zz
+        });
+                
+        //Mulitply the rotation tensor by temp to get the rotated vector.
+        //We then have a vector perpendicular to the a-b axis, rotated a random
+        //angle.  This is the radial vector.
+        rotor.transform(temp);
+        
+        //we normalize our radial vector (temp). Our axial vector (vex) is 
+        //  already normalized.
+        temp.normalize();
+        
+        //we multiply the axial vector by the axial length and the radial
+        // vector by the radial length (worked out by hand, based on a bond
+        // length of 0.4 and a bond angle of 109.47
+        temp.TE(getBondlength() * Math.cos(phi));
+        vex.TE(getBondlength() * Math.sin(phi));
+        
+        //Add these together, and return that value:
+        temp.PE(vex);
+        return temp;
     }
     
-    protected double calcBondBendingEnergy(double d){
+    protected double calcBondAngleEnergy(double d){
+        throw new RuntimeException("calcBondAngleEnergy should not be called in CBMCGrowSolidHexane");
         /*
          * We are using a set bond length, and a rigid bond angle,
          * we don't need to calculate an energy because we wrote this program
          * to only use the proper bond length and angle
          */
-        return 0.0;
     }
     
     protected double calcBondTorsionalEnergy(IVector v){
-        double denom = Math.sqrt(v.x(0) * v.x(0) + v.x(1) * v.x(1) + v.x(2) * v.x(2));
-        
-        if (denom > 1.0){
-            return 0.0;
-        }
-        
-        return 1.0;
+        throw new RuntimeException("calcBondTorsionalEnergy should not be called in CBMCGrowSolidHexane");
+        /*
+         * We are using a set bond length, and a rigid bond angle,
+         * we don't need to calculate an energy because we wrote this program
+         * to only use the proper bond length and angle
+         */
     }
     
     protected double calcExternalEnergy(Atom a){
@@ -130,35 +199,51 @@ public class CBMCGrowSolidHexane extends CBMCGrowAlkane {
         //we only have the one potential, so this line is unnecessary
         //but I want it in here for reference when I am extending
         //this code.
-        potMast.setEnabled(pots[0], true);
+//        potMast.setEnabled(pots[0], true);
         externalMeter.setPhase(phase);
         externalMeter.setTarget(a);
         
-        return externalMeter.getDataAsScalar();
+        double blind = externalMeter.getDataAsScalar();
+//        potMast.setEnabled(pots[0], false);
+        
+        return blind;
     }
     //Since the bondlength is constant, this returns an ordinary getter
     protected double calcBondL(){
         return getBondlength();
     }
+    /**
+     * Returns a unit normal to the argument vector
+     * @param vector
+     * @return
+     */
+    protected IVector getNormal(IVector vect){
+        //Determine the smallest component
+        int min = 0;
+        if(vect.x(1) < vect.x(0)) {min = 1;}
+        if(vect.x(2) < vect.x(min)) {min = 2;}
+
+        //create the unit vector in that direction
+        temp2.E(0.0);
+        temp2.setX(min, 1.0);
+        return temp2;
+    }
+    
     public void setBondLength(double d){
         bondlength = d;
     }
     public double getBondlength(){
         return bondlength;
     }
-    //I didn't do any work to calculate the number of trials.
-    public int calcNumberOfTrials(){
-        return getNumberOfTrials();
-    }
-    public void setNumberOfTrials(int in){
-        numTrial = in;
-    }
-    public int getNumberOfTrials(){
-        return numTrial;
+
+    public double energyChange(){
+        return 0.0;
     }
     
     private static final long serialVersionUID = 1L;
-    private Potential[] pots;
-    private PotentialMaster potMast;
+//    private Potential[] pots;
+//    private PotentialMaster potMast;
     private double phi;
+    Tensor rotor;
+    IVector temp2;
 }

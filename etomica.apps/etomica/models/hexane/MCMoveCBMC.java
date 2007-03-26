@@ -2,9 +2,9 @@ package etomica.models.hexane;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
+import etomica.atom.AtomGroup;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -27,7 +27,6 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         affectedAtomIterator = new AtomIteratorSinglet();
         
         externalMeter = new MeterPotentialEnergy(potentialMaster);
-        energyMeter = new MeterPotentialEnergy(potentialMaster);
     }
     
     /**
@@ -44,13 +43,10 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         return moleculeSource;
     }
     
-    public double energyChange() {
-        return uNew - uOld;
-    }
-
+    public abstract double energyChange();
+    
     public void setPhase(Phase p){
         super.setPhase(p);
-        energyMeter.setPhase(p);
         externalMeter.setPhase(p);
     }
     
@@ -63,8 +59,6 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         atom = moleculeSource.getAtom();
         if(atom == null) return false;
         affectedAtomIterator.setAtom(atom);
-        
-        uOld = energyMeter.getDataAsScalar();
         
         //we assume that that atoms that make the molecule are children of the molecule.
         atomList = ((AtomGroup)atom).getChildList();
@@ -83,10 +77,12 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     public double getA() {return wNew/wOld;}
     public double getB() {return 0.0;}
     protected abstract void calcRosenbluthFactors();
-    protected abstract int calcNumberOfTrials();
+    public void setNumberOfTrials(int n){
+        numTrial = n;
+    }
     
     protected void setChainlength(int n) {chainlength = n;}
-    public int getNumTrial(){return numTrial;}
+    public int getNumberOfTrials(){return numTrial;}
     public int getChainlength() {return chainlength;}
     
     public void rejectNotify() {
@@ -101,7 +97,6 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy externalMeter;
-    protected final MeterPotentialEnergy energyMeter;
     protected double wNew;          //Rosenbluth factor of new configuration
     protected double wOld;         //Rosenbluth factor of old configuration
     protected int chainlength;         //the number of atoms in a molecule; some juggling may be necessary to make this work if we want to make the chains longer....
@@ -109,7 +104,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     protected Atom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
-    private IVector[] positionOld;      //Used to store the position of the molecule before mofing it.
+    protected IVector[] positionOld;      //Used to store the position of the molecule before mofing it.
     protected AtomArrayList atomList;
     protected int numTrial;
     protected AtomSource moleculeSource;
