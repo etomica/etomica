@@ -232,7 +232,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     /**
      * returns the number of leaf atoms in the phase
      */
-    public int atomCount() {return speciesMaster.leafAtomCount();}
+    public int atomCount() {return speciesMaster.getLeafList().size();}
         
     /**
      * Adds the given molecule to this phase.
