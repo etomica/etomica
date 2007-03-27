@@ -90,7 +90,7 @@ public final class Debug {
 		for (int i=0; i<atoms.count(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if ((ATOM1_INDEX > -1 && globalIndex == ATOM1_INDEX) || (ATOM2_INDEX > -1 && globalIndex == ATOM2_INDEX)) return true;
-            if (atoms.getAtom(i).getType().getDepth() > 2) {
+            if (atoms.getAtom(i).getType().getDepth() > 1) {
                 Atom molecule = atoms.getAtom(i);
                 while (!(molecule.getParentGroup() instanceof SpeciesAgent)) {
                     molecule = molecule.getParentGroup();
@@ -112,7 +112,7 @@ public final class Debug {
 		for (int i=0; i<atoms.count(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if (globalIndex != ATOM1_INDEX && globalIndex != ATOM2_INDEX) return false;  
-            if (atoms.getAtom(i).getType().getDepth() > 2) {
+            if (atoms.getAtom(i).getType().getDepth() > 1) {
                 Atom molecule = atoms.getAtom(i);
                 while (!(molecule.getParentGroup() instanceof SpeciesAgent)) {
                     molecule = molecule.getParentGroup();

@@ -169,13 +169,13 @@ public class PotentialMaster implements java.io.Serializable {
         }
         Arrays.sort(atomTypes);
         // depth of molecules
-        int maxDepth = 3;
+        int maxDepth = 2;
         int[] depth = new int[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
             depth[i] = atomTypes[i].getAddressManager().getDepth();
             if (depth[i] > maxDepth) maxDepth = depth[i];
         }
-        if (maxDepth == 3) {
+        if (maxDepth == 2) {
             addPotential(potential,moleculeSpecies(atomTypes));
             return;
         }

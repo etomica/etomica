@@ -154,13 +154,13 @@ public class PotentialMasterList extends PotentialMasterNbr {
         NeighborCriterion criterion;
         if (atomType.length == 2) {
             criterion = new CriterionTypePair(rangedCriterion, atomType[0], atomType[1]);
-            if (atomType[0].getDepth() > 3 && atomType[1].getDepth() > 3) {
+            if (atomType[0].getDepth() > 2 && atomType[1].getDepth() > 2) {
                 AtomType moleculeType0 = atomType[0].getParentType();
-                while (moleculeType0.getDepth() > 3) {
+                while (moleculeType0.getDepth() > 2) {
                     moleculeType0 = moleculeType0.getParentType();
                 }
                 AtomType moleculeType1 = atomType[1].getParentType();
-                while (moleculeType1.getDepth() > 3) {
+                while (moleculeType1.getDepth() > 2) {
                     moleculeType1 = moleculeType1.getParentType();
                 }
                 if (moleculeType0 == moleculeType1) {
@@ -361,7 +361,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
             Atom parentAtom = targetAtom.getParentGroup();
-            while (parentAtom.getType().getDepth() > 2) {
+            while (parentAtom.getType().getDepth() > 1) {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
