@@ -182,7 +182,7 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
      */ 
     public boolean isDescendedFrom(Atom group) {
         if(group == null) return false;
-        return group.getType().getAddressManager().sameAncestry(group.atomTreeAddress,this.atomTreeAddress);
+        return group.getType().getAddressManager().sameAncestry(group.getAddress(),atomTreeAddress);
     }
     
     /**
