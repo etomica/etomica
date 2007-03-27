@@ -24,7 +24,7 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
     }
     
     public void setPhase(Phase p) {
-        list = p.getSpeciesMaster().leafList;
+        list = p.getSpeciesMaster().getLeafList();
     }
     
     /**

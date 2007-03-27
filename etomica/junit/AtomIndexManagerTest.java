@@ -101,7 +101,7 @@ public class AtomIndexManagerTest extends TestCase {
         }
     }
     private boolean isDescendedFrom(Atom a1, Atom a2) {
-        if(a1.getType().getAddressManager().getDepth() < a2.getType().getAddressManager().getDepth()) return false;
+        if(a1.getType().getDepth() < a2.getType().getDepth()) return false;
         else if(a1 == a2) return true;
         else return isDescendedFrom(a1.getParentGroup(), a2);
     }
@@ -138,7 +138,7 @@ public class AtomIndexManagerTest extends TestCase {
         }
     }
     private boolean typeIsDescendedFrom(Atom a1, Atom a2) {
-        if(a1.getType().getAddressManager().getDepth() < a2.getType().getAddressManager().getDepth()) return false;
+        if(a1.getType().getDepth() < a2.getType().getDepth()) return false;
         else if(a1.getType() == a2.getType()) return true;
         else return typeIsDescendedFrom(a1.getParentGroup(), a2);
     }

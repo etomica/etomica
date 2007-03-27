@@ -41,7 +41,7 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
         if (phase == null) {
             ((AtomIteratorArrayListSimple)iterator).setList(null);
         } else {
-            ((AtomIteratorArrayListSimple)iterator).setList(phase.getSpeciesMaster().leafList);
+            ((AtomIteratorArrayListSimple)iterator).setList(phase.getSpeciesMaster().getLeafList());
         }
         unset();
     }

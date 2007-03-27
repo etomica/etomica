@@ -43,7 +43,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
      * @see etomica.integrator.MCMove#doTrial()
      */
     public boolean doTrial() {
-        AtomArrayList leafList = phase.getSpeciesMaster().leafList;
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         atom = (AtomLeaf)leafList.get(random.nextInt(leafList.size()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();

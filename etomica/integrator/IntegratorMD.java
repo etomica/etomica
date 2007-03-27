@@ -172,7 +172,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             }
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
-                    AtomArrayList atomList = phase.getSpeciesMaster().leafList;
+                    AtomArrayList atomList = phase.getSpeciesMaster().getLeafList();
                     int index = random.nextInt(atomList.size());
                     AtomLeaf a = (AtomLeaf)atomList.get(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();

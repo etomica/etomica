@@ -120,7 +120,7 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         treeIterator.setAsLeafIterator();
         count = n0a*nAtoms + n1a + n2a*nTree[0]*nTree[1]*nTree[2];
         list = testIterateCount(speciesMaster, count);
-        list = testListIterates(speciesMaster, speciesMaster.leafList);
+        list = testListIterates(speciesMaster, speciesMaster.getLeafList());
         
         //test re-specifying iteration in different orders
         iterationRoot = speciesMaster;

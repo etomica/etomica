@@ -24,12 +24,6 @@ import etomica.species.SpeciesSpheresMono;
 
 public final class SpeciesMaster extends AtomGroup {
 
-    /**
-     * Tabbed list of leaf atoms in phase, suitable for iteration via an
-     * AtomIteratorTabbedList.
-     */
-    public final AtomArrayList leafList = new AtomArrayList();
-
     public SpeciesMaster(AtomTypePhase speciesMasterType, Phase p, PhaseEventManager eventManager) {
         super(speciesMasterType);
         phaseEventManager = eventManager;
@@ -262,9 +256,13 @@ public final class SpeciesMaster extends AtomGroup {
         }
     }
 
-
     private static final long serialVersionUID = 2L;
     private final Phase phase;
+    /**
+     * List of leaf atoms in phase
+     */
+    private final AtomArrayList leafList = new AtomArrayList();
+
     private final AtomIteratorTree treeIterator = new AtomIteratorTree();
 
     protected int moleculeCount;
