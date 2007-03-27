@@ -1,7 +1,5 @@
 package etomica.atom;
 
-import java.util.ArrayList;
-
 public class AtomGroup extends Atom {
 
     public AtomGroup(AtomType type) {
@@ -57,8 +55,6 @@ public class AtomGroup extends Atom {
     
     public boolean isLeaf() {return false;}
     
-    public int childAtomCount() {return childList.size();}
-
     /**
      * Returns the children of this group in an array of atoms.
      * Array is constructed on-the-fly, and is not updated with any
@@ -67,8 +63,6 @@ public class AtomGroup extends Atom {
      * situations involving repeated calls (this should be avoided).
      */
     public Atom[] childAtomArray() {
-        ArrayList foo = new ArrayList();
-        foo.toArray();
         return childList.toArray();
     }
     
@@ -101,7 +95,7 @@ public class AtomGroup extends Atom {
 
     private static final long serialVersionUID = 1L;
     
-    //nobody should not add/remove atoms except via AtomGroup's methods.
+    //nobody should add/remove atoms except via AtomGroup's methods.
     //consider a mechanism to ensure this; a inner mutator class made available only
     //to list's creator, for example (still wouldn't prevent modification via direct
     //access of entry classes).
