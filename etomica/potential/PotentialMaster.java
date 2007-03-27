@@ -172,7 +172,7 @@ public class PotentialMaster implements java.io.Serializable {
         int maxDepth = 2;
         int[] depth = new int[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
-            depth[i] = atomTypes[i].getAddressManager().getDepth();
+            depth[i] = atomTypes[i].getDepth();
             if (depth[i] > maxDepth) maxDepth = depth[i];
         }
         if (maxDepth == 2) {
