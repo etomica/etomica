@@ -13,9 +13,7 @@ public class AtomGroup extends Atom {
      */
     public void setIndex(int parentIndex) {
         super.setIndex(parentIndex);
-        if (childList != null) {
-            assignChildOrdinals();
-        }
+        assignChildOrdinals();
     }
 
     /**
