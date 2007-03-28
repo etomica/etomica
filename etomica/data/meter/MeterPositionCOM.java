@@ -42,12 +42,14 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
     public Data getData() {
         iterator.reset();
         positionSum.E(0.0);
+        double massSum = 0.0;
         while(iterator.hasNext()) {
             AtomLeaf atom = (AtomLeaf)iterator.next();
             double mass = ((AtomTypeLeaf)atom.getType()).getMass();
+            massSum += mass;
             positionSum.PEa1Tv1(mass,atom.getCoord().getPosition());
         }
-        positionSum.TE(1.0/(double)iterator.size());
+        positionSum.TE(1.0/massSum);
         return data;
     }
     
