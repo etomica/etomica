@@ -14,7 +14,8 @@ import etomica.space.Space;
  * 
  * @author Andrew Schultz
  */
-public class CoordinateDefinitionLeaf extends CoordinateDefinition implements Serializable {
+public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
+        Serializable {
 
     public CoordinateDefinitionLeaf(Space space) {
         super(space.D());
@@ -39,6 +40,10 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements Se
         for (int i = 0; i < pos.getD(); i++) {
             pos.setX(i, nominalU[index][i] + u[i]);
         }
+    }
+
+    public void setNumAtoms(int numAtoms) {
+        nominalU = new double[numAtoms][getCoordinateDim()];
     }
 
     private static final long serialVersionUID = 1L;

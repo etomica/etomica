@@ -70,8 +70,8 @@ public abstract class CoordinateDefinition {
     public abstract void setToU(Atom molecule, int index, double[] u);
 
     /**
-     * Calculates the complex "T vector", which is collective coordinate given by
-     * the Fourier sum (over atoms) of the generalized coordinate vector.
+     * Calculates the complex "T vector", which is collective coordinate given
+     * by the Fourier sum (over atoms) of the generalized coordinate vector.
      * 
      * @param k
      *            the wave vector
@@ -100,7 +100,7 @@ public abstract class CoordinateDefinition {
             }
             index++;
         }
-        
+
         for (int i = 0; i < coordinateDim; i++) {
             realT[i] /= sqrtN;
             imaginaryT[i] /= sqrtN;
@@ -115,7 +115,7 @@ public abstract class CoordinateDefinition {
     public void setPhase(Phase phase) {
         this.phase = phase;
         N = phase.getSpeciesMaster().moleculeCount();
-        sqrtN = Math.sqrt((double)N);
+        sqrtN = Math.sqrt((double) N);
         latticePositions = new IVector[N];
 
         iterator.setPhase(phase);
@@ -124,7 +124,8 @@ public abstract class CoordinateDefinition {
         while (iterator.hasNext()) {
             latticePositions[index] = phase.getSpace().makeVector();
             Atom atom = iterator.nextAtom();
-            latticePositions[index].E(atom.getType().getPositionDefinition().position(atom));
+            latticePositions[index].E(atom.getType().getPositionDefinition()
+                    .position(atom));
             index++;
         }
 
@@ -137,18 +138,31 @@ public abstract class CoordinateDefinition {
         }
 
     }
-    
+
     public IVector[] getLatticePositions() {
         return latticePositions;
     }
 
+    /**
+     * Notifies the coord definition how many molecules will be tracked. The |index|
+     * parameter in other methods must not exceed |numAtoms-1|.
+     */
+    public abstract void setNumAtoms(int numAtoms);
+
     protected final int coordinateDim;
+
     protected double[][] nominalU;
+
     private final double[] u;
+
     protected Phase phase;
+
     private int N;
+
     private double sqrtN;
+
     private IVector[] latticePositions;
+
     private final AtomIteratorAllMolecules iterator;
 
 }
