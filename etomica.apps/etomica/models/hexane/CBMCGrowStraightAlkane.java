@@ -88,9 +88,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         //the for loops in these if statements do not calculate using the
         // startIndex.  The startIndex value is calculated in the code that follows
         // the loops.  No loop is needed for trials, as trials are not occurring.
-        sumA = 0.0;
-        
         for(int i = startIndex; i != endIndex; i += dir){//This loops through the atoms
+            sumA = 0.0;
             for(int k = 0; k < numTrial-1; k++){  //This loops through the trials
                 
                 if(i == beginIndex){    //If we're placing the first atom of a molecule
@@ -148,9 +147,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 //NEW NEW NEW NEW NEW NEW NEW     
         //Calculate the NEW Rosenbluth factor
 
-        sumA = 0.0;
-        
         for(int i = startIndex; i != endIndex; i += dir){//This loops through the atoms
+            sumA = 0.0;
             for(int k = 0; k < numTrial; k++){  //This loops through the trials
                 
                 if(i == beginIndex){    //If we're placing the first atom of a molecule
@@ -185,8 +183,19 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                 }
 //                if(i == 0)  {a[k] *= getPrefactor();}
                 sumA += a[k];
+                
+//                System.out.println("Trial# " + k);
+//                System.out.println("a[k] " + a[k]);
             }//end of k loop
             
+//            System.out.println("SumA = " + sumA);
+            //What to do if none of the trials was accepted.
+            if(sumA == 0.0){
+                wNew = 0.0;
+//                System.out.println("Bailing from CBMCGrowStraightAlkane.calcRosenbluthFactor() now!");
+                return;
+            }
+           
 //          Calculate the probablilities
             for(int k = 0; k < numTrial; k++){
                 a[k] /= sumA;
@@ -205,6 +214,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                 }
             }
             
+            System.out.println("I picked trial " + pickThisOne);
             //Move the atom to the selected position
             ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(storePos[pickThisOne]);
             
@@ -217,9 +227,6 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         return random.nextInt(chainlength);
     }
 
-    public int getNumberOfTrials(){
-        return numTrial;
-    }
     /**
      * Returns the bond length for the new atom in a test
      * Should take bonded potential into account.

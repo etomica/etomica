@@ -3,33 +3,22 @@
  */
 package etomica.models.hexane;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
+import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorHistory;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
-import etomica.normalmode.MeterNormalMode;
-import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 /**
@@ -44,7 +33,7 @@ import etomica.space3d.Space3D;
  * 
  * @author nancycribbin
  *  
- */
+ */ 
 
 public class TestHexaneCBMCOnly extends Simulation {
 
@@ -80,11 +69,11 @@ public class TestHexaneCBMCOnly extends Simulation {
         
         integrator = new IntegratorMC(getPotentialMaster(), getRandom(), defaults.temperature);
          
-        growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(), getRandom(), integrator, species);
+        growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(), getRandom(), integrator, phase, species, 5);
         growMolecule.setPhase(phase);
-         
-        //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
+        integrator.getMoveManager().addMCMove(growMolecule);
         
+        //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
         
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(this, integrator);
@@ -189,10 +178,24 @@ public class TestHexaneCBMCOnly extends Simulation {
         }
         else {
 
-            String filename = "normal_modes_hexane";
+//            String filename = "normal_modes_hexane";
 
             CheckCBMCHexane check = new CheckCBMCHexane(sim.phase);
-            sim.getController().addAction(check);
+            check.actionPerformed();
+//            sim.getController().addAction(check);           //after it runs, it checks.
+            
+            PDBWriter write = new PDBWriter(sim.phase);
+            write.setFileName("HexaneCBMCOnly");
+//            sim.getController().addAction(write);         //after it runs, it writes.
+            
+            IntervalActionAdapter checkAdapter = new IntervalActionAdapter(check, sim.integrator);
+            checkAdapter.setActionInterval(1);
+            sim.integrator.addListener(checkAdapter);
+            
+            IntervalActionAdapter writeAdapter = new IntervalActionAdapter(write, sim.integrator);
+            writeAdapter.setActionInterval(100);
+            sim.integrator.addListener(writeAdapter);
+            
             
 //            PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
 //            // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
@@ -208,18 +211,23 @@ public class TestHexaneCBMCOnly extends Simulation {
             long nSteps = 1000000;
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
-            System.out.println("equilibration finished");
-
+            for(int maryland = 0; maryland < 20; maryland++){
+                System.out.println("equilibration finished");
+            }
 //            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
 //            ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
-            System.out.println("1");
+//            System.out.println("1");
+            
             sim.getController().reset();
             sim.activityIntegrate.setMaxSteps(nSteps);
             
-            
-            IntervalActionAdapter checkAdapter = new IntervalActionAdapter(check, sim.integrator);
-            checkAdapter.setActionInterval(100);
-            sim.integrator.addListener(checkAdapter);
+//            IntervalActionAdapter checkAdapter = new IntervalActionAdapter(check, sim.integrator);
+//            checkAdapter.setActionInterval(100);
+//            sim.integrator.addListener(checkAdapter);
+//            
+//            IntervalActionAdapter writeAdapter = new IntervalActionAdapter(write, sim.integrator);
+//            writeAdapter.setActionInterval(100);
+//            sim.integrator.addListener(writeAdapter);
             
             
 //            IntervalActionAdapter adapter = new IntervalActionAdapter(meterNormalMode);
