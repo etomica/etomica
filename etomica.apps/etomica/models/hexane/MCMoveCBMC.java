@@ -2,9 +2,10 @@ package etomica.models.hexane;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
-import etomica.atom.AtomGroup;
+import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -18,15 +19,30 @@ import etomica.util.IRandom;
 
 public abstract class MCMoveCBMC extends MCMovePhase {
 
-    public MCMoveCBMC(PotentialMaster potentialMaster, IRandom random, IntegratorMC integrator){
+    public MCMoveCBMC(PotentialMaster potentialMaster, IRandom random, IntegratorMC integrator, Phase p, int maxAtomsPerMolecule, int NTrial){
         super(potentialMaster);
         this.random = random;
 
+        setNumberOfTrials(NTrial);
+        
         beta = 1.0/integrator.getTemperature()/Constants.BOLTZMANN_K;
-        atomList = new AtomArrayList(chainlength);
+        atomList = new AtomArrayList(maxAtomsPerMolecule);
         affectedAtomIterator = new AtomIteratorSinglet();
         
         externalMeter = new MeterPotentialEnergy(potentialMaster);
+        
+        phase = p;
+        
+        moleculeSource = new AtomSourceRandomMolecule();
+        moleculeSource.setPhase(phase);
+        ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
+        setMoleculeSource(moleculeSource);
+        
+        positionOld = new IVector[maxAtomsPerMolecule];
+        for(int i = 0; i < maxAtomsPerMolecule; i++){
+            positionOld[i] = potentialMaster.getSpace().makeVector();
+        }
+        boink = 0;
     }
     
     /**
@@ -56,6 +72,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
 
     public boolean doTrial() {
         //pick a molecule & get its childlist.
+        //System.out.println("Trying");
         atom = moleculeSource.getAtom();
         if(atom == null) return false;
         affectedAtomIterator.setAtom(atom);
@@ -63,14 +80,15 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         //we assume that that atoms that make the molecule are children of the molecule.
         atomList = ((AtomGroup)atom).getChildList();
         chainlength = atomList.size();
-        //store the old locations of every atom in the molecule in positionOld.
         
+        //store the old locations of every atom in the molecule in positionOld.
         for(int i = 0; i < chainlength; i++){
             positionOld[i].E(((AtomLeaf)atomList.get(i)).getCoord().getPosition());
         }
         
         calcRosenbluthFactors();
-
+        boink++;
+        System.out.println("Tried " + boink);
         return true;    //this means we were able to propose a move.
     }
 
@@ -110,4 +128,5 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     protected AtomSource moleculeSource;
     private AtomIteratorSinglet affectedAtomIterator;
     protected final IRandom random;
+    int boink;
 }

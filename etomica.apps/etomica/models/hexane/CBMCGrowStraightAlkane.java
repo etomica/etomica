@@ -3,8 +3,8 @@ package etomica.models.hexane;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.integrator.IntegratorMC;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
@@ -32,8 +32,8 @@ import etomica.util.IRandom;
 
 public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
-    public CBMCGrowStraightAlkane(PotentialMaster potentialMaster, IRandom random, IntegratorMC integrator, Species species, int n){
-        super(potentialMaster, random, integrator);
+    public CBMCGrowStraightAlkane(PotentialMaster potentialMaster, IRandom random, IntegratorMC integrator, Phase p, Species species, int n, int NTrials){
+        super(potentialMaster, random, integrator, p, n, NTrials);
         
         setChainlength(n);
         sumW = 0.0;
@@ -41,8 +41,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         Species[] sp = new Species[1];
         sp[0] = species;
 
-        vex = (IVectorRandom)phase.getSpace().makeVector();
-        temp = phase.getSpace().makeVector();
+        vex = (IVectorRandom)potentialMaster.getSpace().makeVector();
+        temp = potentialMaster.getSpace().makeVector();
         
         a = new double[numTrial];
         b = new double[chainlength];   //used to store old rosenbluth factors
@@ -50,19 +50,18 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
         storePos = new IVector[numTrial];
         for(int k = 0; k < numTrial; k++){
-            storePos[k] = phase.getSpace().makeVector();
+            storePos[k] = potentialMaster.getSpace().makeVector();
         }
         
         
-        tempCloser = phase.getSpace().makeVector();
-        tempFarther = phase.getSpace().makeVector();
+        tempCloser = potentialMaster.getSpace().makeVector();
+        tempFarther = potentialMaster.getSpace().makeVector();
     }
     
     /**
      * Calculates wOld and wNew; does not have a return value.
      */
     protected void calcRosenbluthFactors(){
-        
         //Pick a direction and an atom to start with
         forward = random.nextInt(2) == 0;
         int dir, endIndex, beginIndex;
@@ -77,8 +76,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         }
         int startIndex = calcStartIndex();
         //nan
-        int numTrial = getNumberOfTrials() + 1;
-
+        
         double uExt;
         wOld = 1.0;
         wNew = 1.0;
@@ -129,11 +127,11 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(positionOld[i]);
             uExt = calcExternalEnergy(((AtomLeaf)atomList.get(i)));
             if(i == endIndex || i == 0){
-                a[numTrial] = numTrial * Math.exp(-beta*uExt);
+                a[numTrial-1] = numTrial * Math.exp(-beta*uExt);
             } else {
-                a[numTrial] = Math.exp(-beta*uExt);
+                a[numTrial-1] = Math.exp(-beta*uExt);
             }
-            sumA += a[numTrial];
+            sumA += a[numTrial-1];
             
 //          Calculate the probablilities
             for(int k = 0; k < numTrial; k++){
@@ -197,7 +195,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             //Per discussion with Andrew on 3/26/07 & Algorithm 41 in F&S p.577)
             double rand = random.nextDouble();
             double sum = 0.0;
-            int pickThisOne = -1;
+            int pickThisOne = numTrial-1;
             
             for(int j = 0; j < a.length; j++){
                 sum += a[j];

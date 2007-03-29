@@ -3,12 +3,10 @@ package etomica.models.hexane;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.integrator.IntegratorMC;
-import etomica.potential.Potential;
+import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.util.IRandom;
 
@@ -23,8 +21,8 @@ import etomica.util.IRandom;
  */
 public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
-    public CBMCGrowSolidHexane(PotentialMaster p, IRandom random, IntegratorMC integrator, Species species){
-        super(p, random, integrator, species, 6);
+    public CBMCGrowSolidHexane(PotentialMaster p, IRandom random, IntegratorMC integrator, Phase phs, Species species, int NTrials){
+        super(p, random, integrator, phs, species, 6, NTrials);
         
         if(p.getSpace().D() != 3){
             throw new IllegalArgumentException("Torsional bond is only used in 3D simulations");
@@ -32,7 +30,6 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
         
         setBondLength(0.4);
 //        setPrefactor(1.0);
-        setNumberOfTrials(20);  //number picked randomly off F&S's reference.
         
         phi = (180 - 109.47) / 360.0 * 2 * Math.PI; //makes sure the vector is pointing in the right direction on the cosine section
         
@@ -50,7 +47,6 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
     //Different because we know the bond angle
     //All moves are accepted
     protected IVector calcRandomBondWithAngle(AtomLeaf a, AtomLeaf b){
-        
         //temp will be the radial vector
         //vex will be the axial vector
         
@@ -110,11 +106,11 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
     
     protected IVector calcRandomBondWithAngleAndTorsion(AtomLeaf a, AtomLeaf b, 
             AtomLeaf c){
-        
         //Get a random number, and place it between the limits on the new atom's
         // placement.
         //The angle must be between 108.6919204 degrees, and 251.23080979 deg.
         double randomAngle = (251.23080979 - 108.6919204) * random.nextDouble() + 108.6919204;
+//        System.out.println(randomAngle);
         //we convert from degrees to radians:
         randomAngle = randomAngle * 2 * Math.PI / 360.0;
         double cosRA = Math.cos(randomAngle);

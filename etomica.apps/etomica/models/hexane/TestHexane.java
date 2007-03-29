@@ -93,7 +93,7 @@ public class TestHexane extends Simulation {
          moveMolecule.setStepSize(0.024);
          rot.setStepSize(0.042);
 
-         growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(), getRandom(), integrator, species);
+         growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(), getRandom(), integrator, phase, species, 20);
          growMolecule.setPhase(phase);
          
         //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
