@@ -115,7 +115,7 @@ public abstract class CoordinateDefinition {
     public void setPhase(Phase phase) {
         this.phase = phase;
         N = phase.getSpeciesMaster().moleculeCount();
-        sqrtN = Math.sqrt((double) N);
+        sqrtN = Math.sqrt(N);
         latticePositions = new IVector[N];
 
         iterator.setPhase(phase);
@@ -133,6 +133,7 @@ public abstract class CoordinateDefinition {
         nominalU = new double[iterator.size()][getCoordinateDim()];
         index = 0;
         iterator.reset();
+        setNumAtoms(iterator.size());
         while (iterator.hasNext()) {
             initNominalU(iterator.nextAtom(), index++);
         }
