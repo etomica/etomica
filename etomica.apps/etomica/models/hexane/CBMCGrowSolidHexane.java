@@ -31,7 +31,9 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
         setBondLength(0.4);
 //        setPrefactor(1.0);
         
-        phi = (180 - 109.47) / 360.0 * 2 * Math.PI; //makes sure the vector is pointing in the right direction on the cosine section
+        phi = (180 - 109.47) / 360.0 * 2.0 * Math.PI; //makes sure the vector is pointing in the right direction on the cosine section
+        lowerTorsLimit = 108.6919204 / 360.0 * 2.0 * Math.PI;
+        upperTorsLimit = 251.3080797 / 360.0 * 2.0 * Math.PI;
         
 //        pots = p.getPotentials();
 //        potMast = p;
@@ -67,7 +69,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
         
         //Create the rotation matrix for an arbitrary unit vector and an 
         // arbitrary angle, and apply it
-        double randomAngle = random.nextDouble() * 2 * Math.PI;
+        double randomAngle = random.nextDouble() * 2.0 * Math.PI;
         double cosRA = Math.cos(randomAngle);
         double sinRA = Math.sin(randomAngle);
         
@@ -108,11 +110,12 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
             AtomLeaf c){
         //Get a random number, and place it between the limits on the new atom's
         // placement.
-        //The angle must be between 108.6919204 degrees, and 251.23080979 deg.
-        double randomAngle = (251.23080979 - 108.6919204) * random.nextDouble() + 108.6919204;
+        //The angle must be between lowerTorsLimit, and upperTorsLimit.
+        double randomAngle = (upperTorsLimit - lowerTorsLimit) * random.nextDouble() + lowerTorsLimit;
+        if(randomAngle < lowerTorsLimit || randomAngle > upperTorsLimit){
+            System.out.println("NOTICE!!!!NOTICE!!!!NOTICE!!!!");
+        }
 //        System.out.println(randomAngle);
-        //we convert from degrees to radians:
-        randomAngle = randomAngle * 2 * Math.PI / 360.0;
         double cosRA = Math.cos(randomAngle);
         double sinRA = Math.sin(randomAngle);
         
@@ -239,7 +242,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
     private static final long serialVersionUID = 1L;
 //    private Potential[] pots;
 //    private PotentialMaster potMast;
-    private double phi;
+    private double phi, lowerTorsLimit, upperTorsLimit;
     Tensor rotor;
     IVector temp2;
 }
