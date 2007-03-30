@@ -59,7 +59,7 @@ public abstract class DataInfoFactory implements java.io.Serializable, IDataInfo
     }
     
     public DataTag[] getTags() {
-        return (DataTag[])tags.toArray();
+        return (DataTag[])tags.toArray(new DataTag[tags.size()]);
     }
     
     public void setTags(DataTag[] newTags) {
