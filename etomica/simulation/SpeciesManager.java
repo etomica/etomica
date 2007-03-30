@@ -19,7 +19,7 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class SpeciesManager {
+public class SpeciesManager implements java.io.Serializable {
 
     public SpeciesManager(Simulation sim, int[] bitLength) {
         this.sim = sim;
@@ -259,6 +259,7 @@ public class SpeciesManager {
         return speciesMasterType;
     }
 
+    private static final long serialVersionUID = 1L;
     private Species[] speciesList;
     private final HashMap elementSymbolHash;
     private final HashMap elementAtomTypeHash;
