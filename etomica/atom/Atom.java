@@ -1,10 +1,7 @@
 package etomica.atom;
 
-import java.io.IOException;
-
 import etomica.chem.elements.ElementSimple;
 import etomica.util.Debug;
-import etomica.util.EtomicaObjectInputStream;
 
  /**
   * Object corresponding to one physical atom or group of atoms. Each atom holds
@@ -206,12 +203,4 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
     private int globalIndex = -1;
     protected int atomTreeAddress;
     protected AtomGroup parent;
-    
-    private void readObject(java.io.ObjectInputStream in)
-    throws IOException, ClassNotFoundException
-    {
-        EtomicaObjectInputStream etomicaIn = (EtomicaObjectInputStream)in; 
-        etomicaIn.defaultReadObject();
-        etomicaIn.addAtom(this);
-    }
 }

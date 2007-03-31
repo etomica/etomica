@@ -5,6 +5,7 @@ package etomica.simulation.prototypes;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import etomica.action.PhaseImposePbc;
@@ -22,7 +23,6 @@ import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.Default;
-import etomica.util.EtomicaObjectInputStream;
 
 public class HSMD3DNoNbr extends Simulation {
 
@@ -103,11 +103,9 @@ public class HSMD3DNoNbr extends Simulation {
     	try
     	{
     	    FileInputStream fis = null;
-    	    EtomicaObjectInputStream in = null;
     	    fis = new FileInputStream(filename);
-    	    in = new EtomicaObjectInputStream(fis);
+    	    ObjectInputStream in = new ObjectInputStream(fis);
     	    simulation = (etomica.simulation.Simulation) in.readObject();
-            in.finalizeRead();
     	    in.close();
     	    fis.close();
     	    

@@ -1,15 +1,7 @@
-/*
- * History
- * Created on Sep 20, 2004 by kofke
- */
 package etomica.nbr.list;
-
-import java.io.IOException;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.util.DirtyObject;
-import etomica.util.EtomicaObjectInputStream;
 
 /**
  * Class used to maintain neighbor lists.  Holds lists of atoms that were 
@@ -17,10 +9,10 @@ import etomica.util.EtomicaObjectInputStream;
  * AtomArrayList is kept for each potential (potential => AtomArrayList mapping
  * is the responsibility of the consumer). 
  */
-public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
+public class AtomNeighborLists implements java.io.Serializable {
 
-    private static final long serialVersionUID = 1L;
-    protected transient AtomArrayList[] upList, downList;
+    private static final long serialVersionUID = 2L;
+    protected AtomArrayList[] upList, downList;
 	
     /**
      * Constructs sequencer for the given atom.
@@ -93,71 +85,4 @@ public class AtomNeighborLists implements DirtyObject, java.io.Serializable {
 			downList[i].clear();
 		}
 	}
-
-    /**
-     * Write out neighbor lists as arrays of Atom indices.  Include
-     * the SpeciesMaster so that rebuild() can find the Atoms corresponding
-     * to those indices.
-     */
-    private void writeObject(java.io.ObjectOutputStream out)
-    throws IOException
-    {
-        // write nothing.
-        out.defaultWriteObject();
-        
-        int[][][] atomListInts = new int[2][][];
-        atomListInts[0] = new int[upList.length][];
-        for (int i=0; i<upList.length; i++) {
-            atomListInts[0][i] = new int[upList[i].size()];
-            for (int j=0; j<atomListInts[0][i].length; j++) {
-                atomListInts[0][i][j] = upList[i].get(j).getAddress();
-            }
-        }
-        
-        atomListInts[1] = new int[downList.length][];
-        for (int i=0; i<upList.length; i++) {
-            atomListInts[1][i] = new int[downList[i].size()];
-            for (int j=0; j<atomListInts[1][i].length; j++) {
-                atomListInts[1][i][j] = downList[i].get(j).getAddress();
-            }
-        }
-        out.writeObject(atomListInts);
-    }
-
-    /**
-     * Just reads the data from the stream and stashes it back into the stream
-     * object for later use.
-     */
-    private void readObject(java.io.ObjectInputStream in)
-    throws IOException, ClassNotFoundException
-    {
-        EtomicaObjectInputStream etomicaIn = (EtomicaObjectInputStream)in; 
-        //read nothing.
-        etomicaIn.defaultReadObject();
-
-        etomicaIn.objectData.put(this,etomicaIn.readObject());
-        etomicaIn.dirtyObjects.add(this);
-    }
-
-    /**
-     * Rebuilds the neighbor lists from the previously-read Atom indices.
-     */
-    public void rebuild(Object data) {
-        int[][][] atomListInts = (int[][][])data;
-        upList = new AtomArrayList[atomListInts[0].length];
-        for (int i=0; i<upList.length; i++) {
-            upList[i] = new AtomArrayList();
-            for (int j=0; j<atomListInts[0][i].length; j++) {
-                upList[i].add(EtomicaObjectInputStream.getAtomForIndex(atomListInts[0][i][j]));
-            }
-        }
-        downList = new AtomArrayList[atomListInts[1].length];
-        for (int i=0; i<downList.length; i++) {
-            downList[i] = new AtomArrayList();
-            for (int j=0; j<atomListInts[1][i].length; j++) {
-                upList[i].add(EtomicaObjectInputStream.getAtomForIndex(atomListInts[1][i][j]));
-            }
-        }
-    }
-    
 }
