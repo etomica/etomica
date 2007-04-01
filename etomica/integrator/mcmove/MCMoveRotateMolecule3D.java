@@ -34,7 +34,6 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     public int count1;
     public boolean flag = false;
     public boolean flag1 = false;
-    private double uOldSave;
     
     public MCMoveRotateMolecule3D(Simulation sim) {
         this(sim.getPotentialMaster(), sim.getRandom());
@@ -67,7 +66,9 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
         molecule = (AtomGroup)moleculeSource.getAtom();
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
-        if(uOld < Double.MAX_VALUE) uOldSave = uOld;
+        if(Double.isInfinite(uOld)) {
+            throw new RuntimeException("Overlap in initial state");
+        }
         
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
@@ -87,7 +88,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
             IVector r = a.getCoord().getPosition();
             r.ME(r0);
             phase.getBoundary().nearestImage(r);
-            rotationTensor.transform(r0);
+            rotationTensor.transform(r);
             r.PE(r0);
         }
     }
@@ -97,7 +98,6 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     public double getB() {
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar();
-        if(uOld > Double.MAX_VALUE) uOld = uOldSave;
         return -(uNew - uOld);
     }
     
