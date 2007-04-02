@@ -62,5 +62,9 @@ public class Bond extends Figure {
     // also, what does this mean when wireframe is on?
     return p1.distance(p2) / 3.0f * (_gsys.getPixelWidth() / _gsys.getAngstromWidth());
   }
+  
+  public void setBondType(int i) {
+    bondType = i;
+  }
 
 }

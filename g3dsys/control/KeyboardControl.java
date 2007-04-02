@@ -22,6 +22,7 @@ class KeyboardControl implements KeyListener {
    * i - toggle image shell on/off
    * 1-9 - set the number of shells to displays
    * b - cycle through boundary draw styles
+   * a - wireframe mode on/off
    */
   
   private G3DSys master;
@@ -135,6 +136,10 @@ class KeyboardControl implements KeyListener {
     }
     if( e.getKeyChar() == 'b' ) {
       master.cycleDrawBoundaryType();
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == 'a' ) {
+      master.toggleWireframe();
       master.fastRefresh();
     }
   }

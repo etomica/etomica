@@ -445,4 +445,11 @@ public class G3DSys {
    * Cycles to the next boundary drawing style
    */
   public void cycleDrawBoundaryType() { fm.cycleDrawBoundaryType(); }
+
+  /**
+   * Toggle wireframe mode on/off
+   */
+  public void toggleWireframe() {
+    fm.toggleWireframe();
+  }
 }

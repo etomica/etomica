@@ -1,7 +1,6 @@
 package g3dsys.control;
 
-import g3dsys.images.Figure;
-import g3dsys.images.ImageShell;
+import g3dsys.images.*;
 
 import javax.vecmath.Point3f;
 
@@ -229,5 +228,20 @@ class FigureManager {
      * Cycles to the next boundary drawing style
      */
     public void cycleDrawBoundaryType() { images.cycleDrawBoundaryType(); }
+
+    private boolean wireframe = false;
+    /**
+     * Toggle wireframe on/off.
+     * Turn atom drawing off, bond types to wireframe; or
+     * turn atom drawing on, bond types to cylinder.
+     */
+    public void toggleWireframe() {
+      wireframe = !wireframe;
+      for(int i=0; i<figs.length; i++) {
+        if(figs[i] instanceof Ball) figs[i].setDrawable(!wireframe);
+        if(figs[i] instanceof Bond) ((Bond)figs[i]).setBondType(
+            (wireframe ? Bond.WIREFRAME : Bond.CYLINDER));
+      }
+    }
 
 }
