@@ -8,34 +8,35 @@ import javax.vecmath.Point3i;
 
 public class Line extends Figure {
 	
-	protected Point3f start, end;
-    protected Point3i s, e;
+  protected Point3f start, end;
+  protected Point3i s, e;
 	
-    public Line(G3DSys m, short c, Point3f start, Point3f end) {
-        super(m,c);
-        this.start = start;
-        this.end = end;
-        s = new Point3i();
-        e = new Point3i();
-    }
+  public Line(G3DSys m, short c, Point3f start, Point3f end) {
+    super(m,c);
+    this.start = start;
+    this.end = end;
+    s = new Point3i();
+    e = new Point3i();
+  }
 
-    public void draw() {
-        _gsys.screenSpace(start, s);
-        _gsys.screenSpace(end, e);
-        _gsys.getG3D().drawDashedLine(_c, 0, 0, s.x, s.y, s.z, e.x, e.y, e.z);
-    }
+  public void draw() {
+    if(!drawme) return;
+    _gsys.screenSpace(start, s);
+    _gsys.screenSpace(end, e);
+    _gsys.getG3D().drawDashedLine(_c, 0, 0, s.x, s.y, s.z, e.x, e.y, e.z);
+  }
 
-	public float getD() { return 0; }
-	public void setEnd(Point3f p) { end = p; }
+  public float getD() { return 0; }
+  public void setEnd(Point3f p) { end = p; }
 
-    public void setStart(float x, float y, float z) {
-        start.set(x, y, z);
-    }
+  public void setStart(float x, float y, float z) {
+    start.set(x, y, z);
+  }
     
-    public void setEnd(float x, float y, float z) {
-        end.set(x, y, z);
-    }
+  public void setEnd(float x, float y, float z) {
+    end.set(x, y, z);
+  }
     
-    public Point3f getStart() { return start; }
-    public Point3f getEnd() { return end; }
+  public Point3f getStart() { return start; }
+  public Point3f getEnd() { return end; }
 }

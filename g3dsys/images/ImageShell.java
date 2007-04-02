@@ -8,8 +8,17 @@ import javax.vecmath.Point3i;
 
 import org.jmol.g3d.Graphics3D;
 
+//TODO: implement DRAW_LARGE_BOX type
+
 public class ImageShell extends Figure {
 
+  //shell boundary drawing modes
+  private static final int NUM_DRAW_TYPES = 3; //three types so far
+  public static final int DRAW_EVERY_BOX = 0; //redraw boundary for every image
+  public static final int DRAW_LARGE_BOX = 1; //draw only one around everything
+  public static final int DRAW_INNER_BOX = 2; //draw only the original boundary
+  private int drawBoundaryType = 0;
+  
   private int numLayers = 1;
   private Graphics3D g3d;
   
@@ -21,13 +30,70 @@ public class ImageShell extends Figure {
   
   public ImageShell(G3DSys g) {
     super(g,(short)0);
-    g3d = g.getG3D(); 
+    g3d = g.getG3D();
+    drawme = false;
   }
   
-  public void setLayers(int l) { numLayers = l; }
+  /**
+   * Sets the number of image shell layers to use
+   * @param l the number of image shell layers
+   */
+  public void setLayers(int l) { numLayers = (l < 1 ? 1 : l); }
+  /**
+   * Gets the number of image shell layers
+   * @return returns the number of image shell layers
+   */
   public int getLayers() { return numLayers; }
+  /**
+   * Sets the boundary drawing style
+   * @param b the boundary drawing style to use
+   */
+  public void setDrawBoundaryType(int b) {
+    //known broken or unimplemented modes should throw exceptions here
+    if(b == drawBoundaryType) return; //no change
+    if(b >= NUM_DRAW_TYPES) throw new IllegalArgumentException();
+    drawBoundaryType = b;
+    updateDrawType();
+  }
+  /**
+   * Updates line-drawing status depending on whether images are
+   * on and the current draw boundary type. 
+   */
+  public void updateDrawType() {
+    Figure[] figs = _gsys.getFigs();
+    for(int i=0; i<figs.length; i++) {
+      if(figs[i] == null) continue;
+      if(figs[i] instanceof Line) {
+        figs[i].setDrawable(!drawme || drawBoundaryType != DRAW_LARGE_BOX);
+      }
+    }
+  }
+  /**
+   * Gets the boundary drawing style
+   * @return returns the boundary drawing style
+   */
+  public int getDrawBoundaryType() { return drawBoundaryType; } 
+  /**
+   * Cycles to the next boundary drawing style
+   */
+  public void cycleDrawBoundaryType() {
+    /* Try each successive mode if they fail, up to the maximum of
+     * NUM_DRAW_TYPES, then set to zero. This handles the case of one
+     * or more broken modes in the middle of the list. Note that this
+     * is probably not ever going to happen.
+     */ 
+    for(int i=1; i<NUM_DRAW_TYPES; i++) {
+      try {
+        setDrawBoundaryType( (getDrawBoundaryType()+i)%NUM_DRAW_TYPES );
+        return;
+      } catch(IllegalArgumentException iae) {
+        continue;
+      }
+    }
+  }
   
   public void draw() {
+    if(!drawme) return;
     double[] vectors = _gsys.getBoundaryVectors();
     int D = vectors.length/3; //dimensionality of boundary; assume 3-dim vectors
     if(D == 0) return; //no vectors, or low dimensionality
@@ -63,6 +129,7 @@ public class ImageShell extends Figure {
         else if(f instanceof g3dsys.images.Box) {
         }
         else if(f instanceof g3dsys.images.Line) {
+          if(drawBoundaryType != DRAW_EVERY_BOX) { continue; }
           p.set(((Line)f).getStart().x+dx,
                 ((Line)f).getStart().y+dy,
                 ((Line)f).getStart().z+dz);
@@ -75,8 +142,6 @@ public class ImageShell extends Figure {
         }
         else if(f instanceof g3dsys.images.Axes) {
         }
-        else if(f instanceof g3dsys.images.Cylinder) {
-        }
       }
 
       //reset offsets for next iteration
@@ -88,5 +153,8 @@ public class ImageShell extends Figure {
   }
   
   public float getD() { return 0; }
-
+  public void setDrawable(boolean b) {
+    super.setDrawable(b);
+    updateDrawType();
+  }
 }

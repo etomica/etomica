@@ -19,6 +19,9 @@ class KeyboardControl implements KeyListener {
    * z/Z - z axis rotation
    * r - redraw display
    * p - toggle perspective on/off
+   * i - toggle image shell on/off
+   * 1-9 - set the number of shells to displays
+   * b - cycle through boundary draw styles
    */
   
   private G3DSys master;
@@ -92,6 +95,46 @@ class KeyboardControl implements KeyListener {
     }
     if( e.getKeyChar() == 'i' ) {
       master.setEnableImages(!master.isEnableImages());
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == '1' ) {
+      master.setLayers(1);
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == '2' ) {
+      master.setLayers(2);
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == '3' ) {
+      master.setLayers(3);
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == '4' ) {
+      master.setLayers(4);
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == '5' ) {
+      master.setLayers(5);
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == '6' ) {
+      master.setLayers(6);
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == '7' ) {
+      master.setLayers(7);
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == '8' ) {
+      master.setLayers(8);
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == '9' ) {
+      master.setLayers(9);
+      master.fastRefresh();
+    }
+    if( e.getKeyChar() == 'b' ) {
+      master.cycleDrawBoundaryType();
       master.fastRefresh();
     }
   }

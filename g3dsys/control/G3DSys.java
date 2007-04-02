@@ -10,6 +10,13 @@ import javax.vecmath.Point3i;
 
 import org.jmol.g3d.Graphics3D;
 
+/*
+ * index iterator interface in g3dsys
+ * etomica classes implement that
+ * instead of only vectors, get vectors plus iterator
+ * when number of shells change, call setsize on iterator
+ */
+
 /**
  * Abstraction and delegation container class to facilitate communication
  * between the CoordMapper, FigureManager, and G3DPanel without deeply
@@ -20,8 +27,6 @@ import org.jmol.g3d.Graphics3D;
  * called directly, as the addFig method will do that itself based on the
  * figure type argument (e.g.; BALL, LINE, BOX).
  */
-
-//TODO: mouse controls for depth/slab and z-rotation
 
 public class G3DSys {
 
@@ -90,6 +95,15 @@ public class G3DSys {
    */
   public void setBoundaryVectors(double[] values) {
     fm.setBoundaryVectors(values);
+  }
+
+  private IndexIterator boundaryVectorsIterator;
+  //TODO: method setBoundaryVectorIterator; need vectors as well as an iterator
+  public void setBoundaryVectorsIterator(IndexIterator i) {
+    boundaryVectorsIterator = i;
+  }
+  public IndexIterator getBoundaryVectorsIterator() {
+    return boundaryVectorsIterator;
   }
   
   public double[] getBoundaryVectors() {
@@ -397,6 +411,38 @@ public class G3DSys {
     return fm.getFigs();
   }
 
+  /**
+   * Enables or disables image shell
+   * @param b boolean value
+   */
   public void setEnableImages(boolean b) { fm.setEnableImages(b); }
+  /**
+   * Returns whether image shell is enabled
+   * @return returns enable boolean
+   */
   public boolean isEnableImages() { return fm.isEnableImages(); }
+  /**
+   * Sets the number of image shell layers
+   * @param n the number of layers
+   */
+  public void setLayers(int n) { fm.setLayers(n); }
+  /**
+   * Gets the number of image shell layers
+   * @return returns the number of layers
+   */
+  public int getLayers() { return fm.getLayers(); }
+  /**
+   * Sets the boundary drawing style
+   * @param b the boundary drawing style to use
+   */
+  public void setDrawBoundaryType(int b) { fm.setDrawBoundaryType(b); }
+  /**
+   * Gets the boundary drawing style
+   * @return returns the boundary drawing style
+   */
+  public int getDrawBoundaryType() { return fm.getDrawBoundaryType(); }
+  /**
+   * Cycles to the next boundary drawing style
+   */
+  public void cycleDrawBoundaryType() { fm.cycleDrawBoundaryType(); }
 }

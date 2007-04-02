@@ -30,6 +30,7 @@ class FigureManager {
         idMax = -1;
         gsys = g;
         images = new ImageShell(gsys);
+        addFig(images); //imageshell is the first figure in the array
 	}
 	
 	/** Get the depth of the model in Angstroms
@@ -186,8 +187,8 @@ class FigureManager {
       //save some array overhead with these checks
       if(imagesOn && b) return; //no change
       if(!imagesOn && !b) return; //no change
-      if(!imagesOn && b) addFig(images); //toggle on
-      if(imagesOn && !b) removeFig(images); //toggle off
+      if(!imagesOn && b) images.setDrawable(true); //toggle on
+      if(imagesOn && !b) images.setDrawable(false); //toggle off
       imagesOn = b;
     }
 
@@ -203,4 +204,30 @@ class FigureManager {
      * @return returns an array representation of the vectors
      */
     public double[] getBoundaryVectors() { return vectors; }
+    
+    /**
+     * Sets the number of image shell layers
+     * @param n the number of layers
+     */
+    public void setLayers(int n) { images.setLayers(n); }
+    /**
+     * Gets the number of image shell layers
+     * @return returns the number of layers
+     */
+    public int getLayers() { return images.getLayers(); }
+    /**
+     * Sets the boundary drawing style
+     * @param b the boundary drawing style to use
+     */
+    public void setDrawBoundaryType(int b) { images.setDrawBoundaryType(b); }
+    /**
+     * Gets the boundary drawing style
+     * @return returns the boundary drawing style
+     */
+    public int getDrawBoundaryType() { return images.getDrawBoundaryType(); }
+    /**
+     * Cycles to the next boundary drawing style
+     */
+    public void cycleDrawBoundaryType() { images.cycleDrawBoundaryType(); }
+
 }
