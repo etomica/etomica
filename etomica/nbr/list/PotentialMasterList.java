@@ -389,7 +389,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * the hierarchy until leaf atoms are reached.
      */
     //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
-    private void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
+    protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
         singletIterator.setAtom(atom);
         IteratorDirective.Direction direction = id.direction();
         PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
@@ -513,7 +513,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private final AtomIteratorSinglet singletIterator;
     private final ApiInnerFixed pairIterator;
     private final ApiInnerFixed swappedPairIterator;
-    private final NeighborListManager neighborManager;
+    protected final NeighborListManager neighborManager;
     private int cellRange;
     private double maxPotentialRange = 0;
     private double safetyFactor = 0.4;
