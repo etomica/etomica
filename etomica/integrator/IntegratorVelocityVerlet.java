@@ -79,7 +79,6 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaEle
             IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
             v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
-            agent.force.E(0.0);
         }
 
         forceSum.reset();
@@ -118,11 +117,6 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaEle
     public void reset() throws ConfigurationOverlapException{
         if(!initialized) return;
         
-        atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
-            ((MyAgent)agentManager.getAgent(a)).force.E(0.0);
-        }
         forceSum.reset();
         potential.calculate(phase, allAtoms, forceSum);
         super.reset();

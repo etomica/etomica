@@ -103,9 +103,10 @@ public final class IntegratorHardField extends IntegratorHard implements Etomica
         atomIterator.reset();
         while(atomIterator.hasNext()) {   //zero forces on all atoms
             HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent(atomIterator.nextAtom());
-            iagent.force.E(0.0);
+            
             iagent.forceFree = true;
         }
+        forceSum.reset();
         //Compute forces on each atom
         potential.calculate(phase, fieldsOnly, forceSum);
         

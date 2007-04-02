@@ -16,9 +16,22 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
         
     private static final long serialVersionUID = 1L;
     protected AtomAgentManager integratorAgentManager;
+    protected AtomAgentManager.AgentIterator iterator;
     
     public void setAgentManager(AtomAgentManager agentManager) {
         integratorAgentManager = agentManager;
+        iterator = integratorAgentManager.makeIterator();
+    }
+    /**
+     * Re-zeros the force vectors.
+     *
+     */
+    public void reset(){
+        
+        iterator.reset();
+        while(iterator.hasNext()){
+            ((IntegratorPhase.Forcible)iterator.next()).force().E(0);
+        }
     }
     
     /**

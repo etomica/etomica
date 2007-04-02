@@ -78,12 +78,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 
     public void doStep() {
 
-        //Compute forces on each atom
-        atomIterator.reset();
-        while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)agentManager.getAgent(atomIterator.nextAtom())).force.E(0.0);
-        }
-        
+        //Compute forces on each atom       
         forceSum.reset();
         potential.calculate(phase, allAtoms, forceSum);
         pressureTensor.E(forceSum.getPressureTensor());

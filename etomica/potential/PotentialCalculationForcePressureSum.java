@@ -30,6 +30,7 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
      * correct at the end of the calculation.
      */
     public void reset() {
+        super.reset();
         pressureTensor.E(0);
     }
     

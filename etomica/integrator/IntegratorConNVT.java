@@ -90,10 +90,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 		double dim = phase.getSpace().D();  //get the dimension
 		
         //Compute forces on each atom
-        atomIterator.reset();
-        while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)agentManager.getAgent(atomIterator.nextAtom())).force.E(0.0);
-        }
+		forceSum.reset();
         potential.calculate(phase, allAtoms, forceSum);
 	
 		//MoveA
