@@ -43,13 +43,20 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     }
     
     /**
-     * Convenience method to return the agent the given Atom.  The Atom must 
+     * Convenience method to return the agent associated with the given Atom.  The Atom must 
      * be from the Phase associated with this instance.  For repeated access to
      * the agents from multiple Atoms, it might be faster to use the above 
      * getAgents method.
      */
     public Object getAgent(Atom a) {
         return agents[a.getGlobalIndex()];
+    }
+    
+    /**
+     * Convenience method to return the phase the Manager is tracking.
+     */
+    public Phase getPhase(){
+        return phase;
     }
     
     /**
