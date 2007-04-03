@@ -63,7 +63,113 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         //return temp;
     }
 
+    //TODO: construct new iterator on the fly
+    //iterator must be given reference to IVector[] vecs
+    //TODO: DANGER! in the iterator
+    //iterator's next() and hasNext() methods:
+    /*hasnext needs to know whether there is a next one or not
+     *method 1: look for one and return true/false, let next() find
+     * the same one again.
+     * method 2: reset() finds the first iterate, and next() returns
+     * the iterate found on the previous call as well as finds the next
+     * one to be returned on the next call. hasNext() simply checks a
+     * field set during this to determine if there is a next 
+     */
+    public g3dsys.control.IndexIterator getIndexIterator(){
+      return new IndexIteratorSequentialFiltered(vecs.length,vecs);
+    }
+    
+    //TODO: write iterator class
+    /*
+     * new class implements g3dsys interface
+     * has a normal index iterator, but filters its results
+     * takes linear combination of vecs[] and indices, looks at resulting
+     * offsets' magnitude, compares to radius.
+     * radius is any component of any vector * 2
+     * if less than radius, return, else find the next one until no more.
+     */
+    
+    private class IndexIteratorSequentialFiltered
+      implements g3dsys.control.IndexIterator {
+      
+      private IndexIteratorSequential iis;
+      private boolean hasnext;
+      private int[] vals;
+      private IVector[] vecs;
+      int numLayers;
+      
+      public IndexIteratorSequentialFiltered(int D, IVector[] v) {
+        iis = new IndexIteratorSequential(D);
+        vecs = v;
+        hasnext = false;
+      }
+
+      public int getD() { return iis.getD(); }
+      public boolean hasNext() { return hasnext; }
+      
+      /**
+       * Sets the range of each dimension, equal to double the number
+       * of layers in the shell being used.
+       * @param n the number of shell layers to use
+       */
+      public void setSize(int numLayers) {
+        this.numLayers = numLayers;
+        iis.setSize(numLayers);
+      }
+
+      public int[] next() {
+        int[] retval = vals;
+        hasnext = false;
+        findNext();
+        return retval;
+      }
+
+      public void reset() {
+        hasnext = false;
+        iis.reset();
+        findNext();
+      }
+
+      /**
+       * Find next iterate, if any. Stores it locally and updates
+       * hasnext as needed.
+       */
+      private void findNext() {
+        double radius = Math.abs(vecs[0].x(0)*2.0);
+        if(!iis.hasNext()) {
+          hasnext = false;
+          vals = null;
+          return;
+        }
+        
+        while(iis.hasNext()) {
+          float dx = 0, dy = 0, dz = 0;
+          int[] lvals = iis.next();
+          for(int i=0; i<getD(); i++) {
+            dx += (float)( (lvals[i]-numLayers) * vecs[i].x(0));
+            dy += (float)( (lvals[i]-numLayers) * vecs[i].x(1));
+            dz += (float)( (lvals[i]-numLayers) * vecs[i].x(2));
+          }
+          if(Math.sqrt(dx*dx + dy*dy + dz*dz) <= radius) {
+            //include
+            hasnext = true;
+            vals = lvals;
+            break;
+          }
+        }
+      }
+      
+    }
+    
     private final void updateDimensions() {
+      //TODO: tell index iterator vectors have changes
+      /*
+       * update field for these vectors (vecs); index iterator
+       * references them and automatically calculates a new
+       * radius based on that
+       * 
+       * vec update should be automatic now
+       */
         dimensionsHalf.Ea1Tv1(0.5, dimensions);
         dimensionsCopy.E(dimensions);
         ((TruncatedOctahedron) shape).setContainingCubeEdgeLength(dimensions

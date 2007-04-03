@@ -414,6 +414,9 @@ public class BoundaryDeformablePeriodic extends Boundary {
     public IVector[] getPeriodicVectors() {
         return edgeVectors;
     }
+    public g3dsys.control.IndexIterator getIndexIterator() {
+      return new IndexIteratorSequential(edgeVectors.length);
+    }
     
 	public double[][] imageOrigins(int nShells) {
         int shellFormula = (2 * nShells) + 1;

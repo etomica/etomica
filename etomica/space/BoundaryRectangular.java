@@ -141,6 +141,12 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         }
         return vectors;
     }
+    public g3dsys.control.IndexIterator getIndexIterator() {
+      int n = 0;
+      for(int i=0; i<isPeriodic.length; i++)
+        if(isPeriodic[i]) n++;
+      return new IndexIteratorSequential(n);
+    }
     
     /**
      * Returns a set of image origins for a set of periodic image shells.  
