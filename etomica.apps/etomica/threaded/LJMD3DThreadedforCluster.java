@@ -14,19 +14,19 @@ public class LJMD3DThreadedforCluster {
         
         // On-the-fly input - Number of Atoms
         int n;
-        n = 1000;
+        n = Integer.parseInt(args[0]);
         
         // On-the-fly input - Number of Threads
         int t;
-        t = 1;
+        t = Integer.parseInt(args[1]);
         
         // On-the-fly input - Number of Timesteps
         int s;
-        s = 1000;
+        s = Integer.parseInt(args[2]);
                 
         LJMD3DThreaded sim = new LJMD3DThreaded(n, t);
                
-        sim.getController().addAction(sim.activityIntegrate);
+       
         sim.activityIntegrate.setMaxSteps(s);
       
         
