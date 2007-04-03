@@ -7,7 +7,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
     public void setPhase(Phase p) {
         super.setPhase(p);
         speciesMaster = p.getSpeciesMaster();
-        agentList = speciesMaster.getChildList();
+        agentList = speciesMaster.getAgentList();
         reset();
     }
     

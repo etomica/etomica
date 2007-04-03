@@ -149,12 +149,16 @@ public class MCMoveSemigrand extends MCMovePhase {
         deleteMolecule = moleculeList.get(random.nextInt(moleculeList.size()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();
-        phase.removeMolecule(deleteMolecule);
+        deleteMolecule.dispose();
         
         int size = reservoirs[iInsert].size();
-        if(size>0) insertMolecule = reservoirs[iInsert].remove(size-1);
-        else insertMolecule = insertAgent.moleculeFactory().makeAtom();
-        phase.addMolecule(insertMolecule, insertAgent);
+        if(size>0) {
+            insertMolecule = reservoirs[iInsert].remove(size-1);
+            insertMolecule.setParent(insertAgent);
+        }
+        else {
+            insertMolecule = insertAgent.addNewAtom();
+        }
         moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
         moleculeTranslator.actionPerformed(insertMolecule);
         //in general, should also randomize orintation and internal coordinates
@@ -180,9 +184,9 @@ public class MCMoveSemigrand extends MCMovePhase {
 
     public void rejectNotify() {
         //put deleted molecule back into phase
-        phase.addMolecule(deleteMolecule, deleteAgent);
+        deleteMolecule.setParent(deleteAgent);
         //remove inserted molecule and put in reservoir
-        phase.removeMolecule(insertMolecule);
+        insertMolecule.dispose();
         reservoirs[iInsert].add(insertMolecule);
     }
     

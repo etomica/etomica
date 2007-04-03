@@ -26,17 +26,17 @@ public class AtomTypeGroup extends AtomType {
         super(positionDefinition);
         assignChildOrdinals();
     }
-    
-    /**
-     * Set this AtomType's address and update addresses of its descendants.
-     */
-    protected void setChildIndex(int parentIndex, int childIndex) {
-        super.setChildIndex(parentIndex, childIndex);
-        if (childTypes != null) {
-            assignChildOrdinals();
+
+    public void resetIndex() {
+        boolean recurse = index == -1;
+        super.resetIndex();
+        if (recurse) {
+            for (int i=0; i<childTypes.length; i++) {
+                childTypes[i].resetIndex();
+            }
         }
     }
-    
+
     public void removeChildType(AtomType removedType) {
         boolean success = false;
         for (int i=0; i<childTypes.length; i++) {
@@ -67,7 +67,7 @@ public class AtomTypeGroup extends AtomType {
      */
     private void assignChildOrdinals() {
         for (int i = 0; i < childTypes.length; i++) {
-            childTypes[i].setChildIndex(i);
+            childTypes[i].resetIndex();
         }
     }
 

@@ -51,6 +51,9 @@ public class MCMoveMolecule extends MCMoveAtom {
 
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
+        if(Double.isInfinite(uOld)) {
+            throw new RuntimeException("Started with overlap");
+        }
         groupTranslationVector.setRandomCube(random);
         groupTranslationVector.TE(stepSize);
         moveMoleculeAction.actionPerformed(atom);

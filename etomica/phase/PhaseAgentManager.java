@@ -7,6 +7,7 @@ import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationPhaseAddedEvent;
 import etomica.simulation.SimulationPhaseEvent;
+import etomica.simulation.SimulationPhaseRemovedEvent;
 import etomica.util.Arrays;
 
 /**
@@ -83,12 +84,14 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         if (evt instanceof SimulationPhaseAddedEvent) {
             addAgent(((SimulationPhaseEvent)evt).getPhase());
         }
-        else if (evt instanceof SimulationPhaseAddedEvent) {
+        else if (evt instanceof SimulationPhaseRemovedEvent) {
             Phase phase = ((SimulationPhaseEvent)evt).getPhase();
-            int index = phase.getIndex()-1;
+            // The given Phase got removed.  The remaining phases got shifted
+            // down.
+            int index = phase.getIndex();
             agentSource.releaseAgent(agents[index]);
             for (int i=index; i<agents.length-1; i++) {
-                agents[index] = agents[index+1];
+                agents[i] = agents[i+1];
             }
         }
     }

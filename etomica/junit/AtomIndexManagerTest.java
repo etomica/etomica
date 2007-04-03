@@ -2,6 +2,7 @@ package etomica.junit;
 
 import junit.framework.TestCase;
 import etomica.atom.Atom;
+import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.SpeciesAgent;
@@ -37,10 +38,10 @@ public class AtomIndexManagerTest extends TestCase {
         phase0.getAgent(species1).setNMolecules(10);
         phase1.getAgent(species0).setNMolecules(20);
         phase1.getAgent(species1).setNMolecules(10);
-        atoms = new Atom[26];
+        atoms = new Atom[24];
         int i = 0;
-        atoms[i++] = master0 = phase0.getSpeciesMaster();//0
-        atoms[i++] = master1 = phase1.getSpeciesMaster();//1
+//        atoms[i++] = master0 = phase0.getSpeciesMaster();//0
+//        atoms[i++] = master1 = phase1.getSpeciesMaster();//1
         atoms[i++] = agent00 = phase0.getAgent(species0);//2
         atoms[i++] = agent01 = phase0.getAgent(species1);//3
         atoms[i++] = agent10 = phase1.getAgent(species0);//4
@@ -74,20 +75,22 @@ public class AtomIndexManagerTest extends TestCase {
       }
     }
 
+    private static SpeciesMaster getSpeciesMaster(Atom atom) {
+        Atom speciesAgent = atom;
+        while (!(speciesAgent instanceof SpeciesAgent)) {
+            speciesAgent = speciesAgent.getParentGroup();
+        }
+        return ((SpeciesAgent)speciesAgent).getSpeciesMaster();
+    }
+        
+    
     public void testAncestry() {
         for(int i=0; i<atoms.length; i++) {
             assertFalse(atoms[i].isDescendedFrom(atom));
             assertFalse(atom.isDescendedFrom(atoms[i]));
-            Atom speciesMasteri = atoms[i];
-            while (!(speciesMasteri instanceof SpeciesMaster)) {
-                speciesMasteri = speciesMasteri.getParentGroup();
-            }
+            SpeciesMaster iSpeciesMaster = getSpeciesMaster(atoms[i]);
             for(int j=0; j<atoms.length; j++) {
-                Atom speciesMasterj = atoms[j];
-                while (!(speciesMasterj instanceof SpeciesMaster)) {
-                    speciesMasterj = speciesMasterj.getParentGroup();
-                }
-                if (speciesMasteri != speciesMasterj) {
+                if (iSpeciesMaster != getSpeciesMaster(atoms[j])) {
                     // different phases, so skip
                     continue;
                 }
@@ -95,12 +98,19 @@ public class AtomIndexManagerTest extends TestCase {
                 if(isDescendedFrom(atoms[i],atoms[j])) {
                     assertTrue(atoms[i].isDescendedFrom(atoms[j]));
                 } else {
+                    if (atoms[i].isDescendedFrom(atoms[j])) {
+                        System.out.println("atoms i: "+Integer.toBinaryString(atoms[i].getAddress()));
+                        System.out.println("atoms j: "+Integer.toBinaryString(atoms[j].getAddress()));
+                        atoms[i].isDescendedFrom(atoms[j]);
+                        System.out.println(atoms[i]+" "+atoms[j]);
+                    }
                     assertFalse(atoms[i].isDescendedFrom(atoms[j]));
                 }
             }
         }
     }
     private boolean isDescendedFrom(Atom a1, Atom a2) {
+        if (a1 == null) return false;
         if(a1.getType().getDepth() < a2.getType().getDepth()) return false;
         else if(a1 == a2) return true;
         else return isDescendedFrom(a1.getParentGroup(), a2);
@@ -111,16 +121,9 @@ public class AtomIndexManagerTest extends TestCase {
         for(int i=0; i<atoms.length; i++) {
             assertFalse(atoms[i].getType().isDescendedFrom(atom.getType()));
             assertFalse(atom.getType().isDescendedFrom(atoms[i].getType()));
-            Atom speciesMasteri = atoms[i];
-            while (!(speciesMasteri instanceof SpeciesMaster)) {
-                speciesMasteri = speciesMasteri.getParentGroup();
-            }
+            SpeciesMaster iSpeciesMaster = getSpeciesMaster(atoms[i]);
             for(int j=0; j<atoms.length; j++) {
-                Atom speciesMasterj = atoms[j];
-                while (!(speciesMasterj instanceof SpeciesMaster)) {
-                    speciesMasterj = speciesMasterj.getParentGroup();
-                }
-                if (speciesMasteri != speciesMasterj) {
+                if (iSpeciesMaster != getSpeciesMaster(atoms[j])) {
                     // different phases, so skip
                     continue;
                 }
@@ -138,6 +141,7 @@ public class AtomIndexManagerTest extends TestCase {
         }
     }
     private boolean typeIsDescendedFrom(Atom a1, Atom a2) {
+        if (a1 == null) return false;
         if(a1.getType().getDepth() < a2.getType().getDepth()) return false;
         else if(a1.getType() == a2.getType()) return true;
         else return typeIsDescendedFrom(a1.getParentGroup(), a2);
@@ -148,7 +152,7 @@ public class AtomIndexManagerTest extends TestCase {
         int falseCount = 0;
         int undefinedCount = 0;
         for(int i=i0; i<atoms.length; i++) {
-            if (atoms[i] instanceof SpeciesMaster || atoms[i] instanceof SpeciesAgent) {
+            if (atoms[i].getType().getDepth() < AtomAddressManager.MOLECULE_DEPTH) {
                 continue;
             }
             if(atoms[i].inSameMolecule(atom)) System.out.println(i+" "+atoms[i]+" "+atom);
@@ -158,19 +162,12 @@ public class AtomIndexManagerTest extends TestCase {
             while (!(moleculeA.getParentGroup() instanceof SpeciesAgent)) {
                 moleculeA = moleculeA.getParentGroup();
             }
-            Atom speciesMasteri = atoms[i];
-            while (!(speciesMasteri instanceof SpeciesMaster)) {
-                speciesMasteri = speciesMasteri.getParentGroup();
-            }
+            SpeciesMaster iSpeciesMaster = getSpeciesMaster(atoms[i]);
             for(int j=i0; j<atoms.length; j++) {
-                if (atoms[j] instanceof SpeciesMaster || atoms[j] instanceof SpeciesAgent) {
+                if (atoms[j].getType().getDepth() < AtomAddressManager.MOLECULE_DEPTH) {
                     continue;
                 }
-                Atom speciesMasterj = atoms[j];
-                while (!(speciesMasterj instanceof SpeciesMaster)) {
-                    speciesMasterj = speciesMasterj.getParentGroup();
-                }
-                if (speciesMasteri != speciesMasterj) {
+                if (iSpeciesMaster != getSpeciesMaster(atoms[j])) {
                     // different phases, so skip
                     continue;
                 }

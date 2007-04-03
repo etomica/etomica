@@ -5,7 +5,7 @@ import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -23,7 +23,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     protected final IRandom random;
     protected AtomSource moleculeSource;
     
-    protected final AtomIteratorTree leafAtomIterator = new AtomIteratorTree();
+    protected final AtomIteratorTreeRoot leafAtomIterator = new AtomIteratorTreeRoot();
     
     protected transient double uOld;
     protected transient double uNew = Double.NaN;

@@ -1,12 +1,11 @@
 package etomica.species;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeSpeciesAgent;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.util.NameMaker;
 
 
@@ -46,11 +45,9 @@ public class Species implements java.io.Serializable {
      * Species agents made by this species will have the given type for 
      * their (common) AtomType.
      */
-    public Species(AtomFactory factory, AtomType agentType) {
+    public Species(AtomFactory factory) {
         this.factory = factory;
-        this.agentType = agentType;
         setName(NameMaker.makeName(this.getClass()));
-        agentType.setSpecies(this);
     }
     
     /**
@@ -70,6 +67,15 @@ public class Species implements java.io.Serializable {
      * @param name The name string to be associated with this species.
      */
     public void setName(String name) {this.name = name;}
+    
+    /**
+     * Sets the AtomType for SpeciesAgents associated with this Species.
+     * This method should only be called by the SpeciesManager
+     */
+    public void setAgentType(AtomTypeSpeciesAgent agentType) {
+        this.agentType = agentType;
+        factory.getType().setParentType(agentType);
+    }
 
     /**
      * Overrides the Object class toString method to have it return the output of getName.
@@ -81,15 +87,15 @@ public class Species implements java.io.Serializable {
     public AtomFactory moleculeFactory() {return factory;}
     
     /**
-     * Constructs an Agent of this species and sets its parent phase.
+     * Constructs an Agent of this species and sets its SpeciesMaster.
      * The agent's type is in common with all other agents of this species.
      * 
-     * @param p The given parent phase of the agent
+     * @param speciesMaster The SpeciesMaster that will hold this SpeciesAgent
      * @return The new agent.
      */
-    public SpeciesAgent makeAgent(SpeciesMaster parent) {
-        SpeciesAgent agent = new SpeciesAgent(agentType, this);
-        agent.setParent(parent);
+    public SpeciesAgent makeAgent(SpeciesMaster speciesMaster) {
+        SpeciesAgent agent = new SpeciesAgent(agentType, speciesMaster);
+        speciesMaster.addSpeciesAgent(agent);
         return agent;
     }
 
@@ -111,19 +117,6 @@ public class Species implements java.io.Serializable {
     }
     
     /**
-     * Returns an AtomType that is appropriate for passing to the constructor.
-     * Method is used by subclasses to generate the AtomType for the agent.
-     * This is needed for it to make index managers for the AtomTypes needed
-     * to make the factory (which is also passed to the Species constructor).
-     * PositionDefinition for the agent type is set to null.
-     */
-    public static AtomTypeGroup makeAgentType(Simulation sim) {
-        AtomTypeGroup agentType = new AtomTypeGroup(null);
-        agentType.setParentType(sim.getSpeciesManager().getSpeciesMasterType());
-        return agentType;
-    }
-    
-    /**
      * Returns a SpeciesSignature for this Species.  Subclasses must override
      * this method.
      */
@@ -134,7 +127,8 @@ public class Species implements java.io.Serializable {
     }
     
     private static final long serialVersionUID = 2L;
-    final AtomType agentType;
+//    final AtomType agentType;
     protected final AtomFactory factory;
+    protected AtomTypeSpeciesAgent agentType;
     private String name;
 }

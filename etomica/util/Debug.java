@@ -1,10 +1,11 @@
 package etomica.util;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.phase.Phase;
 
 /**
@@ -90,7 +91,7 @@ public final class Debug {
 		for (int i=0; i<atoms.count(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if ((ATOM1_INDEX > -1 && globalIndex == ATOM1_INDEX) || (ATOM2_INDEX > -1 && globalIndex == ATOM2_INDEX)) return true;
-            if (atoms.getAtom(i).getType().getDepth() > 1) {
+            if (atoms.getAtom(i).getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
                 Atom molecule = atoms.getAtom(i);
                 while (!(molecule.getParentGroup() instanceof SpeciesAgent)) {
                     molecule = molecule.getParentGroup();
@@ -112,7 +113,7 @@ public final class Debug {
 		for (int i=0; i<atoms.count(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if (globalIndex != ATOM1_INDEX && globalIndex != ATOM2_INDEX) return false;  
-            if (atoms.getAtom(i).getType().getDepth() > 1) {
+            if (atoms.getAtom(i).getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
                 Atom molecule = atoms.getAtom(i);
                 while (!(molecule.getParentGroup() instanceof SpeciesAgent)) {
                     molecule = molecule.getParentGroup();
@@ -142,7 +143,7 @@ public final class Debug {
     public static AtomPair getAtoms(Phase phase) {
         AtomPair pair = new AtomPair();
         if (ATOM1_INDEX > -1 || ATOM2_INDEX > -1) {
-            AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
+            AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
             iterator.reset();
             while (iterator.hasNext()) {
                 Atom atom = iterator.nextAtom();

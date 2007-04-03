@@ -38,7 +38,10 @@ public class AtomFactoryTree extends AtomFactoryHomo {
      */
     public AtomFactoryTree(Space space, AtomTypeGroup parentType,
                                 int[] nAtoms, Conformation[] config) {
-        super(space, parentType, nAtoms[0], config[0]);
+        super(space, nAtoms[0], config[0]);
+        if (parentType != null) {
+            atomType.setParentType(parentType);
+        }
         setChildFactory(subFactory(space, nAtoms, config));
         if(getChildFactory() != null) ((AtomFactoryTree)getChildFactory()).parentFactory = this;
         depth = nAtoms.length;

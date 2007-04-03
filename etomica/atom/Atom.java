@@ -84,8 +84,7 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
      */
     public final String toString() {
 //        return Integer.toBinaryString(node.index());
-    	if(this instanceof SpeciesMaster) return "Master(" + signature() + ")";
-    	else if(this instanceof SpeciesAgent) return "Agent(" + signature() + ")";
+    	if(this instanceof SpeciesAgent) return "Agent(" + signature() + ")";
     	if(parent instanceof SpeciesAgent) return "Molecule(" + signature() + ")";
     	else if(isLeaf()) return "Atom(" + signature() + ")";
     	else return "Group(" + signature() + ")";

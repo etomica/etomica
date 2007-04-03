@@ -11,7 +11,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorMolecule;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -108,7 +108,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(new Species[]{species});
         moleculeIterator.setPhase(phase);
         moleculeIterator.reset();
-        AtomIteratorTree leafIterator = new AtomIteratorTree();
+        AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
         while(moleculeIterator.hasNext()) {
             Atom molecule = moleculeIterator.nextAtom();
             leafIterator.setRootAtom(molecule);

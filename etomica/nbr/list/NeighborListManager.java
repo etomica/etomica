@@ -3,12 +3,13 @@ package etomica.nbr.list;
 import etomica.action.AtomActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.Atom;
+import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
@@ -46,7 +47,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             PhaseAgentManager agentManager) {
         setUpdateInterval(1);
         iieCount = updateInterval;
-        iterator = new AtomIteratorTree();
+        iterator = new AtomIteratorTreePhase();
         iterator.setDoAllNodes(true);
         neighborCheck = new NeighborCheck(this);
         neighborReset = new NeighborReset(this);
@@ -90,7 +91,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
         potentialListManager = (AtomAgentManager)phaseAgentManager1Body.getAgent(phase);
 
-        iterator.setRootAtom(phase.getSpeciesMaster());
+        iterator.setPhase(phase);
         iterator.reset();
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
@@ -145,7 +146,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         for (int j = 0; j < criteriaArray.length; j++) {
             criteriaArray[j].setPhase(phase);
         }
-        iterator.setRootAtom(phase.getSpeciesMaster());
+        iterator.setPhase(phase);
         iterator.allAtoms(neighborCheck);
         if (neighborCheck.needUpdate) {
             if (Debug.ON && Debug.DEBUG_NOW) {
@@ -269,7 +270,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
         agentManager1Body = (AtomAgentManager)phaseAgentManager1Body.getAgent(phase);
 
-        iterator.setRootAtom(phase.getSpeciesMaster());
+        iterator.setPhase(phase);
         neighborReset.setNeighborLists(agentManager,agentManager1Body);
         iterator.allAtoms(neighborReset);
         
@@ -354,7 +355,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     private int updateInterval;
     private int iieCount;
-    private final AtomIteratorTree iterator;
+    private final AtomIteratorTreePhase iterator;
     private final NeighborCheck neighborCheck;
     private final NeighborReset neighborReset;
     private final ApiAACell cellNbrIterator;
@@ -425,7 +426,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         
         public void actionPerformed(Atom atom) {
             //TODO consider removing this check, for perf improvement
-            if (atom.getType().getDepth() < 2) {
+            if (atom.getType().getDepth() < AtomAddressManager.MOLECULE_DEPTH) {
                 return;//don't want SpeciesMaster or SpeciesAgents
             }
             final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.getType());

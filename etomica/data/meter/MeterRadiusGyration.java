@@ -3,7 +3,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.space.IVector;
@@ -61,7 +61,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
         NearestImageTransformer nearestImageTransformer = phase.getBoundary();
         iterator.setPhase(phase);
         iterator.reset();
-        AtomIteratorTree leafIterator = new AtomIteratorTree();
+        AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
         int nLeafAtomsTot = 0;
         double r2Tot = 0.0;
         while (iterator.hasNext()) {

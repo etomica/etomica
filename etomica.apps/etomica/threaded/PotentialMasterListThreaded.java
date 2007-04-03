@@ -4,8 +4,6 @@ import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomsetArrayList;
-import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.PhaseAgentSourceCellManager;
@@ -60,7 +58,6 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         neighborManager.setPhase(phase);
         if (targetAtom == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
-            targetAtom = phase.getSpeciesMaster();
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
@@ -70,11 +67,11 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
             }
             
             if(pc instanceof PotentialCalculationThreaded){
-            	calculateThreaded(targetAtom, id, (PotentialCalculationThreaded)pc);
+            	calculateThreaded(phase, id, (PotentialCalculationThreaded)pc);
             }
             else{
             	//method of super class
-            	calculate(targetAtom, id, pc);
+            	super.calculate(phase, id, pc);
             }
             
         }
@@ -103,64 +100,61 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
     }
 
-	protected void calculateThreaded(Atom atom, IteratorDirective id, PotentialCalculationThreaded pc) {
+    protected void calculateThreaded(Phase phase, IteratorDirective id, PotentialCalculationThreaded pc) {
 
-        if(atom.getType().getDepth()==0){
-            //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((AtomGroup)atom).getChildList();
-            int size = list.size();
-            for (int i=0; i<size; i++) {
-                Atom a = list.get(i);
-                calculateThreaded(a, id, pc);//recursive call
-            }
-            pc.writeData();
+        //cannot use AtomIterator field because of recursive call
+        AtomArrayList list = phase.getSpeciesMaster().getAgentList();
+        int size = list.size();
+        for (int i=0; i<size; i++) {
+            Atom a = list.get(i);
+            calculateThreaded(a, id, pc);//recursive call
         }
+        pc.writeData();
+    }
         
-        else{
+    protected void calculateThreaded(Atom atom, IteratorDirective id, PotentialCalculationThreaded pc) {
            
-            AtomArrayList list = ((AtomGroup)atom).getChildList();
-            int size = list.size();
-            
-        	
-				                            
-                for(int i=0; i<threads.length; i++){
-                    synchronized(threads[i]){
-                    threads[i].startAtom = (i*size)/threads.length;
-                    threads[i].stopAtom = ((i+1)*size)/threads.length;
-                    threads[i].threadList = list;
-                    threads[i].id = id;
-                    threads[i].pc = pc.getPotentialCalculations()[i];
-                    threads[i].greenLight = true;
-                    threads[i].finished = false;
-                    threads[i].notifyAll();
-                   
-                    }
+        AtomArrayList list = ((AtomGroup)atom).getChildList();
+        int size = list.size();
+        
+    	
+			                            
+            for(int i=0; i<threads.length; i++){
+                synchronized(threads[i]){
+                threads[i].startAtom = (i*size)/threads.length;
+                threads[i].stopAtom = ((i+1)*size)/threads.length;
+                threads[i].threadList = list;
+                threads[i].id = id;
+                threads[i].pc = pc.getPotentialCalculations()[i];
+                threads[i].greenLight = true;
+                threads[i].finished = false;
+                threads[i].notifyAll();
+               
                 }
-		
-                
-				// All threads are running
-                
-			
-			
-            // Waiting for all threads to complete, threads report "Finished!"
-			for(int i=0; i<threads.length; i++){
-				synchronized(threads[i]){
-					try{
-                       
-						if (!threads[i].finished){
-                          
-                            threads[i].wait();	
-						}
-					}
-					catch(InterruptedException e){
-					}
-			
-				}
-			}
-			
+            }
+	
             
-        }
-       
+			// All threads are running
+            
+		
+		
+        // Waiting for all threads to complete, threads report "Finished!"
+		for(int i=0; i<threads.length; i++){
+			synchronized(threads[i]){
+				try{
+                   
+					if (!threads[i].finished){
+                      
+                        threads[i].wait();	
+					}
+				}
+				catch(InterruptedException e){
+				}
+		
+			}
+		}
+		
+        
     }
 	
 	public void setNumThreads(int t){

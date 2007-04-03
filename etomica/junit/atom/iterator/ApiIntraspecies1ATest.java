@@ -3,6 +3,7 @@ package etomica.junit.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.Atom;
+import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.atom.iterator.IteratorDirective;
@@ -10,6 +11,7 @@ import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
+import etomica.species.SpeciesSpheres;
 
 
 /**
@@ -83,24 +85,24 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
      * Performs tests on different species combinations in a particular phase.
      */
     private void phaseTest(Phase phase, Species[] species) {
-        speciesTestForward(phase, species, 0);
-        speciesTestForward(phase, species, 1);
-        speciesTestForward(phase, species, 2);
+        speciesTestForward(phase, species[0]);
+        speciesTestForward(phase, species[1]);
+        speciesTestForward(phase, species[2]);
     }
 
     /**
      * Test iteration in various directions with different targets.  Iterator constructed with
      * index of first species less than index of second.
      */
-    private void speciesTestForward(Phase phase, Species[] species, int species0Index) {
+    private void speciesTestForward(Phase phase, Species species) {
 
-        ApiIntraspecies1A api = new ApiIntraspecies1A(new Species[] {species[species0Index], species[species0Index]});
-        AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
+        ApiIntraspecies1A api = new ApiIntraspecies1A(new Species[] {species, species});
+        AtomsetAction speciesTest = new SpeciesTestAction(species, species);
         Atom target = null;
         Atom targetMolecule = null;
         //test no iterates if no target
         api.setPhase(phase);
-        Atom[] molecules0 = phase.getAgent(species[species0Index]).getChildList().toArray();
+        Atom[] molecules0 = phase.getAgent(species).getChildList().toArray();
         int[] nMolecules = new int[] {molecules0.length};
         testNoIterates(api);
         
@@ -108,14 +110,14 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
 
         //species0 target; any direction
         
-        target = phase.getSpeciesMaster().getDescendant(new int[] {species0Index,nMolecules[0]/2});
+        target = phase.getAgent(species).getChildList().get(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         testApiIterates(api,targetMolecule,upMolecules(targetMolecule,molecules0), dnMolecules(targetMolecule, molecules0));
         api.allAtoms(speciesTest);
 
         //species0 target; up
-        target = phase.getSpeciesMaster().getDescendant(new int[] {species0Index,nMolecules[0]/2});
+        target = phase.getAgent(species).getChildList().get(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(UP);
@@ -123,15 +125,15 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         api.allAtoms(speciesTest);
 
         //species0 target; down
-        target = phase.getSpeciesMaster().getDescendant(new int[] {species0Index,nMolecules[0]/2});
+        target = phase.getAgent(species).getChildList().get(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(DOWN);
         testApiIteratesSwap(api,targetMolecule,dnMolecules(targetMolecule,molecules0));
         
         //species0 leafAtom target; any direction
-        if(species0Index != 1) {
-            target = phase.getSpeciesMaster().getDescendant(new int[] {species0Index,nMolecules[0]/2,1});
+        if(species instanceof SpeciesSpheres) {
+            target = ((AtomGroup)phase.getAgent(species).getChildList().get(nMolecules[0]/2)).getChildList().get(1);
             targetMolecule = target.getParentGroup();
             api.setTarget(target);
             api.setDirection(UP);

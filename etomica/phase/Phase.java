@@ -66,21 +66,41 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     public Phase(Simulation sim) {
         space = sim.getSpace();
         eventManager = new PhaseEventManager();
-        speciesMaster = new SpeciesMaster(sim.getSpeciesManager().getSpeciesMasterType(), this, eventManager);
+        speciesMaster = new SpeciesMaster(this, eventManager);
         setBoundary(new BoundaryRectangularPeriodic(sim));
-        sim.addPhase(this);
+        index = sim.addPhase(this);
         setName(null);
         this.sim = sim;
         
         inflateEvent = new PhaseInflateEvent(this);
     }
     
+    /**
+     * Returns the Simulation holding this Phase.  No, you shouldn't be calling
+     * this method.  It's here for SpeciesAgent.getNMolecules, which shouldn't
+     * be calling this method either!
+     */
     public Simulation getSimulation() {
         return sim;
     }
+    
+    /**
+     * Resets the Phase's index.  This should only need to be called from the
+     * Simulation when another Phase is removed.
+     */
+    public void resetIndex() {
+        Phase[] phases = sim.getPhases();
+        for (int i=0; i<phases.length; i++) {
+            if (phases[i] == this) {
+                index = i;
+                return;
+            }
+        }
+        index = 0;
+    }
 
     public int getIndex() {
-        return speciesMaster.getIndex();
+        return index;
     }
     
     /**
@@ -136,7 +156,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         if(i >= moleculeCount() || i < 0) 
             throw new IndexOutOfBoundsException("Index: "+i+
                                                 ", Number of molecules: "+moleculeCount());
-        AtomArrayList agentList = speciesMaster.getChildList();
+        AtomArrayList agentList = speciesMaster.getAgentList();
         for (int agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
             AtomArrayList moleculeList = ((AtomGroup)agentList.get(agentIndex)).getChildList();
             int count = moleculeList.size();
@@ -199,7 +219,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      */
     public final SpeciesAgent getAgent(Species s) {
         //brute force it
-        AtomArrayList agentList = speciesMaster.getChildList();
+        AtomArrayList agentList = speciesMaster.getAgentList();
         for (int i=0; i<agentList.size(); i++) {
             if (((SpeciesAgent)agentList.get(i)).getType().getSpecies() == s) {
                 return (SpeciesAgent)agentList.get(i);
@@ -207,7 +227,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         }
         return null;
     }
-                       
+
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
     
     public void setDensity(double rho) {
@@ -233,24 +253,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * returns the number of leaf atoms in the phase
      */
     public int atomCount() {return speciesMaster.getLeafList().size();}
-        
-    /**
-     * Adds the given molecule to this phase.
-     * @param molecule the molecule to be added
-     * @param s the species agent in this phase for the molecule's species.
-     */
-    public void addMolecule(Atom a, SpeciesAgent s) {
-        a.setParent(s);
-    }
-    
-    /**
-     * Removes molecule from phase.  
-     */
-    public void removeMolecule(Atom a) {
-        if(a == null) return;
-        a.dispose();
-    }
-    
+
     /**
      * @return Returns the speciesMaster.
      */
@@ -260,7 +263,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 
     public void writePhase(ObjectOutputStream out) throws IOException {
         out.writeObject(boundary);
-        AtomArrayList agents = speciesMaster.getChildList();
+        AtomArrayList agents = speciesMaster.getAgentList();
         out.writeInt(agents.size());
         for (int i=0; i<agents.size(); i++) {
             Species species = agents.get(i).getType().getSpecies();
@@ -333,5 +336,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     private final PhaseEventManager eventManager;
     private final PhaseEvent inflateEvent;
     private Simulation sim;
-} //end of Phase
+    private int index;
+}
         

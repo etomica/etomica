@@ -1,7 +1,9 @@
 package etomica.junit.space;
 
 import junit.framework.TestCase;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
@@ -140,9 +142,10 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         test.simGraphic = makeDisplay(test);
         test.sim = test.simGraphic.getSimulation();
         SpeciesMaster speciesMaster = test.sim.getPhases()[0].getSpeciesMaster();
-        test.atom0 = (AtomLeaf)speciesMaster.getDescendant(new int[] {0, 0});
-        test.atom1 = (AtomLeaf)speciesMaster.getDescendant(new int[] {0, 1});
-        test.atom2 = (AtomLeaf)speciesMaster.getDescendant(new int[] {0, 2});
+        AtomArrayList list = ((SpeciesAgent)speciesMaster.getAgentList().get(0)).getChildList();
+        test.atom0 = (AtomLeaf)list.get(0);
+        test.atom1 = (AtomLeaf)list.get(1);
+        test.atom2 = (AtomLeaf)list.get(2);
         test.display = ((DisplayPhase)test.simGraphic.displayList().getFirst());
         test.interactive = true;
         test.testNearestImage();

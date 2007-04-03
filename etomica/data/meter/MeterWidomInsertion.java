@@ -101,7 +101,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
         if (integrator == null) throw new IllegalStateException("must call setPhase before using meter");
         Phase phase = integrator.getPhase();
         double sum = 0.0; //sum for local insertion average
-        phase.addMolecule(testMolecule, phase.getAgent(species));
+        testMolecule.setParent(phase.getAgent(species));
         energyMeter.setTarget(testMolecule);
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(phase.getBoundary().randomPosition());
@@ -110,7 +110,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
             sum += Math.exp(-u / integrator.getTemperature());
         }
 
-        phase.removeMolecule(testMolecule);
+        testMolecule.dispose();
 
         if (!residual) {
             // multiply by V/N

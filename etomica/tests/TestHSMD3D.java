@@ -49,6 +49,9 @@ public class TestHSMD3D extends Simulation {
         activityIntegrate.setMaxSteps(20000000/numAtoms);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
+        getSpeciesManager().removeSpecies(species);
+        species = new SpeciesSpheresMono(this);
+        getSpeciesManager().addSpecies(species);
         species2 = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species2);
 

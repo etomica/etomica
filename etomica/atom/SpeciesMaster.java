@@ -1,8 +1,8 @@
 package etomica.atom;
 
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreePhase;
+import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAtomAddedEvent;
 import etomica.phase.PhaseAtomIndexChangedEvent;
@@ -22,19 +22,51 @@ import etomica.species.SpeciesSpheresMono;
  * @author David Kofke and Andrew Schultz
  */
 
-public final class SpeciesMaster extends AtomGroup {
+public final class SpeciesMaster {
 
-    public SpeciesMaster(AtomTypePhase speciesMasterType, Phase p, PhaseEventManager eventManager) {
-        super(speciesMasterType);
+    public SpeciesMaster(Phase p, PhaseEventManager eventManager) {
+        agentList = new AtomArrayList();
         phaseEventManager = eventManager;
         indexReservoir = new int[reservoirSize];
         maxIndex = -1;
         reservoirCount = 0;
-        setGlobalIndex(this);
         phase = p;
-        treeIterator.setDoAllNodes(true);
-        treeIterator.setIterationDepth(Integer.MAX_VALUE);
-        setIndex(0);
+        treeIteratorRoot = new AtomIteratorTreeRoot();
+        treeIteratorRoot.setDoAllNodes(true);
+        treeIteratorRoot.setIterationDepth(Integer.MAX_VALUE);
+        treeIteratorPhase = new AtomIteratorTreePhase();
+    }
+
+    /**
+     * Adds the given SpeciesAgent to the SpeciesMaster's list of
+     * SpeciesAgents.  This method should be called by Species.
+     */
+    public void addSpeciesAgent(SpeciesAgent newSpeciesAgent) {
+        newSpeciesAgent.setIndex(agentList.size());
+        agentList.add(newSpeciesAgent);
+        addAtomNotify(newSpeciesAgent);
+    }
+    
+    /**
+     * Notifies the SpeciesMaster that a Species has been removed.  This method
+     * should only be called by the SpeciesManager.
+     */
+    public void removeSpeciesNotify(Species species) {
+        for (int i=0; i<agentList.size(); i++) {
+            Atom speciesAgent = agentList.get(i);
+            if (speciesAgent.getType().getSpecies() == species) {
+                agentList.removeAndReplace(i);
+                if (agentList.size() > i) {
+                    agentList.get(i).setIndex(i);
+                }
+                agentList.maybeTrimToSize();
+                removeAtomNotify(speciesAgent);
+            }
+        }
+    }
+
+    public AtomArrayList getAgentList() {
+        return agentList;
     }
 
     /**
@@ -51,29 +83,8 @@ public final class SpeciesMaster extends AtomGroup {
         return leafList;
     }
     
-    public String signature() {
-        return (phase != null) ? phase.getName()
-                : "SpeciesMaster without phase";
-    }
-    
     public Phase getPhase() {
         return phase;
-    }
-
-    /**
-     * Notifies the SpeciesMaster that a Species has been removed.  This method
-     * should only be called by the SpeciesManager.
-     */
-    public void removeSpecies(Species species) {
-        AtomArrayList speciesAgents = getChildList();
-        AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(speciesAgents);
-        iterator.reset();
-        while (iterator.hasNext()) {
-            Atom speciesAgent = iterator.nextAtom();
-            if (speciesAgent.getType().getSpecies() == species) {
-                speciesAgent.dispose();
-            }
-        }
     }
 
     /**
@@ -124,11 +135,11 @@ public final class SpeciesMaster extends AtomGroup {
             }
             j++;
         }
-        treeIterator.setRootAtom(this);
-        treeIterator.reset();
+        treeIteratorPhase.setPhase(phase);
+        treeIteratorPhase.reset();
         // loop over all the atoms.  Any atoms whose index is 
-        while (treeIterator.hasNext()) {
-            Atom a = treeIterator.nextAtom();
+        while (treeIteratorPhase.hasNext()) {
+            Atom a = treeIteratorPhase.nextAtom();
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
                 PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(phase, a, a.getGlobalIndex());
                 // Just re-invoke the Atom's method without first "returning"
@@ -203,10 +214,10 @@ public final class SpeciesMaster extends AtomGroup {
             ((AtomLeaf)newAtom).setLeafIndex(leafList.size());
             leafList.add(newAtom);
         } else {
-            treeIterator.setRootAtom(newAtom);
-            treeIterator.reset();
-            while (treeIterator.hasNext()) {
-                Atom childAtom = treeIterator.nextAtom();
+            treeIteratorRoot.setRootAtom(newAtom);
+            treeIteratorRoot.reset();
+            while (treeIteratorRoot.hasNext()) {
+                Atom childAtom = treeIteratorRoot.nextAtom();
                 if (childAtom.getType().isLeaf()) {
                     ((AtomLeaf)childAtom).setLeafIndex(leafList.size());
                     leafList.add(childAtom);
@@ -239,10 +250,10 @@ public final class SpeciesMaster extends AtomGroup {
                 ((AtomLeaf)leafList.get(leafIndex)).setLeafIndex(leafIndex);
             }
         } else {
-            treeIterator.setRootAtom(oldAtom);
-            treeIterator.reset();
-            while (treeIterator.hasNext()) {
-                Atom childAtom = treeIterator.nextAtom();
+            treeIteratorRoot.setRootAtom(oldAtom);
+            treeIteratorRoot.reset();
+            while (treeIteratorRoot.hasNext()) {
+                Atom childAtom = treeIteratorRoot.nextAtom();
                 returnGlobalIndex(childAtom.getGlobalIndex());
                 if (childAtom.getType().isLeaf()) {
                     int leafIndex = ((AtomLeaf)childAtom).getLeafIndex();
@@ -258,12 +269,14 @@ public final class SpeciesMaster extends AtomGroup {
 
     private static final long serialVersionUID = 2L;
     private final Phase phase;
+    private final AtomArrayList agentList;
     /**
      * List of leaf atoms in phase
      */
     private final AtomArrayList leafList = new AtomArrayList();
 
-    private final AtomIteratorTree treeIterator = new AtomIteratorTree();
+    private final AtomIteratorTreePhase treeIteratorPhase;
+    private final AtomIteratorTreeRoot treeIteratorRoot;
 
     protected int moleculeCount;
     protected final PhaseEventManager phaseEventManager;

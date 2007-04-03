@@ -102,7 +102,7 @@ public class ClusterCoupled implements ClusterAbstract {
     }
     
     public void setPhase(PhaseCluster phase) {
-        atomList = ((AtomGroup)phase.getSpeciesMaster().getChildList().get(0)).getChildList();
+        atomList = ((AtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
     }
 
     public void setTemperature(double temperature) {

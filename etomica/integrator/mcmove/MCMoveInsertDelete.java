@@ -87,7 +87,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
             
             if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
             else testMolecule = moleculeFactory.makeAtom();
-            phase.addMolecule(testMolecule, speciesAgent);
+            testMolecule.setParent(speciesAgent);
 
             atomTranslator.setDestination(phase.getBoundary().randomPosition());
             atomTranslator.actionPerformed(testMolecule);
@@ -123,7 +123,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
     public void acceptNotify() {
         if(!insert) {
             // accepted deletion - remove from phase and add to reservoir 
-            phase.removeMolecule(testMolecule);
+            testMolecule.dispose();
             reservoir.add(testMolecule);
         }
     }
@@ -131,7 +131,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
     public void rejectNotify() {
         if(insert) {
             // rejected insertion - remove from phase and return to reservoir
-            phase.removeMolecule(testMolecule);
+            testMolecule.dispose();
             reservoir.add(testMolecule);
             // test molecule is no longer in the simulation and should not be 
             // returned by affectedAtoms

@@ -13,7 +13,8 @@ import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreePhase;
+import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMovePhase;
@@ -43,7 +44,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     private static final long serialVersionUID = 1L;
     private final CellLattice lattice;
     private final Space space;
-    private final AtomIteratorTree atomIterator;
+    private final AtomIteratorTreePhase atomIterator;
     private final AtomPositionDefinition positionDefinition;
     private final Phase phase;
     private int cellRange = 2;
@@ -70,9 +71,9 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         this.positionDefinition = positionDefinition;
         this.phase = phase;
         space = phase.getSpace();
-        atomIterator = new AtomIteratorTree();
+        atomIterator = new AtomIteratorTreePhase();
         atomIterator.setDoAllNodes(true);
-        atomIterator.setRootAtom(phase.getSpeciesMaster());
+        atomIterator.setPhase(phase);
 
         lattice = new CellLattice(phase.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
@@ -233,7 +234,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
         public MyMCMoveListener(Space space, Phase phase, NeighborCellManager manager) {
-            treeIterator = new AtomIteratorTree();
+            treeIterator = new AtomIteratorTreeRoot();
             treeIterator.setDoAllNodes(true);
             moleculePosition = new AtomPositionCOM(space);
             translator = new AtomActionTranslateBy(space);
@@ -284,7 +285,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         }
         
         private static final long serialVersionUID = 1L;
-        private final AtomIteratorTree treeIterator;
+        private final AtomIteratorTreeRoot treeIterator;
         private final AtomPositionDefinition moleculePosition;
         private final AtomActionTranslateBy translator;
         private final AtomGroupAction moleculeTranslator;

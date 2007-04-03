@@ -20,16 +20,16 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param parentType the type instance of the atoms that are parents of those made by this factory
      */
-    public AtomFactoryHomo(Simulation sim, AtomTypeGroup parentType) {
-        this(sim, parentType, 1);
+    public AtomFactoryHomo(Simulation sim) {
+        this(sim, 1);
     }
     /**
      * @param space the coordinate factory
      * @param parentType the type instance of the atoms that are parents of those made by this factory
      * @param atoms the number of identical children per group (default is 1).
      */
-    public AtomFactoryHomo(Simulation sim, AtomTypeGroup parentType, int atoms) {
-        this(sim.getSpace(), parentType, atoms, new ConformationLinear(sim));
+    public AtomFactoryHomo(Simulation sim, int atoms) {
+        this(sim.getSpace(), atoms, new ConformationLinear(sim));
     }
     /**
      * @param space the coordinate factory
@@ -37,10 +37,8 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      * @param config the conformation applied to each group that is built (default is Linear).
      */
-   public AtomFactoryHomo(Space space, AtomTypeGroup parentType,
-                            int atoms, Conformation config) {
+   public AtomFactoryHomo(Space space, int atoms, Conformation config) {
         super(new AtomTypeGroup(new AtomPositionGeometricCenter(space)));
-        atomType.setParentType(parentType);
         atomsPerGroup = atoms;
         setConformation(config);
     }

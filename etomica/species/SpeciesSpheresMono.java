@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
@@ -32,15 +31,7 @@ public class SpeciesSpheresMono extends Species implements EtomicaElement {
     }
     
     public SpeciesSpheresMono(Simulation sim, Element element) {
-        this(sim, element, Species.makeAgentType(sim));
-    }
-    
-    private SpeciesSpheresMono(Simulation sim, Element element, AtomTypeGroup agentType) {
-        super(new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, element)),
-                agentType);
-        // factory.getType is the AtomTypeSphere instance we just passed to the AtomFactoryMono
-        // we need to finish setting it up by setting its parent
-        factory.getType().setParentType(agentType);
+        super(new AtomFactoryMono(new CoordinateFactorySphere(sim), new AtomTypeSphere(sim, element)));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

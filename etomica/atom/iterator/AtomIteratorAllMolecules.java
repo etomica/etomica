@@ -19,9 +19,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
             implements AtomIteratorPhaseDependent {
 
     public AtomIteratorAllMolecules() {
-        super(new AtomIteratorTree(2));
-        treeIterator = (AtomIteratorTree) iterator;
-        setPhase(null);
+        super(new AtomIteratorTreePhase(2));
     }
 
     /**
@@ -37,11 +35,10 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
      * Sets the phase having the molecules to be returned as iterates.
      */
     public void setPhase(Phase phase) {
-        treeIterator.setRootAtom((phase == null) ? null : phase.getSpeciesMaster());
+        ((AtomIteratorPhaseDependent)iterator).setPhase(phase);
     }
 
     private static final long serialVersionUID = 1L;
-    private final AtomIteratorTree treeIterator;
 
     /**
      * main method to test and demonstrate use of this class.

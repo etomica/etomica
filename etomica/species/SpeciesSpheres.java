@@ -35,13 +35,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
     }
     
     public SpeciesSpheres(Simulation sim, int nA, Element leafElement, Conformation conformation) {
-        this(sim, nA, leafElement, conformation, Species.makeAgentType(sim));
-    }
-    
-    private SpeciesSpheres(Simulation sim, int nA, Element leafElement, Conformation conformation, 
-            AtomTypeGroup agentType) {
-        super(new AtomFactoryHomo(sim.getSpace(), agentType,
-                                nA, conformation), agentType);
+        super(new AtomFactoryHomo(sim.getSpace(), nA, conformation));
         AtomTypeSphere atomType = new AtomTypeSphere(sim, leafElement);
         atomType.setParentType((AtomTypeGroup)factory.getType());
         ((AtomFactoryHomo)factory).setChildFactory(

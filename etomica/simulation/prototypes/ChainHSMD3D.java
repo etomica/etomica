@@ -8,6 +8,8 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.chem.models.ModelChain;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConformationLinear;
+import etomica.graphics.BondListener;
+import etomica.graphics.DisplayPhaseCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
@@ -80,6 +82,8 @@ public class ChainHSMD3D extends Simulation {
     public static void main(String[] args) {
       final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
       final SimulationGraphic simGraphic = new SimulationGraphic(sim);
+      new BondListener(sim.phase, (DisplayPhaseCanvasG3DSys)simGraphic.getDisplayPhase(sim.phase).canvas);
+      
       simGraphic.makeAndDisplayFrame();
     }
 }//end of class

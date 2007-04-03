@@ -29,7 +29,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
 
     AtomFactory creator;//set in constructor of AtomFactory
     protected Species species;
-    private int index;
+    protected int index;
     private int typeTreeAddress;
 
     private AtomAddressManager addressManager;
@@ -47,7 +47,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         this.addressManager = indexManager;
         setChildIndex(0,0);
         positionDefinition = null;
-        index = 0;
     }
 
     /**
@@ -65,7 +64,8 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      */
     public AtomType(AtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
-        setParentType(null);
+        index = -1;
+//        setParentType(null);
     }
 
     /**
@@ -92,12 +92,15 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         if (parentType == null) {
             addressManager = AtomAddressManager
                     .makeSimpleIndexManager(Default.BIT_LENGTH);
-            index = 0;
+            index = -1;
             setChildIndex(0,0);
         } else {
-            addressManager = parentType.getAddressManager().makeChildManager();
-            setChildIndex(parentType.childTypes.length);
-            index = parentType.requestIndex();
+            AtomAddressManager parentAddressManager = parentType.getAddressManager();
+            if (parentAddressManager != null) {
+                addressManager = parentAddressManager.makeChildManager();
+                // we just got hooked up.  get our new index
+                resetIndex();
+            }
             parentType.addChildType(this);
         }
     }
@@ -123,6 +126,9 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     }
     
     public void resetIndex() {
+        addressManager = parentType.getAddressManager().makeChildManager();
+        setChildIndex(parentType.childTypes.length);
+        // we just got hooked up.  get our new index
         index = parentType.requestIndex();
     }
     

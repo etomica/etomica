@@ -3,10 +3,12 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
+import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
@@ -92,33 +94,36 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         AtomPair basisPair = new AtomPair();
 
         SpeciesMaster speciesMaster = sim.getPhases()[0].getSpeciesMaster();
-        AtomTypeGroup speciesMasterType = (AtomTypeGroup)speciesMaster.getType();
+        SpeciesAgent agent0 = (SpeciesAgent)speciesMaster.getAgentList().get(0);
+        SpeciesAgent agent1 = (SpeciesAgent)speciesMaster.getAgentList().get(1);
+        AtomTypeGroup agentType0 = sim.getSpeciesManager().getSpeciesAgentTypes()[0];
+        AtomTypeGroup agentType1 = sim.getSpeciesManager().getSpeciesAgentTypes()[1];
         
         //test 3-atom type and 4-atom type, no target
-        basisPair.atom0 = speciesMaster.getDescendant(new int[] {0,2});
-        basisPair.atom1 = speciesMaster.getDescendant(new int[] {1,1});
-        types[0] = speciesMasterType.getDescendant(new int[] {0,0,0});
-        types[1] = speciesMasterType.getDescendant(new int[] {1,0,0});
+        basisPair.atom0 = agent0.getDescendant(new int[] {2});
+        basisPair.atom1 = agent1.getDescendant(new int[] {1});
+        types[0] = agentType0.getDescendant(new int[] {0,0});
+        types[1] = agentType1.getDescendant(new int[] {0,0});
         ApiIntergroup api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         LinkedList list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 12);
         //test 3 and 4, one of the 3 given as target
-        Atom target0 = speciesMaster.getDescendant(new int[] {0,2,1});
+        Atom target0 = agent0.getDescendant(new int[] {2,1});
         api.setTarget(target0);
         LinkedList list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 4);
         //test 3 and 4, one of the 4 given as target
-        Atom target1 = speciesMaster.getDescendant(new int[] {1,1,0});
+        Atom target1 = agent1.getDescendant(new int[] {1,0});
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
         //give target that isn't the specified type
-        target0 = speciesMaster.getDescendant(new int[] {0,2,4});
+        target0 = agent0.getDescendant(new int[] {2,4});
         api.setTarget(target0);
         testNoIterates(api);
         //again
-        target1 = speciesMaster.getDescendant(new int[] {1,1,10});
+        target1 = agent1.getDescendant(new int[] {1,10});
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
@@ -128,68 +133,68 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         
         //same tests, but switch order of basis; nothing should give iterates
         //test 3-atom type and 4-atom type, no target
-        basisPair.atom1 = speciesMaster.getDescendant(new int[] {0,2});
-        basisPair.atom0 = speciesMaster.getDescendant(new int[] {1,1});
-        types[0] = speciesMasterType.getDescendant(new int[] {0,0,0});
-        types[1] = speciesMasterType.getDescendant(new int[] {1,0,0});
+        basisPair.atom1 = agent0.getDescendant(new int[] {2});
+        basisPair.atom0 = agent1.getDescendant(new int[] {1});
+        types[0] = agentType0.getDescendant(new int[] {0,0});
+        types[1] = agentType1.getDescendant(new int[] {0,0});
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         testNoIterates(api);
         //test 3 and 4, one of the 3 given as target
-        target0 = speciesMaster.getDescendant(new int[] {0,2,1});
+        target0 = agent0.getDescendant(new int[] {2,1});
         api.setTarget(target0);
         testNoIterates(api);
         //test 3 and 4, one of the 4 given as target
-        target1 = speciesMaster.getDescendant(new int[] {1,1,0});
+        target1 = agent1.getDescendant(new int[] {1,0});
         api.setTarget(target1);
         testNoIterates(api);
 
         //same tests, but switch order of basis and switch order of types
         //test 3-atom type and 4-atom type, no target
-        basisPair.atom1 = speciesMaster.getDescendant(new int[] {0,2});
-        basisPair.atom0 = speciesMaster.getDescendant(new int[] {1,1});
-        types[1] = speciesMasterType.getDescendant(new int[] {0,0,0});
-        types[0] = speciesMasterType.getDescendant(new int[] {1,0,0});
+        basisPair.atom1 = agent0.getDescendant(new int[] {2});
+        basisPair.atom0 = agent1.getDescendant(new int[] {1});
+        types[1] = agentType0.getDescendant(new int[] {0,0});
+        types[0] = agentType1.getDescendant(new int[] {0,0});
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 12);
         //test 3 and 4, one of the 3 given as target
-        target0 = speciesMaster.getDescendant(new int[] {0,2,1});
+        target0 = agent0.getDescendant(new int[] {2,1});
         api.setTarget(target0);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 4);
         //test 3 and 4, one of the 4 given as target
-        target1 = speciesMaster.getDescendant(new int[] {1,1,0});
+        target1 = agent1.getDescendant(new int[] {1,0});
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
 
         //test 3-atom type and 1-atom type, no target
-        basisPair.atom0 = speciesMaster.getDescendant(new int[] {0,2});
-        basisPair.atom1 = speciesMaster.getDescendant(new int[] {1,1});
-        types[0] = speciesMasterType.getDescendant(new int[] {0,0,0});
-        types[1] = speciesMasterType.getDescendant(new int[] {1,0,1});
+        basisPair.atom0 = agent0.getDescendant(new int[] {2});
+        basisPair.atom1 = agent1.getDescendant(new int[] {1});
+        types[0] = agentType0.getDescendant(new int[] {0,0});
+        types[1] = agentType1.getDescendant(new int[] {0,1});
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 3);
         //test 3 and 1, one of the 3 given as target
-        target0 = speciesMaster.getDescendant(new int[] {0,2,1});
+        target0 = agent0.getDescendant(new int[] {2,1});
         api.setTarget(target0);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 1);
         //test 3 and 1, the 1 given as target
-        target1 = speciesMaster.getDescendant(new int[] {1,1,4});
+        target1 = agent1.getDescendant(new int[] {1,4});
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
         //give target that isn't the specified type
-        target0 = speciesMaster.getDescendant(new int[] {0,2,4});
+        target0 = agent0.getDescendant(new int[] {2,4});
         api.setTarget(target0);
         testNoIterates(api);
         //again
-        target1 = speciesMaster.getDescendant(new int[] {1,1,10});
+        target1 = agent1.getDescendant(new int[] {1,10});
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
@@ -197,10 +202,10 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         list1 = generalIteratorMethodTests(api);
         assertEquals(list0, list1);
 
-        basisPair.atom0 = speciesMaster.getDescendant(new int[] {0,2});
-        basisPair.atom1 = speciesMaster.getDescendant(new int[] {1,1});
-        types[0] = speciesMasterType.getDescendant(new int[] {0,0,0});
-        types[1] = speciesMasterType.getDescendant(new int[] {1,0,0});
+        basisPair.atom0 = agent0.getDescendant(new int[] {2});
+        basisPair.atom1 = agent1.getDescendant(new int[] {1});
+        types[0] = agentType0.getDescendant(new int[] {0,0});
+        types[1] = agentType1.getDescendant(new int[] {0,0});
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         list1 = generalIteratorMethodTests(api);
@@ -255,8 +260,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //******* adjacent/nonadjacent setup -- basis has only one child
     private void setup4() {
         SpeciesMaster speciesMaster = sim.getPhases()[1].getSpeciesMaster();
-        parent = speciesMaster.getDescendant(new int[] {0});//phase1, species0
-        target = speciesMaster.getDescendant(new int[] {0,0});//the only species0 molecule
+        parent = speciesMaster.getAgentList().get(0);//phase1, species0
+        target = ((AtomGroup)parent).getChildList().get(0);//the only species0 molecule
         targetFirst = target;
         targetLast = target;
         up = dn = upFirst = dnLast = null;
@@ -269,111 +274,72 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //************ adjacent/nonadjacent setup -- target is descended from but not direct child of basis
     private void setup3() {
         SpeciesMaster speciesMaster = sim.getPhases()[0].getSpeciesMaster();
-        parent = speciesMaster.getDescendant(new int[] {2,2});//phase0, species2, molecule2
-        target = speciesMaster.getDescendant(new int[] {2,2,1,0,1});
-        targetFirst = speciesMaster.getDescendant(new int[] {2,2,0,0,2});
-        targetLast = speciesMaster.getDescendant(new int[] {2,2,4,1});
-        up = speciesMaster.getDescendant(new int[] {2,2,2});
-        upNon = new Atom[] {
-                speciesMaster.getDescendant(new int[] {2,2,3}),
-                speciesMaster.getDescendant(new int[] {2,2,4})};
-        upFirst = speciesMaster.getDescendant(new int[] {2,2,1});
-        upFirstNon = new Atom[] {
-                speciesMaster.getDescendant(new int[] {2,2,2}),
-                speciesMaster.getDescendant(new int[] {2,2,3}),
-                speciesMaster.getDescendant(new int[] {2,2,4})};
-        dn = speciesMaster.getDescendant(new int[] {2,2,0});
+        parent = ((AtomGroup)speciesMaster.getAgentList().get(2)).getChildList().get(2); //Descendant(new int[] {2,2});//phase0, species2, molecule2
+        AtomArrayList childList = ((AtomGroup)parent).getChildList(); 
+        target = ((AtomGroup)parent).getDescendant(new int[] {1,0,1});
+        targetFirst = ((AtomGroup)parent).getDescendant(new int[] {0,0,2});
+        targetLast = ((AtomGroup)parent).getDescendant(new int[] {4,1});
+        up = ((AtomGroup)parent).getDescendant(new int[] {2});
+        upNon = new Atom[] {childList.get(3), childList.get(4)};
+        upFirst = childList.get(1);
+        upFirstNon = new Atom[] {childList.get(2), childList.get(3),
+                childList.get(4)};
+        dn = childList.get(0);
         dnNon = new Atom[0];
-        dnLast = speciesMaster.getDescendant(new int[] {2,2,3});
-        dnLastNon = new Atom[] {
-                speciesMaster.getDescendant(new int[] {2,2,2}),
-                speciesMaster.getDescendant(new int[] {2,2,1}),
-                speciesMaster.getDescendant(new int[] {2,2,0})};
-        iterate = speciesMaster.getDescendant(new int[] {2,2,1});
-        iterateFirst = speciesMaster.getDescendant(new int[] {2,2,0});
-        iterateLast = speciesMaster.getDescendant(new int[] {2,2,4});
+        dnLast = childList.get(3);
+        dnLastNon = new Atom[] {childList.get(2),childList.get(1),
+                childList.get(0)};
+        iterate = childList.get(1);
+        iterateFirst = childList.get(0);
+        iterateLast = childList.get(4);
     }
 
 
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
         SpeciesMaster speciesMaster = sim.getPhases()[0].getSpeciesMaster();
-        parent = speciesMaster.getDescendant(new int[] {1,5});//leaf-atom basis
-        target = speciesMaster.getDescendant(new int[] {1,5});//atom5 
-        targetFirst = speciesMaster.getDescendant(new int[] {1,0});//atom0 
-        targetLast = speciesMaster.getDescendant(new int[] {1,9});//atom9
-        up = speciesMaster.getDescendant(new int[] {1,6});
-        upNon = new Atom[] {
-                speciesMaster.getDescendant(new int[] {1,7}),
-                speciesMaster.getDescendant(new int[] {1,8}),
-                speciesMaster.getDescendant(new int[] {1,9})};
-        upFirst = speciesMaster.getDescendant(new int[] {1,1});
-        upFirstNon = new Atom[] {
-                speciesMaster.getDescendant(new int[] {1,2}),
-                speciesMaster.getDescendant(new int[] {1,3}),
-                speciesMaster.getDescendant(new int[] {1,4}),
-                speciesMaster.getDescendant(new int[] {1,5}),
-                speciesMaster.getDescendant(new int[] {1,6}),
-                speciesMaster.getDescendant(new int[] {1,7}),
-                speciesMaster.getDescendant(new int[] {1,8}),
-                speciesMaster.getDescendant(new int[] {1,9})};
-        dn = speciesMaster.getDescendant(new int[] {1,4});
-        dnNon = new Atom[] {
-                speciesMaster.getDescendant(new int[] {1,3}),
-                speciesMaster.getDescendant(new int[] {1,2}),
-                speciesMaster.getDescendant(new int[] {1,1}),
-                speciesMaster.getDescendant(new int[] {1,0})};
-        dnLast = speciesMaster.getDescendant(new int[] {1,8});
-        dnLastNon = new Atom[] {
-                speciesMaster.getDescendant(new int[] {1,7}),
-                speciesMaster.getDescendant(new int[] {1,6}),
-                speciesMaster.getDescendant(new int[] {1,5}),
-                speciesMaster.getDescendant(new int[] {1,4}),
-                speciesMaster.getDescendant(new int[] {1,3}),
-                speciesMaster.getDescendant(new int[] {1,2}),
-                speciesMaster.getDescendant(new int[] {1,1}),
-                speciesMaster.getDescendant(new int[] {1,0})};
-
+        AtomArrayList moleculeList = ((AtomGroup)speciesMaster.getAgentList().get(1)).getChildList();
+        parent = moleculeList.get(5);//leaf-atom basis
+        target = parent;//atom5 
+        targetFirst = moleculeList.get(0);//atom0 
+        targetLast = moleculeList.get(9);//atom9
+        up = moleculeList.get(6);
+        upNon = new Atom[] {moleculeList.get(7),moleculeList.get(8),
+                moleculeList.get(9)};
+        upFirst = moleculeList.get(1);
+        upFirstNon = new Atom[] {moleculeList.get(2),moleculeList.get(3),
+                moleculeList.get(4),moleculeList.get(5),moleculeList.get(6),
+                moleculeList.get(7),moleculeList.get(8),moleculeList.get(9)};
+        dn = moleculeList.get(4);
+        dnNon = new Atom[] {moleculeList.get(3),moleculeList.get(2),
+                moleculeList.get(1),moleculeList.get(0)};
+        dnLast = moleculeList.get(8);
+        dnLastNon = new Atom[] {moleculeList.get(7),moleculeList.get(6),
+                moleculeList.get(5),moleculeList.get(4),moleculeList.get(3),
+                moleculeList.get(2),moleculeList.get(1),moleculeList.get(0)};
     }
 
     //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
         SpeciesMaster speciesMaster = sim.getPhases()[0].getSpeciesMaster();
-        parent = speciesMaster.getDescendant(new int[] {0,2});
-        target = speciesMaster.getDescendant(new int[] {0,2,5});
-        targetFirst = speciesMaster.getDescendant(new int[] {0,2,0});
-        targetLast = speciesMaster.getDescendant(new int[] {0,2,9});
-        up = speciesMaster.getDescendant(new int[] {0,2,6});
-        upNon = new Atom[] {
-                        speciesMaster.getDescendant(new int[] {0,2,7}),
-                        speciesMaster.getDescendant(new int[] {0,2,8}),
-                        speciesMaster.getDescendant(new int[] {0,2,9})};
-        upFirst = speciesMaster.getDescendant(new int[] {0,2,1});
-        upFirstNon = new Atom[] {
-                        speciesMaster.getDescendant(new int[] {0,2,2}),
-                        speciesMaster.getDescendant(new int[] {0,2,3}),
-                        speciesMaster.getDescendant(new int[] {0,2,4}),
-                        speciesMaster.getDescendant(new int[] {0,2,5}),
-                        speciesMaster.getDescendant(new int[] {0,2,6}),
-                        speciesMaster.getDescendant(new int[] {0,2,7}),
-                        speciesMaster.getDescendant(new int[] {0,2,8}),
-                        speciesMaster.getDescendant(new int[] {0,2,9})};
-        dn = speciesMaster.getDescendant(new int[] {0,2,4});
-        dnNon = new Atom[] {
-                        speciesMaster.getDescendant(new int[] {0,2,3}),
-                        speciesMaster.getDescendant(new int[] {0,2,2}),
-                        speciesMaster.getDescendant(new int[] {0,2,1}),
-                        speciesMaster.getDescendant(new int[] {0,2,0})};
-        dnLast = speciesMaster.getDescendant(new int[] {0,2,8});
-        dnLastNon = new Atom[] {
-                        speciesMaster.getDescendant(new int[] {0,2,7}),
-                        speciesMaster.getDescendant(new int[] {0,2,6}),
-                        speciesMaster.getDescendant(new int[] {0,2,5}),
-                        speciesMaster.getDescendant(new int[] {0,2,4}),
-                        speciesMaster.getDescendant(new int[] {0,2,3}),
-                        speciesMaster.getDescendant(new int[] {0,2,2}),
-                        speciesMaster.getDescendant(new int[] {0,2,1}),
-                        speciesMaster.getDescendant(new int[] {0,2,0})};
+        parent = ((AtomGroup)speciesMaster.getAgentList().get(0)).getChildList().get(2);
+        AtomArrayList childList = ((AtomGroup)parent).getChildList();
+        target = childList.get(5);
+        targetFirst = childList.get(0);
+        targetLast = childList.get(9);
+        up = childList.get(6);
+        upNon = new Atom[] {childList.get(7),childList.get(8),childList.get(9)};
+        upFirst = childList.get(1);
+        upFirstNon = new Atom[] {childList.get(2),childList.get(3),
+                childList.get(4),childList.get(5),childList.get(6),
+                childList.get(7),childList.get(8),childList.get(9)};
+        dn = childList.get(4);
+        dnNon = new Atom[] {childList.get(3),childList.get(2),childList.get(1),
+                childList.get(0)};
+        dnLast = childList.get(8);
+        dnLastNon = new Atom[] {childList.get(7),childList.get(6),
+                childList.get(5),childList.get(4),childList.get(3),
+                childList.get(2),childList.get(1),childList.get(0)};
         iterate = target;
         iterateFirst = targetFirst;
         iterateLast = targetLast;

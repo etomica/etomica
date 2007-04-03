@@ -54,13 +54,17 @@ public class AtomAddressManager implements java.io.Serializable {
         cumulativeBitLength = calculateCumulativeBitLength(bitLength);
         bitShift = calculateBitShift(cumulativeBitLength);
         this.depth = depth;
-        int phaseMask = 1 << 31;
-        speciesOrdinalMask = ((power2(bitLength[1]) - 1) << bitShift[1]);
-        moleculeOrdinalMask = ((power2(bitLength[2]) - 1) << bitShift[2]);
+        speciesOrdinalMask = ((power2(bitLength[0]) - 1) << bitShift[0]);
+        moleculeOrdinalMask = ((power2(bitLength[1]) - 1) << bitShift[1]);
         atomOrdinalMask = (power2(bitLength[depth]) - 1) << bitShift[depth];
-        addressMask = (power2(cumulativeBitLength[depth])-1) << bitShift[depth];//addressMask has 1's in for all bits significant to the index
+        if (bitShift[depth] == 0) {
+            addressMask = -1;
+        }
+        else {
+            addressMask = (power2(cumulativeBitLength[depth])-1) << bitShift[depth];//addressMask has 1's in for all bits significant to the index
+        }
         sameSpeciesMask = speciesOrdinalMask;
-        sameMoleculeMask = phaseMask | sameSpeciesMask | moleculeOrdinalMask;
+        sameMoleculeMask = sameSpeciesMask | moleculeOrdinalMask;
 //        System.out.println("depth, bitLength,cumulativeBitLength,bitShift: "+depth+Arrays.toString(bitLength)+Arrays.toString(cumulativeBitLength)+Arrays.toString(bitShift));
 //        System.out.println("sameSpeciesMask: "+Integer.toBinaryString(sameSpeciesMask));
 //        System.out.println("sameMoleculeMask: "+Integer.toBinaryString(sameMoleculeMask));
@@ -73,12 +77,10 @@ public class AtomAddressManager implements java.io.Serializable {
         return 1 << n;
     }
 
-    // {speciesRoot, phases, species, molecules, groups, atoms}
+    // {species, molecules, groups, atoms}
     /*
-     * SpeciesRoot has unique AtomType
-     * All SpeciesMasters in a simulation share the same AtomType (root.childType)
-     * Each Species has its own indexManager, which it gives to all its SpeciesAgents
-     * All molecules of a particular species have the same indexManager
+     * The SpeciesManager gives each AtomTypeSpecies its own AtomAddressManager
+     * All Atoms of a particular type have the same AtomAddressManager
      */
 
     /**
@@ -107,7 +109,7 @@ public class AtomAddressManager implements java.io.Serializable {
      * null.
      */
     public static AtomAddressManager makeSimpleIndexManager(int[] bitLength) {
-        return new AtomAddressManager(bitLength, 2);
+        return new AtomAddressManager(bitLength, 1);
     }
 
     /**
@@ -244,4 +246,6 @@ public class AtomAddressManager implements java.io.Serializable {
     private final int moleculeOrdinalMask;
     private final int atomOrdinalMask;
     private final int addressMask;
+    public static final int SPECIES_DEPTH = 0;
+    public static final int MOLECULE_DEPTH = 1;
 }

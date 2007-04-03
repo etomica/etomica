@@ -34,7 +34,7 @@ import etomica.atom.AtomSet;
  * @author David Kofke and Andrew Schultz
  */
    
-public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
+public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializable {
     
 	/**
 	 * Default gives a leaf-atom iterator.  Must set a root node and
@@ -62,7 +62,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
      * @param depth         nominal depth of iteration
      * @param doAllNodes    flag for iteration of all nodes between root and depth, inclusive
      */
-    public AtomIteratorTree(Atom root, int depth, boolean doAllNodes) {
+    protected AtomIteratorTree(Atom root, int depth, boolean doAllNodes) {
         setIterationDepth(depth);
         setRootAtom(root);
         setDoAllNodes(doAllNodes);
@@ -87,7 +87,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
             }
             else {
                 if (treeIterator == null) {
-                    treeIterator = new AtomIteratorTree(iterationDepth-1);
+                    treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
                     treeIterator.setDoAllNodes(doAllNodes);
                 }
 				treeIterator.setRootAtom(atom);
@@ -145,7 +145,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
                 break;
             }
             if (treeIterator == null) {
-                treeIterator = new AtomIteratorTree(iterationDepth-1);
+                treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
                 treeIterator.setDoAllNodes(doAllNodes);
             }
             treeIterator.setRootAtom(atom); 
@@ -177,7 +177,7 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
      * If atom is null, will return no atoms on reset, until a non-null root is specified.
      * User must perform a subsequent call to reset() before beginning iteration.
      */
-    public void setRootAtom(Atom newRootAtom) {
+    protected void setRootAtom(Atom newRootAtom) {
         rootAtom = newRootAtom;
         if(newRootAtom != null) {
             if(iterationDepth == 0 || newRootAtom.isLeaf()) {//singlet iteration of basis atom
@@ -263,14 +263,14 @@ public class AtomIteratorTree implements AtomIterator, java.io.Serializable {
 		unset();
 	}
 
-    private static final long serialVersionUID = 1L;
-    private Atom rootAtom;
-    private AtomIteratorTree treeIterator;//used for recursive iteration to lower levels in tree
-    private final AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple();
-    private int iterationDepth = Integer.MAX_VALUE;
-    private Atom next;
-    private boolean doAllNodes = false;
-    private boolean wealreadyknowyourstupid = false;
-    private final AtomsetCount counter;
+    private static final long serialVersionUID = 2L;
+    protected Atom rootAtom;
+    protected AtomIteratorTreeRoot treeIterator;//used for recursive iteration to lower levels in tree
+    protected final AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple();
+    protected int iterationDepth = Integer.MAX_VALUE;
+    protected Atom next;
+    protected boolean doAllNodes = false;
+    protected boolean wealreadyknowyourstupid = false;
+    protected final AtomsetCount counter;
         
 }//end of AtomIteratorTree

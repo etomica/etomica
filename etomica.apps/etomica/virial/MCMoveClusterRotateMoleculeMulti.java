@@ -80,7 +80,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     public void selectMolecules() {
-        AtomArrayList atomList = ((AtomGroup)phase.getSpeciesMaster().getChildList().get(0)).getChildList();
+        AtomArrayList atomList = ((AtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
         System.arraycopy(atomList.toArray(),1,selectedMolecules,0,atomList.size()-1);
     }
 

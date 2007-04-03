@@ -7,7 +7,7 @@ import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypePhase;
+import etomica.atom.AtomTypeSpeciesAgent;
 import etomica.chem.elements.Element;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -28,8 +28,8 @@ public class SpeciesManager implements java.io.Serializable {
         elementSymbolHash = new HashMap();
         elementAtomTypeHash = new HashMap();
         typeReservoirCount = -1;
-        
-        speciesMasterType = new AtomTypePhase(AtomAddressManager.makeRootIndexManager(bitLength), this);
+        this.bitLength = bitLength;
+        speciesAgentTypes = new AtomTypeSpeciesAgent[0];
     }
 
     /**
@@ -47,11 +47,26 @@ public class SpeciesManager implements java.io.Serializable {
         }
         speciesList = (Species[])Arrays.addObject(speciesList,species);
         Phase[] phaseList = sim.getPhases();
+        AtomTypeSpeciesAgent speciesAgentAtomType = new AtomTypeSpeciesAgent(
+                AtomAddressManager.makeRootIndexManager(bitLength), species, this);
+        speciesAgentAtomType.setChildIndex(speciesAgentTypes.length);
+        speciesAgentTypes = (AtomTypeSpeciesAgent[])Arrays.addObject(speciesAgentTypes, speciesAgentAtomType);
+
+        atomTypeAddedNotify(speciesAgentAtomType);
+
+        species.setAgentType(speciesAgentAtomType);
+        
         for (int i=0; i<phaseList.length; i++) {
             species.makeAgent(phaseList[i].getSpeciesMaster());
         }
 
         sim.getEventManager().fireEvent(new SimulationSpeciesAddedEvent(species));
+    }
+    
+    public void phaseAddedNotify(Phase newPhase) {
+        for(int i=0; i<speciesList.length; i++) {
+            speciesList[i].makeAgent(newPhase.getSpeciesMaster());
+        }
     }
 
     /**
@@ -76,15 +91,15 @@ public class SpeciesManager implements java.io.Serializable {
         speciesList = (Species[])Arrays.removeObject(speciesList,removedSpecies);
         Phase[] phaseList = sim.getPhases();
         for (int i=0; i<phaseList.length; i++) {
-            phaseList[i].getSpeciesMaster().removeSpecies(removedSpecies);
+            phaseList[i].getSpeciesMaster().removeSpeciesNotify(removedSpecies);
         }
-        
-        AtomType[] agentTypes = speciesMasterType.getChildTypes();
-        
-        for (int i=0; i<agentTypes.length; i++) {
-            if (agentTypes[i].getSpecies() == removedSpecies) {
-                AtomTypeGroup removedType = (AtomTypeGroup)agentTypes[i];
-                speciesMasterType.removeChildType(removedType);
+
+        for (int i=0; i<speciesAgentTypes.length; i++) {
+            if (speciesAgentTypes[i].getSpecies() == removedSpecies) {
+                AtomTypeGroup removedType = speciesAgentTypes[i];
+                speciesAgentTypes = (AtomTypeSpeciesAgent[])Arrays.removeObject(
+                        speciesAgentTypes, removedType);
+                atomTypeRemovedNotify(removedType);
                 break;
             }
         }
@@ -212,12 +227,16 @@ public class SpeciesManager implements java.io.Serializable {
         // now replace any AtomType index that's higher than a removed index
         // with the removed index.
         
-        // we can start at the agent types (our child's childTypes) because 
-        // types for the SpeciesMaster never go away
         typeReservoirCount = 0;
-        recycleIndices(speciesMasterType.getChildTypes());
+        for (int i=0; i<speciesAgentTypes.length; i++) {
+            recycleIndices(speciesAgentTypes[i].getChildTypes());
+        }
         typeIndexReservoir = null;
         typeReservoirCount = -1;
+    }
+    
+    public AtomTypeSpeciesAgent[] getSpeciesAgentTypes() {
+        return speciesAgentTypes;
     }
 
     /**
@@ -252,13 +271,6 @@ public class SpeciesManager implements java.io.Serializable {
         return symbolBase+n;
     }
 
-    /**
-     * @return Returns the AtomType of the SpeciesMaster
-     */
-    public AtomTypePhase getSpeciesMasterType() {
-        return speciesMasterType;
-    }
-
     private static final long serialVersionUID = 1L;
     private Species[] speciesList;
     private final HashMap elementSymbolHash;
@@ -266,6 +278,7 @@ public class SpeciesManager implements java.io.Serializable {
     private int numAtomTypes;
     private int[] typeIndexReservoir;
     private int typeReservoirCount;
-    private final AtomTypePhase speciesMasterType;
     private final Simulation sim;
+    private final int[] bitLength;
+    private AtomTypeSpeciesAgent[] speciesAgentTypes;
 }

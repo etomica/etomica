@@ -2,7 +2,8 @@ package etomica.atom;
 
 import java.lang.reflect.Array;
 
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreePhase;
+import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAtomAddedEvent;
 import etomica.phase.PhaseAtomEvent;
@@ -65,7 +66,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     public void dispose() {
         // remove ourselves as a listener to the phase
         phase.getEventManager().removeListener(this);
-        AtomIteratorTree iterator = new AtomIteratorTree(phase.getSpeciesMaster(),Integer.MAX_VALUE,true);
+        AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
         iterator.reset();
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
@@ -90,7 +91,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 speciesMaster.getMaxGlobalIndex()+1+speciesMaster.getIndexReservoirSize());
         // fill in the array with agents from all the atoms
-        AtomIteratorTree iterator = new AtomIteratorTree(speciesMaster,Integer.MAX_VALUE,true);
+        AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
         iterator.reset();
         while (iterator.hasNext()) {
             addAgent(iterator.nextAtom());
@@ -106,7 +107,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                 }
                 else {
                     if (treeIterator == null) {
-                        treeIterator = new AtomIteratorTree(Integer.MAX_VALUE);
+                        treeIterator = new AtomIteratorTreeRoot(Integer.MAX_VALUE);
                         treeIterator.setDoAllNodes(true);
                     }
                     // add all atoms below this atom
@@ -128,7 +129,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                 }
                 else {
                     if (treeIterator == null) {
-                        treeIterator = new AtomIteratorTree(Integer.MAX_VALUE);
+                        treeIterator = new AtomIteratorTreeRoot(Integer.MAX_VALUE);
                         treeIterator.setDoAllNodes(true);
                     }
                     // nuke all atoms below this atom
@@ -200,7 +201,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
-    private AtomIteratorTree treeIterator;
+    private AtomIteratorTreeRoot treeIterator;
     private final Phase phase;
     private final boolean isBackend;
     

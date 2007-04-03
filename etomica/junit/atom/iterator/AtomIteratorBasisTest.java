@@ -70,21 +70,24 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test no-target iteration of children of a basis
         Phase phase = sim.getPhases()[0];
-        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0});
+        AtomArrayList moleculeList0 = phase.getAgent(sim.getSpeciesManager().getSpecies()[0]).getChildList();
+        AtomArrayList moleculeList1 = phase.getAgent(sim.getSpeciesManager().getSpecies()[1]).getChildList();
+        AtomArrayList moleculeList2 = phase.getAgent(sim.getSpeciesManager().getSpecies()[2]).getChildList();
+        basis = moleculeList0.get(0);
         target = null;
         iterates = (AtomArrayList)((AtomGroup)basis).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
         //test no-target iteration of a leaf basis
-        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0,1});
+        basis = ((AtomGroup)moleculeList0.get(0)).getChildList().get(1);
         target = null;
         iterate = basis;
         testOneIterate(basis, target, iterate);
         
         //test target is a child of the basis
-        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0});
-        target = phase.getSpeciesMaster().getDescendant(new int[] {0,0,1});
+        basis = moleculeList0.get(0);
+        target = ((AtomGroup)moleculeList0.get(0)).getChildList().get(1);
         iterate = target;
         testOneIterate(basis, target, iterate);
 
@@ -97,45 +100,45 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         assertEquals(list, testLister.list);
 
         //test target is the basis, both not a leaf; should be same as target==null
-        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0});
+        basis = moleculeList0.get(0);
         target = basis;
         iterates = (AtomArrayList)((AtomGroup)basis).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
         //test target is the basis, both a leaf
-        basis = phase.getSpeciesMaster().getDescendant(new int[] {1,0});
+        basis = moleculeList1.get(0);
         target = basis;
         iterate = basis;
         testOneIterate(basis, target, iterate);
 
         //test target is in hierarchy above basis, a leaf; should be same as target==null
-        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0,0});
-        target = phase.getSpeciesMaster().getDescendant(new int[] {0,0});
+        basis = ((AtomGroup)moleculeList0.get(0)).getChildList().get(0);
+        target = moleculeList0.get(0);
         iterate = basis;
         testOneIterate(basis, target, iterate);
 
         //test target is in hierarchy apart from basis; should return no iterates
-        basis = phase.getSpeciesMaster().getDescendant(new int[] {0,0,0});
-        target = phase.getSpeciesMaster().getDescendant(new int[] {1,0});
+        basis = ((AtomGroup)moleculeList0.get(0)).getChildList().get(0);
+        target = moleculeList1.get(0);
         testNoIterates(basis, target);
 
         //test target is derived from basis, but is not a child of it
-        basis = phase.getSpeciesMaster().getDescendant(new int[] {2,0});
-        target = phase.getSpeciesMaster().getDescendant(new int[] {2,0,1,0});
-        iterate = phase.getSpeciesMaster().getDescendant(new int[] {2,0,1});
+        basis = moleculeList2.get(0);
+        iterate = ((AtomGroup)basis).getChildList().get(1);
+        target = ((AtomGroup)iterate).getChildList().get(0);
         testOneIterate(basis, target, iterate);
         
         //test specifying null target
         //also test specifying deeper basis
-        basis = phase.getSpeciesMaster().getDescendant(new int[] {2,1,2});
+        basis = ((AtomGroup)moleculeList2.get(1)).getChildList().get(2);
         target = null;
         iterates = (AtomArrayList)((AtomGroup)basis).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         
         //test null basis
         basis = null;
-        target = phase.getSpeciesMaster().getDescendant(new int[] {2,0,1,0});
+        target = ((AtomGroup)((AtomGroup)moleculeList2.get(0)).getChildList().get(1)).getChildList().get(0);
         testNoIterates(basis, target);
         
         //test null basis with null target

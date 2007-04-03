@@ -1,21 +1,24 @@
 package etomica.atom;
 
 import etomica.simulation.SpeciesManager;
+import etomica.species.Species;
 
 
 /**
- * AtomType class for the root of the AtomType tree (type of the SpeciesRoot 
- * atom)
- * @author David Kofke
+ * AtomType class for SpeciesAgents.  This lives at the top level of the
+ * AtomType hierarchy and passes on notifications and requests to the
+ * SpeciesManager
+ * 
+ * @author Andrew Schultz
  */
-public class AtomTypePhase extends AtomTypeGroup {
+public class AtomTypeSpeciesAgent extends AtomTypeGroup {
 
-    /**
-     * Used only to create root type
-     */
-    public AtomTypePhase(AtomAddressManager indexManager, SpeciesManager speciesManager) {
+    public AtomTypeSpeciesAgent(AtomAddressManager indexManager, Species species, 
+            SpeciesManager speciesManager) {
         super(indexManager);
+        setSpecies(species);
         this.speciesManager = speciesManager;
+        index = requestIndex();
     }
 
     public int requestIndex() {

@@ -27,9 +27,8 @@ public class AtomFactoryWater4P extends AtomFactory {
 	 * Constructor for AtomFactoryWater.
 	 * @param sim
 	 */
-    public AtomFactoryWater4P(Simulation sim, AtomTypeGroup agentType) {
+    public AtomFactoryWater4P(Simulation sim) {
 		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
-		atomType.setParentType(agentType);
         
         AtomTypeSphere hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
         AtomTypeSphere oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.154);

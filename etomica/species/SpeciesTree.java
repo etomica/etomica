@@ -35,13 +35,9 @@ public class SpeciesTree extends Species implements EtomicaElement {
      * molecule has 2 subgroups, each with 4 atoms (such as ethane, which
      * can be organized as CH3 + CH3)
      */
-    public SpeciesTree(Simulation sim, int[] nA) {
-        this(sim, nA, Species.makeAgentType(sim));
-    }
-    
     //TODO extend to permit specification of Conformation[], perhaps AtomSequencerFactory[]
-    private SpeciesTree(Simulation sim, int[] nA, AtomTypeGroup agentType) {
-        super(new AtomFactoryTree(sim.getSpace(), agentType, nA), agentType);
+    public SpeciesTree(Simulation sim, int[] nA) {
+        super(new AtomFactoryTree(sim.getSpace(), null, nA));
         AtomTypeSphere atomType = new AtomTypeSphere(sim);
         //getLeafType will return the an AtomTypeGroup because leaf factory is not yet set
         atomType.setParentType((AtomTypeGroup)((AtomFactoryTree)factory).getLeafType());

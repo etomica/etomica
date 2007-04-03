@@ -3,11 +3,10 @@ package etomica.junit;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -15,7 +14,6 @@ import etomica.space.CoordinateFactorySphere;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
-import etomica.species.SpeciesSignature;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesTree;
@@ -69,7 +67,7 @@ public class UnitTestUtil {
             int[] n1, int[] n2, int[] n2Tree) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new PotentialMaster(space),
-                new int[] { 1, 4, 4, 11, 6, 3, 3 }, new Default());
+                new int[] { 5, 4, 11, 6, 3, 3 }, new Default());
         Species species0 = null;
         Species species1 = null;
         Species species2 = null;
@@ -129,12 +127,11 @@ public class UnitTestUtil {
             int[][] nAtoms) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new PotentialMaster(space),
-                new int[] { 1, 4, 4, 11, 6, 3, 3 }, new Default());
+                new int[] { 9, 11, 6, 3, 3 }, new Default());
         //        new SpeciesSpheres(sim);
         Phase phase = new Phase(sim);
         for (int i = 0; i < nMolecules.length; i++) {
-            AtomTypeGroup agentType = Species.makeAgentType(sim);
-            AtomFactoryHetero factory = new AtomFactoryHetero(sim, agentType);
+            AtomFactoryHetero factory = new AtomFactoryHetero(sim);
             AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
             for (int j = 0; j < childFactories.length; j++) {
                 AtomTypeLeaf atomType = new AtomTypeSphere(sim);
@@ -143,29 +140,19 @@ public class UnitTestUtil {
             }
             factory.setChildFactory(childFactories);
             factory.setChildCount(nAtoms[i]);
-            Species species = new MySpecies(factory, agentType);
+            Species species = new Species(factory);
             sim.getSpeciesManager().addSpecies(species);
             phase.getAgent(species).setNMolecules(nMolecules[i]);
         }
         return sim;
     }
     
-    private static class MySpecies extends Species {
-        MySpecies(AtomFactory factory, AtomType type) {
-            super(factory, type);
-        }
-        
-        public SpeciesSignature getSpeciesSignature() {
-            return null;
-        }
-    }
-
     public static void main(String[] arg) {
         Simulation sim = makeStandardSpeciesTree();
         Phase[] phases = sim.getPhases();
         for (int i=0; i<phases.length; i++) {
-            AtomIteratorTree iterator = new AtomIteratorTree();
-            iterator.setRootAtom(phases[i].getSpeciesMaster());
+            AtomIteratorTreePhase iterator = new AtomIteratorTreePhase();
+            iterator.setPhase(phases[i]);
             iterator.setDoAllNodes(true);
             iterator.reset();
             while (iterator.hasNext()) {

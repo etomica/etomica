@@ -5,7 +5,6 @@ import java.lang.reflect.Constructor;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
@@ -21,15 +20,8 @@ import etomica.space.CoordinateFactoryAngular;
 public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
     public SpeciesSpheresRotating(Simulation sim) {
-        this(sim, Species.makeAgentType(sim));
-    }
-
-    private SpeciesSpheresRotating(Simulation sim, AtomTypeGroup agentType) {
         super(new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
-                new AtomTypeOrientedSphere(new ElementSimple(sim),sim.getDefaults().atomSize)), agentType);
-        // factory.getType is the AtomTypeOrientedSphere instance we just passed to the AtomFactoryMono
-        // we need to finish setting it up by setting its parent
-        factory.getType().setParentType(agentType);
+                new AtomTypeOrientedSphere(new ElementSimple(sim),sim.getDefaults().atomSize)));
     }
             
     public static EtomicaInfo getEtomicaInfo() {

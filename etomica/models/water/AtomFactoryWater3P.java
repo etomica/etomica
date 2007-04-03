@@ -26,10 +26,8 @@ public class AtomFactoryWater3P extends AtomFactory {
 	 * @param sim
 	 * @param sequencerFactory
 	 */
-    public AtomFactoryWater3P(Simulation sim, AtomTypeGroup agentType) {
+    public AtomFactoryWater3P(Simulation sim) {
 		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
-        // atomType is the AtomTypeGroup we just made and passed to the super constructor
-        atomType.setParentType(agentType);
 
         AtomTypeSphere hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
         AtomTypeSphere oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);

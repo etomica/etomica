@@ -3,6 +3,7 @@ package etomica.potential;
 import java.util.Arrays;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomType;
 import etomica.atom.AtomsetArray;
 import etomica.atom.iterator.AtomIteratorAll;
@@ -169,13 +170,13 @@ public class PotentialMaster implements java.io.Serializable {
         }
         Arrays.sort(atomTypes);
         // depth of molecules
-        int maxDepth = 2;
+        int maxDepth = AtomAddressManager.MOLECULE_DEPTH;
         int[] depth = new int[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
             depth[i] = atomTypes[i].getDepth();
             if (depth[i] > maxDepth) maxDepth = depth[i];
         }
-        if (maxDepth == 2) {
+        if (maxDepth == AtomAddressManager.MOLECULE_DEPTH) {
             addPotential(potential,moleculeSpecies(atomTypes));
             return;
         }

@@ -16,14 +16,12 @@ import etomica.util.Arrays;
 
 public class AtomFactoryHetero extends AtomFactory {
 
-    public AtomFactoryHetero(Simulation sim, AtomTypeGroup parentType) {
-        this(sim.getSpace(), parentType, new ConformationLinear(sim));
+    public AtomFactoryHetero(Simulation sim) {
+        this(sim.getSpace(), new ConformationLinear(sim));
     }
 
-    public AtomFactoryHetero(Space space, AtomTypeGroup parentType,
-            Conformation config) {
+    public AtomFactoryHetero(Space space, Conformation config) {
         super(new AtomTypeGroup(new AtomPositionCOM(space)));
-        atomType.setParentType(parentType);
         conformation = config;
         childFactory = new AtomFactory[0];
         numberFraction = new double[0];

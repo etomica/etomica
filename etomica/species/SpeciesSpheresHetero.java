@@ -6,7 +6,6 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
@@ -67,12 +66,7 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
      * molecules taken from the simulation.
      */
     public SpeciesSpheresHetero(Simulation sim, Element[] leafElements, int nA) {
-        this(sim, leafElements, nA, Species.makeAgentType(sim));
-    }
-    
-    private SpeciesSpheresHetero(Simulation sim, Element[] leafElements, int nA, 
-            AtomTypeGroup agentType) {
-        super(new AtomFactoryHetero(sim, agentType), agentType);
+        super(new AtomFactoryHetero(sim));
         if (leafElements.length > 0) {
             AtomFactoryMono[] childFactories = new AtomFactoryMono[leafElements.length];
             for (int i=0; i<leafElements.length; i++) {

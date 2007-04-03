@@ -96,6 +96,10 @@ public abstract class IteratorTestAbstract extends TestCase {
             AtomSet peekAtom = iterator.peek();
             if (peekAtom instanceof Atom) {
                 atoms[j] = peekAtom;
+                if (!peekAtom.toString().equals(lister[0].list.get(j))) {
+                    System.out.println(j+" "+peekAtom+" "+lister[0].list.get(j));
+                }
+                assertTrue(peekAtom.toString().equals(lister[0].list.get(j)));
             }
             else {
                 atoms[j] = new AtomsetArray(peekAtom);

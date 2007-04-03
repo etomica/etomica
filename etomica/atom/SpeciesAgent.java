@@ -1,5 +1,4 @@
 package etomica.atom;
-import etomica.species.Species;
 import etomica.units.Dimension;
 import etomica.units.Quantity;
 
@@ -13,22 +12,45 @@ import etomica.units.Quantity;
  
 public final class SpeciesAgent extends AtomGroup {
 
-    public SpeciesAgent(AtomType type, Species species) {
+    public SpeciesAgent(AtomType type, SpeciesMaster speciesMaster) {
         super(type);
-        type.setSpecies(species);
+        this.speciesMaster = speciesMaster;
     }
-        
-    public final AtomFactory moleculeFactory() {return type.getSpecies().moleculeFactory();}
-      
+
+    public SpeciesMaster getSpeciesMaster() {
+        return speciesMaster;
+    }
+    
+    public String signature() {
+        return (speciesMaster != null) ? speciesMaster.getPhase().toString() + " " +getIndex()
+                : "SpeciesAgent without phase";
+    }
+    
     public int getNMolecules() {return childList.size();}
             
     public Atom addNewAtom() {
-        Atom aNew = moleculeFactory().makeAtom();
+        Atom aNew = type.getSpecies().moleculeFactory().makeAtom();
         aNew.setParent(this);
         return aNew;
     }
     
-     /**
+    /**
+     * Notifies this atom group that an atom has been added to it 
+     * or one of its descendants.
+     */
+    public void addAtomNotify(Atom childAtom) {
+        speciesMaster.addAtomNotify(childAtom);
+    }
+    
+    /**
+     * Notifies this atom group that an atom has been removed from it or 
+     * one of its descendants.
+     */
+    public void removeAtomNotify(Atom childAtom) {
+         speciesMaster.removeAtomNotify(childAtom);
+    }
+
+    /**
      * Sets the number of molecules for this species.  Makes the given number
      * of new molecules, linked-list orders and initializes them.
      * Any previously existing molecules for this species in this phase are abandoned
@@ -38,7 +60,7 @@ public final class SpeciesAgent extends AtomGroup {
      * @param n  the new number of molecules for this species
      */
     public void setNMolecules(int n) {
-        ((SpeciesMaster)parent).notifyNewAtoms((n-getNMolecules())*moleculeFactory().getNumTreeAtoms());
+        speciesMaster.notifyNewAtoms((n-getNMolecules())*type.getSpecies().moleculeFactory().getNumTreeAtoms());
         if(n > childList.size()) {
             for(int i=childList.size(); i<n; i++) addNewAtom();
         }
@@ -51,11 +73,12 @@ public final class SpeciesAgent extends AtomGroup {
         if (n == 0) {
             // if there are no molecules of this Species, the factory can be mutable
             // yes, this is horrible.
-            type.getSpecies().getFactory().checkMutable(((SpeciesMaster)parent).getPhase().getSimulation());
+            type.getSpecies().getFactory().checkMutable(speciesMaster.getPhase().getSimulation());
         }
     }
     
     public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
 
     private static final long serialVersionUID = 2L;
+    private final SpeciesMaster speciesMaster;
 }

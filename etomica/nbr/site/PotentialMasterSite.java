@@ -5,6 +5,7 @@
 package etomica.nbr.site;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
@@ -78,13 +79,14 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         NeighborCriterion criterion;
         if (atomType.length == 2) {
             criterion = new CriterionTypePair(new CriterionAll(), atomType[0], atomType[1]);
-            if (atomType[0].getDepth() > 2 && atomType[1].getDepth() > 2) {
+            if (atomType[0].getDepth() > AtomAddressManager.MOLECULE_DEPTH &&
+                    atomType[1].getDepth() > AtomAddressManager.MOLECULE_DEPTH) {
                 AtomType moleculeType0 = atomType[0].getParentType();
-                while (moleculeType0.getDepth() > 2) {
+                while (moleculeType0.getDepth() > AtomAddressManager.MOLECULE_DEPTH) {
                     moleculeType0 = moleculeType0.getParentType();
                 }
                 AtomType moleculeType1 = atomType[1].getParentType();
-                while (moleculeType1.getDepth() > 2) {
+                while (moleculeType1.getDepth() > AtomAddressManager.MOLECULE_DEPTH) {
                     moleculeType1 = moleculeType1.getParentType();
                 }
                 if (moleculeType0 == moleculeType1) {
@@ -162,8 +164,6 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         Atom targetAtom = id.getTargetAtom();
         neighborIterator.setPhase(phase);
         if (targetAtom == null) {
-            //no target atoms specified -- do one-target algorithm to SpeciesMaster
-            targetAtom = phase.getSpeciesMaster();
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
@@ -172,13 +172,22 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             for (int i=0; i<allPotentials.length; i++) {
                 allPotentials[i].setPhase(phase);
             }
+
+            //no target atoms specified
+            //call calculate with each SpeciesAgent
+            AtomArrayList list = phase.getSpeciesMaster().getAgentList();
+            int size = list.size();
+            for (int i=0; i<size; i++) {
+                Atom a = list.get(i);
+                calculate(a, id, pc);//call calculate with the SpeciesAgent
+            }
         }
         else {
             // one target atom
             neighborIterator.setDirection(id.direction());
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
             Atom pseudoTargetAtom = targetAtom;
-            while (pseudoTargetAtom.getType().getDepth() > 2) {
+            while (pseudoTargetAtom.getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
                 pseudoTargetAtom = pseudoTargetAtom.getParentGroup();
                 PotentialArray potentialArray = getIntraPotentials(pseudoTargetAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
@@ -192,8 +201,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             for(int i=0; i<potentials.length; i++) {
                 potentials[i].setPhase(phase);
             }
+            calculate(targetAtom, id, pc);
         }
-        calculate(targetAtom, id, pc);
         if (lrcMaster != null) {
             lrcMaster.calculate(phase, id, pc);
         }

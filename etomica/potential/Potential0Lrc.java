@@ -5,7 +5,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.iterator.AtomIteratorTree;
+import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.phase.Phase;
 import etomica.space.Space;
 
@@ -90,7 +90,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
         agents[1] = p.getAgent(types[1].getSpecies());
         if (lrcAtomsPerMolecule[0] == 0 || lrcAtomsPerMolecule[1] == 0) {
             // count the number of Atoms of the relevant type in each molecule
-            AtomIteratorTree treeIterator = new AtomIteratorTree();
+            AtomIteratorTreeRoot treeIterator = new AtomIteratorTreeRoot();
             for (int i=0; i<2; i++) {
                 if (lrcAtomsPerMolecule[i] == 0) {
                     final AtomType typei = types[i];

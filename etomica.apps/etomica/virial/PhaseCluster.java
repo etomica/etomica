@@ -54,7 +54,7 @@ public class PhaseCluster extends Phase {
         // increase ID to notify clusters to recalculate value
         if(cPairSet == null) {
             // assume 1 species
-            AtomArrayList molecules = ((AtomGroup)getSpeciesMaster().getChildList().get(0)).getChildList();
+            AtomArrayList molecules = ((AtomGroup)getSpeciesMaster().getAgentList().get(0)).getChildList();
             if (molecules.get(0) instanceof AtomLeaf) {
                 cPairSet = new CoordinatePairLeafSet(molecules,space);
                 cPairTrialSet = new CoordinatePairLeafSet(molecules,space);
