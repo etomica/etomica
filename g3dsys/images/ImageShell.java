@@ -162,7 +162,7 @@ public class ImageShell extends Figure {
           switch(((Bond)f).getBondType()) {
           case Bond.CYLINDER:
             _gsys.getG3D().fillCylinder(b.getColor1(),b.getColor2(),
-                Graphics3D.ENDCAPS_FLAT,(int)getD(),
+                Graphics3D.ENDCAPS_FLAT,(int)b.getD(),
                 s.x,s.y,s.z,t.x,t.y,t.z);
             break;
           case Bond.WIREFRAME:
