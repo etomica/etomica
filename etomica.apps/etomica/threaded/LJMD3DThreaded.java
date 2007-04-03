@@ -61,7 +61,7 @@ public class LJMD3DThreaded extends Simulation {
         integrator.setIsothermal(true);
         integrator.setTimeStep(0.001);
         integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager());
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        activityIntegrate = new ActivityIntegrate(this,integrator);
         //activityIntegrate.setMaxSteps(500000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
