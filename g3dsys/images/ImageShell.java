@@ -122,6 +122,7 @@ public class ImageShell extends Figure {
         if(f == null) continue;
         if(!f.drawme) continue;
         if(f instanceof Ball) {
+          if(wireframe) continue; //skip spheres in wireframe mode
           p.set(f.getX()+dx,f.getY()+dy,f.getZ()+dz);
           _gsys.screenSpace(p, s);
           g3d.fillSphereCentered(f.getColor(), _gsys.perspective(s.z, f.getD()), s);
@@ -142,6 +143,34 @@ public class ImageShell extends Figure {
         }
         else if(f instanceof g3dsys.images.Axes) {
         }
+        else if(f instanceof g3dsys.images.Bond) {
+          Bond b = (Bond) f;
+          
+          //skip long bonds: assume this means molecule wrapping;
+          //may not work as expected for thin systems...
+          if( b.getEndpoint1().distance(b.getEndpoint2())
+              > _gsys.getAngstromWidth()/2.0f) { continue; }
+          
+          p.set(b.getEndpoint1().x+dx,
+                b.getEndpoint1().y+dy,
+                b.getEndpoint1().z+dz);
+          q.set(b.getEndpoint2().x+dx,
+                b.getEndpoint2().y+dy,
+                b.getEndpoint2().z+dz);
+          _gsys.screenSpace(p,s);
+          _gsys.screenSpace(q,t);
+          switch(((Bond)f).getBondType()) {
+          case Bond.CYLINDER:
+            _gsys.getG3D().fillCylinder(b.getColor1(),b.getColor2(),
+                Graphics3D.ENDCAPS_FLAT,(int)getD(),
+                s.x,s.y,s.z,t.x,t.y,t.z);
+            break;
+          case Bond.WIREFRAME:
+            _gsys.getG3D().drawDashedLine(b.getColor1(), 0, 0, s.x, s.y, s.z, t.x, t.y, t.z);
+            //_gsys.getG3D().drawLine(color1,color2,p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
+            break;
+          }
+        }
       }
 
       //reset offsets for next iteration
@@ -156,5 +185,11 @@ public class ImageShell extends Figure {
   public void setDrawable(boolean b) {
     super.setDrawable(b);
     updateDrawType();
+  }
+
+  //local storage of wireframe mode, to propagate effects to images
+  private boolean wireframe;
+  public void setWireFrame(boolean wireframe) {
+    this.wireframe = wireframe;
   }
 }

@@ -15,34 +15,26 @@ public class Bond extends Figure {
   //points are shared with the Ball objects
   private final Point3f p1; // center of first endcap
   private final Point3f p2; // center of second endcap
+
+  //TODO: store Ball references instead of points?
+  //then we could extract new color information automatically
+  private final Ball ball1; //Figure for first endpoint
+  private final Ball ball2; //Figure for second endpoint
   
   private final Point3i p1i, p2i; // same in pixels, not shared
   private int bondType = CYLINDER;
-  private short color1;
-  private short color2;
   
-  public Bond(G3DSys g, short c, float x1, float y1, float z1, float x2,
-      float y2, float z2) {
-    this(g, c, c, new Point3f(x1, y1, z1), new Point3f(x2, y2, z2));
-  }
-  
-  public Bond(G3DSys g, short c1, short c2, float x1, float y1, float z1,
-      float x2, float y2, float z2) {
-    this(g, c1, c2, new Point3f(x1, y1, z1), new Point3f(x2, y2, z2));
-  }
-
-
-  public Bond(G3DSys g, short c, short c2, Point3f p1, Point3f p2) {
-    super(g, c);
-    this.p1 = p1;
-    this.p2 = p2;
+  public Bond(G3DSys g, Ball b0, Ball b1) {
+    super(g, b0.getColor());
+    this.p1 = b0.getPoint();
+    this.p2 = b1.getPoint();
+    ball1 = b0;
+    ball2 = b1;
     _p = new Point3f((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2);
     p1i = new Point3i();
     p2i = new Point3i();
-    color1 = c;
-    color2 = c2;
   }
-
+  
   public void draw() {
     //if points too far apart, assume molecule has been wrapped, ignore
     if(p1.distance(p2) > _gsys.getAngstromWidth()/2.0f) return;
@@ -50,11 +42,13 @@ public class Bond extends Figure {
     _gsys.screenSpace(p2, p2i);
     switch(bondType) {
     case CYLINDER:
-      _gsys.getG3D().fillCylinder(color1,color2,Graphics3D.ENDCAPS_FLAT,
-          (int)getD(),p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
+      _gsys.getG3D().fillCylinder(ball1.getColor(),ball2.getColor(),
+          Graphics3D.ENDCAPS_FLAT,(int)getD(),
+          p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
       break;
     case WIREFRAME:
-      _gsys.getG3D().drawDashedLine(color1, 0, 0, p1i.x, p1i.y, p1i.z, p2i.x, p2i.y, p2i.z);
+      _gsys.getG3D().drawDashedLine(ball1.getColor(), 0, 0,
+          p1i.x, p1i.y, p1i.z, p2i.x, p2i.y, p2i.z);
       //_gsys.getG3D().drawLine(color1,color2,p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
       break;
     }
@@ -67,8 +61,13 @@ public class Bond extends Figure {
     return 10;
   }
   
-  public void setBondType(int i) {
-    bondType = i;
-  }
+  public void setBondType(int i) { bondType = i; }
+  public int getBondType() { return bondType; }
 
+  public Point3f getEndpoint1() { return p1; }
+  public Point3f getEndpoint2() { return p2; }
+  
+  public short getColor1() { return ball1.getColor(); }
+  public short getColor2() { return ball2.getColor(); }
+  
 }

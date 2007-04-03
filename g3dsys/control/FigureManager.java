@@ -242,11 +242,7 @@ class FigureManager {
         if(figs[i] instanceof Bond) ((Bond)figs[i]).setBondType(
             (wireframe ? Bond.WIREFRAME : Bond.CYLINDER));
       }
+      images.setWireFrame(wireframe);
     }
-    /**
-     * Returns whether wireframe mode is on
-     * @return returns whether wireframe mode is on
-     */
-    public boolean getWireframe() { return wireframe; }
 
 }
