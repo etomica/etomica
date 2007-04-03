@@ -1,6 +1,7 @@
 package etomica.space3d;
 
 import etomica.exception.MethodNotImplementedException;
+import etomica.lattice.IndexIterator;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.math.SpecialFunctions;
 import etomica.math.geometry.Plane;
@@ -75,7 +76,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
      * one to be returned on the next call. hasNext() simply checks a
      * field set during this to determine if there is a next 
      */
-    public g3dsys.control.IndexIterator getIndexIterator(){
+    public IndexIterator getIndexIterator(){
       return new IndexIteratorSequentialFiltered(vecs.length,vecs);
     }
     
@@ -90,7 +91,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
      */
     
     private class IndexIteratorSequentialFiltered
-      implements g3dsys.control.IndexIterator {
+      implements IndexIterator {
       
       private IndexIteratorSequential iis;
       private boolean hasnext;

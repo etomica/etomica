@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.lattice.IndexIterator;
 import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
@@ -141,33 +142,11 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         }
         return vectors;
     }
-    public g3dsys.control.IndexIterator getIndexIterator() {
+    public IndexIterator getIndexIterator() {
       int n = 0;
       for(int i=0; i<isPeriodic.length; i++)
         if(isPeriodic[i]) n++;
-      final int j = n;
-      return new g3dsys.control.IndexIterator() {
-        
-        private IndexIteratorSequential iis = 
-          new IndexIteratorSequential(j);
-
-        public int getD() {
-          return iis.getD();
-        }
-
-        public boolean hasNext() {
-          return iis.hasNext();
-        }
-
-        public int[] next() {
-          return iis.next();
-        }
-
-        public void reset() {
-          iis.reset();
-        }
-        
-      };
+      return new IndexIteratorSequential(n);
     }
     
     /**

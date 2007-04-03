@@ -17,6 +17,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
@@ -28,6 +29,8 @@ import g3dsys.images.Figure;
 import g3dsys.images.Line;
 
 //TODO: rewrite doPaint and drawAtom
+//TODO: create IndexIterators here to remove g3dsys dependency from Boundary
+//only etomica.graphics will depend on g3dsys
 
 public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	implements AgentSource, BondManager {
@@ -276,5 +279,32 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
    * @return returns current depth percentage
    */
   public double getDepth() { return gsys.getDepthPercent(); }
+  
+
+  /**
+   * Wraps an etomica index iterator in an equivalent g3dsys interface
+   * for transport; removes g3dsys dependency from all but the
+   * etomica.graphics package.
+   * @param iter the etomica index iterator to wrap
+   * @return returns the g3dsys index iterator
+   */
+  private g3dsys.control.IndexIterator wrapIndexIterator(
+      etomica.lattice.IndexIterator iter) {
+    
+    final etomica.lattice.IndexIterator i = iter;
+    
+    return new g3dsys.control.IndexIterator() {
+
+      private etomica.lattice.IndexIterator ii = i;
+      
+      public int getD() { return ii.getD(); }
+      public boolean hasNext() { return ii.hasNext(); }
+      public int[] next() { return ii.next(); }
+      public void reset() { ii.reset(); }
+    
+    };
+    
+  }
+
   
 }

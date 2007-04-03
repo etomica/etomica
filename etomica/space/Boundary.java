@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.lattice.IndexIterator;
 import etomica.math.geometry.Polytope;
 
 /**
@@ -93,7 +94,7 @@ public abstract class Boundary implements NearestImageTransformer, java.io.Seria
     public abstract IVector randomPosition();
 
     public abstract IVector[] getPeriodicVectors();
-    public abstract g3dsys.control.IndexIterator getIndexIterator();
+    public abstract IndexIterator getIndexIterator();
     
     /**
      * Provides information needed so that drawing can be done of portions of
