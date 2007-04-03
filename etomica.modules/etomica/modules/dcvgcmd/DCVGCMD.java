@@ -69,7 +69,7 @@ public class DCVGCMD extends Simulation {
 
     private DCVGCMD(Space space) {
         //Instantiate classes
-        super(space, true, new PotentialMasterHybrid(space,5.2),new int[] {1,4,4,12,11,0},new Default());
+        super(space, true, new PotentialMasterHybrid(space,5.2),new int[] {9,12,11},new Default());
         defaults.atomMass = 40.;
         defaults.atomSize = 3.0;
         defaults.potentialWell = 119.8;
@@ -78,9 +78,10 @@ public class DCVGCMD extends Simulation {
 
         species = new SpeciesSpheresMono(this);
         species1 = new SpeciesSpheresMono(this);
+        speciesTube = new SpeciesTube(this, 20, 40);
         getSpeciesManager().addSpecies(species);
         getSpeciesManager().addSpecies(species1);
-        speciesTube = new SpeciesTube(this, 20, 40);
+        getSpeciesManager().addSpecies(speciesTube);
         AtomType tubetype = ((AtomFactoryHomo) speciesTube.moleculeFactory())
                 .getChildFactory().getType();
         AtomType speciestype = species.moleculeFactory().getType();
