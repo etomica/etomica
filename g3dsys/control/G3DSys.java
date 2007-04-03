@@ -50,8 +50,6 @@ public class G3DSys {
 
   private Point3i tempp; //for storing transformations
   
-  private WireframeListener wireframeListener;
-  
   public G3DSys(java.awt.Container window) {
     //init infrastructure
     parent = window;
@@ -447,17 +445,7 @@ public class G3DSys {
    * Cycles to the next boundary drawing style
    */
   public void cycleDrawBoundaryType() { fm.cycleDrawBoundaryType(); }
-
-  /**
-   * Toggle wireframe mode on/off
-   */
-  public void toggleWireframe() {
-    wireframeListener.setWireframeMode(!fm.getWireframe());
-    fm.toggleWireframe();
-  }
   
-  public void setWireframeListener(WireframeListener wfl) {
-    wireframeListener = wfl;
-  }
+  public void toggleWireframe() { fm.toggleWireframe(); }
   
 }

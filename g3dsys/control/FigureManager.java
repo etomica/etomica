@@ -69,7 +69,8 @@ class FigureManager {
 //        gsys.setCenterOfRotation(tempP);
 		
         for (int j=0; j<idMax+1; j++) {
-            figs[j].draw();
+          if(figs[j] instanceof Ball && wireframe) continue;
+          figs[j].draw();
 		}
 	}
 	
@@ -238,7 +239,6 @@ class FigureManager {
     public void toggleWireframe() {
       wireframe = !wireframe;
       for(int i=0; i<figs.length; i++) {
-        if(figs[i] instanceof Ball) figs[i].setDrawable(!wireframe);
         if(figs[i] instanceof Bond) ((Bond)figs[i]).setBondType(
             (wireframe ? Bond.WIREFRAME : Bond.CYLINDER));
       }

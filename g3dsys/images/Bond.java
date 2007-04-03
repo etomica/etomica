@@ -44,6 +44,8 @@ public class Bond extends Figure {
   }
 
   public void draw() {
+    //if points too far apart, assume molecule has been wrapped, ignore
+    if(p1.distance(p2) > _gsys.getAngstromWidth()/2.0f) return;
     _gsys.screenSpace(p1, p1i);
     _gsys.screenSpace(p2, p2i);
     switch(bondType) {
