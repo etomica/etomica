@@ -243,5 +243,10 @@ class FigureManager {
             (wireframe ? Bond.WIREFRAME : Bond.CYLINDER));
       }
     }
+    /**
+     * Returns whether wireframe mode is on
+     * @return returns whether wireframe mode is on
+     */
+    public boolean getWireframe() { return wireframe; }
 
 }

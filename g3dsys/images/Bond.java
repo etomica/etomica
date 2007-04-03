@@ -12,9 +12,11 @@ public class Bond extends Figure {
   public static final int CYLINDER = 0;
   public static final int WIREFRAME = 1;
   
+  //points are shared with the Ball objects
   private final Point3f p1; // center of first endcap
   private final Point3f p2; // center of second endcap
-  private final Point3i p1i, p2i; // same in pixels
+  
+  private final Point3i p1i, p2i; // same in pixels, not shared
   private int bondType = CYLINDER;
   private short color1;
   private short color2;
@@ -60,7 +62,7 @@ public class Bond extends Figure {
   public float getD() {
     // no good way to pick diameter yet
     // also, what does this mean when wireframe is on?
-    return p1.distance(p2) / 3.0f * (_gsys.getPixelWidth() / _gsys.getAngstromWidth());
+    return 10;
   }
   
   public void setBondType(int i) {
