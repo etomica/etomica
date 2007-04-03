@@ -9,11 +9,14 @@ package etomica.lattice;
  * (0,0), (0,1), (1,0), (1,1), (2,0), (2,1).
  */
 
+import g3dsys.control.IndexIterator;
+
 /*
  * History
  * Created on Jan 6, 2005 by kofke
  */
-public class IndexIteratorSequential implements IndexIteratorSizable, java.io.Serializable {
+public class IndexIteratorSequential implements IndexIterator,
+  IndexIteratorSizable, java.io.Serializable {
 
     /**
      * Constructs iterator that gives an index array of length D.
