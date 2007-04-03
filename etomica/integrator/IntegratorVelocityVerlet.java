@@ -13,6 +13,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForcePressureSum;
+import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
@@ -24,7 +25,7 @@ import etomica.util.IRandom;
 public class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
 
     private static final long serialVersionUID = 2L;
-    protected final PotentialCalculationForcePressureSum forceSum;
+    protected PotentialCalculationForceSum forceSum;
     private final IteratorDirective allAtoms;
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
@@ -84,7 +85,10 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaEle
         forceSum.reset();
         //Compute forces on each atom
         potential.calculate(phase, allAtoms, forceSum);
-        pressureTensor.E(forceSum.getPressureTensor());
+        
+        if(forceSum instanceof PotentialCalculationForcePressureSum){
+            pressureTensor.E(((PotentialCalculationForcePressureSum)forceSum).getPressureTensor());
+        }
         
         //Finish integration step
         atomIterator.reset();
