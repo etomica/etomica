@@ -22,7 +22,6 @@ import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
 import etomica.space.IVector;
 import g3dsys.control.G3DSys;
-import g3dsys.control.WireframeListener;
 import g3dsys.images.Ball;
 import g3dsys.images.Bond;
 import g3dsys.images.Figure;
@@ -31,7 +30,7 @@ import g3dsys.images.Line;
 //TODO: rewrite doPaint and drawAtom
 
 public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
-	implements AgentSource, BondManager, WireframeListener {
+	implements AgentSource, BondManager {
 
   private TextField scaleText = new TextField();
   private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
@@ -45,8 +44,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
   private Polytope oldPolytope;
   private Line[] polytopeLines;
   
-  private boolean atomFilterOverride = false;
-
   public DisplayPhaseCanvasG3DSys(DisplayPhase _phase) {
     //old stuff
     scaleText.setVisible(true);
@@ -62,7 +59,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     this.add(p);
     coords = new double[3];
     gsys = new G3DSys(p);
-    gsys.setWireframeListener(this);
 		
     //init AtomAgentManager, to sync G3DSys and Etomica models
     //this automatically adds the atoms
@@ -104,8 +100,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
         Ball ball1 = (Ball) o[1];
         //can't do anything with bondType for now
         //TODO: choose bond color based on ball colors
-        Figure f = new Bond(gsys,ball0.getColor(),ball1.getColor(),
-            ball0.getPoint(),ball1.getPoint());
+        Figure f = new Bond(gsys,ball0,ball1);
         gsys.addFig(f);
       }
     }
@@ -128,12 +123,10 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
       //this will always override settings made by it
       //now listening to wireframe toggle events to decide when to
       //ignore this
-      if(!atomFilterOverride) {
-        boolean drawable = atomFilter.accept(a);
-        ball.setDrawable(drawable);
-        if (!drawable) {
-          continue;
-        }
+      boolean drawable = atomFilter.accept(a);
+      ball.setDrawable(drawable);
+      if (!drawable) {
+        continue;
       }
       a.getCoord().getPosition().assignTo(coords);
       float diameter = (float)((AtomTypeSphere)a.getType()).getDiameter();
@@ -220,8 +213,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     
     
     // make a bond object (Figure)
-    Figure f = new Bond(gsys,ball0.getColor(),ball1.getColor(),
-        ball0.getPoint(),ball1.getPoint());
+    Figure f = new Bond(gsys,ball0,ball1);
     //new Cylinder(gsys,Graphics3D.RED,ball0.getPoint(),ball1.getPoint());
     gsys.addFig(f);
     return f;
@@ -284,9 +276,5 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
    * @return returns current depth percentage
    */
   public double getDepth() { return gsys.getDepthPercent(); }
-
-  public void setWireframeMode(boolean b) { atomFilterOverride = b; }
-
-  
   
 }

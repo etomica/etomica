@@ -415,7 +415,28 @@ public class BoundaryDeformablePeriodic extends Boundary {
         return edgeVectors;
     }
     public g3dsys.control.IndexIterator getIndexIterator() {
-      return new IndexIteratorSequential(edgeVectors.length);
+      return new g3dsys.control.IndexIterator() {
+
+        private IndexIteratorSequential iis =
+          new IndexIteratorSequential(edgeVectors.length);
+        
+        public int getD() {
+          return iis.getD();
+        }
+
+        public boolean hasNext() {
+          return iis.hasNext();
+        }
+
+        public int[] next() {
+          return iis.next();
+        }
+
+        public void reset() {
+          iis.reset();
+        }
+        
+      };
     }
     
 	public double[][] imageOrigins(int nShells) {

@@ -145,7 +145,29 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
       int n = 0;
       for(int i=0; i<isPeriodic.length; i++)
         if(isPeriodic[i]) n++;
-      return new IndexIteratorSequential(n);
+      final int j = n;
+      return new g3dsys.control.IndexIterator() {
+        
+        private IndexIteratorSequential iis = 
+          new IndexIteratorSequential(j);
+
+        public int getD() {
+          return iis.getD();
+        }
+
+        public boolean hasNext() {
+          return iis.hasNext();
+        }
+
+        public int[] next() {
+          return iis.next();
+        }
+
+        public void reset() {
+          iis.reset();
+        }
+        
+      };
     }
     
     /**
