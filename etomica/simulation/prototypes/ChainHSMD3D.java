@@ -30,6 +30,7 @@ public class ChainHSMD3D extends Simulation {
     public IntegratorHard integrator;
     public SpeciesSpheres species;
     public P2HardSphere potential;
+    private ModelChain model;
     
     public ChainHSMD3D() {
         this(Space3D.getInstance());
@@ -55,7 +56,7 @@ public class ChainHSMD3D extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         
-        ModelChain model = new ModelChain();
+        model = new ModelChain();
         model.setNumAtoms(chainLength);
         model.setBondingPotential(new P2HardBond(this));
         
@@ -82,8 +83,8 @@ public class ChainHSMD3D extends Simulation {
     public static void main(String[] args) {
       final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
       final SimulationGraphic simGraphic = new SimulationGraphic(sim);
-      new BondListener(sim.phase, (DisplayPhaseCanvasG3DSys)simGraphic.getDisplayPhase(sim.phase).canvas);
-      
+      BondListener bl = new BondListener(sim.phase,(DisplayPhaseCanvasG3DSys)simGraphic.getDisplayPhase(sim.phase).canvas);
+      bl.addModel(sim.model);
       simGraphic.makeAndDisplayFrame();
     }
 }//end of class

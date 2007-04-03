@@ -106,6 +106,18 @@ public class HSMD3D extends Simulation {
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
+        //deformed
+//        phase.setBoundary(
+//            new etomica.space.BoundaryDeformablePeriodic(
+//            space,getRandom(),
+//            new IVector[]{
+//              new Vector3D(-4,1,1),
+//              new Vector3D(2,6,4),
+//              new Vector3D(1,2,6)}));
+        //truncated octahedron
+        phase.setBoundary(
+            new etomica.space3d.BoundaryTruncatedOctahedron(this));
+        
         integrator.setPhase(phase);
 
         if (params.useNeighborLists) { 
