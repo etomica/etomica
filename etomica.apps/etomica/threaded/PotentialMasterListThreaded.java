@@ -105,7 +105,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 
 	protected void calculateThreaded(Atom atom, IteratorDirective id, PotentialCalculationThreaded pc) {
 
-        if(atom.getType().getDepth()==1){
+        if(atom.getType().getDepth()==0){
             //cannot use AtomIterator field because of recursive call
             AtomArrayList list = ((AtomGroup)atom).getChildList();
             int size = list.size();
@@ -117,33 +117,39 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
         
         else{
-            
+           
             AtomArrayList list = ((AtomGroup)atom).getChildList();
             int size = list.size();
             
-        	synchronized(this){
+        	
 				                            
                 for(int i=0; i<threads.length; i++){
-                    
+                    synchronized(threads[i]){
                     threads[i].startAtom = (i*size)/threads.length;
                     threads[i].stopAtom = ((i+1)*size)/threads.length;
                     threads[i].threadList = list;
                     threads[i].id = id;
                     threads[i].pc = pc.getPotentialCalculations()[i];
                     threads[i].greenLight = true;
+                    threads[i].finished = false;
+                    threads[i].notifyAll();
+                   
+                    }
                 }
-				notifyAll();
+		
                 
 				// All threads are running
                 
-			}
+			
 			
             // Waiting for all threads to complete, threads report "Finished!"
 			for(int i=0; i<threads.length; i++){
 				synchronized(threads[i]){
 					try{
+                       
 						if (!threads[i].finished){
-							threads[i].wait();	
+                          
+                            threads[i].wait();	
 						}
 					}
 					catch(InterruptedException e){
@@ -152,16 +158,16 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 				}
 			}
 			
-			
+            
         }
-        
+       
     }
 	
 	public void setNumThreads(int t){
 		threads = new PotentialMasterListWorker[t];
 		
 		for (int i=0; i<t; i++){
-			threads[i] = new PotentialMasterListWorker(rangedAgentManager, this);
+			threads[i] = new PotentialMasterListWorker(i, rangedAgentManager, this);
 			threads[i].start();
 		}
 	}

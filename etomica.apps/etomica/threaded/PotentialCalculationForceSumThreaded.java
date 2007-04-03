@@ -5,7 +5,9 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
+import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
@@ -52,6 +54,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 	}
 	
 	public void writeData(){
+       
 		Phase phase = integratorAgentManager.getPhase();
         AtomArrayList atomArrayList = phase.getSpeciesMaster().getLeafList();
       
@@ -60,18 +63,19 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
       
             for(int i=0; i<pc.length; i++){
                 force.PE(((IntegratorPhase.Forcible)atomAgentManager[i].getAgent(atomArrayList.get(j))).force());
+               
+                
             }
-            
         }
             
 	}
     
-    public Object makeAgent(Atom atom){
-        return integratorAgentManager.getPhase().getSpace().makeVector();
+    public Class getAgentClass() {
+        return MyAgent.class;
     }
-    
-    public Class getAgentClass(){
-        return IVector.class;
+
+    public final Object makeAgent(Atom a) {
+        return new MyAgent(integratorAgentManager.getPhase().getSpace());
     }
     
     public void releaseAgent(Object object, Atom atom){

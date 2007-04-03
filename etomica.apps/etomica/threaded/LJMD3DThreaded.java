@@ -11,6 +11,7 @@ import etomica.data.meter.MeterPressureTensorFromIntegrator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -19,6 +20,7 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.Potential;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
@@ -29,48 +31,70 @@ import etomica.species.SpeciesSpheresMono;
  * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  */
  
-public class LJMD3D extends Simulation {
+public class LJMD3DThreaded extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
     public Phase phase;
-    public P2LennardJones potential;
+    public P2LennardJones p2lj;
+    public P2SoftSphericalTruncated[] potential;
+    public PotentialThreaded potentialThreaded;
     public Controller controller;
     
-    public LJMD3D() {
+    public LJMD3DThreaded() {
         this(500);
     }
 
-    public LJMD3D(int numAtoms) {
-        super(Space3D.getInstance(), true, new PotentialMasterList(Space3D.getInstance()));
+    public LJMD3DThreaded(int numAtoms) {
+        super(Space3D.getInstance(), true, new PotentialMasterListThreaded(Space3D.getInstance()));
         defaults.makeLJDefaults();
         // need optimization of fac and time step
         double neighborFac = 1.35;
-	    integrator = new IntegratorVelocityVerlet(this);
+
+        // THREAD ZONE
+        int numThreads = 2;
+        
+	    integrator = new IntegratorVelocityVerletThreaded(this, numThreads);
         integrator.setTemperature(1.0);
         integrator.setIsothermal(true);
         integrator.setTimeStep(0.01);
         integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager());
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
-        activityIntegrate.setMaxSteps(2000000/numAtoms);
+        //activityIntegrate.setMaxSteps(2000000/numAtoms);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         phase = new Phase(this);
         species.getAgent(phase).setNMolecules(numAtoms);
         phase.setDensity(0.65);
-        potential = new P2LennardJones(this);
-        double truncationRadius = 2.5*potential.getSigma();
+        
+       
+        p2lj = new P2LennardJones(this);
+        
+        double truncationRadius = 2.5*p2lj.getSigma();
         if(truncationRadius > 0.5*phase.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
         }
-        P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
-        ((PotentialMasterList)potentialMaster).setCellRange(1);
-        ((PotentialMasterList)potentialMaster).setRange(neighborFac * potentialTruncated.getRange());
-        ((PotentialMasterList)potentialMaster).getNeighborManager().setQuiet(true);
-        potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
+        
+        
+        // THREAD ZONE
+        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads);
+     
+        potential = new P2SoftSphericalTruncated[numThreads];
+
+        for(int i=0; i<numThreads; i++){
+            potential[i] = new P2SoftSphericalTruncated(p2lj, truncationRadius);
+        }
+        
+        potentialThreaded = new PotentialThreaded(space, potential);
+        
+        ((PotentialMasterListThreaded)potentialMaster).setCellRange(1);
+        ((PotentialMasterListThreaded)potentialMaster).setRange(neighborFac * truncationRadius);
+        ((PotentialMasterListThreaded)potentialMaster).getNeighborManager().setQuiet(true);
+        potentialMaster.addPotential(potentialThreaded, new Species[] {species, species});
+        
         
 //        new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
@@ -81,11 +105,15 @@ public class LJMD3D extends Simulation {
  
     public static void main(String[] args) {
         int numAtoms = 1000;
+        
         if (args.length > 0) {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
-        LJMD3D sim = new LJMD3D(numAtoms);
-
+        LJMD3DThreaded sim = new LJMD3DThreaded(numAtoms);
+        sim.getController().actionPerformed();
+       // SimulationGraphic simgraphic = new SimulationGraphic(sim);
+      //  simgraphic.makeAndDisplayFrame();
+        /**
         sim.getDefaults().blockSize = 10;
         MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator();
         pMeter.setIntegrator(sim.integrator);
@@ -137,6 +165,7 @@ public class LJMD3D extends Simulation {
         if (Double.isNaN(Cv) || Math.abs(Cv-0.6) > 0.4) {
             System.exit(1);
         }
+        **/
     }
 
 }
