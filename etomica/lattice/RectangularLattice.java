@@ -135,18 +135,13 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
             idx[d] = 0;
             idx[--d]++;//decrement d, then increment idx
         }
-//        if(d == 0) return;
-//        if(idx[d] == size[d]) {
-//            idx[d] = 0;
-//            increment(idx,d-1);
-//        }
     }
     
     protected Object[] sites;
     protected final int[] size;
 //  jumpCount[i] gives the number of sites skipped when the i-th index is incremented by 1
-    final int[] jumpCount;
-    private final int D;
+    protected final int[] jumpCount;
+    protected final int D;
     protected SiteFactory siteFactory;
     
     /**

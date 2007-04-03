@@ -31,7 +31,6 @@ public class CellLattice extends RectangularLattice {
     public CellLattice(IVector dimensions, SiteFactory siteFactory) {
         super(dimensions.getD(), siteFactory);
         cellSize = new double[D()];
-        idx = new int[D()];
         this.dimensions = dimensions;
     }
     
@@ -43,15 +42,12 @@ public class CellLattice extends RectangularLattice {
      * r.D() == this.D()) but this is not checked.
      */
     public Object site(IVector r) {
-        assignIndex(r, idx);
-        return site(idx);
+        int idx1D = 0;
+        for(int i=0; i<D; i++) {
+            idx1D += ((int)(size[i]*(r.x(i)/dimensions.x(i)+0.5)))*jumpCount[i];
+        }
+        return sites[idx1D];
 
-    }
-    
-    public void assignIndex(IVector r, int[] aIdx) {
-        for(int i=0; i<aIdx.length; i++) {
-            aIdx[i] = (int)(size[i]*(r.x(i)/dimensions.x(i)+0.5));
-        }        
     }
     
     /**
@@ -81,7 +77,6 @@ public class CellLattice extends RectangularLattice {
     private static final long serialVersionUID = 1L;
     private final double[] cellSize;
     private final IVector dimensions;
-    private final int[] idx;//a work array
 
     /**
      * Extends the SimpleLattice neighbor iterator to provide methods that
