@@ -75,7 +75,7 @@ public abstract class IntegratorPhase extends Integrator {
     }
 
     /**
-     * @return the potential energy of each phase handled by this integrator
+     * @return the potential energy of the phase handled by this integrator
      */
     public double getPotentialEnergy() {
         return currentPotentialEnergy;
@@ -103,4 +103,3 @@ public abstract class IntegratorPhase extends Integrator {
         return phase;
     }
 }
-
