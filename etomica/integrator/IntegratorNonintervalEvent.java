@@ -16,7 +16,6 @@ public class IntegratorNonintervalEvent extends IntegratorEvent {
         super(source, type);
     }
 
-    public static final NonintervalEventType START =      new NonintervalEventType("Start");      //simulation is starting
     public static final NonintervalEventType INITIALIZE = new NonintervalEventType("Initialize"); //integrator is initializing
     public static final NonintervalEventType DONE =       new NonintervalEventType("Done");       //simulation is finished
 
@@ -28,7 +27,7 @@ public class IntegratorNonintervalEvent extends IntegratorEvent {
         }
         
         public static Type[] choices() {
-            return new NonintervalEventType[] {START,INITIALIZE,DONE};
+            return new NonintervalEventType[] {INITIALIZE,DONE};
         }
     }
 }

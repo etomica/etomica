@@ -10,16 +10,12 @@ import etomica.util.EnumeratedType;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on Apr 27, 2005 by kofke
- */
 public class IntegratorEvent implements java.io.Serializable {
 
     // Typed constants used to indicate the type of event integrator is
     // announcing
     
+    private static final long serialVersionUID = 1L;
     private final Type type;
     private Integrator source;
 
@@ -41,12 +37,14 @@ public class IntegratorEvent implements java.io.Serializable {
 
     //class used to mark the different types of interval events
     public static class Type extends EnumeratedType {
+        private static final long serialVersionUID = 1L;
+
         protected Type(String label) {
             super(label);
         }
 
         public static Type[] choices() {
-            return new Type[]{IntegratorIntervalEvent.INTERVAL, IntegratorNonintervalEvent.START, 
+            return new Type[]{IntegratorIntervalEvent.INTERVAL,
                     IntegratorNonintervalEvent.INITIALIZE, IntegratorNonintervalEvent.DONE};
         }
     }

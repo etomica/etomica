@@ -103,13 +103,6 @@ public class IntegratorManagerMC extends Integrator {
         return (Integrator[])integrators.clone();
     }
 
-    public void setEquilibrating(boolean flag) {
-        super.setEquilibrating(flag);
-        for (int i=0; i<nIntegrators; i++) {
-            integrators[i].setEquilibrating(flag);
-        }
-    }        
-
     /**
      * @return Returns the moveManager.
      */

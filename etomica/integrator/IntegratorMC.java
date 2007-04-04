@@ -67,13 +67,6 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
         moveManager = newMoveManager;
     }
     
-    public void setEquilibrating(boolean flag) {
-        super.setEquilibrating(flag);
-        // if equilibrating, sets adjustable moves to adjust themselves to meet 
-        // acceptance target.  If not equilibrating this sets them to not adjust. 
-        moveManager.setEquilibrating(flag);
-    }
-
     /**
      * Invokes superclass method and informs all MCMoves about the new phase.
      * Moves are not notified if they have a number of phases different from

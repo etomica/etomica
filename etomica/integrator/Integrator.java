@@ -23,7 +23,6 @@ public abstract class Integrator implements java.io.Serializable {
     protected final PotentialMaster potential;
     protected boolean equilibrating = false;
     protected boolean initialized = false;
-    protected int sleepPeriod = 10;
     private final LinkedList intervalListeners = new LinkedList();
     private final LinkedList listeners = new LinkedList();
     private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];
@@ -103,21 +102,6 @@ public abstract class Integrator implements java.io.Serializable {
      */
     public PotentialMaster getPotential() {
         return potential;
-    }
-
-    /**
-     * @return Returns flag indicating whether integrator is in equilibration mode.
-     */
-    public boolean isEquilibrating() {
-        return equilibrating;
-    }
-
-    /**
-     * @param equilibrating
-     *            Sets equilibration mode of integrator.
-     */
-    public void setEquilibrating(boolean equilibrating) {
-        this.equilibrating = equilibrating;
     }
 
     /**
