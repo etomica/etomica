@@ -48,7 +48,7 @@ public class TestLJMC3D extends Simulation {
         mcMoveAtom.setStepSize(0.2*defaults.atomSize);
         ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.setEquilibrating(false);
+        integrator.getMoveManager().setEquilibrating(false);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setMaxSteps(200000);
         getController().addAction(activityIntegrate);
