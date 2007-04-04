@@ -22,7 +22,6 @@ public class IntegratorGEMC extends IntegratorManagerMC implements EtomicaElemen
     
     public IntegratorGEMC(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster, random);
-        this.random = random;
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -70,6 +69,5 @@ public class IntegratorGEMC extends IntegratorManagerMC implements EtomicaElemen
     private static final long serialVersionUID = 1L;
     private MCMoveVolumeExchange volumeExchange;
     private MCMoveMoleculeExchange moleculeExchange;
-    private IRandom random;
 
 }
