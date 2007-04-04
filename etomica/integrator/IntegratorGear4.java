@@ -58,9 +58,8 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         allAtoms.setIncludeLrc(false);
         work1 = potentialMaster.getSpace().makeVector();
         work2 = potentialMaster.getSpace().makeVector();
-        //XXX this is totally wrong!  This should be based on the actual temperature and
-        //potentials (steepness and depth) used.
-        setTimeStep(new LJ().time().toSim(2.0));
+
+        setTimeStep(timeStep);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -75,6 +74,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
         }
         super.setPhase(p);
         agentManager = new AtomAgentManager(this,p);
+        forceSum.setAgentManager(agentManager);
     }
 
     public void setTimeStep(double dt) {
