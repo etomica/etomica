@@ -5,12 +5,12 @@ package etomica.data;
  * A recipient of Data.  Data goes in and might (or might not) come out.
  */
 public interface DataSink {
-    
+
     /**
      * Gives data to DataSink for processing, display, or whatever it does.
      */
-	public abstract void putData(Data data);
-    
+    public abstract void putData(Data data);
+
     /**
      * Informs the DataSink of the type of Data it should expect to receive.
      */
