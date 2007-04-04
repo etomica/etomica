@@ -69,7 +69,7 @@ public class DeviceButton extends Device implements EtomicaElement {
                     doAction(targetAction);
                 }
                 catch (RuntimeException e) {
-                    //do nothing
+                    System.err.println(e+" "+e.getMessage());
                 }
             }
         };
