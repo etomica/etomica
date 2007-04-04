@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Oct 28, 2004 by kofke
- */
 package etomica.action.activity;
 
 import java.util.LinkedList;
@@ -16,7 +12,7 @@ import etomica.util.Arrays;
  */
 public class ActivityGroupParallel extends Activity implements ActivityGroup {
 
-	/**
+    /**
 	 *  
 	 */
 	public ActivityGroupParallel() {
@@ -28,30 +24,6 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 		setActions(actions);
 	}
     
-    /**
-     * Copy constructor.
-     */
-    public ActivityGroupParallel(ActivityGroupParallel activity) {
-        this(copyActions(activity.actions));
-    }
-    
-    private static Action[] copyActions(Action[] actions) {
-        Action[] copy = new Action[actions.length];
-        for(int i=0; i<actions.length; i++) {
-            Action nextAction = actions[i];
-            if(nextAction instanceof Activity) {
-                copy[i] = ((Activity)nextAction).makeCopy();
-            } else {
-                copy[i] = nextAction;
-            }
-        }
-        return copy;
-    }
-    
-    public Activity makeCopy() {
-        return new ActivityGroupParallel(this);
-    }
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -178,6 +150,7 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 		return true;
 	}
 
+    private static final long serialVersionUID = 1L;
 	protected int numActions;
 	protected Action[] actions;
 	protected MyThread lastThread, firstThread;

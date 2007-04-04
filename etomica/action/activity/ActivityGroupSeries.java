@@ -14,40 +14,6 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
     }
     
     /**
-     * Copy constructor.
-     */
-    public ActivityGroupSeries(ActivityGroupSeries activity) {
-        super(activity);
-        for(int i=0; i<activity.completedActions.length; i++) {
-            addCopyAction(activity.completedActions[i]);
-        }
-        if(activity.currentAction != null) {
-            addCopyAction(activity.currentAction);
-        }
-        for(int i=0; i<activity.pendingActions.length; i++) {
-            addCopyAction(activity.pendingActions[i]);
-        }
-        setPauseAfterEachAction(activity.pauseAfterEachAction);
-    }
-    
-    private void addCopyAction(Action action) {
-        if(action instanceof Activity) {
-            addAction(((Activity)action).makeCopy());
-        } else {
-            addAction(action);
-        }
-    }
-    
-    /**
-     * Returns a copy of this ActivityGroupSeries, with all actions newly pending regardless of
-     * their state in this instance.  Activities are copied before being added to the copy;
-     * non-Activity Actions are referenced directly, and are not copied.
-     */
-    public Activity makeCopy() {
-        return new ActivityGroupSeries(this);
-    }
-    
-    /**
 	 * Adds the given action to the list of actions.
 	 * If action is already in list of actions to be performed, method returns
 	 * without doing anything.

@@ -162,14 +162,6 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
                 completedActions = (Action[])Arrays.addObject(completedActions, currentAction);
                 eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.END_ACTION, currentAction));
 
-                if(waitObject.actionException == null && repeatCurrentAction) {
-                    if(currentAction instanceof Activity) {
-                        addNextAction(((Activity)currentAction).makeCopy());
-                    } else {
-                        addNextAction(currentAction);
-                    }
-                }
-            
                 currentAction = null;
             }
 
@@ -242,19 +234,6 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
 
         completedActions = (Action[])Arrays.addObject(completedActions, urgentAction);
         eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.END_URGENT_ACTION, urgentAction));
-    }
-    
-    /**
-     * Adds an action to the beginning of the pending actions list, so that it will be performed next.
-     * This is used by the repeatCurrentAction facility.
-     */
-    private synchronized void addNextAction(Action nextAction) {
-        Action[] newActions = new Action[pendingActions.length+1];
-        newActions[0] = nextAction;
-        for(int i=0; i<pendingActions.length; i++) {
-            newActions[i+1] = pendingActions[i];
-        }
-        pendingActions = newActions;
     }
     
     /**

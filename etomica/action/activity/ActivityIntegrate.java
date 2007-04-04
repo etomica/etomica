@@ -32,19 +32,6 @@ public class ActivityIntegrate extends Activity {
         setMaxSteps(Integer.MAX_VALUE);
 	}
     
-    protected ActivityIntegrate(ActivityIntegrate activity) {
-        super(activity);
-        integrator = activity.integrator;
-        setDoSleep(activity.doSleep);
-        setInterval(activity.interval);
-        setMaxSteps(activity.maxSteps);
-        setSleepPeriod(activity.sleepPeriod);
-    }
-    
-    public Activity makeCopy() {
-        return new ActivityIntegrate(this);
-    }
-
     /**
      * Main loop for conduct of integration.  Repeatedly calls doStep() method,
      * while checking for halt/pause/reset requests, firing regular interval events,
@@ -53,7 +40,6 @@ public class ActivityIntegrate extends Activity {
      * not be called directly, but instead is called by the instance's actionPerformed method.
      */
     public void run() {
-        integrator.fireNonintervalEvent(new IntegratorNonintervalEvent(integrator, IntegratorNonintervalEvent.START));
         try {
             integrator.initialize();
         }
@@ -62,23 +48,12 @@ public class ActivityIntegrate extends Activity {
                 throw new RuntimeException(e);
             }
         }
-        long stepCount = 0;
         int iieCount = interval;//changed from "interval + 1"
-        while(stepCount < maxSteps) {
+        for (stepCount = 0; stepCount < maxSteps; stepCount++) {
             if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
             if (Debug.ON && stepCount == Debug.STOP) break;
             if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
             if (!doContinue()) break;
-            if (resetRequested) {
-                try {
-                    integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {
-                    if (!ignoreOverlap) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
             integrator.doStep();
             if(--iieCount == 0) {
                 integrator.fireIntervalEvent(intervalEvent);
@@ -88,7 +63,6 @@ public class ActivityIntegrate extends Activity {
                 try { Thread.sleep(sleepPeriod); }
                 catch (InterruptedException e) { }
             }
-            stepCount++;
         }//end of while loop
         integrator.fireNonintervalEvent(new IntegratorNonintervalEvent(integrator, IntegratorNonintervalEvent.DONE));
 	}
@@ -168,6 +142,10 @@ public class ActivityIntegrate extends Activity {
 		if(maxSteps < 0) throw new IllegalArgumentException("steps must not be negative");
 		this.maxSteps = maxSteps;
 	}
+    
+    public long getCurrentStep() {
+        return stepCount;
+    }
 	
 	/**
 	 * Requests that the integrator reset itself; if integrator is not running,
@@ -198,6 +176,6 @@ public class ActivityIntegrate extends Activity {
 	private boolean doSleep;
     private boolean ignoreOverlap;
 	private int sleepPeriod;
-	protected long maxSteps;
+	protected long maxSteps, stepCount;
 	IntegratorIntervalEvent intervalEvent;
 }

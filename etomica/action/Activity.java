@@ -25,8 +25,6 @@ public abstract class Activity implements Action, java.io.Serializable {
         name = activity.name;
     }
 
-    public abstract Activity makeCopy();
-    
     /**
      * Method defining the behavior of the activity. Implementation should
      * ensure regular checking of doContinue() to permit any requests to pause
