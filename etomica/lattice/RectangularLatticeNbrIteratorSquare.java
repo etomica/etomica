@@ -20,14 +20,10 @@ import etomica.util.Debug;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on May 26, 2005 by kofke
- */
 public class RectangularLatticeNbrIteratorSquare extends
         RectangularLatticeNbrIterator {
 
+    private static final long serialVersionUID = 1L;
     protected final int[] range;
     protected int furthestNeighborDelta;
     private final IVector period;
@@ -62,7 +58,7 @@ public class RectangularLatticeNbrIteratorSquare extends
     /* (non-Javadoc)
      * @see etomica.lattice.SiteIterator#setLattice(etomica.lattice.AbstractLattice)
      */
-    public void setLattice(AbstractLattice lattice) {
+    public void setLattice(FiniteLattice lattice) {
         super.setLattice(lattice);
         for(int i=0; i<D; i++) {
             if(2*range[i]+1 > ((RectangularLattice)lattice).getSize()[i]) 
@@ -288,21 +284,13 @@ public class RectangularLatticeNbrIteratorSquare extends
         
         //define the site class
         class MySite {
-            final int index;
-            final int[] coord;
             java.awt.Color color = java.awt.Color.white;
-            MySite(int i, int[] idx) {this.index = i;this.coord=(int[])idx.clone();}
         }
         //define a factory making the sites
         SiteFactory factory = new SiteFactory() {
             public Object makeSite(AbstractLattice lattice, int[] coord) {
-                return new MySite(((RectangularLattice)lattice).arrayIndex(coord),coord);
+                return new MySite();
             }
-//            public void makeSites(AbstractLattice lattice, Object[] sites) {
-//                for(int i=0; i<sites.length; i++) {
-//                    sites[i] = new MySite(i);
-//                }
-//            }
         };
         //construct the lattice and iterator
         int dimension = 3;

@@ -21,11 +21,6 @@ package etomica.lattice;
 //  for this example, size = {2, 2, 3}, jumpCount = {6, 3, 1}
 //  note that number of sites = size[0]*jumpCount[0]
 
-/*
- * History
- * Created on Dec 17, 2004 by kofke
- */
-
 public class RectangularLattice implements FiniteLattice, java.io.Serializable {
 
     /**
@@ -40,9 +35,6 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
         size = new int[D];
         this.siteFactory = siteFactory;
         //do not create lattice with default size because siteFactory  might not yet be ready
-//        int[] defaultSize = new int[D];
-//        for(int i=0; i<D; i++) defaultSize[i] = 1;
-//        setSize(defaultSize);
     }
 
     /* (non-Javadoc)
@@ -128,7 +120,7 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
     }
 
     //method used by setDimensions method to cycle the index array through its values
-    private void increment(int[] idx) {
+    protected void increment(int[] idx) {
         int d = D-1;
         idx[d]++;
         while(idx[d] == size[d] && d > 0) {//replaces recursive call
@@ -137,6 +129,7 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
         }
     }
     
+    private static final long serialVersionUID = 1L;
     protected Object[] sites;
     protected final int[] size;
 //  jumpCount[i] gives the number of sites skipped when the i-th index is incremented by 1
@@ -186,15 +179,15 @@ public class RectangularLattice implements FiniteLattice, java.io.Serializable {
         public void unset() {
             cursor = Integer.MAX_VALUE;
         }
-        public void setLattice(AbstractLattice lattice) {
+        public void setLattice(FiniteLattice lattice) {
             this.lattice = (RectangularLattice)lattice;
             unset();
         }
+
+        private static final long serialVersionUID = 1L;
         private int cursor = Integer.MAX_VALUE;
         private RectangularLattice lattice;
         private int size = 0;
         private final int[] idx;//index of the most recently returned iterate
-    }//end of SiteIterator
-
-
-}//end of SimpleLattice
+    }
+}

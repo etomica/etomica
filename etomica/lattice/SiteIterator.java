@@ -65,5 +65,5 @@ public interface SiteIterator {
     /**
      * Sets the lattice having the sites to be given by this iterator.
      */
-    public void setLattice(AbstractLattice lattice);
+    public void setLattice(FiniteLattice lattice);
 }

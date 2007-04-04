@@ -108,14 +108,14 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
 //            if(!hasNext()) return null;
  //           currentPbc = pbc[cursor];
 //            return lattice.sites[neighbors[cursor++]];
-        return hasNext() ? lattice.sites[neighbors[cursor++]] : null;
+        return hasNext() ? lattice.sites()[neighbors[cursor++]] : null;
     }
     
     /**
      * Returns the next iterate without advancing the iterator.
      */
     public Object peek() {
-        return hasNext() ? lattice.sites[neighbors[cursor]] : null;
+        return hasNext() ? lattice.sites()[neighbors[cursor]] : null;
     }
     
     /**
@@ -156,9 +156,9 @@ public abstract class RectangularLatticeNbrIterator implements SiteIterator, jav
      * of lattice must be the same as that specified to constructor. Also,
      * size of lattice must be compatible with range of neighbor interactions.
      */
-    public void setLattice(AbstractLattice lattice) {
+    public void setLattice(FiniteLattice lattice) {
         this.lattice = (RectangularLattice)lattice;
-        if(lattice != null && lattice.D() != this.D) throw new IllegalArgumentException("Iterator given lattice with incompatible dimension");
+        if(lattice != null && lattice.D() != D) throw new IllegalArgumentException("Iterator given lattice with incompatible dimension");
         needNeighborUpdate = true;
     }
     public void setPeriodicity(boolean[] periodicity) {

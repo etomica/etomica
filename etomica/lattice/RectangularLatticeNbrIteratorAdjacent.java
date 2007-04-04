@@ -20,13 +20,9 @@ import etomica.lattice.RectangularLattice.Iterator;
  * @author David Kofke
  *
  */
-
-/*
- * History
- * Created on May 26, 2005 by kofke
- */
 public class RectangularLatticeNbrIteratorAdjacent extends
         RectangularLatticeNbrIterator {
+
 
     /**
      * @param D
@@ -78,6 +74,8 @@ public class RectangularLatticeNbrIteratorAdjacent extends
 
         needNeighborUpdate = false;
     }
+    
+    private static final long serialVersionUID = 1L;
 
     /**
      * Method to test the neighbor iterator.  Constructs a lattice 
@@ -93,21 +91,13 @@ public class RectangularLatticeNbrIteratorAdjacent extends
         
         //define the site class
         class MySite {
-            final int index;
-            final int[] coord;
             java.awt.Color color = java.awt.Color.white;
-            MySite(int i, int[] idx) {this.index = i;this.coord=(int[])idx.clone();}
         }
         //define a factory making the sites
         SiteFactory factory = new SiteFactory() {
             public Object makeSite(AbstractLattice lattice, int[] coord) {
-                return new MySite(((RectangularLattice)lattice).arrayIndex(coord),coord);
+                return new MySite();
             }
-//            public void makeSites(AbstractLattice lattice, Object[] sites) {
-//                for(int i=0; i<sites.length; i++) {
-//                    sites[i] = new MySite(i);
-//                }
-//            }
         };
         //construct the lattice and iterator
         int dimension = 3;
@@ -177,5 +167,5 @@ public class RectangularLatticeNbrIteratorAdjacent extends
         f.pack();
         f.show();
         f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
-    }//end of main
+    }
 }
