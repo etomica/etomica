@@ -22,7 +22,7 @@ public class CompoundDimension extends Dimension {
         double[] sig = new double[Dimension.N_BASE]; 
         for(int i=0; i<dimensions.length; i++) {
             for(int j=0; j<sig.length; j++) {
-                sig[j] += dimensions[i].signature()[j];
+                sig[j] += dimensions[i].signature()[j]*exponents[i];
             }
         }
         return sig;
