@@ -447,5 +447,7 @@ public class G3DSys {
   public void cycleDrawBoundaryType() { fm.cycleDrawBoundaryType(); }
   
   public void toggleWireframe() { fm.toggleWireframe(); }
+
+  public void setDefaultRotation() { tm.setDefaultRotation(); }
   
 }

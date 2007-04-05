@@ -658,7 +658,7 @@ class TransformManager {
 
   /**
    * Despite the name, has no impact whatsoever on rotation; resets origin rotation
-   * (which is always the case anyway) and recalculates rotation 
+   * (which is always the case anyway) and recalculates rotation radius
    */
   void setDefaultRotation() {
     /* This fixes the growing model clipping bug.

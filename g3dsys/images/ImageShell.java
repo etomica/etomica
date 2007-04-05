@@ -28,6 +28,8 @@ public class ImageShell extends Figure {
   private Point3i s = new Point3i();
   private Point3i t = new Point3i();
   
+  //large box helper
+  
   public ImageShell(G3DSys g) {
     super(g,(short)0);
     g3d = g.getG3D();

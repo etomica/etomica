@@ -21,6 +21,9 @@ public class Bond extends Figure {
   private final Ball ball1; //Figure for first endpoint
   private final Ball ball2; //Figure for second endpoint
   
+  //TODO: don't draw when balls on either end are not drawn
+  //TODO: turning off bonds should set drawable to false; different from above
+  //TODO: 'a' can cycle between cylinders, wireframe, and bonds off entirely
   private final Point3i p1i, p2i; // same in pixels, not shared
   private int bondType = CYLINDER;
   
@@ -30,12 +33,14 @@ public class Bond extends Figure {
     this.p2 = b1.getPoint();
     ball1 = b0;
     ball2 = b1;
-    _p = new Point3f((p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2);
+    _p = new Point3f((p1.x + p2.x) / 2.0f, (p1.y + p2.y) / 2.0f, (p1.z + p2.z) / 2.0f);
     p1i = new Point3i();
     p2i = new Point3i();
   }
   
   public void draw() {
+    //if atoms aren't drawn (because of atom filter), bonds aren't drawn
+    if(!ball1.drawme || !ball2.drawme) return;
     //if points too far apart, assume molecule has been wrapped, ignore
     if(p1.distance(p2) > _gsys.getAngstromWidth()/2.0f) return;
     _gsys.screenSpace(p1, p1i);
@@ -43,7 +48,8 @@ public class Bond extends Figure {
     switch(bondType) {
     case CYLINDER:
       _gsys.getG3D().fillCylinder(ball1.getColor(),ball2.getColor(),
-          Graphics3D.ENDCAPS_FLAT,(int)getD(),
+          Graphics3D.ENDCAPS_FLAT,
+          _gsys.perspective(((int)(ball1.getPoint().z + ball2.getPoint().z))/2, getD()),
           p1i.x,p1i.y,p1i.z,p2i.x,p2i.y,p2i.z);
       break;
     case WIREFRAME:
@@ -58,7 +64,7 @@ public class Bond extends Figure {
   public float getD() {
     // no good way to pick diameter yet
     // also, what does this mean when wireframe is on?
-    return 10;
+    return (ball1._d + ball2._d)*0.2f;
   }
   
   public void setBondType(int i) { bondType = i; }

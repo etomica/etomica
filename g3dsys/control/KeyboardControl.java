@@ -134,6 +134,10 @@ class KeyboardControl implements KeyListener {
       master.setLayers(9);
       master.fastRefresh();
     }
+    if( e.getKeyChar() == '0' ) {
+      master.setEnableImages(false);
+      master.fastRefresh();
+    }
     if( e.getKeyChar() == 'b' ) {
       master.cycleDrawBoundaryType();
       master.fastRefresh();

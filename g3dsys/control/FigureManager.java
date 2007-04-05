@@ -190,6 +190,8 @@ class FigureManager {
       if(!imagesOn && b) images.setDrawable(true); //toggle on
       if(imagesOn && !b) images.setDrawable(false); //toggle off
       imagesOn = b;
+      gsys.setDefaultRotation();
+      gsys.fastRefresh();
     }
 
     private double[] vectors;
@@ -209,7 +211,11 @@ class FigureManager {
      * Sets the number of image shell layers
      * @param n the number of layers
      */
-    public void setLayers(int n) { images.setLayers(n); }
+    public void setLayers(int n) {
+      images.setLayers(n);
+      gsys.setDefaultRotation();
+      gsys.fastRefresh();
+    }
     /**
      * Gets the number of image shell layers
      * @return returns the number of layers
