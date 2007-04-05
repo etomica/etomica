@@ -30,7 +30,7 @@ import etomica.species.Species;
  */
 public class PotentialMasterHybrid extends PotentialMasterNbr {
 
-	/**
+    /**
 	 * Invokes superclass constructor, specifying IteratorFactoryCell
      * for generating molecule iterators.  Sets default nCells of 10,
      * and position definition to null, causing cell assignment to be
@@ -137,8 +137,8 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         potentialMasterCell.potentialAddedNotify(subPotential, pGroup);
     }
     
-    public NeighborListManager getNeighborManager() {
-        return potentialMasterList.getNeighborManager();
+    public NeighborListManager getNeighborManager(Phase phase) {
+        return potentialMasterList.getNeighborManager(phase);
     }
 
     public void removePotential(Potential potential) {
@@ -146,6 +146,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         potentialMasterCell.removePotential(potential);
     }
 
+    private static final long serialVersionUID = 1L;
     private boolean useNbrLists;
     private final PotentialMasterList potentialMasterList;
     private final PotentialMasterCell potentialMasterCell;

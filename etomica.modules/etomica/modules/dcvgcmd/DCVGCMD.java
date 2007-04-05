@@ -89,8 +89,6 @@ public class DCVGCMD extends Simulation {
         
         PotentialMasterHybrid potentialMasterHybrid = (PotentialMasterHybrid) potentialMaster;
         double neighborRangeFac = 1.4;
-        final NeighborListManager nbrManager = potentialMasterHybrid.getNeighborManager();
-        nbrManager.getPbcEnforcer().setApplyToMolecules(false);
         potentialMasterHybrid.setCellRange(1);
         potentialMasterHybrid.setRange(neighborRangeFac * defaults.atomSize);
 
@@ -176,7 +174,7 @@ public class DCVGCMD extends Simulation {
         integratorDCV.setPhase(phase);
 
         /***/
-        nbrManager.setRange(potential.getRange() * neighborRangeFac);
+        ((PotentialMasterHybrid)potentialMaster).setRange(potential.getRange() * neighborRangeFac);
         integratorMC.getMoveEventManager().addListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
 
 
@@ -189,6 +187,7 @@ public class DCVGCMD extends Simulation {
         //integrator.setSleepPeriod(1);
         integratorMD.setTimeStep(0.007);
         //integrator.setInterval(10);
+        final NeighborListManager nbrManager = potentialMasterHybrid.getNeighborManager(phase);
         integratorMD.addListener(nbrManager);
         activityIntegrate.setDoSleep(true);
         phase.setBoundary(new BoundaryRectangularSlit(this, 2));

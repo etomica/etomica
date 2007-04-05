@@ -124,10 +124,6 @@ public class ZeoliteSimulation extends Simulation {
         
         
         
-        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
-        //nbrManager.setRange(range*1.6);
-        nbrManager.getPbcEnforcer().setApplyToMolecules(false);
-        integrator.addListener(nbrManager);
 
         activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
@@ -136,6 +132,8 @@ public class ZeoliteSimulation extends Simulation {
         getController().addAction(activityIntegrate);
         
         phase = new Phase(this);
+        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+        integrator.addListener(nbrManager);
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){
         	species[i] = new SpeciesSpheresMono(this);

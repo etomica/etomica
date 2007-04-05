@@ -38,10 +38,6 @@ public class TestHSMD3D extends Simulation {
         ((PotentialMasterList)potentialMaster).setCellRange(1);
         ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
         integrator = new IntegratorHard(this);
-        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
-        nbrManager.setRange(defaults.atomSize*neighborRangeFac);
-        nbrManager.getPbcEnforcer().setApplyToMolecules(false);
-        integrator.addListener(nbrManager);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
@@ -64,6 +60,8 @@ public class TestHSMD3D extends Simulation {
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);
         phase.getAgent(species2).setNMolecules(numAtoms/100);
+        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+        integrator.addListener(nbrManager);
         integrator.setPhase(phase);
         ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
         config.initializeCoordinates(phase);

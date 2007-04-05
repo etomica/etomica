@@ -233,7 +233,7 @@ public class MEAMMd3D extends Simulation {
         this.potentialMaster.addPotential(potentialN, new Species[]{sn, ag, cu});    
         ((PotentialMasterList)potentialMaster).setRange(potentialN.getRange()*1.1);
         ((PotentialMasterList)potentialMaster).setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
-        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager());
+        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
         
         integrator.setPhase(phase);
 		

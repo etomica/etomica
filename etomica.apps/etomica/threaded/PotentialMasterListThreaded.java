@@ -7,6 +7,7 @@ import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.PhaseAgentSourceCellManager;
+import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
@@ -55,7 +56,8 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         Atom targetAtom = id.getTargetAtom();
-        neighborManager.setPhase(phase);
+        NeighborListManager neighborManager = (NeighborListManager)getNeighborAgentManager().getAgent(phase);
+
         if (targetAtom == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
@@ -67,7 +69,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
             }
             
             if(pc instanceof PotentialCalculationThreaded){
-            	calculateThreaded(phase, id, (PotentialCalculationThreaded)pc);
+            	calculateThreaded(phase, id, (PotentialCalculationThreaded)pc, neighborManager);
             }
             else{
             	//method of super class
@@ -92,7 +94,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
             for(int i=0; i<potentials.length; i++) {
                 potentials[i].setPhase(phase);
             }
-            calculate(targetAtom, id, pc);
+            calculate(targetAtom, id, pc, neighborManager);
         }
        
         if(lrcMaster != null) {
@@ -100,19 +102,19 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
     }
 
-    protected void calculateThreaded(Phase phase, IteratorDirective id, PotentialCalculationThreaded pc) {
+    protected void calculateThreaded(Phase phase, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
         AtomArrayList list = phase.getSpeciesMaster().getAgentList();
         int size = list.size();
         for (int i=0; i<size; i++) {
             Atom a = list.get(i);
-            calculateThreaded(a, id, pc);//recursive call
+            calculateThreaded(a, id, pc, neighborManager);//recursive call
         }
         pc.writeData();
     }
         
-    protected void calculateThreaded(Atom atom, IteratorDirective id, PotentialCalculationThreaded pc) {
+    protected void calculateThreaded(Atom atom, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
            
         AtomArrayList list = ((AtomGroup)atom).getChildList();
         int size = list.size();
@@ -126,6 +128,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 threads[i].threadList = list;
                 threads[i].id = id;
                 threads[i].pc = pc.getPotentialCalculations()[i];
+                threads[i].neighborManager = neighborManager;
                 threads[i].greenLight = true;
                 threads[i].finished = false;
                 threads[i].notifyAll();

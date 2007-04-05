@@ -60,7 +60,6 @@ public class LJMD3DThreaded extends Simulation {
         integrator.setTemperature(1.0);
         integrator.setIsothermal(true);
         integrator.setTimeStep(0.001);
-        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager());
         activityIntegrate = new ActivityIntegrate(this,integrator);
         //activityIntegrate.setMaxSteps(500000);
         getController().addAction(activityIntegrate);
@@ -69,6 +68,7 @@ public class LJMD3DThreaded extends Simulation {
         phase = new Phase(this);
         species.getAgent(phase).setNMolecules(numAtoms);
         phase.setDensity(0.65);
+        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
         
        
         p2lj = new P2LennardJones(this);
@@ -92,7 +92,7 @@ public class LJMD3DThreaded extends Simulation {
         
         ((PotentialMasterListThreaded)potentialMaster).setCellRange(1);
         ((PotentialMasterListThreaded)potentialMaster).setRange(neighborFac * truncationRadius);
-        ((PotentialMasterListThreaded)potentialMaster).getNeighborManager().setQuiet(true);
+        ((PotentialMasterListThreaded)potentialMaster).getNeighborManager(phase).setQuiet(true);
         potentialMaster.addPotential(potentialThreaded, new Species[] {species, species});
         //--------------------------------------\\
         

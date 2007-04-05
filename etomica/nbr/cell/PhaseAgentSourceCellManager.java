@@ -33,6 +33,7 @@ public class PhaseAgentSourceCellManager implements PhaseAgentSource, java.io.Se
     public void releaseAgent(Object agent) {
     }
     
+    private static final long serialVersionUID = 1L;
     private double range;
     private final AtomPositionDefinition positionDefinition;
 }

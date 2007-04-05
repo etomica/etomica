@@ -84,7 +84,7 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
                 integratormc.fireIntervalEvent(intervalEventMC);
             }
             potentialMasterHybrid.setUseNbrLists(true);
-            potentialMasterHybrid.getNeighborManager().reset(phase);
+            potentialMasterHybrid.getNeighborManager(phase).reset();
             try {
                 integratormd.reset();
             } catch(ConfigurationOverlapException e) {

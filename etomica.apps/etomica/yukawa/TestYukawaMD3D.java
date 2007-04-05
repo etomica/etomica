@@ -11,7 +11,6 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -63,9 +62,6 @@ public class TestYukawaMD3D extends Simulation{
 		integrator.setTimeStep(0.01);
 		this.register(integrator);
 		
-		NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
-		nbrManager.getPbcEnforcer().setApplyToMolecules(false);
-		integrator.addListener(nbrManager);
 		
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
 		activityIntegrate.setDoSleep(true);
@@ -76,6 +72,8 @@ public class TestYukawaMD3D extends Simulation{
         getSpeciesManager().addSpecies(species);
 		phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numAtoms);
+        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+        integrator.addListener(nbrManager);
 		potential = new P2Yukawa(this);
 		
 		double truncationRadius = 2.5*potential.getKappa();

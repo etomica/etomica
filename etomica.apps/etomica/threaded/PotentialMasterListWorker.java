@@ -23,7 +23,6 @@ public class PotentialMasterListWorker extends Thread {
         
         
         this.pmlt = pmlt;
-		neighborManager = pmlt.getNeighborManager();
         this.threadNumber = threadNumber;
 		this.rangedAgentManager = rangedAgentManager;
 		atomIterator = new AtomIteratorArrayListSimple();
@@ -193,7 +192,6 @@ public class PotentialMasterListWorker extends Thread {
 	protected final AtomIteratorSinglet singletIterator;
 	protected final ApiInnerFixed pairIterator;
 	protected final ApiInnerFixed swappedPairIterator;
-	protected final NeighborListManager neighborManager;
 	protected final AtomTypeAgentManager rangedAgentManager;
     
     protected boolean active = true;
@@ -206,6 +204,7 @@ public class PotentialMasterListWorker extends Thread {
     protected final int threadNumber;
     public IteratorDirective id;
     public PotentialCalculation pc;
+    public NeighborListManager neighborManager;
     
 	//	 things needed for N-body potentials
 	protected AtomsetArrayList atomsetArrayList;

@@ -63,9 +63,6 @@ public class TestSWChain extends Simulation {
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
-        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
-        integrator.addListener(nbrManager);
-        nbrManager.setRange(defaults.atomSize*sqwLambda*neighborRangeFac);
         getController().addAction(activityIntegrate);
         activityIntegrate.setMaxSteps(nSteps);
         ((PotentialMasterList)potentialMaster).setCellRange(2);
@@ -94,6 +91,8 @@ public class TestSWChain extends Simulation {
 
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(numMolecules);
+        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+        integrator.addListener(nbrManager);
 
         integrator.setPhase(phase);
         ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));

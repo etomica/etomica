@@ -51,10 +51,7 @@ public class HSMD2D extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
-        nbrManager.setRange(defaults.atomSize*1.6);
-        nbrManager.getPbcEnforcer().setApplyToMolecules(false);
-        integrator.addListener(nbrManager);
+        ((PotentialMasterList)potentialMaster).setRange(defaults.atomSize*1.6);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setDoSleep(true);
@@ -77,6 +74,8 @@ public class HSMD2D extends Simulation {
         phase = new Phase(this);
         phase.getAgent(species).setNMolecules(512);
         phase.getAgent(species2).setNMolecules(5);
+        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+        integrator.addListener(nbrManager);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         integrator.setPhase(phase);
     }

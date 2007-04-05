@@ -287,7 +287,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         this.getPotentialMaster().addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, cuFixedB, snB, agB, cuB});    
         ((PotentialMasterList)getPotentialMaster()).setRange(potentialN.getRange()*1.1);
         ((PotentialMasterList)getPotentialMaster()).setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
-        integrator.addListener(((PotentialMasterList)getPotentialMaster()).getNeighborManager());
+        integrator.addListener(((PotentialMasterList)getPotentialMaster()).getNeighborManager(phase));
         
         integrator.setPhase(phase);
 		

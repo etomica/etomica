@@ -121,9 +121,8 @@ public class HSMD3D extends Simulation {
         integrator.setPhase(phase);
 
         if (params.useNeighborLists) { 
-            NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager();
-            nbrManager.setRange(defaults.atomSize*1.6);
-            nbrManager.getPbcEnforcer().setApplyToMolecules(false);
+            NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+            ((PotentialMasterList)potentialMaster).setRange(defaults.atomSize*1.6);
             integrator.addListener(nbrManager);
         }
         else {
