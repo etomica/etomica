@@ -141,7 +141,7 @@ public class IntegratorCoordConfigWriter implements IntegratorIntervalListener,
 
 	public void nonintervalAction(IntegratorNonintervalEvent evt) {
 
-		if (evt.type()==IntegratorNonintervalEvent.START){
+		if (evt.type()==IntegratorNonintervalEvent.INITIALIZE){
 			openFile();
 		}
 		else if (evt.type()==IntegratorNonintervalEvent.DONE){

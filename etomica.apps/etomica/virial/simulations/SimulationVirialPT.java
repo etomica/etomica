@@ -90,7 +90,7 @@ public class SimulationVirialPT extends Simulation {
             integrator[iTemp] = new IntegratorMC(this);
             integrator[iTemp].setTemperature(temperature[iTemp]);
             integrator[iTemp].setPhase(phase[iTemp]);
-            integrator[iTemp].setEquilibrating(false);
+            integrator[iTemp].getMoveManager().setEquilibrating(false);
             integratorPT.addIntegrator(integrator[iTemp]);
             
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();

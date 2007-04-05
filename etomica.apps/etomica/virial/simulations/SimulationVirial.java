@@ -60,7 +60,7 @@ public class SimulationVirial extends Simulation {
         // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
         integrator.setPhase(phase);
-        integrator.setEquilibrating(false);
+        integrator.getMoveManager().setEquilibrating(false);
 		ai = new ActivityIntegrate(this,integrator);
 		ai.setInterval(1);
 		getController().addAction(ai);

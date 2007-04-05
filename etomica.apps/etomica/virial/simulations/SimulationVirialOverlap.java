@@ -98,7 +98,7 @@ public class SimulationVirialOverlap extends Simulation {
             integrators[iPhase] = new IntegratorMC(this);
             integrators[iPhase].setTemperature(temperature);
             integrators[iPhase].setPhase(phase[iPhase]);
-            integrators[iPhase].setEquilibrating(false);
+            integrators[iPhase].getMoveManager().setEquilibrating(false);
             
             MCMoveManager moveManager = integrators[iPhase].getMoveManager();
             
@@ -239,7 +239,7 @@ public class SimulationVirialOverlap extends Simulation {
         ai.setMaxSteps(initSteps);
 
         for (int i=0; i<2; i++) {
-            integrators[i].setEquilibrating(true);
+            integrators[i].getMoveManager().setEquilibrating(true);
         }
         getController().run();
         getController().reset();

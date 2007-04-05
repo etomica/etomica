@@ -50,7 +50,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
 		mcMoveAtom.setStepSize(0.2*defaults.atomSize);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
-		integrator.setEquilibrating(false);
+		integrator.getMoveManager().setEquilibrating(false);
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
