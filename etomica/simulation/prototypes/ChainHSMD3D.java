@@ -48,7 +48,6 @@ public class ChainHSMD3D extends Simulation {
 
         integrator = new IntegratorHard(this);
         integrator.setIsothermal(false);
-        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager());
         integrator.setTimeStep(0.01);
         
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
@@ -68,6 +67,7 @@ public class ChainHSMD3D extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc());
         species.getAgent(phase).setNMolecules(numAtoms);
         config.initializeCoordinates(phase);
+        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
 
         PhaseImposePbc pbc = new PhaseImposePbc(phase);
         integrator.addListener(new IntervalActionAdapter(pbc));
