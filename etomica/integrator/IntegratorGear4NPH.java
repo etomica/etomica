@@ -115,6 +115,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         super.setPhase(p);
         inflate.setPhase(phase);
         meterTemperature.setPhase(phase);
+        forceSumNPH.setPhase(phase);
     }
     
     
@@ -139,6 +140,9 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         double kDot = kp*(targetT - kineticT)*phase.atomCount();
         chi = ( - forceSumNPH.rvx - D*pDot*volume)/
                     ( forceSumNPH.x + D*D*pCurrent*volume);
+        if (Double.isNaN(chi)) {
+            throw new RuntimeException("oops "+chi+" "+forceSumNPH.rvx+" "+D+" "+forceSumNPH.x+" "+pDot+" "+volume+" "+pCurrent);
+        }
         zeta = (forceSumNPH.vf - kDot)/mvsq - chi;
     }
     
@@ -182,6 +186,9 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         vol3 += c3*corvol;
         vol4 += c4*corvol;
         double rScale = Math.pow(volNew/volOld,1.0/D);
+        if (Double.isNaN(rScale) || Double.isInfinite(rScale) || rScale == 0) {
+            throw new RuntimeException("oops rscale in corrector "+rScale+" "+volNew+" "+volOld);
+        }
         inflate.setScale(rScale);
         inflate.actionPerformed();
     }//end of corrector
@@ -190,10 +197,16 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         super.predictor();
         double volOld = phase.getBoundary().volume();
         double volNew = volOld + p1*vol1 + p2*vol2 + p3*vol3 + p4*vol4;
+        if (volNew < 0) {
+            throw new RuntimeException("volNew in predictor "+volNew+" "+volOld+" "+p1+" "+vol1+" "+p2+" "+vol2+" "+p3+" "+vol3+" "+p4+" "+vol4);
+        }
         vol1 += p1*vol2 + p2*vol3 + p3*vol4;
         vol2 += p1*vol3 + p2*vol4;
         vol3 += p1*vol4;
         double rScale = Math.pow(volNew/volOld,1.0/D);
+        if (Double.isNaN(rScale) || Double.isInfinite(rScale) || rScale == 0) {
+            throw new RuntimeException("oops rscale in predictor "+rScale+" "+volNew+" "+volOld);
+        }
         inflate.setScale(rScale);
         inflate.actionPerformed();
     }
@@ -295,6 +308,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         //pair
         public void doCalculation(AtomsetIterator iterator, Potential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
+            iterator.reset();
             while(iterator.hasNext()) {
                 AtomPair pair = (AtomPair)iterator.next();
 

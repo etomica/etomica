@@ -18,7 +18,6 @@ import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.units.systems.LJ;
 import etomica.util.IRandom;
 
 /**
@@ -123,6 +122,9 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
             work2.E(work1);
             work2.ME(agent.dr1);
             r.PEa1Tv1(c0, work2);
+            if (r.isNaN()) {
+                throw new RuntimeException("oops "+a+" "+r+" "+work1+" "+work2+" "+chi+" "+c0);
+            }
             agent.dr1.E(work1);
             agent.dr2.PEa1Tv1(c2,work2);
             agent.dr3.PEa1Tv1(c3,work2);
