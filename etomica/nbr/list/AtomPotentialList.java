@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Sep 20, 2004 by kofke
- */
 package etomica.nbr.list;
 
 import java.io.Serializable;
@@ -14,6 +10,7 @@ import etomica.util.Arrays;
  */
 public class AtomPotentialList implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     protected boolean[] isInteractingList;
 	
     /**
