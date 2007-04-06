@@ -22,7 +22,7 @@ import etomica.species.SpeciesSpheresMono;
  * @author David Kofke and Andrew Schultz
  */
 
-public final class SpeciesMaster {
+public final class SpeciesMaster implements java.io.Serializable {
 
     public SpeciesMaster(Phase p, PhaseEventManager eventManager) {
         agentList = new AtomArrayList();
