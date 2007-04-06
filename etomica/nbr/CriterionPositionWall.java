@@ -27,7 +27,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
         this.neighborRange = Double.NaN;
         setBoundaryWall(true);
         setSafetyFactor(0.8);
-        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim);
+        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim,true);
 	}
 
     /**

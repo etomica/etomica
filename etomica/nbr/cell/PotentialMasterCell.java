@@ -10,14 +10,10 @@ import etomica.potential.PotentialArray;
 import etomica.space.Space;
 
 /**
- * @author andrew
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
-
-/*
- * Created on May 27, 2005
+ * A PotentialMaster for use with a Simulation where cell-listing of atoms and
+ * their neighbors is appropriate.
+ * 
+ * @author Andrew Schultz
  */
 public class PotentialMasterCell extends PotentialMasterSite {
 
@@ -40,17 +36,13 @@ public class PotentialMasterCell extends PotentialMasterSite {
         this(space, range, (AtomPositionDefinition)null);
     }
 
-    /**
-     * @param space
-     * @param positionDefinition
-     */
     public PotentialMasterCell(Space space, double range,
             AtomPositionDefinition positionDefinition) {
         this(space, range, new PhaseAgentSourceCellManager(positionDefinition));
     }
     
     public PotentialMasterCell(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource) {
-        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource,null));
+        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
     public PotentialMasterCell(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource,
@@ -76,7 +68,6 @@ public class PotentialMasterCell extends PotentialMasterSite {
     }
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        PhaseAgentManager phaseAgentManager = getCellAgentManager();
         NeighborCellManager manager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
         manager.setPotentialRange(range);
         manager.setCellRange(getCellRange());

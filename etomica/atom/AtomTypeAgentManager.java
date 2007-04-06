@@ -3,13 +3,14 @@ package etomica.atom;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 
-import etomica.simulation.Simulation;
 import etomica.simulation.SimulationAtomTypeAddedEvent;
 import etomica.simulation.SimulationAtomTypeIndexChangedEvent;
 import etomica.simulation.SimulationAtomTypeMaxIndexEvent;
 import etomica.simulation.SimulationEvent;
+import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationSpeciesRemovedEvent;
+import etomica.simulation.SpeciesManager;
 import etomica.util.Arrays;
 
 /**
@@ -23,16 +24,16 @@ import etomica.util.Arrays;
  */
 public class AtomTypeAgentManager implements SimulationListener, java.io.Serializable {
 
-    public AtomTypeAgentManager(AgentSource source, Simulation sim) {
-        this(source, sim, true);
+    public AtomTypeAgentManager(AgentSource source) {
+        agentSource = source;
+        isBackend = true;
     }
     
-    public AtomTypeAgentManager(AgentSource source, Simulation sim, boolean isBackend) {
+    public AtomTypeAgentManager(AgentSource source, SpeciesManager speciesManager,
+            SimulationEventManager simEventManager, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
-        if (sim != null) {
-            setSimulation(sim);
-        }
+        init(speciesManager, simEventManager);
     }        
     
     /**
@@ -92,7 +93,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     }
 
     private void makeAllAgents() {
-        AtomTypeSpeciesAgent[] speciesAgentTypes = sim.getSpeciesManager().getSpeciesAgentTypes();
+        AtomTypeSpeciesAgent[] speciesAgentTypes = speciesManager.getSpeciesAgentTypes();
         for (int i=0; i<speciesAgentTypes.length; i++) {
             addAgent(speciesAgentTypes[i]);
             makeChildAgents(speciesAgentTypes[i]);
@@ -104,7 +105,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      */
     private int getGlobalMaxIndex() {
         int max = 0;
-        AtomTypeSpeciesAgent[] speciesAgentTypes = sim.getSpeciesManager().getSpeciesAgentTypes();
+        AtomTypeSpeciesAgent[] speciesAgentTypes = speciesManager.getSpeciesAgentTypes();
         for (int i=0; i<speciesAgentTypes.length; i++) {
             if (speciesAgentTypes[i].getIndex() > max) {
                 max = speciesAgentTypes[i].getIndex();
@@ -143,8 +144,8 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      */
     public void dispose() {
         // remove ourselves as a listener to the old phase
-        sim.getEventManager().removeListener(this);
-        AtomTypeSpeciesAgent[] speciesAgentTypes = sim.getSpeciesManager().getSpeciesAgentTypes();
+        simEventManager.removeListener(this);
+        AtomTypeSpeciesAgent[] speciesAgentTypes = speciesManager.getSpeciesAgentTypes();
         for (int i=0; i<speciesAgentTypes.length; i++) {
             releaseAgents(speciesAgentTypes[i]);
         }
@@ -155,9 +156,10 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      * Sets the SpeciesRoot for which this AtomAgentManager will manage 
      * AtomType agents.
      */
-    public void setSimulation(Simulation newSimulation) {
-        sim = newSimulation;
-        sim.getEventManager().addListener(this, isBackend);
+    public void init(SpeciesManager newSpeciesManager, SimulationEventManager newSimEventManager) {
+        simEventManager = newSimEventManager;
+        speciesManager = newSpeciesManager;
+        simEventManager.addListener(this, isBackend);
 
         int numTypes = getGlobalMaxIndex()+1;
         
@@ -229,7 +231,8 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     private static final long serialVersionUID = 1L;
     private final AgentSource agentSource;
     protected Object[] agents;
-    private Simulation sim;
+    protected SimulationEventManager simEventManager;
+    protected SpeciesManager speciesManager;
     private final boolean isBackend;
 
     /**

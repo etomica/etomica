@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationEvent;
+import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationListener;
 import etomica.simulation.SimulationPhaseAddedEvent;
 import etomica.simulation.SimulationPhaseEvent;
@@ -21,16 +22,16 @@ import etomica.util.Arrays;
  */
 public class PhaseAgentManager implements SimulationListener, java.io.Serializable {
 
-    public PhaseAgentManager(PhaseAgentSource source, Simulation sim) {
-        this(source, sim, true);
+    public PhaseAgentManager(PhaseAgentSource source) {
+        agentSource = source;
+        isBackend = true;
     }
 
-    public PhaseAgentManager(PhaseAgentSource source, Simulation sim, boolean isBackend) {
+    public PhaseAgentManager(PhaseAgentSource source, Simulation sim,
+            boolean isBackend) {
         agentSource = source;
-        if (sim != null) {
-            setSimulation(sim);
-        }
         this.isBackend = isBackend;
+        setSimulation(sim);
     }
     
     /**
@@ -48,14 +49,14 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
     }
     
     /**
-     * Sets the species root parent in the Simulation for Phases to be tracked.
+     * Sets the Simulation containing Phases to be tracked.  This method should
+     * not be called if setSimulationEventManager is called.
      */
-    public void setSimulation(Simulation newSimulation) {
-        if (newSimulation == sim) {
-            return;
-        }
-        sim = newSimulation;
-        sim.getEventManager().addListener(this, isBackend);
+    public void setSimulation(Simulation sim) {
+        simEventManager = sim.getEventManager();
+        // this will crash if the given sim is in the middle of its constructor
+        simEventManager.addListener(this, isBackend);
+
         // hope the class returns an actual class with a null Atom and use it to construct
         // the array
         Phase[] phases = sim.getPhases();
@@ -71,7 +72,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
      */
     public void dispose() {
         // remove ourselves as a listener to the old phase
-        sim.getEventManager().removeListener(this);
+        simEventManager.removeListener(this);
         for (int i=0; i<agents.length; i++) {
             if (agents[i] != null) {
                 agentSource.releaseAgent(agents[i]);
@@ -117,8 +118,8 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
 
     private static final long serialVersionUID = 1L;
     private final PhaseAgentSource agentSource;
+    protected SimulationEventManager simEventManager;
     protected Object[] agents;
-    private Simulation sim;
     private final boolean isBackend;
     
     /**

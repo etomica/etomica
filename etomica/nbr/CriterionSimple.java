@@ -32,7 +32,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim);
+        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim,true);
 	}
 	
 	public void setSafetyFactor(double f) {

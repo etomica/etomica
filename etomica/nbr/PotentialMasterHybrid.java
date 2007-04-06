@@ -49,7 +49,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
     }
     
     private PotentialMasterHybrid(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource) {
-        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource,null));
+        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
     private PotentialMasterHybrid(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource,
@@ -63,10 +63,10 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         return new PotentialGroupHybrid(nBody,space);
     }
     
-    public void setSimulation(Simulation simulation) {
-        super.setSimulation(simulation);
-        potentialMasterList.setSimulation(simulation);
-        potentialMasterCell.setSimulation(simulation);
+    public void setSimulation(Simulation sim) {
+        super.setSimulation(sim);
+        potentialMasterList.setSimulation(sim);
+        potentialMasterCell.setSimulation(sim);
     }
     
     public PotentialMasterList getPotentialMasterList() {

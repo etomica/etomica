@@ -56,7 +56,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         Atom targetAtom = id.getTargetAtom();
-        NeighborListManager neighborManager = (NeighborListManager)getNeighborAgentManager().getAgent(phase);
+        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(phase);
 
         if (targetAtom == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster

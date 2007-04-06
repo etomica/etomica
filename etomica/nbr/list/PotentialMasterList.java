@@ -28,6 +28,7 @@ import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
+import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
@@ -64,20 +65,25 @@ public class PotentialMasterList extends PotentialMasterNbr {
     }
     
     public PotentialMasterList(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource) {
-        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource,null));
+        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
     public PotentialMasterList(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager) {
         super(space, phaseAgentSource, agentManager);
         phaseAgentSource.setRange(range);
         neighborListAgentSource = new NeighborListAgentSource(this, range);
-        neighborListAgentManager = new PhaseAgentManager(neighborListAgentSource, null);
+        neighborListAgentManager = new PhaseAgentManager(neighborListAgentSource);
         atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
         pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
         swappedPairIterator = new ApiInnerFixed(singletIterator, atomIterator, true);
         cellRange = 2;
         allCriteria = new NeighborCriterion[0];
+    }
+    
+    public void setSimulation(Simulation sim) {
+        super.setSimulation(sim);
+        neighborListAgentManager.setSimulation(sim);
     }
     
     /**
@@ -92,7 +98,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
         ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(range);
         recomputeCriteriaRanges();
         
-        PhaseAgentManager phaseAgentManager = getCellAgentManager();
         PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
@@ -100,7 +105,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             cellManager.setPotentialRange(range);
         }
 
-        iterator = getNeighborAgentManager().makeIterator();
+        iterator = neighborListAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborListManager neighborListManager = (NeighborListManager)iterator.next();
@@ -229,9 +234,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * with the longest potential range.
      */
     protected void recomputeCriteriaRanges() {
-        if (!initialized) {
-            init();
-        }
         double maxDisplacement = (getRange() - maxPotentialRange) * safetyFactor;
         if (maxDisplacement < 0) {
             // someone probably added a long ranged potential and hasn't updated the PotentialMaster's range
@@ -368,7 +370,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         Atom targetAtom = id.getTargetAtom();
-        NeighborListManager neighborManager = (NeighborListManager)getNeighborAgentManager().getAgent(phase);
+        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(phase);
         if (targetAtom == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
@@ -520,25 +522,14 @@ public class PotentialMasterList extends PotentialMasterNbr {
         arrayList.clear();
     }
 
-    public final PhaseAgentManager getNeighborAgentManager() {
-        // phaseAgentManager returns performing no action if the given
-        // speciesRoot is the same as was set previously.  We can't set
-        // this in setSimulation because the Simulation might be not
-        // have its speciesRoot yet
-        neighborListAgentManager.setSimulation(getSimulation());
-        return neighborListAgentManager;
-    }
-    
     public NeighborListManager getNeighborManager(Phase phase) {
         // we didn't have the simulation when we made the agent manager.
         // setting the simulation after the first time is a quick return
-        neighborListAgentManager.setSimulation(getSimulation());
         return (NeighborListManager)neighborListAgentManager.getAgent(phase);
     }
 
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        PhaseAgentManager phaseAgentManager = getCellAgentManager();
         NeighborCellManager manager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
         manager.setCellRange(cellRange);
         return manager;

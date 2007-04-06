@@ -8,6 +8,9 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationEventManager;
+import etomica.simulation.SpeciesManager;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.util.Arrays;
@@ -19,9 +22,8 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         super(space);
         this.phaseAgentSource = phaseAgentSource;
         this.phaseAgentManager = phaseAgentManager;
-        rangedAgentManager = new AtomTypeAgentManager(this, null);
-        intraAgentManager = new AtomTypeAgentManager(this, null);
-        initialized = false;
+        rangedAgentManager = new AtomTypeAgentManager(this);
+        intraAgentManager = new AtomTypeAgentManager(this);
     }
     
     public PotentialGroup makePotentialGroup(int nBody) {
@@ -33,18 +35,18 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
      * SimulationListener so we'll know when AtomTypes are added or removed
      * (which only happens when Species are added or removed).
      */
-    protected void init() {
-        rangedAgentManager.setSimulation(getSimulation());
-        intraAgentManager.setSimulation(getSimulation());
+    public void setSimulation(Simulation sim) {
+        super.setSimulation(sim);
+        SpeciesManager speciesManager = sim.getSpeciesManager();
+        SimulationEventManager simEventManager = sim.getEventManager();
+        rangedAgentManager.init(speciesManager, simEventManager);
+        intraAgentManager.init(speciesManager, simEventManager);
         rangedPotentialIterator = rangedAgentManager.makeIterator();
         intraPotentialIterator = intraAgentManager.makeIterator();
-        initialized = true;
+        phaseAgentManager.setSimulation(sim);
     }
     
     public void addPotential(Potential potential, Species[] species) {
-        if (!initialized) {
-            init();
-        }
         super.addPotential(potential, species);
         if (!(potential instanceof PotentialGroup)) {
              AtomType[] atomTypes = moleculeTypes(species);
@@ -61,9 +63,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     }
 
     public void potentialAddedNotify(Potential subPotential, PotentialGroup pGroup) {
-        if (!initialized) {
-            init();
-        }
         super.potentialAddedNotify(subPotential, pGroup);
         AtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
@@ -101,9 +100,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     protected abstract void addRangedPotentialForTypes(Potential subPotential, AtomType[] atomTypes);
     
     protected void addRangedPotential(Potential potential, AtomType atomType) {
-        if (!initialized) {
-            init();
-        }
         
         PotentialArray potentialAtomType = (PotentialArray)rangedAgentManager.getAgent(atomType);
         potentialAtomType.addPotential(potential);
@@ -145,11 +141,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     }
     
     public final PhaseAgentManager getCellAgentManager() {
-        // phaseAgentManager returns performing no action if the given
-        // speciesRoot is the same as was set previously.  We can't set
-        // this in setSimulation because the Simulation might be not
-        // have its speciesRoot yet
-        phaseAgentManager.setSimulation(getSimulation());
         return phaseAgentManager;
     }
     
@@ -170,6 +161,5 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     protected final AtomTypeAgentManager intraAgentManager;
     protected Potential[] allPotentials = new Potential[0];
     protected PhaseAgentSource phaseAgentSource;
-    private PhaseAgentManager phaseAgentManager;
-    protected boolean initialized;
+    protected PhaseAgentManager phaseAgentManager;
 }

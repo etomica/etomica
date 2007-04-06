@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Sep 20, 2004 by kofke
- */
 package etomica.nbr.site;
 
 import etomica.atom.Atom;
@@ -46,7 +42,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     }
     
     public PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource) {
-        this(space, phaseAgentSource, new PhaseAgentManager(phaseAgentSource,null));
+        this(space, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
     public PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource, PhaseAgentManager agentManager) {
