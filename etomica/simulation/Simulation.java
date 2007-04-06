@@ -50,7 +50,7 @@ public class Simulation implements java.io.Serializable  {
         setName(NameMaker.makeName(this.getClass()));
         this.potentialMaster = potentialMaster;
         setController(new Controller());
-        myRandom = new RandomNumberGenerator();
+        random = new RandomNumberGenerator();
         eventManager = new SimulationEventManager();
         speciesManager = new SpeciesManager(this, bitLength);
         potentialMaster.setSimulation(this);
@@ -236,11 +236,8 @@ public class Simulation implements java.io.Serializable  {
         return space;
     }
 
-    public static final java.util.Random random = new java.util.Random();
-//    public static final java.util.Random random = new java.util.Random(1);
-
     public IRandom getRandom() {
-        return myRandom;
+        return random;
     }
     
     public SimulationEventManager getEventManager() {
@@ -257,7 +254,7 @@ public class Simulation implements java.io.Serializable  {
     protected final SimulationEventManager eventManager;
     private Phase[] phaseList;
     private final SpeciesManager speciesManager;
-    protected final IRandom myRandom;
+    protected final IRandom random;
     private final boolean dynamic;
     private Controller controller;     
     private final LinkedList integratorList = new LinkedList();
