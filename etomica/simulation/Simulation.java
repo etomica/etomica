@@ -50,10 +50,10 @@ public class Simulation implements java.io.Serializable  {
         setName(NameMaker.makeName(this.getClass()));
         this.potentialMaster = potentialMaster;
         setController(new Controller());
-        potentialMaster.setSimulation(this);
         myRandom = new RandomNumberGenerator();
         eventManager = new SimulationEventManager();
         speciesManager = new SpeciesManager(this, bitLength);
+        potentialMaster.setSimulation(this);
     }
 
     public final int addPhase(Phase newPhase) {
