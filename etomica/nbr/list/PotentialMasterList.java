@@ -202,6 +202,13 @@ public class PotentialMasterList extends PotentialMasterNbr {
             maxPotentialRange = potential.getRange();
         }
         recomputeCriteriaRanges();
+
+        PhaseAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            NeighborListManager neighborListManager = (NeighborListManager)iterator.next();
+            neighborListManager.updateLists();
+        }
     }
     
     /**
@@ -352,6 +359,13 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }
         }
         recomputeCriteriaRanges();
+
+        PhaseAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            NeighborListManager neighborListManager = (NeighborListManager)iterator.next();
+            neighborListManager.updateLists();
+        }
     }
     
     public NeighborCriterion[] getNeighborCriteria() {

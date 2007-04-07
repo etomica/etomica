@@ -77,12 +77,11 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             // so we couldn't se the lattice.  It better exist now.
             cellNbrIterator.setLattice(potentialMaster.getNbrCellManager(phase).getLattice());
             
-            updateLists();
             reset();
         }
     }
     
-    protected void updateLists() {
+    public void updateLists() {
         iterator.reset();
         while (iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
