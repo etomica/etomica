@@ -2,7 +2,7 @@ package etomica.units;
 
 /**
  * Unit converting between simulation unit of length and pixels rendered in an
- * image.  Conversion factor is set a construction.
+ * image.  Conversion factor is set at construction.
  */
 public class Pixel extends SimpleUnit {
 	
