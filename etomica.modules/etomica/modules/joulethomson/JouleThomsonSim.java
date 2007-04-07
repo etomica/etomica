@@ -86,7 +86,7 @@ public class JouleThomsonSim extends Simulation {
         integrator.setPhase(phase);
         integratorNVE.setPhase(phase);
 
-        integrator.setTimeStep(0.005);
+        integrator.setTimeStep(0.001);
         integratorNVE.setTimeStep(0.005);
 
         activityIntegrate = new ActivityIntegrate(this, integratorJT);
