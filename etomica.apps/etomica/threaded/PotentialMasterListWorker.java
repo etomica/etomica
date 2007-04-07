@@ -12,6 +12,7 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.list.NeighborListManager;
+import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
@@ -61,12 +62,20 @@ public class PotentialMasterListWorker extends Thread {
 			
             
             
-            
+                        
+           //threadCalculate = System.currentTimeMillis(); 
             // Thread completes objective
             for(int i=startAtom; i<stopAtom; i++){
-                calculate(threadList.get(i), id, pc);
+                calculate(threadList.get(i), id, pc);       
             }
-            
+            //threadCalculate = System.currentTimeMillis()-threadCalculate;
+           
+        
+        
+           // System.out.println("Thread"+threadNumber+" start/stop is "+threadCalculate);          
+                      
+           
+                      
 			synchronized(this){
 			    // Stops thread before work is started again
                 greenLight = false;
@@ -103,12 +112,17 @@ public class PotentialMasterListWorker extends Thread {
             case 2:
                 AtomArrayList[] list;
                 if (direction != IteratorDirective.Direction.DOWN) {
-                    list = neighborManager.getUpList(atom);
+                    list = neighborLists[atom.getIndex()-startAtom];
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
                     atomIterator.setList(list[i]);
                     //System.out.println("Up :"+atomIterator.size());
+                    
+                   // threadCalculate2 -= System.nanoTime();
                     pc.doCalculation(pairIterator, id, potentialThread);
+                   // threadCalculate2 += System.nanoTime();
                 }
+                
+                // This won't work efficiently with threads
                 if (direction != IteratorDirective.Direction.UP) {
                     list = neighborManager.getDownList(atom);
                     atomIterator.setList(list[i]);
@@ -129,7 +143,7 @@ public class PotentialMasterListWorker extends Thread {
                     // must have a target and be doing "both"
                     // we have to do the calculation considering each of the 
                     // target's neighbors
-                    list = neighborManager.getUpList(atom);
+                    list = neighborLists[atom.getIndex()+startAtom];
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
                         for (int j=0; j<iList.size(); j++) {
@@ -187,6 +201,24 @@ public class PotentialMasterListWorker extends Thread {
 	        arrayList.clear();
     }
     
+    public void fillNeighborListArray(int threadNumber, int numThreads, Phase phase){
+        
+        // Make reference to neighbor lists
+        AtomArrayList list = ((AtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
+        int size = list.size();
+        
+        int startAtom = (threadNumber*size)/numThreads;
+        int stopAtom = ((threadNumber+1)*size)/numThreads;
+        
+        neighborLists = new AtomArrayList[stopAtom-startAtom][];
+                
+        for(int i=0; i<(stopAtom-startAtom); i++){
+            neighborLists[i] = neighborManager.getUpList(list.get(i+startAtom));
+        }
+            
+    
+    }
+    
     protected final PotentialMasterListThreaded pmlt;
 	protected final AtomIteratorArrayListSimple atomIterator;
 	protected final AtomIteratorSinglet singletIterator;
@@ -198,6 +230,9 @@ public class PotentialMasterListWorker extends Thread {
     protected boolean greenLight = false;
     protected boolean finished = false;
     
+    public double threadCalculate;
+   // public double threadCalculate2;
+    
     public AtomArrayList threadList;
     public int startAtom;
     public int stopAtom;
@@ -205,6 +240,7 @@ public class PotentialMasterListWorker extends Thread {
     public IteratorDirective id;
     public PotentialCalculation pc;
     public NeighborListManager neighborManager;
+    public AtomArrayList[][] neighborLists;
     
 	//	 things needed for N-body potentials
 	protected AtomsetArrayList atomsetArrayList;
