@@ -55,7 +55,7 @@ public class LJMD3DThreaded extends Simulation {
         // need optimization of fac and time step
         double neighborFac = 1.35;
 
-        // THREAD ZONE
+        
         integrator = new IntegratorVelocityVerletThreaded(this, numThreads);
         integrator.setTemperature(1.0);
         integrator.setIsothermal(true);
@@ -68,7 +68,7 @@ public class LJMD3DThreaded extends Simulation {
         phase = new Phase(this);
         species.getAgent(phase).setNMolecules(numAtoms);
         phase.setDensity(0.65);
-        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
+        
         
        
         p2lj = new P2LennardJones(this);
@@ -80,7 +80,7 @@ public class LJMD3DThreaded extends Simulation {
         
         
         // -----------THREAD ZONE--------------\\
-        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads);
+        
      
         potential = new P2SoftSphericalTruncated[numThreads];
 
@@ -94,6 +94,7 @@ public class LJMD3DThreaded extends Simulation {
         ((PotentialMasterListThreaded)potentialMaster).setRange(neighborFac * truncationRadius);
         ((PotentialMasterListThreaded)potentialMaster).getNeighborManager(phase).setQuiet(true);
         potentialMaster.addPotential(potentialThreaded, new Species[] {species, species});
+        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, phase);
         //--------------------------------------\\
         
 //        new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
@@ -101,6 +102,7 @@ public class LJMD3DThreaded extends Simulation {
         integrator.setPhase(phase);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
 //        integrator.addListener(writeConfig);
+        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
     }
 
        
@@ -112,7 +114,6 @@ public class LJMD3DThreaded extends Simulation {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
         LJMD3DThreaded sim = new LJMD3DThreaded(numAtoms, numThreads);
-        sim.getController().actionPerformed();
         SimulationGraphic simgraphic = new SimulationGraphic(sim);
         simgraphic.makeAndDisplayFrame();
         /**
