@@ -4,6 +4,7 @@ package etomica.integrator;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.PhaseInflate;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIterator;
@@ -42,7 +43,7 @@ import etomica.util.IRandom;
  * @author Ed Maginn
  * @author David Kofke
  */
-public final class IntegratorGear4NPH extends IntegratorGear4 implements EtomicaElement {
+public class IntegratorGear4NPH extends IntegratorGear4 implements EtomicaElement {
 
     private static final long serialVersionUID = 1L;
     double vol1, vol2, vol3, vol4;
@@ -284,7 +285,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         private DataTag tag;
     }
         
-    public final class ForceSumNPH extends PotentialCalculation {
+    public static final class ForceSumNPH extends PotentialCalculation {
         
         private static final long serialVersionUID = 1L;
         double u; //energy sum
@@ -295,6 +296,7 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         private final IVector dr;
         private final IVector dv;
         private NearestImageTransformer nearestImageTransformer;
+        protected AtomAgentManager integratorAgentManager;
 
         public ForceSumNPH(Space space) {
             dr = space.makeVector();
@@ -303,6 +305,10 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
         
         public void setPhase(Phase phase) {
             nearestImageTransformer = phase.getBoundary();
+        }
+        
+        public void setAgentManager(AtomAgentManager agentManager) {
+            integratorAgentManager = agentManager;
         }
         
         //pair
@@ -329,8 +335,8 @@ public final class IntegratorGear4NPH extends IntegratorGear4 implements Etomica
                 rvx += hv * dr.dot(dv)/r2;
                 IVector[] f = potentialSoft.gradient(pair);
                 vf += dv.dot(f[0]); //maybe should be (-)?
-                ((Agent)agentManager.getAgent(pair.atom0)).force().ME(f[0]);
-                ((Agent)agentManager.getAgent(pair.atom1)).force().ME(f[1]);
+                ((Agent)integratorAgentManager.getAgent(pair.atom0)).force().ME(f[0]);
+                ((Agent)integratorAgentManager.getAgent(pair.atom1)).force().ME(f[1]);
             }
         }
     }
