@@ -3,7 +3,7 @@ package etomica.integrator.mcmove;
 import java.io.Serializable;
 
 /**
- * This Class is responsible for tracking acceptance statistics for an MCMove.
+ * This class is responsible for tracking acceptance statistics for an MCMove.
  * The acceptance ratio and probability can be retrieved.  This class has no 
  * effect on the MCMove.
  *
@@ -50,4 +50,5 @@ public class MCMoveTracker implements Serializable {
     
     protected int nTrials, nAccept;
     protected double chiSum;
+    private static final long serialVersionUID = 1L;
 }
