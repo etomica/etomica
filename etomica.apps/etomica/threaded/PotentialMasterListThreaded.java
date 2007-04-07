@@ -160,12 +160,14 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         
     }
 	
-	public void setNumThreads(int t){
+	public void setNumThreads(int t, Phase phase){
 		threads = new PotentialMasterListWorker[t];
-		
+		       
 		for (int i=0; i<t; i++){
 			threads[i] = new PotentialMasterListWorker(i, rangedAgentManager, this);
-			threads[i].start();
+			threads[i].fillNeighborListArray(i, t, phase);
+            threads[i].start();
 		}
+           
 	}
 }
