@@ -14,37 +14,44 @@ import etomica.space.Space;
  * 
  * @author Andrew Schultz
  */
+
+//when dealing with heterogeneous molecular systems we may need to introduce the mass in the definition
+
 public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         Serializable {
 
     public CoordinateDefinitionLeaf(Space space) {
         super(space.D());
+        workVector = space.makeVector();
     }
 
-    public void calcU(Atom atom, int index, double[] u) {
-        IVector pos = ((AtomLeaf) atom).getCoord().getPosition();
-        for (int i = 0; i < pos.getD(); i++) {
-            u[i] = pos.x(i) - nominalU[index][i];
-        }
+    /**
+     * Assigns the given array u to be the current position of the atom minus its lattice position
+     */
+    public void calcU(Atom[] atom, double[] u) {
+        IVector pos = ((AtomLeaf) atom[0]).getCoord().getPosition();
+        IVector site = getLatticePosition(atom[0]);
+        workVector.Ev1Mv2(pos, site);
+        workVector.assignTo(u);
     }
 
-    public void initNominalU(Atom atom, int index) {
-        IVector pos = ((AtomLeaf) atom).getCoord().getPosition();
-        for (int i = 0; i < pos.getD(); i++) {
-            nominalU[index][i] = pos.x(i);
-        }
+    public void initNominalU(Atom[] atom) {
+        //nothing to do -- lattice site is all information needed for u
     }
 
-    public void setToU(Atom atom, int index, double[] u) {
-        IVector pos = ((AtomLeaf) atom).getCoord().getPosition();
-        for (int i = 0; i < pos.getD(); i++) {
-            pos.setX(i, nominalU[index][i] + u[i]);
-        }
+    /**
+     * Sets the position of the atom to be its lattice position plus the offset u
+     */
+    public void setToU(Atom[] atom, double[] u) {
+        workVector.E(u);
+        IVector site = getLatticePosition(atom[0]);
+        ((AtomLeaf) atom[0]).getCoord().getPosition().Ev1Pv2(site, workVector);
     }
 
     public void setNumAtoms(int numAtoms) {
         nominalU = new double[numAtoms][getCoordinateDim()];
     }
 
+    private final IVector workVector;
     private static final long serialVersionUID = 1L;
 }

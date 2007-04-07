@@ -2,8 +2,6 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
@@ -13,78 +11,43 @@ import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Wave vector factory that returns wave vectors for a 1D system.
+ * Wave vector factory that returns wave vectors for a 1D system.  
+ * These wave vectors are given by 2 Pi m / (N a) = 2 Pi m / L = 2 Pi m rho / N,
+ * for m = 1, 2, 3,...,N/2.  If N is odd there will be (N-1)/2 vectors, each with 
+ * a coefficient of 1.0 (because none are on the Brillouin-zone boundary) while if 
+ * N is even there will be N/2, with the last one having a coefficient of 0.5. Wave
+ * vectors corresponding to m <= 0 are not included, although they are technically are among the full
+ * set of wave vectors for the system.
  *
- * @author Andrew Schultz
+ * @author Andrew Schultz and David Kofke
  */
 public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
 
-    public WaveVectorFactory1D(Primitive primitive) {
-        this.primitive = primitive;
-        if (primitive.getSpace().D() != 1) {
-            throw new IllegalArgumentException("must be 1D");
-        }
+    public WaveVectorFactory1D() {
     }
     
     public void makeWaveVectors(Phase phase) {
-        // If we weren't given wave vectors, determine them from the phase boundary and primitve
-        // assume 1-molecule basis and matchup betwen the box and the primitive
-    
-        double[] d = primitive.getSize();
-        int[] numCells = new int[phase.getSpace().D()];
-        IVector[] reciprocals =  primitive.reciprocal().vectors();;
-        IVector[] waveVectorBasis = new IVector[reciprocals.length];
+        if(phase.getSpace().D() != 1) {
+            throw new RuntimeException("Must give a phase for a 1D system"); 
+        }
+
+        int nA = phase.moleculeCount();
+        double L = phase.getBoundary().getDimensions().x(0);
         
-        for (int i=0; i<phase.getSpace().D(); i++) {
-            waveVectorBasis[i] = phase.getSpace().makeVector();
-            waveVectorBasis[i].E(reciprocals[i]);
-            numCells[i] = (int)Math.round(phase.getBoundary().getDimensions().x(i) / (d[i]));
-            waveVectorBasis[i].TE(1.0/numCells[i]);
+        int mMax = nA/2;
+
+        waveVectors = new Vector1D[mMax];
+        coefficients = new double[mMax];
+        
+        for(int m = 1; m<=mMax; m++) {
+            waveVectors[m-1] = new Vector1D(2. * Math.PI * m / L);
+            coefficients[m-1] = 1.0;
         }
-    
-        int[] kMin = new int[phase.getSpace().D()];
-        int[] kMax= new int[phase.getSpace().D()];
-        for (int i=0; i<kMax.length; i++) {
-            kMin[i] = -(numCells[i]-1)/2;
-            kMax[i] = numCells[i]/2;
+        
+        if(nA % 2 == 0) {
+            coefficients[mMax-1] = 0.5;
         }
-        int[] waveVectorIndices = new int[2*kMax[0]+1];
-        int count = 0;
-        // this will find numCells vectors.  Some of them have negatives 
-        // within the set others do not.  If its negative is within the set, 
-        // exclude the negative, but remember it was there -- they will have 
-        // coefficients of '1' while the ones without a negative in the set 
-        // will have coefficients of '0.5'.  The ones without a negative have
-        // instead a vector which handles the same degree of freedom.
-        for (int kx = kMin[0]; kx < kMax[0]+1; kx++) {
-            if (kx == 0) continue;
-            boolean flip = kx < 0;
-            if (flip) {
-                if (waveVectorIndices[-kx+kMax[0]] == 0) {
-                    // this one was unique
-                    count++;
-                }
-                waveVectorIndices[-kx+kMax[0]]++;
-            }
-            else {
-                if (waveVectorIndices[kx+kMax[0]] == 0) {
-                    // this one was unique
-                    count++;
-                }
-                waveVectorIndices[kx+kMax[0]]++;
-            }
-        }
-        waveVectors = new Vector1D[count];
-        coefficients = new double[count];
-        count = 0;
-        for (int kx = -kMax[0]; kx < kMax[0]+1; kx++) {
-            if (waveVectorIndices[kx+kMax[0]] > 0) {
-                waveVectors[count] = phase.getSpace().makeVector();
-                waveVectors[count].Ea1Tv1(kx, waveVectorBasis[0]);
-                coefficients[count] = waveVectorIndices[kx+kMax[0]]/2.0;
-                count++;
-            }
-        }
+
     }
     
     public IVector[] getWaveVectors() {
@@ -102,9 +65,8 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         phase.setDimensions(new Vector1D(nCells));
         Species species = new SpeciesSpheresMono(sim);
         phase.getAgent(species).setNMolecules(nCells*nCells*nCells);
-        Primitive primitive = new PrimitiveCubic(sim.getSpace(), 1);
         
-        WaveVectorFactory1D foo = new WaveVectorFactory1D(primitive);
+        WaveVectorFactory1D foo = new WaveVectorFactory1D();
         foo.makeWaveVectors(phase);
         IVector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
@@ -115,7 +77,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    protected final Primitive primitive;
+
     protected IVector[] waveVectors;
     protected double[] coefficients;
 }

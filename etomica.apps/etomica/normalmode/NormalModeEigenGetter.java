@@ -12,6 +12,9 @@ public class NormalModeEigenGetter {
         if (args.length > 0) {
             filename = args[0];
         }
+        //first index of S indicates the wave vector
+        //the remaining two indices describe a square matrix of dimension equal to coordinateDim
+        //e.g., coordinateDim = D for monatomic spherical molecules in D dimensions
         double[][][] S = ArrayReader2D.getFromFile(filename+".S");
         try {
             FileWriter fileWriterVal = new FileWriter(filename+".val");

@@ -33,6 +33,8 @@ import etomica.species.SpeciesSpheresMono;
 /**
  * MD simulation of 3D hard spheres. Permits graphic display of simulation in progress.  3D only.
  * 
+ * USE SimCalcS INSTEAD OF THIS
+ * 
  * @author nancycribbin
  * 
  */
@@ -177,7 +179,7 @@ public class TestFcc extends Simulation {
             
             //write results
             IVector[] waveVectors = meterNormalMode.getWaveVectors();
-            String filename = (args.length>0) ? args[0] : "normal_modes4000";
+            String filename = (args.length>0) ? args[0] : "normal_modes400";
             try {
                 FileWriter fileWriterQ = new FileWriter(filename+".Q");
                 FileWriter fileWriterS = new FileWriter(filename+".S");

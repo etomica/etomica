@@ -35,7 +35,6 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Null;
 import etomica.util.DoubleRange;
@@ -117,36 +116,19 @@ public class TestFccHarmonic extends Simulation {
         if (args.length > 0) {
             filename = args[0];
         }
+        int D = 3;
+//        double harmonicFudge = .25;
         
-        double harmonicFudge = .25;
-        
-        //get and process eigenstuff
-        double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
-        for (int i=0; i<omegaSquared.length; i++) {
-            for (int j=0; j<omegaSquared[i].length; j++) {
-                // omega is sqrt(kT)/eigenvalue
-                omegaSquared[i][j] = 1/omegaSquared[i][j]/harmonicFudge;
-            }
-        }
-        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
-
-        //get and process wave vectors
-        double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
-        IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
-        double[] coefficients = new double[waveVectors.length];
-        for (int i=0; i<waveVectors.length; i++) {
-            coefficients[i] = waveVectorsAndCoefficients[i][0];
-            waveVectors[i] = new Vector3D(waveVectorsAndCoefficients[i][1],
-                    waveVectorsAndCoefficients[i][2],
-                    waveVectorsAndCoefficients[i][3]);
+        NormalModes normalModes = null;
+        if(D == 1) {
+            normalModes = new NormalModes1DHR();
+        } else {
+            normalModes = new NormalModesFromFile(filename, D);
         }
 
         //add meters to for FEP averages, and logarithms of averages
         //this one does averaging of total energy and its Boltzmann factor
-       MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(new CoordinateDefinitionLeaf(sim.getSpace()));
-        harmonicEnergy.setEigenvectors(eigenvectors);
-        harmonicEnergy.setOmegaSquared(omegaSquared);
-        harmonicEnergy.setWaveVectors(waveVectors, coefficients);
+        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(new CoordinateDefinitionLeaf(sim.getSpace()), normalModes);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -164,10 +146,7 @@ public class TestFccHarmonic extends Simulation {
         harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
         
         //this one does averaging of Boltzmann factors of each mode
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(new CoordinateDefinitionLeaf(sim.getSpace()));
-        harmonicSingleEnergy.setEigenvectors(eigenvectors);
-        harmonicSingleEnergy.setOmegaSquared(omegaSquared);
-        harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(new CoordinateDefinitionLeaf(sim.getSpace()), normalModes);
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());

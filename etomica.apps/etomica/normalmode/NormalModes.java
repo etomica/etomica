@@ -1,0 +1,34 @@
+package etomica.normalmode;
+
+import etomica.phase.Phase;
+
+/**
+ * Provides information about all the normal modes for a periodic system.  The periodicity is
+ * described by a set of wave vectors, which are provided via a WaveVectorFactory.  For
+ * each wave vector there is a set of coupled degrees of freedom (e.g., xyz motions) that have been 
+ * further decomposed into normal modes with corresponding eigenvalues and eigenvectors.  
+ * 
+ * In most cases these eigenvalues/vectors are determined via a simulation and recorded to file; the
+ * implmentation of this class then reads the data and provides it via the interface methods.     
+ */
+public interface NormalModes {
+
+    /**
+     * Returns a factory that provides the wave vectors and coefficients for 
+     * the periodic system.
+     */
+    public WaveVectorFactory getWaveVectorFactory();
+
+    /**
+     * First index corresponds to the wave vector, and second index is the eigenvalue
+     * for the corresponding eigenvector. Length of second index is coordinateDim.
+     */
+    public double[][] getEigenvalues(Phase phase);
+
+    /**
+     * First index corresponds to the wave vector; second index gives the eigenvector, and
+     * third index gives the elements of the vector.  Length of 2nd and 3rd dimensions is 
+     * coordinateDim. 
+     */
+    public double[][][] getEigenvectors(Phase phase);
+}

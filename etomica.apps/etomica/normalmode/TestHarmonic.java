@@ -24,7 +24,6 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2XOrder;
@@ -47,6 +46,8 @@ public class TestHarmonic extends Simulation {
     public TestHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
         super(space, true, new PotentialMaster(space));
 
+        int D = space.D();
+        
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
 
@@ -69,32 +70,6 @@ public class TestHarmonic extends Simulation {
         phase.setBoundary(bdry);
         phase.setDensity(density);
 
-        double[][] eigenValues = ArrayReader1D.getFromFile(filename+".val");
-        for (int i=0; i<eigenValues.length; i++) {
-            for (int j=0; j<eigenValues[i].length; j++) {
-                // omega is sqrt(kT)/eigenvalue
-                eigenValues[i][j] = eigenValues[i][j]*harmonicFudge;
-            }
-        }
-        double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
-        IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
-        double[] coefficients = new double[waveVectors.length];
-        double[] justWaveVector = new double[space.D()];
-        for (int i=0; i<waveVectors.length; i++) {
-            coefficients[i] = waveVectorsAndCoefficients[i][0];
-            for (int j=0; j<space.D(); j++) {
-                justWaveVector[j] = waveVectorsAndCoefficients[i][j+1];
-            }
-            waveVectors[i] = Space.makeVector(justWaveVector); 
-        }
-        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
-        
-        move.setEigenValues(eigenValues);
-        move.setEigenVectors(eigenvectors);
-        move.setWaveVectors(waveVectors);
-        move.setWaveVectorCoefficients(coefficients);
-        move.setCoordinateDefinition(new CoordinateDefinitionLeaf(space));
-        
         if (space.D() == 1) {
             lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
         }
@@ -104,7 +79,21 @@ public class TestHarmonic extends Simulation {
         config = new ConfigurationLattice(lattice);
 
         config.initializeCoordinates(phase);
-
+        
+        if(D == 1) {
+            normalModes = new NormalModes1DHR();
+        } else {
+            normalModes = new NormalModesFromFile(filename, D);
+        }
+        
+        move.setEigenValues(normalModes.getEigenvalues(phase));
+        move.setEigenVectors(normalModes.getEigenvectors(phase));
+        WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
+        waveVectorFactory.makeWaveVectors(phase);
+        move.setWaveVectors(waveVectorFactory.getWaveVectors());
+        move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
+        move.setCoordinateDefinition(new CoordinateDefinitionLeaf(space));
+        
         move.setPhase(phase);
         
         integrator.setPhase(phase);
@@ -114,21 +103,26 @@ public class TestHarmonic extends Simulation {
      * @param args
      */
     public static void main(String[] args) {
+        
+        //set up simulation parameters
         int D = 1;
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
-            nA = 5;
+            nA = 3;
             density = 0.5;
         }
-        boolean graphic = false;
-        String filename = "normal_modes400";
+        boolean graphic = true;
+        String filename = "normal_modes1D";
         if (args.length > 0) {
             filename = args[0];
         }
         double harmonicFudge = 1;
+        
+        //construct simulation
         TestHarmonic sim = new TestHarmonic(Space.getInstance(D), nA, density, filename, harmonicFudge);
         
+        //add hard potentials for FEP calculations.  With de novo sampling potential is not otherwise used.
         P2HardSphere p2HardSphere = new P2HardSphere(sim.getSpace(), 1.0, true);
         sim.getPotentialMaster().addPotential(p2HardSphere, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
         if (sim.getSpace().D() == 1) {
@@ -136,6 +130,7 @@ public class TestHarmonic extends Simulation {
             sim.potentialMaster.addPotential(pOrder, new AtomType[] {sim.species.getMoleculeType(),sim.species.getMoleculeType()});
         }
         
+        //meters for FEP calculations
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.getPotentialMaster());
         meterPE.setPhase(sim.phase);
         BoltzmannProcessor bp = new BoltzmannProcessor();
@@ -147,32 +142,12 @@ public class TestHarmonic extends Simulation {
         IntervalActionAdapter iaa = new IntervalActionAdapter(pump);
         sim.integrator.addListener(iaa);
         
+        //set up things for determining energy of harmonic system
+        //read and set up wave vectors
         CoordinateDefinitionLeaf coordinateDefinitionLeaf = new CoordinateDefinitionLeaf(sim.getSpace());
-        double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
-        IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
-        double[] coefficients = new double[waveVectors.length];
-        double[] justWaveVector = new double[D];
-        for (int i=0; i<waveVectors.length; i++) {
-            coefficients[i] = waveVectorsAndCoefficients[i][0];
-            for (int j=0; j<D; j++) {
-                justWaveVector[j] = waveVectorsAndCoefficients[i][j+1];
-            }
-            waveVectors[i] = Space.makeVector(justWaveVector); 
-        }
-        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
-        //these are actually eigenvalues
-        double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
-        for (int i=0; i<omegaSquared.length; i++) {
-            for (int j=0; j<omegaSquared[i].length; j++) {
-                // omega is sqrt(kT)/eigenvalue
-                omegaSquared[i][j] = 1/omegaSquared[i][j]/harmonicFudge;
-            }
-        }
 
-        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionLeaf);
-        harmonicEnergy.setEigenvectors(eigenvectors);
-        harmonicEnergy.setOmegaSquared(omegaSquared);
-        harmonicEnergy.setWaveVectors(waveVectors, coefficients);
+        //meter for harmonic system energy, sent to direct and to boltzmann average
+        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionLeaf, sim.normalModes);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
@@ -182,10 +157,8 @@ public class TestHarmonic extends Simulation {
         adapter.setActionInterval(1);
         sim.integrator.addListener(adapter);
 
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionLeaf);
-        harmonicSingleEnergy.setEigenvectors(eigenvectors);
-        harmonicSingleEnergy.setOmegaSquared(omegaSquared);
-        harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
+        //histogram energy of individual modes
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionLeaf, sim.normalModes);
         harmonicSingleEnergy.setTemperature(1.0);
         harmonicSingleEnergy.setPhase(sim.phase);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
@@ -198,31 +171,23 @@ public class TestHarmonic extends Simulation {
         iaa.setActionInterval(1);
         sim.integrator.addListener(iaa);
         
+        //set up measurement of S matrix, to check that configurations are generated as expected
         Primitive primitive = sim.lattice.getPrimitive();
         if (D == 3) {
             primitive = ((LatticeCubicFcc)sim.lattice).getPrimitiveFcc();
         }
-        ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config
-        .getLatticeMemento();
+        ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config.getLatticeMemento();
         IVector scaling = myLattice.latticeScaling;
         primitive.scaleSize(scaling.x(0));
         MeterNormalMode meterNormalMode = new MeterNormalMode();
         meterNormalMode.setCoordinateDefinition(coordinateDefinitionLeaf);
-        WaveVectorFactory waveVectorFactory;
-        if (D == 1) {
-            waveVectorFactory = new WaveVectorFactory1D(primitive);
-        }
-        else if (D == 2) {
-            waveVectorFactory = null;
-        }
-        else {
-            waveVectorFactory = new WaveVectorFactoryFcc((PrimitiveFcc)primitive);
-        }
+        WaveVectorFactory waveVectorFactory = sim.normalModes.getWaveVectorFactory();
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setPhase(sim.phase);
 
 
         if(graphic){
+            //graphic simulation -- set up window
 //            sim.getDefaults().pixelUnit = new Pixel(0.05);
             SimulationGraphic simG = new SimulationGraphic(sim);
             DisplayBoxesCAE boxesPE = new DisplayBoxesCAE();
@@ -241,7 +206,8 @@ public class TestHarmonic extends Simulation {
 
             simG.makeAndDisplayFrame();
         } else {
-
+            //not graphic, so run simulation batch
+            //S data is written to file
             int nSteps = 100000;
             sim.activityIntegrate.setMaxSteps(nSteps);
 
@@ -257,7 +223,7 @@ public class TestHarmonic extends Simulation {
             
             try {
                 FileWriter fileWriterS = new FileWriter(filename+"_redo.S");
-                for (int i=0; i<waveVectors.length; i++) {
+                for (int i=0; i<sim.normalModes.getWaveVectorFactory().getWaveVectors().length; i++) {
                     DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
                     for (int k=0; k<normalDim; k++) {
                         fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
@@ -294,4 +260,5 @@ public class TestHarmonic extends Simulation {
     public BravaisLattice lattice;
     public ConfigurationLattice config;
     public Species species;
+    public NormalModes normalModes;
 }

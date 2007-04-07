@@ -26,28 +26,28 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
 
     }
 
-    public void calcU(Atom molecule, int index, double[] u) {
-        IVector pos = molecule.getType().getPositionDefinition().position(
-                molecule);
+    public void calcU(Atom[] molecule, double[] u) {
+        IVector pos = molecule[0].getType().getPositionDefinition().position(molecule[0]);
+        IVector site = getLatticePosition(molecule[0]);
+        work1.Ev1Mv2(pos, site);
         for (int i = 0; i < pos.getD(); i++) {
-            u[i] = pos.x(i) - nominalU[index][i];
+            u[i] = work1.x(i);
         }
     }
 
-    public void initNominalU(Atom molecule, int index) {
-        IVector pos = molecule.getType().getPositionDefinition().position(
-                molecule);
-        for (int i = 0; i < pos.getD(); i++) {
-            nominalU[index][i] = pos.x(i);
-        }
+    /**
+     * Override if nominal U is more than the lattice position of the molecule
+     */
+    public void initNominalU(Atom[] molecule) {
     }
 
-    public void setToU(Atom molecule, int index, double[] u) {
+    public void setToU(Atom[] molecule, double[] u) {
+        IVector site = getLatticePosition(molecule[0]);
         for (int i = 0; i < space.D(); i++) {
-            work1.setX(i, nominalU[index][i] + u[i]);
+            work1.setX(i, site.x(i) + u[i]);
         }
         atomActionTranslateTo.setDestination(work1);
-        atomActionTranslateTo.actionPerformed(molecule);
+        atomActionTranslateTo.actionPerformed(molecule[0]);
     }
 
     public void setNumAtoms(int numAtoms) {
@@ -55,12 +55,8 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     }
 
     private static final long serialVersionUID = 1L;
-
     protected final Space space;
-
     protected final IVector work1;
-
     protected double[][] nominalU;
-
     protected final AtomActionTranslateTo atomActionTranslateTo;
 }

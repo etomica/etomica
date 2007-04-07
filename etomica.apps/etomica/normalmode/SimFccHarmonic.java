@@ -28,13 +28,13 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
 /**
  * Simulation to run sampling with the hard sphere potential, but measuring
  * the harmonic potential based on normal mode data from a previous simulation.
+ * 
  * @author Andrew Schultz
  */
 public class SimFccHarmonic extends Simulation {
@@ -95,11 +95,11 @@ public class SimFccHarmonic extends Simulation {
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
-            nA = 5;
+            nA = 3;
             density = 0.5;
         }
         String filename = "normal_modes1D";
-        double simTime = 4000000;
+        double simTime = 400000;
         if (args.length > 0) {
             filename = args[0];
         }
@@ -124,35 +124,17 @@ public class SimFccHarmonic extends Simulation {
         //instantiate simulation
         SimFccHarmonic sim = new SimFccHarmonic(Space.getInstance(D), nA, density);
         
-        //read and process eigenstuff from file
-        double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
-        for (int i=0; i<omegaSquared.length; i++) {
-            for (int j=0; j<omegaSquared[i].length; j++) {
-                // omega is sqrt(kT)/eigenvalue
-                omegaSquared[i][j] = 1/omegaSquared[i][j]/harmonicFudge;
-            }
+        NormalModes normalModes = null;
+        if(D == 1) {
+            normalModes = new NormalModes1DHR();
+        } else {
+            normalModes = new NormalModesFromFile(filename, D);
         }
-        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
-
-        //read and process wave vectors
-        double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
-        IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
-        double[] coefficients = new double[waveVectors.length];
-        double[] justWaveVector = new double[D];
-        for (int i=0; i<waveVectors.length; i++) {
-            coefficients[i] = waveVectorsAndCoefficients[i][0];
-            for (int j=0; j<D; j++) {
-                justWaveVector[j] = waveVectorsAndCoefficients[i][j+1];
-            }
-            waveVectors[i] = Space.makeVector(justWaveVector); 
-        }
+        
 
         //add meters to for FEP averages
         //this one does averaging of total energy and its Boltzmann factor
-        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(new CoordinateDefinitionLeaf(sim.getSpace()));
-        harmonicEnergy.setEigenvectors(eigenvectors);
-        harmonicEnergy.setOmegaSquared(omegaSquared);
-        harmonicEnergy.setWaveVectors(waveVectors, coefficients);
+        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(new CoordinateDefinitionLeaf(sim.getSpace()), normalModes);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -168,10 +150,7 @@ public class SimFccHarmonic extends Simulation {
         boltz.setDataSink(harmonicBoltzAvg);
         
         //this one does averaging of Boltzmann factors of each mode
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(new CoordinateDefinitionLeaf(sim.getSpace()));
-        harmonicSingleEnergy.setEigenvectors(eigenvectors);
-        harmonicSingleEnergy.setOmegaSquared(omegaSquared);
-        harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(new CoordinateDefinitionLeaf(sim.getSpace()), normalModes);
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(sim);
@@ -185,15 +164,14 @@ public class SimFccHarmonic extends Simulation {
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
 
-        //get averages and confidence limits
+        //get averages and confidence limits for harmonic energy
         double avgHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
         double errorHarmonicEnergy = ((DataDouble)((DataGroup)harmonicAvg.getData()).getData(AccumulatorAverage.StatType.ERROR.index)).x;
         System.out.println("avg harmonic energy: "+avgHarmonicEnergy+" +/- "+errorHarmonicEnergy);
         
+        //compute free-energy quantities, independent-mode approximation
         DataDoubleArray harmonicModesAvg = (DataDoubleArray)((DataGroup)harmonicSingleAvg.getData()).getData(StatType.AVERAGE.index);
         DataDoubleArray harmonicModesErr = (DataDoubleArray)((DataGroup)harmonicSingleAvg.getData()).getData(StatType.ERROR.index);
-
-        //compute free-energy quantities
         double deltaA = 0;
         double deltaAerr = 0;
         int nData = harmonicModesAvg.getLength();
@@ -204,6 +182,7 @@ public class SimFccHarmonic extends Simulation {
         
         System.out.println("Harmonic free energy correction (independent approx): "+deltaA+" +/- "+deltaAerr);
 
+        //results for averaging without independent-mode approximation
         deltaA = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(StatType.AVERAGE.index)).x;
         deltaAerr = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(StatType.ERROR.index)).x/deltaA;
         deltaA = Math.log(deltaA);

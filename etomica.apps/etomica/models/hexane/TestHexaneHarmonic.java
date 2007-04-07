@@ -24,11 +24,11 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
-import etomica.normalmode.ArrayReader1D;
-import etomica.normalmode.ArrayReader2D;
 import etomica.normalmode.BoltzmannProcessor;
 import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.normalmode.MeterHarmonicSingleEnergy;
+import etomica.normalmode.NormalModes;
+import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.TestFccHarmonic.DataProcessorFoo;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
@@ -36,10 +36,8 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramSimple;
 /**
@@ -213,30 +211,10 @@ public class TestHexaneHarmonic extends Simulation {
             filename = args[0];
         }
         
-        double[][] omegaSquared = ArrayReader1D.getFromFile(filename+".val");
-        for (int i=0; i<omegaSquared.length; i++) {
-            for (int j=0; j<omegaSquared[i].length; j++) {
-                // omega is sqrt(kT)/sqrt(eigenvalue)
-                omegaSquared[i][j] = 1/omegaSquared[i][j];
-            }
-        }
-        double[][] waveVectorsAndCoefficients = ArrayReader1D.getFromFile(filename+".Q");
-        IVector[] waveVectors = new IVector[waveVectorsAndCoefficients.length];
-        double[] coefficients = new double[waveVectors.length];
-        for (int i=0; i<waveVectors.length; i++) {
-            coefficients[i] = waveVectorsAndCoefficients[i][0];
-            waveVectors[i] = new Vector3D(waveVectorsAndCoefficients[i][1],
-                    waveVectorsAndCoefficients[i][2],
-                    waveVectorsAndCoefficients[i][3]);
-        }
-        double[][][] eigenvectors = ArrayReader2D.getFromFile(filename+".vec");
-
+        NormalModes normalModes = new NormalModesFromFile(filename, 3);
         CoordinateDefinitionHexane coordinateDefinitionHexane = new CoordinateDefinitionHexane();
         
-        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionHexane);
-        harmonicEnergy.setEigenvectors(eigenvectors);
-        harmonicEnergy.setOmegaSquared(omegaSquared);
-        harmonicEnergy.setWaveVectors(waveVectors, coefficients);
+        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionHexane, normalModes);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -254,10 +232,7 @@ public class TestHexaneHarmonic extends Simulation {
         harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
         sim.register(harmonicEnergy, pump);
         
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionHexane);
-        harmonicSingleEnergy.setEigenvectors(eigenvectors);
-        harmonicSingleEnergy.setOmegaSquared(omegaSquared);
-        harmonicSingleEnergy.setWaveVectors(waveVectors, coefficients);
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionHexane, normalModes);
         harmonicSingleEnergy.setPhase(sim.phase);
         harmonicSingleEnergy.setTemperature(1.0);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
