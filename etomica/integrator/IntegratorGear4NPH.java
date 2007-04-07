@@ -117,6 +117,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 implements EtomicaElemen
         inflate.setPhase(phase);
         meterTemperature.setPhase(phase);
         forceSumNPH.setPhase(phase);
+        forceSumNPH.setAgentManager(agentManager);
     }
     
     
