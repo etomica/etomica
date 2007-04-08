@@ -574,7 +574,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private AtomsetArrayList atomsetArrayList;
     private AtomsetIteratorSinglet singletSetIterator;
     
-    protected static class NeighborListAgentSource implements PhaseAgentManager.PhaseAgentSource {
+    protected static class NeighborListAgentSource implements PhaseAgentManager.PhaseAgentSource,
+                                                              java.io.Serializable {
         public NeighborListAgentSource(PotentialMasterList potentialMaster, double range) {
             this.potentialMaster = potentialMaster;
             this.range = range;
@@ -596,6 +597,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             ((NeighborListManager)object).dispose();
         }
         
+        private static final long serialVersionUID = 1L;
         protected final PotentialMasterList potentialMaster;
         protected double range;
     }
