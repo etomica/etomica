@@ -1,6 +1,7 @@
 package etomica.modifier;
 
 import etomica.util.Function;
+import etomica.util.FunctionInvertible;
 
 /**
  * Extends the configurable modifier to permit a function to be applied to
@@ -14,7 +15,7 @@ import etomica.util.Function;
  
 public class ModifierFunctionWrapper extends ModifierGeneral {
     
-    private Function function = new Function.Identity();
+    private FunctionInvertible function = new Function.Identity();
     
     public ModifierFunctionWrapper(Object[] obj, String prop) {
         super(obj, prop);
@@ -23,8 +24,8 @@ public class ModifierFunctionWrapper extends ModifierGeneral {
         super(obj, prop);
     }
 
-    public void setFunction(Function f) {function = f;}
-    public Function getFunction() {return function;}
+    public void setFunction(FunctionInvertible f) {function = f;}
+    public FunctionInvertible getFunction() {return function;}
     
     /**
      * Applies function to given value before setting modulated property.
@@ -39,4 +40,6 @@ public class ModifierFunctionWrapper extends ModifierGeneral {
     public double getValue() {
         return function.inverse(super.getValue());
     }
+    
+    private static final long serialVersionUID = 1L;
 }
