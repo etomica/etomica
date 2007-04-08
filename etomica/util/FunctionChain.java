@@ -26,7 +26,7 @@ public final class FunctionChain implements Function, java.io.Serializable {
     public double inverse(double f) {
         if(tail == null) return f;
         for(Link link=tail; link!=null; link=link.previous) {
-            f = link.function.inverse(f);
+            f = ((FunctionInvertible)link.function).inverse(f);
         }
         return f;
     }
@@ -38,7 +38,7 @@ public final class FunctionChain implements Function, java.io.Serializable {
         if(head == null) return 1.0;
         double df = 1.0;
         for(Link link=head; link!=null; link=link.next) {
-            df = link.function.dfdx(x);
+            df = ((FunctionDifferentiable)link.function).dfdx(x);
             x = link.function.f(x);
         }
         return df;
