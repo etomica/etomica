@@ -8,9 +8,6 @@ import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
-import etomica.data.DataPump;
-import etomica.data.DataSinkConsole;
-import etomica.data.meter.MeterPositionCOM;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
@@ -92,8 +89,8 @@ public class SimCalcS extends Simulation {
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
-            nA = 7;
-            density = 0.9;
+            nA = 3;
+            density = 0.5;
         }
         String filename = "normal_modes" + D + "D";
         double simTime = 40000;

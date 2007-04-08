@@ -54,7 +54,7 @@ public class MeterHarmonicSingleEnergy implements DataSource {
                     imaginaryCoord += imaginaryT[j] * eigenvectors[iVector][j][i];
                 }
                 double normalCoord = (realCoord*realCoord + imaginaryCoord*imaginaryCoord);
-                x[iVector*coordinateDim+i] = Math.exp(-0.5 * waveVectorCoefficients[iVector] * 
+                x[iVector*coordinateDim+i] = Math.exp(-waveVectorCoefficients[iVector] * 
                         normalCoord * omegaSquared[iVector][i] / temperature);
             }
         }

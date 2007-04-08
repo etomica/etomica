@@ -9,12 +9,17 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.Data;
 import etomica.data.DataFork;
 import etomica.data.DataHistogram;
+import etomica.data.DataPipe;
+import etomica.data.DataProcessor;
 import etomica.data.DataPump;
+import etomica.data.IDataInfo;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxesCAE;
 import etomica.graphics.DisplayPlot;
@@ -29,7 +34,6 @@ import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.normalmode.MeterHarmonicSingleEnergy;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
-import etomica.normalmode.TestFccHarmonic.DataProcessorFoo;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -38,6 +42,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.units.Null;
 import etomica.util.DoubleRange;
 import etomica.util.HistogramSimple;
 /**
@@ -289,6 +294,36 @@ public class TestHexaneHarmonic extends Simulation {
         }
 
     }
+    
+    /**
+     * DataProcessor that sums up the logs of all incoming values
+     */
+    public static class DataProcessorFoo extends DataProcessor {
+
+        public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
+            return null;
+        }
+        
+        public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
+            dataInfo = new DataInfoDouble("free energy difference", Null.DIMENSION);
+            data = new DataDouble();
+            return dataInfo;
+        }
+            
+        
+        public Data processData(Data incomingData) {
+            data.x = 0;
+            int nData = incomingData.getLength();
+            for (int i=0; i<nData; i++) {
+                data.x += Math.log(incomingData.getValue(i));
+            }
+            return data;
+        }
+        
+        private static final long serialVersionUID = 1L;
+        private DataDouble data;
+    }
+
 
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;

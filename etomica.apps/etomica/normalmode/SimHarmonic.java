@@ -9,8 +9,11 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataFork;
 import etomica.data.DataHistogram;
+import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
+import etomica.data.DataSinkConsole;
 import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.meter.MeterPositionCOM;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
@@ -36,14 +39,15 @@ import etomica.space.Space;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
+import etomica.util.Function;
 import etomica.util.HistogramSimple;
 
 /**
  * Simulation to sample harmonic potential
  */
-public class TestHarmonic extends Simulation {
+public class SimHarmonic extends Simulation {
 
-    public TestHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
+    public SimHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
         super(space, true, new PotentialMaster(space));
 
         int D = space.D();
@@ -59,8 +63,7 @@ public class TestHarmonic extends Simulation {
 
         integrator = new IntegratorMC(this);
 
-        activityIntegrate = new ActivityIntegrate(this,
-                integrator);
+        activityIntegrate = new ActivityIntegrate(this, integrator);
         getController().addAction(activityIntegrate);
 
         MCMoveHarmonic move = new MCMoveHarmonic(potentialMaster, getRandom());
@@ -109,7 +112,7 @@ public class TestHarmonic extends Simulation {
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
-            nA = 3;
+            nA = 11;
             density = 0.5;
         }
         boolean graphic = true;
@@ -120,7 +123,7 @@ public class TestHarmonic extends Simulation {
         double harmonicFudge = 1;
         
         //construct simulation
-        TestHarmonic sim = new TestHarmonic(Space.getInstance(D), nA, density, filename, harmonicFudge);
+        SimHarmonic sim = new SimHarmonic(Space.getInstance(D), nA, density, filename, harmonicFudge);
         
         //add hard potentials for FEP calculations.  With de novo sampling potential is not otherwise used.
         P2HardSphere p2HardSphere = new P2HardSphere(sim.getSpace(), 1.0, true);
@@ -141,7 +144,17 @@ public class TestHarmonic extends Simulation {
         avgBoltzmann.setPushInterval(5);
         IntervalActionAdapter iaa = new IntervalActionAdapter(pump);
         sim.integrator.addListener(iaa);
-        
+
+//         MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
+//         MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
+//         DataSinkConsole console = new DataSinkConsole();
+//         DataProcessorFunction filter = new DataProcessorFunction(new Function.Chop());
+//         DataPump comPump = new DataPump(meterCOM,filter);
+//         filter.setDataSink(console);
+//         IntervalActionAdapter comAdapter = new IntervalActionAdapter(comPump);
+//         sim.integrator.addListener(comAdapter);
+//         meterCOM.setPhase(sim.phase);
+
         //set up things for determining energy of harmonic system
         //read and set up wave vectors
         CoordinateDefinitionLeaf coordinateDefinitionLeaf = new CoordinateDefinitionLeaf(sim.getSpace());

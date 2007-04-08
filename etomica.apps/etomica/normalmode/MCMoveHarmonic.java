@@ -31,11 +31,11 @@ public class MCMoveHarmonic extends MCMovePhase {
         return coordinateDefinition;
     }
 
-    public void setEigenValues(double[][] newEigenValues) {
-        eigenValuesSqrt = new double[newEigenValues.length][newEigenValues[0].length];
-        for (int i=0; i<eigenValuesSqrt.length; i++) {
-            for (int j=0; j<eigenValuesSqrt[i].length; j++) {
-                eigenValuesSqrt[i][j] = Math.sqrt(newEigenValues[i][j]);
+    public void setEigenValues(double[][] eigenValues) {
+        stdDev = new double[eigenValues.length][eigenValues[0].length];
+        for (int i=0; i<stdDev.length; i++) {
+            for (int j=0; j<stdDev[i].length; j++) {
+                stdDev[i][j] = Math.sqrt(0.5*eigenValues[i][j]);
             }
         }
     }
@@ -84,17 +84,15 @@ public class MCMoveHarmonic extends MCMovePhase {
 
     public boolean doTrial() {
         iterator.reset();
-        int atomCount = 0;
         int coordinateDim = coordinateDefinition.getCoordinateDim();
 
         for (int iVector=0; iVector<waveVectors.length; iVector++) {
             for (int j=0; j<coordinateDim; j++) {
                 //generate real and imaginary parts of random normal-mode coordinate Q
-                rRand[iVector][j] = random.nextGaussian() * eigenValuesSqrt[iVector][j];
-                iRand[iVector][j] = random.nextGaussian() * eigenValuesSqrt[iVector][j];
+                rRand[iVector][j] = random.nextGaussian() * stdDev[iVector][j];
+                iRand[iVector][j] = random.nextGaussian() * stdDev[iVector][j];
             }
         }
-        Atom[] atom = new Atom[1];
         while (iterator.hasNext()) {
             atom[0] = iterator.nextAtom();
             for (int i=0; i<coordinateDim; i++) {
@@ -117,7 +115,6 @@ public class MCMoveHarmonic extends MCMovePhase {
                 u[i] *= normalization;
             }
             coordinateDefinition.setToU(atom, u);
-            atomCount++;
         }
         return true;
     }
@@ -146,10 +143,11 @@ public class MCMoveHarmonic extends MCMovePhase {
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
     private final AtomIteratorAllMolecules iterator;
-    private double[][] eigenValuesSqrt;
+    private double[][] stdDev;
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
     private double[] waveVectorCoefficients;
+    private final Atom[] atom = new Atom[1];
     protected double[] u;
     protected double[][] rRand;
     protected double[][] iRand;

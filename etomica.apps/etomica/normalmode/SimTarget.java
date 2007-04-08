@@ -21,6 +21,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
+import etomica.math.SpecialFunctions;
 import etomica.phase.Phase;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
@@ -37,9 +38,9 @@ import etomica.species.SpeciesSpheresMono;
  * 
  * @author Andrew Schultz
  */
-public class SimFccHarmonic extends Simulation {
+public class SimTarget extends Simulation {
 
-    public SimFccHarmonic(Space space, int numAtoms, double density) {
+    public SimTarget(Space space, int numAtoms, double density) {
         super(space, true, new PotentialMaster(space));
 
         defaults.makeLJDefaults();
@@ -95,7 +96,7 @@ public class SimFccHarmonic extends Simulation {
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
-            nA = 3;
+            nA = 11;
             density = 0.5;
         }
         String filename = "normal_modes1D";
@@ -122,7 +123,7 @@ public class SimFccHarmonic extends Simulation {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        SimFccHarmonic sim = new SimFccHarmonic(Space.getInstance(D), nA, density);
+        SimTarget sim = new SimTarget(Space.getInstance(D), nA, density);
         
         NormalModes normalModes = null;
         if(D == 1) {
@@ -179,8 +180,17 @@ public class SimFccHarmonic extends Simulation {
             deltaA += Math.log(harmonicModesAvg.getValue(i));
             deltaAerr += harmonicModesErr.getValue(i)/harmonicModesAvg.getValue(i);
         }
-        
         System.out.println("Harmonic free energy correction (independent approx): "+deltaA+" +/- "+deltaAerr);
+        
+        double[][] eVals = normalModes.getEigenvalues(sim.phase);
+        double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
+        double AHarmonic = 0.5*Math.log(nA) - 0.5*(nA-1)*Math.log(2.0*Math.PI);
+        int coordinateDim = 1;
+        for(int i=0; i<eVals.length; i++) {
+            for(int j=0; j<coordinateDim; j++) {
+                AHarmonic -= coeffs[i]*Math.log(eVals[i][j]);
+            }
+        }
 
         //results for averaging without independent-mode approximation
         deltaA = ((DataDouble)((DataGroup)harmonicBoltzAvg.getData()).getData(StatType.AVERAGE.index)).x;
@@ -189,6 +199,13 @@ public class SimFccHarmonic extends Simulation {
         
         System.out.println("Harmonic free energy correction: "+deltaA+" +/- "+deltaAerr);
         System.out.println("Harmonic free energy correction per atom: "+deltaA/nA+" +/- "+deltaAerr/nA);
+        
+        System.out.println("Harmonic-reference free energy: "+AHarmonic);
+        
+        if(D==1) {
+            double AHR = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA) ;
+            System.out.println("Hard-rod free energy: "+AHR);
+        }
 
         try {
             // write averages of exp(-u/kT) for each normal mode
