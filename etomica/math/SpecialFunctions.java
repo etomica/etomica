@@ -4,7 +4,7 @@ package etomica.math;
  * Static-method library of various functions
  */
  
-public final class SpecialFunctions implements java.io.Serializable {
+public final class SpecialFunctions {
     
     private SpecialFunctions() {}
     
@@ -32,6 +32,13 @@ public final class SpecialFunctions implements java.io.Serializable {
             throw new IllegalArgumentException("Argument less than zero: "+n);
         }
         return (n <= 1) ? 1 :(n*factorial(n-1));
+    }
+    
+    public static double lnFactorial(int n) {
+        if(n < 0) {
+            throw new IllegalArgumentException("Argument less than zero: "+n);
+        }
+        return (n <= 1) ? 0 :(Math.log(n) + lnFactorial(n-1));
     }
         
     //non-recursive version
