@@ -111,20 +111,41 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         return pressureTensor;
     }
     
-
     public void reset() throws ConfigurationOverlapException {
-        // reset might be called because atoms were added or removed
-        // calling getAgents ensures we have an up-to-date array.
-
+        super.reset();
+        updateMrLast();
+    }
+    
+    protected void updateMrLast() {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
             agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a.getCoord()).getVelocity());//06/13/03 removed minus sign before timeStep
         }
-        super.reset();
     }
-              
+
+    /**
+     * Updates MrLast appropriately after randomizing momenta
+     * as part of the Andersen thermostat.
+     */
+    protected void randomizeMomenta() {
+        super.randomizeMomenta();
+        // super.randomizeMomenta changes the velocities, so we need to
+        // recalculate hypothetical old positions
+        updateMrLast();
+    }
+
+    /**
+     * Updates MrLast appropriately after randomizing momentum
+     * as part of the Andersen thermostat.
+     */
+    protected void randomizeMomentum(AtomLeaf atom) {
+        super.randomizeMomentum(atom);
+        Agent agent = (Agent)agentManager.getAgent(atom);
+        agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)atom).getVelocity());//06/13/03 removed minus sign before timeStep
+    }
+    
 //--------------------------------------------------------------
     
     public Class getAgentClass() {

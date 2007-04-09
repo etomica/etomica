@@ -50,11 +50,6 @@ public abstract class IntegratorPhase extends Integrator {
     }
 
     /**
-     * Perform any action necessary when neighbor lists are updated 
-     */
-    public void neighborsUpdated() {}
-    
-    /**
      * Sets the temperature for this integrator
      */
     public void setTemperature(double t) {

@@ -13,7 +13,10 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.nbr.list.PhaseEventNeighborsUpdated;
 import etomica.phase.Phase;
+import etomica.phase.PhaseEvent;
+import etomica.phase.PhaseListener;
 import etomica.potential.Potential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
@@ -39,7 +42,7 @@ import etomica.util.TreeList;
  * @author David Kofke
  *
  */
-public class IntegratorHard extends IntegratorMD implements AgentSource {
+public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseListener {
 
     private static final long serialVersionUID = 1L;
     //handle to the integrator agent holding information about the next collision
@@ -370,7 +373,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
         catch (ConfigurationOverlapException e) {
             overlapException = e;
         }
-        neighborsUpdated();
+        resetCollisionTimes();
         if (overlapException != null) {
             throw overlapException;
         }
@@ -379,12 +382,17 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
         }
     }
 
+    public void actionPerformed(PhaseEvent phaseEvent) {
+        if (phaseEvent instanceof PhaseEventNeighborsUpdated) {
+            resetCollisionTimes();
+        }
+    }
+    
     /**
      * Do an upList call for each atom and reconstruct the event list.
      */
-    public void neighborsUpdated() {
+    public void resetCollisionTimes() {
         if(!initialized) return;
-        super.neighborsUpdated();
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             Atom atom = atomIterator.nextAtom();
@@ -424,10 +432,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
      */
     protected void randomizeMomenta() {
         super.randomizeMomenta();
-        // super.randomizeMomenta recalculates the kinetic energy and doesn't
-        // change the potential energy, so just act like the neighbor lists were
-        // updated
-        neighborsUpdated();
+        // super.randomizeMomenta alters the velocities, so we need to 
+        // recalculate collision times
+        resetCollisionTimes();
     }
     
     /**

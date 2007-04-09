@@ -14,7 +14,6 @@ import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
-import etomica.integrator.IntegratorPhase;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
 import etomica.nbr.cell.NeighborCellManager;
@@ -58,6 +57,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         agentManager2Body = new AtomAgentManager(this, phase);
         agentManager1Body = new AtomAgentManager(new AtomPotential1ListSource(), phase);
         neighborReset = new NeighborReset(this, agentManager2Body, agentManager1Body);
+        phaseEvent = new PhaseEventNeighborsUpdated(phase);
     }
     
     /**
@@ -99,7 +99,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      */
     public void intervalAction(IntegratorIntervalEvent evt) {
         if (--iieCount == 0) {
-            updateNbrsIfNeeded(((IntegratorPhase)evt.getSource()));
+            updateNbrsIfNeeded();
             iieCount = updateInterval;
         }
     }
@@ -131,7 +131,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * neighbor lists.  Performs this action on all phases acted on
      * by given integrator.
      */
-    public void updateNbrsIfNeeded(IntegratorPhase integrator) {
+    public void updateNbrsIfNeeded() {
         neighborCheck.reset();
         NeighborCriterion[] criteriaArray = potentialMaster.getNeighborCriteria();
         if (oldCriteria != criteriaArray) {
@@ -155,9 +155,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             }
             pbcEnforcer.actionPerformed();
             neighborSetup();
-            integrator.neighborsUpdated();
+            phase.getEventManager().fireEvent(phaseEvent);
         }
-
     }
 
     /**
@@ -314,6 +313,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private final AtomAgentManager agentManager1Body;
     private Phase phase;
     private NeighborCriterion[] oldCriteria;
+    protected final PhaseEventNeighborsUpdated phaseEvent;
 
     /**
      * Atom action class that checks if any criteria indicate that the given
