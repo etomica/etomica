@@ -89,6 +89,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         if (phase != null) {
             // allow agentManager to de-register itself as a PhaseListener
             agentManager.dispose();
+            phase.getEventManager().removeListener(this);
         }
         super.setPhase(newPhase);
         agentManager = new AtomAgentManager(this,newPhase);
@@ -98,6 +99,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         if (nullPotential != null) {
             ((Potential1)nullPotential).setPhase(newPhase);
         }
+        phase.getEventManager().addListener(this);
     }
     
     /* (non-Javadoc)
