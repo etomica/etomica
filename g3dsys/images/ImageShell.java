@@ -108,10 +108,27 @@ public class ImageShell extends Figure {
     //still bound to axis directions; need to use vector orientation instead
     float dx = 0, dy = 0, dz = 0; //for linear combinations
     Figure[] figs = _gsys.getFigs();
+
+    //draw large box if necessary
+    if(drawBoundaryType == DRAW_LARGE_BOX) {
+      for(int i=0; i<figs.length; i++) {
+        if(figs[i] instanceof Line) {
+          p.set(((Line)figs[i]).getStart().x * (2*numLayers+1),
+              ((Line)figs[i]).getStart().y * (2*numLayers+1),
+              ((Line)figs[i]).getStart().z * (2*numLayers+1));
+          q.set(((Line)figs[i]).getEnd().x * (2*numLayers+1),
+              ((Line)figs[i]).getEnd().y * (2*numLayers+1),
+              ((Line)figs[i]).getEnd().z * (2*numLayers+1));
+          _gsys.screenSpace(p, s);
+          _gsys.screenSpace(q, t);
+          g3d.drawDashedLine(figs[i].getColor(),0,0,s.x,s.y,s.z,t.x,t.y,t.z);
+        }
+      }
+    }
     
     //IndexIteratorSequential iter = new IndexIteratorSequential(D,numLayers);
     int[] sizes = new int[D];
-    for(int i=0; i<D; i++) { sizes[i] = numLayers; } 
+    for(int i=0; i<D; i++) { sizes[i] = numLayers*2+1; }
     iter.setSize(sizes);
     iter.reset();
     
