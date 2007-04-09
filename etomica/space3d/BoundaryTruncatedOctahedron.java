@@ -97,6 +97,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
       private IndexIteratorSequential iis;
       private boolean hasnext;
       private int[] vals;
+      private int[] retvals;
       private IVector[] vecs;
       int numLayers;
       
@@ -104,26 +105,19 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         iis = new IndexIteratorSequential(D);
         vecs = v;
         hasnext = false;
+        vals = new int[D];
+        retvals = new int[D];
       }
 
       public int getD() { return iis.getD(); }
       public boolean hasNext() { return hasnext; }
       
-      /**
-       * Sets the range of each dimension, equal to double the number
-       * of layers in the shell being used.
-       * @param n the number of shell layers to use
-       */
-      public void setSize(int numLayers) {
-        this.numLayers = numLayers;
-        iis.setSize(numLayers);
-      }
-
       public int[] next() {
-        int[] retval = vals;
+        for(int i=0; i<retvals.length; i++)
+          retvals[i] = vals[i];
         hasnext = false;
         findNext();
-        return retval;
+        return retvals;
       }
 
       public void reset() {
@@ -137,7 +131,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
        * hasnext as needed.
        */
       private void findNext() {
-        double radius = Math.abs(vecs[0].x(0)*2.0);
+        double radius = Math.abs(vecs[0].x(0)*2.0001)*numLayers;
         if(!iis.hasNext()) {
           hasnext = false;
           vals = null;
@@ -148,21 +142,34 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
           float dx = 0, dy = 0, dz = 0;
           int[] lvals = iis.next();
           for(int i=0; i<getD(); i++) {
-            dx += (float)( (lvals[i]-numLayers) * vecs[i].x(0));
-            dy += (float)( (lvals[i]-numLayers) * vecs[i].x(1));
-            dz += (float)( (lvals[i]-numLayers) * vecs[i].x(2));
+            dx += (float)( (lvals[i]-(numLayers*2)) * vecs[i].x(0));
+            dy += (float)( (lvals[i]-(numLayers*2)) * vecs[i].x(1));
+            dz += (float)( (lvals[i]-(numLayers*2)) * vecs[i].x(2));
           }
           if(Math.sqrt(dx*dx + dy*dy + dz*dz) <= radius) {
             //include
             hasnext = true;
-            vals = lvals;
+            /*
+             * The vectors generated based on the iterator alone would be
+             * biased toward the positive. Subtract numLayers to add extra
+             * bias to the negative. This is dependent on subtracting
+             * numlayers*2 above as well as the fudge factor of 4.
+             */
+            for(int i=0; i<vals.length; i++)
+              vals[i] = lvals[i] - numLayers;
             break;
           }
         }
       }
+      
+      //for generating more shells than we need for filtering
+      private int fudgeFactor = 4;
 
       public void setSize(int[] size) {
-        iis.setSize(size);
+        this.numLayers = size[0]; // assume each dimension is same size
+        int[] newsize = new int[size.length];
+        for(int i=0; i<size.length; i++) { newsize[i] = (int)(size[i]*fudgeFactor)+1; }
+        iis.setSize(newsize);
       }
       
     }
