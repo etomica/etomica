@@ -1,7 +1,6 @@
 // includes a main method
 
 package etomica.integrator;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.PhaseInflate;
 import etomica.atom.AtomAgentManager;
@@ -43,7 +42,7 @@ import etomica.util.IRandom;
  * @author Ed Maginn
  * @author David Kofke
  */
-public class IntegratorGear4NPH extends IntegratorGear4 implements EtomicaElement {
+public class IntegratorGear4NPH extends IntegratorGear4 {
 
     private static final long serialVersionUID = 1L;
     double vol1, vol2, vol3, vol4;
@@ -124,7 +123,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 implements EtomicaElemen
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-    public void doStep() {
+    public void doStepInternal() {
         
         predictor();
         calculateForces();

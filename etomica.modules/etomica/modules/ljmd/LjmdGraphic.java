@@ -197,8 +197,7 @@ public class LjmdGraphic {
 		    System.out.println(xHist[i]+"  "+xMB[i]);
 		}
 */		
-        DataSourceCountTime timeCounter = new DataSourceCountTime();
-        sim.integrator.addListener(timeCounter);
+        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 		
 		MeterTemperature thermometer = new MeterTemperature();
         thermometer.setPhase(sim.phase);

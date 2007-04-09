@@ -5,7 +5,6 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;
-import etomica.data.DataSourceCountTime;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
@@ -22,9 +21,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     public MeterPressureHardTensor(Space space) {
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("PV/Nk",Temperature.DIMENSION, space);
-        velocityTensor = space.makeTensor();
         v = space.makeTensor();
-        timer = new DataSourceCountTime();
         tag = new DataTag();
         dataInfo.addTag(tag);
     }
@@ -44,25 +41,22 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     
     public Data getData() {
         if (phase == null || integratorHard == null) throw new IllegalStateException("must call setPhase and integrator before using meter");
-        double t = timer.getDataAsScalar();
-        if (t > t0) {
-            //XXX Wrong!  you can't use the instantaneous velocity tensor with the average virial tensor
-            velocityTensor.E(0.);
-            iterator.reset();
-            while (iterator.hasNext()) {
-                AtomLeaf a = (AtomLeaf)iterator.nextAtom();
-                v.Ev1v2(((ICoordinateKinetic)a.getCoord()).getVelocity(), ((ICoordinateKinetic)a.getCoord()).getVelocity());
-                v.TE((((AtomTypeLeaf)a.getType()).rm()));
-                velocityTensor.PE(v);
-            }
-            
-            velocityTensor.TE(1.0/phase.atomCount());
-                    
-            data.x.TE(-1/((t-t0)*phase.getSpace().D()*phase.atomCount()));
-            data.x.PE(velocityTensor);
-        
-            t0 = t;
+        double t = integratorHard.getCurrentTime();
+        data.x.TE(-1/((t-t0)*phase.getSpace().D()));
+        t0 = t;
+
+        //We're using the instantaneous velocity tensor with the average virial tensor
+        //not quite right, but works out in the end.
+        iterator.reset();
+        while (iterator.hasNext()) {
+            AtomLeaf a = (AtomLeaf)iterator.nextAtom();
+            v.Ev1v2(((ICoordinateKinetic)a.getCoord()).getVelocity(), ((ICoordinateKinetic)a.getCoord()).getVelocity());
+            v.TE((((AtomTypeLeaf)a.getType()).rm()));
+            data.x.PE(v);
         }
+
+        data.x.TE(1.0/phase.atomCount());
+    
         return data;
     }
     
@@ -77,9 +71,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         }
         if (integratorHard != null) {
             integratorHard.removeCollisionListener(this);
-            integratorHard.removeListener(timer);
         }
-        timer.reset();
         if (newIntegrator == null) {
             phase = null;
             return;
@@ -87,7 +79,6 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         phase = integratorHard.getPhase();
         integratorHard = newIntegrator;
         integratorHard.addCollisionListener(this);
-        integratorHard.addListener(timer);
     }
     
     public IntegratorHard getIntegrator() {
@@ -105,9 +96,8 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     private static final long serialVersionUID = 1L;
     private double t0;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    private Tensor velocityTensor, v;
+    private Tensor v;
     private IntegratorHard integratorHard;
-    private DataSourceCountTime timer;
     private String name;
     private Phase phase;
     private final DataTensor data;

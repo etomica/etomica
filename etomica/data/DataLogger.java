@@ -5,14 +5,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import etomica.integrator.IntegratorNonintervalEvent;
-import etomica.integrator.IntegratorNonintervalListener;
+import etomica.action.activity.ControllerEvent;
+import etomica.action.activity.ControllerListener;
 
 /**
  * DataSink that manages a FileWriter and also listens to non-interval 
  * integrator events and sends appropriate data to a DataWriter.
  */
-public class DataLogger implements DataPipe, IntegratorNonintervalListener, java.io.Serializable {
+public class DataLogger implements DataPipe, ControllerListener, java.io.Serializable {
     
     public DataLogger(){
         setWriteInterval(100);
@@ -55,7 +55,7 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
         dataSink.putDataInfo(dataInfo);
     }
 
-    public DataPipe getDataCaster(IDataInfo dataInfo) {
+    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
         // we don't care about the type although the DataWriter might
         return null;
     }
@@ -76,12 +76,13 @@ public class DataLogger implements DataPipe, IntegratorNonintervalListener, java
     /**
      * Close file when integrator is done.
      */
-    public void nonintervalAction(IntegratorNonintervalEvent evt){
-        if(evt.type() == IntegratorNonintervalEvent.DONE && dataWriter != null) {
+    public void actionPerformed(ControllerEvent evt){
+        if(dataWriter != null && (evt.getType() == ControllerEvent.NO_MORE_ACTIONS &&
+            evt.getType() == ControllerEvent.HALTED)) {
             if (writeOnFinishSource != null) {
                 doWrite(writeOnFinishSource.getData());
             }
-            closeFile(); //close the file when DONE.
+            closeFile(); //close the file when finished
         }
     }
     

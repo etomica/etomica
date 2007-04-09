@@ -14,7 +14,7 @@ public class MeterFlux extends DataSourceScalar implements DataSource {
 	}
  
 	public double getDataAsScalar() {
-		double t1 = integratorMD.elapsedTime();
+		double t1 = integratorMD.getCurrentTime();
         if(t1 == t0) return Double.NaN;
 		int n1 = mcMove.getDeltaN();
 		double rate = (n1 - n0)/(t1 - t0)/(phase.getBoundary().getDimensions().x(0)*phase.getBoundary().getDimensions().x(1));

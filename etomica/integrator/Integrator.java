@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
-import etomica.util.NameMaker;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and
@@ -26,51 +25,70 @@ public abstract class Integrator implements java.io.Serializable {
     private final LinkedList intervalListeners = new LinkedList();
     private final LinkedList listeners = new LinkedList();
     private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];
-    private String name;
+    protected IntegratorIntervalEvent intervalEvent;
+    protected int interval;
+    private int iieCount;
+    protected int stepCount;
 
     public Integrator(PotentialMaster potentialMaster) {
-        setName(NameMaker.makeName(this.getClass()));
         this.potential = potentialMaster;
+        setEventInterval(1);
+        stepCount = 0;
     }
 
     /**
-     * Accessor method of the name of this phase
-     * 
-     * @return The given name of this phase
+     * @return value of interval (number of doStep calls) between
+     * firing of interval events by integrator.
      */
-    public final String getName() {return name;}
+    public int getEventInterval() {
+        return interval;
+    }
+    
     /**
-     * Method to set the name of this simulation element. The element's name
-     * provides a convenient way to label output data that is associated with
-     * it.  This method might be used, for example, to place a heading on a
-     * column of data. Default name is the base class followed by the integer
-     * index of this element.
-     * 
-     * @param name The name string to be associated with this element
+     * Sets value of interval between successive firing of integrator interval events.
+     * @param interval
      */
-    public void setName(String name) {this.name = name;}
-
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the phase
-     */
-    public String toString() {return getName();}
-
+    public void setEventInterval(int interval) {
+        this.interval = interval;
+        intervalEvent = new IntegratorIntervalEvent(this, interval);
+        if (iieCount > interval) {
+            iieCount = interval;
+        }
+    }
+    
+    public final void doStep() {
+        stepCount++;
+        doStepInternal();
+        if(--iieCount == 0) {
+            fireIntervalEvent(intervalEvent);
+            iieCount = interval;
+        }
+    }
+    
     /**
      * Performs the elementary integration step, such as a molecular dynamics
      * time step, or a Monte Carlo trial.
      */
-    public abstract void doStep();
+    public abstract void doStepInternal();
 
+    /**
+     * Returns the number of steps performed by the integrator since it was
+     * initialized.
+     */
+    public int getStepCount() {
+        return stepCount;
+    }
+    
     /**
      * Defines the actions taken by the integrator to reset itself, such as
      * required if a perturbation is applied to the simulated phase (e.g.,
      * addition or deletion of a molecule). Also invoked when the
-     * integrator is started or initialized. This also recalculates the 
-     * potential energy.
+     * integrator is started or initialized.
      */
+    //This should be called by subclasses /after/ they have performed their own
+    //reset
     public void reset() throws ConfigurationOverlapException {
+        fireNonintervalEvent(new IntegratorNonintervalEvent(this, IntegratorNonintervalEvent.RESET));
     }
 
     /**
@@ -81,11 +99,12 @@ public abstract class Integrator implements java.io.Serializable {
      * INITIALIZE).
      */
     public final void initialize() throws ConfigurationOverlapException {
+        stepCount = 0;
         initialized = false;
         setup();
         initialized = true;
-        fireNonintervalEvent(new IntegratorNonintervalEvent(this, IntegratorNonintervalEvent.INITIALIZE));
         reset();
+        iieCount = interval;
     }
     
     /**
@@ -150,7 +169,7 @@ public abstract class Integrator implements java.io.Serializable {
      * synchronized, so unpredictable behavior if listeners are added while
      * notification is in process (this should be rare).
      */
-    public void fireIntervalEvent(IntegratorIntervalEvent iie) {
+    protected void fireIntervalEvent(IntegratorIntervalEvent iie) {
         for(int i=0; i<listenerWrapperArray.length; i++) {
             listenerWrapperArray[i].listener.intervalAction(iie);
         }
@@ -159,7 +178,7 @@ public abstract class Integrator implements java.io.Serializable {
     /**
      * Notifies registered listeners of a non-interval event. 
      */
-    public synchronized void fireNonintervalEvent(IntegratorNonintervalEvent ie) {
+    protected synchronized void fireNonintervalEvent(IntegratorNonintervalEvent ie) {
         Iterator iter = listeners.iterator();
         while(iter.hasNext()) {
             ((IntegratorNonintervalListener)iter.next()).nonintervalAction(ie);

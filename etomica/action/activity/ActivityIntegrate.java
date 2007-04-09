@@ -3,8 +3,6 @@ package etomica.action.activity;
 import etomica.action.Activity;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorIntervalEvent;
-import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.simulation.Simulation;
 import etomica.util.Debug;
 
@@ -25,7 +23,6 @@ public class ActivityIntegrate extends Activity {
     public ActivityIntegrate(Integrator integrator, boolean doSleep, boolean ignoreOverlap) {
         super();
         this.integrator = integrator;
-        setInterval(1);
         this.doSleep = doSleep;
         this.ignoreOverlap = ignoreOverlap;
         sleepPeriod = 10;
@@ -48,23 +45,17 @@ public class ActivityIntegrate extends Activity {
                 throw new RuntimeException(e);
             }
         }
-        int iieCount = interval;//changed from "interval + 1"
         for (stepCount = 0; stepCount < maxSteps; stepCount++) {
             if (Debug.ON && stepCount == Debug.START) Debug.DEBUG_NOW = true;
             if (Debug.ON && stepCount == Debug.STOP) break;
             if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
             if (!doContinue()) break;
             integrator.doStep();
-            if(--iieCount == 0) {
-                integrator.fireIntervalEvent(intervalEvent);
-                iieCount = interval;
-            }
             if(doSleep) {
                 try { Thread.sleep(sleepPeriod); }
                 catch (InterruptedException e) { }
             }
-        }//end of while loop
-        integrator.fireNonintervalEvent(new IntegratorNonintervalEvent(integrator, IntegratorNonintervalEvent.DONE));
+        }
 	}
 
 	/**
@@ -85,23 +76,6 @@ public class ActivityIntegrate extends Activity {
 	 */
 	public void setDoSleep(boolean doSleep) {
 		this.doSleep = doSleep;
-	}
-	
-	/**
-	 * @return value of interval (number of doStep calls) between
-	 * firing of interval events by integrator.
-	 */
-	public int getInterval() {
-		return interval;
-	}
-	
-	/**
-	 * Sets value of interval between successive firing of integrator interval events.
-	 * @param interval
-	 */
-	public void setInterval(int interval) {
-		this.interval = interval;
-		intervalEvent = new IntegratorIntervalEvent(integrator, interval);
 	}
 	
 	/**
@@ -148,21 +122,6 @@ public class ActivityIntegrate extends Activity {
     }
 	
 	/**
-	 * Requests that the integrator reset itself; if integrator is not running,
-	 * then reset will be performed immediately. The actual action an integrator
-	 * takes to do this differs with the type of integrator. The reset is not
-	 * performed until the completion of the current integration step, or until
-	 * the integrator is unpaused if currently in a paused state.
-	 */
-	public void reset() {
-		resetRequested = true;
-	}
-
-	public boolean resetRequested() {
-		return resetRequested;
-	}
-
-	/**
 	 * @return Returns the integrator.
 	 */
 	public Integrator getIntegrator() {
@@ -171,11 +130,8 @@ public class ActivityIntegrate extends Activity {
     
     private static final long serialVersionUID = 1L;
 	private final Integrator integrator;
-	protected int interval;
-	private boolean resetRequested;
 	private boolean doSleep;
     private boolean ignoreOverlap;
 	private int sleepPeriod;
 	protected long maxSteps, stepCount;
-	IntegratorIntervalEvent intervalEvent;
 }

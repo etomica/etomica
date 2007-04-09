@@ -97,10 +97,9 @@ public class HSMD2D_noNbr extends Simulation {
 //                                      addDataSink(pressureHistory);
         temperatureHistory = new AccumulatorHistory();
         temperatureAverage.addDataSink(temperatureHistory,new AccumulatorAverage.StatType[] {StatType.AVERAGE});
-        DataSourceCountTime timeCounter = new DataSourceCountTime();
-        integrator.addListener(timeCounter);
+        DataSourceCountTime timeCounter = new DataSourceCountTime(integrator);
         temperatureHistory.setTimeDataSource(timeCounter);
-}
+    }
     
     /**
      * Demonstrates how this class is implemented.

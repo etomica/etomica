@@ -29,6 +29,7 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
         super(null);
         this.random = random;
         atomSource = new AtomSourceRandomLeaf();
+        ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         perParticleFrequency = true;
     }
     

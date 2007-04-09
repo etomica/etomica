@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
@@ -25,7 +24,7 @@ import etomica.util.IRandom;
  * @see MCMove
  */
 
-public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
+public class IntegratorMC extends IntegratorPhase {
 
     public IntegratorMC(Simulation sim) {
         this(sim.getPotentialMaster(), sim.getRandom(), sim.getDefaults().temperature);
@@ -85,7 +84,7 @@ public class IntegratorMC extends IntegratorPhase implements EtomicaElement {
      * MCMoves, determines the likelihood that the move is selected. After
      * completing move, fires an MCMove event if there are any listeners.
      */
-    public void doStep() {
+    public void doStepInternal() {
     	//select the move
     	MCMovePhase move = (MCMovePhase)moveManager.selectMove();
     	if (move == null)

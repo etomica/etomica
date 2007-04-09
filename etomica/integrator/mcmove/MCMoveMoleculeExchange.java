@@ -134,6 +134,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     
     public void acceptNotify() {
         try {
+            //XXX grossly inefficient
             integrator1.reset();
             integrator2.reset();
         } catch(ConfigurationOverlapException e) {

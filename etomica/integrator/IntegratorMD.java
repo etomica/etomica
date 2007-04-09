@@ -76,6 +76,14 @@ public abstract class IntegratorMD extends IntegratorPhase {
         currentKineticEnergy = meterKE.getDataAsScalar();
         super.reset();
     }
+    
+    public void doStepInternal() {
+        currentTime += timeStep;
+    }
+    
+    public double getCurrentTime() {
+        return currentTime;
+    }
 
     /**
      * @return the current kinetic energy as tracked by the integrator
@@ -306,5 +314,6 @@ public abstract class IntegratorMD extends IntegratorPhase {
     private AtomActionRandomizeVelocity atomActionRandomizeVelocity;
     private MeterTemperature meterTemperature;
     private final IVector momentum;
+    protected double currentTime;
 }
 

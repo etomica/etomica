@@ -2,7 +2,6 @@ package etomica.integrator;
 
 import java.io.Serializable;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
@@ -22,7 +21,7 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.IRandom;
 
-public class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
+public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource {
 
     private static final long serialVersionUID = 2L;
     protected PotentialCalculationForceSum forceSum;
@@ -71,7 +70,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements EtomicaEle
 // steps all particles across time interval tStep
 
     // assumes one phase
-    public void doStep() {
+    public void doStepInternal() {
         atomIterator.reset();              //reset iterator of atoms
         while(atomIterator.hasNext()) {    //loop over all atoms
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();  //  advancing positions full step

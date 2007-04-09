@@ -38,8 +38,8 @@ public class SwMd2D extends Simulation {
         defaults.atomSize = 0.8;
         integrator = new IntegratorHard(this);
         integrator.setTimeStep(0.01);
+        integrator.setEventInterval(5);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
-        activityIntegrate.setInterval(5);
         activityIntegrate.setSleepPeriod(1);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(300.);

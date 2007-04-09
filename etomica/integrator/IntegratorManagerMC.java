@@ -118,30 +118,16 @@ public class IntegratorManagerMC extends Integrator {
     }
 
     /**
-     * Fires non-interval event for this integrator, then instructs
-     * each sub-integrator to fire event.
-     */
-    public void fireNonintervalEvent(IntegratorNonintervalEvent ie) {
-        super.fireNonintervalEvent(ie);
-        if (ie.type() == IntegratorNonintervalEvent.DONE) {
-            for(int i=0; i<nIntegrators; i++) {
-                integrators[i].fireNonintervalEvent(new IntegratorNonintervalEvent(integrators[i], IntegratorNonintervalEvent.DONE));
-            }
-        }
-    }
-    
-    /**
      * Performs a Monte Carlo trial that attempts to swap the configurations
      * between two "adjacent" phases, or instructs all integrators to perform
      * a single doStep.
      */
-    public void doStep() {
+    public void doStepInternal() {
         if(random.nextDouble() < globalMoveProbability) {
             doGlobalMoves();
         } else {
             for(int i=0; i<nIntegrators; i++) {
-                integrators[i].doStep();
-                integrators[i].fireIntervalEvent(intervalEvents[i]);
+                integrators[i].doStepInternal();
             }
         }
     }

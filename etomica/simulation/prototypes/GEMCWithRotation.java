@@ -38,11 +38,11 @@ public class GEMCWithRotation extends Simulation {
         defaults.makeLJDefaults();
         defaults.temperature = defaults.unitSystem.temperature().toSim(0.420);
         integrator = new IntegratorGEMC(potentialMaster, getRandom());
+        integrator.setEventInterval(400);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);
 	    activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
-	    activityIntegrate.setInterval(400);
 	    
 	    species = new SpeciesSpheresRotating(this);
         getSpeciesManager().addSpecies(species);

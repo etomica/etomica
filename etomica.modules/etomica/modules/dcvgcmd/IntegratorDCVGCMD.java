@@ -6,7 +6,6 @@
  */
 package etomica.modules.dcvgcmd;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorPhase;
@@ -33,7 +32,6 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 	double zFraction = 0.1;
 	private MyMCMove mcMove1, mcMove2, mcMove3, mcMove4;
 	private Species speciesA, speciesB;
-	private double elapsedTime = 0.0;
     private final PotentialMasterHybrid potentialMasterHybrid;
 	private int MDStepCount, MDStepRepetitions;
     
@@ -69,7 +67,7 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
         }
     }
 	
-	public void doStep() {
+	public void doStepInternal() {
         if (potentialMasterHybrid != null) {
             potentialMasterHybrid.setUseNbrLists(MDStepCount > 0);
         }
@@ -81,7 +79,6 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 			mcMove4.setupActiveAtoms();
 			for(int i=0; i<50; i++) {
                 integratormc.doStep();
-                integratormc.fireIntervalEvent(intervalEventMC);
             }
             potentialMasterHybrid.setUseNbrLists(true);
             potentialMasterHybrid.getNeighborManager(phase).reset();
@@ -93,8 +90,6 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 	 	} else {
             MDStepCount--;
 	 		integratormd.doStep();
-            integratormd.fireIntervalEvent(intervalEventMD);
-	 		elapsedTime += integratormd.getTimeStep();	
 		} 
 	}
 
@@ -117,8 +112,8 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 	}
 	
 	
-	public double elapsedTime() {
-		return elapsedTime;
+	public double getCurrentTime() {
+		return integratormd.getCurrentTime();
 	}
 	
 	public void setIntegrators(IntegratorMC intmc, IntegratorMD intmd, IRandom random) {
@@ -141,9 +136,6 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 		moveManager.addMCMove (mcMove4);
 		mcMove3.setSpecies(speciesB);
 		mcMove4.setSpecies(speciesB);
-
-        intervalEventMC = new IntegratorIntervalEvent(integratormc, 1);
-        intervalEventMD = new IntegratorIntervalEvent(integratormd, 1);
 	}
 	
 	public void setMu(double mu1, double mu2) {
@@ -162,13 +154,9 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 		integratormc.reset();
         potentialMasterHybrid.setUseNbrLists(true);
 		integratormd.reset();
-		elapsedTime = 0.0;
 	}
 
 	public MyMCMove[] mcMoves() {
 		return new MyMCMove[] {mcMove1, mcMove2, mcMove3, mcMove4};
 	}
-
-    IntegratorIntervalEvent intervalEventMD, intervalEventMC;
-
 }

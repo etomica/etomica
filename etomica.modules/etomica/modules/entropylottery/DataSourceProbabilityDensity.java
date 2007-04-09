@@ -65,7 +65,7 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
     }
 
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
+        if (evt.type() == IntegratorNonintervalEvent.RESET) {
             phase = ((IntegratorPhase)evt.getSource()).getPhase();
             totalAtomCount = phase.getSpeciesMaster().moleculeCount();
             IVector dimensions = phase.getBoundary().getDimensions();

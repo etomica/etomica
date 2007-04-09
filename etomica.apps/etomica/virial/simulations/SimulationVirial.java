@@ -61,8 +61,8 @@ public class SimulationVirial extends Simulation {
 		integrator.setTemperature(temperature);
         integrator.setPhase(phase);
         integrator.getMoveManager().setEquilibrating(false);
+        integrator.setEventInterval(1);
 		ai = new ActivityIntegrate(this,integrator);
-		ai.setInterval(1);
 		getController().addAction(ai);
 		
         if (species.getFactory().getType() instanceof AtomTypeLeaf) {

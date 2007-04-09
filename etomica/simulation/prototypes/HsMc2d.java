@@ -50,7 +50,7 @@ public class HsMc2d extends Simulation {
         potentialMaster.addPotential(potential, new Species[] {species, species});
         potentialMaster.addPotential(potential, new Species[] {species, species2});
         potentialMaster.addPotential(potential, new Species[] {species2, species2});
-	    meterCycles = new DataSourceCountSteps();
+	    meterCycles = new DataSourceCountSteps(integrator);
 
         integrator.setPhase(phase);
         integrator.getMoveManager().addMCMove(mcMoveAtom);

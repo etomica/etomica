@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
@@ -26,7 +25,7 @@ import etomica.util.IRandom;
  * @author David Kofke
  *
  */
-public final class IntegratorHardField extends IntegratorHard implements EtomicaElement {
+public final class IntegratorHardField extends IntegratorHard {
 
     private static final long serialVersionUID = 1L;
 	public final PotentialCalculationForceSum forceSum;

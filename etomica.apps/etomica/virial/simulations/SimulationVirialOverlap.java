@@ -133,8 +133,8 @@ public class SimulationVirialOverlap extends Simulation {
         setRefPref(1,5);
         integratorOS = new IntegratorOverlap(potentialMaster, getRandom(), integrators, accumulators);
         integratorOS.setNumSubSteps(getDefaults().blockSize);
+        integratorOS.setEventInterval(1);
         ai = new ActivityIntegrate(this,integratorOS);
-        ai.setInterval(1);
         getController().addAction(ai);
 		
 		dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);

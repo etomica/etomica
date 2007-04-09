@@ -656,8 +656,7 @@ public class PistonCylinderGraphic {
         fixPistonButton.setPostAction(new ActionPistonUpdate(pc.integrator));
         fixPistonButton.setState(pistonHeld);
 
-        meterCycles = new DataSourceCountTime();
-        pc.integrator.addListener(meterCycles);
+        meterCycles = new DataSourceCountTime(pc.integrator);
         displayCycles.setPrecision(6);
         DataPump pump= new DataPump(meterCycles,displayCycles);
         new IntervalActionAdapter(pump,pc.integrator);

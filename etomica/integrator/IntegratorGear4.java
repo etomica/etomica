@@ -2,7 +2,6 @@
 
 package etomica.integrator;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
@@ -26,7 +25,7 @@ import etomica.util.IRandom;
  * @author Ed Maginn
  * @author David Kofke
  */
-public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, AgentSource {
+public class IntegratorGear4 extends IntegratorMD implements AgentSource {
 
     private static final long serialVersionUID = 1L;
     private final PotentialCalculationForceSum forceSum;
@@ -89,7 +88,7 @@ public class IntegratorGear4 extends IntegratorMD implements EtomicaElement, Age
     }
         
     
-    public void doStep() {
+    public void doStepInternal() {
         
         predictor();
         calculateForces();

@@ -15,13 +15,12 @@ import etomica.units.Second;
 public class DisplayTimer extends DisplayBox {
 
     public DisplayTimer(IntegratorMD integrator) {
-        this(integrator, new DataSourceCountTime());
-    }        
+        this(integrator, new DataSourceCountTime(integrator));
+    }
         
     private DisplayTimer(IntegratorMD integrator, DataSourceCountTime timer) {
         super(timer.getDataInfo());
         this.timer = timer;
-        integrator.addListener(timer);
         DataPump dataPump = new DataPump(timer, this);
         intervalActionAdapter = new IntervalActionAdapter(dataPump, integrator);
         setUpdateInterval(100);

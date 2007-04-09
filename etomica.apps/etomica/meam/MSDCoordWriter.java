@@ -3,13 +3,13 @@ package etomica.meam;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.activity.ControllerEvent;
+import etomica.action.activity.ControllerListener;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
-import etomica.integrator.IntegratorNonintervalEvent;
-import etomica.integrator.IntegratorNonintervalListener;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -45,7 +45,7 @@ import etomica.space.Space;
 
 
 public class MSDCoordWriter implements IntegratorIntervalListener,
-		IntegratorNonintervalListener {
+                                       ControllerListener {
 	
 	
 	public MSDCoordWriter(Space space, String fileName){
@@ -139,16 +139,13 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		return 50;
 	}
 
-	public void nonintervalAction(IntegratorNonintervalEvent evt) {
-
-		if (evt.type()==IntegratorNonintervalEvent.INITIALIZE){
-			openFile();
-		}
-		else if (evt.type()==IntegratorNonintervalEvent.DONE){
-			closeFile();
-		}
-
-	}
+    public void actionPerformed(ControllerEvent evt) {
+        if (fileWriter != null &&
+            (evt.getType() == ControllerEvent.NO_MORE_ACTIONS ||
+             evt.getType() == ControllerEvent.HALTED)) {
+            closeFile();
+        }
+    }
 
 	private AfterPBC afterPBCinstance;
 	private Phase phase;

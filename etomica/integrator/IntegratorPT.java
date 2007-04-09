@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -38,12 +37,7 @@ import etomica.util.IRandom;
  * 
  * @author David Kofke
  */
- 
- /* History of changes
-  * 7/16/02 (DAK) new
-  */
-
-public class IntegratorPT extends IntegratorManagerMC implements EtomicaElement {
+public class IntegratorPT extends IntegratorManagerMC {
     
     public IntegratorPT(Simulation sim) {
         this(sim.getPotentialMaster(), sim.getRandom());

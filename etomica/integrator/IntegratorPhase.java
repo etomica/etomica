@@ -40,6 +40,7 @@ public abstract class IntegratorPhase extends Integrator {
      * potential energy.
      */
     public void reset() throws ConfigurationOverlapException {
+        super.reset();
         meterPE.setPhase(phase);
         currentPotentialEnergy = meterPE.getDataAsScalar();
         if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {

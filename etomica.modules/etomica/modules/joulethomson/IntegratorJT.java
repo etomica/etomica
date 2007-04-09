@@ -28,13 +28,12 @@ public class IntegratorJT extends IntegratorManagerMC {
         nveCount = 100;
     }
 
-    public void doStep() {
+    public void doStepInternal() {
         if(random.nextDouble() < globalMoveProbability) {
             doGlobalMoves();
         } else {
             if (nveCount > 0) {
                 integratorNVE.doStep();
-                integratorNVE.fireIntervalEvent(intervalEvents[1]);
                 nveCount--;
                 if (nveCount == 0) {
                     try {
@@ -48,7 +47,6 @@ public class IntegratorJT extends IntegratorManagerMC {
             }
             else {
                 integratorNPH.doStep();
-                integratorNPH.fireIntervalEvent(intervalEvents[0]);
             }
         }
     }

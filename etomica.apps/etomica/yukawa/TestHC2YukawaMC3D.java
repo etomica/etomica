@@ -94,7 +94,6 @@ public class TestHC2YukawaMC3D extends Simulation{
 		//IntervalActionAdapter iaa = new IntervalActionAdapter(pPump,sim.integrator);
 		//iaa.setActionInterval(2*numAtoms);
 		MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-		energyMeter.setPhase(sim.phase);
 		AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
 		DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
 		energyAccumulator.setBlockSize(50);

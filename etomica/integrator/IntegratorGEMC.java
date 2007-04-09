@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
@@ -14,7 +13,7 @@ import etomica.util.IRandom;
  * 
  * @author David Kofke
  */
-public class IntegratorGEMC extends IntegratorManagerMC implements EtomicaElement {
+public class IntegratorGEMC extends IntegratorManagerMC {
 
     public IntegratorGEMC(Simulation sim) {
         this(sim.getPotentialMaster(), sim.getRandom());

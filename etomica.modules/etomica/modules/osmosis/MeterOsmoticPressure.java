@@ -60,9 +60,9 @@ public class MeterOsmoticPressure extends MeterPressureHard {
     }
 
     public double getDataAsScalar() {
-        double elapsedTime = timer.getDataAsScalar();
-        double value = virialSum / elapsedTime;
-        timer.reset();
+        double currentTime = integratorHard.getCurrentTime();
+        double value = virialSum / (currentTime - lastTime);
+        lastTime = currentTime;
         virialSum = 0;
 
         // calculate accessible "area"

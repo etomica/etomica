@@ -6,10 +6,6 @@ import etomica.action.Action;
  * Adapter that causes an action to be performed as the result of an integrator
  * intervalEvent.
  */
-
-/*
- * History Created on Feb 19, 2005 by kofke
- */
 public class IntervalActionAdapter implements IntegratorIntervalListener, java.io.Serializable {
 
     /**

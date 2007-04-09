@@ -1,6 +1,4 @@
 package etomica.data;
-import etomica.EtomicaElement;
-import etomica.EtomicaInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
@@ -16,12 +14,11 @@ import etomica.units.Null;
  * @author Rob Riggleman
  */
 
-public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, IntegratorHard.CollisionListener, java.io.Serializable {
+public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public DataSourceTensorVirialHard(Space space) {
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("PV/NkT", Null.DIMENSION, space);
-        timer = new DataSourceCountTime();
         work = space.makeTensor();
         tag = new DataTag();
         dataInfo.addTag(tag);
@@ -30,11 +27,6 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
     public DataSourceTensorVirialHard(Space space, IntegratorHard integrator) {
         this(space);
         setIntegrator(integrator);
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Virial tensor for a hard potential");
-        return info;
     }
     
     public IDataInfo getDataInfo() {
@@ -49,9 +41,9 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
      * Current value of the meter, obtained by dividing sum of collision virial contributions by time elapsed since last call.
      * If elapsed-time interval is zero, returns the value reported at the last call to the method.
      */
-    //TODO consider how to ensure timer is advanced before this method is invoked
     public Data getData() {
-        double elapsedTime = timer.getDataAsScalar();
+        double currentTime = integratorHard.getCurrentTime();
+        double elapsedTime = currentTime - lastTime;
         if(elapsedTime == 0.0) {
             data.E(Double.NaN);
             return data;
@@ -62,7 +54,6 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
         work.TE(-1./(integratorHard.getTemperature()*elapsedTime*D*phase.atomCount()));
         data.x.E(work);
         //don't add 1.0 to diagonal elements because meter returns only virial contribution to pressure
-        timer.reset();
         return data;
     }
     
@@ -89,13 +80,11 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
         if(newIntegrator == integratorHard) return;
         if(integratorHard != null) {
             integratorHard.removeCollisionListener(this);
-            integratorHard.removeListener(timer);
         }
         integratorHard = newIntegrator;
         if(newIntegrator != null) {
-            timer.reset();
             newIntegrator.addCollisionListener(this);
-            newIntegrator.addListener(timer);
+            lastTime = newIntegrator.getCurrentTime();
         }
     }
     
@@ -103,20 +92,11 @@ public class DataSourceTensorVirialHard implements DataSource, EtomicaElement, I
         return integratorHard;
     }
     
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    
     private static final long serialVersionUID = 1L;
-    private String name;
-    private DataSourceCountTime timer;
-    private IntegratorHard integratorHard;
-    private final DataTensor data;
-    private final Tensor work;
-    private final DataInfoTensor dataInfo;
+    protected double lastTime;
+    protected IntegratorHard integratorHard;
+    protected final DataTensor data;
+    protected final Tensor work;
+    protected final DataInfoTensor dataInfo;
     protected final DataTag tag;
 }

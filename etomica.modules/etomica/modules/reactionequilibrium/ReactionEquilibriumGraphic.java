@@ -205,8 +205,7 @@ public class ReactionEquilibriumGraphic {
         dimerFork.addDataSink(splitter);
         
 		//display for history of mole fractions
-        DataSourceCountTime timeCounter = new DataSourceCountTime();
-        sim.integratorHard1.addListener(timeCounter);
+        DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integratorHard1);
         DisplayPlot plot = new DisplayPlot();
         plot.setLabel("Composition");
         plot.setDoLegend(true);

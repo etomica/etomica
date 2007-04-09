@@ -1,7 +1,5 @@
 package etomica.integrator;
 
-import etomica.EtomicaElement;
-import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
@@ -29,7 +27,7 @@ import etomica.util.IRandom;
  * @author Chris Iacovella
  * @author David Kofke
  */
-public final class IntegratorConNVT extends IntegratorMD implements EtomicaElement, AgentSource {
+public final class IntegratorConNVT extends IntegratorMD implements AgentSource {
 
     private static final long serialVersionUID = 1L;
     public final PotentialCalculationForceSum forceSum;
@@ -59,11 +57,6 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
     }
 
 	
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("NVT-MD Integrator using modified Leap-Frog algorithm");
-        return info;
-    }
-
     public void setPhase(Phase p) {
         if (phase != null) {
             agentManager.dispose();
@@ -86,7 +79,7 @@ public final class IntegratorConNVT extends IntegratorMD implements EtomicaEleme
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-    public void doStep() {
+    public void doStepInternal() {
 		double dim = phase.getSpace().D();  //get the dimension
 		
         //Compute forces on each atom

@@ -62,12 +62,11 @@ public class IntegratorOverlap extends IntegratorManagerMC {
 
     // Override superclass so we can run the integrators for different lenghts
     // of time.  There are no global moves.
-    public void doStep() {
+    public void doStepInternal() {
         for (int i=0; i<nIntegrators; i++) {
             int iSubSteps = 10 + (int)((numSubSteps-10*nIntegrators) * stepFreq[i]); 
             for (int j=0; j<iSubSteps; j++) {
                 integrators[i].doStep();
-                integrators[i].fireIntervalEvent(intervalEvents[i]);
             }
             totNumSubSteps[i] += iSubSteps;
         }

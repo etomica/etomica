@@ -54,8 +54,6 @@ public class EntropyLotteryGraphic {
         timer.setLabelType(DisplayBox.BORDER);
         timer.setUnit(new Unit(LennardJones.Time.UNIT));
 	*/    
-        DataSourceCountSteps timeCounter = new DataSourceCountSteps();
-        sim.integrator.addListener(timeCounter);
 		
         //tabbed pane for the big displays
         javax.swing.JPanel bigPanel = new javax.swing.JPanel();
@@ -65,8 +63,7 @@ public class EntropyLotteryGraphic {
         MeterEntropy meterEntropy = new MeterEntropy();
         meterEntropy.setPhase(sim.phase);
         AccumulatorHistory entropyHistory = new AccumulatorHistory(new HistoryCollapsing(100));
-        DataSourceCountSteps stepCounter = new DataSourceCountSteps();
-        sim.integrator.addListener(stepCounter);
+        DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integrator);
         entropyHistory.setTimeDataSource(stepCounter);
         DataPump pump = new DataPump(meterEntropy, entropyHistory);
         IntervalActionAdapter iaa = new IntervalActionAdapter(pump);
@@ -82,8 +79,7 @@ public class EntropyLotteryGraphic {
         iaa.setActionInterval(20);
         sim.integrator.addListener(iaa);
         AccumulatorHistory probabilityEntropyHistory = new AccumulatorHistory(new HistoryCollapsing(100));
-        stepCounter = new DataSourceCountSteps();
-        sim.integrator.addListener(stepCounter);
+        stepCounter = new DataSourceCountSteps(sim.integrator);
         probabilityEntropyHistory.setTimeDataSource(stepCounter);
         entropyProcessor.setDataSink(probabilityEntropyHistory);
         sim.register(probabilityDensity, pump);

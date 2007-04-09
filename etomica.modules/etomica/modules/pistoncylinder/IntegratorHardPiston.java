@@ -26,7 +26,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         super.setup();
     }
     
-    public void doStep() {
+    public void doStepInternal() {
         if (pistonUpdateRequested) {
             pistonUpdateRequested = false;
             updatePiston();

@@ -65,8 +65,8 @@ public class MEAMMd3DforCluster {
     	dataKELogger.setAppending(true);
     	dataKELogger.setDataSink(new DataTableWriter());
     	
-    	sim.integrator.addListener(dataPELogger);
-    	sim.integrator.addListener(dataKELogger);
+    	sim.getController().getEventManager().addListener(dataPELogger);
+    	sim.getController().getEventManager().addListener(dataKELogger);
     	
     	accumulatorAveragePE.addDataSink(dataPELogger, new StatType[]{StatType.MOST_RECENT});
     	accumulatorAverageKE.addDataSink(dataKELogger, new StatType[]{StatType.MOST_RECENT});

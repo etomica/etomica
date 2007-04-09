@@ -1,6 +1,5 @@
 package etomica.integrator;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
@@ -19,7 +18,7 @@ import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.IRandom;
 
-public final class IntegratorVerlet extends IntegratorMD implements EtomicaElement, AgentSource {
+public final class IntegratorVerlet extends IntegratorMD implements AgentSource {
 
     private static final long serialVersionUID = 1L;
     protected final PotentialCalculationForcePressureSum forceSum;
@@ -76,7 +75,7 @@ public final class IntegratorVerlet extends IntegratorMD implements EtomicaEleme
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-    public void doStep() {
+    public void doStepInternal() {
 
         //Compute forces on each atom       
         forceSum.reset();

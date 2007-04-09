@@ -79,11 +79,13 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 		}
         ConfigurationOverlapException overlapException = null;
         try {
+            //XXX grossly inefficient
             integrator1.reset();
         } catch(ConfigurationOverlapException e) {
             overlapException = e;
         }
         try {
+            //XXX grossly inefficient
             integrator2.reset();
         } catch(ConfigurationOverlapException e) {
             overlapException = e;

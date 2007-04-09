@@ -206,6 +206,7 @@ public class JouleThomson extends SimulationGraphic {
         DataPump densityPump = new DataPump(densityMeter, densityHistoryAcc);
         IntervalActionAdapter adapter = new IntervalActionAdapter(densityPump);
         sim.integratorJT.addListener(adapter);
+        sim.integratorJT.setEventInterval(20);
         
         //plot of temperature and density histories
 //		History tMeterHistory = tMeter.getHistory();
@@ -219,7 +220,6 @@ public class JouleThomson extends SimulationGraphic {
 
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(1);
-        sim.activityIntegrate.setInterval(20);
         System.out.println("Time step: "+sim.integrator.getTimeStep());
 
         //set-pressure history
