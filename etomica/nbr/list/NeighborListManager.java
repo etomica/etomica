@@ -72,7 +72,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * </ul>
      */
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
-        if (evt.type() == IntegratorNonintervalEvent.INITIALIZE) {
+        if (evt.type() == IntegratorNonintervalEvent.RESET) {
             // the NeighborCellManager might not have existed during construction
             // so we couldn't se the lattice.  It better exist now.
             cellNbrIterator.setLattice(potentialMaster.getNbrCellManager(phase).getLattice());
