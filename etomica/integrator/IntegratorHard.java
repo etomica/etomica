@@ -113,6 +113,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource {
      * Steps all atoms across time interval timeStep, handling all intervening collisions.
      */
     public void doStepInternal() {
+        super.doStepInternal();
         findNextCollider();
         collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
         double oldTime = 0;
