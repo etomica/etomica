@@ -123,9 +123,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
         continue;
       }
       //TODO: atomFilter doesn't play well with wireframe toggle
-      //this will always override settings made by it
-      //now listening to wireframe toggle events to decide when to
-      //ignore this
+      //atomfilter toggles drawable flag; wireframe simply ignores spheres
       boolean drawable = atomFilter.accept(a);
       ball.setDrawable(drawable);
       if (!drawable) {
@@ -143,8 +141,12 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     Boundary boundary = displayPhase.getPhase().getBoundary();
     Polytope polytope = boundary.getShape();
     if (polytope != oldPolytope) {
-      //TODO: send iterator to g3dsys here
-      //TODO: add getIterator method to all boundaries?
+
+      //force trunc. oct. to make vecs else null pointer exception
+      boundary.getPeriodicVectors(); 
+      //send iterator to g3dsys
+      gsys.setBoundaryVectorsIterator(
+          wrapIndexIterator((boundary.getIndexIterator())));
       
       if (polytopeLines != null) {
         for (int i=0; i<polytopeLines.length; i++) {
@@ -289,18 +291,19 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
    * @return returns the g3dsys index iterator
    */
   private g3dsys.control.IndexIterator wrapIndexIterator(
-      etomica.lattice.IndexIterator iter) {
+      etomica.lattice.IndexIteratorSizable iter) {
     
-    final etomica.lattice.IndexIterator i = iter;
+    final etomica.lattice.IndexIteratorSizable i = iter;
     
     return new g3dsys.control.IndexIterator() {
 
-      private etomica.lattice.IndexIterator ii = i;
+      private etomica.lattice.IndexIteratorSizable ii = i;
       
       public int getD() { return ii.getD(); }
       public boolean hasNext() { return ii.hasNext(); }
       public int[] next() { return ii.next(); }
       public void reset() { ii.reset(); }
+      public void setSize(int[] size) { ii.setSize(size); }
     
     };
     

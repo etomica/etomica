@@ -2,8 +2,8 @@ package etomica.space;
 
 import java.io.Serializable;
 
-import etomica.lattice.IndexIterator;
 import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
 import etomica.math.geometry.Parallelotope;
@@ -415,7 +415,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     public IVector[] getPeriodicVectors() {
         return edgeVectors;
     }
-    public IndexIterator getIndexIterator() {
+    public IndexIteratorSizable getIndexIterator() {
       return new IndexIteratorSequential(edgeVectors.length);
     }
     

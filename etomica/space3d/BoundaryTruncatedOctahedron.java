@@ -3,6 +3,7 @@ package etomica.space3d;
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIterator;
 import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorSizable;
 import etomica.math.SpecialFunctions;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polygon;
@@ -76,7 +77,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
      * one to be returned on the next call. hasNext() simply checks a
      * field set during this to determine if there is a next 
      */
-    public IndexIterator getIndexIterator(){
+    public IndexIteratorSizable getIndexIterator(){
       return new IndexIteratorSequentialFiltered(vecs.length,vecs);
     }
     
@@ -91,7 +92,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
      */
     
     private class IndexIteratorSequentialFiltered
-      implements IndexIterator {
+      implements IndexIteratorSizable {
       
       private IndexIteratorSequential iis;
       private boolean hasnext;
@@ -158,6 +159,10 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
             break;
           }
         }
+      }
+
+      public void setSize(int[] size) {
+        iis.setSize(size);
       }
       
     }

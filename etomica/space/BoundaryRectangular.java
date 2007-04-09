@@ -1,7 +1,7 @@
 package etomica.space;
 
-import etomica.lattice.IndexIterator;
 import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
@@ -142,7 +142,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         }
         return vectors;
     }
-    public IndexIterator getIndexIterator() {
+    public IndexIteratorSizable getIndexIterator() {
       int n = 0;
       for(int i=0; i<isPeriodic.length; i++)
         if(isPeriodic[i]) n++;
