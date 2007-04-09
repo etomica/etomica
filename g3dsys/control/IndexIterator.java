@@ -21,5 +21,7 @@ public interface IndexIterator {
    * @return returns the next indices
    */
   public int[] next();
+  
+  public void setSize(int[] size);
 
 }

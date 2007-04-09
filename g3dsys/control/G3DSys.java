@@ -89,27 +89,7 @@ public class G3DSys {
     parent.repaint();
   }
 
-  /**
-   * Gets boundary of the first phase, used by ImageShell
-   * @return the boundary used by the first phase
-   */
-  public void setBoundaryVectors(double[] values) {
-    fm.setBoundaryVectors(values);
-  }
 
-  private IndexIterator boundaryVectorsIterator;
-  //TODO: method setBoundaryVectorIterator; need vectors as well as an iterator
-  public void setBoundaryVectorsIterator(IndexIterator i) {
-    boundaryVectorsIterator = i;
-  }
-  public IndexIterator getBoundaryVectorsIterator() {
-    return boundaryVectorsIterator;
-  }
-  
-  public double[] getBoundaryVectors() {
-    return fm.getBoundaryVectors();
-  }
-  
   /* ****************************************************************
    * G3D-related methods
    * ****************************************************************/
@@ -344,7 +324,38 @@ public class G3DSys {
     fm.draw();
   }
 
+  /**
+   * Sets the boundary vectors to be used for calculating image shells
+   * @param values the vectors to use
+   */
+  public void setBoundaryVectors(double[] values) {
+    fm.setBoundaryVectors(values);
+  }
 
+  /**
+   * Sets the index iterator to use for calculating image shells
+   * @param i the iterator to use
+   */
+  public void setBoundaryVectorsIterator(IndexIterator i) {
+    fm.setBoundaryVectorsIterator(i);
+  }
+
+  /**
+   * Gets the index iterator used for calculating image shells
+   * @return returns the index iterator
+   */
+  public IndexIterator getBoundaryVectorsIterator() {
+    return fm.getBoundaryVectorsIterator();
+  }
+  
+  /**
+   * Gets the boundary vectors used for calculating image shells
+   * @return returns the boundary vectors
+   */
+  public double[] getBoundaryVectors() {
+    return fm.getBoundaryVectors();
+  }
+  
   /**
    * Converts the given AWT color to an argb int
    * @param color the color to be converted

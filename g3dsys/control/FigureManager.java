@@ -194,18 +194,20 @@ class FigureManager {
       gsys.fastRefresh();
     }
 
-    private double[] vectors;
-    
     /**
      * Sets the boundary vectors for the phase; used by ImageShell
      * @param values an array representation of the boundary vectors
      */
-    public void setBoundaryVectors(double[] values) { vectors = values; }
+    public void setBoundaryVectors(double[] values) {
+      images.setBoundaryVectors(values);
+    }
     /**
      * Gets the boundary vectors for the phase; used by ImageShell
      * @return returns an array representation of the vectors
      */
-    public double[] getBoundaryVectors() { return vectors; }
+    public double[] getBoundaryVectors() {
+      return images.getBoundaryVectors();
+    }
     
     /**
      * Sets the number of image shell layers
@@ -249,6 +251,14 @@ class FigureManager {
             (wireframe ? Bond.WIREFRAME : Bond.CYLINDER));
       }
       images.setWireFrame(wireframe);
+    }
+
+    public void setBoundaryVectorsIterator(IndexIterator i) {
+      images.setBoundaryVectorsIterator(i);
+    }
+
+    public IndexIterator getBoundaryVectorsIterator() {
+      return images.getBoundaryVectorsIterator();
     }
 
 }

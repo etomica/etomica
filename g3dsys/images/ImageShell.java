@@ -1,7 +1,7 @@
 package g3dsys.images;
 
 import g3dsys.control.G3DSys;
-import g3dsys.control.IndexIteratorSequential;
+import g3dsys.control.IndexIterator;
 
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
@@ -9,6 +9,11 @@ import javax.vecmath.Point3i;
 import org.jmol.g3d.Graphics3D;
 
 //TODO: implement DRAW_LARGE_BOX type
+//endpoints of the lines * (2*numLayers + 1)
+//TODO: add lazyBigShell flag to tell us it's okay to scale lines
+//canvas sets a flag on the index iterator before passing it
+//if flag is true, make large box by scaling boundary lines, else
+//hit panic button
 
 public class ImageShell extends Figure {
 
@@ -104,10 +109,15 @@ public class ImageShell extends Figure {
     float dx = 0, dy = 0, dz = 0; //for linear combinations
     Figure[] figs = _gsys.getFigs();
     
-    IndexIteratorSequential iter = new IndexIteratorSequential(D,numLayers);
+    //IndexIteratorSequential iter = new IndexIteratorSequential(D,numLayers);
+    int[] sizes = new int[D];
+    for(int i=0; i<D; i++) { sizes[i] = numLayers*2 + 1; } 
+    iter.setSize(sizes);
     iter.reset();
+    
     while(iter.hasNext()) {
       int[] ia = iter.next();
+      System.out.println(ia[0]+","+ia[1]+","+ia[2]);
       if(ia.length != 3) break; //unexpected dimensionality: bail
       
       //build offsets as linear combination of vectors
@@ -194,4 +204,12 @@ public class ImageShell extends Figure {
   public void setWireFrame(boolean wireframe) {
     this.wireframe = wireframe;
   }
+
+  private double[] vectors;
+  private IndexIterator iter;
+  public void setBoundaryVectors(double[] values) { vectors = values; }
+  public double[] getBoundaryVectors() { return vectors; }
+  public void setBoundaryVectorsIterator(IndexIterator i) { iter = i; }
+  public IndexIterator getBoundaryVectorsIterator() { return iter; }
+  
 }
