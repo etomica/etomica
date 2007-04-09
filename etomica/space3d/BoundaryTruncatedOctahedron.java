@@ -166,7 +166,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
       private int fudgeFactor = 4;
 
       public void setSize(int[] size) {
-        this.numLayers = size[0]; // assume each dimension is same size
+        this.numLayers = (size[0]-1)/2; // assume each dimension is same size
         int[] newsize = new int[size.length];
         for(int i=0; i<size.length; i++) { newsize[i] = (int)(size[i]*fudgeFactor)+1; }
         iis.setSize(newsize);

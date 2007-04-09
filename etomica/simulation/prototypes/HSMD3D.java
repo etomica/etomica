@@ -115,8 +115,8 @@ public class HSMD3D extends Simulation {
 //              new Vector3D(2,6,4),
 //              new Vector3D(1,2,6)}));
         //truncated octahedron
-        phase.setBoundary(
-            new etomica.space3d.BoundaryTruncatedOctahedron(this));
+//        phase.setBoundary(
+//            new etomica.space3d.BoundaryTruncatedOctahedron(this));
         
         integrator.setPhase(phase);
 
