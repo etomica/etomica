@@ -1,5 +1,5 @@
 package etomica.tests;
-import etomica.action.activity.ActivityIntegrate;
+import etomica.action.ActionIntegrate;
 import etomica.action.activity.Controller;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
@@ -49,9 +49,9 @@ public class TestLJMC3D extends Simulation {
         ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().setEquilibrating(false);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
-        activityIntegrate.setMaxSteps(200000);
-        getController().addAction(activityIntegrate);
+        ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
+        actionIntegrate.setMaxSteps(200000);
+        getController().addAction(actionIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 	    phase = new Phase(this);

@@ -1,6 +1,6 @@
 package etomica.tests;
 
-import etomica.action.activity.ActivityIntegrate;
+import etomica.action.ActionIntegrate;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
@@ -40,9 +40,9 @@ public class TestHSMD3D extends Simulation {
         integrator = new IntegratorHard(this);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
-        getController().addAction(activityIntegrate);
-        activityIntegrate.setMaxSteps(20000000/numAtoms);
+        ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
+        getController().addAction(actionIntegrate);
+        actionIntegrate.setMaxSteps(20000000/numAtoms);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         getSpeciesManager().removeSpecies(species);
