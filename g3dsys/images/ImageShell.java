@@ -111,13 +111,12 @@ public class ImageShell extends Figure {
     
     //IndexIteratorSequential iter = new IndexIteratorSequential(D,numLayers);
     int[] sizes = new int[D];
-    for(int i=0; i<D; i++) { sizes[i] = numLayers*2 + 1; } 
+    for(int i=0; i<D; i++) { sizes[i] = numLayers; } 
     iter.setSize(sizes);
     iter.reset();
     
     while(iter.hasNext()) {
       int[] ia = iter.next();
-      System.out.println(ia[0]+","+ia[1]+","+ia[2]);
       if(ia.length != 3) break; //unexpected dimensionality: bail
       
       //build offsets as linear combination of vectors
