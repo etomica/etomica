@@ -4,7 +4,6 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.space.IVector;
@@ -89,7 +88,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             this.meter = meter;
         }
         public int getPriority() {return 50;}//PBC is 100-199
-        public void intervalAction(IntegratorIntervalEvent evt) {
+        public void intervalAction() {
 //            meter.iterator.setPhase(meter.integrator.getPhase()[0]);
             meter.iterator.reset();
             int i = 0;
@@ -111,7 +110,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             this.meter = meter;
         }
         public int getPriority() {return 200;}//PBC is 100-199
-        public void intervalAction(IntegratorIntervalEvent evt) {
+        public void intervalAction() {
             meter.iterator.reset();
             int i = 0;
             //accumulate difference from last coordinate before pbc applied

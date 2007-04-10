@@ -14,7 +14,7 @@ public interface IntegratorIntervalListener extends IntegratorListener {
      * Action performed by the listener when integrator fires its interval
      * event.
      */
-    public void intervalAction(IntegratorIntervalEvent evt);
+    public void intervalAction();
 
     /**
      * Priority assigned to the listener. A small value will cause the

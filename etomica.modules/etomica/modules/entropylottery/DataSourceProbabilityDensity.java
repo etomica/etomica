@@ -8,7 +8,6 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
@@ -45,7 +44,7 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
         return 0;
     }
 
-    public void intervalAction(IntegratorIntervalEvent evt) {
+    public void intervalAction() {
         data.assignTo(newData);
         double[] oldData = data.getData();
         int nBin = oldData.length;

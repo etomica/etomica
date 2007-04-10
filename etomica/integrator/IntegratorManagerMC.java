@@ -29,7 +29,6 @@ public class IntegratorManagerMC extends Integrator {
         super(potentialMaster);
         this.random = random;
         integrators = new Integrator[0];
-        intervalEvents = new IntegratorIntervalEvent[0];
         setGlobalMoveInterval(2);
         moveManager = new MCMoveManager(random);
         eventManager = new MCMoveEventManager();
@@ -82,7 +81,6 @@ public class IntegratorManagerMC extends Integrator {
 
     public void addIntegrator(Integrator integrator){
         integrators = (Integrator[])Arrays.addObject(integrators,integrator);
-        intervalEvents = (IntegratorIntervalEvent[])Arrays.addObject(intervalEvents,new IntegratorIntervalEvent(integrator, 1));
         nIntegrators++;
     }
 
@@ -206,7 +204,6 @@ public class IntegratorManagerMC extends Integrator {
     protected MCMoveManager moveManager;
     protected final MCMoveEventManager eventManager;
     protected Integrator[] integrators;
-    protected IntegratorIntervalEvent[] intervalEvents;
     protected int nIntegrators;
     private final MCMoveTrialInitiatedEvent trialEvent;
     private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;

@@ -44,8 +44,7 @@ public class IntegratorEvent implements java.io.Serializable {
         }
 
         public static Type[] choices() {
-            return new Type[]{IntegratorIntervalEvent.INTERVAL,
-                    IntegratorNonintervalEvent.RESET};
+            return new Type[]{IntegratorNonintervalEvent.RESET};
         }
     }
 

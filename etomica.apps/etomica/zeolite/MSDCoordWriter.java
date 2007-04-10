@@ -9,7 +9,6 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.phase.Phase;
 import etomica.space.IVector;
@@ -115,7 +114,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		intervalCount = writeInterval;
 	}
 	
-	public void intervalAction(IntegratorIntervalEvent evt) {
+	public void intervalAction() {
 		//System.out.println(counter);
 		//counter++;
 		afterPBCinstance.updateAtomOldCoord();
@@ -217,7 +216,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			}
 		}
 		
-		public void intervalAction(IntegratorIntervalEvent evt) {
+		public void intervalAction() {
 			iterator.reset();
 			int i=0;
 			

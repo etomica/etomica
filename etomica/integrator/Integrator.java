@@ -25,7 +25,6 @@ public abstract class Integrator implements java.io.Serializable {
     private final LinkedList intervalListeners = new LinkedList();
     private final LinkedList listeners = new LinkedList();
     private ListenerWrapper[] listenerWrapperArray = new ListenerWrapper[0];
-    protected IntegratorIntervalEvent intervalEvent;
     protected int interval;
     private int iieCount;
     protected int stepCount;
@@ -50,7 +49,6 @@ public abstract class Integrator implements java.io.Serializable {
      */
     public void setEventInterval(int interval) {
         this.interval = interval;
-        intervalEvent = new IntegratorIntervalEvent(this, interval);
         if (iieCount > interval) {
             iieCount = interval;
         }
@@ -60,7 +58,7 @@ public abstract class Integrator implements java.io.Serializable {
         stepCount++;
         doStepInternal();
         if(--iieCount == 0) {
-            fireIntervalEvent(intervalEvent);
+            fireIntervalEvent();
             iieCount = interval;
         }
     }
@@ -169,9 +167,9 @@ public abstract class Integrator implements java.io.Serializable {
      * synchronized, so unpredictable behavior if listeners are added while
      * notification is in process (this should be rare).
      */
-    protected void fireIntervalEvent(IntegratorIntervalEvent iie) {
+    protected void fireIntervalEvent() {
         for(int i=0; i<listenerWrapperArray.length; i++) {
-            listenerWrapperArray[i].listener.intervalAction(iie);
+            listenerWrapperArray[i].listener.intervalAction();
         }
     }
 

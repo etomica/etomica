@@ -8,7 +8,6 @@ import etomica.action.activity.ControllerListener;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.phase.Phase;
 import etomica.space.IVector;
@@ -102,7 +101,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		intervalCount = writeInterval;
 	}
 	
-	public void intervalAction(IntegratorIntervalEvent evt) {
+	public void intervalAction() {
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
 			IVector phasedim = phase.getBoundary().getDimensions();
@@ -193,7 +192,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			}
 		}
 		
-		public void intervalAction(IntegratorIntervalEvent evt) {
+		public void intervalAction() {
 			iterator.reset();
 			int i=0;
 			

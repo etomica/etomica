@@ -10,7 +10,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorTreePhase;
-import etomica.integrator.IntegratorIntervalEvent;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
@@ -97,7 +96,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * Reacts to an interval event, with every updateInterval calls causing
      * this to invoke updateNbrsIfNeeded.
      */
-    public void intervalAction(IntegratorIntervalEvent evt) {
+    public void intervalAction() {
         if (--iieCount == 0) {
             updateNbrsIfNeeded();
             iieCount = updateInterval;

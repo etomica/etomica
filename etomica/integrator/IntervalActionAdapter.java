@@ -34,7 +34,7 @@ public class IntervalActionAdapter implements IntegratorIntervalListener, java.i
      * performed and the updateInterval counter is not incremented; this is also
      * the case if the active flag is false.
      */
-    public void intervalAction(IntegratorIntervalEvent evt) {
+    public void intervalAction() {
         if (active) {
             if (--iieCount == 0) {
                 iieCount = actionInterval;
@@ -99,10 +99,10 @@ public class IntervalActionAdapter implements IntegratorIntervalListener, java.i
         return action;
     }
 
+    private static final long serialVersionUID = 1L;
     private final Action action;
     private int iieCount;
     private int priority;
     private boolean active;//set true in constructor
     private int actionInterval;
-
 }
