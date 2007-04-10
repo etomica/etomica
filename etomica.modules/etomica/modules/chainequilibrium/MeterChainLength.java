@@ -1,9 +1,3 @@
-/*
- * Created on May 1, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.modules.chainequilibrium;
 
 import java.io.Serializable;
@@ -176,6 +170,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         this.name = name;
     }
 
+    private static final long serialVersionUID = 1L;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private Phase phase;
     private String name;
