@@ -100,7 +100,6 @@ public class ClipPlaneEditor {
         positionSlider.setNMajor(4);
         positionSlider.getSlider().setValue(0);
         positionSlider.setPostAction(new Action() {
-            public String getLabel() {return null;}
             public void actionPerformed() {
                 boxD.doUpdate();
             }
