@@ -31,8 +31,8 @@ public class P3BondAngle extends Potential {
         AtomLeaf atom0 = (AtomLeaf)atomSet.getAtom(0);
         AtomLeaf atom1 = (AtomLeaf)atomSet.getAtom(1);
         AtomLeaf atom2 = (AtomLeaf)atomSet.getAtom(2);
-        dr12.Ev1Mv2(atom1.getCoord().getPosition(),atom0.getCoord().getPosition());
-        dr23.Ev1Mv2(atom2.getCoord().getPosition(),atom1.getCoord().getPosition());
+        dr12.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
+        dr23.Ev1Mv2(atom2.getPosition(),atom1.getPosition());
         nearestImageTransformer.nearestImage(dr12);
         nearestImageTransformer.nearestImage(dr23);
         double costheta = -dr12.dot(dr23)/Math.sqrt(dr12.squared()*dr23.squared());

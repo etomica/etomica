@@ -74,12 +74,12 @@ public class MeterRadiusGyration extends DataSourceScalar {
             // find center of mass
             AtomLeaf firstAtom = (AtomLeaf)leafIterator.peek();
             int nLeafAtoms = 0;
-            realPos.E(firstAtom.getCoord().getPosition());
-            IVector prevPosition = firstAtom.getCoord().getPosition();
+            realPos.E(firstAtom.getPosition());
+            IVector prevPosition = firstAtom.getPosition();
             while (leafIterator.hasNext()) {
                 nLeafAtoms++;
                 AtomLeaf a = (AtomLeaf)leafIterator.nextAtom();
-                IVector position = a.getCoord().getPosition();
+                IVector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position
@@ -93,10 +93,10 @@ public class MeterRadiusGyration extends DataSourceScalar {
             // calculate Rg^2 for this chain
             double r2 = 0.0;
             leafIterator.reset();
-            realPos.E(firstAtom.getCoord().getPosition());
+            realPos.E(firstAtom.getPosition());
             while (leafIterator.hasNext()) {
                 AtomLeaf a = (AtomLeaf)leafIterator.nextAtom();
-                IVector position = a.getCoord().getPosition();
+                IVector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
                 //the real difference in position

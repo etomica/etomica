@@ -14,5 +14,6 @@ public class PhaseEventManager extends EventManager {
         }
     }
 
+    private static final long serialVersionUID = 1L;
     protected Class getListenerClass() {return PhaseListener.class;}
 }

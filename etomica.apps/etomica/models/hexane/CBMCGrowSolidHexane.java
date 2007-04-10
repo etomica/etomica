@@ -52,8 +52,8 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
         //temp will be the radial vector
         //vex will be the axial vector
         
-        temp.E(b.getCoord().getPosition());
-        temp.ME(a.getCoord().getPosition());
+        temp.E(b.getPosition());
+        temp.ME(a.getPosition());
         vex.E(temp);     //Store it because we need it, and we are going to change temp in the next line of code.
        
         temp.E(getNormal(temp));
@@ -122,10 +122,10 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
         //get a normal vector to the a-b vector and the b-c vector
         //This vector is, by definition, perpendicular to the a-b vector, which
         // makes it a radius of a circle centered on that axis.
-        vex.E(b.getCoord().getPosition());
-        vex.ME(a.getCoord().getPosition());
-        temp.E(c.getCoord().getPosition());
-        temp.ME(b.getCoord().getPosition());
+        vex.E(b.getPosition());
+        vex.ME(a.getPosition());
+        temp.E(c.getPosition());
+        temp.ME(b.getPosition());
         
         //get the cosine of the angle between a-to-b (vex, axial vector)
         // and b-c (temp, radial vector)

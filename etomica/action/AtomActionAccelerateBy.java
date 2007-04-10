@@ -1,6 +1,5 @@
 package etomica.action;
 import etomica.atom.Atom;
-import etomica.atom.AtomLeaf;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -23,7 +22,7 @@ public class AtomActionAccelerateBy extends AtomActionAdapter {
     }
     
     public void actionPerformed(Atom atom) {
-        ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).getVelocity().PE(accelerationVector);
+        ((ICoordinateKinetic)atom).getVelocity().PE(accelerationVector);
     }
        
     /**

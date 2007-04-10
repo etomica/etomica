@@ -10,7 +10,6 @@ import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactorySphere;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
@@ -136,7 +135,7 @@ public class UnitTestUtil {
             for (int j = 0; j < childFactories.length; j++) {
                 AtomTypeLeaf atomType = new AtomTypeSphere(sim);
                 atomType.setParentType((AtomTypeGroup) factory.getType());
-                childFactories[j] = new AtomFactoryMono(new CoordinateFactorySphere(space, false), atomType);
+                childFactories[j] = new AtomFactoryMono(space, atomType);
             }
             factory.setChildFactory(childFactories);
             factory.setChildCount(nAtoms[i]);

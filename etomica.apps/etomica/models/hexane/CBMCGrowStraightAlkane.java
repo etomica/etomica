@@ -93,21 +93,21 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             for(int k = 0; k < numTrial-1; k++){  //This loops through the trials
                 
                 if(i == beginIndex){    //If we're placing the first atom of a molecule
-                    (((AtomLeaf)atomList.get(i)).getCoord().getPosition()).E(phase.getBoundary().randomPosition());
+                    (((AtomLeaf)atomList.get(i)).getPosition()).E(phase.getBoundary().randomPosition());
                 } else if(i == beginIndex + dir){  //If we're placing the second atom of a molecule
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBond());
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());
+                    ((AtomLeaf)atomList.get(i)).getPosition().E(calcRandomBond());
+                    ((AtomLeaf)atomList.get(i)).getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getPosition());
                 } else if(i == beginIndex + dir * 2){//If we're placing the third atom of a molecule
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBondWithAngle(
+                    ((AtomLeaf)atomList.get(i)).getPosition().E(calcRandomBondWithAngle(
                             (AtomLeaf)atomList.get(i-dir),
                             (AtomLeaf)atomList.get(i-2*dir)));
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());                 
+                    ((AtomLeaf)atomList.get(i)).getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getPosition());                 
                 } else {//For the rest of the atoms in a molecule
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBondWithAngleAndTorsion(
+                    ((AtomLeaf)atomList.get(i)).getPosition().E(calcRandomBondWithAngleAndTorsion(
                             (AtomLeaf)atomList.get(i-dir), 
                             (AtomLeaf)atomList.get(i-2*dir), 
                             (AtomLeaf)atomList.get(i-3*dir)));
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());
+                    ((AtomLeaf)atomList.get(i)).getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getPosition());
                 }
                 
                 //evaluate the Boltzmann factor of this configuration
@@ -123,7 +123,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             }//end of k loop
             
             //do the k-loop stuff for the actual position of the molecule, since we are in the old section
-            ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(positionOld[i]);
+            ((AtomLeaf)atomList.get(i)).getPosition().E(positionOld[i]);
             uExt = calcExternalEnergy(((AtomLeaf)atomList.get(i)));
             if(i == endIndex || i == 0){
                 a[numTrial-1] = numTrial * Math.exp(-beta*uExt);
@@ -152,25 +152,25 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             for(int k = 0; k < numTrial; k++){  //This loops through the trials
                 
                 if(i == beginIndex){    //If we're placing the first atom of a molecule
-                    (((AtomLeaf)atomList.get(i)).getCoord().getPosition()).E(phase.getBoundary().randomPosition());
+                    (((AtomLeaf)atomList.get(i)).getPosition()).E(phase.getBoundary().randomPosition());
                 } else if(i == beginIndex + dir){  //If we're placing the second atom of a molecule
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBond());
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());
+                    ((AtomLeaf)atomList.get(i)).getPosition().E(calcRandomBond());
+                    ((AtomLeaf)atomList.get(i)).getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getPosition());
                 } else if(i == beginIndex + dir * 2){//If we're placing the third atom of a molecule
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBondWithAngle(
+                    ((AtomLeaf)atomList.get(i)).getPosition().E(calcRandomBondWithAngle(
                             (AtomLeaf)atomList.get(i-dir),
                             (AtomLeaf)atomList.get(i-2*dir)));
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());                 
+                    ((AtomLeaf)atomList.get(i)).getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getPosition());                 
                 } else {//For the rest of the atoms in a molecule
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(calcRandomBondWithAngleAndTorsion(
+                    ((AtomLeaf)atomList.get(i)).getPosition().E(calcRandomBondWithAngleAndTorsion(
                             (AtomLeaf)atomList.get(i-dir), 
                             (AtomLeaf)atomList.get(i-2*dir), 
                             (AtomLeaf)atomList.get(i-3*dir)));
-                    ((AtomLeaf)atomList.get(i)).getCoord().getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getCoord().getPosition());
+                    ((AtomLeaf)atomList.get(i)).getPosition().PE(((AtomLeaf)atomList.get(i-dir)).getPosition());
                 }
                 
 //              store new position
-                storePos[k].E(((AtomLeaf)atomList.get(i)).getCoord().getPosition());
+                storePos[k].E(((AtomLeaf)atomList.get(i)).getPosition());
                 
                 //evaluate the Boltzmann factor of this configuration
                 // (configuration of this molecule, for this trial)
@@ -216,7 +216,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             
             System.out.println("I picked trial " + pickThisOne);
             //Move the atom to the selected position
-            ((AtomLeaf)atomList.get(i)).getCoord().getPosition().E(storePos[pickThisOne]);
+            ((AtomLeaf)atomList.get(i)).getPosition().E(storePos[pickThisOne]);
             
             //Increment the Rosenbluth factor for the system.
             wNew *= sumA;
@@ -257,8 +257,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         double phi;
         double ubb;
 
-        tempCloser.E(a.getCoord().getPosition());
-        tempCloser.ME(b.getCoord().getPosition());
+        tempCloser.E(a.getPosition());
+        tempCloser.ME(b.getPosition());
         tempCloser.normalize();
         
         do{
@@ -288,10 +288,10 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             throw new IllegalArgumentException("Torsional bond is only used in 3D simulations");
         }
 
-        tempFarther.E(b.getCoord().getPosition());
-        tempFarther.ME(c.getCoord().getPosition()); 
-        tempCloser.E(a.getCoord().getPosition());
-        tempCloser.ME(b.getCoord().getPosition());
+        tempFarther.E(b.getPosition());
+        tempFarther.ME(c.getPosition()); 
+        tempCloser.E(a.getPosition());
+        tempCloser.ME(b.getPosition());
         double phi, theta;
         double ubb, utors, usum;
         

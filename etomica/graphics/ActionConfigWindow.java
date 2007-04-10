@@ -34,7 +34,7 @@ public class ActionConfigWindow implements Action {
         iterator.reset();
         while (iterator.hasNext()) {
             AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-            IVector pos = atom.getCoord().getPosition();
+            IVector pos = atom.getPosition();
             String str = Double.toString(pos.x(0));
             for (int i=1; i<pos.getD(); i++) {
                 str += " "+Double.toString(pos.x(i));

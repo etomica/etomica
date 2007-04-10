@@ -552,7 +552,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
             atomIterator.reset();
             while(atomIterator.hasNext()) {
                 AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
-                double r2 = Space.r2(point,atom.getCoord().getPosition(),getPhase().getBoundary());
+                double r2 = Space.r2(point,atom.getPosition(),getPhase().getBoundary());
                 if(r2 < r2Min) {
                     nearestAtom = atom;
                     r2Min = r2;

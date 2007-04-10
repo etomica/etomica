@@ -320,8 +320,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 
                 AtomLeaf atom0 = (AtomLeaf)pair.atom0;
                 AtomLeaf atom1 = (AtomLeaf)pair.atom1;
-                ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
-                ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
+                ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
+                ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
                 dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
                 
                 dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

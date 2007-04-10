@@ -52,13 +52,13 @@ public abstract class ConformationChain extends Conformation {
         	IVector currentPosition = space.makeVector();
         
         	//Zero the first atom.
-        	((AtomLeaf)atomIterator.nextAtom()).getCoord().getPosition().E(0.0);
+        	((AtomLeaf)atomIterator.nextAtom()).getPosition().E(0.0);
         	
         	while(atomIterator.hasNext()){
         		AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
         		//TODO someday, we might want a to be a chunk-of-atoms
         		currentPosition.PE(nextVector());
-        		a.getCoord().getPosition().E(currentPosition);
+        		a.getPosition().E(currentPosition);
         	}
 	}
 	

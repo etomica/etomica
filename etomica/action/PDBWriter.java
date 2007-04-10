@@ -101,7 +101,7 @@ public class PDBWriter implements Action, Serializable {
             }
             try {
                 formatMethod.invoke(formatter,new Object[]{"ATOM%7d%3s                %8.3f%8.3f%8.3f\n", new Object[]{new Integer(atomCount), new Character(elements[elementIndex]), 
-                        new Double(atom.getCoord().getPosition().x(0)), new Double(atom.getCoord().getPosition().x(1)), new Double(atom.getCoord().getPosition().x(2))}});
+                        new Double(atom.getPosition().x(0)), new Double(atom.getPosition().x(1)), new Double(atom.getPosition().x(2))}});
             }
             catch (InvocationTargetException e) {
                 throw new RuntimeException(e);

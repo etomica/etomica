@@ -47,7 +47,7 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
         int k=0;
         while(iterator.hasNext()) {
             Atom atom = iterator.nextAtom();
-            positions[k++] = ((AtomLeaf)atom).getCoord().getPosition();
+            positions[k++] = ((AtomLeaf)atom).getPosition();
         }
     }
     

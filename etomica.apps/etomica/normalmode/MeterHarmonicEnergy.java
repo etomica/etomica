@@ -120,8 +120,8 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         AtomArrayList atoms = phase.getSpeciesMaster().getLeafList();
 
         for(int i=0; i<numAtoms; i++) {
-            ((AtomLeaf)atoms.get(i)).getCoord().getPosition().E((i+0.5)*L/numAtoms - 0.5*L);
-            System.out.println(((AtomLeaf)atoms.get(i)).getCoord().getPosition().x(0));
+            ((AtomLeaf)atoms.get(i)).getPosition().E((i+0.5)*L/numAtoms - 0.5*L);
+            System.out.println(((AtomLeaf)atoms.get(i)).getPosition().x(0));
         }
         
         CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(Space1D.getInstance());
@@ -129,8 +129,8 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
 
         MeterHarmonicEnergy meter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         meter.setPhase(phase);
-        ((AtomLeaf)atoms.get(1)).getCoord().getPosition().PE(0.5);
-        ((AtomLeaf)atoms.get(6)).getCoord().getPosition().PE(-1.5);
+        ((AtomLeaf)atoms.get(1)).getPosition().PE(0.5);
+        ((AtomLeaf)atoms.get(6)).getPosition().PE(-1.5);
         System.out.println("Harmonic energy: "+meter.getDataAsScalar());
     }
 }

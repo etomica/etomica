@@ -1,6 +1,5 @@
 package etomica.modules.chainequilibrium;
 import etomica.atom.Atom;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -145,8 +144,8 @@ public class P2SquareWellBonded extends P2SquareWell {
             // ** Makes 2 things, and atomPair pair, 
             AtomPair pair = (AtomPair) atoms;
             
-            ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)pair.atom0).getCoord();
-            ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)pair.atom1).getCoord();
+            ICoordinateKinetic coord0 = (ICoordinateKinetic)pair.atom0;
+            ICoordinateKinetic coord1 = (ICoordinateKinetic)pair.atom1;
             dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
             
             dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -170,10 +169,10 @@ public class P2SquareWellBonded extends P2SquareWell {
 	
 	public void bump(AtomSet pair, double falseTime) {
 
-        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
-        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
+        Atom atom0 = ((AtomPair)pair).atom0;
+        Atom atom1 = ((AtomPair)pair).atom1;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

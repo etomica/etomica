@@ -249,7 +249,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
             if(!active) return true;
             if(atom.getType().getSpecies() != ((DCVGCMD)simulation).speciesTube) return true;
             double x0 = ((DCVGCMD)simulation).poreCenter.x(0);
-            return ((AtomLeaf)atom).getCoord().getPosition().x(0) < x0;
+            return ((AtomLeaf)atom).getPosition().x(0) < x0;
 
         }
     }

@@ -62,7 +62,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             
             int j=0;
             while (leafAtomIterator.hasNext()) {
-                oldPositions[i][j++].E(((AtomLeaf)leafAtomIterator.nextAtom()).getCoord().getPosition());
+                oldPositions[i][j++].E(((AtomLeaf)leafAtomIterator.nextAtom()).getPosition());
             }
             leafAtomIterator.reset();
             doTransform();
@@ -104,7 +104,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             leafAtomIterator.reset();
             int j=0;
             while (leafAtomIterator.hasNext()) {
-                ((AtomLeaf)leafAtomIterator.nextAtom()).getCoord().getPosition().E(oldPositions[i][j++]);
+                ((AtomLeaf)leafAtomIterator.nextAtom()).getPosition().E(oldPositions[i][j++]);
             }
         }
         ((PhaseCluster)phase).rejectNotify();

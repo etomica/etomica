@@ -7,7 +7,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinate;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -42,10 +41,8 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     public double energy(AtomSet pair) {
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinate coord0 = atom0.getCoord();
-        ICoordinate coord1 = atom1.getCoord();
         
-        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         nearestImageTransformer.nearestImage(dr);
 
         double r2 = dr.squared();
@@ -67,10 +64,8 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
         
         AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
         AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinate coord0 = atom0.getCoord();
-        ICoordinate coord1 = atom1.getCoord();
         
-        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         nearestImageTransformer.nearestImage(dr);
 
         double r2 = dr.squared();

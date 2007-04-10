@@ -19,7 +19,6 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.ICoordinate;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.species.Species;
@@ -185,7 +184,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 	    	iterator.reset();
 	    	while(iterator.hasNext()) {
 	    		AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-	    		double r2 = Space.r2(atom.getCoord().getPosition(), r[i], boundary);
+	    		double r2 = Space.r2(atom.getPosition(), r[i], boundary);
 	    		if(r2 < r2Min) {
 	    			r2Min = r2;
 	    			nearest[i] = atom;
@@ -274,7 +273,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         iterator.setPhase(this);
         iterator.reset();
         while (iterator.hasNext()) {
-            out.writeObject(((AtomLeaf)iterator.nextAtom()).getCoord());
+            out.writeObject(((AtomLeaf)iterator.nextAtom()).getPosition());
         }
     }
     
@@ -318,7 +317,8 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         iterator.setPhase(newPhase);
         iterator.reset();
         while (iterator.hasNext()) {
-            ((AtomLeaf)iterator.nextAtom()).getCoord().E((ICoordinate)in.readObject());
+            //XXX broken
+//            ((AtomLeaf)iterator.nextAtom()).getCoord().E((ICoordinate)in.readObject());
         }
         return newPhase;
     }

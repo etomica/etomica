@@ -36,12 +36,12 @@ public class P2UAPropane extends Potential2 {
         AtomUAPropane molecule1 = (AtomUAPropane)pair.atom0;
         AtomUAPropane molecule2 = (AtomUAPropane)pair.atom1;
 
-        IVector propane1UA1r = molecule1.UA1.getCoord().getPosition();
-        IVector propane2UA1r = molecule2.UA1.getCoord().getPosition();
-        IVector propane1UA2r = molecule1.UA2.getCoord().getPosition();
-        IVector propane2UA2r = molecule2.UA2.getCoord().getPosition();
-        IVector propane1UA3r = molecule1.UA3.getCoord().getPosition();
-        IVector propane2UA3r = molecule2.UA3.getCoord().getPosition();
+        IVector propane1UA1r = molecule1.UA1.getPosition();
+        IVector propane2UA1r = molecule2.UA1.getPosition();
+        IVector propane1UA2r = molecule1.UA2.getPosition();
+        IVector propane2UA2r = molecule2.UA2.getPosition();
+        IVector propane1UA3r = molecule1.UA3.getPosition();
+        IVector propane2UA3r = molecule2.UA3.getPosition();
 
         
         final double core = 0.1;

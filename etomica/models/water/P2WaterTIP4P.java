@@ -33,15 +33,15 @@ public class P2WaterTIP4P extends Potential2 {
         AtomWater4P water1 = (AtomWater4P)pair.atom0;
         AtomWater4P water2 = (AtomWater4P)pair.atom1;
 
-        IVector O1r = water1.O.getCoord().getPosition();
-        IVector O2r = water2.O.getCoord().getPosition();
-        IVector H11r = water1.H1.getCoord().getPosition();
-        IVector H12r = water1.H2.getCoord().getPosition();
-        IVector H21r = water2.H1.getCoord().getPosition();
-        IVector H22r = water2.H2.getCoord().getPosition();
+        IVector O1r = water1.O.getPosition();
+        IVector O2r = water2.O.getPosition();
+        IVector H11r = water1.H1.getPosition();
+        IVector H12r = water1.H2.getPosition();
+        IVector H21r = water2.H1.getPosition();
+        IVector H22r = water2.H2.getPosition();
 
-        IVector M1r = water1.M.getCoord().getPosition();
-        IVector M2r = water2.M.getCoord().getPosition();
+        IVector M1r = water1.M.getPosition();
+        IVector M2r = water2.M.getPosition();
         
 		
         final double core = 0.1;

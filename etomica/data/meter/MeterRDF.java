@@ -102,7 +102,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
         iterator.reset();
         while(iterator.hasNext()) {                 //iterate over all pairs
             AtomPair pair = (AtomPair)iterator.next();
-            dr.Ev1Mv2(((AtomLeaf)pair.atom1).getCoord().getPosition(),((AtomLeaf)pair.atom0).getCoord().getPosition());
+            dr.Ev1Mv2(((AtomLeaf)pair.atom1).getPosition(),((AtomLeaf)pair.atom0).getPosition());
             nearestImageTransformer.nearestImage(dr);
             double r2 = dr.squared();       //compute pair separation
             if(r2 < xMaxSquared) {

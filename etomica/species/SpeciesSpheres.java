@@ -5,6 +5,7 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
@@ -12,7 +13,6 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactorySphere;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,
@@ -38,8 +38,9 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         super(new AtomFactoryHomo(sim.getSpace(), nA, conformation));
         AtomTypeSphere atomType = new AtomTypeSphere(sim, leafElement);
         atomType.setParentType((AtomTypeGroup)factory.getType());
-        ((AtomFactoryHomo)factory).setChildFactory(
-                new AtomFactoryMono(new CoordinateFactorySphere(sim), atomType));
+        ((AtomFactoryHomo)factory).setChildFactory(sim.isDynamic() ?
+                            new AtomFactoryMonoDynamic(sim.getSpace(), atomType) :
+                            new AtomFactoryMono(sim.getSpace(), atomType));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

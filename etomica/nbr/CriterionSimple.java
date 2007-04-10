@@ -81,14 +81,14 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
-		r2 = ((AtomLeaf)atom).getCoord().getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
+		r2 = ((AtomLeaf)atom).getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
-            System.out.println("atom "+atom+" displacement "+r2+" "+((AtomLeaf)atom).getCoord().getPosition());
+            System.out.println("atom "+atom+" displacement "+r2+" "+((AtomLeaf)atom).getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor)+")");
 			System.out.println("old position "+agentManager.getAgent(atom));
-			System.out.println("new position "+((AtomLeaf)atom).getCoord().getPosition());
+			System.out.println("new position "+((AtomLeaf)atom).getPosition());
             throw new RuntimeException("stop that");
 		}
 		return r2 > displacementLimit2;
@@ -107,7 +107,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 
 	public boolean accept(AtomSet pair) {
-        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getCoord().getPosition(),((AtomLeaf)((AtomPair)pair).atom0).getCoord().getPosition());
+        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getPosition(),((AtomLeaf)((AtomPair)pair).atom0).getPosition());
         nearestImageTransformer.nearestImage(dr);
         if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {
             throw new IllegalStateException("neighbor radius "+Math.sqrt(neighborRadius2)+" is less than interaction range "+interactionRange);
@@ -122,7 +122,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 	
 	public void reset(Atom atom) {
-        ((IVector)agentManager.getAgent(atom)).E(((AtomLeaf)atom).getCoord().getPosition());
+        ((IVector)agentManager.getAgent(atom)).E(((AtomLeaf)atom).getPosition());
 	}
 
     public Class getAgentClass() {

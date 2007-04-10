@@ -54,7 +54,7 @@ public class ConfigurationFileXYZ extends Configuration{
 		
 		private void setPosition(AtomLeaf atom, String string) {
 	        String[] coordStr = string.split(" +");
-            IVector pos = atom.getCoord().getPosition();
+            IVector pos = atom.getPosition();
             for (int i=0; i<pos.getD(); i++) {
 	            double coord = Double.valueOf(coordStr[i]).doubleValue();
 	            if(coord<min.x(i)) min.setX(i,coord);
@@ -66,8 +66,8 @@ public class ConfigurationFileXYZ extends Configuration{
 	    }
 
         private void translatePosition(AtomLeaf atom){
-            atom.getCoord().getPosition().ME(min);
-            atom.getCoord().getPosition().PEa1Tv1(-0.5,dim);
+            atom.getPosition().ME(min);
+            atom.getPosition().PEa1Tv1(-0.5,dim);
 		}
         
 		public int[] getNumAtoms(){

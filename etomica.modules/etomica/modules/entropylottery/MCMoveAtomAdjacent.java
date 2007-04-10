@@ -42,7 +42,7 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
         translationVector.E(0);
         int i = random.nextInt(translationVector.getD());
         translationVector.setX(i, random.nextInt(2)*2-1);
-        ((AtomLeaf)atom).getCoord().getPosition().PE(translationVector);
+        ((AtomLeaf)atom).getPosition().PE(translationVector);
         return true;
     }
     
@@ -55,7 +55,7 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
      */
     public double getB() {
         boolean[] periodicity = ((BoundaryPeriodic)phase.getBoundary()).getPeriodicity();
-        IVector position = ((AtomLeaf)atom).getCoord().getPosition();
+        IVector position = ((AtomLeaf)atom).getPosition();
         IVector dimensions = phase.getBoundary().getDimensions();
         for (int i=0; i<position.getD(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary
@@ -92,7 +92,7 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
      */
     public void rejectNotify() {
         translationVector.TE(-1);
-        ((AtomLeaf)atom).getCoord().getPosition().PE(translationVector);
+        ((AtomLeaf)atom).getPosition().PE(translationVector);
     }
         
     

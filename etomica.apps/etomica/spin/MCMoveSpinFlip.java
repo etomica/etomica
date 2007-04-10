@@ -47,7 +47,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
         atom = (AtomLeaf)leafList.get(random.nextInt(leafList.size()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
-        atom.getCoord().getPosition().TE(-1);
+        atom.getPosition().TE(-1);
         uNew = Double.NaN;
         return true;
     }
@@ -78,7 +78,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
      * @see etomica.integrator.MCMove#rejectNotify()
      */
     public void rejectNotify() {
-        atom.getCoord().getPosition().TE(-1);
+        atom.getPosition().TE(-1);
     }
 
     /* (non-Javadoc)

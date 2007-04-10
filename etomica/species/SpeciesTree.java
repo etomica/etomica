@@ -4,12 +4,11 @@ import java.lang.reflect.Constructor;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomFactoryTree;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactory;
-import etomica.space.CoordinateFactorySphere;
 
 /**
  * Species in which molecules are formed as an arbitrarily shaped tree.
@@ -41,8 +40,9 @@ public class SpeciesTree extends Species implements EtomicaElement {
         AtomTypeSphere atomType = new AtomTypeSphere(sim);
         //getLeafType will return the an AtomTypeGroup because leaf factory is not yet set
         atomType.setParentType((AtomTypeGroup)((AtomFactoryTree)factory).getLeafType());
-        CoordinateFactory coordFactory = new CoordinateFactorySphere(sim);
-        ((AtomFactoryTree)factory).setLeafFactory(new AtomFactoryMono(coordFactory, atomType));
+        ((AtomFactoryTree)factory).setLeafFactory(sim.isDynamic() ?
+                    new AtomFactoryMonoDynamic(sim.getSpace(), atomType) :
+                    new AtomFactoryMono(sim.getSpace(), atomType));
     }
     
     public static EtomicaInfo getEtomicaInfo() {

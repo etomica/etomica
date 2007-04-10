@@ -92,7 +92,7 @@ public class XYZWriter implements Action, Serializable {
                     }
                     symbol = elements[elementIndex];
                 }
-                fileWriter.write(symbol+" "+atom.getCoord().getPosition().x(0)+" "+atom.getCoord().getPosition().x(1)+" "+atom.getCoord().getPosition().x(2)+"\n");
+                fileWriter.write(symbol+" "+atom.getPosition().x(0)+" "+atom.getPosition().x(1)+" "+atom.getPosition().x(2)+"\n");
             }
             fileWriter.close();
         } catch(IOException e) {

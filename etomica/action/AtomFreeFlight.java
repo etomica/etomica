@@ -17,7 +17,7 @@ public class AtomFreeFlight extends AtomActionAdapter {
     private static final long serialVersionUID = 1L;
     private double tStep = 0.0;
     public void actionPerformed(Atom a) {
-        ((AtomLeaf)a).getCoord().getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity());
+        ((AtomLeaf)a).getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a).getVelocity());
     }
     public void actionPerformed(Atom a, double t) {
         tStep = t;

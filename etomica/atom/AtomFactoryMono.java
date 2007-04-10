@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.space.CoordinateFactory;
+import etomica.space.Space;
 
 /**
  * Builder of a monoatomic atom group, which comprises just an Atom.
@@ -10,9 +10,9 @@ import etomica.space.CoordinateFactory;
 
 public class AtomFactoryMono extends AtomFactory {
     
-    public AtomFactoryMono(CoordinateFactory coordFactory, AtomTypeLeaf atomType) {
+    public AtomFactoryMono(Space space, AtomTypeLeaf atomType) {
         super(atomType);
-        this.coordFactory = coordFactory;
+        this.space = space;
     }
 
     /**
@@ -20,23 +20,16 @@ public class AtomFactoryMono extends AtomFactory {
      * atom (or the root atom, if this makes an atom group) made by this
      * AtomFactory
      */
-    public CoordinateFactory getCoordinateFactory() {
-        return coordFactory;
+    public Space getSpace() {
+        return space;
     }
     
-    public void setCoordinateFactory(CoordinateFactory newCoordFactory) {
-        if (!isMutable) {
-            throw new IllegalStateException("Factory is not mutable");
-        }
-        coordFactory = newCoordFactory;
-    }
-
     /**
      * Returns a new leaf atom having no children.
      */
     public Atom makeAtom() {
         isMutable = false;
-        return new AtomLeaf(coordFactory.makeCoordinate(), atomType);
+        return new AtomLeaf(space, atomType);
     }
     
     /**
@@ -62,5 +55,5 @@ public class AtomFactoryMono extends AtomFactory {
     }
     
     private static final long serialVersionUID = 1L;
-    protected CoordinateFactory coordFactory;
+    protected Space space;
 }

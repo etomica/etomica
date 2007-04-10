@@ -11,7 +11,7 @@ public interface ICoordinate {
      * 
      * @param coord a coordinate of the same type as this coordinate
      */
-    public void E(ICoordinate coord);
+//    public void E(ICoordinate coord);
 
     /**
      * Returns the position vector.

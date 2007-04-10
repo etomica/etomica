@@ -136,14 +136,14 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     }
 
 	public boolean needUpdate(Atom atom) {
-        dr = Math.abs(((AtomLeaf)atom).getCoord().getPosition().x(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
+        dr = Math.abs(((AtomLeaf)atom).getPosition().x(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
-            System.out.println("atom "+atom+" displacement "+dr+" "+((AtomLeaf)atom).getCoord().getPosition());
+            System.out.println("atom "+atom+" displacement "+dr+" "+((AtomLeaf)atom).getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && dr > rMaxSafe) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+dr+" > "+rMaxSafe+")");
 			System.out.println("old position "+((DoubleWrapper)agentManager.getAgent(atom)).x);
-			System.out.println("new position "+((AtomLeaf)atom).getCoord().getPosition().x(neighborDim));
+			System.out.println("new position "+((AtomLeaf)atom).getPosition().x(neighborDim));
             throw new RuntimeException("stop that");
 		}
 		return dr > displacementLimit;
@@ -162,7 +162,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 	}
 
 	public boolean accept(AtomSet atom) {
-		dr = ((AtomLeaf)atom).getCoord().getPosition().x(neighborDim);
+		dr = ((AtomLeaf)atom).getPosition().x(neighborDim);
         if (!isBoundaryWall) {
             dr = Math.abs(dr - wallPosition);
         }
@@ -183,7 +183,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 	}
 	
 	public void reset(Atom atom) {
-		((DoubleWrapper)agentManager.getAgent(atom)).x = ((AtomLeaf)atom).getCoord().getPosition().x(neighborDim);
+		((DoubleWrapper)agentManager.getAgent(atom)).x = ((AtomLeaf)atom).getPosition().x(neighborDim);
 	}
 
     public Class getAgentClass() {

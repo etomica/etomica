@@ -64,7 +64,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, DataSourceIndepe
         histogramRMS.reset();
 		while (iterator.hasNext()) {
 			AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-			histogramRMS.addValue(Math.sqrt(((ICoordinateKinetic)atom.getCoord()).getVelocity().squared()));
+			histogramRMS.addValue(Math.sqrt(((ICoordinateKinetic)atom).getVelocity().squared()));
 		}
 
         //covertly invoke getHistogram, which actually calculates the histogram
@@ -93,7 +93,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, DataSourceIndepe
     }
     
     public Data getData(Atom a) {
-        atomData.x = Math.sqrt(((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity().squared());
+        atomData.x = Math.sqrt(((ICoordinateKinetic)a).getVelocity().squared());
         return atomData;
     }
     

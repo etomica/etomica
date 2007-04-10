@@ -3,6 +3,7 @@ package etomica.models.water;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeGroup;
@@ -10,8 +11,6 @@ import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactory;
-import etomica.space.CoordinateFactorySphere;
 
 /**
  * Factory that constructs a 3-point water molecule, with three child atoms of 
@@ -33,9 +32,10 @@ public class AtomFactoryWater3P extends AtomFactory {
         AtomTypeSphere oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
         hType.setParentType((AtomTypeGroup)atomType);
         oType.setParentType((AtomTypeGroup)atomType);
-        CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
-        hFactory = new AtomFactoryMono(leafCoordFactory, hType);
-		oFactory = new AtomFactoryMono(leafCoordFactory, oType);
+        hFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), hType) :
+                                     new AtomFactoryMono(sim.getSpace(), hType);
+		oFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), oType) :
+                                     new AtomFactoryMono(sim.getSpace(), oType);
 
 		conformation = new ConformationWater3P(sim.getSpace()); 
 	}

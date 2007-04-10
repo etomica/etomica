@@ -75,8 +75,8 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         while(atomIterator.hasNext()) {    //loop over all atoms
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();  //  advancing positions full step
             MyAgent agent = (MyAgent)agentManager.getAgent(a);     //  and momenta half step
-            IVector r = a.getCoord().getPosition();
-            IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+            IVector r = a.getPosition();
+            IVector v = ((ICoordinateKinetic)a).getVelocity();
             v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
         }
@@ -94,7 +94,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         while(atomIterator.hasNext()) {     //loop over atoms again
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();   //  finishing the momentum step
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            IVector velocity = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+            IVector velocity = ((ICoordinateKinetic)a).getVelocity();
             workTensor.Ev1v2(velocity,velocity);
             workTensor.TE(((AtomTypeLeaf)a.getType()).getMass());
             pressureTensor.PE(workTensor);

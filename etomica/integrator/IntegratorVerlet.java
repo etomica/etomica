@@ -87,13 +87,13 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             pressureTensor.E(forceSum.getPressureTensor());
-            IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+            IVector v = ((ICoordinateKinetic)a).getVelocity();
             workTensor.Ev1v2(v,v);
             workTensor.TE(((AtomTypeLeaf)a.getType()).getMass());
             pressureTensor.PE(workTensor);
             
             Agent agent = (Agent)agentManager.getAgent(a);
-            IVector r = a.getCoord().getPosition();
+            IVector r = a.getPosition();
             work.E(r);
             r.PE(agent.rMrLast);
             agent.force.TE(((AtomTypeLeaf)a.getType()).rm()*t2);
@@ -121,7 +121,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
-            agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a.getCoord()).getVelocity());//06/13/03 removed minus sign before timeStep
+            agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a).getVelocity());//06/13/03 removed minus sign before timeStep
         }
     }
 

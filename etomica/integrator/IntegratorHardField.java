@@ -77,11 +77,11 @@ public final class IntegratorHardField extends IntegratorHard {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             HardFieldAgent agent = (HardFieldAgent)agentManager.getAgent(a);
             agent.decrementCollisionTime(tStep);
-            a.getCoord().getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a.getCoord()).getVelocity());
+            a.getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a).getVelocity());
             if(!agent.forceFree) {
 //                System.out.println("IntegratorHardField "+agent.force.toString()+" "+a.toString());
-                a.getCoord().getPosition().PEa1Tv1(t2*((AtomTypeLeaf)a.getType()).rm(),agent.force);
-                ((ICoordinateKinetic)a.getCoord()).getVelocity().PEa1Tv1(tStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);
+                a.getPosition().PEa1Tv1(t2*((AtomTypeLeaf)a.getType()).rm(),agent.force);
+                ((ICoordinateKinetic)a).getVelocity().PEa1Tv1(tStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);
             }
         }
     }
@@ -119,7 +119,7 @@ public final class IntegratorHardField extends IntegratorHard {
         atomIterator.reset();
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-            ((ICoordinateKinetic)a.getCoord()).getVelocity().TE(s); //scale momentum
+            ((ICoordinateKinetic)a).getVelocity().TE(s); //scale momentum
             ((Agent)agentManager.getAgent(a)).eventLinker.sortKey *= rs;
         }
         atomIterator.reset();

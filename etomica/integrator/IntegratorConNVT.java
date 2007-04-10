@@ -97,7 +97,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         double chi;
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-			IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+			IVector v = ((ICoordinateKinetic)a).getVelocity();
             
 			work1.E(v); //work1 = v
 			work2.E(((Agent)agentManager.getAgent(a)).force);	//work2=F
@@ -115,7 +115,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
 			Agent agent = (Agent)agentManager.getAgent(a);
-			IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+			IVector v = ((ICoordinateKinetic)a).getVelocity();
 		
 			double scale = (2.0*chi-1.0); 
 			work3.Ea1Tv1(scale,v); 
@@ -129,8 +129,8 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 		atomIterator.reset();
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-			IVector r = a.getCoord().getPosition();
-			IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+			IVector r = a.getPosition();
+			IVector v = ((ICoordinateKinetic)a).getVelocity();
             
 			work.Ea1Tv1(timeStep,v);
 			work.PE(r);

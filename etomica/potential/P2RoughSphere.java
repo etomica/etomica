@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
@@ -49,10 +49,10 @@ public class P2RoughSphere extends P2HardSphere {
      * Assumes atoms have same size and mass
      */
     public void bump(AtomSet pair, double falseTime) {
-        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
-        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinateAngularKinetic coord0 = (ICoordinateAngularKinetic)atom0.getCoord();
-        ICoordinateAngularKinetic coord1 = (ICoordinateAngularKinetic)atom1.getCoord();
+        Atom atom0 = ((AtomPair)pair).atom0;
+        Atom atom1 = ((AtomPair)pair).atom1;
+        ICoordinateAngularKinetic coord0 = (ICoordinateAngularKinetic)atom0;
+        ICoordinateAngularKinetic coord1 = (ICoordinateAngularKinetic)atom1;
         IVector v1 = coord0.getVelocity();
         IVector v2 = coord1.getVelocity();
         dv.Ev1Mv2(v2, v1);

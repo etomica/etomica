@@ -143,8 +143,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
 
                     AtomLeaf atom0 = (AtomLeaf)pair.atom0;
                     AtomLeaf atom1 = (AtomLeaf)pair.atom1;
-                    ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
-                    ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
+                    ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
+                    ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
                     dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
                     
                     dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -168,8 +168,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
 
                     AtomLeaf atom0 = (AtomLeaf)debugPair.atom0;
                     AtomLeaf atom1 = (AtomLeaf)debugPair.atom1;
-                    ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
-                    ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
+                    ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
+                    ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
                     dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
                     
                     dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -180,11 +180,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
                     if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
                         System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
                         if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).getCoord()).getVelocity());
-                            dr.PE(((AtomLeaf)debugPair.atom0).getCoord().getPosition());
+                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0)).getVelocity());
+                            dr.PE(((AtomLeaf)debugPair.atom0).getPosition());
                             System.out.println(debugPair.atom0+" coordinates "+dr);
-                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom1).getCoord()).getVelocity());
-                            dr.PE(((AtomLeaf)debugPair.atom1).getCoord().getPosition());
+                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom1)).getVelocity());
+                            dr.PE(((AtomLeaf)debugPair.atom1).getPosition());
                             System.out.println(debugPair.atom1+" coordinates "+dr);
                         }
                     }
@@ -196,8 +196,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
                 }
                 else if (Debug.LEVEL > 2 && debugPair.atom0 instanceof AtomLeaf) {
                     IVector dr = potential.getSpace().makeVector();
-                    dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0).getCoord()).getVelocity());
-                    dr.PE(((AtomLeaf)debugPair.atom0).getCoord().getPosition());
+                    dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0)).getVelocity());
+                    dr.PE(((AtomLeaf)debugPair.atom0).getPosition());
                     System.out.println(debugPair.atom0+" coordinates "+dr);
                 }
             }
@@ -358,7 +358,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
 		while(atomIterator.hasNext()) {
 			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
-			a.getCoord().getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a.getCoord()).getVelocity());
+			a.getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a).getVelocity());
 		}
 	}
 
@@ -389,7 +389,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             resetCollisionTimes();
         }
     }
-    
+
     /**
      * Do an upList call for each atom and reconstruct the event list.
      */

@@ -44,8 +44,8 @@ public class P1HardWall extends Potential1 implements PotentialHard {
 
      
     public double collisionTime(AtomSet a, double falseTime) {
-        IVector r = ((AtomLeaf)a).getCoord().getPosition();
-        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVector r = ((AtomLeaf)a).getPosition();
+        IVector v = ((ICoordinateKinetic)a).getVelocity();
         double vx = v.x(0);
         // cheat!  We want to ignore collisions from the left.  The initial
         // config sometimes plops atoms on the left.
@@ -63,12 +63,12 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     }
 
     public void bump(AtomSet a, double falseTime) {
-        IVector v = ((ICoordinateKinetic)((AtomLeaf)a).getCoord()).getVelocity();
+        IVector v = ((ICoordinateKinetic)a).getVelocity();
 
         v.setX(0,-v.x(0));
 
-        double newP = ((AtomLeaf)a).getCoord().getPosition().x(0) - falseTime*v.x(0)*2.0;
-        ((AtomLeaf)a).getCoord().getPosition().setX(0,newP);
+        double newP = ((AtomLeaf)a).getPosition().x(0) - falseTime*v.x(0)*2.0;
+        ((AtomLeaf)a).getPosition().setX(0,newP);
     }
 
     public double energyChange() {

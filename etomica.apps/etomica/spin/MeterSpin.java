@@ -38,7 +38,7 @@ public class MeterSpin extends DataSourceScalar implements DataSource {
         iterator.reset();
         while(iterator.hasNext()) {
             AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-            sum.PE(atom.getCoord().getPosition());
+            sum.PE(atom.getPosition());
             count++;
         }
         return sum.x(0)/count;

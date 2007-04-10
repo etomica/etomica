@@ -37,8 +37,8 @@ public class P2WaterSPC extends Potential2 {
 		AtomWater3P water2 = (AtomWater3P)((AtomPair)pair).atom1;
 		
 		//compute O-O distance to consider truncation	
-		IVector O1r = water1.O.getCoord().getPosition();
-		IVector O2r = water2.O.getCoord().getPosition();
+		IVector O1r = water1.O.getPosition();
+		IVector O2r = water2.O.getPosition();
 
 		work.Ev1Mv2(O1r, O2r);
         shift.Ea1Tv1(-1,work);
@@ -53,10 +53,10 @@ public class P2WaterSPC extends Potential2 {
 		double s6 = s2*s2*s2;
 		sum += epsilon4*s6*(s6 - 1.0);
 		
-		IVector H11r = water1.H1.getCoord().getPosition();
-		IVector H12r = water1.H2.getCoord().getPosition();
-		IVector H21r = water2.H1.getCoord().getPosition();
-		IVector H22r = water2.H2.getCoord().getPosition();
+		IVector H11r = water1.H1.getPosition();
+		IVector H12r = water1.H2.getPosition();
+		IVector H21r = water2.H1.getPosition();
+		IVector H22r = water2.H2.getPosition();
         		
 		final boolean zeroShift = shift.squared() < 0.1;
         if (zeroShift) {

@@ -15,7 +15,7 @@ public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Se
         if (atomLeaf == null) {
             return null;
         }
-        return atomLeaf.getCoord().getPosition();
+        return atomLeaf.getPosition();
     }
     
     protected AtomLeaf getFirstChildLeafAtom(Atom atom) {

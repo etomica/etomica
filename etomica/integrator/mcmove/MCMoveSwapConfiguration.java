@@ -72,10 +72,10 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 			AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom();
 			AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
 
-			r.E(a1.getCoord().getPosition());
+			r.E(a1.getPosition());
 				
-			a1.getCoord().getPosition().E(a2.getCoord().getPosition());
-			a2.getCoord().getPosition().E(r);
+			a1.getPosition().E(a2.getPosition());
+			a2.getPosition().E(r);
 		}
         ConfigurationOverlapException overlapException = null;
         try {

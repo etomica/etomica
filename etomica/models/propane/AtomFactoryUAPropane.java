@@ -3,14 +3,13 @@ package etomica.models.propane;
 import etomica.atom.Atom;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactory;
-import etomica.space.CoordinateFactorySphere;
 
 /**
  * Factory that constructs a 3-point water molecule, with three child atoms of 
@@ -29,10 +28,8 @@ public class AtomFactoryUAPropane extends AtomFactory {
 		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
         AtomTypeSphere UAType = new AtomTypeSphere(new ElementSimple("UA", 15), 3.75);
         UAType.setParentType((AtomTypeGroup)atomType);
-//        AtomTypeSphere oType = new AtomTypeSphere((AtomTypeGroup)atomType, 16.0, 3.167);
-        CoordinateFactory leafCoordFactory = new CoordinateFactorySphere(sim);
-        UAFactory = new AtomFactoryMono(leafCoordFactory, UAType);
-//		oFactory = new AtomFactoryMono(leafCoordFactory, oType);
+        UAFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), UAType) : 
+                                      new AtomFactoryMono(sim.getSpace(), UAType);
 
 		conformation = new ConformationUAPropane(sim.getSpace()); 
 	}
@@ -42,10 +39,8 @@ public class AtomFactoryUAPropane extends AtomFactory {
 	 */
 	public Atom makeAtom() {
         AtomUAPropane propane = new AtomUAPropane(atomType);
-//		waterNode.O = (AtomLeaf)oFactory.makeAtom();
         propane.UA1 = (AtomLeaf)UAFactory.makeAtom();
         propane.UA2 = (AtomLeaf)UAFactory.makeAtom();
-//        waterNode.O.node.setParent(waterNode);
         propane.UA1.setParent(propane);
         propane.UA2.setParent(propane);
 		conformation.initializePositions(propane.getChildList());

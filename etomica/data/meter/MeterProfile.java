@@ -105,7 +105,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         while(ai1.hasNext()) {
             AtomLeaf a = (AtomLeaf)ai1.nextAtom();
             double value = ((DataDouble)meter.getData(a)).x;
-            position.E(a.getCoord().getPosition());
+            position.E(a.getPosition());
             position.PE(boundary.centralImage(position));
             int i = xDataSource.getIndex(position.dot(profileVector));
             y[i] += value;

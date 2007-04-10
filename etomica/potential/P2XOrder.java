@@ -62,7 +62,7 @@ public class P2XOrder extends Potential2 implements PotentialHard {
      * Zero if x coordinates are ordered differently from atom indexes.
      */
     public double energy(AtomSet pair) {
-        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getCoord().getPosition(), ((AtomLeaf)((AtomPair)pair).atom0).getCoord().getPosition());
+        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getPosition(), ((AtomLeaf)((AtomPair)pair).atom0).getPosition());
         drOld.E(dr);
         int dI = ((AtomPair)pair).atom1.getIndex() - ((AtomPair)pair).atom0.getIndex();
         if (dI == ((AtomPair)pair).atom1.getParentGroup().getChildList().size()-1) {

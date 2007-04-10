@@ -28,13 +28,13 @@ public class ConformationUAPropane extends Conformation {
         iterator.reset();
         
         AtomLeaf UA1 = (AtomLeaf)iterator.nextAtom();
-        UA1.getCoord().getPosition().E(new double[] {x, y, 0.0});
+        UA1.getPosition().E(new double[] {x, y, 0.0});
                
         AtomLeaf UA2 = (AtomLeaf)iterator.nextAtom();
-        UA2.getCoord().getPosition().E(new double[] {x+bondLength, y, 0.0});
+        UA2.getPosition().E(new double[] {x+bondLength, y, 0.0});
                 
         AtomLeaf UA3 = (AtomLeaf)iterator.nextAtom();
-        UA3.getCoord().getPosition().E(new double[] {x+bondLength+bondLength*Math.cos(Math.PI-bondAngle), y+bondLength*Math.sin(Math.PI-bondAngle), 0.0});
+        UA3.getPosition().E(new double[] {x+bondLength+bondLength*Math.cos(Math.PI-bondAngle), y+bondLength*Math.sin(Math.PI-bondAngle), 0.0});
 
         
     }

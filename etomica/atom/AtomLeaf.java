@@ -1,7 +1,7 @@
 package etomica.atom;
 
-import etomica.space.CoordinateFactorySphere;
 import etomica.space.ICoordinate;
+import etomica.space.IVector;
 import etomica.space.Space;
 
  /**
@@ -18,11 +18,11 @@ import etomica.space.Space;
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
   */
-public class AtomLeaf extends Atom {
+public class AtomLeaf extends Atom implements ICoordinate {
 
-    public AtomLeaf(ICoordinate coord, AtomType type) {
+    public AtomLeaf(Space space, AtomType type) {
         super(type);
-        this.coord = coord;
+        position = space.makeVector();
     }
     
     /**
@@ -32,16 +32,9 @@ public class AtomLeaf extends Atom {
      */
     public AtomLeaf(Space space) {
         super();
-        coord = new CoordinateFactorySphere(space,false).makeCoordinate();
+        position = space.makeVector();
     }
     
-    /**
-     * @return this atom's coordinate
-     */
-    public ICoordinate getCoord() {
-        return coord;
-    }
-
     public boolean isLeaf() {return true;}
     
     public final void setLeafIndex(int newLeafIndex) {
@@ -52,6 +45,10 @@ public class AtomLeaf extends Atom {
         return leafIndex;
     }
     
+    public IVector getPosition() {
+        return position;
+    }
+    
     /**
      * leafIndex is an index to the AtomArrayList of all leaf atoms in the phase.
      * List is maintained by the speciesMaster node.
@@ -59,6 +56,6 @@ public class AtomLeaf extends Atom {
     private int leafIndex;
 
     private static final long serialVersionUID = 2L;
-    private final ICoordinate coord;
+    protected final IVector position;
     
 }

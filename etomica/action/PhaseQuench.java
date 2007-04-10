@@ -1,6 +1,5 @@
 package etomica.action;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterTemperature;
 import etomica.phase.Phase;
@@ -48,7 +47,7 @@ public class PhaseQuench extends PhaseActionAdapter {
 		double scale = Math.sqrt(temperature / currentTemperature);
 		atomIterator.reset();
 		while (atomIterator.hasNext())
-			((ICoordinateKinetic)((AtomLeaf)atomIterator.nextAtom()).getCoord()).getVelocity().TE(scale);
+			((ICoordinateKinetic)atomIterator.nextAtom()).getVelocity().TE(scale);
 	}
 
 	/**

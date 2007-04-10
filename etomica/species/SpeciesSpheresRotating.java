@@ -5,10 +5,11 @@ import java.lang.reflect.Constructor;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomFactoryMonoAngular;
+import etomica.atom.AtomFactoryMonoAngularDynamic;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactoryAngular;
 
 /**
  * Species in which molecules are made of a single atom of type OrientedSphere
@@ -20,8 +21,14 @@ import etomica.space.CoordinateFactoryAngular;
 public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
     public SpeciesSpheresRotating(Simulation sim) {
-        super(new AtomFactoryMono(new CoordinateFactoryAngular(sim), 
-                new AtomTypeOrientedSphere(new ElementSimple(sim),sim.getDefaults().atomSize)));
+        super(makeAtomFactory(sim, new AtomTypeOrientedSphere(new ElementSimple(sim),sim.getDefaults().atomSize)));
+    }
+    
+    private static AtomFactoryMono makeAtomFactory(Simulation sim, AtomTypeOrientedSphere atomType) {
+        if (sim.isDynamic()) {
+            new AtomFactoryMonoAngularDynamic(sim.getSpace(), atomType);
+        }
+        return new AtomFactoryMonoAngular(sim.getSpace(), atomType);
     }
             
     public static EtomicaInfo getEtomicaInfo() {

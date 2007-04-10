@@ -52,7 +52,7 @@ public class MeterMomentumCOM implements DataSource, java.io.Serializable {
         while(iterator.hasNext()) {
             AtomLeaf atom = (AtomLeaf)iterator.next();
             double mass = ((AtomTypeLeaf)atom.getType()).getMass();
-            momentumSum.PEa1Tv1(mass,((ICoordinateKinetic)atom.getCoord()).getVelocity());
+            momentumSum.PEa1Tv1(mass,((ICoordinateKinetic)atom).getVelocity());
         }
         return data;
     }

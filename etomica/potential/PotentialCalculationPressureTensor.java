@@ -1,5 +1,6 @@
 package etomica.potential;
 
+import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -77,7 +78,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         
         AtomLeaf firstAtom = (AtomLeaf)atomIterator.peek();
             
-        if (firstAtom.getCoord() instanceof ICoordinateKinetic) {
+        if (firstAtom instanceof ICoordinateKinetic) {
             if (integrator != null) {
                 warningPrinted = true;
                 System.out.println("Using Integrator's temperature instead of actual Atom velocities.  This is probably wrong");
@@ -88,8 +89,8 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         }
         
         while (atomIterator.hasNext()) {
-            AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
-            ICoordinateKinetic coord = (ICoordinateKinetic)atom.getCoord();
+            Atom atom = atomIterator.nextAtom();
+            ICoordinateKinetic coord = (ICoordinateKinetic)atom;
             workTensor.Ev1v2(coord.getVelocity(), coord.getVelocity());
             workTensor.TE(((AtomTypeLeaf)atom.getType()).getMass());
             pressureTensor.PE(workTensor);

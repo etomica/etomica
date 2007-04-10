@@ -91,7 +91,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical implements Etomic
      */
     public double energy(AtomSet atoms) {
         AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((AtomLeaf)pair.atom1).getCoord().getPosition(),((AtomLeaf)pair.atom0).getCoord().getPosition());
+        dr.Ev1Mv2(((AtomLeaf)pair.atom1).getPosition(),((AtomLeaf)pair.atom0).getPosition());
         nearestImageTransformer.nearestImage(dr);
         return u(dr.squared());
     }

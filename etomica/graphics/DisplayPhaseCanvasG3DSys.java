@@ -129,7 +129,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
       if (!drawable) {
         continue;
       }
-      a.getCoord().getPosition().assignTo(coords);
+      a.getPosition().assignTo(coords);
       float diameter = (float)((AtomTypeSphere)a.getType()).getDiameter();
       ball.setColor(G3DSys.getColix(colorScheme.getAtomColor(a)));
       ball.setD(diameter);
@@ -248,7 +248,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	
   public Object makeAgent(Atom a) {
     if ( !(a instanceof AtomLeaf) || !(a.getType() instanceof AtomTypeSphere)) return null;
-    ((AtomLeaf)a).getCoord().getPosition().assignTo(coords);
+    ((AtomLeaf)a).getPosition().assignTo(coords);
     
     float diameter = (float)((AtomTypeSphere)a.getType()).getDiameter();
     Ball newBall = new Ball(gsys, G3DSys.getColix((displayPhase.getColorScheme().getAtomColor((AtomLeaf)a))),

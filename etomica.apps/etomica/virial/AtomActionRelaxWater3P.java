@@ -23,11 +23,11 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
         AtomLeaf H1 = ((AtomWater3P)molecule).H1;
         AtomLeaf H2 = ((AtomWater3P)molecule).H2;
         // normalize OH1
-        IVector p1 = H1.getCoord().getPosition();
-        p1.ME(O.getCoord().getPosition());
+        IVector p1 = H1.getPosition();
+        p1.ME(O.getPosition());
         p1.TE(1/Math.sqrt(p1.squared()));
-        IVector p2 = H2.getCoord().getPosition();
-        p2.ME(O.getCoord().getPosition());
+        IVector p2 = H2.getPosition();
+        p2.ME(O.getPosition());
         p2.TE(1/Math.sqrt(p2.squared()));
         // move H2 to fix bond angle
         double d = p1.dot(p2);
@@ -38,8 +38,8 @@ public class AtomActionRelaxWater3P extends AtomActionAdapter {
         p2.PEa1Tv1(cosAngle,p1);
         p2.TE(distance/Math.sqrt(p2.squared()));
         p1.TE(distance);
-        p1.PE(O.getCoord().getPosition());
-        p2.PE(O.getCoord().getPosition());
+        p1.PE(O.getPosition());
+        p2.PE(O.getPosition());
     }
 
     private static final long serialVersionUID = 1L;

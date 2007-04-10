@@ -78,7 +78,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
     public Data getData(Atom atom) {
-        atomData.x.Ev1v2(((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).getVelocity(), ((ICoordinateKinetic)((AtomLeaf)atom).getCoord()).getVelocity());
+        atomData.x.Ev1v2(((ICoordinateKinetic)((AtomLeaf)atom)).getVelocity(), ((ICoordinateKinetic)((AtomLeaf)atom)).getVelocity());
         atomData.TE(((AtomTypeLeaf)atom.getType()).rm());
         return atomData;
     }

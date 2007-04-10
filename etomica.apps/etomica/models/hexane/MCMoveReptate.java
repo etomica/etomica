@@ -90,28 +90,28 @@ public class MCMoveReptate extends MCMovePhaseStep {
        int numChildren = childlist.size();
        
        if(forward){
-           IVector position = ((AtomLeaf)childlist.get(numChildren-1)).getCoord().getPosition();
+           IVector position = ((AtomLeaf)childlist.get(numChildren-1)).getPosition();
            positionOld.E(position);
            for (int j = numChildren - 1; j > 0; j--) {
-               IVector position2 = ((AtomLeaf)childlist.get(j-1)).getCoord().getPosition();
+               IVector position2 = ((AtomLeaf)childlist.get(j-1)).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           ((AtomLeaf)childlist.get(0)).getCoord().getPosition().PE(tempV);
+           ((AtomLeaf)childlist.get(0)).getPosition().PE(tempV);
        }
        else {
-           IVector position = ((AtomLeaf)childlist.get(0)).getCoord().getPosition();
+           IVector position = ((AtomLeaf)childlist.get(0)).getPosition();
            positionOld.E(position);
            for(int j = 0; j < numChildren-1; j++){
-               IVector position2 = ((AtomLeaf)childlist.get(j+1)).getCoord().getPosition();
+               IVector position2 = ((AtomLeaf)childlist.get(j+1)).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           ((AtomLeaf)childlist.get(numChildren - 1)).getCoord().getPosition().PE(tempV);
+           ((AtomLeaf)childlist.get(numChildren - 1)).getPosition().PE(tempV);
            
        }
        
@@ -136,22 +136,22 @@ public class MCMoveReptate extends MCMovePhaseStep {
         AtomArrayList childlist = ((AtomGroup)atom).getChildList();
         int numChildren = childlist.size();
         if (!forward) {
-            IVector position = ((AtomLeaf)childlist.get(numChildren-1)).getCoord().getPosition();
+            IVector position = ((AtomLeaf)childlist.get(numChildren-1)).getPosition();
             for (int j=numChildren-1; j>0; j--) {
-                IVector position2 = ((AtomLeaf)childlist.get(j-1)).getCoord().getPosition();
+                IVector position2 = ((AtomLeaf)childlist.get(j-1)).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            ((AtomLeaf)childlist.get(0)).getCoord().getPosition().E(positionOld);
+            ((AtomLeaf)childlist.get(0)).getPosition().E(positionOld);
         }
         else {
-            IVector position = ((AtomLeaf)childlist.get(0)).getCoord().getPosition();
+            IVector position = ((AtomLeaf)childlist.get(0)).getPosition();
             for (int j=0; j<numChildren-1; j++) {
-                IVector position2 = ((AtomLeaf)childlist.get(j+1)).getCoord().getPosition();
+                IVector position2 = ((AtomLeaf)childlist.get(j+1)).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            ((AtomLeaf)childlist.get(numChildren-1)).getCoord().getPosition().E(positionOld);
+            ((AtomLeaf)childlist.get(numChildren-1)).getPosition().E(positionOld);
         }
         
         

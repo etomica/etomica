@@ -17,7 +17,7 @@ public class AtomTranslate extends AtomActionAdapter {
         displacement = space.makeVector();
     }
         
-    public final void actionPerformed(Atom a) {((AtomLeaf)a).getCoord().getPosition().PE(displacement);}
-    public void actionPerformed(Atom a, IVector d) {((AtomLeaf)a).getCoord().getPosition().PE(d);}
+    public final void actionPerformed(Atom a) {((AtomLeaf)a).getPosition().PE(displacement);}
+    public void actionPerformed(Atom a, IVector d) {((AtomLeaf)a).getPosition().PE(d);}
     public final void setDisplacement(IVector d) {displacement.E(d);}
 }

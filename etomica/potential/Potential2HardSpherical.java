@@ -4,7 +4,6 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
-import etomica.space.Coordinate;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -34,10 +33,10 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
      * be using.
      */
     public double energy(AtomSet pair) {
-        Coordinate coord0 = (Coordinate)((AtomLeaf)((AtomPair)pair).atom0).getCoord();
-        Coordinate coord1 = (Coordinate)((AtomLeaf)((AtomPair)pair).atom1).getCoord();
+        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
+        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
 
-        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         nearestImageTransformer.nearestImage(dr);
         return u(dr.squared());
     }

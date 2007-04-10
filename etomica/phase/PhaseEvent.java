@@ -1,6 +1,5 @@
 package etomica.phase;
 
-
 /**
  * Event that conveys some happening with respect to a phase or the things it contains.
  *

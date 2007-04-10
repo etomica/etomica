@@ -43,8 +43,8 @@ public class CheckCBMCHexane implements Action {
             double tol = 0.000005;
             
             for(int i = 0 ; i < atomList.size() - 1; i++){
-                vex.E(((AtomLeaf)atomList.get(i)).getCoord().getPosition());
-                vex.ME(((AtomLeaf)atomList.get(i+1)).getCoord().getPosition());
+                vex.E(((AtomLeaf)atomList.get(i)).getPosition());
+                vex.ME(((AtomLeaf)atomList.get(i+1)).getPosition());
                 length = Math.sqrt(vex.squared());
                 length -= 0.4;
                 if(length > tol){

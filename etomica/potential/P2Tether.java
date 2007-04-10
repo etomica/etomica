@@ -1,6 +1,6 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
-import etomica.atom.AtomLeaf;
+import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -55,10 +55,10 @@ public class P2Tether extends Potential2HardSpherical {
      * Implements collision dynamics for pair attempting to separate beyond tether distance
      */
     public final void bump(AtomSet pair, double falseTime) {
-        AtomLeaf atom0 = (AtomLeaf)((AtomPair)pair).atom0;
-        AtomLeaf atom1 = (AtomLeaf)((AtomPair)pair).atom1;
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0.getCoord();
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1.getCoord();
+        Atom atom0 = ((AtomPair)pair).atom0;
+        Atom atom1 = ((AtomPair)pair).atom1;
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -101,8 +101,8 @@ public class P2Tether extends Potential2HardSpherical {
      * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom0).getCoord();
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomLeaf)((AtomPair)pair).atom1).getCoord();
+        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomPair)pair).atom0;
+        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomPair)pair).atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

@@ -60,7 +60,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
 		for(int j = 1; j < atoms.count(); j++) {
 			AtomLeaf atomj = (AtomLeaf)atoms.getAtom(j);
-			rij.Ev1Mv2(atomj.getCoord().getPosition(), atom0.getCoord().getPosition());
+			rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
 			nearestImageTransformer.nearestImage(rij);
 			double r = Math.sqrt(rij.squared()); 
 			if (r > jcut) continue; 
@@ -73,7 +73,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			for(int k = 1; k < atoms.count(); k++) {
 				if (k == j) continue;
 				AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
-				rik.Ev1Mv2(atomk.getCoord().getPosition(), atom0.getCoord().getPosition());
+				rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
 				nearestImageTransformer.nearestImage(rik);
 				double ik = Math.sqrt(rik.squared()); 
 				if (ik > r*1.14) continue;
@@ -83,7 +83,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 				if (v < -1.0) continue;
 				double anglekij = Math.toDegrees(Math.acos(v));
 				if (anglekij >= 90) continue;
-				rkj.Ev1Mv2(atomk.getCoord().getPosition(), atomj.getCoord().getPosition());
+				rkj.Ev1Mv2(atomk.getPosition(), atomj.getPosition());
 				nearestImageTransformer.nearestImage(rkj);
 				double kj = Math.sqrt(rkj.squared());
 				//System.out.println("	atom k "+k);
@@ -369,7 +369,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         
         for(int n = 1; n < atoms.count(); n++) {
         	AtomLeaf atomn = (AtomLeaf)atoms.getAtom(n);
-            rin.Ev1Mv2(atomn.getCoord().getPosition(), atom0.getCoord().getPosition());
+            rin.Ev1Mv2(atomn.getPosition(), atom0.getPosition());
             nearestImageTransformer.nearestImage(rin);
             double in = Math.sqrt(rin.squared());
             if (in > kcut) continue; //only consider n that could be j or k to i
@@ -410,7 +410,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	for(int k = 1; k < atoms.count(); k++) {
             		AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
             		if (k == n) continue; // continue to next k atom
-            		rik.Ev1Mv2(atomk.getCoord().getPosition(), atom0.getCoord().getPosition());
+            		rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
             		nearestImageTransformer.nearestImage(rik);
             		double ik = Math.sqrt(rik.squared());
             		if (ik > ij*1.14) continue; // continue to next k atom
@@ -420,7 +420,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             		if (v < -1.0) continue;
             		double anglekij = Math.toDegrees(Math.acos(v));
             		if (anglekij >= 90) continue;
-            		rkj.Ev1Mv2(atomk.getCoord().getPosition(), atomn.getCoord().getPosition());
+            		rkj.Ev1Mv2(atomk.getPosition(), atomn.getPosition());
             		nearestImageTransformer.nearestImage(rkj);
             		double kj = Math.sqrt(rkj.squared());
             		//from Baskes (1997)
@@ -871,7 +871,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             	//The k atom, n, must not be treated as one of the other j atoms.
             	if (j == n) continue; // continue to next j atom
         		AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
-        		rij.Ev1Mv2(atomj.getCoord().getPosition(), atom0.getCoord().getPosition());
+        		rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
         		nearestImageTransformer.nearestImage(rij);
         		double ij = Math.sqrt(rij.squared());
         		if (ij > jcut) continue; // continue to next j atom
@@ -883,7 +883,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	if (v < -1.0) continue;
 	        	double anglekij = Math.toDegrees(Math.acos(v));
 	        	if (anglekij >= 90) continue;
-	        	rkj.Ev1Mv2(atomn.getCoord().getPosition(), atomj.getCoord().getPosition());
+	        	rkj.Ev1Mv2(atomn.getPosition(), atomj.getPosition());
 	        	nearestImageTransformer.nearestImage(rkj);
 	        	double kj = Math.sqrt(rkj.squared());
 	        	//from Baskes (1997)
@@ -932,7 +932,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	for(int l = 1; l < atoms.count(); l++) {
 	        		if (l == j || l == n) continue; //already have Sijk for n = k
 	    			AtomLeaf atoml = (AtomLeaf) atoms.getAtom(l);
-	    			ril.Ev1Mv2(atoml.getCoord().getPosition(), atom0.getCoord().getPosition());
+	    			ril.Ev1Mv2(atoml.getPosition(), atom0.getPosition());
 	    			nearestImageTransformer.nearestImage(ril);
 	    			double il = Math.sqrt(ril.squared());
 	    			if (il > ij*1.14) continue;
@@ -942,7 +942,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	    			if (w < -1.0) continue;
 	    			double anglelij = Math.toDegrees(Math.acos(w));
 	    			if (anglelij >= 90) continue;
-	    			rlj.Ev1Mv2(atoml.getCoord().getPosition(), atomj.getCoord().getPosition());
+	    			rlj.Ev1Mv2(atoml.getPosition(), atomj.getPosition());
 	    			nearestImageTransformer.nearestImage(rlj);
 	    			double lj = Math.sqrt(rlj.squared());
 	    			//from Baskes (1997)

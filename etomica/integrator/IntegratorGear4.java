@@ -114,8 +114,8 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
-            IVector r = a.getCoord().getPosition();
-            IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+            IVector r = a.getPosition();
+            IVector v = ((ICoordinateKinetic)a).getVelocity();
             work1.E(v);
             work1.PEa1Tv1(chi,r);
             work2.E(work1);
@@ -146,8 +146,8 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
-            IVector r = a.getCoord().getPosition();
-            IVector v = ((ICoordinateKinetic)a.getCoord()).getVelocity();
+            IVector r = a.getPosition();
+            IVector v = ((ICoordinateKinetic)a).getVelocity();
             r.PEa1Tv1(p1, agent.dr1);
             r.PEa1Tv1(p2, agent.dr2);
             r.PEa1Tv1(p3, agent.dr3);
@@ -184,7 +184,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         while(atomIterator.hasNext()) {
             AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
             Agent agent = (Agent)agentManager.getAgent(a);
-            agent.dr1.E(((ICoordinateKinetic)a.getCoord()).getVelocity());
+            agent.dr1.E(((ICoordinateKinetic)a).getVelocity());
             agent.dr2.Ea1Tv1(((AtomTypeLeaf)a.getType()).rm(),agent.force);
             agent.dr3.E(0.0);
             agent.dr4.E(0.0);
