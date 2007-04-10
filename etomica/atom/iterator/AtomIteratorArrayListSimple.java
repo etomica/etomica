@@ -50,21 +50,21 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      * Puts iterator in state in which hasNext is false.
      */
  	public void unset() {
-        cursor = size();
+        cursor = list.size();
     }
  
     /**
      * Indicates if iterator has another iterate.
      */
  	public boolean hasNext() {
- 	    return cursor < size();
+ 	    return cursor < list.size();
  	}
  
     /**
      * Returns the next iterate and advances the iterator.
      */
  	public Atom nextAtom() {
-        if (cursor < size()) {
+        if (cursor < list.size()) {
             return list.get(cursor++);
         }
         return null;
@@ -96,7 +96,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      * Performs action on all elements of current list.
      */
  	public void allAtoms(AtomsetAction act) {
- 		int arraySize = size();
+ 		int arraySize = list.size();
  		for (int i=0; i<arraySize; i++) {
  			act.actionPerformed(list.get(i));
  		}
