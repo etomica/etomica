@@ -307,7 +307,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
     protected final IRandom random;
     protected double timeStep;
     protected double currentKineticEnergy;
-    protected AtomIteratorLeafAtoms atomIterator;
+    protected final AtomIteratorLeafAtoms atomIterator;
     protected ThermostatType thermostat;
     private int thermostatCount, thermostatInterval;
     protected MeterKineticEnergy meterKE;
