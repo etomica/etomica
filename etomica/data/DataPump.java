@@ -19,7 +19,6 @@ public class DataPump extends DataProcessor implements Action {
         this.dataSource = dataSource;
         dataSourceInfo = dataSource.getDataInfo();
         setDataSink(dataSink);
-        setLabel("Data Pump");
         putDataInfo(dataSource.getDataInfo());
 	}
     
@@ -70,23 +69,7 @@ public class DataPump extends DataProcessor implements Action {
         return dataSource;
     }
 
-    /**
-     * Returns a descriptive label for this DataPump.  Part of the Action interface.
-     * Has no connection to the label for the Data going through.
-     */
-    public String getLabel() {
-        return label;
-    }
-    
-    /**
-     * Sets a descriptive label for this DataPump.
-     */
-    public void setLabel(String label) {
-        this.label = label;
-    }
-    
     private static final long serialVersionUID = 1L;
     private IDataInfo dataSourceInfo;
     private final DataSource dataSource;
-    private String label;
 }
