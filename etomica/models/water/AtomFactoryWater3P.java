@@ -49,9 +49,9 @@ public class AtomFactoryWater3P extends AtomFactory {
 		water.O = (AtomLeaf)oFactory.makeAtom();
         water.H1 = (AtomLeaf)hFactory.makeAtom();
         water.H2 = (AtomLeaf)hFactory.makeAtom();
-        water.O.setParent(water);
-        water.H1.setParent(water);
-        water.H2.setParent(water);
+        water.addChildAtom(water.O);
+        water.addChildAtom(water.H1);
+        water.addChildAtom(water.H2);
 		conformation.initializePositions(water.getChildList());
 		return water;
 	}

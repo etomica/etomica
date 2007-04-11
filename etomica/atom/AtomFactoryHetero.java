@@ -38,8 +38,7 @@ public class AtomFactoryHetero extends AtomFactory {
         // make block copolymers
         for (int i = 0; i < childFactory.length; i++) {
             for(int j = 0; j < childCount[i]; j++) {
-                Atom childAtom = childFactory[i].makeAtom();
-                childAtom.setParent(group);
+                group.addChildAtom(childFactory[i].makeAtom());
             }
         }
         return group;

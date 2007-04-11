@@ -108,33 +108,15 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
 
     public abstract boolean isLeaf();
     
-    public void dispose() {
-        setParent(null);
-    }
-
+    /**
+     * Informs the Atom that the given AtomGroup is its parent.
+     * This method should only be called by the parent.
+     */
     public void setParent(AtomGroup newParent) {
-        
-        //old parent is not null; remove from it
-        if(parent != null) {
-            int index = getIndex();
-            parent.getChildList().removeAndReplace(index);
-            parent.getChildList().maybeTrimToSize();
-            if (parent.getChildList().size() > index) {
-                parent.getChildList().get(index).setIndex(index);
-            }
-            parent.removeAtomNotify(this);
+        if (Debug.ON && newParent.getChildList().get(getIndex()) != newParent) {
+            throw new IllegalArgumentException(newParent+" is not my parent");
         }
-        
         parent = newParent;
-
-        if(parent == null) {//new parent is null
-            return;
-        }
-
-        setIndex(parent.getChildList().size());
-        
-        parent.getChildList().add(this);
-        parent.addAtomNotify(this);
     }
 
     public AtomGroup getParentGroup() {

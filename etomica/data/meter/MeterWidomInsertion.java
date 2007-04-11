@@ -3,6 +3,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
+import etomica.atom.SpeciesAgent;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
@@ -101,7 +102,8 @@ public class MeterWidomInsertion extends DataSourceScalar {
         if (integrator == null) throw new IllegalStateException("must call setPhase before using meter");
         Phase phase = integrator.getPhase();
         double sum = 0.0; //sum for local insertion average
-        testMolecule.setParent(phase.getAgent(species));
+        SpeciesAgent agent = phase.getAgent(species);
+        agent.addChildAtom(testMolecule);
         energyMeter.setTarget(testMolecule);
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(phase.getBoundary().randomPosition());
@@ -110,7 +112,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
             sum += Math.exp(-u / integrator.getTemperature());
         }
 
-        testMolecule.dispose();
+        agent.removeChildAtom(testMolecule);
 
         if (!residual) {
             // multiply by V/N
@@ -137,6 +139,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
         energyMeter.setPhase(integrator.getPhase());
     }
 
+    private static final long serialVersionUID = 1L;
     private IntegratorPhase integrator;
 
     /**

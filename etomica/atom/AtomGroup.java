@@ -27,6 +27,45 @@ public class AtomGroup extends Atom {
     }
 
     /**
+     * Adds the given Atom as a child of this Atom.  The given child Atom
+     * should be parentless when this method is called.
+     * @throws IllegalArgumentException if the given atom already has a parent.
+     */
+    public void addChildAtom(Atom newChildAtom) {
+        if(newChildAtom.getParentGroup() != null) {//new parent is null
+            throw new IllegalArgumentException(newChildAtom+" is already the child of "+newChildAtom.getParentGroup());
+        }
+
+        newChildAtom.setIndex(childList.size());
+        
+        childList.add(newChildAtom);
+        newChildAtom.setParent(this);
+        addAtomNotify(newChildAtom);
+    }
+    
+    /**
+     * Removes the given child Atom from this AtomGroup.
+     * @throws IllegalArgumentException if the given atom is not a child.
+     */
+    public void removeChildAtom(Atom oldChildAtom) {
+        for (int i=0; i<childList.size(); i++) {
+            if (childList.get(i) == oldChildAtom) {
+                childList.removeAndReplace(i);
+                childList.maybeTrimToSize();
+                if (childList.size() > i) {
+                    // reassign the old last Atom (which is now in the removed
+                    // Atom's place) to have the old Atom's index.
+                    childList.get(i).setIndex(i);
+                }
+                removeAtomNotify(oldChildAtom);
+                return;
+            }
+        }
+        throw new IllegalArgumentException(oldChildAtom+" is not a child");
+    }
+
+    
+    /**
      * Returns a specified atom descended from this one in the atom tree.  
      * Each index of the given array specifies the i-th child at the
      * depth of the array index.  So if path is {2, 0, 3},

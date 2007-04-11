@@ -30,7 +30,7 @@ public final class SpeciesAgent extends AtomGroup {
             
     public Atom addNewAtom() {
         Atom aNew = type.getSpecies().moleculeFactory().makeAtom();
-        aNew.setParent(this);
+        addChildAtom(aNew);
         return aNew;
     }
     
@@ -65,9 +65,11 @@ public final class SpeciesAgent extends AtomGroup {
             for(int i=childList.size(); i<n; i++) addNewAtom();
         }
         else if(n < childList.size()) {
-            if(n < 0) n = 0;
+            if(n < 0) {
+                throw new IllegalArgumentException("Number of molecules cannot be negative");
+            }
             for (int i=getChildList().size(); i>n; i--) {
-                getChildList().get(i-1).dispose();
+                removeChildAtom(getChildList().get(i-1));
             }
         }
         if (n == 0) {

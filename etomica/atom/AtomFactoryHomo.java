@@ -50,8 +50,7 @@ public class AtomFactoryHomo extends AtomFactory {
          isMutable = false;
          AtomGroup group = new AtomGroup(atomType);
          for(int i=0; i<atomsPerGroup; i++) {
-             Atom childAtom = childFactory.makeAtom();
-             childAtom.setParent(group);
+             group.addChildAtom(childFactory.makeAtom());
          }
          return group;
      }

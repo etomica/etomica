@@ -95,7 +95,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
 
         moleculeTranslator.setDestination(iPhase.getBoundary().randomPosition());         //place at random in insertion phase
         moleculeTranslator.actionPerformed(molecule);
-        molecule.setParent(iSpecies);
+        dSpecies.removeChildAtom(molecule);
+        iSpecies.addChildAtom(molecule);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
@@ -146,7 +147,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
         translationVector.TE(-1);
         moleculeReplacer.setTranslationVector(translationVector);
         moleculeReplacer.actionPerformed(molecule);
-        molecule.setParent(dSpecies);
+        iSpecies.removeChildAtom(molecule);
+        dSpecies.addChildAtom(molecule);
     }
 
     public final AtomIterator affectedAtoms(Phase phase) {

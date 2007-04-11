@@ -41,8 +41,8 @@ public class AtomFactoryUAPropane extends AtomFactory {
         AtomUAPropane propane = new AtomUAPropane(atomType);
         propane.UA1 = (AtomLeaf)UAFactory.makeAtom();
         propane.UA2 = (AtomLeaf)UAFactory.makeAtom();
-        propane.UA1.setParent(propane);
-        propane.UA2.setParent(propane);
+        propane.addChildAtom(propane.UA1);
+        propane.addChildAtom(propane.UA2);
 		conformation.initializePositions(propane.getChildList());
 		return propane;
 	}
