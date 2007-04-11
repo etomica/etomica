@@ -36,10 +36,10 @@ public class AtomGroup extends Atom {
             throw new IllegalArgumentException(newChildAtom+" is already the child of "+newChildAtom.getParentGroup());
         }
 
-        newChildAtom.setIndex(childList.size());
-        
-        childList.add(newChildAtom);
         newChildAtom.setParent(this);
+
+        newChildAtom.setIndex(childList.size());
+        childList.add(newChildAtom);
         addAtomNotify(newChildAtom);
     }
     
