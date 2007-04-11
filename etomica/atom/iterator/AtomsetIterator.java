@@ -45,7 +45,7 @@ public interface AtomsetIterator {
     public AtomSet peek();
     
     /**
-     * Performs given actions over all the iterates of this iterator in its
+     * Performs given action over all the iterates of this iterator in its
      * current state.  The state of hasNext() is not relevant to this method,
      * and no call to reset() is needed beforehand. The set of atoms encountered 
      * in the allAtoms call are the same set that would be returned by 
