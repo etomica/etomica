@@ -22,7 +22,11 @@ public final class PotentialCalculationEnergySum extends PotentialCalculation {
 		iterator.reset();
 		while(iterator.hasNext()) {
             AtomSet atoms = iterator.next();
+            System.out.println(atoms);
 			sum += potential.energy(atoms);
+            if(Double.isInfinite(potential.energy(atoms))){
+//                System.out.println(atoms + "  are overlapped!!!!!!");
+            }
 		}
 	}
 	

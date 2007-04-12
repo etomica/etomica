@@ -198,7 +198,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
             for(int i=0; i<edgeVectors.length; i++) {
                 dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
                 //System.out.println("dot "+dot);
-                if(dot > 0.5) {
+                if(dot > 0.50000000001) {
                     //System.out.println("subtract "+edgeVectors[i]);
                     do {
                         dr.ME(edgeVectors[i]);
@@ -206,7 +206,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
                         //System.out.println("minus "+edgeVectors[i]);
                     } while(dot > 0.5);
                     transformed = true;
-                } else if(dot < -0.5) {
+                } else if(dot < -0.50000000001) {
                     //System.out.println("add "+edgeVectors[i]);
                     do {
                         dr.PE(edgeVectors[i]);
@@ -248,11 +248,11 @@ public class BoundaryDeformablePeriodic extends Boundary {
                 if(trans) {
                     dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
                     //System.out.println("dot "+dot);
-                    if(dot > 0.5) {
+                    if(dot > 0.50000000001) {
                         //System.out.println("subtract "+edgeVectors[i]);
                             dr.ME(edgeVectors[i]);
                             //System.out.println("minus "+edgeVectors[i]);
-                    } else if(dot < -0.5) {
+                    } else if(dot < -0.5000000001) {
                         //System.out.println("add "+edgeVectors[i]);
                             dr.PE(edgeVectors[i]);
                             //System.out.println("plus"+edgeVectors[i]);
@@ -265,7 +265,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
             for(int i=0; i<edgeVectors.length; i++) {
                 dot = dr.dot(edgeVectors[i])/edgeVectors[i].squared();
                 //System.out.println("dot "+dot);
-                if(dot > 0.5) {
+                if(dot > 0.50000000001) {
                     //System.out.println("subtract "+edgeVectors[i]);
                     do {
                         dr.ME(edgeVectors[i]);
@@ -273,7 +273,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
                         //System.out.println("minus "+edgeVectors[i]);
                     } while(dot > 0.5);
                     transformed = true;
-                } else if(dot < -0.5) {
+                } else if(dot < -0.50000000001) {
                     //System.out.println("add "+edgeVectors[i]);
                     do {
                         dr.PE(edgeVectors[i]);
