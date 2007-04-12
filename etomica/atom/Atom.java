@@ -124,15 +124,6 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
     }
     
     /**
-     * Returns the molecule in which this atom resides.  A "molecule" is an atomgroup
-     * that is one step below a species agent in the hierarchy of atomgroups.
-     */
-    public Atom getParentMolecule() {
-        if(parent == null) return null;
-        return (parent instanceof SpeciesAgent) ? this : parent.getParentMolecule();
-    }
-                
-    /**
      * Integer assigned to this atom by its parent molecule.
      */
     public final int getAddress() {return atomTreeAddress;}
