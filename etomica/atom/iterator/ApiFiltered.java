@@ -7,10 +7,10 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomPairFilter;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 /**
@@ -136,7 +136,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
     /**
      * Passes call on to wrapped iterator and returns value.
      */
-    public boolean haveTarget(Atom target) {
+    public boolean haveTarget(IAtom target) {
         return ((AtomsetIteratorBasisDependent)iterator).haveTarget(target);
     }
         	
@@ -159,7 +159,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
     /**
      * Passes call on to wrapped iterator, if it implements AtomsetIteratorTargetable.
      */
-	public void setTarget(Atom targetAtom) {
+	public void setTarget(IAtom targetAtom) {
         if (iterator instanceof AtomsetIteratorTargetable) {
             ((AtomsetIteratorTargetable)iterator).setTarget(targetAtom);
         }

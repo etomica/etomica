@@ -1,9 +1,9 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFactory;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -32,7 +32,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
 	protected Species species;
     protected SpeciesAgent speciesAgent;
 	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-	protected Atom testMolecule;
+	protected IAtom testMolecule;
 	protected double uOld;
 	protected double uNew = Double.NaN;
 	protected boolean insert;

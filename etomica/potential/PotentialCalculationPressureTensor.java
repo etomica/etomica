@@ -1,8 +1,8 @@
 package etomica.potential;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorPhase;
@@ -89,7 +89,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         }
         
         while (atomIterator.hasNext()) {
-            Atom atom = atomIterator.nextAtom();
+            IAtom atom = atomIterator.nextAtom();
             ICoordinateKinetic coord = (ICoordinateKinetic)atom;
             workTensor.Ev1v2(coord.getVelocity(), coord.getVelocity());
             workTensor.TE(((AtomTypeLeaf)atom.getType()).getMass());

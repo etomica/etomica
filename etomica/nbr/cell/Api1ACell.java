@@ -1,15 +1,11 @@
-/*
- * History
- * Created on Aug 30, 2004 by kofke
- */
 package etomica.nbr.cell;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomToArrayListFixed;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.ApiSequence1A;
 import etomica.atom.iterator.AtomIterator;
@@ -161,7 +157,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     }
     
     public AtomSet peek() {
-        pair.atom1 = (Atom)aiInner.peek();
+        pair.atom1 = (IAtom)aiInner.peek();
         return pair;
     }
     
@@ -235,7 +231,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
      */
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
     }
 
@@ -295,7 +291,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     private boolean doGoDown, upListNow;
     private boolean inCentralCell;
     private boolean needUpdate;
-    private Atom targetAtom;
+    private IAtom targetAtom;
     private final PhaseAgentManager phaseAgentManager;
     private NeighborCellManager cellManager;
     

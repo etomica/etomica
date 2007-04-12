@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Aug 23, 2004 by kofke
- */
 package etomica.action;
 
 import etomica.atom.AtomSet;
@@ -15,6 +11,7 @@ import etomica.atom.AtomSet;
  //used by some iterators to implement their size() method
 
 public class AtomsetCount extends AtomsetActionAdapter {
+
 
     /**
      * Increments the call-counter by 1.
@@ -32,5 +29,6 @@ public class AtomsetCount extends AtomsetActionAdapter {
 	 */
 	public int callCount() {return callCount;}
 
+    private static final long serialVersionUID = 1L;
 	private int callCount = 0;
 }

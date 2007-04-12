@@ -1,9 +1,9 @@
 package etomica.potential;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorPhase;
 import etomica.space.IVector;
@@ -16,11 +16,11 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
         
     private static final long serialVersionUID = 1L;
     protected AtomAgentManager integratorAgentManager;
-    protected AtomAgentManager.AgentIterator iterator;
+    protected AtomAgentManager.AgentIterator agentIterator;
     
     public void setAgentManager(AtomAgentManager agentManager) {
         integratorAgentManager = agentManager;
-        iterator = integratorAgentManager.makeIterator();
+        agentIterator = integratorAgentManager.makeIterator();
     }
     /**
      * Re-zeros the force vectors.
@@ -28,9 +28,9 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
      */
     public void reset(){
         
-        iterator.reset();
-        while(iterator.hasNext()){
-            ((IntegratorPhase.Forcible)iterator.next()).force().E(0);
+        agentIterator.reset();
+        while(agentIterator.hasNext()){
+            ((IntegratorPhase.Forcible)agentIterator.next()).force().E(0);
         }
     }
     
@@ -47,7 +47,7 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 			IVector[] f = potentialSoft.gradient(atoms);
 			switch(nBody) {
 				case 1:
-					((IntegratorPhase.Forcible)integratorAgentManager.getAgent((Atom)atoms)).force().ME(f[0]);
+					((IntegratorPhase.Forcible)integratorAgentManager.getAgent((IAtom)atoms)).force().ME(f[0]);
 					break;
 				case 2:
                     ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(((AtomPair)atoms).atom0)).force().ME(f[0]);

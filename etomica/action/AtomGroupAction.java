@@ -1,8 +1,8 @@
 package etomica.action;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
+import etomica.atom.IAtom;
 
 /**
  * Wraps an AtomAction, and performs the wrapped action on the atom
@@ -24,7 +24,7 @@ public class AtomGroupAction extends AtomActionAdapter {
     /* (non-Javadoc)
      * @see etomica.action.AtomAction#actionPerformed(etomica.Atom)
      */
-    public void actionPerformed(Atom atom) {
+    public void actionPerformed(IAtom atom) {
         if(atom instanceof AtomGroup) {
             AtomArrayList atomList = ((AtomGroup)atom).getChildList();
             int size = atomList.size();

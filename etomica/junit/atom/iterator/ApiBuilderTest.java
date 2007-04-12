@@ -2,12 +2,12 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.atom.iterator.ApiBuilder;
@@ -109,12 +109,12 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         LinkedList list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 12);
         //test 3 and 4, one of the 3 given as target
-        Atom target0 = agent0.getDescendant(new int[] {2,1});
+        IAtom target0 = agent0.getDescendant(new int[] {2,1});
         api.setTarget(target0);
         LinkedList list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 4);
         //test 3 and 4, one of the 4 given as target
-        Atom target1 = agent1.getDescendant(new int[] {1,0});
+        IAtom target1 = agent1.getDescendant(new int[] {1,0});
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
@@ -265,7 +265,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         targetFirst = target;
         targetLast = target;
         up = dn = upFirst = dnLast = null;
-        upNon = upFirstNon = dnNon = dnLastNon = new Atom[0]; 
+        upNon = upFirstNon = dnNon = dnLastNon = new IAtom[0]; 
         iterate = target;
         iterateFirst = target;
         iterateLast = target;
@@ -280,14 +280,14 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         targetFirst = ((AtomGroup)parent).getDescendant(new int[] {0,0,2});
         targetLast = ((AtomGroup)parent).getDescendant(new int[] {4,1});
         up = ((AtomGroup)parent).getDescendant(new int[] {2});
-        upNon = new Atom[] {childList.get(3), childList.get(4)};
+        upNon = new IAtom[] {childList.get(3), childList.get(4)};
         upFirst = childList.get(1);
-        upFirstNon = new Atom[] {childList.get(2), childList.get(3),
+        upFirstNon = new IAtom[] {childList.get(2), childList.get(3),
                 childList.get(4)};
         dn = childList.get(0);
-        dnNon = new Atom[0];
+        dnNon = new IAtom[0];
         dnLast = childList.get(3);
-        dnLastNon = new Atom[] {childList.get(2),childList.get(1),
+        dnLastNon = new IAtom[] {childList.get(2),childList.get(1),
                 childList.get(0)};
         iterate = childList.get(1);
         iterateFirst = childList.get(0);
@@ -304,17 +304,17 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         targetFirst = moleculeList.get(0);//atom0 
         targetLast = moleculeList.get(9);//atom9
         up = moleculeList.get(6);
-        upNon = new Atom[] {moleculeList.get(7),moleculeList.get(8),
+        upNon = new IAtom[] {moleculeList.get(7),moleculeList.get(8),
                 moleculeList.get(9)};
         upFirst = moleculeList.get(1);
-        upFirstNon = new Atom[] {moleculeList.get(2),moleculeList.get(3),
+        upFirstNon = new IAtom[] {moleculeList.get(2),moleculeList.get(3),
                 moleculeList.get(4),moleculeList.get(5),moleculeList.get(6),
                 moleculeList.get(7),moleculeList.get(8),moleculeList.get(9)};
         dn = moleculeList.get(4);
-        dnNon = new Atom[] {moleculeList.get(3),moleculeList.get(2),
+        dnNon = new IAtom[] {moleculeList.get(3),moleculeList.get(2),
                 moleculeList.get(1),moleculeList.get(0)};
         dnLast = moleculeList.get(8);
-        dnLastNon = new Atom[] {moleculeList.get(7),moleculeList.get(6),
+        dnLastNon = new IAtom[] {moleculeList.get(7),moleculeList.get(6),
                 moleculeList.get(5),moleculeList.get(4),moleculeList.get(3),
                 moleculeList.get(2),moleculeList.get(1),moleculeList.get(0)};
     }
@@ -328,16 +328,16 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         targetFirst = childList.get(0);
         targetLast = childList.get(9);
         up = childList.get(6);
-        upNon = new Atom[] {childList.get(7),childList.get(8),childList.get(9)};
+        upNon = new IAtom[] {childList.get(7),childList.get(8),childList.get(9)};
         upFirst = childList.get(1);
-        upFirstNon = new Atom[] {childList.get(2),childList.get(3),
+        upFirstNon = new IAtom[] {childList.get(2),childList.get(3),
                 childList.get(4),childList.get(5),childList.get(6),
                 childList.get(7),childList.get(8),childList.get(9)};
         dn = childList.get(4);
-        dnNon = new Atom[] {childList.get(3),childList.get(2),childList.get(1),
+        dnNon = new IAtom[] {childList.get(3),childList.get(2),childList.get(1),
                 childList.get(0)};
         dnLast = childList.get(8);
-        dnLastNon = new Atom[] {childList.get(7),childList.get(6),
+        dnLastNon = new IAtom[] {childList.get(7),childList.get(6),
                 childList.get(5),childList.get(4),childList.get(3),
                 childList.get(2),childList.get(1),childList.get(0)};
         iterate = target;
@@ -494,19 +494,19 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     int[] nTree;
     private static final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;
     private static final IteratorDirective.Direction DOWN = IteratorDirective.Direction.DOWN;
-    private Atom parent;
-    private Atom target;
-    private Atom targetFirst;
-    private Atom targetLast;
-    private Atom up;
-    private Atom[] upNon;
-    private Atom upFirst;
-    private Atom[] upFirstNon;
-    private Atom dn;
-    private Atom[] dnNon;
-    private Atom dnLast;
-    private Atom[] dnLastNon;
-    private Atom iterate;
-    private Atom iterateFirst;
-    private Atom iterateLast;
+    private IAtom parent;
+    private IAtom target;
+    private IAtom targetFirst;
+    private IAtom targetLast;
+    private IAtom up;
+    private IAtom[] upNon;
+    private IAtom upFirst;
+    private IAtom[] upFirstNon;
+    private IAtom dn;
+    private IAtom[] dnNon;
+    private IAtom dnLast;
+    private IAtom[] dnLastNon;
+    private IAtom iterate;
+    private IAtom iterateFirst;
+    private IAtom iterateLast;
 }

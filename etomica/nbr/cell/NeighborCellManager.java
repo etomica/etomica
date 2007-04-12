@@ -1,16 +1,12 @@
-/*
- * History
- * Created on Nov 21, 2004 by kofke
- */
 package etomica.nbr.cell;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTreePhase;
@@ -166,18 +162,18 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom atom = atomIterator.nextAtom();
+            IAtom atom = atomIterator.nextAtom();
             if (atom.getType().isInteracting()) {
                 assignCell(atom);
             }
         }
     }
     
-    public Cell getCell(Atom atom) {
+    public Cell getCell(IAtom atom) {
         return (Cell)agentManager.getAgent(atom);
     }
     
-    protected void removeFromCell(Atom atom) {
+    protected void removeFromCell(IAtom atom) {
         Cell[] cells = agentManager.getAgents();
         if (cells[atom.getGlobalIndex()] != null) {
             cells[atom.getGlobalIndex()].removeAtom(atom);
@@ -189,7 +185,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
      * Assigns the cell for the given atom.
      * @param atom
      */
-    public void assignCell(Atom atom) {
+    public void assignCell(IAtom atom) {
         IVector position = (positionDefinition != null) ?
                 positionDefinition.position(atom) :
                     atom.getType().getPositionDefinition().position(atom);
@@ -207,7 +203,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         return Cell.class;
     }
     
-    public Object makeAgent(Atom atom) {
+    public Object makeAgent(IAtom atom) {
         if (atom.getType().isInteracting()) {
             IVector position = (positionDefinition != null) ?
                     positionDefinition.position(atom) :
@@ -222,7 +218,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         return null;
     }
 
-    public void releaseAgent(Object agent, Atom atom) {
+    public void releaseAgent(Object agent, IAtom atom) {
         removeFromCell(atom);
     }
     
@@ -251,12 +247,12 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             AtomIterator iterator = move.affectedAtoms();
             iterator.reset();
             while (iterator.hasNext()) {
-                Atom atom = iterator.nextAtom();
+                IAtom atom = iterator.nextAtom();
                 if (!atom.isLeaf()) {
                     treeIterator.setRootAtom(atom);
                     treeIterator.reset();
                     while (treeIterator.hasNext()) {
-                        Atom childAtom = treeIterator.nextAtom();
+                        IAtom childAtom = treeIterator.nextAtom();
                         updateCell(childAtom);
                     }
                 }
@@ -266,7 +262,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             }
         }
 
-        private void updateCell(Atom atom) {
+        private void updateCell(IAtom atom) {
             if (atom.getType().isInteracting()) {
                 Boundary boundary = phase.getBoundary();
                 neighborCellManager.removeFromCell(atom);

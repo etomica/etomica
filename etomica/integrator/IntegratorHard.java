@@ -3,12 +3,12 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
@@ -211,8 +211,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
                 cll.listener.collisionAction(colliderAgent);
             }
             collisionCount++;
-            if (atoms instanceof Atom) {
-                updateAtom((Atom)atoms);
+            if (atoms instanceof IAtom) {
+                updateAtom((IAtom)atoms);
             }
             else {
                 updateAtoms((AtomPair)atoms);
@@ -300,7 +300,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      * updates collision time for a single atom (and any atom that might a 
      * collision with the atom)
      */
-    protected void updateAtom(Atom a) {
+    protected void updateAtom(IAtom a) {
 
         listToUpdate.clear();
 
@@ -332,7 +332,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     protected void processReverseList() {
         int size = listToUpdate.size();
         for (int i=0; i<size; i++) {
-            Atom reverseAtom = listToUpdate.get(i);
+            IAtom reverseAtom = listToUpdate.get(i);
             Agent agent = (Agent)agentManager.getAgent(reverseAtom);
             if (agent.collisionPotential != null) {
                 agent.eventLinker.remove();
@@ -397,7 +397,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         if(!initialized) return;
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom atom = atomIterator.nextAtom();
+            IAtom atom = atomIterator.nextAtom();
             ((Agent)agentManager.getAgent(atom)).resetCollision();
         }
         upList.setTargetAtom(null);
@@ -443,7 +443,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      * Updates collision time appropriately after randomizing momentum
      * as part of the Andersen thermostat.
      */
-    protected void randomizeMomentum(Atom atom) {
+    protected void randomizeMomentum(AtomLeaf atom) {
         super.randomizeMomentum(atom);
         updateAtom(atom);
     }
@@ -513,7 +513,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         private static final long serialVersionUID = 1L;
         double minCollisionTime;
         IntegratorHard.Agent aia;
-        Atom atom1;
+        IAtom atom1;
         double collisionTimeStep;
         private AtomAgentManager integratorAgentManager;
 
@@ -533,7 +533,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         /**
          * sets the atom whose collision time is to be calculated
          */
-        public void setAtom(Atom a) {
+        public void setAtom(IAtom a) {
             atom1 = a;
             aia = (Agent)integratorAgentManager.getAgent(a);
             minCollisionTime = aia.collisionTime();
@@ -631,7 +631,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             // look for pairs in which pair[0] is the collision partner of pair[1]
             while (iterator.hasNext()) {
                 AtomPair pair = (AtomPair)iterator.next();
-                Atom aPartner = ((Agent)integratorAgentManager.getAgent(pair.atom0)).collisionPartner();
+                IAtom aPartner = ((Agent)integratorAgentManager.getAgent(pair.atom0)).collisionPartner();
                 if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
                     System.out.println(pair.atom1+" thought it would collide with "+aPartner);
                 }
@@ -672,7 +672,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      * called by the agentManager, which allocates/deallocates 
      * agents as needed.
 	 */
-    public Object makeAgent(Atom a) {
+    public Object makeAgent(IAtom a) {
         if (!a.getType().isLeaf()) {
             return null;
         }
@@ -681,7 +681,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     
     // don't need to remove the agent from the event list because reset will
     // get called and that will totally clear the event list
-    public void releaseAgent(Object agent, Atom atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
  
     /**
      * Agent defined by this integrator.
@@ -694,12 +694,12 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     //Do not use encapsulation since the fields are for referencing by the integrator
     public static class Agent implements Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;
-        public Atom atom, collisionPartner;
+        public IAtom atom, collisionPartner;
         public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
         public TreeLinker eventLinker;
         private final IntegratorHard integrator;
         
-        public Agent(Atom a, IntegratorHard integrator) {
+        public Agent(IAtom a, IntegratorHard integrator) {
             this.integrator = integrator;
             atom = a;
             eventLinker = new TreeLinker(this);
@@ -709,8 +709,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         public String toString() {
             return "Collider: "+atom+"; Partner: "+collisionPartner+"; Potential: "+collisionPotential;
         }
-        public final Atom atom() {return atom;}
-        public final Atom collisionPartner() {return collisionPartner;}
+        public final IAtom atom() {return atom;}
+        public final IAtom collisionPartner() {return collisionPartner;}
 
         /**
          * resets time, potential and partner.  caller should remove 
@@ -736,7 +736,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
          * @param partner the atom this one will collide with next
          * @param p       the potential for interactions between this atom and its collision partner
          */
-        public final void setCollision(double time, Atom partner, PotentialHard p) {
+        public final void setCollision(double time, IAtom partner, PotentialHard p) {
             collisionPartner = partner;
             collisionPotential = p;
             eventLinker.sortKey = time;

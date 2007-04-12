@@ -30,7 +30,7 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
     /**
      * returns a random atom from the phase's leaf atom list
      */
-    public Atom getAtom() {
+    public IAtom getAtom() {
         if (Debug.ON && list== null) throw new IllegalStateException("must set the phase before calling getAtom");
         return list.get(random.nextInt(list.size()));
     }

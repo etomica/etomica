@@ -53,7 +53,7 @@ public final class SpeciesMaster implements java.io.Serializable {
      */
     public void removeSpeciesNotify(Species species) {
         for (int i=0; i<agentList.size(); i++) {
-            Atom speciesAgent = agentList.get(i);
+            IAtom speciesAgent = agentList.get(i);
             if (speciesAgent.getType().getSpecies() == species) {
                 agentList.removeAndReplace(i);
                 if (agentList.size() > i) {
@@ -139,7 +139,7 @@ public final class SpeciesMaster implements java.io.Serializable {
         treeIteratorPhase.reset();
         // loop over all the atoms.  Any atoms whose index is 
         while (treeIteratorPhase.hasNext()) {
-            Atom a = treeIteratorPhase.nextAtom();
+            IAtom a = treeIteratorPhase.nextAtom();
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
                 PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(phase, a, a.getGlobalIndex());
                 // Just re-invoke the Atom's method without first "returning"
@@ -201,7 +201,7 @@ public final class SpeciesMaster implements java.io.Serializable {
         return reservoirSize-1;
     }
 
-    public void addAtomNotify(Atom newAtom) {
+    public void addAtomNotify(IAtom newAtom) {
         if (newAtom.getParentGroup() instanceof SpeciesAgent) {
             moleculeCount++;
         } else if (newAtom instanceof SpeciesAgent) {
@@ -217,7 +217,7 @@ public final class SpeciesMaster implements java.io.Serializable {
             treeIteratorRoot.setRootAtom(newAtom);
             treeIteratorRoot.reset();
             while (treeIteratorRoot.hasNext()) {
-                Atom childAtom = treeIteratorRoot.nextAtom();
+                IAtom childAtom = treeIteratorRoot.nextAtom();
                 if (childAtom.getType().isLeaf()) {
                     ((AtomLeaf)childAtom).setLeafIndex(leafList.size());
                     leafList.add(childAtom);
@@ -230,7 +230,7 @@ public final class SpeciesMaster implements java.io.Serializable {
 
     //updating of leaf atomList may not be efficient enough for repeated
     // use, but is probably ok
-    public void removeAtomNotify(Atom oldAtom) {
+    public void removeAtomNotify(IAtom oldAtom) {
         if (oldAtom.getParentGroup() instanceof SpeciesAgent) {
             moleculeCount--;
         } else if (oldAtom instanceof SpeciesAgent) {
@@ -253,7 +253,7 @@ public final class SpeciesMaster implements java.io.Serializable {
             treeIteratorRoot.setRootAtom(oldAtom);
             treeIteratorRoot.reset();
             while (treeIteratorRoot.hasNext()) {
-                Atom childAtom = treeIteratorRoot.nextAtom();
+                IAtom childAtom = treeIteratorRoot.nextAtom();
                 returnGlobalIndex(childAtom.getGlobalIndex());
                 if (childAtom.getType().isLeaf()) {
                     int leafIndex = ((AtomLeaf)childAtom).getLeafIndex();

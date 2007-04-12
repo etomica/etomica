@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.math.discrete.PermutationIterator;
 
 /**
@@ -156,7 +156,7 @@ public class ClusterBonds implements java.io.Serializable {
 	 * @param beta reciprocal temperature, 1/kT
 	 * @return double value of the cluster
 	 */
-	public double value(Atom atom, double[][][] fPairs) {
+	public double value(IAtom atom, double[][][] fPairs) {
 		int i = atom.getIndex();
 		double p = 1.0;
 		for(int j=0; j<nPoints; j++) {
@@ -181,7 +181,7 @@ public class ClusterBonds implements java.io.Serializable {
 	 * @return double value of the cluster
 	 */
 
-	public double value(Atom atom1, Atom atom2, double[][][] fPairs) {
+	public double value(IAtom atom1, IAtom atom2, double[][][] fPairs) {
 		int i = atom1.getIndex();
 		int j = atom2.getIndex();
         int protoIndex = bondIndexArray[i][j];

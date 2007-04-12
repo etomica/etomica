@@ -2,10 +2,10 @@ package etomica.potential;
 
 import java.util.Arrays;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomType;
 import etomica.atom.AtomsetArray;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAll;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
@@ -83,7 +83,7 @@ public class PotentialMaster implements java.io.Serializable {
       */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
-    	Atom targetAtom = id.getTargetAtom();
+    	IAtom targetAtom = id.getTargetAtom();
     	boolean phaseChanged = (phase != mostRecentPhase);
     	mostRecentPhase = phase;
 
@@ -397,7 +397,7 @@ public class PotentialMaster implements java.io.Serializable {
             super(new AtomsetArray(0));
         }
         public void setPhase(Phase phase) {}
-        public void setTarget(Atom target) {}
+        public void setTarget(IAtom target) {}
         public void setDirection(IteratorDirective.Direction direction) {}
     }
 

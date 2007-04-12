@@ -1,6 +1,6 @@
 package etomica.integrator;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -36,7 +36,7 @@ public class IntegratorAnalytic extends IntegratorMD {
         action.setTime(elapsedTime);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom atom = atomIterator.nextAtom();
+            IAtom atom = atomIterator.nextAtom();
             action.actionPerformed(atom);
         }
     }

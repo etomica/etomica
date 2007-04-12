@@ -11,7 +11,7 @@ public interface AtomSet extends java.io.Serializable {
      * Returns the i-th atom, with numbering beginning from 0. 
      * If i is greater than count-1, throws an IllegalArgumentException.
      */
-    public Atom getAtom(int i);
+    public IAtom getAtom(int i);
     
     /**
      * @return the number of atoms in the set

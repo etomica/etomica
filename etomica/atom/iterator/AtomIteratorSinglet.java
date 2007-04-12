@@ -1,8 +1,8 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
 /**
  * Iterator that expires after returning a single atom, which is
@@ -25,14 +25,14 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
      * to reset() must be performed before beginning iteration.
      * @param a The atom that will be returned by this iterator upon reset.
      */
-    public AtomIteratorSinglet(Atom a) {setAtom(a);}
+    public AtomIteratorSinglet(IAtom a) {setAtom(a);}
         
     /**
      * Defines atom returned by iterator and leaves iterator unset.
      * Call to reset() must be performed before beginning iteration.
      * If atom is null, hasNext will remain false on reset.
      */
-    public void setAtom(Atom a) {
+    public void setAtom(IAtom a) {
     	atom = a;
     	unset();
     }
@@ -40,7 +40,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     /**
      * @return the atom given by this iterator as its single iterate
      */
-    public Atom getAtom() {
+    public IAtom getAtom() {
         return atom;
     }
     
@@ -74,7 +74,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     /**
      * Returns the iterator's atom and unsets iterator.
      */
-    public Atom nextAtom() {
+    public IAtom nextAtom() {
     	if (!hasNext) return null;
     	hasNext = false;
     	return atom;
@@ -96,5 +96,5 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     
     private static final long serialVersionUID = 1L;
     private boolean hasNext = false;
-    private Atom atom;
+    private IAtom atom;
 }

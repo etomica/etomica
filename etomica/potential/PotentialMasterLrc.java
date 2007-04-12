@@ -1,6 +1,6 @@
 package etomica.potential;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.phase.Phase;
 import etomica.space.Space;
@@ -29,7 +29,7 @@ public class PotentialMasterLrc extends PotentialMaster {
      */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled || phase == null || !phase.isLrcEnabled() || !id.includeLrc) return;
-        Atom targetAtom = id.getTargetAtom();
+        IAtom targetAtom = id.getTargetAtom();
         boolean phaseChanged = (phase != mostRecentPhase);
         mostRecentPhase = phase;
         for(PotentialLinker link=first; link!=null; link=link.next) {
@@ -41,7 +41,8 @@ public class PotentialMasterLrc extends PotentialMaster {
             link.iterator.setTarget(targetAtom);
             ((Potential0Lrc)link.potential).setTargetAtoms(targetAtom);
             pc.doCalculation(link.iterator, id, link.potential);
-        }//end for
-    }//end calculate
+        }
+    }
     
-}//end of PotentialMasterLrc
+    private static final long serialVersionUID = 1L;
+}

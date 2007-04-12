@@ -1,9 +1,9 @@
 package etomica.virial;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -177,7 +177,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         bondLength = b;
     }
 	
-    protected Atom[] selectMolecules() {
+    protected IAtom[] selectMolecules() {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
         if (iterator.size() != nAtoms) throw new IllegalStateException("move should work on number of molecules in phase");
         iterator.reset();

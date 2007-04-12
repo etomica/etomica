@@ -1,9 +1,9 @@
 package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
@@ -78,7 +78,7 @@ public class ConformationChainLinear extends ConformationChain {
         double xNext = -bondLength*0.5*(size-1);
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            IAtom a = atomIterator.nextAtom();
             if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();

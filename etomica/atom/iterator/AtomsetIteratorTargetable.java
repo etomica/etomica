@@ -1,10 +1,6 @@
-/*
- * History
- * Created on Aug 31, 2004 by kofke
- */
 package etomica.atom.iterator;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 
 /**
  * Interface for an iterator that can be targeted at one or more atoms.
@@ -15,5 +11,5 @@ import etomica.atom.Atom;
  * target.
  */
 public interface AtomsetIteratorTargetable extends AtomsetIterator {
-	public void setTarget(Atom targetAtom);
+	public void setTarget(IAtom targetAtom);
 }

@@ -2,7 +2,7 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -75,7 +75,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      * @throws NullPointerException
      *             if targetAtom is null
      */
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         if (newTargetAtom == null) {
             throw new NullPointerException("target atom must not be null");
         }
@@ -98,11 +98,11 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
         setAtom(targetMolecule);
     }
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private final Species species;
 
     private SpeciesAgent agent;
     private Phase phase;
-    private Atom targetAtom, targetMolecule;
+    private IAtom targetAtom, targetMolecule;
 
 }

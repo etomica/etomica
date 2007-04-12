@@ -1,8 +1,8 @@
 package etomica.potential;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtom;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -33,11 +33,11 @@ public class P1HardPeriodic extends Potential1 implements PotentialHard {
     }
     
     public double collisionTime(AtomSet a, double falseTime) {
-        if(!(((Atom)a).getType() instanceof AtomTypeSphere)) {return Double.POSITIVE_INFINITY;}
+        if(!(((IAtom)a).getType() instanceof AtomTypeSphere)) {return Double.POSITIVE_INFINITY;}
         IVector v = ((ICoordinateKinetic)a).getVelocity();
         IVector dim = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
-        double d2 = 2.0*((AtomTypeSphere)((Atom)a).getType()).getDiameter();
+        double d2 = 2.0*((AtomTypeSphere)((IAtom)a).getType()).getDiameter();
         int D = dim.getD();
         for(int i=0; i<D; i++) {
             double t = (dim.x(i)-d2)/v.x(i);

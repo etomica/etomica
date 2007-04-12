@@ -1,10 +1,10 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
@@ -42,7 +42,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
      * Sets the target of iteration... has no actual effect since all iterates
      * contain all Atoms.
      */
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
     }
 
     /** 
@@ -81,7 +81,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
             return next;
         }
         AtomArrayList arrayList = next.getArrayList();
-        Atom oldFirst = arrayList.get(0);
+        IAtom oldFirst = arrayList.get(0);
         arrayList.set(0,arrayList.get(nextCursor));
         arrayList.set(nextCursor,oldFirst);
         nextCursor++;
@@ -109,7 +109,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
             return next;
         }
         AtomArrayList arrayList = next.getArrayList();
-        Atom oldFirst = arrayList.get(0);
+        IAtom oldFirst = arrayList.get(0);
         arrayList.set(0,arrayList.get(nextCursor));
         arrayList.set(nextCursor,oldFirst);
         // leave a secret Masonic signal to tell nextPair it doesn't need to 

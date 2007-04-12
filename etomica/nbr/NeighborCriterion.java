@@ -3,8 +3,8 @@
  * Created on Sep 22, 2004 by kofke
  */
 package etomica.nbr;
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.phase.Phase;
 
 /**
@@ -23,7 +23,7 @@ public interface NeighborCriterion {
      * be updated, according to this criterion.  
      * @return true if the atom's list should be updated.
      */
-	public boolean needUpdate(Atom atom);
+	public boolean needUpdate(IAtom atom);
 	
     /**
      * Specifies the phase where the criterion is being applied.  Sometimes
@@ -45,5 +45,5 @@ public interface NeighborCriterion {
      * updated, and that properties (e.g., record of atom's position) 
      * used by needUpdate and unsafe() methods should be reset.  
      */
-	public void reset(Atom atom);
+	public void reset(IAtom atom);
 }

@@ -84,7 +84,7 @@ public class AtomArrayList implements Cloneable,
      * The array buffer into which the elements of the ArrayList are stored.
      * The capacity of the ArrayList is the length of this array buffer.
      */
-    private transient Atom elementData[];
+    private transient IAtom elementData[];
 
     /**
      * The size of the ArrayList (the number of elements it contains).
@@ -102,7 +102,7 @@ public class AtomArrayList implements Cloneable,
      */
     public AtomArrayList(int initialCapacity) {
     	super();
-		this.elementData = new Atom[initialCapacity];
+		this.elementData = new IAtom[initialCapacity];
         trimThreshold = 0.8F;
     }
 
@@ -120,8 +120,8 @@ public class AtomArrayList implements Cloneable,
      */
     public void trimToSize() {
 		if (size < elementData.length) {
-	    	Atom oldData[] = elementData;
-	    	elementData = new Atom[size];
+	    	IAtom oldData[] = elementData;
+	    	elementData = new IAtom[size];
 	    	System.arraycopy(oldData, 0, elementData, 0, size);
 		}
     }
@@ -165,11 +165,11 @@ public class AtomArrayList implements Cloneable,
     public void ensureCapacity(int minCapacity) {
 		int oldCapacity = elementData.length;
 		if (minCapacity > oldCapacity) {
-	    	Atom oldData[] = elementData;
+	    	IAtom oldData[] = elementData;
 	    	int newCapacity = (oldCapacity * 3)/2 + 1;
     	    if (newCapacity < minCapacity)
     	    	newCapacity = minCapacity;
-    	    elementData = new Atom[newCapacity];
+    	    elementData = new IAtom[newCapacity];
 	    	System.arraycopy(oldData, 0, elementData, 0, size);
 		}
     }
@@ -198,7 +198,7 @@ public class AtomArrayList implements Cloneable,
      *
      * @param o element whose presence in this List is to be tested.
      */
-    public boolean contains(Atom elem) {
+    public boolean contains(IAtom elem) {
     	return indexOf(elem) >= 0;
     }
 
@@ -209,16 +209,15 @@ public class AtomArrayList implements Cloneable,
      * @param   elem   an atom.
      * @return  the index of the first occurrence of the argument in this
      *          list; returns -1 if the atom is not found.
-     * @see     Atom#equals(Atom)
      */
-    public int indexOf(Atom elem) {
+    public int indexOf(IAtom elem) {
     	if (elem == null) {
     		for (int i = 0; i < size; i++)
     			if (elementData[i]==null)
     				return i;
     	} else {
     		for (int i = 0; i < size; i++)
-    			if (elem.equals(elementData[i]))
+    			if (elem == elementData[i])
     				return i;
     	}
     	return -1;
@@ -232,7 +231,7 @@ public class AtomArrayList implements Cloneable,
      * @return  the index of the last occurrence of the specified atom in
      *          this list; returns -1 if the atom is not found.
      */
-    public int lastIndexOf(Atom elem) {
+    public int lastIndexOf(IAtom elem) {
     	if (elem == null) {
     		for (int i = size-1; i >= 0; i--)
     			if (elementData[i]==null)
@@ -254,7 +253,7 @@ public class AtomArrayList implements Cloneable,
     public Object clone() {
     	try { 
     		AtomArrayList v = (AtomArrayList)super.clone();
-    		v.elementData = new Atom[size];
+    		v.elementData = new IAtom[size];
     		System.arraycopy(elementData, 0, v.elementData, 0, size);
 //	    		v.modCount = 0;
     		return v;
@@ -271,8 +270,8 @@ public class AtomArrayList implements Cloneable,
      * @return an array containing all of the elements in this list
      * 	       in the correct order.
      */
-    public Atom[] toArray() {
-    	Atom[] result = new Atom[size];
+    public IAtom[] toArray() {
+    	IAtom[] result = new IAtom[size];
     	System.arraycopy(elementData, 0, result, 0, size);
     	return result;
     }
@@ -298,9 +297,9 @@ public class AtomArrayList implements Cloneable,
      * @throws ArrayStoreException if the runtime type of a is not a supertype
      *         of the runtime type of every element in this list.
      */
-    public Atom[] toArray(Atom a[]) {
+    public IAtom[] toArray(IAtom a[]) {
         if (a.length < size)
-        	a = new Atom[size];
+        	a = new IAtom[size];
 
         System.arraycopy(elementData, 0, a, 0, size);
 
@@ -321,7 +320,7 @@ public class AtomArrayList implements Cloneable,
      * @param  index index of element to return.
      * @return the element at the specified position in this list.
      */
-    public Atom get(int index) {
+    public IAtom get(int index) {
         RangeCheck(index);
         return elementData[index];
     }
@@ -336,10 +335,10 @@ public class AtomArrayList implements Cloneable,
      * @throws    IndexOutOfBoundsException if index out of range
      *		  (index < 0 || index >= size()).
      */
-    public Atom set(int index, Atom element) {
+    public IAtom set(int index, IAtom element) {
     	RangeCheck(index);
 
-    	Atom oldValue = elementData[index];
+    	IAtom oldValue = elementData[index];
     	elementData[index] = element;
     	return oldValue;
     }
@@ -350,7 +349,7 @@ public class AtomArrayList implements Cloneable,
      * @param o element to be appended to this list.
      * @return true (as per the general contract of Collection.add).
      */
-    public boolean add(Atom atom) {
+    public boolean add(IAtom atom) {
     	ensureCapacity(size + 1);
     	elementData[size++] = atom;
     	return true;
@@ -366,7 +365,7 @@ public class AtomArrayList implements Cloneable,
      * @throws    IndexOutOfBoundsException if index is out of range
      *		  (index < 0 || index > size()).
      */
-    public void add(int index, Atom element) {
+    public void add(int index, IAtom element) {
     	if (index > size || index < 0)
     		throw new IndexOutOfBoundsException(
     				"Index: "+index+", Size: "+size);
@@ -397,10 +396,10 @@ public class AtomArrayList implements Cloneable,
      * @throws    IndexOutOfBoundsException if index out of range (index
      * 		  < 0 || index >= size()).
      */
-    public Atom remove(int index) {
+    public IAtom remove(int index) {
     	RangeCheck(index);
 
-    	Atom oldValue = elementData[index];
+    	IAtom oldValue = elementData[index];
 
     	int numMoved = size - index - 1;
     	if (numMoved > 0)
@@ -420,10 +419,10 @@ public class AtomArrayList implements Cloneable,
      * @throws IndexOutOfBoundsException if the index is out of range
      *         (index < 0 || index >= size()).
      */
-    public Atom removeAndReplace(int index) {
+    public IAtom removeAndReplace(int index) {
         RangeCheck(index);
         
-        Atom oldAtom = elementData[index];
+        IAtom oldAtom = elementData[index];
         
         size--;
         if (index < size) {
@@ -511,11 +510,11 @@ public class AtomArrayList implements Cloneable,
 
         // Read in array length and allocate array
         int arrayLength = s.readInt();
-        elementData = new Atom[arrayLength];
+        elementData = new IAtom[arrayLength];
 
         // Read in all elements in the proper order.
         for (int i=0; i<size; i++)
-            elementData[i] = (Atom)s.readObject();
+            elementData[i] = (IAtom)s.readObject();
     }
     
      /**

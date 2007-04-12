@@ -1,7 +1,7 @@
 package etomica.virial;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -17,11 +17,6 @@ import etomica.util.Debug;
  * (after which reset() should be called).  Cluster.value() depends on a one-to-one
  * correspondence between this ID and the positions of atoms in the CoordinatePairLeafSet. 
  */
-
-/* History
- * 08/21/03 (DAK) rearranged loops in resetPairs method
- */
- 
 public class CoordinatePairMoleculeSet implements java.io.Serializable, CoordinatePairSet {
 
     /**
@@ -29,7 +24,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public CoordinatePairMoleculeSet(AtomArrayList list, Space space) {
-        atoms = new Atom[list.size()];
+        atoms = new IAtom[list.size()];
         numAtoms = list.size();
         r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
@@ -56,10 +51,10 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     
     public void reset() {
         for(int i=0; i<numAtoms-1; i++) {
-            Atom iAtom = atoms[i];
+            IAtom iAtom = atoms[i];
             iPosition.E(iAtom.getType().getPositionDefinition().position(iAtom));
             for(int j=i+1; j<numAtoms; j++) {
-                Atom jAtom = atoms[j];
+                IAtom jAtom = atoms[j];
                 IVector jPosition = jAtom.getType().getPositionDefinition().position(jAtom);
                 dr.Ev1Mv2(iPosition, jPosition);
                 r2[i*numAtoms+j] = dr.squared();
@@ -81,7 +76,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
     }
     
     protected final double[] r2;
-    protected final Atom[] atoms;
+    protected final IAtom[] atoms;
     protected final int numAtoms;
     protected final IVector dr;
     private final IVector iPosition;

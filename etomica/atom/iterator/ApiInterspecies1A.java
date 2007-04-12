@@ -3,9 +3,9 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
@@ -128,7 +128,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
      * @throws NullPointerException
      *             if targetAtom is null
      */
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         if (newTargetAtom == null) {
             throw new NullPointerException("target atom must not be null");
         }
@@ -224,5 +224,5 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
     private IteratorDirective.Direction direction, allowedDirection;
     private SpeciesAgent agent0, agent1;
     private Phase phase;
-    private Atom targetAtom, targetMolecule;
+    private IAtom targetAtom, targetMolecule;
 }

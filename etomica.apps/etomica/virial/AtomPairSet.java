@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 
 /**
@@ -32,11 +32,11 @@ public class AtomPairSet implements java.io.Serializable {
     private void setAtoms(AtomArrayList list) {
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(list);
         int N = list.size();
-        Atom[] atoms = new Atom[N];
+        IAtom[] atoms = new IAtom[N];
         iterator.reset();
         int k=0;
         while(iterator.hasNext()) {
-            Atom atom = iterator.nextAtom();
+            IAtom atom = iterator.nextAtom();
             atoms[k++] = atom;
         } 
         for(int i=0; i<N-1; i++) {

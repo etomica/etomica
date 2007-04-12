@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.phase.Phase;
@@ -35,7 +35,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
             IRandom random, double stepSize, int nAtoms) {
         super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
         this.nAtoms = nAtoms;
-        selectedAtoms = new Atom[nAtoms];
+        selectedAtoms = new IAtom[nAtoms];
         translationVectors = new IVectorRandom[nAtoms];
         for (int i=0; i<nAtoms; i++) {
             translationVectors[i] = (IVectorRandom)potential.getSpace().makeVector();
@@ -64,7 +64,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         return true;
     }
 	
-    protected Atom[] selectMolecules() {
+    protected IAtom[] selectMolecules() {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
         if (iterator.size()-1 != nAtoms) throw new IllegalStateException("move should work on number of molecules in phase-1");
         iterator.reset();
@@ -99,6 +99,6 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     }
 	
     private final int nAtoms;
-    private final Atom[] selectedAtoms;
+    private final IAtom[] selectedAtoms;
     private final IVectorRandom[] translationVectors;
 }

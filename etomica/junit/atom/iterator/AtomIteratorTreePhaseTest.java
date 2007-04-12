@@ -2,8 +2,8 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.junit.UnitTestUtil;
@@ -54,7 +54,7 @@ public class AtomIteratorTreePhaseTest extends IteratorTestAbstract {
         //test iteration over different depths, starting at root
         treeIterator.setDoAllNodes(true);
 
-        list = testArrayIterates(1, new Atom[] {speciesAgent0, speciesAgent1, speciesAgent2});
+        list = testArrayIterates(1, new IAtom[] {speciesAgent0, speciesAgent1, speciesAgent2});
         list = testIterateCount(2, 3+n0a+n1a+n2a);
         list = testIterateCount(3, 3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]));
         list = testIterateCount(4, 3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]*(1+nTree[1])));
@@ -62,7 +62,7 @@ public class AtomIteratorTreePhaseTest extends IteratorTestAbstract {
         list = testIterateCount(100, 3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]*(1+nTree[1]*(1+nTree[2]))));
 
         treeIterator.setDoAllNodes(false);
-        list = testArrayIterates(1, new Atom[] {speciesAgent0, speciesAgent1, speciesAgent2});
+        list = testArrayIterates(1, new IAtom[] {speciesAgent0, speciesAgent1, speciesAgent2});
         list = testIterateCount(2, n0a+n1a+n2a);
         list = testIterateCount(3, n0a*nAtoms+n1a+n2a*nTree[0]);
         list = testIterateCount(4, n0a*nAtoms+n1a+n2a*nTree[0]*(nTree[1]));
@@ -118,7 +118,7 @@ public class AtomIteratorTreePhaseTest extends IteratorTestAbstract {
         return list;
     }
     
-    private LinkedList testArrayIterates(int depth, Atom[] iterates) {
+    private LinkedList testArrayIterates(int depth, IAtom[] iterates) {
         treeIterator.setIterationDepth(depth);
         AtomArrayList arrayList = new AtomArrayList();
         for (int i=0; i<iterates.length; i++) {

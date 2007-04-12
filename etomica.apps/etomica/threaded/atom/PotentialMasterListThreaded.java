@@ -1,9 +1,9 @@
 package etomica.threaded.atom;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.PhaseAgentSourceCellManager;
@@ -56,7 +56,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
-        Atom targetAtom = id.getTargetAtom();
+        IAtom targetAtom = id.getTargetAtom();
         NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(phase);
 
         if (targetAtom == null) {
@@ -80,7 +80,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
-            Atom parentAtom = targetAtom.getParentGroup();
+            IAtom parentAtom = targetAtom.getParentGroup();
             while (parentAtom.getType().getDepth() > 1) {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
@@ -109,13 +109,13 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         AtomArrayList list = phase.getSpeciesMaster().getAgentList();
         int size = list.size();
         for (int i=0; i<size; i++) {
-            Atom a = list.get(i);
+            IAtom a = list.get(i);
             calculateThreaded(a, id, pc, neighborManager);//recursive call
         }
         pc.writeData();
     }
         
-    protected void calculateThreaded(Atom atom, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
+    protected void calculateThreaded(IAtom atom, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
            
         AtomArrayList list = ((AtomGroup)atom).getChildList();
         int size = list.size();

@@ -2,11 +2,11 @@ package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.Atom;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -42,7 +42,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private final IRandom random;
     private AtomSource moleculeSource;
     
-    private transient Atom molecule;
+    private transient IAtom molecule;
     private transient Phase iPhase, dPhase;
     private transient SpeciesAgent iSpecies, dSpecies;
     private transient double uOld;

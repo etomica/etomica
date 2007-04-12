@@ -1,10 +1,10 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -40,7 +40,7 @@ public class MCMoveSemigrand extends MCMovePhase {
     private AtomPositionDefinition atomPositionDefinition;
     private final IRandom random;
     
-    private transient Atom deleteMolecule, insertMolecule;
+    private transient IAtom deleteMolecule, insertMolecule;
     private transient double uOld;
     private transient double uNew = Double.NaN;
     private transient SpeciesAgent deleteAgent, insertAgent;

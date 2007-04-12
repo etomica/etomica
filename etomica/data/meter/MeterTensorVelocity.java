@@ -1,8 +1,8 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
@@ -77,7 +77,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     /**
      * Returns the velocity dyad (mass*vv) for the given atom.
      */
-    public Data getData(Atom atom) {
+    public Data getData(IAtom atom) {
         atomData.x.Ev1v2(((ICoordinateKinetic)((AtomLeaf)atom)).getVelocity(), ((ICoordinateKinetic)((AtomLeaf)atom)).getVelocity());
         atomData.TE(((AtomTypeLeaf)atom.getType()).rm());
         return atomData;

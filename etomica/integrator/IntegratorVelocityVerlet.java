@@ -3,10 +3,10 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
@@ -131,11 +131,11 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         return MyAgent.class;
     }
 
-    public final Object makeAgent(Atom a) {
+    public final Object makeAgent(IAtom a) {
         return new MyAgent(potential.getSpace());
     }
     
-    public void releaseAgent(Object agent, Atom atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
             
     public final static class MyAgent implements IntegratorPhase.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;

@@ -1,14 +1,10 @@
-/*
- * History
- * Created on Aug 30, 2004 by kofke
- */
 package etomica.nbr.cell;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.lattice.CellLattice;
@@ -77,9 +73,9 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         return nextAtom();
     }
     
-    public Atom nextAtom() {
+    public IAtom nextAtom() {
         if(!hasNext()) return null;
-        Atom nextAtom = atomIterator.nextAtom();
+        IAtom nextAtom = atomIterator.nextAtom();
         if(!atomIterator.hasNext()) {
             advanceLists();
         }

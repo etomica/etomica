@@ -13,7 +13,7 @@ public class AtomFactoryMonoAngularDynamic extends AtomFactoryMono {
     /**
      * Returns a new leaf atom having no children.
      */
-    public Atom makeAtom() {
+    public IAtom makeAtom() {
         isMutable = false;
         return new AtomLeafAngularDynamic(space, atomType);
     }

@@ -3,11 +3,11 @@ import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 public class TripletInnerSequential implements AtomsetIteratorBasisDependent, 
@@ -38,11 +38,11 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         return 1;
     }
 
-    public boolean haveTarget(Atom target) {
+    public boolean haveTarget(IAtom target) {
         return childList.contains(targetAtom);
     }
 
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
     }
 
@@ -159,10 +159,10 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
     protected int stateUpDown; // 0 = up, 1 = middle, 2 = down, 3 = all done
     protected boolean doGoUp, doGoDown;
     protected AtomArrayList childList;
-    protected Atom targetAtom;
+    protected IAtom targetAtom;
     protected int cursor;
     protected final AtomsetArray next;
-    protected final Atom[] atomArray;
+    protected final IAtom[] atomArray;
     protected AtomsetCount counter;
     private static final long serialVersionUID = 1L;
 }

@@ -28,7 +28,7 @@ public class AtomGroupVelocityAverage implements Serializable {
      * Returns the mass-average velocity of the given Atom and 
      * all its children.
      */
-    public IVector getVelocityAverage(Atom a) {
+    public IVector getVelocityAverage(IAtom a) {
         vectorSum.E(0.0);
         myAction.massSum = 0;
         groupWrapper.actionPerformed(a);
@@ -40,7 +40,7 @@ public class AtomGroupVelocityAverage implements Serializable {
         public MyAction(IVector sum) {
             vectorSum = sum;
         }
-        public void actionPerformed(Atom a) {
+        public void actionPerformed(IAtom a) {
             vectorSum.PE(((ICoordinateKinetic)a).getVelocity());
             massSum += ((AtomTypeLeaf)a.getType()).getMass();
         }

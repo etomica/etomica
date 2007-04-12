@@ -1,6 +1,6 @@
 package etomica.phase;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 
 
 /**
@@ -8,7 +8,7 @@ import etomica.atom.Atom;
  */
 public class PhaseAtomIndexChangedEvent extends PhaseAtomEvent {
 
-    public PhaseAtomIndexChangedEvent(Phase phase, Atom atom, int oldIndex) {
+    public PhaseAtomIndexChangedEvent(Phase phase, IAtom atom, int oldIndex) {
         super(phase, atom);
         this.oldIndex = oldIndex;
     }

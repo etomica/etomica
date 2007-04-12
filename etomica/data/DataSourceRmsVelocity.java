@@ -2,8 +2,8 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.types.DataDouble;
@@ -92,7 +92,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, DataSourceIndepe
         dataInfo.addTag(tag);
     }
     
-    public Data getData(Atom a) {
+    public Data getData(IAtom a) {
         atomData.x = Math.sqrt(((ICoordinateKinetic)a).getVelocity().squared());
         return atomData;
     }

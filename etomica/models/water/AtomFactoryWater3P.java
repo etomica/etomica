@@ -1,6 +1,5 @@
 package etomica.models.water;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
@@ -8,6 +7,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtom;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.simulation.Simulation;
@@ -43,7 +43,7 @@ public class AtomFactoryWater3P extends AtomFactory {
 	/**
 	 * @see etomica.atom.AtomFactory#build(etomica.Atom)
 	 */
-	public Atom makeAtom() {
+	public IAtom makeAtom() {
         isMutable = false;
         AtomWater3P water = new AtomWater3P(atomType);
 		water.O = (AtomLeaf)oFactory.makeAtom();

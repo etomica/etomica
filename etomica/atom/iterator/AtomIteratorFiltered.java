@@ -1,15 +1,11 @@
-/*
- * History
- * Created on Aug 23, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
 
@@ -154,8 +150,8 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
     /**
      * Returns the next atom from the iterator that meets the filter's criteria.
      */
-    public Atom nextAtom() {
-        Atom nextAtom = next;
+    public IAtom nextAtom() {
+        IAtom nextAtom = next;
         next = null;
         while (iterator.hasNext() && next == null) {
             next = iterator.nextAtom();
@@ -212,10 +208,10 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
         return iterator;
     }
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     protected final AtomIterator iterator;
     private final AtomFilter filter;
-    private Atom next;
+    private IAtom next;
     private final ActionWrapper actionWrapper;
 
     /**
@@ -231,7 +227,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
             myFilter = filter;
         }
 
-        public void actionPerformed(Atom atom) {
+        public void actionPerformed(IAtom atom) {
             if (myFilter.accept(atom))
                 action.actionPerformed(atom);
         }
@@ -239,7 +235,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
     
     private static class AIFAtom extends AtomIteratorFiltered implements AtomIteratorAtomDependent {
         AIFAtom(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
+        public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
     }
     private static class AIFPhase extends AtomIteratorFiltered implements AtomIteratorPhaseDependent {
         AIFPhase(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
@@ -247,17 +243,16 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
     }
     private static class AIFAtomPhase extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomIteratorPhaseDependent {
         AIFAtomPhase(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
+        public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
         public void setPhase(Phase phase) {((AtomIteratorPhaseDependent)iterator).setPhase(phase);}
     }
     private static class AIFDirectable extends AtomIteratorFiltered implements AtomsetIteratorDirectable {
         AIFDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
     private static class AIFAtomDirectable extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomsetIteratorDirectable {
         AIFAtomDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
+        public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
     private static class AIFPhaseDirectable extends AtomIteratorFiltered implements AtomIteratorPhaseDependent, AtomsetIteratorDirectable {
@@ -267,101 +262,101 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
     }
     private static class AIFAtomPhaseDirectable extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomIteratorPhaseDependent, AtomsetIteratorDirectable {
         AIFAtomPhaseDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
+        public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
         public void setPhase(Phase phase) {((AtomIteratorPhaseDependent)iterator).setPhase(phase);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
     private static class AIFTarget extends AtomIteratorFiltered implements AtomsetIteratorTargetable {
         AIFTarget(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setTarget(Atom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
+        public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
     }
     private static class AIFBasis extends AIFTarget implements AtomsetIteratorBasisDependent {
         AIFBasis(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public int basisSize() {return ((AtomsetIteratorBasisDependent)iterator).basisSize();}
         public void setBasis(AtomSet atoms) {((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);}
-        public boolean haveTarget(Atom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
+        public boolean haveTarget(IAtom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
     }
     private static class AIFAtomTarget extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomsetIteratorTargetable {
         AIFAtomTarget(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
-        public void setTarget(Atom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
+        public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
+        public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
     }
     private static class AIFAtomBasis extends AIFAtomTarget implements AtomsetIteratorBasisDependent {
         AIFAtomBasis(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public int basisSize() {return ((AtomsetIteratorBasisDependent)iterator).basisSize();}
         public void setBasis(AtomSet atoms) {((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);}
-        public boolean haveTarget(Atom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
+        public boolean haveTarget(IAtom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
     }
     private static class AIFPhaseTarget extends AtomIteratorFiltered implements AtomIteratorPhaseDependent, AtomsetIteratorTargetable {
         AIFPhaseTarget(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public void setPhase(Phase phase) {((AtomIteratorPhaseDependent)iterator).setPhase(phase);}
-        public void setTarget(Atom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
+        public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
     }
     private static class AIFPhaseBasis extends AIFPhaseTarget implements AtomsetIteratorBasisDependent {
         AIFPhaseBasis(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public int basisSize() {return ((AtomsetIteratorBasisDependent)iterator).basisSize();}
         public void setBasis(AtomSet atoms) {((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);}
-        public boolean haveTarget(Atom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
+        public boolean haveTarget(IAtom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
     }
     private static class AIFAtomPhaseTarget extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomIteratorPhaseDependent, AtomsetIteratorTargetable {
         AIFAtomPhaseTarget(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
+        public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
         public void setPhase(Phase phase) {((AtomIteratorPhaseDependent)iterator).setPhase(phase);}
-        public void setTarget(Atom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
+        public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
     }
     private static class AIFAtomPhaseBasis extends AIFAtomPhaseTarget implements AtomsetIteratorBasisDependent {
         AIFAtomPhaseBasis(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public int basisSize() {return ((AtomsetIteratorBasisDependent)iterator).basisSize();}
         public void setBasis(AtomSet atoms) {((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);}
-        public boolean haveTarget(Atom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
+        public boolean haveTarget(IAtom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
     }
     private static class AIFTargetDirectable extends AtomIteratorFiltered implements AtomsetIteratorTargetable, AtomsetIteratorDirectable {
         AIFTargetDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setTarget(Atom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
+        public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
     private static class AIFBasisDirectable extends AIFTargetDirectable implements AtomsetIteratorBasisDependent {
         AIFBasisDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public int basisSize() {return ((AtomsetIteratorBasisDependent)iterator).basisSize();}
         public void setBasis(AtomSet atoms) {((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);}
-        public boolean haveTarget(Atom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
+        public boolean haveTarget(IAtom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
     }
     private static class AIFAtomTargetDirectable extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomsetIteratorTargetable, AtomsetIteratorDirectable {
         AIFAtomTargetDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
-        public void setTarget(Atom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
+        public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
+        public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
     private static class AIFAtomBasisDirectable extends AIFAtomTargetDirectable implements AtomsetIteratorBasisDependent {
         AIFAtomBasisDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public int basisSize() {return ((AtomsetIteratorBasisDependent)iterator).basisSize();}
         public void setBasis(AtomSet atoms) {((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);}
-        public boolean haveTarget(Atom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
+        public boolean haveTarget(IAtom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
     }
     private static class AIFPhaseTargetDirectable extends AtomIteratorFiltered implements AtomIteratorPhaseDependent, AtomsetIteratorTargetable, AtomsetIteratorDirectable {
         AIFPhaseTargetDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public void setPhase(Phase phase) {((AtomIteratorPhaseDependent)iterator).setPhase(phase);}
-        public void setTarget(Atom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
+        public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
     private static class AIFPhaseBasisDirectable extends AIFPhaseTargetDirectable implements AtomsetIteratorBasisDependent {
         AIFPhaseBasisDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public int basisSize() {return ((AtomsetIteratorBasisDependent)iterator).basisSize();}
         public void setBasis(AtomSet atoms) {((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);}
-        public boolean haveTarget(Atom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
+        public boolean haveTarget(IAtom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
     }
     private static class AIFAtomPhaseTargetDirectable extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomIteratorPhaseDependent, AtomsetIteratorTargetable, AtomsetIteratorDirectable {
         AIFAtomPhaseTargetDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setAtom(Atom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
+        public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
         public void setPhase(Phase phase) {((AtomIteratorPhaseDependent)iterator).setPhase(phase);}
-        public void setTarget(Atom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
+        public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
     private static class AIFAtomPhaseBasisDirectable extends AIFAtomPhaseTargetDirectable implements AtomsetIteratorBasisDependent {
         AIFAtomPhaseBasisDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public int basisSize() {return ((AtomsetIteratorBasisDependent)iterator).basisSize();}
         public void setBasis(AtomSet atoms) {((AtomsetIteratorBasisDependent)iterator).setBasis(atoms);}
-        public boolean haveTarget(Atom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
+        public boolean haveTarget(IAtom atom) {return ((AtomsetIteratorBasisDependent)iterator).haveTarget(atom);}
     }
 
 }

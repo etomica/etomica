@@ -1,7 +1,7 @@
 package etomica.normalmode;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -50,7 +50,7 @@ public abstract class CoordinateDefinition {
      *            Upon return, the atom's generalized coordinates. |u| must be
      *            of length getCoordinateDim()
      */
-    public abstract void calcU(Atom[] molecules, double[] u);
+    public abstract void calcU(IAtom[] molecules, double[] u);
 
     /**
      * Initializes the CoordinateDefinition for the given molecule and
@@ -59,7 +59,7 @@ public abstract class CoordinateDefinition {
      * the generalized coordinates for the molecule will be defined with respect
      * to this nominal case.
      */
-    public abstract void initNominalU(Atom[] molecules);
+    public abstract void initNominalU(IAtom[] molecules);
 
     /**
      * Set the molecule to a position and orientation that corresponds to the
@@ -73,7 +73,7 @@ public abstract class CoordinateDefinition {
      *            The generalized coordinate that defines the position and
      *            orientation to which the molecule will be set by this method.
      */
-    public abstract void setToU(Atom[] molecules, double[] u);
+    public abstract void setToU(IAtom[] molecules, double[] u);
 
     /**
      * Calculates the complex "T vector", which is collective coordinate given
@@ -136,7 +136,7 @@ public abstract class CoordinateDefinition {
 
     }
 
-    public IVector getLatticePosition(Atom atom) {
+    public IVector getLatticePosition(IAtom atom) {
         return (IVector)siteManager.getAgent(atom);
     }
 
@@ -153,7 +153,7 @@ public abstract class CoordinateDefinition {
     private double sqrtN;
     private final AtomIteratorAllMolecules iterator;
     private AtomAgentManager siteManager;
-    private final Atom[] atom = new Atom[1];
+    private final IAtom[] atom = new IAtom[1];
     
     private static class SiteSource implements AgentSource {
         
@@ -163,13 +163,13 @@ public abstract class CoordinateDefinition {
         public Class getAgentClass() {
             return IVector.class;
         }
-        public Object makeAgent(Atom atom) {
+        public Object makeAgent(IAtom atom) {
             IVector vector = space.makeVector();
             if(atom instanceof SpeciesAgent) return null;
             vector.E(atom.getType().getPositionDefinition().position(atom));
             return vector;
         }
-        public void releaseAgent(Object agent, Atom atom) {
+        public void releaseAgent(Object agent, IAtom atom) {
             //nothing to do
         }
         

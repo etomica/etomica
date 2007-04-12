@@ -1,10 +1,6 @@
-/*
- * History
- * Created on Nov 23, 2004 by kofke
- */
 package etomica.nbr.site;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.lattice.AbstractLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.lattice.SiteFactory;
@@ -21,9 +17,9 @@ public class AtomSite {
         this.latticeArrayIndex = latticeArrayIndex;
     }
     
-    public Atom getAtom() {return atom;}
+    public IAtom getAtom() {return atom;}
     
-    public void setAtom(Atom atom) {
+    public void setAtom(IAtom atom) {
         this.atom = atom;
     }
     
@@ -31,7 +27,7 @@ public class AtomSite {
         return latticeArrayIndex;
     }
     
-    private Atom atom;
+    private IAtom atom;
     final int latticeArrayIndex;//identifies site in lattice
 
     public static final SiteFactory FACTORY = new SiteFactory() {

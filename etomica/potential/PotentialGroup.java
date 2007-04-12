@@ -2,11 +2,11 @@ package etomica.potential;
 
 import java.util.Arrays;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterTypeInstance;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.atom.iterator.AtomIteratorFiltered;
@@ -221,7 +221,7 @@ public class PotentialGroup extends Potential {
      */
     //TODO consider what to do with sub-potentials after target atoms are reached
     public void calculate(AtomsetIterator iterator, IteratorDirective id, PotentialCalculation pc) {
-    	Atom targetAtom = id.getTargetAtom();
+    	IAtom targetAtom = id.getTargetAtom();
     	IteratorDirective.Direction direction = id.direction();
     	//loop over sub-potentials
     	//TODO consider separate loops for targetable and directable

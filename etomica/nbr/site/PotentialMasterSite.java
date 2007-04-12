@@ -1,11 +1,11 @@
 package etomica.nbr.site;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
@@ -157,7 +157,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         for (int i=0; i<criteriaArray.length; i++) {
             criteriaArray[i].setPhase(phase);
         }
-        Atom targetAtom = id.getTargetAtom();
+        IAtom targetAtom = id.getTargetAtom();
         neighborIterator.setPhase(phase);
         if (targetAtom == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
@@ -174,7 +174,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             AtomArrayList list = phase.getSpeciesMaster().getAgentList();
             int size = list.size();
             for (int i=0; i<size; i++) {
-                Atom a = list.get(i);
+                IAtom a = list.get(i);
                 calculate(a, id, pc);//call calculate with the SpeciesAgent
             }
         }
@@ -182,7 +182,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             // one target atom
             neighborIterator.setDirection(id.direction());
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
-            Atom pseudoTargetAtom = targetAtom;
+            IAtom pseudoTargetAtom = targetAtom;
             while (pseudoTargetAtom.getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
                 pseudoTargetAtom = pseudoTargetAtom.getParentGroup();
                 PotentialArray potentialArray = getIntraPotentials(pseudoTargetAtom.getType());
@@ -211,7 +211,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * the hierarchy until leaf atoms are reached.
      */
     //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
-	protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
+	protected void calculate(IAtom atom, IteratorDirective id, PotentialCalculation pc) {
         PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
         Potential[] potentials = potentialArray.getPotentials();
         NeighborCriterion[] criteria = potentialArray.getCriteria();
@@ -250,7 +250,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             AtomArrayList list = ((AtomGroup)atom).getChildList();
             int size = list.size();
             for (int i=0; i<size; i++) {
-                Atom a = list.get(i);
+                IAtom a = list.get(i);
                 calculate(a, id, pc);//recursive call
             }
 		}

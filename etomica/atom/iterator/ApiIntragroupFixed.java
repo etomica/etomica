@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 /**
@@ -101,7 +101,7 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
         return 1;
     }
 
-    protected Atom basisAtom;
+    protected IAtom basisAtom;
     protected Direction direction;
     private static final long serialVersionUID = 1L;
 }

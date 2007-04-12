@@ -12,7 +12,7 @@ public class AtomFilterStatic implements AtomFilter, Serializable {
         rv = accept;
     }
     
-    public boolean accept(Atom a) {return rv;}
+    public boolean accept(IAtom a) {return rv;}
     /**
      * Required to guarantee singleton when deserializing.
      * @return the singleton INSTANCE

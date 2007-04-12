@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.mcmove.MCMovePhase;
@@ -147,7 +147,7 @@ public class MCMoveHarmonic extends MCMovePhase {
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
     private double[] waveVectorCoefficients;
-    private final Atom[] atom = new Atom[1];
+    private final IAtom[] atom = new IAtom[1];
     protected double[] u;
     protected double[][] rRand;
     protected double[][] iRand;

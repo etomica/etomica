@@ -27,7 +27,7 @@ public class AtomFactoryMono extends AtomFactory {
     /**
      * Returns a new leaf atom having no children.
      */
-    public Atom makeAtom() {
+    public IAtom makeAtom() {
         isMutable = false;
         return new AtomLeaf(space, atomType);
     }

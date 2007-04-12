@@ -5,6 +5,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomsetArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -90,7 +91,7 @@ public class PotentialMasterListWorker extends Thread {
 	}
 	
 	
-	public void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc) {
+	public void calculate(IAtom atom, IteratorDirective id, PotentialCalculation pc) {
 		
 		 singletIterator.setAtom(atom);
 	     IteratorDirective.Direction direction = id.direction();
@@ -147,7 +148,7 @@ public class PotentialMasterListWorker extends Thread {
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
                         for (int j=0; j<iList.size(); j++) {
-                            Atom otherAtom = iList.get(j);
+                            IAtom otherAtom = iList.get(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
                         }
                     }
@@ -155,7 +156,7 @@ public class PotentialMasterListWorker extends Thread {
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
                         for (int j=0; j<iList.size(); j++) {
-                            Atom otherAtom = iList.get(j);
+                            IAtom otherAtom = iList.get(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
                         }
                     }
@@ -179,13 +180,13 @@ public class PotentialMasterListWorker extends Thread {
             AtomArrayList list = ((AtomGroup)atom).getChildList();
             int size = list.size();
             for (int i=0; i<size; i++) {
-                Atom a = list.get(i);
+                IAtom a = list.get(i);
                 calculate(a, id, pc);//recursive call
             }
         }
 	}
 	
-	protected void doNBodyStuff(Atom atom, IteratorDirective id, PotentialCalculation pc, int potentialIndex, Potential potential) {
+	protected void doNBodyStuff(IAtom atom, IteratorDirective id, PotentialCalculation pc, int potentialIndex, Potential potential) {
 	        AtomArrayList arrayList = atomsetArrayList.getArrayList();
 	        arrayList.clear();
 	        arrayList.add(atom);

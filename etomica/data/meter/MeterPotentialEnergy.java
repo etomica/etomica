@@ -1,6 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
@@ -45,7 +45,7 @@ public class MeterPotentialEnergy extends DataSourceScalar {
     	return iteratorDirective.includeLrc;
     }
 
-    public void setTarget(Atom atom) {
+    public void setTarget(IAtom atom) {
     	iteratorDirective.setTargetAtom(atom);
         iteratorDirective.setDirection(atom == null ? IteratorDirective.Direction.UP : null);
     }

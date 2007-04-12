@@ -32,7 +32,7 @@ public class AtomFactoryHetero extends AtomFactory {
      * Constructs a new group containing a block of atoms for
      * each sub-type.
      */
-    public Atom makeAtom() {
+    public IAtom makeAtom() {
         isMutable = false;
         AtomGroup group = new AtomGroup(atomType);
         // make block copolymers

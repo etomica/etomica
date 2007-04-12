@@ -8,9 +8,9 @@ import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
 /**
  * Returns iterates from the childList of a single basis atom.  Behavior is set
@@ -46,12 +46,12 @@ public final class ApiIntragroup implements AtomPairIterator,
         return 2;
     }
     
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
         aiOuter.setTarget(targetAtom);
 	}
     
-    public boolean haveTarget(Atom target) {
+    public boolean haveTarget(IAtom target) {
         return aiOuter.haveTarget(target);
     }
 	
@@ -168,9 +168,9 @@ public final class ApiIntragroup implements AtomPairIterator,
 		return 1;
 	}
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 	private final AtomsetIteratorBasisDependent aiOuter;//local, specifically typed copy
-	private Atom targetAtom;
+	private IAtom targetAtom;
     private IteratorDirective.Direction direction;
     private AtomsetCount counter;
     private final ApiInnerVariable apiUp, apiDown;

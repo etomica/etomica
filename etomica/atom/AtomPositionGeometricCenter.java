@@ -27,7 +27,7 @@ public class AtomPositionGeometricCenter implements AtomPositionDefinition {
         groupWrapper = new AtomGroupAction(myAction);
     }
 
-    public IVector position(Atom atom) {
+    public IVector position(IAtom atom) {
         vectorSum.E(0.0);
         myAction.nAtoms = 0;
         groupWrapper.actionPerformed(atom);
@@ -41,7 +41,7 @@ public class AtomPositionGeometricCenter implements AtomPositionDefinition {
             nAtoms = 0;
         }
         
-        public void actionPerformed(Atom a) {
+        public void actionPerformed(IAtom a) {
             vectorSum.PE(((AtomLeaf)a).getPosition());
             nAtoms++;
         }

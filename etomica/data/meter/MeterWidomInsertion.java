@@ -2,7 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorPhase;
@@ -148,7 +148,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
      */
     private int nInsert;
     private Species species;
-    private Atom testMolecule;// prototype insertion molecule
+    private IAtom testMolecule;// prototype insertion molecule
     private boolean residual; // flag to specify if total or residual chemical
                               // potential evaluated. Default true
     private AtomActionTranslateTo atomTranslator;

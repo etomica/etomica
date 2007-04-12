@@ -4,6 +4,7 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.Atom;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomPositionFirstAtom;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
@@ -40,7 +41,7 @@ public class ConfigurationCluster extends Configuration {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
 		iterator.reset();
         while (iterator.hasNext()) {
-            Atom a = iterator.nextAtom();
+            IAtom a = iterator.nextAtom();
             if (!a.isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
@@ -72,7 +73,7 @@ public class ConfigurationCluster extends Configuration {
 			while(iterator.hasNext()) {
                 translationVector.setRandomCube(random);
                 translationVector.TE(dimVector);
-                Atom a = iterator.nextAtom();
+                IAtom a = iterator.nextAtom();
                 
                 translator.setDestination(translationVector);
                 translator.actionPerformed(a);

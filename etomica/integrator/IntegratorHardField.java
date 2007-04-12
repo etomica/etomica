@@ -1,10 +1,10 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
@@ -124,12 +124,12 @@ public final class IntegratorHardField extends IntegratorHard {
         }
         atomIterator.reset();
         while(atomIterator.hasNext()) {
-            Atom a = atomIterator.nextAtom();
+            IAtom a = atomIterator.nextAtom();
  //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
  //                               a.coord.momentum().squared());
             HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent(a);
             if(!iagent.forceFree) updateAtom(a);//update because not force free
-            Atom partner = iagent.collisionPartner();
+            IAtom partner = iagent.collisionPartner();
             if(partner == null) continue;
             HardFieldAgent jagent = (HardFieldAgent)agentManager.getAgent(partner);
             if(!iagent.forceFree) {
@@ -153,7 +153,7 @@ public final class IntegratorHardField extends IntegratorHard {
     * Produces the Agent defined by this integrator.
     * One instance of an Agent is placed in each atom controlled by this integrator.
     */
-    public Object makeAgent(Atom a) {
+    public Object makeAgent(IAtom a) {
         return new HardFieldAgent(a,this);
     }
      
@@ -164,7 +164,7 @@ public final class IntegratorHardField extends IntegratorHard {
     
         public final IVector force;
         public boolean forceFree = true;
-        public HardFieldAgent(Atom a, IntegratorHardField integrator) {
+        public HardFieldAgent(IAtom a, IntegratorHardField integrator) {
             super(a, integrator);
             force = integrator.space.makeVector();
         }

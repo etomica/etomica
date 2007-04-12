@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
 import etomica.space.IVector;
@@ -32,7 +32,7 @@ public class ConfigurationFile extends Configuration {
             BufferedReader bufReader = new BufferedReader(fileReader);
             atomIterator.reset();
             while (atomIterator.hasNext()) {
-                Atom atom = atomIterator.nextAtom();
+                IAtom atom = atomIterator.nextAtom();
                 setPosition((AtomLeaf)atom,bufReader.readLine());
             }
             fileReader.close();

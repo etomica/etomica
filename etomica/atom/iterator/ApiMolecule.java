@@ -5,9 +5,9 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
 
@@ -49,7 +49,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      * Target is passed on to setTarget method of corresponding iterator, which
      * ultimately determines the behavior of this iterator.
      */
-    public void setTarget(Atom targetAtom) {
+    public void setTarget(IAtom targetAtom) {
         if (targetAtom == null) {
             iterator = (AtomPairIterator) apiAA;
         }

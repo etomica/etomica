@@ -49,7 +49,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
      * the agents from multiple Atoms, it might be faster to use the above 
      * getAgents method.
      */
-    public Object getAgent(Atom a) {
+    public Object getAgent(IAtom a) {
         return agents[a.getGlobalIndex()];
     }
     
@@ -69,7 +69,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
         iterator.reset();
         while (iterator.hasNext()) {
-            Atom atom = iterator.nextAtom();
+            IAtom atom = iterator.nextAtom();
             // check if atom's spot in the array even exists yet
             if (atom.getGlobalIndex() < agents.length) {
                 Object agent = agents[atom.getGlobalIndex()];
@@ -100,7 +100,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     
     public void actionPerformed(PhaseEvent evt) {
         if (evt instanceof PhaseAtomEvent) {
-            Atom a = ((PhaseAtomEvent)evt).getAtom();
+            IAtom a = ((PhaseAtomEvent)evt).getAtom();
             if (evt instanceof PhaseAtomAddedEvent) {
                 if (a.getType().isLeaf()) {
                     addAgent(a);
@@ -136,7 +136,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                     treeIterator.setRootAtom(a);
                     treeIterator.reset();
                     while (treeIterator.hasNext()) {
-                        Atom childAtom = treeIterator.nextAtom();
+                        IAtom childAtom = treeIterator.nextAtom();
                         int index = childAtom.getGlobalIndex();
                         if (agents[index] != null) {
                             // Atom used to have an agent.  nuke it.
@@ -167,7 +167,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         }
     }
     
-    protected void addAgent(Atom a) {
+    protected void addAgent(IAtom a) {
         if (agents.length < a.getGlobalIndex()+1) {
             // no room in the array.  reallocate the array with an extra cushion.
             agents = Arrays.resizeArray(agents,a.getGlobalIndex()+1+phase.getSpeciesMaster().getIndexReservoirSize());
@@ -189,13 +189,13 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         /**
          * Returns an agent for the given Atom.
          */
-        public Object makeAgent(Atom a);
+        public Object makeAgent(IAtom a);
         
         /**
          * This informs the agent source that the agent is going away and that 
          * the agent source should disconnect the agent from other elements
          */
-        public void releaseAgent(Object agent, Atom atom);
+        public void releaseAgent(Object agent, IAtom atom);
     }
 
     private static final long serialVersionUID = 1L;

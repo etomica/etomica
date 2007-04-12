@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
@@ -72,7 +72,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         moleculeIterator.setPhase(phase);
         moleculeIterator.reset();
         while(moleculeIterator.hasNext()) {
-            Atom molecule = moleculeIterator.nextAtom();
+            IAtom molecule = moleculeIterator.nextAtom();
             // we have an molecule, now grab all of its bonds
 
             for (int i=0; i<bondIterators.length; i++) {
@@ -110,11 +110,11 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         moleculeIterator.reset();
         AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
         while(moleculeIterator.hasNext()) {
-            Atom molecule = moleculeIterator.nextAtom();
+            IAtom molecule = moleculeIterator.nextAtom();
             leafIterator.setRootAtom(molecule);
             leafIterator.reset();
             while (leafIterator.hasNext()) {
-                Atom leafAtom = leafIterator.nextAtom();
+                IAtom leafAtom = leafIterator.nextAtom();
                 ArrayList list = (ArrayList)atomAgentManager.getAgent(leafAtom);
                 for (int i=0; i<list.size(); i++) {
                     bondManager.releaseBond(list.get(i));
@@ -130,7 +130,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         return ArrayList.class;
     }
     
-    public Object makeAgent(Atom newAtom) {
+    public Object makeAgent(IAtom newAtom) {
         if (!(newAtom.getParentGroup() instanceof SpeciesAgent) && newAtom.isLeaf()) {
             // we got a leaf atom in a mult-atom molecule
             ArrayList bondList = new ArrayList(); 
@@ -174,7 +174,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         return null;
     }
     
-    public void releaseAgent(Object agent, Atom atom) {
+    public void releaseAgent(Object agent, IAtom atom) {
         // we only release a bond when the "up" atom from the bond goes away
         // so if only the "down" atom goes away, we would leave the bond in
         // (bad).  However, you're not allowed to mutate the model, so deleting

@@ -1,21 +1,21 @@
 package etomica.phase;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 
 /**
  * Event that conveys some happening with respect to an Atom in a Phase.
  */
 public class PhaseAtomEvent extends PhaseEvent {
     
-    public PhaseAtomEvent(Phase phase, Atom atom) {
+    public PhaseAtomEvent(Phase phase, IAtom atom) {
         super(phase);
         this.atom = atom;
     }
 
-    public Atom getAtom() {
+    public IAtom getAtom() {
         return atom;
     }
     
-    private final Atom atom;
+    private final IAtom atom;
     private static final long serialVersionUID = 1L;
 }

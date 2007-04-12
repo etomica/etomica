@@ -11,10 +11,10 @@ import java.util.LinkedList;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
@@ -546,8 +546,8 @@ public class DisplayPhase extends Display implements EtomicaElement {
         /**
          * Returns the atom nearest the currently selected point
          */
-        private Atom selectAtom() {
-            Atom nearestAtom = null;
+        private IAtom selectAtom() {
+            IAtom nearestAtom = null;
             double r2Min = Double.MAX_VALUE;
             atomIterator.reset();
             while(atomIterator.hasNext()) {
@@ -564,7 +564,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         /**
          * Returns the molecule nearest the currently selected point
          */
-        private Atom selectMolecule() {
+        private IAtom selectMolecule() {
             //phase.moleculeIterator needs to be defined to implement method
             throw new RuntimeException("method DisplayPhase.selectMolecule not implemented");
             

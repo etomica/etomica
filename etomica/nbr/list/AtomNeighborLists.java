@@ -1,7 +1,7 @@
 package etomica.nbr.list;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
 
 /**
  * Class used to maintain neighbor lists.  Holds lists of atoms that were 
@@ -28,7 +28,7 @@ public class AtomNeighborLists implements java.io.Serializable {
      * @param a the new downlist neighbor atom
      * @param index the of the potential between the atoms
      */
-    public void addUpNbr(Atom a, int index) {
+    public void addUpNbr(IAtom a, int index) {
         upList[index].add(a);
     }
 
@@ -38,7 +38,7 @@ public class AtomNeighborLists implements java.io.Serializable {
      * @param a the new downlist neighbor atom
      * @param index the of the potential between the atoms
      */
-    public void addDownNbr(Atom a, int index) {
+    public void addDownNbr(IAtom a, int index) {
         downList[index].add(a);
     }
 

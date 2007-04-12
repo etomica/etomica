@@ -1,8 +1,8 @@
 package etomica.models.hexane;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
@@ -36,7 +36,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         deltaV = new Vector3D();
     }
 
-    public void calcU(Atom[] molecule, double[] u) {
+    public void calcU(IAtom[] molecule, double[] u) {
         // handle center-of-mass part
         super.calcU(molecule, u);
 
@@ -140,7 +140,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         
     }
 
-    public void initNominalU(Atom[] molecule) {
+    public void initNominalU(IAtom[] molecule) {
         // handle center-of-mass part
         super.initNominalU(molecule);
         //assume they're all oriented the same way.
@@ -171,7 +171,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         }
     }
     
-    public void setToU(Atom[] atom, double[] u) {
+    public void setToU(IAtom[] atom, double[] u) {
         super.setToU(atom, u);
         throw new RuntimeException("Don't yet know how to set orientation");
     }

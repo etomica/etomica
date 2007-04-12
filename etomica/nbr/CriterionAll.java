@@ -1,11 +1,7 @@
-/*
- * History
- * Created on Nov 27, 2004 by kofke
- */
 package etomica.nbr;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.phase.Phase;
 
 /**
@@ -15,11 +11,16 @@ import etomica.phase.Phase;
 public class CriterionAll implements NeighborCriterion, java.io.Serializable {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
      * Always returns false, indicating that neighbor list never needs updating.
      * This is appropriate if atoms are never added to or removed from phase,
      * because all atoms are always on neighbor list.
      */
-    public boolean needUpdate(Atom atom) {
+    public boolean needUpdate(IAtom atom) {
         return false;
     }
 
@@ -41,7 +42,7 @@ public class CriterionAll implements NeighborCriterion, java.io.Serializable {
     /**
      * Performs no action.
      */
-    public void reset(Atom atom) {
+    public void reset(IAtom atom) {
     }
 
     /**

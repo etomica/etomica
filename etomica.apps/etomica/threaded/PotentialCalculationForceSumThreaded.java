@@ -3,6 +3,7 @@ package etomica.threaded;
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.Integrator;
@@ -74,11 +75,11 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         return MyAgent.class;
     }
 
-    public final Object makeAgent(Atom a) {
+    public final Object makeAgent(IAtom a) {
         return new MyAgent(integratorAgentManager.getPhase().getSpace());
     }
     
-    public void releaseAgent(Object object, Atom atom){
+    public void releaseAgent(Object object, IAtom atom){
         
     }
     

@@ -1,9 +1,9 @@
 package etomica.integrator.mcmove;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -25,7 +25,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected final MeterPotentialEnergy energyMeter;
     protected final IVectorRandom translationVector;
-    protected Atom atom;
+    protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;

@@ -18,5 +18,5 @@ public interface AtomSource {
      * Returns an atom.  Will return null if there are no appropriate atoms in 
      * the given phase.
      */
-    public Atom getAtom();
+    public IAtom getAtom();
 }

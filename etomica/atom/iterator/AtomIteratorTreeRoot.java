@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 
 /**
  * Atom iterator that traverses all atoms at or to a specified depth below a
@@ -58,11 +58,11 @@ public class AtomIteratorTreeRoot extends AtomIteratorTree {
      * @param depth         nominal depth of iteration
      * @param doAllNodes    flag for iteration of all nodes between root and depth, inclusive
      */
-    public AtomIteratorTreeRoot(Atom root, int depth, boolean doAllNodes) {
+    public AtomIteratorTreeRoot(IAtom root, int depth, boolean doAllNodes) {
         super(root, depth, doAllNodes);
     }
     
-    public void setRootAtom(Atom newRootAtom) {
+    public void setRootAtom(IAtom newRootAtom) {
         // just make superclass method visible
         super.setRootAtom(newRootAtom);
     }

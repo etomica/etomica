@@ -1,8 +1,8 @@
 package etomica.lattice;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
@@ -42,7 +42,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         setMillerIndices(h);
     }
     
-    public boolean accept(Atom a) {
+    public boolean accept(IAtom a) {
         return !plane.isPositiveSide((Vector3D)((AtomLeaf)a).getPosition());
     }
     

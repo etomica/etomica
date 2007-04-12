@@ -1,9 +1,9 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
  /**
   * An atom iterator of the elements from an AtomArrayList (in proper
@@ -63,7 +63,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
     /**
      * Returns the next iterate and advances the iterator.
      */
- 	public Atom nextAtom() {
+ 	public IAtom nextAtom() {
         if (cursor < list.size()) {
             return list.get(cursor++);
         }

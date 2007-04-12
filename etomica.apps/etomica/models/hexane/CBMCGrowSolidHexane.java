@@ -1,7 +1,7 @@
 package etomica.models.hexane;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -193,7 +193,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
          */
     }
     
-    protected double calcExternalEnergy(Atom a){
+    protected double calcExternalEnergy(IAtom a){
         //make sure that the proper potential is enabled.  Really,
         //we only have the one potential, so this line is unnecessary
         //but I want it in here for reference when I am extending

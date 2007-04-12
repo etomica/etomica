@@ -1,7 +1,7 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceScalar;
@@ -35,7 +35,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
         return (species == null) ? phase.moleculeCount(): phase.getAgent(species).getNMolecules();
     }
     
-    public Data getData(Atom atom) {
+    public Data getData(IAtom atom) {
         data.x = (species == null || atom.getType().getSpecies() == species) ? 1 : 0;
         return data;
     }

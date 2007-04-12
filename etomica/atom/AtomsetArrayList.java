@@ -36,7 +36,7 @@ public class AtomsetArrayList implements AtomSet, java.io.Serializable {
     /**
      * Part of implementation of AtomSet interface.
      */
-    public Atom getAtom(int i) {
+    public IAtom getAtom(int i) {
         return atoms.get(i);
     }
 

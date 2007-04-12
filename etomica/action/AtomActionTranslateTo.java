@@ -1,7 +1,7 @@
 package etomica.action;
-import etomica.atom.Atom;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.IAtom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -12,6 +12,7 @@ import etomica.space.Space;
  */
 public class AtomActionTranslateTo extends AtomActionAdapter {
     
+    private static final long serialVersionUID = 1L;
     private final IVector destination;
     private AtomPositionDefinition atomPositionDefinition;
     private AtomGroupAction atomTranslator;
@@ -29,7 +30,7 @@ public class AtomActionTranslateTo extends AtomActionAdapter {
         translationVector = ((AtomActionTranslateBy)atomTranslator.getAction()).getTranslationVector();
     }
     
-    public void actionPerformed(Atom atom) {
+    public void actionPerformed(IAtom atom) {
         IVector currentPosition = atomPositionDefinition.position(atom);
         translationVector.Ev1Mv2(destination, currentPosition);
         atomTranslator.actionPerformed(atom);

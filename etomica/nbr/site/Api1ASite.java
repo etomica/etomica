@@ -6,9 +6,9 @@ package etomica.nbr.site;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
@@ -190,7 +190,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
      * itself or an atom that is part of it.  If the atom is null or is not 
      * in one of the species given at construction, no iterates will be returned.
      */
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
     }
 
@@ -202,8 +202,8 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
     private boolean doGoDown;
     private boolean upListNow;
     private IteratorDirective.Direction direction;
-    private Atom targetAtom;
-    private Atom next;
+    private IAtom targetAtom;
+    private IAtom next;
     private final PhaseAgentManager phaseAgentManager;
     private NeighborSiteManager neighborSiteManager;
     

@@ -28,8 +28,8 @@ public final class SpeciesAgent extends AtomGroup {
     
     public int getNMolecules() {return childList.size();}
             
-    public Atom addNewAtom() {
-        Atom aNew = type.getSpecies().moleculeFactory().makeAtom();
+    public IAtom addNewAtom() {
+        IAtom aNew = type.getSpecies().moleculeFactory().makeAtom();
         addChildAtom(aNew);
         return aNew;
     }
@@ -38,7 +38,7 @@ public final class SpeciesAgent extends AtomGroup {
      * Notifies this atom group that an atom has been added to it 
      * or one of its descendants.
      */
-    public void addAtomNotify(Atom childAtom) {
+    public void addAtomNotify(IAtom childAtom) {
         speciesMaster.addAtomNotify(childAtom);
     }
     
@@ -46,7 +46,7 @@ public final class SpeciesAgent extends AtomGroup {
      * Notifies this atom group that an atom has been removed from it or 
      * one of its descendants.
      */
-    public void removeAtomNotify(Atom childAtom) {
+    public void removeAtomNotify(IAtom childAtom) {
          speciesMaster.removeAtomNotify(childAtom);
     }
 

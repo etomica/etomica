@@ -1,12 +1,8 @@
-/*
- * History
- * Created on Aug 30, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
 /**
  * Iterator that returns pairs formed using two different basis atoms, so that
@@ -41,12 +37,12 @@ public class ApiIntergroup extends AtomPairIteratorAdapter implements
      * Specifies a target atom, which should appear in all iterates. A
      * null value removes any restriction on the iterates.
      */
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
         needSetupIterators = true;
     }
 
-    public boolean haveTarget(Atom target) {
+    public boolean haveTarget(IAtom target) {
         if (target == null) {
             return true;
         }
@@ -132,9 +128,10 @@ public class ApiIntergroup extends AtomPairIteratorAdapter implements
         super.allAtoms(action);
     }
 
+    private static final long serialVersionUID = 1L;
     protected final AtomsetIteratorBasisDependent aiOuter;
     protected final AtomsetIteratorBasisDependent aiInner;
-    protected Atom targetAtom;
+    protected IAtom targetAtom;
     protected boolean needSetupIterators = true;
 
 }

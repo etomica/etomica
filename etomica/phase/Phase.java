@@ -8,10 +8,10 @@ import java.lang.reflect.InvocationTargetException;
 
 import etomica.EtomicaElement;
 import etomica.action.PhaseInflate;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.atom.iterator.AtomIterator;
@@ -151,7 +151,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * An argument outside this range throws an IndexOutOfBoundsException
      */
     //could make more efficient by starting from first or last molecule, as appropriate
-    public Atom molecule(int i) {
+    public IAtom molecule(int i) {
         if(i >= moleculeCount() || i < 0) 
             throw new IndexOutOfBoundsException("Index: "+i+
                                                 ", Number of molecules: "+moleculeCount());
@@ -176,9 +176,9 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * given atom can appear more than once in this list, if it is nearest to
      * more than one of the positions.
      */
-    public Atom[] nearestAtom(IVector[] r) {
+    public IAtom[] nearestAtom(IVector[] r) {
     	AtomIterator iterator = new AtomIteratorLeafAtoms(this);
-    	Atom[] nearest = new Atom[r.length];
+    	IAtom[] nearest = new IAtom[r.length];
     	for(int i=0; i<r.length; i++) {
 	    	double r2Min = Double.MAX_VALUE;
 	    	iterator.reset();

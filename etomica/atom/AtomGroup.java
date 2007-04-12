@@ -31,7 +31,7 @@ public class AtomGroup extends Atom {
      * should be parentless when this method is called.
      * @throws IllegalArgumentException if the given atom already has a parent.
      */
-    public void addChildAtom(Atom newChildAtom) {
+    public void addChildAtom(IAtom newChildAtom) {
         if(newChildAtom.getParentGroup() != null) {//new parent is null
             throw new IllegalArgumentException(newChildAtom+" is already the child of "+newChildAtom.getParentGroup());
         }
@@ -47,7 +47,7 @@ public class AtomGroup extends Atom {
      * Removes the given child Atom from this AtomGroup.
      * @throws IllegalArgumentException if the given atom is not a child.
      */
-    public void removeChildAtom(Atom oldChildAtom) {
+    public void removeChildAtom(IAtom oldChildAtom) {
         for (int i=0; i<childList.size(); i++) {
             if (childList.get(i) == oldChildAtom) {
                 childList.removeAndReplace(i);
@@ -75,12 +75,12 @@ public class AtomGroup extends Atom {
      * children (ordinals are numbered from 1; specifications in path are
      * numbered from 0).
      */
-    public Atom getDescendant(int[] path) {
+    public IAtom getDescendant(int[] path) {
         return getDescendant(0, path);
     }
     
-    private Atom getDescendant(int n, int[] path) {
-        Atom child = childList.get(path[n]);
+    private IAtom getDescendant(int n, int[] path) {
+        IAtom child = childList.get(path[n]);
         if(path.length - 1 > n) {//go further down hierarchy
             if(child.isLeaf()) {//no more there
                 throw new IllegalArgumentException("Depth of requested descendant exceeds depth of atom hierarchy");
@@ -99,7 +99,7 @@ public class AtomGroup extends Atom {
      * involved, this method can be expensive in computationally intensive
      * situations involving repeated calls (this should be avoided).
      */
-    public Atom[] childAtomArray() {
+    public IAtom[] childAtomArray() {
         return childList.toArray();
     }
     
@@ -107,7 +107,7 @@ public class AtomGroup extends Atom {
      * Notifies this atom group that an atom has been added to it 
      * or one of its descendants.
      */
-    public void addAtomNotify(Atom childAtom) {
+    public void addAtomNotify(IAtom childAtom) {
         if (parent != null) {
             parent.addAtomNotify(childAtom);
         }
@@ -117,7 +117,7 @@ public class AtomGroup extends Atom {
      * Notifies this atom group that an atom has been removed from it or 
      * one of its descendants.
      */
-    public void removeAtomNotify(Atom childAtom) {
+    public void removeAtomNotify(IAtom childAtom) {
         if(parent != null) {
             parent.removeAtomNotify(childAtom);
         }

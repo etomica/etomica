@@ -1,9 +1,9 @@
 package etomica.potential;
 
 import etomica.action.AtomsetCount;
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.phase.Phase;
@@ -95,8 +95,8 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
                 if (lrcAtomsPerMolecule[i] == 0) {
                     final AtomType typei = types[i];
                     AtomsetCount counter = new AtomsetCount() {
-                        public void actionPerformed(Atom atom) {
-                            if (atom.getType() == typei) {
+                        public void actionPerformed(AtomSet atom) {
+                            if (((IAtom)atom).getType() == typei) {
                                 super.actionPerformed(atom);
                             }
                         }

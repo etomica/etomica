@@ -1,13 +1,9 @@
-/*
- * History
- * Created on Aug 30, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
 /**
  * Returns iterates from a list.  
@@ -33,7 +29,7 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
         return 2;
     }
     
-    public void setAtom(Atom atom) {
+    public void setAtom(IAtom atom) {
         aiOuter.setAtom(atom);
     }
     

@@ -1,9 +1,9 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 import etomica.util.IRandom;
@@ -23,11 +23,11 @@ public class ColorSchemeRandom extends ColorScheme implements AgentSource {
         return Color.class;
     }
     
-    public Object makeAgent(Atom a) {
+    public Object makeAgent(IAtom a) {
         return new Color((float)random.nextDouble(),(float)random.nextDouble(),(float)random.nextDouble());
     }
     
-    public void releaseAgent(Object agent, Atom atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     private static final long serialVersionUID = 2L;
     private final AtomAgentManager agentManager;

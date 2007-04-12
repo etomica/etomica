@@ -1,7 +1,6 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
@@ -185,7 +184,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
                     AtomLeaf a = (AtomLeaf)atomList.get(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();
                     currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a).getVelocity().squared();
-                    randomizeMomentum(atomList.get(index));
+                    randomizeMomentum((AtomLeaf)atomList.get(index));
                     currentKineticEnergy += 0.5*m*((ICoordinateKinetic)a).getVelocity().squared();
                 }
             }
@@ -215,7 +214,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
      * after calling this method.
      * @param atom whose momenta is be randomized
      */
-    protected void randomizeMomentum(Atom atom) {
+    protected void randomizeMomentum(AtomLeaf atom) {
         atomActionRandomizeVelocity.setTemperature(temperature);
         atomActionRandomizeVelocity.actionPerformed(atom);
     }

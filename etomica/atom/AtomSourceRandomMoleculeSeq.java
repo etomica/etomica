@@ -11,7 +11,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
         reset();
     }
     
-    public Atom getAtom() {
+    public IAtom getAtom() {
         int moleculeCount = speciesMaster.moleculeCount();
         // this is probably innapropriate for atom removal
         if (prevIndex == -1 || prevIndex > moleculeCount-1) {

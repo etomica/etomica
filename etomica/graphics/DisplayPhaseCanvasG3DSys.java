@@ -7,17 +7,14 @@ import java.awt.TextField;
 
 import javax.vecmath.Point3f;
 
-import org.jmol.g3d.Graphics3D;
-
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.lattice.IndexIteratorSequential;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
@@ -246,7 +243,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     return Figure.class;
   }
 	
-  public Object makeAgent(Atom a) {
+  public Object makeAgent(IAtom a) {
     if ( !(a instanceof AtomLeaf) || !(a.getType() instanceof AtomTypeSphere)) return null;
     ((AtomLeaf)a).getPosition().assignTo(coords);
     
@@ -257,7 +254,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     return newBall;
   }
 
-  public void releaseAgent(Object agent, Atom atom) {
+  public void releaseAgent(Object agent, IAtom atom) {
     gsys.removeFig((Figure) agent);
   }
   

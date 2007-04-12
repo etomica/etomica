@@ -1,7 +1,7 @@
 package etomica.action;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.util.IRandom;
@@ -31,7 +31,7 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
      * distribution with temperature most recently set for the action.  If atom 
      * mass is infinite, assigns a zero velocity.
      */
-    public void actionPerformed(Atom a) {
+    public void actionPerformed(IAtom a) {
         IVector velocity = ((ICoordinateKinetic)a).getVelocity();
         double mass = ((AtomTypeLeaf)a.getType()).getMass();
         if(Double.isInfinite(mass)) {

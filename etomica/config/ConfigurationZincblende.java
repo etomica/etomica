@@ -2,8 +2,8 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
@@ -89,8 +89,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
             IVector site = (IVector) lattice.site(ii);
             atomActionTranslateTo.setDestination(site);
 
-            Atom a0 = iterator0.nextAtom();
-            Atom a1 = iterator1.nextAtom();
+            IAtom a0 = iterator0.nextAtom();
+            IAtom a1 = iterator1.nextAtom();
             atomActionTranslateTo.actionPerformed(a0);
             atomActionTranslateTo.actionPerformed(a1);
 

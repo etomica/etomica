@@ -28,7 +28,7 @@ public abstract class AtomFactory implements java.io.Serializable {
      * Implementation of this method in the subclass defines the 
      * product of this factory.
      */
-    public abstract Atom makeAtom();
+    public abstract IAtom makeAtom();
 
     /**
      * Returns the number of number of atoms used to form the Atom

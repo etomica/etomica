@@ -1,11 +1,7 @@
-/*
- * History
- * Created on Nov 18, 2004 by kofke
- */
 package etomica.action;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.space.ICoordinateKinetic;
 
 
@@ -16,10 +12,10 @@ import etomica.space.ICoordinateKinetic;
 public class AtomFreeFlight extends AtomActionAdapter {
     private static final long serialVersionUID = 1L;
     private double tStep = 0.0;
-    public void actionPerformed(Atom a) {
+    public void actionPerformed(IAtom a) {
         ((AtomLeaf)a).getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a).getVelocity());
     }
-    public void actionPerformed(Atom a, double t) {
+    public void actionPerformed(IAtom a, double t) {
         tStep = t;
         actionPerformed(a);
     }

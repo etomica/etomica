@@ -1,9 +1,6 @@
-/* History
- * Created on Aug 4, 2004
- */
 package etomica.atom.iterator;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 
 /**
  * Interface for classes that loop over a set of atoms. Permits
@@ -18,5 +15,5 @@ public interface AtomIterator extends AtomsetIterator {
 	 * Returns the next atom in the iteration sequence, or
      * null if hasNext() is false.
 	 */
-    public Atom nextAtom();
+    public IAtom nextAtom();
 }

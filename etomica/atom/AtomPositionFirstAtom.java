@@ -10,7 +10,7 @@ import etomica.util.Debug;
 
 public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Serializable {
 
-    public IVector position(Atom atom) {
+    public IVector position(IAtom atom) {
         AtomLeaf atomLeaf = getFirstChildLeafAtom(atom);
         if (atomLeaf == null) {
             return null;
@@ -18,7 +18,7 @@ public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Se
         return atomLeaf.getPosition();
     }
     
-    protected AtomLeaf getFirstChildLeafAtom(Atom atom) {
+    protected AtomLeaf getFirstChildLeafAtom(IAtom atom) {
         if (atom.isLeaf()) {
             return (AtomLeaf)atom;
         }

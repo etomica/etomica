@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
@@ -50,7 +50,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * @throws IllegalArgumentException
      *          if targetAtom.count() is not 0 or 1
      */
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
         setList();
     }
@@ -77,7 +77,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         
         //target specified -- give it as only iterate if descended from species
         } else {
-            Atom molecule = targetAtom.getChildWhereDescendedFrom(speciesAgent);
+            IAtom molecule = targetAtom.getChildWhereDescendedFrom(speciesAgent);
             littleList.clear();
             if(molecule != null) littleList.add(molecule);
             listIterator.setList(littleList);
@@ -89,5 +89,5 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     private final Species species;
     private final AtomArrayList littleList = new AtomArrayList();
     private SpeciesAgent speciesAgent;
-    private Atom targetAtom;
+    private IAtom targetAtom;
 }

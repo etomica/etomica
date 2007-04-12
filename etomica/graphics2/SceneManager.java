@@ -1,12 +1,12 @@
 package etomica.graphics2;
 
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
@@ -151,10 +151,10 @@ public final class SceneManager {
 		this.scale = scale;
 	}
 	
-	public Atom[] getSelectedAtoms() {
+	public IAtom[] getSelectedAtoms() {
 		return selectedAtoms;
 	}
-	public void setSelectedAtoms(Atom[] selectedAtoms) {
+	public void setSelectedAtoms(IAtom[] selectedAtoms) {
 		this.selectedAtoms = selectedAtoms;
 	}
 	
@@ -181,7 +181,7 @@ public final class SceneManager {
     protected IVector from, to;
     
     protected ColorScheme colorScheme;
-    protected Atom[] selectedAtoms = new Atom[1];
+    protected IAtom[] selectedAtoms = new IAtom[1];
     protected Renderable renderer;
     
     private AtomAgentManager agentManager;
@@ -219,7 +219,7 @@ public final class SceneManager {
             return SphereShapeWrapper.class;
         }
         
-        public Object makeAgent(Atom a) {
+        public Object makeAgent(IAtom a) {
             if (!(a.getType() instanceof AtomTypeSphere)) {
                 return null;
             }
@@ -236,7 +236,7 @@ public final class SceneManager {
             return wrapper;
         }
         
-        public void releaseAgent(Object agent, Atom atom) {
+        public void releaseAgent(Object agent, IAtom atom) {
             ((SphereShapeWrapper)agent).shape.dispose();
         }
         

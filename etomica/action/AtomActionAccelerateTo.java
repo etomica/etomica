@@ -1,6 +1,6 @@
 package etomica.action;
-import etomica.atom.Atom;
 import etomica.atom.AtomGroupVelocityAverage;
+import etomica.atom.IAtom;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -33,7 +33,7 @@ public class AtomActionAccelerateTo extends AtomActionAdapter {
      * Adds velocity vector to the atom (or to all atoms forming it) 
      * so that its mass-average velocity equals the target velocity.
      */
-    public void actionPerformed(Atom atom) {
+    public void actionPerformed(IAtom atom) {
         if(atom.getType().isLeaf()) {
             ((ICoordinateKinetic)atom).getVelocity().E(targetVelocity);
         } else {

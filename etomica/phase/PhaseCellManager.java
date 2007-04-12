@@ -1,6 +1,6 @@
 package etomica.phase;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.lattice.CellLattice;
 
 /**
@@ -10,11 +10,6 @@ import etomica.lattice.CellLattice;
  *
  * @author David Kofke and Andrew Schultz
  *
- */
-
-/*
- * History
- * Created on Apr 15, 2005 by kofke
  */
 public interface PhaseCellManager {
 
@@ -31,5 +26,5 @@ public interface PhaseCellManager {
     /**
      * Assigns the cell for the given atom.
      */
-    public void assignCell(Atom atom);
+    public void assignCell(IAtom atom);
 }

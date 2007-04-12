@@ -1,9 +1,9 @@
 package etomica.nbr;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
@@ -135,7 +135,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
         return Length.DIMENSION;
     }
 
-	public boolean needUpdate(Atom atom) {
+	public boolean needUpdate(IAtom atom) {
         dr = Math.abs(((AtomLeaf)atom).getPosition().x(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
             System.out.println("atom "+atom+" displacement "+dr+" "+((AtomLeaf)atom).getPosition());
@@ -182,7 +182,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 		return dr < neighborRange;
 	}
 	
-	public void reset(Atom atom) {
+	public void reset(IAtom atom) {
 		((DoubleWrapper)agentManager.getAgent(atom)).x = ((AtomLeaf)atom).getPosition().x(neighborDim);
 	}
 
@@ -190,11 +190,11 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
         return DoubleWrapper.class;
     }
     
-    public Object makeAgent(Atom atom) {
+    public Object makeAgent(IAtom atom) {
         return atom.getType().isLeaf() ? new DoubleWrapper() : null;
     }
     
-    public void releaseAgent(Object agent, Atom atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     protected static class DoubleWrapper implements java.io.Serializable {
         private static final long serialVersionUID = 1L;

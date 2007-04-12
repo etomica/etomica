@@ -1,10 +1,10 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
@@ -92,8 +92,8 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Implements collision dynamics and updates lastCollisionVirial
      */
     public void bump(AtomSet pair, double falseTime) {
-        Atom atom0 = ((AtomPair)pair).atom0;
-        Atom atom1 = ((AtomPair)pair).atom1;
+        IAtom atom0 = ((AtomPair)pair).atom0;
+        IAtom atom1 = ((AtomPair)pair).atom1;
         ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
         ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());

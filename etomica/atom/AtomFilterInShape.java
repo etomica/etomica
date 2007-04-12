@@ -25,7 +25,7 @@ public class AtomFilterInShape implements AtomFilter, java.io.Serializable {
     /**
      * Returns true if the atom's position is inside the shape.
      */
-    public boolean accept(Atom atom) {
+    public boolean accept(IAtom atom) {
         if(positionDefinition == null) {
             return shape.contains(atom.getType().getPositionDefinition().position(atom));
         }

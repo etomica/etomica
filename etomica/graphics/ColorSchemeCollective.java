@@ -1,9 +1,9 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 
@@ -33,11 +33,11 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
         return Color.class;
     }
     
-    public Object makeAgent(Atom a) {
+    public Object makeAgent(IAtom a) {
         return null;
     }
     
-    public void releaseAgent(Object agent, Atom atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
     
     /**
      * Inner class to let us cheat and access and modify elements of the agents array.

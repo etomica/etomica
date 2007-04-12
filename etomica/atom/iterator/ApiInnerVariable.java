@@ -1,9 +1,9 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
 /**
  * Pair iterator synthesized from two atom iterators, such that the inner-loop
@@ -143,10 +143,10 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
             needUpdate1 = false;
         } //aiOuter was advanced
         if (doSwap) {
-            pair.atom0 = (Atom) aiInner.peek();
+            pair.atom0 = (IAtom) aiInner.peek();
         }
         else {
-            pair.atom1 = (Atom) aiInner.peek();
+            pair.atom1 = (IAtom) aiInner.peek();
         }
         return pair;
     }
@@ -232,7 +232,7 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
     private static final long serialVersionUID = 1L;
     protected final AtomPair pair = new AtomPair();
     protected boolean hasNext, needUpdate1;
-    protected Atom atom1;
+    protected IAtom atom1;
 
     /**
      * The iterators used to generate the sets of atoms.

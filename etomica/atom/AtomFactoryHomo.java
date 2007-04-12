@@ -46,7 +46,7 @@ public class AtomFactoryHomo extends AtomFactory {
     /**
      * Constructs a new group.
      */
-     public Atom makeAtom() {
+     public IAtom makeAtom() {
          isMutable = false;
          AtomGroup group = new AtomGroup(atomType);
          for(int i=0; i<atomsPerGroup; i++) {

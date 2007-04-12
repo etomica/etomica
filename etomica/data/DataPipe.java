@@ -7,10 +7,6 @@ package etomica.data;
  * @author David Kofke
  *  
  */
-
-/*
- * History Created on Jul 23, 2005 by kofke
- */
 public interface DataPipe extends DataSink {
 
     /**

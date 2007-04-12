@@ -1,7 +1,7 @@
 package etomica.action;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 
 /**
@@ -32,7 +32,7 @@ public class PhaseDeleteMolecules extends PhaseActionAdapter {
         iterator.setPhase(phase);
         iterator.reset();
         while (iterator.hasNext()) {
-            Atom molecule = iterator.nextAtom();
+            IAtom molecule = iterator.nextAtom();
             if (!filter.accept(molecule)) {
                 molecule.getParentGroup().removeChildAtom(molecule);
             }

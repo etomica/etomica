@@ -1,9 +1,9 @@
 package etomica.integrator;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.phase.Phase;
@@ -145,11 +145,11 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         return Agent.class;
     }
     
-    public final Object makeAgent(Atom a) {
+    public final Object makeAgent(IAtom a) {
         return new Agent(phase.getSpace());
     }
     
-    public void releaseAgent(Object agent, Atom atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
             
 	public final static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
         public IVector force;

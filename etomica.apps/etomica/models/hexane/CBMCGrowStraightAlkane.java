@@ -1,7 +1,7 @@
 package etomica.models.hexane;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -324,7 +324,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
         return vex;
     }
     
-    protected abstract double calcExternalEnergy(Atom a);
+    protected abstract double calcExternalEnergy(IAtom a);
     
     //uub in algorithm 45, 46
     protected abstract double calcBondAngleEnergy(double dub);

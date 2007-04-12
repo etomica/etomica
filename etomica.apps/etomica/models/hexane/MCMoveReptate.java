@@ -1,11 +1,11 @@
 package etomica.models.hexane;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMovePhaseStep;
@@ -191,7 +191,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
     private static final long serialVersionUID = 1L;
     protected final MeterPotentialEnergy energyMeter;
 //    protected final Vector translationVector;
-    private Atom atom;
+    private IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected AtomSource atomSource;

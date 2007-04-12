@@ -2,11 +2,11 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.Atom;
 import etomica.atom.AtomToArrayList;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
 import etomica.atom.AtomToParentChildList;
+import etomica.atom.IAtom;
 
  /**
   * An atom iterator of the elements from an AtomArrayList (in proper
@@ -44,7 +44,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
     /**
      * Returns the next iterate and advances the iterator.
      */
- 	public Atom nextAtom() {
+ 	public IAtom nextAtom() {
         if (cursor == -1) {
             return null;
         }
@@ -120,7 +120,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * and/or down the list, depending on how iterator was configured at
      * construction.
      */
-    public void setAtom(Atom atom) {
+    public void setAtom(IAtom atom) {
         list = atomToArrayList.getArrayList(atom);
         firstCursor = atomToIndex.getIndex(atom);
     }

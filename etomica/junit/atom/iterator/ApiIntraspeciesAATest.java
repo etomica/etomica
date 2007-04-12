@@ -2,8 +2,8 @@ package etomica.junit.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiIntraspeciesAA;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
@@ -86,7 +86,7 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
 
         api.setPhase(phase);
-        Atom[] molecules0 = phase.getAgent(species[species0Index]).getChildList().toArray();
+        IAtom[] molecules0 = phase.getAgent(species[species0Index]).getChildList().toArray();
         
         int count = molecules0.length * (molecules0.length - 1) / 2;
         

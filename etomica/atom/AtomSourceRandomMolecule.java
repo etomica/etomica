@@ -29,7 +29,7 @@ public class AtomSourceRandomMolecule implements AtomSource, java.io.Serializabl
     /**
      * returns a random molecule from the phase
      */
-    public Atom getAtom() {
+    public IAtom getAtom() {
         return phase.molecule(random.nextInt(phase.moleculeCount()));
     }
     

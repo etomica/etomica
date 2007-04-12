@@ -1,8 +1,8 @@
 package etomica.potential;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorPhase;
 import etomica.space.IVector;
@@ -47,7 +47,7 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
 			IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
 			switch(nBody) {
 				case 1:
-					((IntegratorPhase.Forcible)integratorAgentManager.getAgent((Atom)atoms)).force().ME(f[0]);
+					((IntegratorPhase.Forcible)integratorAgentManager.getAgent((IAtom)atoms)).force().ME(f[0]);
 					break;
 				case 2:
                     ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(((AtomPair)atoms).atom0)).force().ME(f[0]);

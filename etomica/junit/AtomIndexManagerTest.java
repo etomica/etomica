@@ -1,10 +1,10 @@
 package etomica.junit;
 
 import junit.framework.TestCase;
-import etomica.atom.Atom;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.phase.Phase;
@@ -38,7 +38,7 @@ public class AtomIndexManagerTest extends TestCase {
         phase0.getAgent(species1).setNMolecules(10);
         phase1.getAgent(species0).setNMolecules(20);
         phase1.getAgent(species1).setNMolecules(10);
-        atoms = new Atom[24];
+        atoms = new IAtom[24];
         int i = 0;
 //        atoms[i++] = master0 = phase0.getSpeciesMaster();//0
 //        atoms[i++] = master1 = phase1.getSpeciesMaster();//1
@@ -75,8 +75,8 @@ public class AtomIndexManagerTest extends TestCase {
       }
     }
 
-    private static SpeciesMaster getSpeciesMaster(Atom atom) {
-        Atom speciesAgent = atom;
+    private static SpeciesMaster getSpeciesMaster(IAtom atom) {
+        IAtom speciesAgent = atom;
         while (!(speciesAgent instanceof SpeciesAgent)) {
             speciesAgent = speciesAgent.getParentGroup();
         }
@@ -109,7 +109,7 @@ public class AtomIndexManagerTest extends TestCase {
             }
         }
     }
-    private boolean isDescendedFrom(Atom a1, Atom a2) {
+    private boolean isDescendedFrom(IAtom a1, IAtom a2) {
         if (a1 == null) return false;
         if(a1.getType().getDepth() < a2.getType().getDepth()) return false;
         else if(a1 == a2) return true;
@@ -140,7 +140,7 @@ public class AtomIndexManagerTest extends TestCase {
             }
         }
     }
-    private boolean typeIsDescendedFrom(Atom a1, Atom a2) {
+    private boolean typeIsDescendedFrom(IAtom a1, IAtom a2) {
         if (a1 == null) return false;
         if(a1.getType().getDepth() < a2.getType().getDepth()) return false;
         else if(a1.getType() == a2.getType()) return true;
@@ -158,7 +158,7 @@ public class AtomIndexManagerTest extends TestCase {
             if(atoms[i].inSameMolecule(atom)) System.out.println(i+" "+atoms[i]+" "+atom);
             assertFalse(atoms[i].inSameMolecule(atom));
             assertFalse(atom.inSameMolecule(atoms[i]));
-            Atom moleculeA = atoms[i];
+            IAtom moleculeA = atoms[i];
             while (!(moleculeA.getParentGroup() instanceof SpeciesAgent)) {
                 moleculeA = moleculeA.getParentGroup();
             }
@@ -171,7 +171,7 @@ public class AtomIndexManagerTest extends TestCase {
                     // different phases, so skip
                     continue;
                 }
-                Atom moleculeB = atoms[j];
+                IAtom moleculeB = atoms[j];
                 while (!(moleculeB.getParentGroup() instanceof SpeciesAgent)) {
                     moleculeB = moleculeB.getParentGroup();
                 }
@@ -194,10 +194,10 @@ public class AtomIndexManagerTest extends TestCase {
         if(UnitTestUtil.VERBOSE) System.out.println("AtomIndexManagerTest(Molecule): trueCount = "+trueCount+"; falseCount = "+falseCount+"; undefinedCount = "+undefinedCount);
     }
 
-    Atom atom;
+    IAtom atom;
     SpeciesAgent agent00, agent01, agent10, agent11;
     SpeciesMaster master0, master1;
-    Atom[] atoms;
+    IAtom[] atoms;
     int[] moleculeIndex, phaseIndex, speciesIndex, atomIndex;
     int i0;
 }

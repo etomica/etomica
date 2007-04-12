@@ -1,9 +1,9 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
 /**
  * Iterator that expires after returning a single atom pair, which is specified
@@ -29,7 +29,7 @@ public class ApiSinglet implements AtomPairIterator, java.io.Serializable {
      * reset() must be performed before beginning iteration. If either atom is
      * null no iteration will subsequently be performed.
      */
-    public void setPair(Atom a0, Atom a1) {
+    public void setPair(IAtom a0, IAtom a1) {
         pair.atom0 = a0;
         pair.atom1 = a1;
         unset();

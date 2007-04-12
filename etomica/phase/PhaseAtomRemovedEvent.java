@@ -1,6 +1,6 @@
 package etomica.phase;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 
 
 /**
@@ -8,7 +8,7 @@ import etomica.atom.Atom;
  */
 public class PhaseAtomRemovedEvent extends PhaseAtomEvent {
 
-    public PhaseAtomRemovedEvent(Phase phase, Atom atom) {
+    public PhaseAtomRemovedEvent(Phase phase, IAtom atom) {
         super(phase, atom);
     }
 

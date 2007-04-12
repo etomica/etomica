@@ -31,7 +31,7 @@ public class AtomPositionCOM implements AtomPositionDefinition, Serializable {
         groupWrapper = new AtomGroupAction(myAction);
     }
     
-    public IVector position(Atom atom) {
+    public IVector position(IAtom atom) {
         vectorSum.E(0);
         myAction.massSum = 0;
         groupWrapper.actionPerformed(atom);
@@ -43,7 +43,7 @@ public class AtomPositionCOM implements AtomPositionDefinition, Serializable {
         public MyAction(IVector sum) {
             vectorSum = sum;
         }
-        public void actionPerformed(Atom a) {
+        public void actionPerformed(IAtom a) {
             double mass = ((AtomTypeLeaf)a.getType()).getMass();
             vectorSum.PEa1Tv1(mass, ((AtomLeaf)a).getPosition());
             massSum += mass;

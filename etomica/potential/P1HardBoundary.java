@@ -2,10 +2,10 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.graphics.Drawable;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
@@ -145,7 +145,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         // dv = 2*NewVelocity
         double newP = ((AtomLeaf)a).getPosition().x(imin) - falseTime*v.x(imin)*2.0;
         ((AtomLeaf)a).getPosition().setX(imin,newP);
-        double dp = 2.0/(((AtomTypeLeaf)((Atom)a).getType()).rm())*(-v.x(imin));
+        double dp = 2.0/(((AtomTypeLeaf)((IAtom)a).getType()).rm())*(-v.x(imin));
         lastVirial = dp;
         lastCollisionDim = imin;
     }//end of bump

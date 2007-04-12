@@ -2,9 +2,9 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
@@ -57,9 +57,9 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
 
         Lister testLister = new Lister();
         LinkedList list = null;
-        Atom basis = null;
-        Atom target = null;
-        Atom iterate = null;
+        IAtom basis = null;
+        IAtom target = null;
+        IAtom iterate = null;
         AtomArrayList iterates = null;
         
         assertEquals(basisIterator.basisSize(), 1);
@@ -149,7 +149,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //int[] {phase (0), species (0,1,2), molecule etc}
     }
     
-    private LinkedList testOneIterate(Atom basis, Atom target, Atom iterate) {
+    private LinkedList testOneIterate(IAtom basis, IAtom target, IAtom iterate) {
         basisIterator.setBasis(basis);
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
@@ -161,7 +161,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         return list;
     }
     
-    private LinkedList testListIterates(Atom basis, Atom target, AtomArrayList iterates) {
+    private LinkedList testListIterates(IAtom basis, IAtom target, AtomArrayList iterates) {
         basisIterator.setBasis(basis);
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
@@ -173,7 +173,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         return list;
     }
     
-    private void testNoIterates(Atom basis, Atom target) {
+    private void testNoIterates(IAtom basis, IAtom target) {
         basisIterator.setBasis(basis);
         assertFalse(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);

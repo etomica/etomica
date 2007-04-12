@@ -4,8 +4,8 @@
  */
 package etomica.action;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.phase.Phase;
 import etomica.space.IVector;
@@ -101,7 +101,7 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
         scaleVector.PE(-1);
         IVector translationVector = translator.getTranslationVector();
         while (moleculeIterator.hasNext()) {
-            Atom molecule = moleculeIterator.nextAtom();
+            IAtom molecule = moleculeIterator.nextAtom();
             translationVector.E(moleculeCenter.position(molecule));
             translationVector.TE(scaleVector);
             groupScaler.actionPerformed(molecule);

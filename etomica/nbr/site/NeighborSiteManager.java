@@ -1,7 +1,7 @@
 package etomica.nbr.site;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
@@ -76,12 +76,12 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
      * @throws RuntimeException
      *             if invoked
      */
-    public void assignCell(Atom atom) {
+    public void assignCell(IAtom atom) {
         throw new RuntimeException(
                 "Cell assignments are made automagically.  This method isn't here.  Really.");
     }
     
-    public AtomSite getSite(Atom atom) {
+    public AtomSite getSite(IAtom atom) {
         return (AtomSite)agentManager.getAgent(atom);
     }
     
@@ -89,7 +89,7 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
         return AtomSite.class;
     }
 
-    public Object makeAgent(Atom atom) {
+    public Object makeAgent(IAtom atom) {
         if (!atom.isLeaf()) {
             return null;
         }
@@ -98,7 +98,7 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
         return site;
     }
     
-    public void releaseAgent(Object agent, Atom atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     private final CellLattice lattice;
     private final Space space;

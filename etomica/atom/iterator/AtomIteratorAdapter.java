@@ -4,7 +4,7 @@
  */
 package etomica.atom.iterator;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 
 /**
  * Adapater class that wraps another AtomIterator to implement the
@@ -29,7 +29,7 @@ public abstract class AtomIteratorAdapter extends AtomsetIteratorAdapter impleme
 		atomIterator = iterator;
 	}
 	
-	public Atom nextAtom() {
+	public IAtom nextAtom() {
 		return atomIterator.nextAtom();
 	}
 }

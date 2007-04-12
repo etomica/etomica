@@ -5,10 +5,10 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
 /**
  * Elementary basis-dependent iterator that gives atoms meeting specification
@@ -58,7 +58,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * of the basis-set atoms. Call to this method leaves iterator unset; call to reset is
      * required before beginning iteration.
      */
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
         if (targetAtom != null) {
             targetDepth = targetAtom.getType().getDepth();
@@ -102,7 +102,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * yield an iterate. Assumes that the basis -- if it is a group -- 
      * has child atoms. 
      */
-    public boolean haveTarget(Atom target) {
+    public boolean haveTarget(IAtom target) {
         if(basis == null) return false;
         if (target == null) {
             return true;
@@ -173,7 +173,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
                 //return child of basis that is or is above targetAtom (if in
                 //hierarchy of basis)
                 //do looping only if in hierarchy of basis
-                Atom targetNode = targetAtom.getChildWhereDescendedFrom(basis);
+                IAtom targetNode = targetAtom.getChildWhereDescendedFrom(basis);
                 if (targetNode != null) {
                     littleList.add(targetNode);
                 }
@@ -201,9 +201,9 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
     private final AtomArrayList littleList = new AtomArrayList(1);//used to form a list of
                                                        // one iterate if target
                                                        // is specified
-    private Atom targetAtom;
+    private IAtom targetAtom;
     private int targetDepth;
-    private Atom basis;
+    private IAtom basis;
     private AtomArrayList list;
     private boolean needSetupIterator = true;//flag to indicate if
                                              // setupIterator must be called

@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.potential.Potential;
 import etomica.util.EnumeratedType;
 
@@ -13,14 +13,13 @@ import etomica.util.EnumeratedType;
 
 public final class IteratorDirective implements java.io.Serializable {
     
-  
     public IteratorDirective() {
         this(Direction.UP);
     }
     public IteratorDirective(Direction direction) {
         setDirection(direction);
     }
-    public IteratorDirective(Direction direction, Atom atom) {
+    public IteratorDirective(Direction direction, IAtom atom) {
         this(direction);
         targetAtom = atom;
     }
@@ -60,11 +59,12 @@ public final class IteratorDirective implements java.io.Serializable {
         potentialCriteriaHead = newCriterion;
     }
     
-    public void setTargetAtom(Atom atoms) {
+    public void setTargetAtom(IAtom atoms) {
         targetAtom = atoms;
     }
-    public Atom getTargetAtom() {return targetAtom;}
+    public IAtom getTargetAtom() {return targetAtom;}
     
+    private static final long serialVersionUID = 1L;
     /**
      * Flag indicating whether long-range correction contributions should
      * be included in calculation.  Default is <b>true</b>.
@@ -72,11 +72,13 @@ public final class IteratorDirective implements java.io.Serializable {
     public boolean includeLrc = true;
     private Direction direction;
     PotentialCriterion potentialCriteriaHead;
-    public Atom targetAtom = null;
+    public IAtom targetAtom = null;
     
     //IteratorDirective.Direction
     public static final class Direction extends EnumeratedType {
         
+        private static final long serialVersionUID = 1L;
+
         private Direction(String label) {
             super(label);
         }

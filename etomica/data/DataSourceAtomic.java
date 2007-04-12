@@ -1,6 +1,6 @@
 package etomica.data;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 
 
 /**
@@ -13,7 +13,7 @@ import etomica.atom.Atom;
 
 public interface DataSourceAtomic extends DataSource {
     
-    public Data getData(Atom a);
+    public Data getData(IAtom a);
     
     public IDataInfo getAtomDataInfo();
     

@@ -3,7 +3,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -26,7 +26,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
 
     }
 
-    public void calcU(Atom[] molecule, double[] u) {
+    public void calcU(IAtom[] molecule, double[] u) {
         IVector pos = molecule[0].getType().getPositionDefinition().position(molecule[0]);
         IVector site = getLatticePosition(molecule[0]);
         work1.Ev1Mv2(pos, site);
@@ -38,10 +38,10 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     /**
      * Override if nominal U is more than the lattice position of the molecule
      */
-    public void initNominalU(Atom[] molecule) {
+    public void initNominalU(IAtom[] molecule) {
     }
 
-    public void setToU(Atom[] molecule, double[] u) {
+    public void setToU(IAtom[] molecule, double[] u) {
         IVector site = getLatticePosition(molecule[0]);
         for (int i = 0; i < space.D(); i++) {
             work1.setX(i, site.x(i) + u[i]);

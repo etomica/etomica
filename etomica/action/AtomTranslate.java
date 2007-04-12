@@ -1,7 +1,7 @@
 package etomica.action;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -17,7 +17,7 @@ public class AtomTranslate extends AtomActionAdapter {
         displacement = space.makeVector();
     }
         
-    public final void actionPerformed(Atom a) {((AtomLeaf)a).getPosition().PE(displacement);}
-    public void actionPerformed(Atom a, IVector d) {((AtomLeaf)a).getPosition().PE(d);}
+    public final void actionPerformed(IAtom a) {((AtomLeaf)a).getPosition().PE(displacement);}
+    public void actionPerformed(IAtom a, IVector d) {((AtomLeaf)a).getPosition().PE(d);}
     public final void setDisplacement(IVector d) {displacement.E(d);}
 }

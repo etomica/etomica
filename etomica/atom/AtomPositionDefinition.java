@@ -9,16 +9,11 @@ import etomica.space.IVector;
  * are based on the center of mass, or on the position of the first
  * leaf atom in the group.
  */
-
-/*
- * History
- * Created on Jan 27, 2005 by kofke
- */
 public interface AtomPositionDefinition {
 
     /**
      * Returns the defined position for the given atom, which 
      * may be an atom group.
      */
-    public IVector position(Atom atom);
+    public IVector position(IAtom atom);
 }

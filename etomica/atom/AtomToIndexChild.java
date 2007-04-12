@@ -12,7 +12,7 @@ public class AtomToIndexChild implements AtomToIndex, Serializable {
     /**
      * @throws NullPointerException if the atom is null.
      */
-    public int getIndex(Atom atom) {
+    public int getIndex(IAtom atom) {
         return atom.getIndex();
     }
     

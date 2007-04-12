@@ -4,8 +4,8 @@
  */
 package etomica.atom.iterator;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomsetArray;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -72,7 +72,7 @@ public final class AtomsetIteratorSpeciesAgent extends AtomsetIteratorAdapter
      * derived from one of the species, with each species being
      * applied to no more than one target atom.
      */
-    public void setTarget(Atom newTargetAtom) {
+    public void setTarget(IAtom newTargetAtom) {
         if (newTargetAtom == null) {
             canReset = true;
         }

@@ -2,8 +2,8 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorArrayListAdjacent;
 import etomica.atom.iterator.IteratorDirective;
@@ -39,9 +39,9 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         atomList.addAll(agent.getChildList());
 
         //atom in middle of list
-        Atom atom = atomList.get(5);
-        Atom dnAtom = atomList.get(4);
-        Atom upAtom = atomList.get(6);
+        IAtom atom = atomList.get(5);
+        IAtom dnAtom = atomList.get(4);
+        IAtom upAtom = atomList.get(6);
         LinkedList list = null;
         Lister test = new Lister();
         
@@ -53,21 +53,21 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
-        test.addEachToList(new Atom[] {upAtom});
+        test.addEachToList(new IAtom[] {upAtom});
         assertEquals(list, test.list);
 
         iterator = iteratorDn;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
-        test.addEachToList(new Atom[] {dnAtom});
+        test.addEachToList(new IAtom[] {dnAtom});
         assertEquals(list, test.list);
 
         iterator = iteratorBoth;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 2);
         test.clear();
-        test.addEachToList(new Atom[] {upAtom,dnAtom});
+        test.addEachToList(new IAtom[] {upAtom,dnAtom});
         assertEquals(list, test.list);
 
         //atom at end of list        
@@ -85,14 +85,14 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
-        test.addEachToList(new Atom[] {dnAtom});
+        test.addEachToList(new IAtom[] {dnAtom});
         assertEquals(list, test.list);
 
         iterator = iteratorBoth;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
-        test.addEachToList(new Atom[] {dnAtom});
+        test.addEachToList(new IAtom[] {dnAtom});
         assertEquals(list, test.list);
 
         //atom at beginning of list        
@@ -106,7 +106,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
-        test.addEachToList(new Atom[] {upAtom});
+        test.addEachToList(new IAtom[] {upAtom});
         assertEquals(list, test.list);
 
         iterator = iteratorDn;
@@ -117,7 +117,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
         test.clear();
-        test.addEachToList(new Atom[] {upAtom});
+        test.addEachToList(new IAtom[] {upAtom});
         assertEquals(list, test.list);
 
         //short list

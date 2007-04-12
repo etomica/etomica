@@ -2,9 +2,9 @@ package etomica.junit.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
-import etomica.atom.Atom;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
@@ -43,7 +43,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         testNoIterates(api);
 
         //test documented exceptions
-        Atom target = null;
+        IAtom target = null;
         boolean exceptionThrown = false;
         try {
             api.setTarget(target);
@@ -98,11 +98,11 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
 
         ApiIntraspecies1A api = new ApiIntraspecies1A(new Species[] {species, species});
         AtomsetAction speciesTest = new SpeciesTestAction(species, species);
-        Atom target = null;
-        Atom targetMolecule = null;
+        IAtom target = null;
+        IAtom targetMolecule = null;
         //test no iterates if no target
         api.setPhase(phase);
-        Atom[] molecules0 = phase.getAgent(species).getChildList().toArray();
+        IAtom[] molecules0 = phase.getAgent(species).getChildList().toArray();
         int[] nMolecules = new int[] {molecules0.length};
         testNoIterates(api);
         
@@ -157,23 +157,23 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         }
     }
     
-    private Atom[] upMolecules(Atom target, Atom[] list) {
+    private IAtom[] upMolecules(IAtom target, IAtom[] list) {
         int i;
         for(i=0; i<list.length; i++) {
             if(list[i] == target) break;
         }
-        Atom[] atoms = new Atom[list.length-i-1];
+        IAtom[] atoms = new IAtom[list.length-i-1];
         for(int j=0; j<atoms.length; j++) {
             atoms[j] = list[i+j+1];
         }
         return atoms;
     }
-    private Atom[] dnMolecules(Atom target, Atom[] list) {
+    private IAtom[] dnMolecules(IAtom target, IAtom[] list) {
         int i;
         for(i=0; i<list.length; i++) {
             if(list[i] == target) break;
         }
-        Atom[] atoms = new Atom[i];
+        IAtom[] atoms = new IAtom[i];
         for(int j=0; j<i; j++) {
             atoms[j] = list[i-j-1];
         }

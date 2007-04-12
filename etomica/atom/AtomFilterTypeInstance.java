@@ -26,7 +26,7 @@ public class AtomFilterTypeInstance implements AtomFilter, java.io.Serializable 
      * instance as the type given at construction.  Returns false
      * also if atom is null.
      */
-    public boolean accept(Atom atom) {
+    public boolean accept(IAtom atom) {
         return (atom != null) && (atom.getType() == acceptedType);
     }
 

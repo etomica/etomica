@@ -14,7 +14,7 @@ import etomica.util.Debug;
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
   */
-public abstract class Atom implements AtomSet, java.io.Serializable {
+public abstract class Atom implements IAtom, java.io.Serializable {
 
     public Atom(AtomType type) {
         this.type = type;
@@ -49,7 +49,7 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
      * 
      * @throws IllegalArgumentException if i != 0
      */
-    public final Atom getAtom(int i) {
+    public final IAtom getAtom(int i) {
         if (i == 0) return this;
         throw new IllegalArgumentException();
     }
@@ -60,7 +60,7 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
      * @throws NullPointerException
      *             if the argument is null
      */
-    public boolean inSameMolecule(Atom atom) {
+    public boolean inSameMolecule(IAtom atom) {
         return type.getAddressManager().sameMolecule(getAddress(), atom.getAddress());
     }
     
@@ -149,7 +149,7 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
      * or if the given atom is this atom.  Returns true, for example, if the given
      * atom is this atom's parent, or its parent's parent, etc.
      */ 
-    public boolean isDescendedFrom(Atom group) {
+    public boolean isDescendedFrom(IAtom group) {
         if(group == null) return false;
         return group.getType().getAddressManager().sameAncestry(group.getAddress(),atomTreeAddress);
     }
@@ -159,7 +159,7 @@ public abstract class Atom implements AtomSet, java.io.Serializable {
      * If given node is parent node of this, returns this.
      * If this node is not descended from the given node, returns null.
      */
-    public Atom getChildWhereDescendedFrom(Atom atom) {
+    public IAtom getChildWhereDescendedFrom(IAtom atom) {
         if(parent == null) return null;
         return (parent == atom) ? this : parent.getChildWhereDescendedFrom(atom);
     }

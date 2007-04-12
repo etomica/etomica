@@ -1,10 +1,10 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.graphics.Drawable;
 import etomica.space.Boundary;
 import etomica.space.ICoordinateKinetic;
@@ -220,10 +220,10 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
                 throw new RuntimeException("bork!");
             }
         }
-        double dp = 2.0/(1/wallMass + ((AtomTypeLeaf)((Atom)a).getType()).rm())*(trueWallVelocity-v.x(wallD));
+        double dp = 2.0/(1/wallMass + ((AtomTypeLeaf)((IAtom)a).getType()).rm())*(trueWallVelocity-v.x(wallD));
         virialSum += dp;
-        v.setX(wallD,v.x(wallD)+dp*((AtomTypeLeaf)((Atom)a).getType()).rm());
-        ((AtomLeaf)a).getPosition().setX(wallD,r-dp*((AtomTypeLeaf)((Atom)a).getType()).rm()*falseTime);
+        v.setX(wallD,v.x(wallD)+dp*((AtomTypeLeaf)((IAtom)a).getType()).rm());
+        ((AtomLeaf)a).getPosition().setX(wallD,r-dp*((AtomTypeLeaf)((IAtom)a).getType()).rm()*falseTime);
         wallVelocity -= dp/wallMass;
         wallPosition += dp/wallMass*falseTime;
         

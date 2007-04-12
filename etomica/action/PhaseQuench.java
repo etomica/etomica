@@ -1,5 +1,6 @@
 package etomica.action;
 
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterTemperature;
 import etomica.phase.Phase;
@@ -39,7 +40,7 @@ public class PhaseQuench extends PhaseActionAdapter {
     }
     
 	/**
-	 * @see etomica.action.PhaseActionAdapter#actionPerformed(etomica.Phase)
+	 * @see etomica.action.PhaseActionAdapter#actionPerformed(IAtom)
 	 */
 	public void actionPerformed() {
 		if(phase == null) return;

@@ -4,8 +4,8 @@
  */
 package etomica.atom.iterator;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
 /**
  * Interface for an AtomIterator that can be conditioned with
@@ -33,6 +33,6 @@ public interface AtomsetIteratorBasisDependent extends AtomsetIteratorTargetable
      * Returns true if the iterator with its current basis 
      * would return an iterate for the given target.
      */
-    public boolean haveTarget(Atom target);
+    public boolean haveTarget(IAtom target);
 
 }

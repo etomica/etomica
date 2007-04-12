@@ -1,12 +1,12 @@
 package etomica.nbr.list;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomType;
 import etomica.atom.AtomsetArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -388,7 +388,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      */
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
-        Atom targetAtom = id.getTargetAtom();
+        IAtom targetAtom = id.getTargetAtom();
         NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(phase);
         if (targetAtom == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
@@ -404,13 +404,13 @@ public class PotentialMasterList extends PotentialMasterNbr {
             AtomArrayList list = phase.getSpeciesMaster().getAgentList();
             int size = list.size();
             for (int i=0; i<size; i++) {
-                Atom a = list.get(i);
+                IAtom a = list.get(i);
                 calculate(a, id, pc, neighborManager);//call calculate with the SpeciesAgent
             }
         }
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
-            Atom parentAtom = targetAtom.getParentGroup();
+            IAtom parentAtom = targetAtom.getParentGroup();
             while (parentAtom.getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
                 Potential[] potentials = potentialArray.getPotentials();
@@ -439,7 +439,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * the hierarchy until leaf atoms are reached.
      */
     //TODO make a "TerminalGroup" node that permits child atoms but indicates that no potentials apply directly to them
-    protected void calculate(Atom atom, IteratorDirective id, PotentialCalculation pc, NeighborListManager neighborManager) {
+    protected void calculate(IAtom atom, IteratorDirective id, PotentialCalculation pc, NeighborListManager neighborManager) {
         singletIterator.setAtom(atom);
         IteratorDirective.Direction direction = id.direction();
         PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
@@ -485,7 +485,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
                         for (int j=0; j<iList.size(); j++) {
-                            Atom otherAtom = iList.get(j);
+                            IAtom otherAtom = iList.get(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
                         }
                     }
@@ -493,7 +493,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
                         for (int j=0; j<iList.size(); j++) {
-                            Atom otherAtom = iList.get(j);
+                            IAtom otherAtom = iList.get(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
                         }
                     }
@@ -514,7 +514,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             AtomArrayList list = ((AtomGroup)atom).getChildList();
             int size = list.size();
             for (int i=0; i<size; i++) {
-                Atom a = list.get(i);
+                IAtom a = list.get(i);
                 calculate(a, id, pc, neighborManager);//recursive call
             }
         }
@@ -524,7 +524,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * Invokes the PotentialCalculation for the given Atom with its up and down
      * neighbors as a single AtomSet.
      */
-    protected void doNBodyStuff(Atom atom, IteratorDirective id, PotentialCalculation pc, int potentialIndex, 
+    protected void doNBodyStuff(IAtom atom, IteratorDirective id, PotentialCalculation pc, int potentialIndex, 
             Potential potential, NeighborListManager neighborManager) {
         AtomArrayList arrayList = atomsetArrayList.getArrayList();
         arrayList.clear();

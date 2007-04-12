@@ -1,11 +1,11 @@
 package etomica.models.hexane;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -119,7 +119,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     protected double wOld;         //Rosenbluth factor of old configuration
     protected int chainlength;         //the number of atoms in a molecule; some juggling may be necessary to make this work if we want to make the chains longer....
     protected double beta;
-    protected Atom atom;
+    protected IAtom atom;
     protected double uOld;
     protected double uNew = Double.NaN;
     protected IVector[] positionOld;      //Used to store the position of the molecule before mofing it.
