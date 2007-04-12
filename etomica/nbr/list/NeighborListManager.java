@@ -310,7 +310,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private boolean quiet;
     private final AtomAgentManager agentManager2Body;
     private final AtomAgentManager agentManager1Body;
-    private Phase phase;
+    protected Phase phase;
     private NeighborCriterion[] oldCriteria;
     protected final PhaseEventNeighborsUpdated phaseEvent;
 
