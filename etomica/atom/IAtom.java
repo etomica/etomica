@@ -10,8 +10,16 @@ public interface IAtom extends AtomSet {
      */
     public boolean inSameMolecule(IAtom atom);
 
+    /**
+     * Informs the IAtom that it should ask the SpeciesMaster for a global
+     * index (with the Phase).  This method should only be called by the
+     * SpeciesMaster.
+     */
     public void setGlobalIndex(SpeciesMaster speciesMaster);
 
+    /**
+     * Returns the global index (within the Phase) of this Atom.
+     */
     public int getGlobalIndex();
 
     /**
@@ -20,6 +28,9 @@ public interface IAtom extends AtomSet {
      */
     public AtomType getType();
 
+    /**
+     * Returns true of this IAtom is a leaf IAtom.
+     */
     public boolean isLeaf();
 
     /**
@@ -28,15 +39,26 @@ public interface IAtom extends AtomSet {
      */
     public void setParent(AtomGroup newParent);
 
+    /**
+     * Returns the parent AtomGruop of this IAtom.
+     */
     public AtomGroup getParentGroup();
 
     /**
-     * Integer assigned to this atom by its parent molecule.
+     * Returns the address indicating the position of this IAtom within the
+     * Phase's IAtom hierarchy.
      */
     public int getAddress();
 
+    /**
+     * Informs the IAtom of its index, which is used to construct the address.
+     */
     public void setIndex(int index);
 
+    /**
+     * Returns this IAtom's index, which is its place in the parent AtomGroup's
+     * list of child IAtoms.
+     */
     public int getIndex();
 
     /**
