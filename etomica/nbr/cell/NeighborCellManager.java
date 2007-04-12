@@ -42,14 +42,14 @@ import etomica.util.Debug;
 public class NeighborCellManager implements PhaseCellManager, AgentSource, PhaseListener, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final CellLattice lattice;
-    private final Space space;
-    private final AtomIteratorTreePhase atomIterator;
-    private final AtomPositionDefinition positionDefinition;
-    private final Phase phase;
-    private int cellRange = 2;
-    private double range;
-    private final AtomAgentManagerCell agentManager;
+    protected final CellLattice lattice;
+    protected final Space space;
+    protected final AtomIteratorTreePhase atomIterator;
+    protected final AtomPositionDefinition positionDefinition;
+    protected final Phase phase;
+    protected int cellRange = 2;
+    protected double range;
+    protected final AtomAgentManagerCell agentManager;
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
