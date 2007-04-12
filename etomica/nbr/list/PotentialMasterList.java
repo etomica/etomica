@@ -68,10 +68,15 @@ public class PotentialMasterList extends PotentialMasterNbr {
         this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
-    public PotentialMasterList(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager) {
+    public PotentialMasterList(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager){
+        this(space, range, phaseAgentSource, agentManager, new NeighborListAgentSource(range));
+    }
+            
+    public PotentialMasterList(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager, NeighborListAgentSource neighborListAgentSource) {
         super(space, phaseAgentSource, agentManager);
         phaseAgentSource.setRange(range);
-        neighborListAgentSource = new NeighborListAgentSource(this, range);
+        this.neighborListAgentSource = neighborListAgentSource;
+        neighborListAgentSource.setPotentialMaster(this);
         neighborListAgentManager = new PhaseAgentManager(neighborListAgentSource);
         atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
@@ -576,13 +581,17 @@ public class PotentialMasterList extends PotentialMasterNbr {
     
     protected static class NeighborListAgentSource implements PhaseAgentManager.PhaseAgentSource,
                                                               java.io.Serializable {
-        public NeighborListAgentSource(PotentialMasterList potentialMaster, double range) {
-            this.potentialMaster = potentialMaster;
+        public NeighborListAgentSource(double range) {
+            
             this.range = range;
         }
         
         public void setRange(double newRange) {
             range = newRange;
+        }
+        
+        public void setPotentialMaster(PotentialMasterList p){
+            potentialMaster = p;
         }
         
         public Class getAgentClass() {
@@ -598,7 +607,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         
         private static final long serialVersionUID = 1L;
-        protected final PotentialMasterList potentialMaster;
+        protected PotentialMasterList potentialMaster;
         protected double range;
     }
 }
