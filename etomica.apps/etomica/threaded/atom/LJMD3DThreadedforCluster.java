@@ -50,7 +50,7 @@ public class LJMD3DThreadedforCluster {
       //  System.out.println("thread"+i+" calculate time: "+((PotentialMasterListThreaded)sim.getPotentialMaster()).threads[i].threadCalculate /1000+" seconds.");
         // }
         
-        System.out.println("threads time: "+IntegratorVelocityVerletThreaded.threadtime/1000+" seconds.");
+     //   System.out.println("threads time: "+IntegratorVelocityVerletThreaded.threadtime/1000+" seconds.");
         System.out.println("total time: "+time2+" seconds.");
     }
 
