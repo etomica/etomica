@@ -10,9 +10,9 @@ import etomica.action.AtomActionAdapter;
 import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
-import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -108,7 +108,6 @@ public class JouleThomson extends SimulationGraphic {
             public void actionPerformed() {
                 displayPhase1.repaint();
             }
-            public String getLabel() {return "";}
         }));
 	    
 	    //colorscheme to color atoms blue to red according to their velocity
@@ -384,7 +383,7 @@ public class JouleThomson extends SimulationGraphic {
         double currentEps = epsilon[0];
         double currentSig = sigma[0];
         AtomAction updateMass = new AtomActionAdapter() {
-            public void actionPerformed(Atom a) {((ElementSimple)((AtomTypeLeaf)a.getType()).getElement()).setMass(currentMass);}
+            public void actionPerformed(IAtom a) {((ElementSimple)((AtomTypeLeaf)a.getType()).getElement()).setMass(currentMass);}
         };
         SimulationRestart simRestart;
         

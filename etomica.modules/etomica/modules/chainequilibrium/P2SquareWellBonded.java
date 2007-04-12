@@ -1,8 +1,8 @@
 package etomica.modules.chainequilibrium;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
 import etomica.space.ICoordinateKinetic;
@@ -30,7 +30,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
     private static final long serialVersionUID = 1L;
     private ReactionEquilibrium agentSource;
-	private Atom[][] agents;
+	private IAtom[][] agents;
     private Phase phase;
 
 	public P2SquareWellBonded(Space space, ReactionEquilibrium sim, double coreDiameter,double lambda, double epsilon) {
@@ -46,7 +46,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	/**
      * This function will tell the user, if passed an atom weither or not that atom can bond
 	 */
-	protected boolean full(Atom a) {
+	protected boolean full(IAtom a) {
 		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (agents[a.getGlobalIndex()][i] == null) {
@@ -59,7 +59,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	/**
      * This will tell you what the lowest open space is in atom a
 	 */
-	protected int lowest(Atom a){
+	protected int lowest(IAtom a){
 		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (agents[a.getGlobalIndex()][i] == null) {
@@ -74,7 +74,7 @@ public class P2SquareWellBonded extends P2SquareWell {
      * This could probably be public, although a public version would
      * need to first re-retrieve agents
 	 */
-	protected boolean areBonded(Atom a, Atom b){
+	protected boolean areBonded(IAtom a, IAtom b){
 		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
 		for(int i=0; i != j; ++i){
 			if (agents[a.getGlobalIndex()][i] == b){		
@@ -87,7 +87,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	/**
      * this function will bond atoms a & b together
 	 */
-	protected void bond(Atom a, Atom b){
+	protected void bond(IAtom a, IAtom b){
 		if (areBonded(a,b)){			// Error Checking, what about double bonds?
 			return;
 		}
@@ -100,7 +100,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 	/**
      * this function unbonds two atoms
 	 */
-	protected void unbond(Atom a, Atom b){
+	protected void unbond(IAtom a, IAtom b){
 		if (!areBonded(a,b)){		// Error Checking
 			return;
 		}
@@ -169,8 +169,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 	
 	public void bump(AtomSet pair, double falseTime) {
 
-        Atom atom0 = ((AtomPair)pair).atom0;
-        Atom atom1 = ((AtomPair)pair).atom1;
+        IAtom atom0 = ((AtomPair)pair).atom0;
+        IAtom atom1 = ((AtomPair)pair).atom1;
         ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
         ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());

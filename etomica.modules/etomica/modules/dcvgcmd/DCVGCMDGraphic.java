@@ -1,6 +1,3 @@
-/*
- * Created on Mar 24, 2005
- */
 package etomica.modules.dcvgcmd;
 
 import java.awt.Color;
@@ -10,10 +7,10 @@ import javax.swing.JPanel;
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
-import etomica.atom.Atom;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataTableAverages;
@@ -51,9 +48,6 @@ public class DCVGCMDGraphic extends SimulationGraphic{
     Action repaintAction = new Action() {
         public void actionPerformed() {
             displayPhase.repaint();
-        }
-        public String getLabel() {
-            return null;
         }
     };
     
@@ -245,7 +239,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         public void setBoolean(boolean b) {active = b;}
         public boolean getBoolean() {return active;}
         
-        public boolean accept(Atom atom) {
+        public boolean accept(IAtom atom) {
             if(!active) return true;
             if(atom.getType().getSpecies() != ((DCVGCMD)simulation).speciesTube) return true;
             double x0 = ((DCVGCMD)simulation).poreCenter.x(0);

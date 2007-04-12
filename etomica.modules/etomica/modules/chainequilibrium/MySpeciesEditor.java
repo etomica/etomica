@@ -9,8 +9,8 @@ package etomica.modules.chainequilibrium;
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
-import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
@@ -91,12 +91,12 @@ class MySpeciesEditor extends javax.swing.JPanel {
             
             Action anotherAction = new Action() {
                 public void actionPerformed() {
-                    Atom[][] agents = sim.getAgents(sim.phase1);
+                    IAtom[][] agents = sim.getAgents(sim.phase1);
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
                     iter.reset();
                     while (iter.hasNext()) {
                         //                      System.out.println(iter.peek().toString());
-                        Atom[] a = agents[iter.nextAtom().getGlobalIndex()];
+                        IAtom[] a = agents[iter.nextAtom().getGlobalIndex()];
                         a[0] = null;
                         a[1] = null;
                     }

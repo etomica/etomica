@@ -1,6 +1,6 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.atom.Atom;
+import etomica.atom.IAtom;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
@@ -34,7 +34,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         super.doStep();
     }
     
-    public void updateAtom(Atom a) {
+    public void updateAtom(IAtom a) {
         boolean isPistonPotential = colliderAgent == null ? false : 
                            (colliderAgent.collisionPotential == pistonPotential);
         // actually updates the atom
@@ -53,7 +53,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         listToUpdate.clear();
         while (atomIterator.hasNext()) {
             // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
-            Atom atom1 = (Atom)atomIterator.next();
+            IAtom atom1 = (IAtom)atomIterator.next();
             PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atom1) && Debug.LEVEL > 1) || (Debug.anyAtom(atom1) && Debug.LEVEL > 2))) {
                 System.out.println(atom1+" thought it would collide with the piston");

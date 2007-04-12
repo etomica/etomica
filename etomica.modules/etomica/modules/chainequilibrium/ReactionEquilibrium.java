@@ -5,9 +5,9 @@ import javax.swing.JPanel;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
@@ -38,7 +38,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 	public P2SquareWellBonded ABbonded;
 	public P2SquareWellBonded BBbonded;
     public AtomAgentManagerAtoms agentManager;
-    public Atom[] agents;
+    public IAtom[] agents;
 	
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
@@ -97,7 +97,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 		integratorHard1.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase1)));
 	}
     
-    public Atom[][] getAgents(Phase phase) {
+    public IAtom[][] getAgents(Phase phase) {
         // the other classes don't know it, but there's only one phase.  :)
         if (agentManager == null) {
           agentManager = new AtomAgentManagerAtoms(this,phase);
@@ -106,19 +106,19 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     }
 
     public Class getAgentClass() {
-        return Atom[].class;
+        return IAtom[].class;
     }
     
 	/**
 	 * Implementation of AtomAgentManager.AgentSource interface. Agent
      * is used to hold bonding partners.
 	 */
-	public Object makeAgent(Atom a) {
+	public Object makeAgent(IAtom a) {
 		
-		return new Atom[4];
+		return new IAtom[4];
 	}
     
-    public void releaseAgent(Object agent, Atom atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     /**
      * Inner class to let us cheat and access and modify elements of the agents array.
@@ -133,8 +133,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
          * Returns the array of Cells for the Phase, indexed by the Atom's
          * global index.
          */
-        protected Atom[][] getAgents() {
-            return (Atom[][])agents;
+        protected IAtom[][] getAgents() {
+            return (IAtom[][])agents;
         }
 
         private static final long serialVersionUID = 1L;

@@ -105,7 +105,6 @@ public class JouleThomsonSim extends Simulation {
             public void actionPerformed() {
                 displayPhase.repaint();
             }
-            public String getLabel() {return "";}
         }));
 
     }

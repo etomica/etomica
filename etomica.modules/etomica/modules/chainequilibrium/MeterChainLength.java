@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
@@ -60,12 +61,12 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         return AtomTag.class;
     }
     
-    public Object makeAgent(Atom a) {
+    public Object makeAgent(IAtom a) {
         return new AtomTag();
     }
     
     // does nothing
-    public void releaseAgent(Object agent, Atom atom) {}
+    public void releaseAgent(Object agent, IAtom atom) {}
 
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms
@@ -80,14 +81,14 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         // untag all the Atoms
         iterator.reset();
         while (iterator.hasNext()) {
-            Atom a = iterator.nextAtom();
+            IAtom a = iterator.nextAtom();
             ((AtomTag)tagManager.getAgent(a)).tagged = false;
         }
 
         iterator.reset();
 
         while(iterator.hasNext()) {
-            Atom a = iterator.nextAtom();
+            IAtom a = iterator.nextAtom();
             // if an Atom is tagged, it was already counted as part of 
             // another chain
             if (((AtomTag)tagManager.getAgent(a)).tagged) continue;
@@ -121,10 +122,10 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         return 1;
     }
 
-    protected int recursiveTag(Atom a) {
+    protected int recursiveTag(IAtom a) {
         ((AtomTag)tagManager.getAgent(a)).tagged = true;
 
-        Atom[] nbrs = agents[a.getGlobalIndex()];
+        IAtom[] nbrs = agents[a.getGlobalIndex()];
 
         int ctr = 1;
         
@@ -176,7 +177,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
     private String name;
     private AtomAgentManager tagManager;
     private final ReactionEquilibrium agentSource;
-    private Atom[][] agents;
+    private IAtom[][] agents;
     private DataFunction data;
     private DataDoubleArray xData;
     private DataInfoDoubleArray xDataInfo;

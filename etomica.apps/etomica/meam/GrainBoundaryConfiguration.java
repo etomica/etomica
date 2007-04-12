@@ -10,11 +10,11 @@
 package etomica.meam;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionDefinitionSimple;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.config.Configuration;
@@ -158,7 +158,7 @@ public class GrainBoundaryConfiguration extends Configuration {
         indexIteratorA.reset();
         while (indexIteratorA.hasNext()) {
         	//System.out.println("At start of while loop over indexIteratorA  " + firstAtomPosition);
-        	Atom a;
+        	IAtom a;
         	int[] ii = indexIteratorA.next();
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz, because of 
         	//how setSize method works
@@ -188,7 +188,7 @@ public class GrainBoundaryConfiguration extends Configuration {
         
         indexIteratorB.reset();
         while (indexIteratorB.hasNext()) {
-        	Atom a;
+        	IAtom a;
         	int[] ii = indexIteratorB.next();
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz
             if (ii[2] < 2) {

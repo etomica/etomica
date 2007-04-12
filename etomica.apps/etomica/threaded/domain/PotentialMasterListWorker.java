@@ -1,6 +1,5 @@
 package etomica.threaded.domain;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomTypeAgentManager;

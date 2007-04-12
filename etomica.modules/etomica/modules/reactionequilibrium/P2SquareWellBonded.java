@@ -1,8 +1,8 @@
 package etomica.modules.reactionequilibrium;
-import etomica.atom.Atom;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtom;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
 import etomica.space.ICoordinateKinetic;
@@ -33,7 +33,7 @@ public class P2SquareWellBonded extends P2SquareWell {
     private static final long serialVersionUID = 1L;
 	private double barrier;
     protected ReactionEquilibrium agentSource;
-    protected Atom[] agents;
+    protected IAtom[] agents;
 
 	// *** Below are different types of constructor functions that Make P2SqaredWells ***	
 
@@ -76,7 +76,7 @@ public class P2SquareWellBonded extends P2SquareWell {
             
             // ** Makes 2 things, and atomPair pair, 
             AtomPair pair = (AtomPair) atoms;
-            Atom a1Partner = agents[pair.atom0.getGlobalIndex()];
+            IAtom a1Partner = agents[pair.atom0.getGlobalIndex()];
             
             ICoordinateKinetic coord0 = (ICoordinateKinetic)pair.atom0;
             ICoordinateKinetic coord1 = (ICoordinateKinetic)pair.atom1;
@@ -105,8 +105,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		
 		// *** Data Declaration Section
 
-        Atom atom0 = ((AtomPair)pair).atom0;
-        Atom atom1 = ((AtomPair)pair).atom1;
+        IAtom atom0 = ((AtomPair)pair).atom0;
+        IAtom atom1 = ((AtomPair)pair).atom1;
         ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
         ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
@@ -127,8 +127,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		double reduced_m = 2.0 / (rm0 + rm1);
 		double ke = bij * bij * reduced_m / (4.0 * r2);
 		
-		Atom a0Partner = agents[atom0.getGlobalIndex()];
-		Atom a1Partner = agents[atom1.getGlobalIndex()];
+		IAtom a0Partner = agents[atom0.getGlobalIndex()];
+		IAtom a1Partner = agents[atom1.getGlobalIndex()];
 
 		boolean a0Saturated = (a0Partner != null);
 		boolean a1Saturated = (a1Partner != null);

@@ -4,9 +4,9 @@ import javax.swing.JPanel;
 
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
-import etomica.atom.Atom;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
@@ -446,7 +446,7 @@ public class ReactionEquilibriumGraphic {
             nSlider.setMaximum(40);
             nSlider.setPostAction(new Action() {
                 public void actionPerformed() {
-                    Atom[] agents = sim.getAgents(sim.phase1);
+                    IAtom[] agents = sim.getAgents(sim.phase1);
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
                     iter.reset();
                     while (iter.hasNext()) {
