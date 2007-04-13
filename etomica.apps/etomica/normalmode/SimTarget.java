@@ -96,7 +96,7 @@ public class SimTarget extends Simulation {
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
-            nA = 11;
+            nA = 3;
             density = 0.5;
         }
         String filename = "normal_modes1D";
@@ -188,7 +188,7 @@ public class SimTarget extends Simulation {
         int coordinateDim = 1;
         for(int i=0; i<eVals.length; i++) {
             for(int j=0; j<coordinateDim; j++) {
-                AHarmonic -= coeffs[i]*Math.log(eVals[i][j]);
+                AHarmonic -= coeffs[i]*Math.log(eVals[i][j]/coeffs[i]);//coeffs in log?
             }
         }
 

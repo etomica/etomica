@@ -31,11 +31,11 @@ public class MCMoveHarmonic extends MCMovePhase {
         return coordinateDefinition;
     }
 
-    public void setEigenValues(double[][] eigenValues) {
+    public void setEigenValues(double[][] eigenValues, double[] coeff) {
         stdDev = new double[eigenValues.length][eigenValues[0].length];
         for (int i=0; i<stdDev.length; i++) {
             for (int j=0; j<stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(0.5*eigenValues[i][j]);
+                stdDev[i][j] = Math.sqrt(0.5*eigenValues[i][j]/coeff[i]);//divide by coeff inside parens?
             }
         }
     }
@@ -107,7 +107,7 @@ public class MCMoveHarmonic extends MCMovePhase {
                 for (int i=0; i<coordinateDim; i++) {
                     for (int j=0; j<coordinateDim; j++) {
                         u[j] += Math.sqrt(waveVectorCoefficients[iVector])*eigenVectors[iVector][i][j]*
-                                  2.0*(rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);//multiply by 2?
+                                  2.0*(rRand[iVector][i]*coskR - iRand[iVector][i]*sinkR);
                     }
                 }
             }

@@ -89,10 +89,10 @@ public class SimHarmonic extends Simulation {
             normalModes = new NormalModesFromFile(filename, D);
         }
         
-        move.setEigenValues(normalModes.getEigenvalues(phase));
-        move.setEigenVectors(normalModes.getEigenvectors(phase));
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(phase);
+        move.setEigenValues(normalModes.getEigenvalues(phase), waveVectorFactory.getCoefficients());
+        move.setEigenVectors(normalModes.getEigenvectors(phase));
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setCoordinateDefinition(new CoordinateDefinitionLeaf(space));
@@ -112,7 +112,7 @@ public class SimHarmonic extends Simulation {
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
-            nA = 11;
+            nA = 3;
             density = 0.5;
         }
         boolean graphic = true;
