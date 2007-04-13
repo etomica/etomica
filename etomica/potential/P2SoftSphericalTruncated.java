@@ -128,9 +128,9 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         }
         
         public IVector[] gradient(AtomSet atoms, Tensor pressureTensor) {
-            double virial = virial(atoms);
+            double virial = virial(atoms) / pressureTensor.D();
             for (int i=0; i<pressureTensor.D(); i++) {
-                pressureTensor.setComponent(i,i,pressureTensor.component(i,i)+virial);
+                pressureTensor.setComponent(i,i,pressureTensor.component(i,i)-virial);
             }
             // we'd like to throw an exception and return the tensor, but we can't.  return null
             // instead.  it should work about as well as throwing an exception.

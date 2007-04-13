@@ -65,9 +65,10 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
 	}
 
     /**
-     * Returns the pressure tensor calculated during the last potential
-     * calculation.  In order to be valid, reset() must be called before
-     * invoking potentialMaster.calculate.
+     * Returns the virial portion of pressure tensor calculated during the last
+     * potential calculation.  In order to be valid, reset() must be called
+     * before invoking potentialMaster.calculate.  The given tensor has not
+     * been normalized by the system volume.
      */
     public Tensor getPressureTensor() {
         return pressureTensor;
