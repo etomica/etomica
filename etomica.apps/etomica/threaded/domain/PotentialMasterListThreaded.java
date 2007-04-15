@@ -1,9 +1,9 @@
 package etomica.threaded.domain;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.lattice.CellLattice;
 import etomica.nbr.PotentialGroupNbr;
@@ -130,7 +130,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         
     protected void calculateThreaded(IAtom atom, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
            
-        AtomArrayList list = ((AtomGroup)atom).getChildList();
+        AtomArrayList list = ((IAtomGroup)atom).getChildList();
         int size = list.size();
         
     	

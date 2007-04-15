@@ -11,10 +11,10 @@ package etomica.meam;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.config.Configuration;
@@ -174,7 +174,7 @@ public class GrainBoundaryConfiguration extends Configuration {
             if (!a.isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomGroup)a).getChildList());
+                config.initializePositions(((IAtomGroup)a).getChildList());
             }
             IVector site = (IVector) myLatA.site(ii);
             if (((AtomLeaf)a).getPosition() == firstAtomPosition) {
@@ -202,7 +202,7 @@ public class GrainBoundaryConfiguration extends Configuration {
             if (!a.isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomGroup)a).getChildList());
+                config.initializePositions(((IAtomGroup)a).getChildList());
             }
             IVector site = (IVector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);

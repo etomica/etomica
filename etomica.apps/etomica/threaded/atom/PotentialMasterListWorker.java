@@ -1,10 +1,10 @@
 package etomica.threaded.atom;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -177,7 +177,7 @@ public class PotentialMasterListWorker extends Thread {
             }
             
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((AtomGroup)atom).getChildList();
+            AtomArrayList list = ((IAtomGroup)atom).getChildList();
             int size = list.size();
             for (int i=0; i<size; i++) {
                 IAtom a = list.get(i);
@@ -205,7 +205,7 @@ public class PotentialMasterListWorker extends Thread {
     public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, Phase phase){
         
         // Make reference to neighbor lists
-        AtomArrayList list = ((AtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
+        AtomArrayList list = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
         int size = list.size();
         
         int startAtom = (threadNumber*size)/numThreads;

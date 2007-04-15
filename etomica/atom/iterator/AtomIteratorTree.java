@@ -2,9 +2,9 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 
 /**
  * Atom iterator that traverses all atoms at or to a specified depth below a
@@ -180,7 +180,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
                 }
                 listIterator.setList(null);
             } else {
-                listIterator.setList(((AtomGroup)rootAtom).getChildList());
+                listIterator.setList(((IAtomGroup)rootAtom).getChildList());
             }
         }
         unset();

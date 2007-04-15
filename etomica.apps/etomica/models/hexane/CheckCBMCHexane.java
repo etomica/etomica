@@ -2,8 +2,8 @@ package etomica.models.hexane;
 
 import etomica.action.Action;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
@@ -38,7 +38,7 @@ public class CheckCBMCHexane implements Action {
         moleculeIterator.reset();
         
         while (moleculeIterator.hasNext()){
-            atomList = ((AtomGroup)moleculeIterator.nextAtom()).getChildList();
+            atomList = ((IAtomGroup)moleculeIterator.nextAtom()).getChildList();
             double length;
             double tol = 0.000005;
             

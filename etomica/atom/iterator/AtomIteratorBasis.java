@@ -6,9 +6,9 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 
 /**
  * Elementary basis-dependent iterator that gives atoms meeting specification
@@ -192,7 +192,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
             littleList.add(basis);
             list = littleList;
         } else {
-            list = ((AtomGroup)basis).getChildList();
+            list = ((IAtomGroup)basis).getChildList();
         }
     }
 

@@ -2,9 +2,9 @@ package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.config.Conformation;
@@ -124,7 +124,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
             if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomGroup)a).getChildList());
+                config.initializePositions(((IAtomGroup)a).getChildList());
             }
             
             int[] ii = indexIterator.next();
@@ -146,7 +146,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
             if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomGroup)a).getChildList());
+                config.initializePositions(((IAtomGroup)a).getChildList());
             }
             
             int[] ii = indexIterator.next();
@@ -164,7 +164,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         while (iterator.hasNext()){
         	IAtom a = iterator.nextAtom();
         	Conformation config = a.getType().creator().getConformation();
-            config.initializePositions(((AtomGroup)a).getChildList());
+            config.initializePositions(((IAtomGroup)a).getChildList());
             atomActionTranslateTo.actionPerformed(a);
         }
         

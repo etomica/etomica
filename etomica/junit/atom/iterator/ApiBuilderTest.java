@@ -8,6 +8,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.atom.iterator.ApiBuilder;
@@ -261,7 +262,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     private void setup4() {
         SpeciesMaster speciesMaster = sim.getPhases()[1].getSpeciesMaster();
         parent = speciesMaster.getAgentList().get(0);//phase1, species0
-        target = ((AtomGroup)parent).getChildList().get(0);//the only species0 molecule
+        target = ((IAtomGroup)parent).getChildList().get(0);//the only species0 molecule
         targetFirst = target;
         targetLast = target;
         up = dn = upFirst = dnLast = null;
@@ -274,8 +275,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //************ adjacent/nonadjacent setup -- target is descended from but not direct child of basis
     private void setup3() {
         SpeciesMaster speciesMaster = sim.getPhases()[0].getSpeciesMaster();
-        parent = ((AtomGroup)speciesMaster.getAgentList().get(2)).getChildList().get(2); //Descendant(new int[] {2,2});//phase0, species2, molecule2
-        AtomArrayList childList = ((AtomGroup)parent).getChildList(); 
+        parent = ((IAtomGroup)speciesMaster.getAgentList().get(2)).getChildList().get(2); //Descendant(new int[] {2,2});//phase0, species2, molecule2
+        AtomArrayList childList = ((IAtomGroup)parent).getChildList(); 
         target = ((AtomGroup)parent).getDescendant(new int[] {1,0,1});
         targetFirst = ((AtomGroup)parent).getDescendant(new int[] {0,0,2});
         targetLast = ((AtomGroup)parent).getDescendant(new int[] {4,1});
@@ -298,7 +299,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
         SpeciesMaster speciesMaster = sim.getPhases()[0].getSpeciesMaster();
-        AtomArrayList moleculeList = ((AtomGroup)speciesMaster.getAgentList().get(1)).getChildList();
+        AtomArrayList moleculeList = ((IAtomGroup)speciesMaster.getAgentList().get(1)).getChildList();
         parent = moleculeList.get(5);//leaf-atom basis
         target = parent;//atom5 
         targetFirst = moleculeList.get(0);//atom0 
@@ -322,8 +323,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
         SpeciesMaster speciesMaster = sim.getPhases()[0].getSpeciesMaster();
-        parent = ((AtomGroup)speciesMaster.getAgentList().get(0)).getChildList().get(2);
-        AtomArrayList childList = ((AtomGroup)parent).getChildList();
+        parent = ((IAtomGroup)speciesMaster.getAgentList().get(0)).getChildList().get(2);
+        AtomArrayList childList = ((IAtomGroup)parent).getChildList();
         target = childList.get(5);
         targetFirst = childList.get(0);
         targetLast = childList.get(9);
@@ -402,7 +403,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //no target, n-1 iterates
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        assertEquals(list0.size(), ((AtomGroup)parent).getChildList().size()-1);
+        assertEquals(list0.size(), ((IAtomGroup)parent).getChildList().size()-1);
         
         //if no target, direction doesn't matter
         api.setDirection(null);
@@ -474,7 +475,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //(first and last have n-2, the other n-2 have n-3)
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        int n = ((AtomGroup)parent).getChildList().size();
+        int n = ((IAtomGroup)parent).getChildList().size();
         assertEquals(list0.size(), (2*(n-2) + (n-2)*(n-3))/2);
         
         //if no target, direction doesn't matter

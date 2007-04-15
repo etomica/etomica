@@ -1,9 +1,9 @@
 package etomica.virial;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -46,7 +46,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         super(potentialMaster);
         this.random = random;
         this.nAtoms = nAtoms;
-        selectedMolecules = new AtomGroup[nAtoms];
+        selectedMolecules = new IAtomGroup[nAtoms];
         oldPositions = new Vector3D[nAtoms];
         for (int i=0; i<nAtoms; i++) {
             oldPositions[i] = new Vector3D();
@@ -153,7 +153,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         iterator.next();
         int i=0;
         while (iterator.hasNext()) {
-            selectedMolecules[i++] = (AtomGroup)iterator.nextAtom();
+            selectedMolecules[i++] = (IAtomGroup)iterator.nextAtom();
         }
         return selectedMolecules;
     }
@@ -206,7 +206,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
     }
 	
     private final int nAtoms;
-    private final AtomGroup[] selectedMolecules;
+    private final IAtomGroup[] selectedMolecules;
     private double bondLength;
     private final Vector3D work1;
     private final Vector3D[] oldPositions;

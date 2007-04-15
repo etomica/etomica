@@ -72,7 +72,10 @@ public abstract class Atom implements IAtom, java.io.Serializable {
      */
     public String signature() {
         if(parent != null) {
-            return parent.signature() + " " + getIndex();
+            if (parent instanceof Atom) {
+                return ((Atom)parent).signature() + " " + getIndex();
+            }
+            return parent.toString() + " " + getIndex();
         }
         return Integer.toString(getIndex());
     }
@@ -112,14 +115,14 @@ public abstract class Atom implements IAtom, java.io.Serializable {
      * Informs the Atom that the given AtomGroup is its parent.
      * This method should only be called by the parent.
      */
-    public void setParent(AtomGroup newParent) {
+    public void setParent(IAtomGroup newParent) {
         if (Debug.ON && newParent.getChildList().get(getIndex()) != newParent) {
             throw new IllegalArgumentException(newParent+" is not my parent");
         }
         parent = newParent;
     }
 
-    public AtomGroup getParentGroup() {
+    public IAtomGroup getParentGroup() {
         return parent;
     }
     
@@ -174,5 +177,5 @@ public abstract class Atom implements IAtom, java.io.Serializable {
     
     private int globalIndex = -1;
     protected int atomTreeAddress;
-    protected AtomGroup parent;
+    protected IAtomGroup parent;
 }

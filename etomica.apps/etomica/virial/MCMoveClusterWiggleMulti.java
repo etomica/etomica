@@ -1,9 +1,9 @@
 package etomica.virial;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -50,7 +50,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
         this.nAtoms = nAtoms;
         setStepSizeMax(Math.PI);
-        selectedMolecules = new AtomGroup[nAtoms];
+        selectedMolecules = new IAtomGroup[nAtoms];
         selectedAtoms = new AtomLeaf[nAtoms];
         translationVectors = new Vector3D[nAtoms];
         for (int i=0; i<nAtoms; i++) {
@@ -183,7 +183,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         iterator.reset();
         int i=0;
         while (iterator.hasNext()) {
-            selectedMolecules[i++] = (AtomGroup)iterator.nextAtom();
+            selectedMolecules[i++] = (IAtomGroup)iterator.nextAtom();
         }
         return selectedMolecules;
     }
@@ -212,7 +212,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     }
 	
     private final int nAtoms;
-    private final AtomGroup[] selectedMolecules;
+    private final IAtomGroup[] selectedMolecules;
     private final AtomLeaf[] selectedAtoms;
     private double bondLength;
     private final Vector3D work1, work2, work3;

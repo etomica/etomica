@@ -41,12 +41,12 @@ public interface IAtom extends AtomSet {
      * Informs the Atom that the given AtomGroup is its parent.
      * This method should only be called by the parent.
      */
-    public void setParent(AtomGroup newParent);
+    public void setParent(IAtomGroup newParent);
 
     /**
      * Returns the parent AtomGruop of this IAtom.
      */
-    public AtomGroup getParentGroup();
+    public IAtomGroup getParentGroup();
 
     /**
      * Returns the address indicating the position of this IAtom within the

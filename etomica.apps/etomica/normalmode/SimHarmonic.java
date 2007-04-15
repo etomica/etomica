@@ -9,11 +9,8 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataFork;
 import etomica.data.DataHistogram;
-import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
-import etomica.data.DataSinkConsole;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.meter.MeterPositionCOM;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
@@ -39,7 +36,6 @@ import etomica.space.Space;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.DoubleRange;
-import etomica.util.Function;
 import etomica.util.HistogramSimple;
 
 /**

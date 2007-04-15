@@ -2,9 +2,9 @@ package etomica.junit.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
@@ -133,7 +133,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         
         //species0 leafAtom target; any direction
         if(species instanceof SpeciesSpheres) {
-            target = ((AtomGroup)phase.getAgent(species).getChildList().get(nMolecules[0]/2)).getChildList().get(1);
+            target = ((IAtomGroup)phase.getAgent(species).getChildList().get(nMolecules[0]/2)).getChildList().get(1);
             targetMolecule = target.getParentGroup();
             api.setTarget(target);
             api.setDirection(UP);

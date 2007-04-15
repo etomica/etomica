@@ -22,7 +22,7 @@ public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Se
         if (atom.isLeaf()) {
             return (AtomLeaf)atom;
         }
-        AtomArrayList childList = ((AtomGroup)atom).getChildList();
+        AtomArrayList childList = ((IAtomGroup)atom).getChildList();
         for (int i = 0; i < childList.size(); i++) {
             AtomLeaf a1 = getFirstChildLeafAtom(childList.get(i));
             if(a1 != null) return a1;

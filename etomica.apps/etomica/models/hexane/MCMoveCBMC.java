@@ -1,11 +1,11 @@
 package etomica.models.hexane;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -78,7 +78,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         affectedAtomIterator.setAtom(atom);
         
         //we assume that that atoms that make the molecule are children of the molecule.
-        atomList = ((AtomGroup)atom).getChildList();
+        atomList = ((IAtomGroup)atom).getChildList();
         chainlength = atomList.size();
         
         //store the old locations of every atom in the molecule in positionOld.

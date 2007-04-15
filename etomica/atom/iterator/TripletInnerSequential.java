@@ -4,10 +4,10 @@ import java.io.Serializable;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 public class TripletInnerSequential implements AtomsetIteratorBasisDependent, 
@@ -31,7 +31,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
     }
 
     public void setBasis(AtomSet atoms) {
-        childList = ((AtomGroup)atoms).getChildList();
+        childList = ((IAtomGroup)atoms).getChildList();
     }
 
     public int basisSize() {

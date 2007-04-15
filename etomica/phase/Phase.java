@@ -9,9 +9,9 @@ import java.lang.reflect.InvocationTargetException;
 import etomica.EtomicaElement;
 import etomica.action.PhaseInflate;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.atom.iterator.AtomIterator;
@@ -157,7 +157,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
                                                 ", Number of molecules: "+moleculeCount());
         AtomArrayList agentList = speciesMaster.getAgentList();
         for (int agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
-            AtomArrayList moleculeList = ((AtomGroup)agentList.get(agentIndex)).getChildList();
+            AtomArrayList moleculeList = ((IAtomGroup)agentList.get(agentIndex)).getChildList();
             int count = moleculeList.size();
             if (i < count) {
                 return moleculeList.get(i);

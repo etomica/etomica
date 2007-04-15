@@ -2,10 +2,10 @@ package etomica.nbr.site;
 
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
@@ -247,7 +247,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
 
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((AtomGroup)atom).getChildList();
+            AtomArrayList list = ((IAtomGroup)atom).getChildList();
             int size = list.size();
             for (int i=0; i<size; i++) {
                 IAtom a = list.get(i);

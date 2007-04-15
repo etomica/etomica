@@ -1,6 +1,6 @@
 package etomica.atom;
 
-public class AtomGroup extends Atom {
+public class AtomGroup extends Atom implements IAtomGroup {
 
     public AtomGroup(AtomType type) {
         super(type);

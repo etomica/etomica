@@ -1,8 +1,8 @@
 package etomica.virial;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomGroup;
 
 public class ClusterCoupled implements ClusterAbstract {
 
@@ -102,7 +102,7 @@ public class ClusterCoupled implements ClusterAbstract {
     }
     
     public void setPhase(PhaseCluster phase) {
-        atomList = ((AtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
+        atomList = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
     }
 
     public void setTemperature(double temperature) {

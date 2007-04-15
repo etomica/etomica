@@ -1,8 +1,8 @@
 package etomica.integrator.mcmove;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
@@ -27,7 +27,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     
     protected transient double uOld;
     protected transient double uNew = Double.NaN;
-    protected transient AtomGroup molecule;
+    protected transient IAtomGroup molecule;
     protected transient IVector r0;
     protected transient RotationTensor rotationTensor;
     public int count;
@@ -63,7 +63,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     public boolean doTrial() {
         if(phase.moleculeCount()==0) {molecule = null; return false;}
             
-        molecule = (AtomGroup)moleculeSource.getAtom();
+        molecule = (IAtomGroup)moleculeSource.getAtom();
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         if(Double.isInfinite(uOld)) {

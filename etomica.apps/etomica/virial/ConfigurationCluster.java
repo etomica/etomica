@@ -1,10 +1,9 @@
 package etomica.virial;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.Atom;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomPositionFirstAtom;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
@@ -45,7 +44,7 @@ public class ConfigurationCluster extends Configuration {
             if (!a.isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomGroup)a).getChildList());
+                config.initializePositions(((IAtomGroup)a).getChildList());
             }
         }
         iterator.reset();

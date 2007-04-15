@@ -1,8 +1,8 @@
 package etomica.virial;
 
 import etomica.action.AtomAction;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomGroup;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -30,9 +30,9 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     public boolean doTrial() {
         if(phase.moleculeCount()==1) {molecule = null; return false;}
             
-        molecule = (AtomGroup)moleculeSource.getAtom();
+        molecule = (IAtomGroup)moleculeSource.getAtom();
         while (molecule.getIndex() == 0) {
-            molecule = (AtomGroup)moleculeSource.getAtom();
+            molecule = (IAtomGroup)moleculeSource.getAtom();
         }
         uOld = weightMeter.getDataAsScalar();
         

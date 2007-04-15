@@ -2,8 +2,8 @@ package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
@@ -82,7 +82,7 @@ public class ConformationLinear extends Conformation {
             if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((AtomGroup)a).getChildList());
+                config.initializePositions(((IAtomGroup)a).getChildList());
             }
             moveToOrigin.actionPerformed(a);
             translationVector.Ea1Tv1(xNext, orientation);

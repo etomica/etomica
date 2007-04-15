@@ -2,8 +2,8 @@ package etomica.virial;
 
 import etomica.action.AtomAction;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomGroup;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -27,7 +27,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         weightMeter = new MeterClusterWeight(potential);
         setName("MCMoveClusterMolecule");
         nMolecules = numMolecules;
-        selectedMolecules = new AtomGroup[nMolecules];
+        selectedMolecules = new IAtomGroup[nMolecules];
         oldPositions = new IVector[nMolecules][];
     }
     
@@ -80,7 +80,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     public void selectMolecules() {
-        AtomArrayList atomList = ((AtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
+        AtomArrayList atomList = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
         System.arraycopy(atomList.toArray(),1,selectedMolecules,0,atomList.size()-1);
     }
 
@@ -116,7 +116,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
-    private final AtomGroup[] selectedMolecules;
+    private final IAtomGroup[] selectedMolecules;
     private final IVector[][] oldPositions;
     private final int nMolecules;
     private int trialCount, relaxInterval = 100;

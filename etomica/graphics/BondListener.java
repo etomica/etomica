@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
@@ -139,7 +139,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     get(newAtom.getType().getSpecies());
             
             if (bondIterators != null) {
-                AtomGroup molecule = newAtom.getParentGroup();
+                IAtomGroup molecule = newAtom.getParentGroup();
                 while (!(molecule.getParentGroup() instanceof SpeciesAgent)) {
                     molecule = molecule.getParentGroup();
                 }
