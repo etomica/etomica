@@ -18,7 +18,11 @@ public interface IAtom extends AtomSet {
     public void setGlobalIndex(SpeciesMaster speciesMaster);
 
     /**
-     * Returns the global index (within the Phase) of this Atom.
+     * Returns the global index (within the Phase) of this Atom.  The global
+     * index is unique to the IAtom in the Phase.  The IAtom's global may
+     * change over the course of a simulation due to addition or removal of
+     * other IAtoms in the Phase.  An PhaseGlobalAtomIndexEvent is fired by
+     * the Phase's event manager when an Atom's global index changes. 
      */
     public int getGlobalIndex();
 
@@ -46,7 +50,9 @@ public interface IAtom extends AtomSet {
 
     /**
      * Returns the address indicating the position of this IAtom within the
-     * Phase's IAtom hierarchy.
+     * Phase's IAtom hierarchy.  The address is a bitmasked 32-byte integer
+     * with a set of bits appropriated to each level of the IAtom hierarchy.
+     * The address is typically interpreted by an AtomAddressManager.
      */
     public int getAddress();
 
