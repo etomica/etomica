@@ -78,13 +78,6 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
  	}
  
     /**
-     * Returns the next iterate without advancing the iterator.
-     */
- 	public AtomSet peek() {
- 		return list.get(cursor);
- 	}
-    
-    /**
      * Returns the number of iterates that would be given by this iterator
      * if reset with the current list.
      */

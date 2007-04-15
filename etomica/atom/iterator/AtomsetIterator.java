@@ -40,11 +40,6 @@ public interface AtomsetIterator {
     public AtomSet next();
     
     /**
-     * Returns the next iterate without advancing the iterator.
-     */
-    public AtomSet peek();
-    
-    /**
      * Performs given action over all the iterates of this iterator in its
      * current state.  The state of hasNext() is not relevant to this method,
      * and no call to reset() is needed beforehand. The set of atoms encountered 

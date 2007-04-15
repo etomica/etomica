@@ -113,13 +113,6 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
     }
 
     /**
-     * Returns next iterate without advancing iterator.
-     */
-    public AtomSet peek() {
-        return iterator.peek();
-    }
-
-    /**
      * Performs action on all iterates.  Does not require
      * reset; clobbers iteration state.
      */

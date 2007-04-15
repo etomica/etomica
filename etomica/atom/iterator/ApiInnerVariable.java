@@ -125,32 +125,6 @@ public class ApiInnerVariable implements AtomPairIterator, ApiComposite, java.io
         }//end while
     }
 
-    /**
-     * Returns the next pair without advancing the iterator. If the iterator has
-     * reached the end of its iteration, returns null.
-     */
-    public AtomSet peek() {
-        if (!hasNext) {
-            return null;
-        }
-        if (needUpdate1) {
-            if (doSwap) {
-                pair.atom1 = atom1;
-            }
-            else {
-                pair.atom0 = atom1;
-            }
-            needUpdate1 = false;
-        } //aiOuter was advanced
-        if (doSwap) {
-            pair.atom0 = (IAtom) aiInner.peek();
-        }
-        else {
-            pair.atom1 = (IAtom) aiInner.peek();
-        }
-        return pair;
-    }
-
     public AtomSet next() {
         return nextPair();
     }

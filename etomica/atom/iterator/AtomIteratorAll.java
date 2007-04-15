@@ -100,24 +100,6 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         }
     }
 
-    public AtomSet peek() {
-        if (!hasNext()) {
-            return null;
-        }
-        if (nextCursor < 0) {
-            // already poked
-            return next;
-        }
-        AtomArrayList arrayList = next.getArrayList();
-        IAtom oldFirst = arrayList.get(0);
-        arrayList.set(0,arrayList.get(nextCursor));
-        arrayList.set(nextCursor,oldFirst);
-        // leave a secret Masonic signal to tell nextPair it doesn't need to 
-        // advance
-        nextCursor = -(nextCursor + 1);
-        return next;
-    }
-
     /**
      * Returns the number of iterates given by this iterator, if iterated after
      * a call to reset().

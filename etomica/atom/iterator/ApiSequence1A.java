@@ -96,10 +96,6 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
         return nextPair();
     }
     
-    public AtomSet peek() {
-        return upListNow ? apiUp.peek() : apiDown.peek();
-    }
-    
     public AtomPair nextPair() {
         if (upListNow) {
             AtomPair next = apiUp.nextPair();

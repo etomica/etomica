@@ -87,13 +87,6 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
     }
     
 	/**
-	 * Returns next pair without advancing the iterator.
-	 */
-	public AtomSet peek() {
-		return next;
-	}
-
-	/**
 	 * Performs the given action on all pairs from iterator that 
 	 * meet the filter criteria.
 	 */

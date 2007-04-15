@@ -127,13 +127,6 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         return next;
     }
 
-    public AtomSet peek() {
-        atomArray[0] = childList.get(cursor-stateUpDown);
-        atomArray[1] = childList.get(cursor-stateUpDown+1);
-        atomArray[2] = childList.get(cursor-stateUpDown+2);
-        return next;
-    }
-
     public void allAtoms(AtomsetAction action) {
         reset();
         while (hasNext()) {

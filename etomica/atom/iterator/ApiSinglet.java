@@ -100,14 +100,6 @@ public class ApiSinglet implements AtomPairIterator, java.io.Serializable {
     }
 
     /**
-     * Returns the pair last specified via setPair, if hasNext() is true. Does
-     * not advance iterator.
-     */
-    public AtomSet peek() {
-        return hasNext() ? pair : null;
-    }
-
-    /**
      * Returns 2, indicating that this is a pair iterator.
      */
     public final int nBody() {

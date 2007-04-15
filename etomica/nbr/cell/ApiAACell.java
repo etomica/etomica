@@ -109,10 +109,6 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
         return pair;
     }
     
-    public AtomSet peek() {
-        return listIterator.peek();
-    }
-    
     public void unset() {
         listIterator.unset();
     }

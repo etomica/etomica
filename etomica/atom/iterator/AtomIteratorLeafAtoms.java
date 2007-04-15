@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Aug 13, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.phase.Phase;

@@ -169,13 +169,6 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
     }
 
     /**
-     * Returns next atom without advancing the iterator.
-     */
-    public AtomSet peek() {
-        return next;
-    }
-
-    /**
      * Performs the given action on all atoms from iterator that meet the filter
      * criteria.
      */

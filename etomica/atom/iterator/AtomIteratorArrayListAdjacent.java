@@ -112,19 +112,6 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     }
 
     /**
-     * Returns the next iterate without advancing the iterator.
-     */
-    public AtomSet peek() {
-        if (!hasNext) {
-            return null;
-        }
-        if(upListNow) {
-            return list.get(firstCursor+1);
-        }
-        return list.get(firstCursor-1);
-    }
-
-    /**
      * Readies the iterator to begin iteration.
      */
     public void reset() {

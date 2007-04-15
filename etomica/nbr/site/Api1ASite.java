@@ -130,17 +130,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
         }
         return pair;
     }
-    
-    public AtomSet peek() {
-        if (upListNow) {
-            pair.atom1 = next;
-        }
-        else {
-            pair.atom0 = next;
-        }
-        return pair;
-    }
-    
+
     public void unset() {
         neighborIterator.unset();
     }

@@ -76,18 +76,28 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
             return pressureTensor;
         }
         
-        AtomLeaf firstAtom = (AtomLeaf)atomIterator.peek();
+        AtomLeaf firstAtom = (AtomLeaf)atomIterator.nextAtom();
             
         if (firstAtom instanceof ICoordinateKinetic) {
             if (integrator != null) {
                 warningPrinted = true;
-                System.out.println("Using Integrator's temperature instead of actual Atom velocities.  This is probably wrong");
+                System.out.println("Ignoring Integrator's temperature and using actual Atom velocities.  You shouldn't have given me an Integrator.");
             }
         }
         else if (integrator == null) {
             throw new RuntimeException("Need an IntegratorPhase to provide temperature since this is a non-dynamic simulation");
         }
-        
+        else {
+            int D = integrator.getPhase().getSpace().D();
+            for (int i=0; i<D; i++) {
+                pressureTensor.PE(atomIterator.size()*integrator.getTemperature());
+            }
+            return pressureTensor;
+        }
+
+        // simulation is dynamic, use the velocities
+        atomIterator.reset();
+
         while (atomIterator.hasNext()) {
             IAtom atom = atomIterator.nextAtom();
             ICoordinateKinetic coord = (ICoordinateKinetic)atom;

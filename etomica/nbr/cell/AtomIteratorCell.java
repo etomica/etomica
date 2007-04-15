@@ -82,10 +82,6 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         return nextAtom;
     }
     
-    public AtomSet peek() {
-        return atomIterator.peek();
-    }
-    
     public void unset() {
         atomIterator.unset();
     }

@@ -3,7 +3,6 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 
 /**
  * Pair iterator synthesized from two atom iterators, such that the inner-loop
@@ -107,40 +106,6 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java
                 pair.atom0 = aiOuter.nextAtom();
             }
         }
-    }
-
-    /**
-     * Returns the next pair without advancing the iterator. If the iterator has
-     * reached the end of its iteration, returns null. A previously-returned
-     * pair will be altered by this method.
-     */
-    public AtomSet peek() {
-        if (!hasNext) {
-            return null;
-        }
-
-        if (aiInner.hasNext()) {
-            if (doSwap) {
-                pair.atom0 = (IAtom) aiInner.peek();
-            }
-            else {
-                pair.atom1 = (IAtom) aiInner.peek();
-            }
-        } else {
-            // Althouth we advance aiOuter, we
-            // are not advancing the pair iterator.
-            // Outcome of next() is not changed
-            aiInner.reset();
-            if (doSwap) {
-                pair.atom1 = aiOuter.nextAtom();
-                pair.atom0 = (IAtom) aiInner.peek();
-            }
-            else {
-                pair.atom0 = aiOuter.nextAtom();
-                pair.atom1 = (IAtom) aiInner.peek();
-            }
-        }
-        return pair;
     }
 
     public final AtomSet next() {

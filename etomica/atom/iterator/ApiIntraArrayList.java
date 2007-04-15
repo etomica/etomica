@@ -85,15 +85,6 @@ public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable
     }
 
     /**
-     * Returns the next iterate pair without advancing the iterator.
-     */
-    public AtomSet peek() {
-        atoms.atom0 = list.get(nextOuterIndex);
-        atoms.atom1 = list.get(nextInnerIndex);
-        return atoms;
-    }
-
-    /**
      * Performs given action on all pairs that can be formed from the current
      * list.
      */

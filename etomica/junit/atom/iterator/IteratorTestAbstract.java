@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import junit.framework.TestCase;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomsetArray;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomPairIterator;
@@ -89,29 +88,6 @@ public abstract class IteratorTestAbstract extends TestCase {
 
         AtomSet[] atoms = new AtomSet[lister[0].list.size()];
         
-        //******* test of peek
-        iterator.reset();
-        int j=0;
-        while (iterator.hasNext()) {
-            AtomSet peekAtom = iterator.peek();
-            if (peekAtom instanceof IAtom) {
-                atoms[j] = peekAtom;
-                if (!peekAtom.toString().equals(lister[0].list.get(j))) {
-                    System.out.println(j+" "+peekAtom+" "+lister[0].list.get(j));
-                }
-                assertTrue(peekAtom.toString().equals(lister[0].list.get(j)));
-            }
-            else {
-                atoms[j] = new AtomsetArray(peekAtom);
-            }
-            AtomSet nextAtom = iterator.next();
-            for (int i=0; i<nextAtom.count(); i++) {
-                assertTrue(atoms[j].getAtom(i) == nextAtom.getAtom(i));
-            }
-            lister[1].actionPerformed(peekAtom);
-            j++;
-        }
-
         //******* test of hasNext/next
         iterator.reset();
         while (iterator.hasNext()) {

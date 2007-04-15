@@ -30,8 +30,6 @@ public final class AtomIteratorNull implements AtomIterator, Serializable {
 
     public int size() {return 0;}
 
-    public AtomSet peek() {return null;}
-
     public void unset() {}
 
     public int nBody() {return 1;}

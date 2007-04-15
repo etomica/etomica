@@ -179,10 +179,6 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         }
     }
 
-    public AtomSet peek() {
-        return iterator.peek();
-    }
-
     public AtomPair nextPair() {
         return iterator.nextPair();
     }

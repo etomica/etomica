@@ -79,14 +79,6 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
     	return atom;
     }
     
-    /**
-     * Returns the atom last specified via setAtom.  Does
-     * not advance iterator.
-     */
-    public AtomSet peek() {
-    	return hasNext ? atom : null;
-    }
-    
     public final int nBody() {return nBody;}
     
     private static final long serialVersionUID = 1L;

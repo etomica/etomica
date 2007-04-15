@@ -166,13 +166,6 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
     }
 
     /**
-     * Returns the next atom without advancing the iterator.
-     */
-    public AtomSet peek() {
-        return next;
-    }
-        
-    /**
      * Defines the root of the tree under which the iteration is performed.
      * If atom is null, will return no atoms on reset, until a non-null root is specified.
      * User must perform a subsequent call to reset() before beginning iteration.

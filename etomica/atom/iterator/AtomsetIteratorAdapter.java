@@ -57,10 +57,6 @@ public abstract class AtomsetIteratorAdapter implements AtomsetIterator, java.io
 		return iterator.next();
 	}
 	
-	public AtomSet peek() {
-		return iterator.peek();
-	}
-	
 	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#all(etomica.Atom, etomica.IteratorDirective, etomica.AtomActive)
 	 */

@@ -72,9 +72,12 @@ public class MeterRadiusGyration extends DataSourceScalar {
                 continue;
             }
             // find center of mass
-            AtomLeaf firstAtom = (AtomLeaf)leafIterator.peek();
-            int nLeafAtoms = 0;
+            //do the first iterate explicitly, assume there is at least
+            // one leaf atom
+            AtomLeaf firstAtom = (AtomLeaf)leafIterator.nextAtom();
+            int nLeafAtoms = 1;
             realPos.E(firstAtom.getPosition());
+            cm.E(realPos);
             IVector prevPosition = firstAtom.getPosition();
             while (leafIterator.hasNext()) {
                 nLeafAtoms++;

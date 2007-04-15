@@ -156,11 +156,6 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         return pair;
     }
     
-    public AtomSet peek() {
-        pair.atom1 = (IAtom)aiInner.peek();
-        return pair;
-    }
-    
     public void unset() {
         aiInner.unset();
     }

@@ -84,14 +84,6 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
         return nextAtom();
     }
     
-    /**
-     * Returns the atom last specified via setAtom.  Does
-     * not advance iterator.
-     */
-    public AtomSet peek() {
-    	return hasNext ? atom : null;
-    }
-    
     public final int nBody() {return 1;}
     
     private static final long serialVersionUID = 1L;
