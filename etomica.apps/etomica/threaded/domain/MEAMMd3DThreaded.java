@@ -83,9 +83,9 @@ public class MEAMMd3DThreaded extends Simulation {
     public IDataInfo info2;
 
     public static void main(String[] args) {
-        
+        int numAtoms = 500;
         int numThreads = 1;
-    	MEAMMd3DThreaded sim = new MEAMMd3DThreaded(numThreads);
+    	MEAMMd3DThreaded sim = new MEAMMd3DThreaded(numAtoms, numThreads);
     	
     	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
@@ -166,7 +166,7 @@ public class MEAMMd3DThreaded extends Simulation {
         //System.out.println("PE(eV)="+ElectronVolt.UNIT.fromSim(PE));
     }
     
-    public MEAMMd3DThreaded(int numThreads) {
+    public MEAMMd3DThreaded(int numAtoms, int numThreads) {
         super(Space3D.getInstance(), true, new PotentialMasterListThreaded(Space3D.getInstance())); //INSTANCE); kmb change 8/3/05
         integrator = new IntegratorVelocityVerletThreaded(this, numThreads);
         integrator.setTimeStep(0.001);
@@ -196,7 +196,7 @@ public class MEAMMd3DThreaded extends Simulation {
         
         phase = new Phase(this);
         phase.getAgent(sn).setNMolecules(0);
-        phase.getAgent(ag).setNMolecules(1000);
+        phase.getAgent(ag).setNMolecules(numAtoms);
         phase.getAgent(cu).setNMolecules(0);
         
         // beta-Sn phase
