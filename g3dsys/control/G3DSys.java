@@ -5,10 +5,26 @@ import g3dsys.images.Figure;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
+import javax.swing.JPanel;
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
 
 import org.jmol.g3d.Graphics3D;
+
+//TODO: fix initial sizing bug
+/* using original calcZbufferLimits (getMaxX):
+ * the 'too big' version was 303x303x928
+ * after proper resize, 303x303x354
+ * pixel depth is randomly incorrect at startup
+ * 
+ * using new calcZbufferlimits (getMaxZ):
+ * the too big version is still 303x303x928
+ * proper size is 303x303x354 
+ */
+
+
+
+//TODO: wireframe with bond widths like in Jmol
 
 /*
  * index iterator interface in g3dsys
@@ -67,8 +83,12 @@ public class G3DSys {
     fm = new FigureManager(this);
     tm = new TransformManager(this);
     tm.clear();
-    tm.zoomToPercent(100f);
+    //tm.zoomToPercent(100f); //old
+    tm.zoomToPercent(2.0f/1.5f*100); //new, no effect
     tm.setDefaultRotation();
+    tm.setScreenDimension(parent.getWidth(), parent.getHeight()); //new, no effect
+    tm.setZoomEnabled(true); //new, no effect
+    tm.homePosition();
 
     //enable scaling resize
     parent.addComponentListener(new ComponentListener() {
@@ -77,6 +97,7 @@ public class G3DSys {
       public void componentShown(ComponentEvent e) {}
       public void componentResized(ComponentEvent e) { refresh(); }});
 
+    //TODO: make keyboard/mouse listener construction consistent
     //add keyboard controls
     dm.addKeyListener(new KeyboardControl(this));
     //add mouse controls
@@ -85,17 +106,24 @@ public class G3DSys {
 
     parent.add(dm);
     refresh();
-    dm.repaint();
-    parent.repaint();
+    //dm.repaint();
+    //parent.repaint();
+//    System.out.println(getPixelWidth()+"x"+
+//        getPixelHeight()+"x"+
+//        getPixelDepth());
   }
 
 
+  
+  
+  
   /* ****************************************************************
    * G3D-related methods
    * ****************************************************************/
 
   /** For a thorough redraw of the display */
   public void refresh() {
+    tm.setDefaultRotation();
     dm.setSize(parent.getSize());
     dm.setLocation(0,0);
     tm.setScreenDimension(parent.getWidth(), parent.getHeight());
@@ -121,6 +149,7 @@ public class G3DSys {
 
 
 
+  
   /* ****************************************************************
    * Dimension accessors for calculation pixel per Angstrom ratio
    * ****************************************************************/
@@ -151,6 +180,7 @@ public class G3DSys {
 
 
 
+  
   /* ****************************************************************
    * Methods for modifying the model
    * ****************************************************************/
@@ -170,6 +200,10 @@ public class G3DSys {
   public Figure removeFig(Figure f) {
     return fm.removeFig(f);
   }
+  
+  
+  
+  
   
   /* ****************************************************************
    * Rotation and translation delegation
@@ -262,6 +296,10 @@ public class G3DSys {
     return fm.getBoundingBoxCenter();
   }
   
+  
+  
+  
+  
   /* ****************************************************************
    * TransformManager delegation
    * ****************************************************************/
@@ -306,9 +344,15 @@ public class G3DSys {
   }
   public void setPerspectiveDepth(boolean b) { tm.setPerspectiveDepth(b); }
   public boolean getPerspectiveDepth() { return tm.getPerspectiveDepth(); }
+  public double getSlabPercent() { return tm.getSlabPercentSetting(); }
+  public double getDepthPercent() { return tm.getDepthPercentSetting();  }
+  public void setSlabPercent(float val) { tm.slabToPercent(val); }
+  public void setDepthPercent(float val) { tm.depthToPercent(val); }
 
 
 
+  
+  
   /* ****************************************************************
    * FigureManager delegation
    * ****************************************************************/
@@ -397,68 +441,34 @@ public class G3DSys {
   private int zbufferCenter = 0, zbufferFront = 0, zbufferBack = 0;
   public void calcZbufferLimits() {
     int pixelWidth = (int)(
-        java.lang.Math.abs(fm.getMaxX())+
-        java.lang.Math.abs(fm.getMinX())*
+        java.lang.Math.abs(fm.getMaxZ())+
+        java.lang.Math.abs(fm.getMinZ())*
         tm.scalePixelsPerAngstrom*2);
     zbufferCenter = tm.transformPoint(origin).z;
     zbufferFront = zbufferCenter - pixelWidth;
     zbufferBack = zbufferCenter + pixelWidth;
-    System.out.print("zbufferBack: "+zbufferBack);
-    System.out.println(", zbufferFront: "+zbufferFront);
+    //System.out.print("zbufferBack: "+zbufferBack);
+    //System.out.println(", zbufferFront: "+zbufferFront);
   }
 
-  public double getSlabPercent() { return tm.getSlabPercentSetting(); }
-  public double getDepthPercent() { return tm.getDepthPercentSetting();  }
-  public void setSlabPercent(float val) { tm.slabToPercent(val); }
-  public void setDepthPercent(float val) { tm.depthToPercent(val); }
-
   
-  //image shell code follows
   /**
    * For use only by ImageShell class for iteration
    * @return returns the array of current Figures
    */
-  public Figure[] getFigs() {
-    return fm.getFigs();
-  }
+  public Figure[] getFigs() { return fm.getFigs(); }
 
   /**
-   * Enables or disables image shell
-   * @param b boolean value
+   * Rescales slab and depth after image shell mode is toggled
+   * or the number of layers changed.
    */
-  public void setEnableImages(boolean b) { fm.setEnableImages(b); }
-  /**
-   * Returns whether image shell is enabled
-   * @return returns enable boolean
-   */
-  public boolean isEnableImages() { return fm.isEnableImages(); }
-  /**
-   * Sets the number of image shell layers
-   * @param n the number of layers
-   */
-  public void setLayers(int n) { fm.setLayers(n); }
-  /**
-   * Gets the number of image shell layers
-   * @return returns the number of layers
-   */
-  public int getLayers() { return fm.getLayers(); }
-  /**
-   * Sets the boundary drawing style
-   * @param b the boundary drawing style to use
-   */
-  public void setDrawBoundaryType(int b) { fm.setDrawBoundaryType(b); }
-  /**
-   * Gets the boundary drawing style
-   * @return returns the boundary drawing style
-   */
-  public int getDrawBoundaryType() { return fm.getDrawBoundaryType(); }
-  /**
-   * Cycles to the next boundary drawing style
-   */
-  public void cycleDrawBoundaryType() { fm.cycleDrawBoundaryType(); }
-  
-  public void toggleWireframe() { fm.toggleWireframe(); }
-
   public void setDefaultRotation() { tm.setDefaultRotation(); }
+  
+  /**
+   * Only to be used internally to escape endless delegation
+   * @return returns the FigureManager
+   */
+  public FigureManager getFM() { return fm; }
+  public TransformManager getTM() { return tm; }
   
 }
