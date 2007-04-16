@@ -52,13 +52,9 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     displayPhase = _phase;
 
     //init G3DSys
-    Panel p = new Panel();
     this.setLayout(new java.awt.GridLayout());
-    p.setLayout(new java.awt.GridLayout());
-    p.setSize(800,800);
-    this.add(p);
     coords = new double[3];
-    gsys = new G3DSys(p);
+    gsys = new G3DSys(this);
 		
     //init AtomAgentManager, to sync G3DSys and Etomica models
     //this automatically adds the atoms
