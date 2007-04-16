@@ -95,55 +95,64 @@ class KeyboardControl implements KeyListener {
       master.fastRefresh();
     }
     if( e.getKeyChar() == 'i' ) {
-      master.setEnableImages(!master.isEnableImages());
+      master.getFM().setEnableImages(!master.getFM().isEnableImages());
       master.fastRefresh();
     }
     if( e.getKeyChar() == '1' ) {
-      master.setLayers(1);
+      master.getFM().setEnableImages(true);
+      master.getFM().setLayers(1);
       master.fastRefresh();
     }
     if( e.getKeyChar() == '2' ) {
-      master.setLayers(2);
+      master.getFM().setEnableImages(true);
+      master.getFM().setLayers(2);
       master.fastRefresh();
     }
     if( e.getKeyChar() == '3' ) {
-      master.setLayers(3);
+      master.getFM().setEnableImages(true);
+      master.getFM().setLayers(3);
       master.fastRefresh();
     }
     if( e.getKeyChar() == '4' ) {
-      master.setLayers(4);
+      master.getFM().setEnableImages(true);
+      master.getFM().setLayers(4);
       master.fastRefresh();
     }
     if( e.getKeyChar() == '5' ) {
-      master.setLayers(5);
+      master.getFM().setEnableImages(true);
+      master.getFM().setLayers(5);
       master.fastRefresh();
     }
     if( e.getKeyChar() == '6' ) {
-      master.setLayers(6);
+      master.getFM().setEnableImages(true);
+      master.getFM().setLayers(6);
       master.fastRefresh();
     }
     if( e.getKeyChar() == '7' ) {
-      master.setLayers(7);
+      master.getFM().setEnableImages(true);
+      master.getFM().setLayers(7);
       master.fastRefresh();
     }
     if( e.getKeyChar() == '8' ) {
-      master.setLayers(8);
+      master.getFM().setEnableImages(true);
+      master.getFM().setLayers(8);
       master.fastRefresh();
     }
     if( e.getKeyChar() == '9' ) {
-      master.setLayers(9);
+      master.getFM().setEnableImages(true);
+      master.getFM().setLayers(9);
       master.fastRefresh();
     }
     if( e.getKeyChar() == '0' ) {
-      master.setEnableImages(false);
+      master.getFM().setEnableImages(false);
       master.fastRefresh();
     }
     if( e.getKeyChar() == 'b' ) {
-      master.cycleDrawBoundaryType();
+      master.getFM().cycleDrawBoundaryType();
       master.fastRefresh();
     }
     if( e.getKeyChar() == 'a' ) {
-      master.toggleWireframe();
+      master.getFM().toggleWireframe();
       master.fastRefresh();
     }
   }
