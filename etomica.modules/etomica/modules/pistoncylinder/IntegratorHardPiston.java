@@ -31,7 +31,7 @@ public class IntegratorHardPiston extends IntegratorHard {
             pistonUpdateRequested = false;
             updatePiston();
         }
-        super.doStep();
+        super.doStepInternal();
     }
     
     public void updateAtom(IAtom a) {
