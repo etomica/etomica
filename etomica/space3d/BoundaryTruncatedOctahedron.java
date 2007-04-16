@@ -65,31 +65,9 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         //return temp;
     }
 
-    //TODO: construct new iterator on the fly
-    //iterator must be given reference to IVector[] vecs
-    //TODO: DANGER! in the iterator
-    //iterator's next() and hasNext() methods:
-    /*hasnext needs to know whether there is a next one or not
-     *method 1: look for one and return true/false, let next() find
-     * the same one again.
-     * method 2: reset() finds the first iterate, and next() returns
-     * the iterate found on the previous call as well as finds the next
-     * one to be returned on the next call. hasNext() simply checks a
-     * field set during this to determine if there is a next 
-     */
     public IndexIteratorSizable getIndexIterator(){
       return new IndexIteratorSequentialFiltered(vecs.length,vecs);
     }
-    
-    //TODO: write iterator class
-    /*
-     * new class implements g3dsys interface
-     * has a normal index iterator, but filters its results
-     * takes linear combination of vecs[] and indices, looks at resulting
-     * offsets' magnitude, compares to radius.
-     * radius is any component of any vector * 2
-     * if less than radius, return, else find the next one until no more.
-     */
     
     private class IndexIteratorSequentialFiltered
       implements IndexIteratorSizable {
@@ -175,7 +153,6 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     }
     
     private final void updateDimensions() {
-      //TODO: tell index iterator vectors have changes
       /*
        * update field for these vectors (vecs); index iterator
        * references them and automatically calculates a new
