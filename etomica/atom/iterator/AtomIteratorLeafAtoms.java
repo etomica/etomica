@@ -14,7 +14,7 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
      * until a call to setPhase is performed.
      */
     public AtomIteratorLeafAtoms() {
-        this(null);
+        super(new AtomIteratorArrayListSimple());
     }
 
     /**
@@ -22,7 +22,7 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
      * phase. Call to reset() is required before beginning iteration.
      */
     public AtomIteratorLeafAtoms(Phase phase) {
-        super(new AtomIteratorArrayListSimple());
+        this();
         setPhase(phase);
     }
 

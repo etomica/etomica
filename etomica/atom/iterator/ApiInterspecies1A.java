@@ -75,7 +75,6 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         // we need to sort these.  we'll do that once we have the phase
         species0 = species[0];
         species1 = species[1];
-        setPhase(null);
     }
 
     /**
