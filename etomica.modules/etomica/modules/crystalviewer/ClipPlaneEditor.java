@@ -39,6 +39,7 @@ public class ClipPlaneEditor {
             public void setBoolean(boolean b) {
                 if(b) display.setAtomFilter(ClipPlaneEditor.this.latticePlane);
                 else  display.setAtomFilter(null);
+                display.repaint();
             }
         });
         
@@ -50,6 +51,7 @@ public class ClipPlaneEditor {
             public void setBoolean(boolean b) {
                 if(b) colorScheme.setColorIn(highlightColor);
                 else  colorScheme.setColorIn(atomColor);
+                display.repaint();
             }
         });
         
@@ -102,6 +104,7 @@ public class ClipPlaneEditor {
         positionSlider.setPostAction(new Action() {
             public void actionPerformed() {
                 boxD.doUpdate();
+                display.repaint();
             }
         });
         
