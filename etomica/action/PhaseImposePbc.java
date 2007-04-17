@@ -128,9 +128,12 @@ public final class PhaseImposePbc extends PhaseActionAdapter {
 	public void setApplyToMolecules(boolean applyToMolecules) {
 		this.applyToMolecules = applyToMolecules;
 		if (applyToMolecules)
-			iterator = new AtomIteratorAllMolecules(phase);
+			iterator = new AtomIteratorAllMolecules();
 		else
-			iterator = new AtomIteratorLeafAtoms(phase);
+			iterator = new AtomIteratorLeafAtoms();
+        if (phase != null) {
+            iterator.setPhase(phase);
+        }
 	}
 
     public void setMoleculePositionDefintion(AtomPositionDefinition positionDefinition) {
