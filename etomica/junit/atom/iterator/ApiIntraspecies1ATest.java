@@ -141,8 +141,14 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
             api.allAtoms(speciesTest);
         }
 
-        api.setPhase(null);
-        testNoIterates(api);
+        boolean exceptionThrown = false;
+        try {
+            api.setPhase(null);
+        }
+        catch (RuntimeException e) {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
     }
 
     private class SpeciesTestAction extends AtomsetActionAdapter {

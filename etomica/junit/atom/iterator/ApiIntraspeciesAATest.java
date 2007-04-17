@@ -93,9 +93,15 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         countTest(api, count);
         api.allAtoms(speciesTest);
 
-        //test null phase gives no iterates
-        api.setPhase(null);
-        testNoIterates(api);
+        //test null phase throws an exception
+        boolean exceptionThrown = false;
+        try {
+            api.setPhase(null);
+        }
+        catch (RuntimeException e) {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
     }
 
     private class SpeciesTestAction extends AtomsetActionAdapter {

@@ -37,9 +37,14 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
             countTest(api, count);
         }
         
-        api.setPhase(null);
-        testNoIterates(api);
-
+        boolean exceptionThrown = false;
+        try {
+            api.setPhase(null);
+        }
+        catch (RuntimeException e) {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
 
 //        //test documented exceptions
 //        boolean exceptionThrown = false;

@@ -49,7 +49,14 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
             assertEquals(list.size(), count);
         }
 
-        iterator.setPhase(null);
-        testNoIterates(iterator);
+        //test null phase throws an exception
+        boolean exceptionThrown = false;
+        try {
+            iterator.setPhase(null);
+        }
+        catch (RuntimeException e) {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
     }
 }
