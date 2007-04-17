@@ -1,6 +1,5 @@
 package etomica.atom.iterator;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.SpeciesAgent;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -49,31 +48,26 @@ public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
 
     /**
      * Configures iterator to return molecules from the set species in the given
-     * phase.  No iterates are given if phase is null.
+     * phase.
+     * @throws a NullPointerException if the Phase is null
      */
     public void setPhase(Phase phase) {
-        if (phase == null) {
-            emptyList.clear();
-            apiInterList.setOuterList(emptyList);
-        } else {
-            SpeciesAgent agent0 = phase.getAgent(species0);
-            SpeciesAgent agent1 = phase.getAgent(species1);
-            if (agent0.getIndex() > agent1.getIndex()) {
-                // species were out of order.  swap them
-                Species tempSpecies = species0;
-                species0 = species1;
-                species1 = tempSpecies;
-                SpeciesAgent tempAgent = agent0;
-                agent0 = agent1;
-                agent1 = tempAgent;
-            }
-            apiInterList.setOuterList(agent0.getChildList());
-            apiInterList.setInnerList(agent1.getChildList());
+        SpeciesAgent agent0 = phase.getAgent(species0);
+        SpeciesAgent agent1 = phase.getAgent(species1);
+        if (agent0.getIndex() > agent1.getIndex()) {
+            // species were out of order.  swap them
+            Species tempSpecies = species0;
+            species0 = species1;
+            species1 = tempSpecies;
+            SpeciesAgent tempAgent = agent0;
+            agent0 = agent1;
+            agent1 = tempAgent;
         }
+        apiInterList.setOuterList(agent0.getChildList());
+        apiInterList.setInnerList(agent1.getChildList());
     }
 
     private static final long serialVersionUID = 1L;
     private final ApiInterArrayList apiInterList;
     private Species species0, species1;
-    private final AtomArrayList emptyList = new AtomArrayList();
 }
