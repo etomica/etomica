@@ -60,7 +60,6 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
 
         neighborIterator.setDirection(null);
         phaseAgentManager = agentManager;
-        setPhase(null);
 	}
 
 	public void setPhase(Phase phase) {
