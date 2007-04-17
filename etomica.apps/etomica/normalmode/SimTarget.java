@@ -96,7 +96,7 @@ public class SimTarget extends Simulation {
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
-            nA = 3;
+            nA = 4;
             density = 0.5;
         }
         String filename = "normal_modes1D";
@@ -185,6 +185,7 @@ public class SimTarget extends Simulation {
         double[][] eVals = normalModes.getEigenvalues(sim.phase);
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
         double AHarmonic = 0.5*Math.log(nA) - 0.5*(nA-1)*Math.log(2.0*Math.PI);
+        if(nA % 2 == 0) AHarmonic += 0.5*Math.log(2.0);
         int coordinateDim = 1;
         for(int i=0; i<eVals.length; i++) {
             for(int j=0; j<coordinateDim; j++) {
