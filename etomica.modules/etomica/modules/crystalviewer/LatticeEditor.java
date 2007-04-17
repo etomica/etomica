@@ -34,11 +34,6 @@ import etomica.util.Arrays;
  * the structure of a lattice.  Permits changing of type primitive and
  * parameters (sizes and angles) for lattice vectors.
  */
- 
- /* History
-  * 09/07/02 (DAK) new
-  */
-
 public class LatticeEditor {
     
     public static int DEFAULT_SIZE = 6;
@@ -176,10 +171,6 @@ public class LatticeEditor {
             newBox.setPostAction(new Action() {
                 public void actionPerformed() {
                     update();
-                }
-                public String getLabel() {
-                    // because they deserve it.
-                    return null;
                 }
             });
         }
