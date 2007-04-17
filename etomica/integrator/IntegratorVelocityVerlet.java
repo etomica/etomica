@@ -120,9 +120,10 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     public void reset() throws ConfigurationOverlapException{
         if(!initialized) return;
         
+        super.reset();
+
         forceSum.reset();
         potential.calculate(phase, allAtoms, forceSum);
-        super.reset();
     }
               
 //--------------------------------------------------------------
