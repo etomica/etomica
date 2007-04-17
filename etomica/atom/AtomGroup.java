@@ -50,6 +50,7 @@ public class AtomGroup extends Atom implements IAtomGroup {
     public void removeChildAtom(IAtom oldChildAtom) {
         for (int i=0; i<childList.size(); i++) {
             if (childList.get(i) == oldChildAtom) {
+                oldChildAtom.setParent(null);
                 childList.removeAndReplace(i);
                 childList.maybeTrimToSize();
                 if (childList.size() > i) {
