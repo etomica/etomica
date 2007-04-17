@@ -84,23 +84,18 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
      */
     public void setPhase(Phase phase) {
         this.phase = phase;
-        if (phase != null) {
-            agent0 = phase.getAgent(species0);
-            agent1 = phase.getAgent(species1);
-            if (agent0.getIndex() > agent1.getIndex()) {
-                // species were out of order.  swap them
-                Species tempSpecies = species0;
-                species0 = species1;
-                species1 = tempSpecies;
-                SpeciesAgent tempAgent = agent0;
-                agent0 = agent1;
-                agent1 = tempAgent;
-            }
-            identifyTargetMolecule();
-        } else {
-            targetMolecule = null;
-            setupIterators();
+        agent0 = phase.getAgent(species0);
+        agent1 = phase.getAgent(species1);
+        if (agent0.getIndex() > agent1.getIndex()) {
+            // species were out of order.  swap them
+            Species tempSpecies = species0;
+            species0 = species1;
+            species1 = tempSpecies;
+            SpeciesAgent tempAgent = agent0;
+            agent0 = agent1;
+            agent1 = tempAgent;
         }
+        identifyTargetMolecule();
     }
 
     /**

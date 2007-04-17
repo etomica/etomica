@@ -52,17 +52,13 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
 
     /**
      * Configures iterator to return molecules from the set species in the given
-     * phase. No iterates are given if phase is null.
+     * phase.
+     * @throws NullPointerException if the Phase is null
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        if (phase != null) {
-            agent = phase.getAgent(species);
-            identifyTargetMolecule();
-        } else {
-            targetMolecule = null;
-            setAtom(null);
-        }
+    public void setPhase(Phase newPhase) {
+        phase = newPhase;
+        agent = phase.getAgent(species);
+        identifyTargetMolecule();
     }
 
     /**

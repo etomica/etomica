@@ -64,16 +64,11 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
 	}
 
 	public void setPhase(Phase phase) {
-        if(phase != null) {
-            cellManager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
-            lattice = cellManager.getLattice();
-            neighborIterator.setLattice(lattice);
-            neighborIterator.setPeriod(phase.getBoundary().getDimensions());
-            neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
-        }
-        else {
-            lattice = null;
-        }
+        cellManager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
+        lattice = cellManager.getLattice();
+        neighborIterator.setLattice(lattice);
+        neighborIterator.setPeriod(phase.getBoundary().getDimensions());
+        neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
 	}
 
     /**

@@ -1,10 +1,5 @@
-/*
- * History
- * Created on Sep 15, 2004 by kofke
- */
 package etomica.atom.iterator;
 
-import etomica.atom.AtomArrayList;
 import etomica.phase.Phase;
 
 /**
@@ -24,17 +19,11 @@ public class ApiLeafAtoms extends AtomPairIteratorAdapter implements
 
     /**
      * Conditions iterator to return all leaf-atom pairs from the given phase.
-     * If phase is null, no iterates are given.
+     * @throws a NullPointerException if the Phase is null
      */
     public void setPhase(Phase phase) {
-        if (phase == null) {
-            emptyList.clear();
-            ((ApiIntraArrayList)iterator).setList(emptyList);
-        } else {
-            ((ApiIntraArrayList)iterator).setList(phase.getSpeciesMaster().getLeafList());
-        }
+        ((ApiIntraArrayList)iterator).setList(phase.getSpeciesMaster().getLeafList());
     }
 
     private static final long serialVersionUID = 1L;
-    private final AtomArrayList emptyList = new AtomArrayList();
 }

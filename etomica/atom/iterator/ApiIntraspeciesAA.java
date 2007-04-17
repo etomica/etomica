@@ -1,10 +1,5 @@
-/*
- * History
- * Created on Dec 30, 2004 by kofke
- */
 package etomica.atom.iterator;
 
-import etomica.atom.AtomArrayList;
 import etomica.phase.Phase;
 import etomica.species.Species;
 
@@ -51,18 +46,13 @@ public class ApiIntraspeciesAA extends AtomPairIteratorAdapter implements
     /**
      * Configures iterator to return molecules from the set species in the given
      * phase.
+     * @throws a NullPointerException if the Phase is null
      */
     public void setPhase(Phase phase) {
-        if (phase == null) {
-            emptyList.clear();
-            pairIterator.setList(emptyList);
-        } else {
-            pairIterator.setList(phase.getAgent(species).getChildList());
-        }
+        pairIterator.setList(phase.getAgent(species).getChildList());
     }
 
     private static final long serialVersionUID = 1L;
     private final ApiIntraArrayList pairIterator;
     private final Species species;
-    private final AtomArrayList emptyList = new AtomArrayList();
 }

@@ -64,6 +64,9 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      */
     public void setPhase(Phase phase) {
         this.phase = phase;
+        if (phase == null) {
+            throw new NullPointerException("Null Phase");
+        }
     }
 
     /**

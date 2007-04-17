@@ -31,10 +31,10 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     /**
      * Sets the phase containing the molecules for iteration. A null
      * phase conditions iterator to give no iterates.
+     * @throws a NullPointerException if the Phase is null
      */
     public void setPhase(Phase phase) {
-        if(phase == null) speciesAgent = null;
-        else speciesAgent= phase.getAgent(species);
+        speciesAgent = phase.getAgent(species);
         setList();
     }
 

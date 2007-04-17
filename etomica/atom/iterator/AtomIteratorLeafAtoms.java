@@ -29,17 +29,11 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
     /**
      * Configures iterator to form its iterates from the leaf atoms of the given
      * phase. If a species was previously (or subsequently) set, iterates will
-     * be the leaf atoms of under the species in the specified phase. If null is
-     * given, iterator will return no iterates until a phase is specified via
-     * another call to the method.
+     * be the leaf atoms of under the species in the specified phase.
+     * @throws a NullPointerException if the Phase is null
      */
     public void setPhase(Phase phase) {
-        if (phase == null) {
-            ((AtomIteratorArrayListSimple)iterator).setList(null);
-        } else {
-            ((AtomIteratorArrayListSimple)iterator).setList(phase.getSpeciesMaster().getLeafList());
-        }
-        unset();
+        ((AtomIteratorArrayListSimple)iterator).setList(phase.getSpeciesMaster().getLeafList());
     }
 
     private static final long serialVersionUID = 1L;

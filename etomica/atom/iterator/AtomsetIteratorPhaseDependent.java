@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Aug 12, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.phase.Phase;
@@ -12,6 +8,10 @@ import etomica.phase.Phase;
  */
 public interface AtomsetIteratorPhaseDependent extends AtomsetIterator {
 
+    /**
+     * Sets the Phase to pull iterates from
+     * @throws a NullPointerException if the Phase is null
+     */
 	public void setPhase(Phase phase);
 	
 }

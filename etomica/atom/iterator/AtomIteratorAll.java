@@ -36,6 +36,9 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
      */
     public void setPhase(Phase newPhase) {
         phase = newPhase;
+        if (phase == null) {
+            throw new NullPointerException("Null phase");
+        }
     }
 
     /**
