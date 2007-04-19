@@ -2,9 +2,11 @@ package etomica.graphics;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.TextField;
 
+import javax.swing.JPanel;
 import javax.vecmath.Point3f;
 
 import etomica.atom.AtomAgentManager;
@@ -24,10 +26,6 @@ import g3dsys.images.Ball;
 import g3dsys.images.Bond;
 import g3dsys.images.Figure;
 import g3dsys.images.Line;
-
-//TODO: rewrite doPaint and drawAtom
-//TODO: create IndexIterators here to remove g3dsys dependency from Boundary
-//only etomica.graphics will depend on g3dsys
 
 public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	implements AgentSource, BondManager {
@@ -52,10 +50,20 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     displayPhase = _phase;
 
     //init G3DSys
+    //adding JPanel flickers, Panel does not. Nobody knows why.
+    /*
+     * Set visible false here to be toggled later; seems to fix the
+     * 'sometimes gray' bug
+     */
+    //this.setVisible(false); // to be set visible later by SimulationGraphic
+    Panel p = new Panel();
     this.setLayout(new java.awt.GridLayout());
+    p.setLayout(new java.awt.GridLayout());
+    p.setSize(800,800);
+    this.add(p);
     coords = new double[3];
-    gsys = new G3DSys(this);
-		
+    gsys = new G3DSys(p);
+    
     //init AtomAgentManager, to sync G3DSys and Etomica models
     //this automatically adds the atoms
     aam = new AtomAgentManager(this, displayPhase.getPhase(), false);
@@ -88,14 +96,13 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 
   public void doPaint(Graphics g) {
     
-    //TODO: handle pending bond addition requests
+    //handle pending bond addition requests
     if(pendingBonds.size() > 0) {
       for(int i=0; i<pendingBonds.size(); i++) {
         Object[] o = (Object[]) pendingBonds.get(i);
         Ball ball0 = (Ball) o[0];
         Ball ball1 = (Ball) o[1];
         //can't do anything with bondType for now
-        //TODO: choose bond color based on ball colors
         Figure f = new Bond(gsys,ball0,ball1);
         gsys.addFig(f);
       }
@@ -115,8 +122,13 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
       if (ball == null) {
         continue;
       }
-      //TODO: atomFilter doesn't play well with wireframe toggle
-      //atomfilter toggles drawable flag; wireframe simply ignores spheres
+      /*
+       * Atomfilter changes the drawable flag in spheres; bonds respect
+       * this and will not draw themselves either. Wireframe mode, on the
+       * other hand, tells G3DSys to ignore spheres entirely regardless
+       * of drawable flag. This makes it possible to filter bonds in
+       * wireframe mode as well.
+       */
       boolean drawable = atomFilter.accept(a);
       ball.setDrawable(drawable);
       if (!drawable) {
@@ -189,7 +201,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
    * bondType is used to decide how the bond should be drawn.
    */
   public Object makeBond(AtomSet pair, Object bondType) {
-    //TODO: add bond figures to g3dsys
     /*
      * Ball objects here could be null if the bond is created before
      * the atoms have been added. Check for this and store atoms locally
@@ -200,19 +211,14 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     //best to ignore it for now; all bonds are equal
     Ball ball0 = (Ball)aam.getAgent(pair.getAtom(0));
     Ball ball1 = (Ball)aam.getAgent(pair.getAtom(1));
-    // if ball0 or ball1 are null, then their Ball figures haven't been
-    // created, so we might have to do something to remind ourselves to
-    // make the bond later
     if(ball0 == null || ball1 == null) {
       System.out.println("NULL!!!");
       pendingBonds.add(new Object[] { ball0, ball1, bondType } );
       return null;
     }
     
-    
     // make a bond object (Figure)
     Figure f = new Bond(gsys,ball0,ball1);
-    //new Cylinder(gsys,Graphics3D.RED,ball0.getPoint(),ball1.getPoint());
     gsys.addFig(f);
     return f;
   }
@@ -224,7 +230,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
    * Object returned by the makeBond method.
    */
   public void releaseBond(Object bond) {
-    //TODO: remove bond figures from g3dsys
     Figure figure = (Figure)bond;
     if (figure.getID() == -1) {
       throw new RuntimeException(figure+" has already been removed");
@@ -297,6 +302,16 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
       public int[] next() { return ii.next(); }
       public void reset() { ii.reset(); }
       public void setSize(int[] size) { ii.setSize(size); }
+      
+      public boolean isLazySafe() {
+        /*
+         * For now all boundaries are lazy-safe, including truncated
+         * octahedron. If this changes, check for that boundary type
+         * here (instanceof IndexIteratorSequentialFiltered, say,
+         * after making the class public) and use appropriate boolean.
+         */
+        return true;
+      }
     
     };
     

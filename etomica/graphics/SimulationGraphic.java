@@ -2,6 +2,7 @@ package etomica.graphics;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -95,6 +96,16 @@ public class SimulationGraphic implements SimulationContainer {
              phaseList.add(phase);
              final DisplayPhase display = new DisplayPhase(phase,simulation.getDefaults().pixelUnit);
              add(display);
+             
+             /* For G3DSys: panel is invisible until set visible here.
+              * This kind of looks like it could possibly have solved
+              * the 'random gray panel on startup' bug. Have been
+              * unable to reproduce after adding this, anyway.
+              */
+             if(display.canvas instanceof JComponent) {
+               ((JComponent)display.canvas).setVisible(true);
+             }
+             
              IntervalActionAdapter iaa = new IntervalActionAdapter(new Action() {
             	 public void actionPerformed() {display.repaint();}
              });
