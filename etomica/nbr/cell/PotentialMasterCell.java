@@ -61,10 +61,29 @@ public class PotentialMasterCell extends PotentialMasterSite {
         return maxPotentialRange;
     }
     
+    public void setCellRange(int d) {
+        super.setCellRange(d);
+
+        PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
+            cellManager.setCellRange(getCellRange());
+        }
+    }
+    
     public void setRange(double d) {
         ((Api1ACell)neighborIterator).getNbrCellIterator().setNeighborDistance(d);
         ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(d);
         range = d;
+
+        PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
+            cellManager.setPotentialRange(range);
+        }
+        
     }
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
