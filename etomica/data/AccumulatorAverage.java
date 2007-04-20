@@ -91,14 +91,13 @@ public class AccumulatorAverage extends DataAccumulator {
      * values is NaN, method returns with no effect on accumulation sums.
      */
     public void addData(Data data) {
-        Data value =  data;
-        if (value.isNaN())
+        if (data.isNaN())
             return;
 
         mostRecent.E(data);
-        blockSum.PE(value);
+        blockSum.PE(data);
         work.E(data);
-        work.TE(value);
+        work.TE(data);
         blockSumSq.PE(work);
         if (--blockCountDown == 0) {//count down to zero to determine
                                     // completion of block
