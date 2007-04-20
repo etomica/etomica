@@ -67,8 +67,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     /**
      * @param cellRange The cellRange to set.
      */
-    public void setCellRange(int cellRange) {
-        this.cellRange = cellRange;
+    public void setCellRange(int newCellRange) {
+        cellRange = newCellRange;
     }
     
     protected void addRangedPotentialForTypes(Potential potential, AtomType[] atomType) {
