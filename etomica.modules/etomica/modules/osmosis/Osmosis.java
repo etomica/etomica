@@ -364,7 +364,7 @@ public class Osmosis {
 
     public static void main(String[] args) {
         Osmosis osmosis = new Osmosis();
-        SimulationGraphic.makeAndDisplayFrame(osmosis.panel);
+        SimulationGraphic.makeAndDisplayFrame(osmosis.panel, "Osmosis");
     }
 
     

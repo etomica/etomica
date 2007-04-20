@@ -474,7 +474,7 @@ public class JouleThomson extends SimulationGraphic {
         }
         
         SimulationGraphic simGraphic = new JouleThomson(Space.getInstance(dim));
-		simGraphic.makeAndDisplayFrame();
+		simGraphic.makeAndDisplayFrame("Joule Thomson Experiment");
     }//end of main
         
 }

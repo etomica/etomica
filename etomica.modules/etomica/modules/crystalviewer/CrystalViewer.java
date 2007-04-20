@@ -98,7 +98,7 @@ public class CrystalViewer {
     public static void main(String[] args) {
         
         CrystalViewer viewer = new CrystalViewer();
-        SimulationGraphic.makeAndDisplayFrame(viewer.panel);
+        SimulationGraphic.makeAndDisplayFrame(viewer.panel, "Crystal Viewer");
     }
     
     protected SpeciesSpheresMono species;

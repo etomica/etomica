@@ -222,7 +222,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		DCVGCMD sim = new DCVGCMD();
         sim.activityIntegrate.setDoSleep(false);
 		DCVGCMDGraphic graphic = new DCVGCMDGraphic(sim);
-		graphic.makeAndDisplayFrame();
+		graphic.makeAndDisplayFrame("Dual Control-volume GCMD");
 	}//end of main
 	
     public static class Applet extends javax.swing.JApplet {

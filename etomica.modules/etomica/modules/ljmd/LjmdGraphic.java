@@ -405,7 +405,8 @@ public class LjmdGraphic {
         LjmdGraphic ljmdGraphic = new LjmdGraphic();
         ljmdGraphic.setDoConfigButton(true);
         ljmdGraphic.init(new Ljmd(space));
-		SimulationGraphic.makeAndDisplayFrame(ljmdGraphic.panel);
+		SimulationGraphic.makeAndDisplayFrame
+		        (ljmdGraphic.panel, "Lennard-Jones Molecular Dynamics");
     }
     
     public static class Applet extends javax.swing.JApplet {

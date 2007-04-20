@@ -93,7 +93,7 @@ public class LatticeEditor {
         
         boxPanel = new JPanel(new GridLayout(2,1));
         boxPanel.add(sizePanel);
-        boxPanel.setBorder(new javax.swing.border.TitledBorder("Primitive vectors"));
+        boxPanel.setBorder(new javax.swing.border.TitledBorder("Primitive Vectors"));
        
         updateBoxes();
         

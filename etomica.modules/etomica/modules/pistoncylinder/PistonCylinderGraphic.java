@@ -948,7 +948,7 @@ public class PistonCylinderGraphic {
         pcg.setDoRDF(true);
         pcg.setDoNSelector(true);
         pcg.init();
-		SimulationGraphic.makeAndDisplayFrame(pcg.panel);
+		SimulationGraphic.makeAndDisplayFrame(pcg.panel, "Piston Cylinder");
     }
 
     public static class Applet extends javax.swing.JApplet {
