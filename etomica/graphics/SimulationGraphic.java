@@ -186,16 +186,33 @@ public class SimulationGraphic implements SimulationContainer {
         return makeAndDisplayFrame(panel());
     }
     
-    public static JFrame makeAndDisplayFrame(JPanel panel) {
-        JFrame f = new JFrame();
-        f.setSize(700,500);
-        f.getContentPane().add(panel);
-        f.pack();
+    public final JFrame makeAndDisplayFrame(String title) {
+    	return makeAndDisplayFrame(panel(), title);
+    }
+
+    public static JFrame makeAndDisplayFrame(JPanel panel, String title) {
+        JFrame f = makeFrame(panel);
+        f.setTitle(title);
         f.setVisible(true);
         f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
         return f;
     }
-    
+
+    public static JFrame makeAndDisplayFrame(JPanel panel) {
+        JFrame f = makeFrame(panel);
+        f.setVisible(true);
+        f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
+        return f;
+    }
+
+    private static JFrame makeFrame(JPanel panel) {
+        JFrame f = new JFrame();
+        f.setSize(700,500);
+        f.getContentPane().add(panel);
+        f.pack();
+        return f;
+    }
+
     public static final java.awt.event.WindowAdapter WINDOW_CLOSER 
         = new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
