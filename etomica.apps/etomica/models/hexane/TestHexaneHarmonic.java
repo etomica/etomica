@@ -239,11 +239,13 @@ public class TestHexaneHarmonic extends Simulation {
         
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionHexane, normalModes);
         harmonicSingleEnergy.setPhase(sim.phase);
-        harmonicSingleEnergy.setTemperature(1.0);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
+        boltz = new BoltzmannProcessor();
+        boltz.setTemperature(1);
+        pump = new DataPump(harmonicSingleEnergy, boltz);
         DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(sim);
-        pump = new DataPump(harmonicSingleEnergy, harmonicSingleAvg);
+        boltz.setDataSink(harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
 //        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
         harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});

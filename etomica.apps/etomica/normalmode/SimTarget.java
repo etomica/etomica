@@ -22,11 +22,11 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.math.SpecialFunctions;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
@@ -41,8 +41,9 @@ import etomica.species.SpeciesSpheresMono;
 public class SimTarget extends Simulation {
 
     public SimTarget(Space space, int numAtoms, double density) {
-        super(space, true, new PotentialMaster(space));
+        super(space, true, new PotentialMasterList(space));
 
+        
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
 
@@ -57,7 +58,7 @@ public class SimTarget extends Simulation {
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(this,
                 integrator);
-        double timeStep = 4;
+        double timeStep = 0.4;
         integrator.setTimeStep(timeStep);
         getController().addAction(activityIntegrate);
 
@@ -73,7 +74,9 @@ public class SimTarget extends Simulation {
 
         if (space.D() == 1) {
             lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
-            ((IntegratorHard)integrator).setNullPotential(new P1HardPeriodic(space));
+            if (numAtoms < 4) {
+                ((IntegratorHard)integrator).setNullPotential(new P1HardPeriodic(space));
+            }
         }
         else {
             lattice = new LatticeCubicFcc();
@@ -82,8 +85,22 @@ public class SimTarget extends Simulation {
 
         config.initializeCoordinates(phase);
 
-        integrator.setPhase(phase);
+        if (potentialMaster instanceof PotentialMasterList) {
+            double neighborRange;
+            if (space.D() == 1) {
+                neighborRange = 1.01 / density;
+            }
+            else {
+                //FCC
+                double L = Math.pow(4.01/density, 1.0/3.0);
+                neighborRange = L / Math.sqrt(2.0);
+            }
+            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
+            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+            ((PotentialMasterList)potentialMaster).getNeighborManager(phase).reset();
+        }
 
+        integrator.setPhase(phase);
     }
 
     /**
@@ -92,15 +109,17 @@ public class SimTarget extends Simulation {
     public static void main(String[] args) {
         
         //set up simulation parameters
-        int D = 1;
+        int D = 3;
         int nA = 108;
         double density = 1.04;
+        double harmonicFudge = 1;
+        double simTime = 1000;
         if (D == 1) {
             nA = 10;
             density = 0.5;
+            simTime = 400000;
         }
-        String filename = "normal_modes1D";
-        double simTime = 400000;
+        String filename = "normal_modes"+D+"D";
         if (args.length > 0) {
             filename = args[0];
         }
@@ -113,8 +132,10 @@ public class SimTarget extends Simulation {
         if (args.length > 3) {
             nA = Integer.parseInt(args[3]);
         }
+        if (args.length > 4) {
+            harmonicFudge = Double.parseDouble(args[4]);
+        }
         
-        double harmonicFudge = 1;
 
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" hard sphere simulation, measuring harmonic energy");
         System.out.println(nA+" atoms at density "+density);
@@ -131,34 +152,44 @@ public class SimTarget extends Simulation {
         } else {
             normalModes = new NormalModesFromFile(filename, D);
         }
-        
+        normalModes.setHarmonicFudge(harmonicFudge);
 
         //add meters to for FEP averages
         //this one does averaging of total energy and its Boltzmann factor
-        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(new CoordinateDefinitionLeaf(sim.getSpace()), normalModes);
-        harmonicEnergy.setPhase(sim.phase);
-        DataFork harmonicFork = new DataFork();
-        AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
-        DataPump pump = new DataPump(harmonicEnergy, harmonicFork);
-        harmonicFork.addDataSink(harmonicAvg);
-        IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
-        adapter.setActionInterval(2);
-        sim.integrator.addListener(adapter);
-        BoltzmannProcessor boltz = new BoltzmannProcessor();
-        boltz.setTemperature(1.0);
-        harmonicFork.addDataSink(boltz);
-        AccumulatorAverage harmonicBoltzAvg = new AccumulatorAverage(50);
-        boltz.setDataSink(harmonicBoltzAvg);
+        //so long as we're using a MeterHarmonicSingleEnergy, we'll use that instead to get the sum
+//        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(new CoordinateDefinitionLeaf(sim.getSpace()), normalModes);
+//        harmonicEnergy.setPhase(sim.phase);
+//        DataPump foo = new DataPump(harmonicEnergy, null);
+//        IntervalActionAdapter bar = new IntervalActionAdapter(foo, sim.integrator);
+//        bar.setActionInterval(50);
         
         //this one does averaging of Boltzmann factors of each mode
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(new CoordinateDefinitionLeaf(sim.getSpace()), normalModes);
         harmonicSingleEnergy.setPhase(sim.phase);
-        harmonicSingleEnergy.setTemperature(1.0);
-        AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(sim);
-        pump = new DataPump(harmonicSingleEnergy, harmonicSingleAvg);
-        adapter = new IntervalActionAdapter(pump);
-        adapter.setActionInterval(2);
+        DataPump pump = new DataPump(harmonicSingleEnergy, null);
+        IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
+        adapter.setActionInterval(50);
         sim.integrator.addListener(adapter);
+
+        DataFork harmonicSingleFork = new DataFork();
+        pump.setDataSink(harmonicSingleFork);
+        BoltzmannProcessor boltz = new BoltzmannProcessor();
+        boltz.setTemperature(1.0);
+        harmonicSingleFork.addDataSink(boltz);
+        AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(10);
+        boltz.setDataSink(harmonicSingleAvg);
+        
+        DataProcessorSum summer = new DataProcessorSum();
+        harmonicSingleFork.addDataSink(summer);
+        DataFork harmonicFork = new DataFork();
+        summer.setDataSink(harmonicFork);
+        AccumulatorAverage harmonicAvg = new AccumulatorAverage(10);
+        harmonicFork.addDataSink(harmonicAvg);
+        boltz = new BoltzmannProcessor();
+        boltz.setTemperature(1.0);
+        harmonicFork.addDataSink(boltz);
+        AccumulatorAverage harmonicBoltzAvg = new AccumulatorAverage(10);
+        boltz.setDataSink(harmonicBoltzAvg);
 
         //start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());

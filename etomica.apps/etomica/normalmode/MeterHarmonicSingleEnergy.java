@@ -43,7 +43,6 @@ public class MeterHarmonicSingleEnergy implements DataSource {
         
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
             coordinateDefinition.calcT(waveVectors[iVector], realT, imaginaryT);
-            
             // we want to calculate Q = A T
             // where A is made up of eigenvectors as columns
             int coordinateDim = coordinateDefinition.getCoordinateDim();
@@ -54,8 +53,8 @@ public class MeterHarmonicSingleEnergy implements DataSource {
                     imaginaryCoord += imaginaryT[j] * eigenvectors[iVector][j][i];
                 }
                 double normalCoord = (realCoord*realCoord + imaginaryCoord*imaginaryCoord);
-                x[iVector*coordinateDim+i] = Math.exp(-waveVectorCoefficients[iVector] * 
-                        normalCoord * omegaSquared[iVector][i] / temperature);
+                x[iVector*coordinateDim+i] = waveVectorCoefficients[iVector] * 
+                        normalCoord * omegaSquared[iVector][i];
             }
         }
         return data;
@@ -92,21 +91,13 @@ public class MeterHarmonicSingleEnergy implements DataSource {
     }
     
     public void setEigenvalues(double[][] eigenvalues) {
-        omegaSquared = (double[][])eigenvalues.clone();
+        omegaSquared = new double[eigenvalues.length][eigenvalues[0].length];
         for (int i=0; i<omegaSquared.length; i++) {
             for (int j=0; j<omegaSquared[i].length; j++) {
                 // omega is sqrt(kT)/eigenvalue
-                omegaSquared[i][j] = 1.0/omegaSquared[i][j];
+                omegaSquared[i][j] = 1.0/eigenvalues[i][j];
             }
-        } 
-    }
-    
-    public void setTemperature(double newTemperature) {
-        temperature = newTemperature;
-    }
-    
-    public double getTemperature() {
-        return temperature;
+        }
     }
     
     public void setName(String newName) {
@@ -122,7 +113,6 @@ public class MeterHarmonicSingleEnergy implements DataSource {
     protected DataInfoDoubleArray dataInfo;
     protected DataDoubleArray data;
     private final DataTag tag;
-    protected double temperature;
     protected double[] realT, imaginaryT;
     protected IVector[] waveVectors;
     protected double[] waveVectorCoefficients;

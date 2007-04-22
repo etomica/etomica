@@ -1,22 +1,16 @@
 package etomica.normalmode;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataFork;
-import etomica.data.DataHistogram;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBoxesCAE;
-import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
@@ -24,19 +18,18 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.crystal.Primitive;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
-import etomica.potential.P2XOrder;
 import etomica.potential.Potential;
-import etomica.potential.PotentialMaster;
+import etomica.potential.Potential2Spherical;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
+import etomica.units.Pixel;
 
 /**
  * Simulation to sample harmonic potential
@@ -44,7 +37,7 @@ import etomica.util.HistogramSimple;
 public class SimHarmonic extends Simulation {
 
     public SimHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
-        super(space, true, new PotentialMaster(space));
+        super(space, true, new PotentialMasterList(space));
 
         int D = space.D();
         
@@ -84,6 +77,7 @@ public class SimHarmonic extends Simulation {
         } else {
             normalModes = new NormalModesFromFile(filename, D);
         }
+        normalModes.setHarmonicFudge(harmonicFudge);
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(phase);
@@ -107,28 +101,59 @@ public class SimHarmonic extends Simulation {
         int D = 1;
         int nA = 108;
         double density = 1.04;
+        double harmonicFudge = 1;
+        long steps = 400000;
         if (D == 1) {
             nA = 10;
             density = 0.5;
         }
-        boolean graphic = true;
-        String filename = "normal_modes1D";
+        boolean graphic = false;
+        String filename = "normal_modes3D";
         if (args.length > 0) {
             filename = args[0];
         }
-        double harmonicFudge = 1;
+        if (args.length > 1) {
+            density = Double.parseDouble(args[1]);
+        }
+        if (args.length > 2) {
+            steps = Long.parseLong(args[2]);
+        }
+        if (args.length > 3) {
+            nA = Integer.parseInt(args[3]);
+        }
+        if (args.length > 4) {
+            harmonicFudge = Double.parseDouble(args[4]);
+        }
+        System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" harmonic simulation, measuring hard sphere energy");
+        System.out.println(nA+" atoms at density "+density);
+        System.out.println("harmonic fudge: "+harmonicFudge);
+        System.out.println(steps+" MC steps");
         
         //construct simulation
         SimHarmonic sim = new SimHarmonic(Space.getInstance(D), nA, density, filename, harmonicFudge);
         
         //add hard potentials for FEP calculations.  With de novo sampling potential is not otherwise used.
-        P2HardSphere p2HardSphere = new P2HardSphere(sim.getSpace(), 1.0, true);
-        sim.getPotentialMaster().addPotential(p2HardSphere, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
-        if (sim.getSpace().D() == 1) {
-            Potential pOrder = new P2XOrder(sim.getSpace());
-            sim.potentialMaster.addPotential(pOrder, new AtomType[] {sim.species.getMoleculeType(),sim.species.getMoleculeType()});
+        Potential p2 = new P2HardSphere(sim.getSpace(), 1.0, true);
+        if (D == 1) {
+            p2 = new P2XOrder(sim.getSpace(), (Potential2Spherical)p2);
         }
-        
+        sim.getPotentialMaster().addPotential(p2, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
+
+        if (sim.potentialMaster instanceof PotentialMasterList) {
+            double neighborRange;
+            if (D == 1) {
+                neighborRange = 1.01 / density;
+            }
+            else {
+                //FCC
+                double L = Math.pow(0.26*density, 1.0/3.0);
+                neighborRange = L / Math.sqrt(2.0);
+            }
+            ((PotentialMasterList)sim.potentialMaster).setRange(neighborRange);
+            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
+            ((PotentialMasterList)sim.potentialMaster).getNeighborManager(sim.phase).reset();
+        }
+
         //meters for FEP calculations
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.getPotentialMaster());
         meterPE.setPhase(sim.phase);
@@ -155,47 +180,47 @@ public class SimHarmonic extends Simulation {
         //read and set up wave vectors
         CoordinateDefinitionLeaf coordinateDefinitionLeaf = new CoordinateDefinitionLeaf(sim.getSpace());
 
-        //meter for harmonic system energy, sent to direct and to boltzmann average
-        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionLeaf, sim.normalModes);
-        harmonicEnergy.setPhase(sim.phase);
-        DataFork harmonicFork = new DataFork();
-        AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
-        pump = new DataPump(harmonicEnergy, harmonicFork);
-        harmonicFork.addDataSink(harmonicAvg);
-        IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
-        adapter.setActionInterval(1);
-        sim.integrator.addListener(adapter);
-
-        //histogram energy of individual modes
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionLeaf, sim.normalModes);
-        harmonicSingleEnergy.setTemperature(1.0);
-        harmonicSingleEnergy.setPhase(sim.phase);
-//        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
-        AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(5);
-        DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
-        pump = new DataPump(harmonicSingleEnergy, harmonicSingleHistogram);
-//        harmonicLog.setDataSink(harmonicSingleHistogram);
-        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
-        iaa= new IntervalActionAdapter(pump);
-        iaa.setActionInterval(1);
-        sim.integrator.addListener(iaa);
-        
-        //set up measurement of S matrix, to check that configurations are generated as expected
-        Primitive primitive = sim.lattice.getPrimitive();
-        if (D == 3) {
-            primitive = ((LatticeCubicFcc)sim.lattice).getPrimitiveFcc();
-        }
-        ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config.getLatticeMemento();
-        IVector scaling = myLattice.latticeScaling;
-        primitive.scaleSize(scaling.x(0));
-        MeterNormalMode meterNormalMode = new MeterNormalMode();
-        meterNormalMode.setCoordinateDefinition(coordinateDefinitionLeaf);
-        WaveVectorFactory waveVectorFactory = sim.normalModes.getWaveVectorFactory();
-        meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-        meterNormalMode.setPhase(sim.phase);
-
-
         if(graphic){
+            //meter for harmonic system energy, sent to direct and to boltzmann average
+            MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionLeaf, sim.normalModes);
+            harmonicEnergy.setPhase(sim.phase);
+            DataFork harmonicFork = new DataFork();
+            AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
+            pump = new DataPump(harmonicEnergy, harmonicFork);
+            harmonicFork.addDataSink(harmonicAvg);
+            IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
+            adapter.setActionInterval(1);
+            sim.integrator.addListener(adapter);
+
+            //histogram energy of individual modes
+//            MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionLeaf, sim.normalModes);
+//            harmonicSingleEnergy.setTemperature(1.0);
+//            harmonicSingleEnergy.setPhase(sim.phase);
+//    //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
+//            AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(5);
+//            DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
+//            pump = new DataPump(harmonicSingleEnergy, harmonicSingleHistogram);
+//    //        harmonicLog.setDataSink(harmonicSingleHistogram);
+//            harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
+//            iaa= new IntervalActionAdapter(pump);
+//            iaa.setActionInterval(1);
+//            sim.integrator.addListener(iaa);
+            
+            //set up measurement of S matrix, to check that configurations are generated as expected
+            Primitive primitive = sim.lattice.getPrimitive();
+            if (D == 3) {
+                primitive = ((LatticeCubicFcc)sim.lattice).getPrimitiveFcc();
+            }
+            ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config.getLatticeMemento();
+            IVector scaling = myLattice.latticeScaling;
+            primitive.scaleSize(scaling.x(0));
+            MeterNormalMode meterNormalMode = new MeterNormalMode();
+            meterNormalMode.setCoordinateDefinition(coordinateDefinitionLeaf);
+            WaveVectorFactory waveVectorFactory = sim.normalModes.getWaveVectorFactory();
+            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
+            meterNormalMode.setPhase(sim.phase);
+
+
             //graphic simulation -- set up window
 //            sim.getDefaults().pixelUnit = new Pixel(0.05);
             SimulationGraphic simG = new SimulationGraphic(sim);
@@ -208,46 +233,19 @@ public class SimHarmonic extends Simulation {
             harmonicBoxes.setAccumulator(harmonicAvg);
             simG.add(harmonicBoxes);
 
-            DisplayPlot harmonicPlot = new DisplayPlot();
-            harmonicPlot.setDoLegend(false);
-            harmonicSingleAvg.addDataSink(harmonicPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
-            simG.add(harmonicPlot);
+//            DisplayPlot harmonicPlot = new DisplayPlot();
+//            harmonicPlot.setDoLegend(false);
+//            harmonicSingleAvg.addDataSink(harmonicPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
+//            simG.add(harmonicPlot);
 
+            simG.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
             simG.makeAndDisplayFrame();
         } else {
             //not graphic, so run simulation batch
             //S data is written to file
-            int nSteps = 100000;
-            sim.activityIntegrate.setMaxSteps(nSteps);
+            sim.activityIntegrate.setMaxSteps(steps);
 
-            IntervalActionAdapter fooAdapter = new IntervalActionAdapter(meterNormalMode);
-            fooAdapter.setActionInterval(2);
-            sim.integrator.addListener(fooAdapter);
             sim.getController().actionPerformed();
-            
-            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
-            normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
-            
-            
-            try {
-                FileWriter fileWriterS = new FileWriter(filename+"_redo.S");
-                for (int i=0; i<sim.normalModes.getWaveVectorFactory().getWaveVectors().length; i++) {
-                    DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
-                    for (int k=0; k<normalDim; k++) {
-                        fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
-                        for (int l=1; l<normalDim; l++) {
-                            fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
-                        }
-                        fileWriterS.write("\n");
-                    }
-                }
-                fileWriterS.close();
-            }
-            catch (IOException e) {
-                throw new RuntimeException("Oops, failed to write data "+e);
-            }
-
             
             DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
             double pNotOverlap = ((DataDouble)boltzmannData.getData(StatType.AVERAGE.index)).x;
