@@ -74,7 +74,9 @@ public class SimTarget extends Simulation {
 
         if (space.D() == 1) {
             lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
-            if (numAtoms < 4) {
+            if (numAtoms < 4 || density <= 0.5) {
+                // use P1HardPeriodic at low density.  The atoms can group together and
+                // then the atoms on the edges of the group can be >box/2 away and approaching 
                 ((IntegratorHard)integrator).setNullPotential(new P1HardPeriodic(space));
             }
         }
