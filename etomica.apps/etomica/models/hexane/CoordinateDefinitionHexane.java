@@ -35,18 +35,18 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         deltaV = new Vector3D();
     }
 
-    public void calcU(IAtom[] molecule, double[] u) {
+    public void calcU(IAtom molecule) {
         // handle center-of-mass part
-        super.calcU(molecule, u);
+        super.calcU(molecule);
 
         // Now we play with the molecule we are measuring.
 
         // Long rotational axis of atom 1
-        IVector leafPos1 = ((AtomLeaf) ((IAtomGroup) molecule[0])
+        IVector leafPos1 = ((AtomLeaf) ((IAtomGroup) molecule)
                 .getChildList().get(0)).getPosition();
-        IVector leafPos2 = ((AtomLeaf) ((IAtomGroup) molecule[0])
+        IVector leafPos2 = ((AtomLeaf) ((IAtomGroup) molecule)
                 .getChildList().get(1)).getPosition();
-        IVector leafPos3 = ((AtomLeaf) ((IAtomGroup) molecule[0])
+        IVector leafPos3 = ((AtomLeaf) ((IAtomGroup) molecule)
                 .getChildList().get(2)).getPosition();
         axis0prime.Ev1Mv2(leafPos3, leafPos1);
         // axis0Prime goes from the 1st atom on the molecule to the 3rd atom on
@@ -156,7 +156,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
     }
 
-    public void initNominalU(IAtom[] molecule) {
+    public void initNominalU(IAtom molecule) {
         // handle center-of-mass part
         super.initNominalU(molecule);
         // assume they're all oriented the same way.
@@ -168,11 +168,11 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             // Set up all the axes based on the molecule atom0, the reference
             // molecule
             // Long rotational axis of atom 0
-            IVector leafPos1 = ((AtomLeaf) ((IAtomGroup) molecule[0])
+            IVector leafPos1 = ((AtomLeaf) ((IAtomGroup) molecule)
                     .getChildList().get(0)).getPosition();
-            IVector leafPos2 = ((AtomLeaf) ((IAtomGroup) molecule[0])
+            IVector leafPos2 = ((AtomLeaf) ((IAtomGroup) molecule)
                     .getChildList().get(1)).getPosition();
-            IVector leafPos3 = ((AtomLeaf) ((IAtomGroup) molecule[0])
+            IVector leafPos3 = ((AtomLeaf) ((IAtomGroup) molecule)
                     .getChildList().get(2)).getPosition();
             // axes[0] should point from the 0th atom on the molecule to the 2nd
             // atom on the molecule

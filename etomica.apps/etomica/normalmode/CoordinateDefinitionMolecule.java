@@ -26,9 +26,9 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
 
     }
 
-    public void calcU(IAtom[] molecule, double[] u) {
-        IVector pos = molecule[0].getType().getPositionDefinition().position(molecule[0]);
-        IVector site = getLatticePosition(molecule[0]);
+    public void calcU(IAtom molecule) {
+        IVector pos = molecule.getType().getPositionDefinition().position(molecule);
+        IVector site = getLatticePosition(molecule);
         work1.Ev1Mv2(pos, site);
         for (int i = 0; i < pos.getD(); i++) {
             u[i] = work1.x(i);
@@ -38,7 +38,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     /**
      * Override if nominal U is more than the lattice position of the molecule
      */
-    public void initNominalU(IAtom[] molecule) {
+    public void initNominalU(IAtom molecule) {
     }
 
     public void setToU(IAtom[] molecule, double[] u) {

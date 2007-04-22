@@ -40,17 +40,12 @@ public abstract class CoordinateDefinition {
 
     /**
      * Calculates the generalized coordinates for the given molecules in their
-     * current position and orientation.
+     * current position and orientation.  The result is stored in the |u| field.
      * 
-     * @param molecules
-     *            The molecules of interest, which should be those forming a unit cell of the lattice
-     * @param index
-     *            The index for the molecule as specified via initNominalU
-     * @param u
-     *            Upon return, the atom's generalized coordinates. |u| must be
-     *            of length getCoordinateDim()
+     * @param molecule
+     *            The molecule of interest, which should be those forming a unit cell of the lattice
      */
-    public abstract void calcU(IAtom[] molecules, double[] u);
+    protected abstract void calcU(IAtom molecule);
 
     /**
      * Initializes the CoordinateDefinition for the given molecule and
@@ -59,7 +54,7 @@ public abstract class CoordinateDefinition {
      * the generalized coordinates for the molecule will be defined with respect
      * to this nominal case.
      */
-    public abstract void initNominalU(IAtom[] molecules);
+    protected abstract void initNominalU(IAtom molecule);
 
     /**
      * Set the molecule to a position and orientation that corresponds to the
@@ -93,12 +88,11 @@ public abstract class CoordinateDefinition {
             imaginaryT[i] = 0;
         }
         iterator.reset();
-        int index = 0;
         // sum T over atoms
         while (iterator.hasNext()) {
-            atom[0] = iterator.nextAtom();
-            calcU(atom, u);
-            IVector latticePosition = (IVector)siteManager.getAgent(atom[0]);
+            IAtom atom = iterator.nextAtom();
+            calcU(atom);
+            IVector latticePosition = (IVector)siteManager.getAgent(atom);
             double kR = k.dot(latticePosition);
             double coskR = Math.cos(kR);
             double sinkR = Math.sin(kR);
@@ -106,7 +100,6 @@ public abstract class CoordinateDefinition {
                 realT[i] += coskR * u[i];
                 imaginaryT[i] += sinkR * u[i];
             }
-            index++;
         }
 
         for (int i = 0; i < coordinateDim; i++) {
@@ -127,11 +120,9 @@ public abstract class CoordinateDefinition {
         sqrtN = Math.sqrt(N);
 
         iterator.setPhase(phase);
-        setNumAtoms(iterator.size());
         iterator.reset();
         while (iterator.hasNext()) {
-            atom[0] = iterator.nextAtom();
-            initNominalU(atom);
+            initNominalU(iterator.nextAtom());
         }
 
     }
@@ -140,24 +131,17 @@ public abstract class CoordinateDefinition {
         return (IVector)siteManager.getAgent(atom);
     }
 
-    /**
-     * Notifies the coord definition how many molecules will be tracked. The |index|
-     * parameter in other methods must not exceed |numAtoms-1|.
-     */
-    public abstract void setNumAtoms(int numAtoms);
     protected final int coordinateDim;
-    protected double[][] nominalU;
-    private final double[] u;
+    protected final double[] u;
     protected Phase phase;
     private int N;
     private double sqrtN;
     private final AtomIteratorAllMolecules iterator;
     private AtomAgentManager siteManager;
-    private final IAtom[] atom = new IAtom[1];
     
-    private static class SiteSource implements AgentSource {
+    protected static class SiteSource implements AgentSource {
         
-        private SiteSource(Space space) {
+        protected SiteSource(Space space) {
             this.space = space;
         }
         public Class getAgentClass() {

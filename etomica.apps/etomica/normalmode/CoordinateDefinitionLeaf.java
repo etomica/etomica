@@ -28,14 +28,14 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     /**
      * Assigns the given array u to be the current position of the atom minus its lattice position
      */
-    public void calcU(IAtom[] atom, double[] u) {
-        IVector pos = ((AtomLeaf) atom[0]).getPosition();
-        IVector site = getLatticePosition(atom[0]);
+    public void calcU(IAtom atom) {
+        IVector pos = ((AtomLeaf) atom).getPosition();
+        IVector site = getLatticePosition(atom);
         workVector.Ev1Mv2(pos, site);
         workVector.assignTo(u);
     }
 
-    public void initNominalU(IAtom[] atom) {
+    public void initNominalU(IAtom atom) {
         //nothing to do -- lattice site is all information needed for u
     }
 
@@ -46,10 +46,6 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         workVector.E(u);
         IVector site = getLatticePosition(atom[0]);
         ((AtomLeaf) atom[0]).getPosition().Ev1Pv2(site, workVector);
-    }
-
-    public void setNumAtoms(int numAtoms) {
-        nominalU = new double[numAtoms][getCoordinateDim()];
     }
 
     private final IVector workVector;
