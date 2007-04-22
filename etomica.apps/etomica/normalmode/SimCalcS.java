@@ -183,7 +183,9 @@ public class SimCalcS extends Simulation {
                     fileWriterK.write(" " + waveVectors[k].x(j));
                 }
                 fileWriterK.write("\n");
-                System.out.println(NormalModes1DHR.S1DHR(k + 1, nA / density, nA));
+                if (D == 1) {
+                    System.out.println(NormalModes1DHR.S1DHR(k + 1, nA / density, nA));
+                }
 
                 // write the (coordDim x coordDim) S array for the current
                 // wavevector
