@@ -35,8 +35,9 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         deltaV = new Vector3D();
     }
 
-    public void calcU(IAtom molecule) {
+    public double[] calcU(IAtom molecule) {
         // handle center-of-mass part
+        // super.calcU fills in the first 3 elements of |u|
         super.calcU(molecule);
 
         // Now we play with the molecule we are measuring.
@@ -127,14 +128,14 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             // dot might be >1 due to roundoff, which will make acos blow up
             // also, XE would also return nonsense
             u[5] = 0;
-            return;
+            return u;
         }
         if (dot < -0.99999) {
             // same for -1. This would be really bad as the harmonic potential
             // won't know what to do with this
             // System.out.println("uh-oh, hexane rotated 180");
             u[5] = Math.PI;
-            return;
+            return u;
         }
 
         u[5] = Math.acos(dot);
@@ -153,7 +154,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             // do the same thing in setToU
             u[5] = -u[5];
         }
-
+        return u;
     }
 
     public void initNominalU(IAtom molecule) {

@@ -23,16 +23,18 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     public CoordinateDefinitionLeaf(Space space) {
         super(space.D());
         workVector = space.makeVector();
+        u = new double[space.D()];
     }
 
     /**
      * Assigns the given array u to be the current position of the atom minus its lattice position
      */
-    public void calcU(IAtom atom) {
+    public double[] calcU(IAtom atom) {
         IVector pos = ((AtomLeaf) atom).getPosition();
         IVector site = getLatticePosition(atom);
         workVector.Ev1Mv2(pos, site);
         workVector.assignTo(u);
+        return u;
     }
 
     public void initNominalU(IAtom atom) {
@@ -42,12 +44,13 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     /**
      * Sets the position of the atom to be its lattice position plus the offset u
      */
-    public void setToU(IAtom atom, double[] u) {
-        workVector.E(u);
+    public void setToU(IAtom atom, double[] newU) {
+        workVector.E(newU);
         IVector site = getLatticePosition(atom);
         ((AtomLeaf) atom).getPosition().Ev1Pv2(site, workVector);
     }
 
-    private final IVector workVector;
+    protected final IVector workVector;
+    protected final double[] u;
     private static final long serialVersionUID = 1L;
 }

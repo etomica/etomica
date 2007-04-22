@@ -23,16 +23,17 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         this.space = space;
         work1 = space.makeVector();
         atomActionTranslateTo = new AtomActionTranslateTo(space);
-
+        u = new double[coordinateDim];
     }
 
-    public void calcU(IAtom molecule) {
+    public double[] calcU(IAtom molecule) {
         IVector pos = molecule.getType().getPositionDefinition().position(molecule);
         IVector site = getLatticePosition(molecule);
         work1.Ev1Mv2(pos, site);
         for (int i = 0; i < pos.getD(); i++) {
             u[i] = work1.x(i);
         }
+        return u;
     }
 
     /**
@@ -41,10 +42,10 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     public void initNominalU(IAtom molecule) {
     }
 
-    public void setToU(IAtom molecule, double[] u) {
+    public void setToU(IAtom molecule, double[] newU) {
         IVector site = getLatticePosition(molecule);
         for (int i = 0; i < space.D(); i++) {
-            work1.setX(i, site.x(i) + u[i]);
+            work1.setX(i, site.x(i) + newU[i]);
         }
         atomActionTranslateTo.setDestination(work1);
         atomActionTranslateTo.actionPerformed(molecule);
@@ -53,5 +54,6 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     private static final long serialVersionUID = 1L;
     protected final Space space;
     protected final IVector work1;
+    protected final double[] u;
     protected final AtomActionTranslateTo atomActionTranslateTo;
 }

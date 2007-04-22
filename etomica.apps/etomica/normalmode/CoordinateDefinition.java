@@ -25,7 +25,6 @@ public abstract class CoordinateDefinition {
 
     public CoordinateDefinition(int coordinateDim) {
         this.coordinateDim = coordinateDim;
-        u = new double[coordinateDim];
         iterator = new AtomIteratorAllMolecules();
     }
 
@@ -45,7 +44,7 @@ public abstract class CoordinateDefinition {
      * @param molecule
      *            The molecule of interest, which should be those forming a unit cell of the lattice
      */
-    protected abstract void calcU(IAtom molecule);
+    protected abstract double[] calcU(IAtom molecule);
 
     /**
      * Initializes the CoordinateDefinition for the given molecule and
@@ -62,11 +61,11 @@ public abstract class CoordinateDefinition {
      * 
      * @param molecule
      *            The molecule of interest
-     * @param u
+     * @param newU
      *            The generalized coordinate that defines the position and
      *            orientation to which the molecule will be set by this method.
      */
-    public abstract void setToU(IAtom molecule, double[] u);
+    public abstract void setToU(IAtom molecule, double[] newU);
 
     /**
      * Calculates the complex "T vector", which is collective coordinate given
@@ -87,9 +86,9 @@ public abstract class CoordinateDefinition {
         }
         iterator.reset();
         // sum T over atoms
-        while (iterator.hasNext()) {
-            IAtom atom = iterator.nextAtom();
-            calcU(atom);
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
+            double[] u = calcU(atom);
             IVector latticePosition = (IVector)siteManager.getAgent(atom);
             double kR = k.dot(latticePosition);
             double coskR = Math.cos(kR);
@@ -114,13 +113,14 @@ public abstract class CoordinateDefinition {
     public void setPhase(Phase phase) {
         this.phase = phase;
         siteManager = new AtomAgentManager(new SiteSource(phase.getSpace()), phase);
-        N = phase.getSpeciesMaster().moleculeCount();
+        int N = phase.getSpeciesMaster().moleculeCount();
         sqrtN = Math.sqrt(N);
 
         iterator.setPhase(phase);
         iterator.reset();
-        while (iterator.hasNext()) {
-            initNominalU(iterator.nextAtom());
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
+            initNominalU(atom);
         }
 
     }
@@ -130,9 +130,7 @@ public abstract class CoordinateDefinition {
     }
 
     protected final int coordinateDim;
-    protected final double[] u;
     protected Phase phase;
-    private int N;
     private double sqrtN;
     private final AtomIteratorAllMolecules iterator;
     private AtomAgentManager siteManager;
