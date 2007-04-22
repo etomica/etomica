@@ -36,7 +36,7 @@ public class AtomPair implements AtomSet, java.io.Serializable {
     }
     
     public String toString() {
-        return "["+atom0.toString()+","+atom1.toString()+"]";
+        return "["+atom0+","+atom1+"]";
     }
 
     private static final long serialVersionUID = 1L;
