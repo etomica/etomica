@@ -53,6 +53,5 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     private static final long serialVersionUID = 1L;
     protected final Space space;
     protected final IVector work1;
-    protected double[][] nominalU;
     protected final AtomActionTranslateTo atomActionTranslateTo;
 }
