@@ -116,7 +116,7 @@ public abstract class Atom implements IAtom, java.io.Serializable {
      * This method should only be called by the parent.
      */
     public void setParent(IAtomGroup newParent) {
-        if (Debug.ON && ((newParent == null) != (parent == null))) {
+        if (Debug.ON && ((newParent == null) == (parent == null))) {
             // newParent must be null (removal) if current parent is not null
             // new Parent must not be null if current parent null
             throw new IllegalArgumentException(newParent+" is not my parent");
