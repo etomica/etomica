@@ -19,14 +19,18 @@ public interface IAtomGroup extends IAtom {
     public void removeChildAtom(IAtom oldChildAtom);
 
     /**
-     * Notifies this atom group that an atom has been added to it 
-     * or one of its descendants.
+     * Notifies this atom group that the given child IAtom has been added to it
+     * or one of its descendants.  This method should be called by addChildAtom
+     * or by this IAtomGroup's child if the child is an IAtomGroup and has a
+     * child added to it.
      */
     public void addAtomNotify(IAtom childAtom);
 
     /**
-     * Notifies this atom group that an atom has been removed from it or 
-     * one of its descendants.
+     * Notifies this atom group that the given child IAtom has been removed
+     * from it or one of its descendants.  This method should be called by
+     * removeChildAtom or by this IAtomGroup's child if the child is an
+     * IAtomGroup and has a child removed from it.
      */
     public void removeAtomNotify(IAtom childAtom);
 
