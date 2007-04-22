@@ -62,13 +62,11 @@ public abstract class CoordinateDefinition {
      * 
      * @param molecule
      *            The molecule of interest
-     * @param index
-     *            The index for the molecule as specified via initNominalU
      * @param u
      *            The generalized coordinate that defines the position and
      *            orientation to which the molecule will be set by this method.
      */
-    public abstract void setToU(IAtom[] molecules, double[] u);
+    public abstract void setToU(IAtom molecule, double[] u);
 
     /**
      * Calculates the complex "T vector", which is collective coordinate given

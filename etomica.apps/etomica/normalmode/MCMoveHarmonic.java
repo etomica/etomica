@@ -94,13 +94,13 @@ public class MCMoveHarmonic extends MCMovePhase {
             }
         }
         while (iterator.hasNext()) {
-            atom[0] = iterator.nextAtom();
+            IAtom atom = iterator.nextAtom();
             for (int i=0; i<coordinateDim; i++) {
                 u[i] = 0;
             }
             //loop over wavevectors and sum contribution of each to the generalized coordinates
             for (int iVector=0; iVector<waveVectors.length; iVector++) {
-                double kR = waveVectors[iVector].dot(coordinateDefinition.getLatticePosition(atom[0]));//getLatticePositions()[atomCount]);
+                double kR = waveVectors[iVector].dot(coordinateDefinition.getLatticePosition(atom));//getLatticePositions()[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 
@@ -147,7 +147,6 @@ public class MCMoveHarmonic extends MCMovePhase {
     private double[][][] eigenVectors;
     private IVector[] waveVectors;
     private double[] waveVectorCoefficients;
-    private final IAtom[] atom = new IAtom[1];
     protected double[] u;
     protected double[][] rRand;
     protected double[][] iRand;

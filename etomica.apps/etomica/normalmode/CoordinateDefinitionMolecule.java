@@ -41,13 +41,13 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     public void initNominalU(IAtom molecule) {
     }
 
-    public void setToU(IAtom[] molecule, double[] u) {
-        IVector site = getLatticePosition(molecule[0]);
+    public void setToU(IAtom molecule, double[] u) {
+        IVector site = getLatticePosition(molecule);
         for (int i = 0; i < space.D(); i++) {
             work1.setX(i, site.x(i) + u[i]);
         }
         atomActionTranslateTo.setDestination(work1);
-        atomActionTranslateTo.actionPerformed(molecule[0]);
+        atomActionTranslateTo.actionPerformed(molecule);
     }
 
     public void setNumAtoms(int numAtoms) {

@@ -42,10 +42,10 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     /**
      * Sets the position of the atom to be its lattice position plus the offset u
      */
-    public void setToU(IAtom[] atom, double[] u) {
+    public void setToU(IAtom atom, double[] u) {
         workVector.E(u);
-        IVector site = getLatticePosition(atom[0]);
-        ((AtomLeaf) atom[0]).getPosition().Ev1Pv2(site, workVector);
+        IVector site = getLatticePosition(atom);
+        ((AtomLeaf) atom).getPosition().Ev1Pv2(site, workVector);
     }
 
     private final IVector workVector;

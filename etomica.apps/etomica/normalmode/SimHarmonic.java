@@ -108,7 +108,7 @@ public class SimHarmonic extends Simulation {
         int nA = 108;
         double density = 1.04;
         if (D == 1) {
-            nA = 3;
+            nA = 10;
             density = 0.5;
         }
         boolean graphic = true;

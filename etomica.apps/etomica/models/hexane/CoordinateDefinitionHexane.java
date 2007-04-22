@@ -195,7 +195,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         }
     }
 
-    public void setToU(IAtom[] atom, double[] u) {
+    public void setToU(IAtom atom, double[] u) {
         super.setToU(atom, u);
         throw new RuntimeException("Don't yet know how to set orientation");
     }
