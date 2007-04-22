@@ -79,13 +79,13 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
     }
     
     public void setEigenvalues(double[][] eigenvalues) {
-        omegaSquared = (double[][])eigenvalues.clone();
+        omegaSquared = new double[eigenvalues.length][eigenvalues[0].length];
         for (int i=0; i<omegaSquared.length; i++) {
             for (int j=0; j<omegaSquared[i].length; j++) {
                 // omega is sqrt(kT)/eigenvalue
-                omegaSquared[i][j] = 1.0/omegaSquared[i][j];
+                omegaSquared[i][j] = 1.0/eigenvalues[i][j];
             }
-        } 
+        }
     }
     
     private static final long serialVersionUID = 1L;
