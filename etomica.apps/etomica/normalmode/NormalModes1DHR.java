@@ -17,7 +17,7 @@ public class NormalModes1DHR implements NormalModes {
         int mMax = nA/2;
         double[][] eVals = new double[mMax][1];
         for(int m=1; m<=mMax; m++) {
-            eVals[m-1][0] = S1DHR(m, L, nA);
+            eVals[m-1][0] = harmonicFudge*S1DHR(m, L, nA);
         }
         return eVals;
     }
@@ -35,10 +35,15 @@ public class NormalModes1DHR implements NormalModes {
         return eVecs;
     }
 
+    public void setHarmonicFudge(double newHarmonicFudge) {
+        harmonicFudge = newHarmonicFudge;
+    }
+
     public WaveVectorFactory getWaveVectorFactory() {
         return waveVectorFactory;
     }
     
+    protected double harmonicFudge;
     private final WaveVectorFactory1D waveVectorFactory = new WaveVectorFactory1D();
 
     /**

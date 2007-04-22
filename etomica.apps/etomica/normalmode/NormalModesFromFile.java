@@ -22,10 +22,20 @@ public class NormalModesFromFile implements NormalModes {
         eigenvalues = ArrayReader1D.getFromFile(filename + ".val");
         eigenvectors = ArrayReader2D.getFromFile(filename + ".vec");
         waveVectorFactory = new WaveVectorFactoryFromFile(filename, D);
+        harmonicFudge = 1;
     }
 
     public double[][] getEigenvalues(Phase phase) {
-        return eigenvalues;
+        if (harmonicFudge == 1){ 
+            return eigenvalues;
+        }
+        double[][] fudgedEigenvalues = new double[eigenvalues.length][eigenvalues[0].length];
+        for (int i=0; i<fudgedEigenvalues.length; i++) {
+            for (int j=0; j<fudgedEigenvalues[i].length; j++) {
+                fudgedEigenvalues[i][j] = eigenvalues[i][j]*harmonicFudge;
+            }
+        }
+        return fudgedEigenvalues;
     }
 
     public double[][][] getEigenvectors(Phase phase) {
@@ -35,9 +45,13 @@ public class NormalModesFromFile implements NormalModes {
     public WaveVectorFactory getWaveVectorFactory() {
         return waveVectorFactory;
     }
+    
+    public void setHarmonicFudge(double newHarmonicFudge) {
+        harmonicFudge = newHarmonicFudge;
+    }
 
     double[][] eigenvalues;
     double[][][] eigenvectors;
     WaveVectorFactory waveVectorFactory;
-
+    double harmonicFudge;
 }

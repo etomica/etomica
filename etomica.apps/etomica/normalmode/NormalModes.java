@@ -31,4 +31,11 @@ public interface NormalModes {
      * coordinateDim. 
      */
     public double[][][] getEigenvectors(Phase phase);
+    
+    /**
+     * Set the fudge factor applied to eigenvalues.  The eigenvalues returned
+     * by getEigenvalues will be the actual values multiplied by the given
+     * fudge factor.
+     */
+    public void setHarmonicFudge(double newHarmonicFudge);
 }
