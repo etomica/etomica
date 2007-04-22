@@ -50,10 +50,6 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
         atomActionTranslateTo.actionPerformed(molecule);
     }
 
-    public void setNumAtoms(int numAtoms) {
-        nominalU = new double[numAtoms][getCoordinateDim()];
-    }
-
     private static final long serialVersionUID = 1L;
     protected final Space space;
     protected final IVector work1;
