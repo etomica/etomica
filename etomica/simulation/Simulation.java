@@ -56,11 +56,12 @@ public class Simulation implements java.io.Serializable  {
         potentialMaster.setSimulation(this);
     }
 
-    public final int addPhase(Phase newPhase) {
+    public final void addPhase(Phase newPhase) {
         phaseList = (Phase[])Arrays.addObject(phaseList, newPhase);
+        newPhase.resetIndex();
         speciesManager.phaseAddedNotify(newPhase);
         eventManager.fireEvent(new SimulationPhaseAddedEvent(newPhase));
-        return phaseList.length-1;
+        return;
     }
     
     public final void removePhase(Phase oldPhase) {

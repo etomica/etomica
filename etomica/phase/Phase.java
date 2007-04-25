@@ -63,13 +63,13 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * Constructs phase with default rectangular periodic boundary.
      */
     public Phase(Simulation sim) {
+        this.sim = sim;
         space = sim.getSpace();
         eventManager = new PhaseEventManager();
         speciesMaster = new SpeciesMaster(this, eventManager);
         setBoundary(new BoundaryRectangularPeriodic(sim));
-        index = sim.addPhase(this);
+        sim.addPhase(this);
         setName(null);
-        this.sim = sim;
         
         inflateEvent = new PhaseInflateEvent(this);
     }
