@@ -230,7 +230,6 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
     protected int iterationDepth = Integer.MAX_VALUE;
     protected IAtom next;
     protected boolean doAllNodes = false;
-    protected boolean wealreadyknowyourestupid = false;
     protected final AtomsetCount counter;
         
 }//end of AtomIteratorTree
