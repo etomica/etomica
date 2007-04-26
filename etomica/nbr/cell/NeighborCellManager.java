@@ -45,7 +45,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     protected final Phase phase;
     protected int cellRange = 2;
     protected double range;
-    protected final AtomAgentManagerCell agentManager;
+    protected final AtomAgentManager agentManager;
     
     /**
      * Constructs manager for neighbor cells in the given phase.  The number of
@@ -76,7 +76,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
 
         //force lattice to be sized so the Cells will exist
         checkDimensions();
-        agentManager = new AtomAgentManagerCell(this,phase);
+        agentManager = new AtomAgentManager(this,phase);
     }
 
     public CellLattice getLattice() {
@@ -155,14 +155,10 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             ((Cell)allCells[i]).occupants().clear();
         }
         
-        Cell[] cells = agentManager.getAgents();
-        for (int i=0; i<cells.length; i++) {
-            cells[i] = null;
-        }
-        
         atomIterator.reset();
         for (IAtom atom = atomIterator.nextAtom(); atom != null;
              atom = atomIterator.nextAtom()) {
+            agentManager.setAgent(atom, null);
             if (atom.getType().isInteracting()) {
                 assignCell(atom);
             }
@@ -174,10 +170,10 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     }
     
     protected void removeFromCell(IAtom atom) {
-        Cell[] cells = agentManager.getAgents();
-        if (cells[atom.getGlobalIndex()] != null) {
-            cells[atom.getGlobalIndex()].removeAtom(atom);
-            cells[atom.getGlobalIndex()] = null;
+        Cell cell = (Cell)agentManager.getAgent(atom);
+        if (cell != null) {
+            cell.removeAtom(atom);
+            agentManager.setAgent(atom, null);
         }
     }
     
@@ -191,8 +187,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
                     atom.getType().getPositionDefinition().position(atom);
         Cell atomCell = (Cell)lattice.site(position);
         atomCell.addAtom(atom);
-        Cell[] cells = agentManager.getAgents();
-        cells[atom.getGlobalIndex()] = atomCell;
+        agentManager.setAgent(atom, atomCell);
     }
     
     public MCMoveListener makeMCMoveListener() {
@@ -284,25 +279,5 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         private final AtomGroupAction moleculeTranslator;
         private final Phase phase;
         private final NeighborCellManager neighborCellManager;
-    }
-    
-    /**
-     * Inner class to let us cheat and access and modify elements of the agents array.
-     */
-    protected static class AtomAgentManagerCell extends AtomAgentManager {
-
-        public AtomAgentManagerCell(NeighborCellManager neighborCellManager, Phase phase) {
-            super(neighborCellManager, phase, true);
-        }
-
-        /**
-         * Returns the array of Cells for the Phase, indexed by the Atom's
-         * global index.
-         */
-        protected Cell[] getAgents() {
-            return (Cell[])agents;
-        }
-
-        private static final long serialVersionUID = 1L;
     }
 }
