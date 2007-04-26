@@ -86,6 +86,14 @@ public class PrimitiveMonoclinic extends Primitive {
         return angle[1];
     }
 
+    public double getAngleAlpha() {
+        return angle[0];
+    }
+
+    public double getAngleGamma() {
+        return angle[2];
+    }
+
     /**
      * Returns a new, identical instance of this primitive.
      */

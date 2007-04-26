@@ -83,9 +83,7 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
                     break;
                 }
             }
-            if(readMethod[j] == null || writeMethod[j] == null) {  //should define an exception for this
-                throw new RuntimeException("Error in modifier construction");
-            }
+
             if(j == 0) {//discover dimension of modified property by looking at getDimension method of first object
                 dimension = Dimension.introspect(object[0],property,bi);
             }
@@ -100,6 +98,9 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
             }
             catch(InvocationTargetException ex) {
                 throw new RuntimeException(ex.getTargetException());
+            }
+            catch (NullPointerException ex) {
+            	throw(ex);
             }
             catch(IllegalAccessException ex) {
                 throw new RuntimeException(ex);
@@ -116,6 +117,9 @@ public class ModifierGeneral implements Modifier, java.io.Serializable {
         catch(InvocationTargetException ex) {
             System.err.println("InvocationTargetException in getValue");
             ex.getTargetException().printStackTrace();
+        }
+        catch (NullPointerException ex) {
+        	throw(ex);
         }
         catch(IllegalAccessException ex) {
             throw new RuntimeException(ex);

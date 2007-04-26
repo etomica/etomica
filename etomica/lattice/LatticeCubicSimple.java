@@ -24,18 +24,18 @@ public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
 	public LatticeCubicSimple(int D, double latticeConstant) {
 		super(new PrimitiveCubic(Space.getInstance(D)));
         this.primitive = (PrimitiveCubic)getPrimitive();
-        primitive.setCubicSize(latticeConstant);
+        primitive.setSizeABC(latticeConstant);
 	}
 
     /**
      * The lattice constant is the size of the cubic primitive vectors.
      */
     public void setLatticeConstant(double latticeConstant) {
-        primitive.setCubicSize(latticeConstant);
+        primitive.setSizeABC(latticeConstant);
     }
     
     public double getLatticeConstant() {
-        return primitive.getCubicSize();
+        return primitive.getSizeABC();
     }
     
     /**

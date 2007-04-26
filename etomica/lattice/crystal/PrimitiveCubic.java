@@ -13,7 +13,7 @@ import etomica.space.Space;
 public class PrimitiveCubic extends Primitive {
     
     private static final long serialVersionUID = 1L;
-    private double cubicSize;
+    private double aBC;
     
     public PrimitiveCubic(Space space) {
         this(space, 1.0);
@@ -25,7 +25,7 @@ public class PrimitiveCubic extends Primitive {
     protected PrimitiveCubic(Space space, double latticeConstant, boolean makeReciprocal) {
         super(space, makeReciprocal); //also makes reciprocal
         //set up orthogonal vectors of unit size
-        setCubicSize(latticeConstant); //also sets reciprocal via update
+        setSizeABC(latticeConstant); //also sets reciprocal via update
         double[] newAngles = new double[D];
         for (int i=0; i<D; i++) {
             newAngles[i] = rightAngle;
@@ -40,21 +40,21 @@ public class PrimitiveCubic extends Primitive {
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveCubic)reciprocal).setCubicSize(2.0*Math.PI/size[0]);
+        ((PrimitiveCubic)reciprocal).setSizeABC(2.0*Math.PI/size[0]);
     }
     
     /**
      * Returns a new PrimitiveCubic with the same size as this one.
      */
     public Primitive copy() {
-        return new PrimitiveCubic(space, cubicSize);
+        return new PrimitiveCubic(space, aBC);
     }
     
     /**
      * Sets the length of all primitive vectors to the given value.
      */
-    public void setCubicSize(double newCubicSize) {
-        if (newCubicSize == cubicSize) {
+    public void setSizeABC(double newCubicSize) {
+        if (newCubicSize == aBC) {
             // no change
             return;
         }
@@ -63,7 +63,7 @@ public class PrimitiveCubic extends Primitive {
             sizeArray[i] = newCubicSize;
         }
         setSize(sizeArray);
-        cubicSize = newCubicSize;
+        aBC = newCubicSize;
     }
     
     protected void update() {
@@ -74,15 +74,15 @@ public class PrimitiveCubic extends Primitive {
     /**
      * Returns the common length of all primitive vectors.
      */
-    public double getCubicSize() {return cubicSize;}
+    public double getSizeABC() {return aBC;}
     
     public void scaleSize(double scale) {
-        setCubicSize(scale*cubicSize);
+        setSizeABC(scale*aBC);
     }
 
     public int[] latticeIndex(IVector q) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/cubicSize;
+            double x = q.x(i)/aBC;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
         }
         return idx;
@@ -90,7 +90,7 @@ public class PrimitiveCubic extends Primitive {
     
     public int[] latticeIndex(IVector q, int[] dimensions) {
         for(int i=0; i<D; i++) {
-            double x = q.x(i)/cubicSize;
+            double x = q.x(i)/aBC;
             idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
             while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
             while(idx[i] < 0)              idx[i] += dimensions[i];
@@ -103,7 +103,7 @@ public class PrimitiveCubic extends Primitive {
      * given by the size of the primitive vectors.
      */
     public Polytope wignerSeitzCell() {
-        return (D == 2) ? (Polytope)new Square(space,cubicSize) :  (Polytope)new Cube(space,cubicSize);
+        return (D == 2) ? (Polytope)new Square(space,aBC) :  (Polytope)new Cube(space,aBC);
     }
     
     /**
@@ -111,7 +111,7 @@ public class PrimitiveCubic extends Primitive {
      * given by the size of the primitive vectors.
      */
     public Polytope unitCell() {
-        return (D == 2) ? (Polytope)new Square(space,cubicSize) :  (Polytope)new Cube(space,cubicSize);
+        return (D == 2) ? (Polytope)new Square(space,aBC) :  (Polytope)new Cube(space,aBC);
     }
     
     public String toString() {return "Cubic";}

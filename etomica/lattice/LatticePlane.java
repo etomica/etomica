@@ -45,7 +45,11 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     public boolean accept(IAtom a) {
         return !plane.isPositiveSide((Vector3D)((AtomLeaf)a).getPosition());
     }
-    
+
+    public void setTolerance(double tolerance) {
+    	plane.epsilon = tolerance;
+    }
+
     public void setPrimitive(Primitive primitive) {
         this.primitive = primitive;
         reciprocal = primitive.reciprocal();
@@ -61,7 +65,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
      */
     public void setMillerIndices(int[] h) {
         if(h.length != space.D()) throw new IllegalArgumentException("Error: number of miller indices passed to LatticePlane.setMillerIndices inconsistent with spatial dimension");
-        int currentPosition = getPosition();
+        double currentPosition = getPosition();
         normal.E(0.0);
         IVector[] b = reciprocal.vectors();
         for(int i=0; i<h.length; i++) {
@@ -110,11 +114,11 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     /**
      * Sets to the position of the i-th plane from the one through the origin.
      */
-    public void setPosition(int i) {
+    public void setPosition(double d) {
         //use normal as a work vector, giving a point contained by the plane
         //in its desired position
         delta.E(origin);
-		delta.PEa1Tv1((i+0.000001)*2.0*Math.PI/normal.squared(),normal);
+		delta.PEa1Tv1((d+0.000001)*2.0*Math.PI/normal.squared(),normal);
 //		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI,normal);
         plane.moveTo(delta);
     }
@@ -122,10 +126,11 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     /**
      * Returns the position i, such the the plane is located at the i-th from the origin.
      */
-    public int getPosition() {
+    public double getPosition() {
         double d = plane.distanceTo(origin);
-        return -Math.round((float)(d/(2.0*Math.PI)*Math.sqrt(normal.squared())));
-    }
+//        return -Math.round((float)(d/(2.0*Math.PI)*Math.sqrt(normal.squared())));
+      return -((float)(d/(2.0*Math.PI)*Math.sqrt(normal.squared())));
+      }
 
     /**
      * Returns true if the given point is on the side of the 

@@ -1,6 +1,5 @@
 package etomica.modules.crystalviewer;
 import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,10 +11,13 @@ import java.util.HashMap;
 
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DeviceBox;
+import etomica.graphics.DeviceBoxValueChangedEvent;
+import etomica.graphics.DeviceBoxValueChangedListener;
 import etomica.graphics.DeviceSlider;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -28,6 +30,7 @@ import etomica.species.Species;
 import etomica.units.Degree;
 import etomica.units.Quantity;
 import etomica.util.Arrays;
+import etomica.graphics.DeviceBoxValueChangedListener;
 
 /**
  * Class that produces a panel with controls that permit editing of
@@ -44,7 +47,16 @@ public class LatticeEditor {
     public JPanel boxPanel;
     protected CrystalViewer viewer;
     protected final HashMap latticeNameHash;
-    
+    protected PrimitiveVectorBox pvBox;
+	private final String[] fieldTitles = {"A", "B", "C",
+                                          "Alpha", "Beta", "Gamma" };
+    private final String[] fieldPrefix = {"size", "size", "size",
+                                          "angle", "angle", "angle"};
+    private static final int UNIT_CELL_START_INDEX = 0;
+    private static final int UNIT_CELL_END_INDEX = 2;
+    private static final int ANGLE_START_INDEX = 3;
+    private static final int ANGLE_END_INDEX = 5;
+
     public LatticeEditor(CrystalViewer viewer, BravaisLattice[] lattices, String[] latticeNames) {
     
         this.viewer = viewer;
@@ -75,7 +87,7 @@ public class LatticeEditor {
         selector.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 currentLattice = (BravaisLattice)selector.getSelectedItem();
-                updateBoxes();
+                initBoxes();
                 update();
             }
         });
@@ -88,14 +100,18 @@ public class LatticeEditor {
         nSlider.setMinimum(1);
         nSlider.setMaximum(10);
         nSlider.getSlider().setValue(DEFAULT_SIZE);
-        nSlider.setLabel("Size");
+        nSlider.setBorderAlignment(TitledBorder.CENTER);
+        nSlider.setLabel("Unit Cells Per Side");
         nSlider.setShowBorder(true);
         
         boxPanel = new JPanel(new GridLayout(2,1));
         boxPanel.add(sizePanel);
-        boxPanel.setBorder(new javax.swing.border.TitledBorder("Primitive Vectors"));
+        TitledBorder bp = new TitledBorder("Primitive Vectors");
+        bp.setTitleJustification(TitledBorder.CENTER);
+        boxPanel.setBorder(bp);
        
-        updateBoxes();
+        createBoxes();
+        initBoxes();
         
         int ix = 0; int iy = 0;
         panel = new JPanel(new java.awt.GridBagLayout());
@@ -117,73 +133,128 @@ public class LatticeEditor {
         return currentLattice;
      }
     
-    protected void updateBoxes() {
-        for (int i=0; i<angleBoxes.length; i++) {
-            anglePanel.remove(angleBoxes[i].graphic());
-        }
+    private void createBoxes() {
+
         angleBoxes = new DeviceBox[0];
-        for (int i=0; i<sizeBoxes.length; i++) {
-            sizePanel.remove(sizeBoxes[i].graphic());
-        }
-        if (angleBoxes.length > 0) {
-            boxPanel.remove(anglePanel);
-        }
         sizeBoxes = new DeviceBox[0];
-        
-        Primitive primitive = currentLattice.getPrimitive();
-        Class c = primitive.getClass();
-        //bits of this code are taken from Thinking in Java (1st edition), pages 708-713
-        BeanInfo bi = null;
-        try {
-            bi = Introspector.getBeanInfo(c, java.lang.Object.class);
-        }
-        catch(IntrospectionException ex) {
-            System.out.println("Couldn't introspect " + c.getName());
-            System.exit(1);
-        }
-        PropertyDescriptor[] properties = bi.getPropertyDescriptors();
-        boolean hasAngle = false;
-        for (int i=0; i<properties.length; i++) {
-            String name = properties[i].getName();
-            if (!name.startsWith("size") && !name.startsWith("angle") && !name.equals("cubicSize") || properties[i].getWriteMethod() == null) {
-                // we don't actually want setSize as it wants an array
-                continue;
-            }
-            ModifierGeneral modifier = new ModifierGeneral(primitive, name);
+
+        // Create a primitive vector box instance
+        pvBox = new PrimitiveVectorBox(this.fieldTitles, this.fieldPrefix);
+
+    	// Unit cell size entry fields
+        for(int box = UNIT_CELL_START_INDEX; box <= UNIT_CELL_END_INDEX; box++) {
+
             DeviceBox newBox = new DeviceBox();
-            if (name.startsWith("angle")) {
-                // angle
-                modifier.setLabel(name.substring(5));
-                hasAngle = true;
-                newBox.setUnit(Degree.UNIT);
-                anglePanel.add(newBox.graphic());
-                angleBoxes = (DeviceBox[])Arrays.addObject(angleBoxes, newBox);
-            }
-            else {
-                // might be A, B, C, AB, CubicSize
-                if (name.startsWith("size")) {
-                    modifier.setLabel(name.substring(4));
-                }
-                sizePanel.add(newBox.graphic());
-                sizeBoxes = (DeviceBox[])Arrays.addObject(sizeBoxes, newBox);
-            }
-            newBox.setModifier(modifier);
+
+            sizePanel.add(newBox.graphic());
+            sizeBoxes = (DeviceBox[])Arrays.addObject(sizeBoxes, newBox);
+
             newBox.setPostAction(new Action() {
                 public void actionPerformed() {
                     update();
                 }
             });
         }
-        if (hasAngle) {
-            boxPanel.setLayout(new GridLayout(2,1));
-            boxPanel.add(anglePanel);
-        }
-        else {
-            boxPanel.setLayout(new FlowLayout());
-        }
+
+        // Angle entry fields
+    	for(int angle = ANGLE_START_INDEX; angle <= ANGLE_END_INDEX; angle++) {
+
+    		DeviceBox newBox = new DeviceBox();
+
+            newBox.setUnit(Degree.UNIT);
+            anglePanel.add(newBox.graphic());
+            angleBoxes = (DeviceBox[])Arrays.addObject(angleBoxes, newBox);
+
+            newBox.setPostAction(new Action() {
+                public void actionPerformed() {
+                    update();
+                }
+            });
+    	}
+
+        boxPanel.setLayout(new GridLayout(2,1));
+        boxPanel.add(anglePanel);
+
     }
-    
+
+    private void initBoxes() {
+
+    	// Unregister all value changed events
+        for(int box = UNIT_CELL_START_INDEX; box <= UNIT_CELL_END_INDEX; box++) {
+        	sizeBoxes[box].removeAllValueChangedListeners();
+        }
+
+        pvBox.initialize();
+
+        ModifierGeneral modifier;
+
+        // Unit cell size entry fields
+        for(int box = UNIT_CELL_START_INDEX; box <= UNIT_CELL_END_INDEX; box++) {
+
+            modifier = pvBox.getModifier(this.fieldTitles[box]);
+
+            if (pvBox.hasWrite(this.fieldTitles[box]) == false) {
+            	sizeBoxes[box-UNIT_CELL_START_INDEX].setLabel(fieldTitles[box]);
+            	sizeBoxes[box-UNIT_CELL_START_INDEX].setEditable(false);
+
+                // If there is no modifier for the box, the DeviceBox will
+                // throw a NullPointerException when its modifier is set.
+                // Discard the exception.
+                try {
+                	sizeBoxes[box-UNIT_CELL_START_INDEX].setModifier(modifier);
+                }
+                catch (NullPointerException ex) {}
+
+                sizeBoxes[box-UNIT_CELL_START_INDEX].doUpdate();
+            }
+            else {
+            	sizeBoxes[box-UNIT_CELL_START_INDEX].setEditable(true);
+            	sizeBoxes[box-UNIT_CELL_START_INDEX].setModifier(modifier);
+            }
+        }
+
+        // Angle entry fields
+        for(int abox = ANGLE_START_INDEX; abox <= ANGLE_END_INDEX; abox++) {
+            modifier = pvBox.getModifier(this.fieldTitles[abox]);
+
+            if (pvBox.hasWrite(this.fieldTitles[abox]) == false) {
+                angleBoxes[abox-ANGLE_START_INDEX].setLabel(fieldTitles[abox]);
+                angleBoxes[abox-ANGLE_START_INDEX].setEditable(false);
+
+                // If there is no modifier for the box, the DeviceBox will
+                // throw a NullPointerException when its modifier is set.
+                // Discard the exception.
+                try {
+                    angleBoxes[abox-ANGLE_START_INDEX].setModifier(modifier);
+                }
+                catch (NullPointerException ex) {}
+
+                angleBoxes[abox-ANGLE_START_INDEX].doUpdate();
+            }
+            else {
+        	    angleBoxes[abox-ANGLE_START_INDEX].setEditable(true);
+                angleBoxes[abox-ANGLE_START_INDEX].setModifier(modifier);
+            }
+        }
+
+        registerValueChangedEvents(sizeBoxes);
+    }
+
+    private void registerValueChangedEvents(DeviceBox[] boxes) {
+
+    	int numBoxes = boxes.length;
+
+    	for(int i = 0; i < numBoxes; i++) {
+    		for(int j = 0; j <numBoxes; j++) {
+    			if (i != j) {
+    				boxes[i].addValueChangedListener(boxes[j]);
+    			}
+    		}
+    	}
+    }
+
     protected void update() {
+
         int numAtoms = size*size*size;
         if (currentLattice instanceof BravaisLatticeCrystal) {
             numAtoms *= ((BravaisLatticeCrystal)currentLattice).getBasis().getScaledCoordinates().length;
@@ -199,7 +270,7 @@ public class LatticeEditor {
     }
 
     public JPanel getPanel() {return panel;}
-    
+
     private JPanel panel;
     protected Phase phase;
     protected Species species;
@@ -218,6 +289,155 @@ public class LatticeEditor {
         public String getLabel() {
             return "a label";
         }
-    }
+    } // end protected class NModifier
+
+
+
+    private class PrimitiveVectorBox {
+
+        private class ModifierCreation {
+        	private String[] titles = null;
+        	private String[] prefix = null;
+        	private boolean[] hasRead = null;
+        	private boolean[] hasWrite = null;
+        	private ModifierGeneral[] modifiers = null;
+            private int numItems = 0;
+          
+        	ModifierCreation(String[] title, String[] prefix,
+        			PropertyDescriptor[] properties, Primitive primitive) {
+
+        	    if (title.length == prefix.length) {
+        	    	this.numItems = title.length;
+            		this.titles = title;
+            		this.prefix = prefix;
+            		this.hasRead = new boolean[numItems];
+            		this.hasWrite = new boolean[numItems];
+            		for (int i = 0; i < numItems; i++) {
+                		this.hasRead[i] = false;
+                		this.hasWrite[i] = false;
+            		}
+
+            		modifiers = new ModifierGeneral[this.numItems];
+        	    }
+        	    else {
+        	    	return;
+        	    }
+
+        	    for(int i = 0; i < this.numItems;  i++) {
+
+    	    		for(int prop = 0; prop < properties.length;  prop++) {
+        	    		String propertyName = properties[prop].getName();
+
+        	    		if (propertyName.startsWith(this.prefix[i])) {
+        	    			if (propertyName.substring(this.prefix[i].length()).contains(this.titles[i])) {
+
+        	    				modifiers[i] = new ModifierGeneral(primitive, propertyName);
+
+        	                    modifiers[i].setLabel(this.titles[i]);
+                                if (properties[prop].getReadMethod() == null)
+                                	hasRead[i] = false;
+                                else
+                                	hasRead[i] = true;
+                                if (properties[prop].getWriteMethod() == null)
+                                	hasWrite[i] = false;
+                                else
+                                	hasWrite[i] = true;
+                                break;
+        	    			}
+        	    		}
+        	    	}
+        	    }
+        	}
+
+        	private int getIndex(String title) {
+        		int index = -1;
+        	    for (int i = 0; i < this.numItems;  i++) {
+        	    	if (title.equals(this.titles[i])) {
+        	    		index = i;
+        	    		break;
+        	    	}
+        	    }
+        	    return index;
+        	}
+
+        	public ModifierGeneral getModifier(String fieldTitle) {
+        		
+        	    ModifierGeneral mod = null;
+        	    int index = getIndex(fieldTitle);
+
+        	    if (index != -1) {
+        	        mod = modifiers[index];
+        	    }
+        		return mod;
+        	}
+        	
+        	public boolean getHasRead(String fieldTitle) {
+        		boolean read = false;
+        	    int index = getIndex(fieldTitle);
+
+        	    if (index != -1) {
+        	    	read = hasRead[index];
+        	    }
+        		return read;
+        	}
+
+        	public boolean getHasWrite(String fieldTitle) {
+        		boolean write = false;
+        	    int index = getIndex(fieldTitle);
+
+        	    if (index != -1) {
+        	    	write = hasWrite[index];
+        	    }
+        		return write;
+        	}
+        
+        } // private class ModifierCreation
+
+
+
+    	private PropertyDescriptor[] properties = null;  
+    	private ModifierCreation modCreater = null;
+    	private String[] fieldTitles;
+        private String[] fieldPrefix;
+
+    	PrimitiveVectorBox(String[] titles, String[] prefix) {
+    		this.fieldTitles = titles;
+    		this.fieldPrefix = prefix;
+            initialize();
+    	}
+
+    	protected void initialize() {
+    		properties = null;
+    		modCreater = null;
+            
+            Primitive primitive = currentLattice.getPrimitive();
+            Class c = primitive.getClass();
+            //bits of this code are taken from Thinking in Java (1st edition), pages 708-713
+            BeanInfo bi = null;
+            try {
+                bi = Introspector.getBeanInfo(c, java.lang.Object.class);
+            }
+            catch(IntrospectionException ex) {
+                System.out.println("Couldn't introspect " + c.getName());
+                System.exit(1);
+            }
+            properties = bi.getPropertyDescriptors();
+
+            modCreater = new ModifierCreation(fieldTitles, fieldPrefix,
+        			properties, primitive);
+    	}
+
+    	private ModifierGeneral getModifier(String title) {
+    		return modCreater.getModifier(title);
+    	}
+
+    	private boolean hasRead(String title) {
+    		return modCreater.getHasRead(title);
+    	}
+
+    	private boolean hasWrite(String title) {
+    		return modCreater.getHasWrite(title);
+    	}
+    } // private class PrimitiveVectorBox
 
 }

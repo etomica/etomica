@@ -80,7 +80,7 @@ public class DecimalSlider extends javax.swing.JSlider {
         return realValue;
     }
     public void setDecimalSliderValue(double n){
-        anyValues = (int)(n*precision) ;
+        anyValues = (int)Math.round(n*precision);
         super.setValue(anyValues);
     }
    

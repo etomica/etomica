@@ -10,6 +10,7 @@ import java.awt.event.FocusListener;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -86,6 +87,11 @@ public class DeviceSlider extends Device implements EtomicaElement {
      */    
     private int column;
     
+    /** 
+     * horizontal position of TitledBorder.  Default is TitledBorder.LEFT
+     */    
+    private int borderAlignment = TitledBorder.LEFT;
+    
     /**
      * Layout instance to show slider and textfield 
      */    
@@ -161,7 +167,11 @@ public class DeviceSlider extends Device implements EtomicaElement {
         super.setUnit(u);
         setLabelDefault();
     }
-    
+
+    public void setBorderAlignment(int align) {
+    	borderAlignment = align;
+    }
+
     public final void setModifier(Modifier m) {
         if(m == null) throw new NullPointerException();
         modifyAction = null;
@@ -368,7 +378,11 @@ public class DeviceSlider extends Device implements EtomicaElement {
     public void setLabel(String s){
         label = s;
         if(s == null || s.equals("") || !showBorder) panel.setBorder(new javax.swing.border.EmptyBorder(0,0,0,0));
-        else panel.setBorder(new javax.swing.border.TitledBorder(s));
+        else {
+        	TitledBorder border = new TitledBorder(s);
+        	border.setTitleJustification(borderAlignment);
+        	panel.setBorder(border);
+        }
     }
     
     /**

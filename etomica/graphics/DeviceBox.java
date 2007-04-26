@@ -4,6 +4,9 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 
+import java.util.Vector;
+import java.util.Enumeration;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -31,7 +34,7 @@ import etomica.util.EnumeratedType;
   *                added set/is Editable fields
   */
  
-public class DeviceBox extends Device implements EtomicaElement, javax.swing.event.ChangeListener {
+public class DeviceBox extends Device implements EtomicaElement, javax.swing.event.ChangeListener, DeviceBoxValueChangedListener {
     
     /**
      * Descriptive text label to be displayed with the value
@@ -52,6 +55,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Modifier connecting the slider to the property
      */
     protected ModifyAction modifyAction;
+
     /**
      * Integer specifying the number of significant figures to be displayed.
      * Default is 4.
@@ -59,7 +63,10 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     protected int precision;
     private LabelType labelType;
     private boolean integer = false;
-    
+    private BoxListener listener = null;
+
+    private Vector valueChangedListeners = new Vector();
+
     public DeviceBox() {
         super();
         panel = new JPanel(new java.awt.BorderLayout());
@@ -89,7 +96,10 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Updates the display of the box with the current value given by the modifier.
      */
     public void doUpdate() {
-        if(modifyAction == null) return;
+        if(modifyAction == null) {
+        	textField.setText("");
+        	return;
+        }
         if(integer) {
             textField.setText(Integer.toString((int)unit.fromSim(modifyAction.getWrappedModifier().getValue())));
         }
@@ -136,7 +146,23 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Specifies the modifier that receives the edit.
      */
     public void setModifier(Modifier m) {
-        if(m == null) throw new NullPointerException();
+        if(m == null) {
+        	modifyAction = null;
+
+        	// Don't want to listen for events in textField if
+        	// there is not modifier.
+        	if(listener != null) {
+                textField.removeActionListener(listener);
+                textField.removeFocusListener(listener);
+                textField.removeKeyListener(listener);
+        	}
+
+        	// If there is no modifier, make the textField uneditable
+        	textField.setEditable(false);
+
+        	listener = null;
+        	throw new NullPointerException();
+        }
         if(unit == null) {
             setUnit(m.getDimension().getUnit(UnitSystem.SIM));
         }
@@ -144,7 +170,8 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         setLabel(labelString);
         doUpdate();
 
-        BoxListener listener = new BoxListener();
+        listener = new BoxListener();
+
         textField.addActionListener(listener);
         textField.addKeyListener(listener);
         textField.addFocusListener(listener);
@@ -224,7 +251,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     public Constants.CompassDirection getLabelPosition() {
         return labelPosition;
     }
-        
+
     private class BoxListener extends java.awt.event.KeyAdapter implements java.awt.event.ActionListener, FocusListener {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             updateValue();
@@ -271,9 +298,59 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
                }
            }
            doUpdate();
+           notifyValueChangedListeners();
        }
     }
-    
+
+    /**
+     * Add an object to be notified when the DeviceBox value to changes
+     */
+    public void addValueChangedListener(DeviceBoxValueChangedListener dbListener) {
+    	if(!valueChangedListeners.contains(dbListener)) {
+    		valueChangedListeners.add(dbListener);
+    	}
+    } // end addValueChangedListener
+
+    /**
+     * Remove an object that is listening for the DeviceBox value to change
+     */
+    public void removeValueChangedListener(DeviceBoxValueChangedListener dbListener) {
+    	if(valueChangedListeners.contains(dbListener)) {
+    		valueChangedListeners.remove(dbListener);
+    	}
+    } // end removeValueChangedListener
+
+    /**
+     * Removes all objects that are listening for a value changed event.
+     */
+    public void removeAllValueChangedListeners() {
+    	valueChangedListeners.clear();
+    }
+
+    public void deviceBoxValueChanged(DeviceBoxValueChangedEvent ev) {
+    	System.out.println("Value changed callback!!!!");
+
+        this.doUpdate();
+    } // end deviceBoxValueChanged
+
+    /**
+     *  Will notify all registered objects that the DeviceBox value has changed.
+     *  Notification takes place at the tail end of the updateValue() method.
+     */
+    private void notifyValueChangedListeners() {
+    	Vector copyOfListeners = (Vector)(valueChangedListeners.clone());
+
+    	int value = 0; //<NEW VALUE HERE>
+    	DeviceBoxValueChangedEvent ev = new DeviceBoxValueChangedEvent(this, value);
+    	Enumeration enum = copyOfListeners.elements();
+    	while(enum.hasMoreElements()) {
+    		DeviceBoxValueChangedListener listener =
+    			(DeviceBoxValueChangedListener)enum.nextElement();
+    		listener.deviceBoxValueChanged(ev);
+    	}
+
+    } // end private void notifyValueChangedListeners
+
     /**
      * Typed constant used to indicate the type of label to be used with the display.
      */
@@ -286,5 +363,6 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
             return new LabelType[] {BORDER,STRING};
         }
     }
-    
+
+
 }

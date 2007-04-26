@@ -48,11 +48,11 @@ public class LatticeCubicFcc extends BravaisLatticeCrystal implements CubicLatti
      * of the lattice underlying this crystal.
      */
     public void setLatticeConstant(double latticeConstant) {
-        ((PrimitiveCubic)primitive).setCubicSize(latticeConstant);
+        ((PrimitiveCubic)primitive).setSizeABC(latticeConstant);
     }
     
     public double getLatticeConstant() {
-        return ((PrimitiveCubic)primitive).getCubicSize();
+        return ((PrimitiveCubic)primitive).getSizeABC();
     }
     
 

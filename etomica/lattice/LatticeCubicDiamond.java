@@ -27,7 +27,7 @@ public class LatticeCubicDiamond extends BravaisLatticeCrystal implements CubicL
     
     public LatticeCubicDiamond(double latticeConstant) {
         this(new PrimitiveCubic(Space3D.getInstance()));
-        ((PrimitiveCubic)primitive).setCubicSize(latticeConstant);
+        ((PrimitiveCubic)primitive).setSizeABC(latticeConstant);
     }
 
     /**
@@ -43,11 +43,11 @@ public class LatticeCubicDiamond extends BravaisLatticeCrystal implements CubicL
      * of the lattice underlying this crystal.
      */
     public void setLatticeConstant(double latticeConstant) {
-        ((PrimitiveCubic)primitive).setCubicSize(latticeConstant);
+        ((PrimitiveCubic)primitive).setSizeABC(latticeConstant);
     }
     
     public double getLatticeConstant() {
-        return ((PrimitiveCubic)primitive).getCubicSize();
+        return ((PrimitiveCubic)primitive).getSizeABC();
     }
     
     /**
