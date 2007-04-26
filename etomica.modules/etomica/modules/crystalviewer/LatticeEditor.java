@@ -329,7 +329,7 @@ public class LatticeEditor {
         	    		String propertyName = properties[prop].getName();
 
         	    		if (propertyName.startsWith(this.prefix[i])) {
-        	    			if (propertyName.substring(this.prefix[i].length()).contains(this.titles[i])) {
+        	    			if (propertyName.substring(this.prefix[i].length()).indexOf(this.titles[i]) != -1) {
 
         	    				modifiers[i] = new ModifierGeneral(primitive, propertyName);
 
