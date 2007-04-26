@@ -61,7 +61,6 @@ public class Simulation implements java.io.Serializable  {
         newPhase.resetIndex();
         speciesManager.phaseAddedNotify(newPhase);
         eventManager.fireEvent(new SimulationPhaseAddedEvent(newPhase));
-        return;
     }
     
     public final void removePhase(Phase oldPhase) {
