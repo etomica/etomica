@@ -22,6 +22,18 @@ public interface IndexIterator {
    */
   public int[] next();
   
+  /**
+   * Sets the size of each dimension; in general they should all be the
+   * same size.
+   * @param size an array of sizes to set
+   */
   public void setSize(int[] size);
+  
+  /**
+   * Indicates whether it is appropriate to simply scale the original
+   * boundary lines when in 'large box' mode.
+   * @return returns whether the boundary is lazy-safe
+   */
+  public boolean isLazySafe();
 
 }

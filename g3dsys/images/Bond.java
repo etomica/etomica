@@ -7,6 +7,8 @@ import org.jmol.g3d.Graphics3D;
 
 import g3dsys.control.G3DSys;
 
+//TODO: ensure wireframe bonds actually connect
+
 public class Bond extends Figure {
 
   public static final int CYLINDER = 0;

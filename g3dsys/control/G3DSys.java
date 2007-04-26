@@ -11,19 +11,6 @@ import javax.vecmath.Point3i;
 
 import org.jmol.g3d.Graphics3D;
 
-//TODO: fix initial sizing bug
-/* using original calcZbufferLimits (getMaxX):
- * the 'too big' version was 303x303x928
- * after proper resize, 303x303x354
- * pixel depth is randomly incorrect at startup
- * 
- * using new calcZbufferlimits (getMaxZ):
- * the too big version is still 303x303x928
- * proper size is 303x303x354 
- */
-
-
-
 //TODO: wireframe with bond widths like in Jmol
 
 /*

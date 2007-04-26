@@ -8,12 +8,7 @@ import javax.vecmath.Point3i;
 
 import org.jmol.g3d.Graphics3D;
 
-//TODO: implement DRAW_LARGE_BOX type
-//endpoints of the lines * (2*numLayers + 1)
-//TODO: add lazyBigShell flag to tell us it's okay to scale lines
-//canvas sets a flag on the index iterator before passing it
-//if flag is true, make large box by scaling boundary lines, else
-//hit panic button
+//TODO: ensure wireframe bonds actually connect
 
 public class ImageShell extends Figure {
 
@@ -105,11 +100,9 @@ public class ImageShell extends Figure {
     int D = vectors.length/3; //dimensionality of boundary; assume 3-dim vectors
     if(D == 0) return; //no vectors, or low dimensionality
     
-    //still bound to axis directions; need to use vector orientation instead
     float dx = 0, dy = 0, dz = 0; //for linear combinations
     Figure[] figs = _gsys.getFigs();
     
-    //IndexIteratorSequential iter = new IndexIteratorSequential(D,numLayers);
     int[] sizes = new int[D];
     for(int i=0; i<D; i++) { sizes[i] = numLayers*2+1; }
     iter.setSize(sizes);
@@ -191,7 +184,7 @@ public class ImageShell extends Figure {
     }
 
     //draw large box
-    if(drawBoundaryType == DRAW_LARGE_BOX) {
+    if(drawBoundaryType == DRAW_LARGE_BOX && iter.isLazySafe()) {
       for(int i=0; i<figs.length; i++) {
         if(figs[i] instanceof Line) {
           p.set(((Line)figs[i]).getStart().x * (2*numLayers+1),
