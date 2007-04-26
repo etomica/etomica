@@ -3,6 +3,7 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.nbr.PotentialMasterNbr;
@@ -26,8 +27,8 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
         Color[] atomColors = agentManager.getAgents();
         allIterator.reset();
 		//color all atoms according to their type
-        while(allIterator.hasNext()) {
-            AtomLeaf atom = (AtomLeaf)allIterator.nextAtom();
+        for (AtomLeaf atom = (AtomLeaf)allIterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)allIterator.nextAtom()) {
             atomColors[atom.getGlobalIndex()] = typeColorScheme.getAtomColor(atom);//Color.green;
         }
         if (referenceAtom == null) {
@@ -35,8 +36,9 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
         }
         //color blue the neighbor atoms in same group
         nbrIterator.reset();
-        while(nbrIterator.hasNext()) {
-            IAtom  atom = nbrIterator.nextPair().atom1;
+        for (AtomPair pair = nbrIterator.nextPair(); pair != null;
+             pair = nbrIterator.nextPair()) {
+            IAtom atom = pair.atom1;
             if(atom.getType() == referenceAtom.getType()) {
                 atomColors[atom.getGlobalIndex()] = Color.blue;
             } else {

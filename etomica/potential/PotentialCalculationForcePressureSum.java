@@ -42,8 +42,7 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		iterator.reset();
-		while(iterator.hasNext()) {
-			AtomSet atoms = iterator.next();
+		for (AtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
 			IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
 			switch(nBody) {
 				case 1:

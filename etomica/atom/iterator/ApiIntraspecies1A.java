@@ -46,7 +46,6 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
             throw new IllegalArgumentException(
                     "Constructor of ApiIntraspecies1A requires references to the same species instance");
         this.species = species[0];
-
     }
 
     /**

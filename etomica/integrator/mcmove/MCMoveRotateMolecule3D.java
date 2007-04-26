@@ -83,8 +83,8 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     
     protected void doTransform() {
         leafAtomIterator.reset();
-        while(leafAtomIterator.hasNext()) {
-            AtomLeaf a = (AtomLeaf)leafAtomIterator.nextAtom();
+        for (AtomLeaf a = (AtomLeaf)leafAtomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)leafAtomIterator.nextAtom()) {
             IVector r = a.getPosition();
             r.ME(r0);
             phase.getBoundary().nearestImage(r);

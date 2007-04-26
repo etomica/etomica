@@ -41,25 +41,25 @@ public abstract class ConformationChain extends Conformation {
 		
 		//First, check that we actually have some atoms
 		int size = atomlist.size();
-        	if(size == 0) return;
-        
-        	atomIterator.setList(atomlist);
-        	atomIterator.reset();
-        
-        	reset();
-		
-        	//space.makeVector() zeroes the made Vector automatically
-        	IVector currentPosition = space.makeVector();
-        
-        	//Zero the first atom.
-        	((AtomLeaf)atomIterator.nextAtom()).getPosition().E(0.0);
-        	
-        	while(atomIterator.hasNext()){
-        		AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
-        		//TODO someday, we might want a to be a chunk-of-atoms
-        		currentPosition.PE(nextVector());
-        		a.getPosition().E(currentPosition);
-        	}
+    	if(size == 0) return;
+    
+    	atomIterator.setList(atomlist);
+    	atomIterator.reset();
+    
+    	reset();
+	
+    	//space.makeVector() zeroes the made Vector automatically
+    	IVector currentPosition = space.makeVector();
+    
+    	//Zero the first atom.
+    	((AtomLeaf)atomIterator.nextAtom()).getPosition().E(0.0);
+    	
+    	for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)atomIterator.nextAtom()) {
+    		//TODO someday, we might want a to be a chunk-of-atoms
+    		currentPosition.PE(nextVector());
+    		a.getPosition().E(currentPosition);
+    	}
 	}
 	
 	/**

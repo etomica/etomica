@@ -31,8 +31,8 @@ public class PhaseDeleteMolecules extends PhaseActionAdapter {
     public void actionPerformed() {
         iterator.setPhase(phase);
         iterator.reset();
-        while (iterator.hasNext()) {
-            IAtom molecule = iterator.nextAtom();
+        for (IAtom molecule = iterator.nextAtom(); molecule != null;
+             molecule = iterator.nextAtom()) {
             if (!filter.accept(molecule)) {
                 molecule.getParentGroup().removeChildAtom(molecule);
             }

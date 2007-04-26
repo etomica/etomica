@@ -227,8 +227,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 NeighborCriterion nbrCriterion = criteria[i];
                 neighborIterator.setTarget(atom);
                 neighborIterator.reset();
-                while (neighborIterator.hasNext()) {
-                    AtomPair pair = (AtomPair)neighborIterator.next();
+                for (AtomPair pair = (AtomPair)neighborIterator.next(); pair != null;
+                     pair = (AtomPair)neighborIterator.next()) {
                     if (nbrCriterion.accept(pair)) {
                         singletPairIterator.setAtom(pair);
                         pc.doCalculation(singletPairIterator, id, p2);

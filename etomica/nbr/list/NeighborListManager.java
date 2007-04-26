@@ -78,8 +78,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     
     public void updateLists() {
         iterator.reset();
-        while (iterator.hasNext()) {
-            IAtom atom = iterator.nextAtom();
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
             int numPotentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials().length;
             ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(numPotentials);
 
@@ -108,7 +108,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         // the NeighborCellManager might not have existed during construction
         // so we couldn't se the lattice.  It better exist now.
         cellNbrIterator.setLattice(potentialMaster.getNbrCellManager(phase).getLattice());
-        
+
         NeighborCriterion[] criteriaArray = potentialMaster.getNeighborCriteria();
         if (oldCriteria != criteriaArray) {
             // if the array of criteria is different, a potential was added or
@@ -228,8 +228,8 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         cellNbrIterator.reset();
         //TODO change looping scheme so getPotentials isn't called for every pair
         //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
-        while (cellNbrIterator.hasNext()) {
-            AtomPair pair = cellNbrIterator.nextPair();
+        for (AtomPair pair = cellNbrIterator.nextPair(); pair != null;
+             pair = cellNbrIterator.nextPair()) {
             IAtom atom0 = pair.atom0;
             PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
             Potential[] potentials = potentialArray.getPotentials();

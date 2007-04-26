@@ -1,5 +1,6 @@
 package etomica.atom.iterator;
 
+import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
@@ -58,13 +59,12 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         phase.getAgent(species2).setNMolecules(3);
 
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules();
-        System.out.println(iterator.hasNext());
 
         iterator.setPhase(phase);
-        System.out.println(iterator.hasNext());
         iterator.reset();
-        while (iterator.hasNext())
-            System.out.println(iterator.next().toString());
+        for (AtomSet atom = iterator.next(); atom != null; atom = iterator.next()) {
+            System.out.println(atom.toString());
+        }
         System.out.println();
 
     }//end of main

@@ -138,8 +138,8 @@ public final class SpeciesMaster implements java.io.Serializable {
         treeIteratorPhase.setPhase(phase);
         treeIteratorPhase.reset();
         // loop over all the atoms.  Any atoms whose index is 
-        while (treeIteratorPhase.hasNext()) {
-            IAtom a = treeIteratorPhase.nextAtom();
+        for (IAtom a = treeIteratorPhase.nextAtom(); a != null;
+             a = treeIteratorPhase.nextAtom()) {
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
                 PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(phase, a, a.getGlobalIndex());
                 // Just re-invoke the Atom's method without first "returning"
@@ -209,15 +209,15 @@ public final class SpeciesMaster implements java.io.Serializable {
                     .getNMolecules();
         }
 
+        newAtom.setGlobalIndex(this);
         if (newAtom.isLeaf()) {
-            newAtom.setGlobalIndex(this);
             ((AtomLeaf)newAtom).setLeafIndex(leafList.size());
             leafList.add(newAtom);
         } else {
             treeIteratorRoot.setRootAtom(newAtom);
             treeIteratorRoot.reset();
-            while (treeIteratorRoot.hasNext()) {
-                IAtom childAtom = treeIteratorRoot.nextAtom();
+            for (IAtom childAtom = treeIteratorRoot.nextAtom(); childAtom != null;
+                 childAtom = treeIteratorRoot.nextAtom()) {
                 if (childAtom.getType().isLeaf()) {
                     ((AtomLeaf)childAtom).setLeafIndex(leafList.size());
                     leafList.add(childAtom);
@@ -239,9 +239,9 @@ public final class SpeciesMaster implements java.io.Serializable {
         }
         
         phaseEventManager.fireEvent(new PhaseAtomRemovedEvent(phase, oldAtom));
+        returnGlobalIndex(oldAtom.getGlobalIndex());
         if (oldAtom.isLeaf()) {
             int leafIndex = ((AtomLeaf)oldAtom).getLeafIndex();
-            returnGlobalIndex(oldAtom.getGlobalIndex());
             leafList.removeAndReplace(leafIndex);
             leafList.maybeTrimToSize();
             // if we removed didn't remove the last atom, removeAndReplace
@@ -252,8 +252,8 @@ public final class SpeciesMaster implements java.io.Serializable {
         } else {
             treeIteratorRoot.setRootAtom(oldAtom);
             treeIteratorRoot.reset();
-            while (treeIteratorRoot.hasNext()) {
-                IAtom childAtom = treeIteratorRoot.nextAtom();
+            for (IAtom childAtom = treeIteratorRoot.nextAtom(); childAtom != null;
+                 childAtom = treeIteratorRoot.nextAtom()) {
                 returnGlobalIndex(childAtom.getGlobalIndex());
                 if (childAtom.getType().isLeaf()) {
                     int leafIndex = ((AtomLeaf)childAtom).getLeafIndex();
@@ -306,8 +306,10 @@ public final class SpeciesMaster implements java.io.Serializable {
         AtomIteratorLeafAtoms leafIterator = new AtomIteratorLeafAtoms();
         leafIterator.setPhase(phase);
         leafIterator.reset();
-        while (leafIterator.hasNext())
-            System.out.println(leafIterator.next().toString());
+        for (AtomSet atom = leafIterator.next(); atom != null;
+             atom = leafIterator.next()) {
+            System.out.println(atom.toString());
+        }
         System.out.println();
     }//end of main
 

@@ -74,8 +74,8 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         phase.getEventManager().removeListener(this);
         AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
         iterator.reset();
-        while (iterator.hasNext()) {
-            IAtom atom = iterator.nextAtom();
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
             // check if atom's spot in the array even exists yet
             if (atom.getGlobalIndex() < agents.length) {
                 Object agent = agents[atom.getGlobalIndex()];
@@ -99,8 +99,9 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         // fill in the array with agents from all the atoms
         AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
         iterator.reset();
-        while (iterator.hasNext()) {
-            addAgent(iterator.nextAtom());
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
+            addAgent(atom);
         }
     }
     
@@ -108,10 +109,8 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         if (evt instanceof PhaseAtomEvent) {
             IAtom a = ((PhaseAtomEvent)evt).getAtom();
             if (evt instanceof PhaseAtomAddedEvent) {
-                if (a.getType().isLeaf()) {
-                    addAgent(a);
-                }
-                else {
+                addAgent(a);
+                if (!a.isLeaf()) {
                     if (treeIterator == null) {
                         treeIterator = new AtomIteratorTreeRoot(Integer.MAX_VALUE);
                         treeIterator.setDoAllNodes(true);
@@ -119,21 +118,20 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                     // add all atoms below this atom
                     treeIterator.setRootAtom(a);
                     treeIterator.reset();
-                    while (treeIterator.hasNext()) {
-                        addAgent(treeIterator.nextAtom());
+                    
+                    for (IAtom atom = treeIterator.nextAtom(); atom != null; atom = treeIterator.nextAtom()) {
+                        addAgent(atom);
                     }
                 }       
             }
             else if (evt instanceof PhaseAtomRemovedEvent) {
-                if (a.getType().isLeaf()) {
-                    int index = a.getGlobalIndex();
-                    if (agents[index] != null) {
-                        // Atom used to have an agent.  nuke it.
-                        agentSource.releaseAgent(agents[index], a);
-                        agents[index] = null;
-                    }
+                int index = a.getGlobalIndex();
+                if (agents[index] != null) {
+                    // Atom used to have an agent.  nuke it.
+                    agentSource.releaseAgent(agents[index], a);
+                    agents[index] = null;
                 }
-                else {
+                if (!a.isLeaf()) {
                     if (treeIterator == null) {
                         treeIterator = new AtomIteratorTreeRoot(Integer.MAX_VALUE);
                         treeIterator.setDoAllNodes(true);
@@ -141,9 +139,8 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                     // nuke all atoms below this atom
                     treeIterator.setRootAtom(a);
                     treeIterator.reset();
-                    while (treeIterator.hasNext()) {
-                        IAtom childAtom = treeIterator.nextAtom();
-                        int index = childAtom.getGlobalIndex();
+                    for (IAtom childAtom = treeIterator.nextAtom(); childAtom != null; childAtom = treeIterator.nextAtom()) {
+                        index = childAtom.getGlobalIndex();
                         if (agents[index] != null) {
                             // Atom used to have an agent.  nuke it.
                             agentSource.releaseAgent(agents[index], childAtom);

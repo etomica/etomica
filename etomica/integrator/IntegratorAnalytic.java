@@ -35,8 +35,8 @@ public class IntegratorAnalytic extends IntegratorMD {
         elapsedTime += getTimeStep();
         action.setTime(elapsedTime);
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            IAtom atom = atomIterator.nextAtom();
+        for (IAtom atom = atomIterator.nextAtom(); atom != null;
+             atom = atomIterator.nextAtom()) {
             action.actionPerformed(atom);
         }
     }

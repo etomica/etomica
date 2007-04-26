@@ -98,31 +98,24 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
     }
     
     public AtomPair nextPair() {
-        if(!hasNext()) return null;
         if (upListNow) {
-            pair.atom1 = next;
             if (neighborIterator.hasNext()) {
-                next = ((AtomSite)neighborIterator.next()).getAtom();
+                pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
+                return pair;
             }
-            else if (doGoDown) {
-                upListNow = false;
-                neighborIterator.setDirection(IteratorDirective.Direction.DOWN);
-                neighborIterator.reset();
-                next = ((AtomSite)neighborIterator.next()).getAtom();
+            else if (!doGoDown) {
+                return null;
             }
-            else {
-                next = null;
-            }
+            upListNow = false;
+            neighborIterator.setDirection(IteratorDirective.Direction.DOWN);
+            neighborIterator.reset();
+            pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
+            return pair;
         }
-        else {
-            pair.atom0 = next;
-            if (neighborIterator.hasNext()) {
-                next = ((AtomSite)neighborIterator.next()).getAtom();
-            }
-            else {
-                next = null;
-            }
+        if (!neighborIterator.hasNext()) {
+            return null;
         }
+        pair.atom0 = ((AtomSite)neighborIterator.next()).getAtom();
         return pair;
     }
 

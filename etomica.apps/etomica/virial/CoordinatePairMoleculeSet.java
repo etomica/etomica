@@ -44,8 +44,9 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(list);
         iterator.reset();
         int k=0;
-        while(iterator.hasNext()) {
-            atoms[k++] = iterator.nextAtom();
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
+            atoms[k++] = atom;
         }
     }
     
@@ -75,6 +76,7 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
         return ID;
     }
     
+    private static final long serialVersionUID = 1L;
     protected final double[] r2;
     protected final IAtom[] atoms;
     protected final int numAtoms;

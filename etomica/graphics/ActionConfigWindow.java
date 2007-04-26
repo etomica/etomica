@@ -32,8 +32,8 @@ public class ActionConfigWindow implements Action {
         textArea.setBackground(Color.white);
         textArea.setForeground(Color.black);
         iterator.reset();
-        while (iterator.hasNext()) {
-            AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)iterator.nextAtom()) {
             IVector pos = atom.getPosition();
             String str = Double.toString(pos.x(0));
             for (int i=1; i<pos.getD(); i++) {

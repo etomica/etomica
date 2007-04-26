@@ -79,13 +79,6 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
     }
 
     /**
-     * Indicates if iterator has another iterate.
-     */
-    public boolean hasNext() {
-        return iterator.hasNext();
-    }
-
-    /**
      * Readies iterator for iteration.
      */
     public void reset() {

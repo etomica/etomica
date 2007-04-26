@@ -51,8 +51,9 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 			return;
         iterator.setPhase(phase);
         iterator.reset();
-        while(iterator.hasNext()) {
-            ((AtomLeaf)iterator.nextAtom()).getPosition().PE(translationVector);
+        for (AtomLeaf leafAtom = (AtomLeaf)iterator.nextAtom(); leafAtom != null; 
+             leafAtom = (AtomLeaf)iterator.nextAtom()) {
+            leafAtom.getPosition().PE(translationVector);
         }
 	}
 

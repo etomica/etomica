@@ -1,6 +1,3 @@
-/* History
- * Created on Aug 4, 2004
- */
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
@@ -8,21 +5,12 @@ import etomica.atom.AtomSet;
 
 /**
  * Interface for classes that loop over a set of atoms. Permits
- * iteration via a hasNext()-next() while loop (iterator returns
+ * iteration via a next()!=null while loop (iterator returns
  * atoms to client) or via a call to allAtoms(AtomsetActive) (client gives
  * action to iterator).
  */
 
 public interface AtomsetIterator {
-    
-    /**
-     * Indicates whether the iterator has another atom.  
-     * Once the iterator expires, this remains false, and will 
-     * return true again only upon a call to reset.  No other methods
-     * have the effect of making hasNext return true if it is
-     * presently false.
-     */
-    public boolean hasNext();
     
     /**
      * Resets the iterator to loop through its iterates again.

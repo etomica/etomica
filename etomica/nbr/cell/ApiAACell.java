@@ -92,7 +92,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
 	}
 	
     public boolean hasNext() {
-        return listIterator.hasNext();
+        throw new RuntimeException("oops");
     }
     
     public AtomSet next() {
@@ -100,13 +100,14 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
     }
     
     public AtomPair nextPair() {
-        if(!hasNext()) return null;
         AtomPair nextPair = listIterator.nextPair();
-        nextPair.copyTo(pair);
-        if(!listIterator.hasNext()) {
-            advanceLists();
+        if (nextPair != null && (nextPair.atom0 == null || nextPair.atom1 == null)) {
+            throw new RuntimeException("oops "+nextPair);
         }
-        return pair;
+        if (nextPair == null) {
+            return advanceLists();
+        }
+        return nextPair;
     }
     
     public void unset() {
@@ -127,19 +128,22 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
         neighborIterator.checkDimensions();
         neighborIterator.unset();
         listIterator.unset();
-        advanceLists();
         //System.out.println("reset in ApiAACell");
     }//end of reset
     
     // Moves to next pair of lists that can provide an iterate
     // This should be invoked only if listIterator.hasNext is false
-    private void advanceLists() {
+    private AtomPair advanceLists() {
         do {
               //advance neighbor cell
             if(neighborIterator.hasNext()) {
                 interListIterator.setInnerList(((Cell)neighborIterator.next()).occupants());
                 listIterator = interListIterator;
                 interListIterator.reset();
+                AtomPair pair = listIterator.nextPair();
+                if (pair != null) {
+                    return pair;
+                }
 
                 //advance central cell and set up neighbor cell iterator if
                 // central cell has some molecules
@@ -155,14 +159,18 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
                     listIterator = intraListIterator;
                     intraListIterator.reset();
                         
+                    AtomPair pair = listIterator.nextPair();
+                    if (pair != null) {
+                        return pair;
+                    }
                 } else {//no molecules in central cell
                     neighborIterator.unset();
                     listIterator.unset();
                 }
             } else {//no more cells at all
-                break;
+                return null;
             }
-        } while(!listIterator.hasNext());
+        } while(true);
     }//end of advanceCell
     
     /**
@@ -179,6 +187,4 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
     private final ApiInterArrayList interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;
     private final RectangularLattice.Iterator cellIterator;
-
-    private final AtomPair pair = new AtomPair();
 }

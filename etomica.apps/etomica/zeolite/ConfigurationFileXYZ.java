@@ -35,8 +35,8 @@ public class ConfigurationFileXYZ extends Configuration{
 	            atomIterator.reset();
 	            //Skips the first line, which contains numAtoms
 	            bufReader.readLine();
-	            while (atomIterator.hasNext()) {
-	                AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
+	            for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
+                     atom != null; atom = (AtomLeaf)atomIterator.nextAtom()) {
 	                setPosition(atom,bufReader.readLine());
 	            }
 	            fileReader.close();
@@ -45,9 +45,9 @@ public class ConfigurationFileXYZ extends Configuration{
 	        }
 	        atomIterator.reset();
 	        
-	        while(atomIterator.hasNext()){
-	        	AtomLeaf molecule = (AtomLeaf)atomIterator.nextAtom();
-	        	translatePosition(molecule);
+            for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
+                 atom != null; atom = (AtomLeaf)atomIterator.nextAtom()) {
+	        	translatePosition(atom);
 	        }
 	        
 		}

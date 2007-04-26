@@ -3,6 +3,7 @@ package etomica.junit;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
@@ -154,8 +155,9 @@ public class UnitTestUtil {
             iterator.setPhase(phases[i]);
             iterator.setDoAllNodes(true);
             iterator.reset();
-            while (iterator.hasNext()) {
-                System.out.println(iterator.next().toString());
+            for (AtomSet atom = iterator.next(); atom != null;
+                 atom = iterator.next()) {
+                System.out.println(atom.toString());
             }
         }
     }

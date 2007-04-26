@@ -1,6 +1,3 @@
-/**
- * 
- */
 package etomica.graphics;
 
 import java.awt.Color;
@@ -33,8 +30,8 @@ public class ActionVelocityWindow implements Action {
         textArea.setBackground(Color.white);
         textArea.setForeground(Color.black);
         iterator.reset();
-        while (iterator.hasNext()) {
-            AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)iterator.nextAtom()) {
             IVector vel = ((ICoordinateKinetic)atom).getVelocity();
             String str = Double.toString(vel.x(0));
             for (int i=1; i<vel.getD(); i++) {

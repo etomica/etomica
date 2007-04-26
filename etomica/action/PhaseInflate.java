@@ -100,8 +100,8 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1);
         IVector translationVector = translator.getTranslationVector();
-        while (moleculeIterator.hasNext()) {
-            IAtom molecule = moleculeIterator.nextAtom();
+        for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
+             molecule = moleculeIterator.nextAtom()) {
             translationVector.E(moleculeCenter.position(molecule));
             translationVector.TE(scaleVector);
             groupScaler.actionPerformed(molecule);

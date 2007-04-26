@@ -65,8 +65,9 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
         ai1.reset();
         data.E(0.0);
         int count = 0;
-        while(ai1.hasNext()) {
-            getData(ai1.nextAtom());
+        for (IAtom a = ai1.nextAtom(); a != null;
+             a = ai1.nextAtom()) {
+            getData(a);
             data.PE(atomData);
             count++;
         }

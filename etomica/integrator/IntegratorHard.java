@@ -355,8 +355,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      */
 	protected void advanceAcrossTimeStep(double tStep) {
 		atomIterator.reset();
-		while(atomIterator.hasNext()) {
-			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+		for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)atomIterator.nextAtom()) {
             ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
 			a.getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a).getVelocity());
 		}
@@ -396,8 +396,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     public void resetCollisionTimes() {
         if(!initialized) return;
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            IAtom atom = atomIterator.nextAtom();
+        for (IAtom atom = atomIterator.nextAtom(); atom != null;
+             atom = atomIterator.nextAtom()) {
             ((Agent)agentManager.getAgent(atom)).resetCollision();
         }
         upList.setTargetAtom(null);
@@ -406,8 +406,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         potential.calculate(phase, upList, collisionHandlerUp); //assumes only one phase
         eventList.reset();
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            Agent agent = (Agent)agentManager.getAgent(atomIterator.nextAtom());
+        for (IAtom atom = atomIterator.nextAtom(); atom != null;
+             atom = atomIterator.nextAtom()) {
+            Agent agent = (Agent)agentManager.getAgent(atom);
             if (agent.collisionPotential != null) {
                 eventList.add(agent.eventLinker);
             }
@@ -421,8 +422,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         double s = super.scaleMomenta();
         double rs = 1.0/s;
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            ((Agent)agentManager.getAgent(atomIterator.nextAtom())).eventLinker.sortKey *= rs;
+        for (IAtom atom = atomIterator.nextAtom(); atom != null;
+             atom = atomIterator.nextAtom()) {
+            ((Agent)agentManager.getAgent(atom)).eventLinker.sortKey *= rs;
         }
         // don't need to update eventTree because event order didn't change
         return s;
@@ -544,8 +546,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             final boolean notPairIterator = (iterator.nBody() != 2);
             iterator.reset();
             PotentialHard pHard = (PotentialHard)potential;
-            while (iterator.hasNext()) {
-                AtomSet atoms = iterator.next();
+            for (AtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
                 if(atoms.getAtom(0) != atom1) setAtom(atoms.getAtom(0)); //need this if doing minimum collision time calculation for more than one atom
                 double collisionTime = pHard.collisionTime(atoms,collisionTimeStep);
                 if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atoms)) || Debug.allAtoms(atoms))) {
@@ -583,8 +584,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
 			if (potential.nBody() != 2) return;
 			iterator.reset();
             PotentialHard pHard = (PotentialHard)potential;
-			while (iterator.hasNext()) {
-				AtomPair atomPair = (AtomPair)iterator.next();
+			for (AtomPair atomPair = (AtomPair)iterator.next(); atomPair != null;
+                 atomPair = (AtomPair)iterator.next()) {
 				double collisionTime = pHard.collisionTime(atomPair,collisionTimeStep);
                 if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atomPair)))) {
                     System.out.println("collision down time "+collisionTime+" for atoms "+atomPair+" "+pHard.getClass());
@@ -629,8 +630,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             if (iterator.nBody() != 2) return;
             iterator.reset();
             // look for pairs in which pair[0] is the collision partner of pair[1]
-            while (iterator.hasNext()) {
-                AtomPair pair = (AtomPair)iterator.next();
+            for (AtomPair pair = (AtomPair)iterator.next(); pair != null;
+                 pair = (AtomPair)iterator.next()) {
                 IAtom aPartner = ((Agent)integratorAgentManager.getAgent(pair.atom0)).collisionPartner();
                 if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
                     System.out.println(pair.atom1+" thought it would collide with "+aPartner);

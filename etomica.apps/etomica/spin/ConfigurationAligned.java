@@ -29,8 +29,9 @@ public class ConfigurationAligned extends Configuration {
     public void initializeCoordinates(Phase phase) {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
         iterator.reset();
-        while(iterator.hasNext()) {
-            IVector spin = ((AtomLeaf)iterator.nextAtom()).getPosition();
+        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)iterator.nextAtom()) {
+            IVector spin = atom.getPosition();
             spin.E(0.0);
             spin.setX(0,1.0);
         }

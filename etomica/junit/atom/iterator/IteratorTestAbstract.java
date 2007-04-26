@@ -89,18 +89,19 @@ public abstract class IteratorTestAbstract extends TestCase {
 
         AtomSet[] atoms = new AtomSet[lister[0].list.size()];
         
-        //******* test of hasNext/next
+        //******* test of next
         iterator.reset();
-        while (iterator.hasNext()) {
-            lister[3].actionPerformed(iterator.next());
+        for (AtomSet atomSet = iterator.next(); atomSet != null;
+             atomSet = iterator.next()) {
+            lister[3].actionPerformed(atomSet);
         }
         assertEquals(lister[0].list, lister[3].list);
 
         //******* test of next
         iterator.reset();
         int j=0;
-        while (iterator.hasNext()) {
-            AtomSet nextAtom = iterator.next();
+        for (AtomSet nextAtom = iterator.next(); nextAtom != null;
+               nextAtom = iterator.next()) {
             if (nextAtom instanceof IAtom) {
                 atoms[j] = nextAtom;
                 if (!nextAtom.toString().equals(lister[0].list.get(j))) {
@@ -119,8 +120,8 @@ public abstract class IteratorTestAbstract extends TestCase {
         if(iterator instanceof AtomIterator) {
             iterator.reset();
             int i = 0;
-            while(iterator.hasNext()) {
-                IAtom next = ((AtomIterator)iterator).nextAtom();
+            for (IAtom next = ((AtomIterator)iterator).nextAtom(); next != null;
+                 next = ((AtomIterator)iterator).nextAtom()) {
                 assertEquals(next, atoms[i++]);
             }
         }
@@ -133,23 +134,18 @@ public abstract class IteratorTestAbstract extends TestCase {
         //******* test of unset
         iterator.reset();
         iterator.unset();
-        assertFalse(iterator.hasNext());
         assertNull(iterator.next());
-        assertFalse(iterator.hasNext());
-        //******* test that next calls cannot cause hasNext to become true
-        //******* test that iterate is null for hasNext false
+        //******* test that next calls cannot cause next to return not-null
         for (int i = 0; i < 5; i++) {
-            if (iterator != null) {
-                assertNull(iterator.next());
-            }
-            assertFalse(iterator.hasNext());
+            assertNull(iterator.next());
         }
         print("Just tested unset method");
 
         //******* test of nBody
         iterator.reset();
-        while (iterator.hasNext()) {
-            assertEquals(iterator.next().count(), iterator.nBody());
+        for (AtomSet atomSet = iterator.next(); atomSet != null;
+             atomSet = iterator.next()) {
+            assertEquals(atomSet.count(), iterator.nBody());
         }
 
         print("Just tested nBody method");

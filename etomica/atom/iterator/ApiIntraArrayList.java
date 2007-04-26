@@ -10,8 +10,7 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 
 /**
- * Returns all pairs formed from a single list of atoms. Can work with tabbed
- * list.
+ * Returns all pairs formed from a single list of atoms.
  */
 public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable {
 
@@ -34,27 +33,25 @@ public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable
     }
 
     /**
-     * Indicates whether iterator has another iterate.
-     */
-    public boolean hasNext() {
-        //cannot check only nextOuter, as it may be on the last atom
-        return (nextOuterIndex != -1) && (nextInnerIndex != -1);
-    }
-
-    /**
      * Sets iterator in condition to begin iteration.
      */
     public void reset() {
-        nextOuterIndex = -1;
-        advanceOuter();
-        resetInner();
+        if (list.size() < 2) {
+            outerIndex = 2;
+            innerIndex = 2;
+            return;
+        }
+        outerIndex = 0;
+        innerIndex = 0;
+        atoms.atom0 = list.get(0);
     }
 
     /**
-     * Sets iterator such that hasNext is false.
+     * Sets iterator such that next is null.
      */
     public void unset() {
-        nextOuterIndex = -1;
+        outerIndex = list.size() - 2;
+        innerIndex = list.size() - 1;
     }
 
     /**
@@ -72,15 +69,16 @@ public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable
      * Returns the next iterate pair. Returns null if hasNext() is false.
      */
     public AtomPair nextPair() {
-        if (!hasNext())
-            return null;
-        atoms.atom0 = list.get(nextOuterIndex);
-        atoms.atom1 = list.get(nextInnerIndex);
-        advanceInner();
-        if (nextInnerIndex == -1) {
-            advanceOuter();
-            resetInner();
+        if (innerIndex > list.size() - 2) {
+            if (outerIndex > list.size() - 3) {
+                return null;
+            }
+            outerIndex++;
+            atoms.atom0 = list.get(outerIndex);
+            innerIndex = outerIndex;
         }
+        innerIndex++;
+        atoms.atom1 = list.get(innerIndex);
         return atoms;
     }
 
@@ -113,7 +111,7 @@ public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable
      *            the new atom list for iteration
      */
     public void setList(AtomArrayList newList) {
-        this.list = (newList != null) ? newList : new AtomArrayList();
+        list = newList;
         unset();
     }
 
@@ -124,27 +122,8 @@ public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable
         return list;
     }
 
-    private void resetInner() {
-        nextInnerIndex = nextOuterIndex;
-        advanceInner();
-    }
-
-    private void advanceOuter() {
-        nextOuterIndex++;
-        if (nextOuterIndex == list.size()) {
-            nextOuterIndex = -1;
-        }
-    }
-
-    private void advanceInner() {
-        nextInnerIndex++;
-        if (nextInnerIndex == list.size()) {
-            nextInnerIndex = -1;
-        }
-    }
-
     private static final long serialVersionUID = 1L;
     private AtomArrayList list;
-    private int nextOuterIndex, nextInnerIndex;
+    private int outerIndex, innerIndex;
     private final AtomPair atoms = new AtomPair();
 }

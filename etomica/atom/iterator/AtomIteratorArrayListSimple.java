@@ -27,16 +27,11 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
  	}
     
     /**
-     * Sets the list for iteration.  Null value is permitted, which will
-     * cause iterator to give not iterates.
+     * Sets the list for iteration.  Null value will result in a
+     * NullPointerException.
      */
  	public void setList(AtomArrayList atomList) {
-        if(atomList != null) {
-            list = atomList;
-        } else {
-            emptyList.clear();
-            list = emptyList;
-        }
+        list = atomList;
  	}
  	
     /**
@@ -52,13 +47,6 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
  	public void unset() {
         cursor = list.size();
     }
- 
-    /**
-     * Indicates if iterator has another iterate.
-     */
- 	public boolean hasNext() {
- 	    return cursor < list.size();
- 	}
  
     /**
      * Returns the next iterate and advances the iterator.
@@ -102,7 +90,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
  		cursor = 0;
  	}
  	
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     /**
      * Index of element to be returned by subsequent call to next.
@@ -110,5 +98,4 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
     protected int cursor = 0;
 
     protected AtomArrayList list;
-    private final AtomArrayList emptyList = new AtomArrayList();
  }

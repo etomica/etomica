@@ -47,8 +47,10 @@ public class PhaseQuench extends PhaseActionAdapter {
 		double currentTemperature = meterTemperature.getDataAsScalar();
 		double scale = Math.sqrt(temperature / currentTemperature);
 		atomIterator.reset();
-		while (atomIterator.hasNext())
-			((ICoordinateKinetic)atomIterator.nextAtom()).getVelocity().TE(scale);
+        for (ICoordinateKinetic coord = (ICoordinateKinetic)atomIterator.nextAtom();
+             coord != null; coord = (ICoordinateKinetic)atomIterator.nextAtom()) {
+			coord.getVelocity().TE(scale);
+        }
 	}
 
 	/**

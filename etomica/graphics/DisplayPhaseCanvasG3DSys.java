@@ -115,8 +115,8 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     if(colorScheme instanceof ColorSchemeCollective) {
       ((ColorSchemeCollective)colorScheme).colorAllAtoms();
     }
-    while(atomIterator.hasNext()) {
-      AtomLeaf a = (AtomLeaf) atomIterator.nextAtom();
+    for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+         a = (AtomLeaf)atomIterator.nextAtom()) {
       if (a==null || !(a.getType() instanceof AtomTypeSphere)) continue;
       Ball ball = (Ball)aam.getAgent(a);
       if (ball == null) {

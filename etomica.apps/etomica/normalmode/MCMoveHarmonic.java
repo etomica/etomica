@@ -35,7 +35,7 @@ public class MCMoveHarmonic extends MCMovePhase {
         stdDev = new double[eigenValues.length][eigenValues[0].length];
         for (int i=0; i<stdDev.length; i++) {
             for (int j=0; j<stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(0.5*eigenValues[i][j]/coeff[i]);//divide by coeff inside parens?
+                stdDev[i][j] = Math.sqrt(0.5*eigenValues[i][j]/coeff[i]);
             }
         }
     }
@@ -93,8 +93,8 @@ public class MCMoveHarmonic extends MCMovePhase {
                 iRand[iVector][j] = random.nextGaussian() * stdDev[iVector][j];
             }
         }
-        while (iterator.hasNext()) {
-            IAtom atom = iterator.nextAtom();
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
             for (int i=0; i<coordinateDim; i++) {
                 u[i] = 0;
             }

@@ -70,8 +70,8 @@ public class XYZWriter implements Action, Serializable {
             iterator.reset();
             fileWriter.write(Integer.toString(iterator.size())+"\n");
             fileWriter.write("#\n");
-            while (iterator.hasNext()) {
-                AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+            for  (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+                  atom = (AtomLeaf)iterator.nextAtom()) {
                 Element element = ((AtomTypeLeaf)atom.getType()).getElement();
                 String symbol = element.getSymbol();
                 if (!(element instanceof ElementChemical)) {

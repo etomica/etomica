@@ -39,8 +39,8 @@ public class ConfigurationCluster extends Configuration {
 		IVector center = phase.getSpace().makeVector();
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
 		iterator.reset();
-        while (iterator.hasNext()) {
-            IAtom a = iterator.nextAtom();
+        for (IAtom a = iterator.nextAtom(); a != null;
+             a = iterator.nextAtom()) {
             if (!a.isLeaf()) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
@@ -55,9 +55,9 @@ public class ConfigurationCluster extends Configuration {
         translator.actionPerformed(iterator.nextAtom());
         center.E(0.01);
         translator.setDestination(center);
-        if (!iterator.hasNext()) return;
-		while(iterator.hasNext()) { 
-            translator.actionPerformed(iterator.nextAtom()); //.coord.position().E(center);//put all at center of box
+		for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
+            translator.actionPerformed(atom); //.coord.position().E(center);//put all at center of box
         }
         PhaseCluster phaseCluster = (PhaseCluster)phase;
         phaseCluster.trialNotify();
@@ -69,10 +69,10 @@ public class ConfigurationCluster extends Configuration {
 		    // if we make it in here we might not make it out!
             iterator.reset();
 			iterator.nextAtom();
-			while(iterator.hasNext()) {
+            for (IAtom a = iterator.nextAtom(); a != null;
+                 a = iterator.nextAtom()) {
                 translationVector.setRandomCube(random);
                 translationVector.TE(dimVector);
-                IAtom a = iterator.nextAtom();
                 
                 translator.setDestination(translationVector);
                 translator.actionPerformed(a);

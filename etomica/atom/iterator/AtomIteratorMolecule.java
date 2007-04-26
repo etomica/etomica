@@ -25,7 +25,6 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         super(new AtomIteratorArrayListSimple());
         listIterator = (AtomIteratorArrayListSimple)iterator;
         this.species = species[0];
-        setList();
     }
 
     /**
@@ -35,7 +34,11 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      */
     public void setPhase(Phase phase) {
         speciesAgent = phase.getAgent(species);
+    }
+    
+    public void reset() {
         setList();
+        super.reset();
     }
 
     /**
@@ -52,7 +55,6 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      */
     public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
-        setList();
     }
 
     /** 
@@ -67,12 +69,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * phase and target.
      */
     private void setList() {
-        //no phase is specified
-        if(speciesAgent == null) {
-            listIterator.setList(null);
-            
-        //no target -- iterate all molecules of species
-        } else if(targetAtom == null) {
+        if(targetAtom == null) {
             listIterator.setList(speciesAgent.getChildList());
         
         //target specified -- give it as only iterate if descended from species

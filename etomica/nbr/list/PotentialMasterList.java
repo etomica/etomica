@@ -110,6 +110,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
             cellManager.setPotentialRange(range);
         }
 
+        neighborListAgentSource.setRange(newRange);
+        
         iterator = neighborListAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {

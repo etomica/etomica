@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomToArrayList;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
@@ -45,20 +46,19 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * Returns the next iterate and advances the iterator.
      */
  	public IAtom nextAtom() {
-        if (cursor == -1) {
-            return null;
-        }
-        int oldCursor = cursor;
         if (upListNow) {
-            cursor++;
-            if (cursor == list.size()) {
-                cursor = -1;
+            if (cursor > list.size()-2) {
+                return null;
             }
+            cursor++;
         }
         else {
+            if (cursor < 1) {
+                return null;
+            }
             cursor--;
         }
- 		return list.get(oldCursor);
+ 		return list.get(cursor);
  	}
  	
     /**
@@ -75,15 +75,17 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * Performs action on all elements of current list.
      */
  	public void allAtoms(AtomsetAction act) {
- 		int arraySize = list.size();
+        AtomArrayList localList = atomToArrayList.getArrayList(startAtom);
+        int firstCursor = atomToIndex.getIndex(startAtom);
+ 		int arraySize = localList.size();
         if (upListNow) {
             for (int i=firstCursor+numToSkip; i<arraySize; i++) {
-                act.actionPerformed(list.get(i));
+                act.actionPerformed(localList.get(i));
             }
         }
         else {
             for (int i=firstCursor-numToSkip; i>-1; i--) {
-                act.actionPerformed(list.get(i));
+                act.actionPerformed(localList.get(i));
             }
         }
  	}
@@ -92,27 +94,25 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * Puts iterator in state ready to begin iteration.
      */
  	public void reset() {
- 		cursor = firstCursor;
+        list = atomToArrayList.getArrayList(startAtom);
+ 		cursor = atomToIndex.getIndex(startAtom);
         if (upListNow) {
+            cursor--;
             cursor += numToSkip;
-            if (cursor > list.size()-1) {
-                cursor = -1;
-            }
         }
         else {
+            cursor++;
             cursor -= numToSkip;
-            if (cursor < 0) {
-                cursor = -1;
-            }
         }
  	}
     
-    public boolean hasNext() {
-        return cursor != -1;
-    }
-    
     public void unset() {
-        cursor = -1;
+        if (upListNow) {
+            cursor = list.size();
+        }
+        else {
+            cursor = -1;
+        }
     }
  	
     /**
@@ -121,15 +121,14 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * construction.
      */
     public void setAtom(IAtom atom) {
-        list = atomToArrayList.getArrayList(atom);
-        firstCursor = atomToIndex.getIndex(atom);
+        startAtom = atom;
     }
 
     private static final long serialVersionUID = 1L;
     protected final boolean upListNow;
     private final AtomsetCount counter = new AtomsetCount();
     private final int numToSkip;
-    private int firstCursor;
+    private IAtom startAtom;
     private final AtomToIndex atomToIndex;
     private final AtomToArrayList atomToArrayList;
  }

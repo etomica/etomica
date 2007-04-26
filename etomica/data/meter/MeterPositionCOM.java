@@ -43,8 +43,8 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
         iterator.reset();
         positionSum.E(0.0);
         double massSum = 0.0;
-        while(iterator.hasNext()) {
-            AtomLeaf atom = (AtomLeaf)iterator.next();
+        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)iterator.nextAtom()) {
             double mass = ((AtomTypeLeaf)atom.getType()).getMass();
             massSum += mass;
             positionSum.PEa1Tv1(mass,atom.getPosition());

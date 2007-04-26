@@ -66,7 +66,7 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
 	}
 	
     public boolean hasNext() {
-        return atomIterator.hasNext();
+        throw new RuntimeException("jfdka");
     }
     
     public final AtomSet next() {
@@ -74,10 +74,16 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
     }
     
     public IAtom nextAtom() {
-        if(!hasNext()) return null;
         IAtom nextAtom = atomIterator.nextAtom();
-        if(!atomIterator.hasNext()) {
-            advanceLists();
+        while (nextAtom == null) {
+            if(cellIterator.hasNext()) {
+                AtomArrayList list = ((Cell)cellIterator.next()).occupants();
+                atomIterator.setList(list);
+                atomIterator.reset();
+            } else {//no more cells at all
+                break;
+            }
+            nextAtom = atomIterator.nextAtom();
         }
         return nextAtom;
     }
@@ -96,25 +102,8 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
     public void reset() {
         cellIterator.reset();
         atomIterator.unset();
-        advanceLists();
-
-    }//end of reset
+    }
     
-    // Moves to next pair of lists that can provide an iterate
-    // This should be invoked only if listIterator.hasNext is false
-    private void advanceLists() {
-        do {
-            if(cellIterator.hasNext()) {
-                AtomArrayList list = ((Cell)cellIterator.next()).occupants();
-                atomIterator.setList(list);
-                atomIterator.reset();
-            } else {//no more cells at all
-                break;
-            }
-        } while(!atomIterator.hasNext());
-    }//end of advanceCell
-    
-   
     private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple atomIterator;
     private final RectangularLattice.Iterator cellIterator;

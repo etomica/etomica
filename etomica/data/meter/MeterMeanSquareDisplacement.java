@@ -1,6 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomLeaf;
+import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
@@ -67,10 +68,11 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         rLast = new IVector[nAtoms];
         iterator.reset();
         int i=0;
-        while(iterator.hasNext()) {
+        for (AtomLeaf a = (AtomLeaf)iterator.nextAtom(); a != null;
+             a = (AtomLeaf)iterator.nextAtom()) {
             rAccum[i] = space.makeVector();
             rLast[i] = space.makeVector();
-            rLast[i].E(((AtomLeaf)iterator.nextAtom()).getPosition());
+            rLast[i].E(a.getPosition());
             i++;
         }
     }
@@ -90,11 +92,13 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         public int getPriority() {return 50;}//PBC is 100-199
         public void intervalAction() {
 //            meter.iterator.setPhase(meter.integrator.getPhase()[0]);
-            meter.iterator.reset();
+            AtomIterator it = meter.iterator;
+            it.reset();
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
-            while(meter.iterator.hasNext()) {
-                IVector r = ((AtomLeaf)meter.iterator.nextAtom()).getPosition();
+            for (AtomLeaf a = (AtomLeaf)it.nextAtom(); a != null;
+                 a = (AtomLeaf)it.nextAtom()) {
+                IVector r = a.getPosition();
                 meter.rAccum[i].PE(r);
                 meter.rAccum[i].ME(meter.rLast[i]);
                 meter.rLast[i].E(r);
@@ -111,11 +115,15 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         }
         public int getPriority() {return 200;}//PBC is 100-199
         public void intervalAction() {
-            meter.iterator.reset();
+            AtomIterator it = meter.iterator;
+            it.reset();
             int i = 0;
             //accumulate difference from last coordinate before pbc applied
             //store last coordinate after pbc applied
-           while(meter.iterator.hasNext()) {meter.rLast[i++].E(((AtomLeaf)meter.iterator.nextAtom()).getPosition());}
+            for (AtomLeaf a = (AtomLeaf)it.nextAtom(); a != null;
+                 a = (AtomLeaf)it.nextAtom()) {
+                meter.rLast[i++].E(a.getPosition());
+            }
         }
         private static final long serialVersionUID = 1L;
         final MeterMeanSquareDisplacement meter;

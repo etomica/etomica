@@ -71,8 +71,8 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(new Species[]{species});
         moleculeIterator.setPhase(phase);
         moleculeIterator.reset();
-        while(moleculeIterator.hasNext()) {
-            IAtom molecule = moleculeIterator.nextAtom();
+        for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
+             molecule = moleculeIterator.nextAtom()) {
             // we have an molecule, now grab all of its bonds
 
             for (int i=0; i<bondIterators.length; i++) {
@@ -88,8 +88,8 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                 iterator.setBasis(molecule);
                 iterator.setTarget(null);
                 iterator.reset();
-                while (iterator.hasNext()) {
-                    AtomPair bondedPair = (AtomPair)iterator.next();
+                for  (AtomPair bondedPair = (AtomPair)iterator.next(); bondedPair != null;
+                      bondedPair = (AtomPair)iterator.next()) {
                     
                     Object bond = bondManager.makeBond(bondedPair, bondedPotential);
 
@@ -109,12 +109,12 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         moleculeIterator.setPhase(phase);
         moleculeIterator.reset();
         AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
-        while(moleculeIterator.hasNext()) {
-            IAtom molecule = moleculeIterator.nextAtom();
+        for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
+             molecule = moleculeIterator.nextAtom()) {
             leafIterator.setRootAtom(molecule);
             leafIterator.reset();
-            while (leafIterator.hasNext()) {
-                IAtom leafAtom = leafIterator.nextAtom();
+            for (IAtom leafAtom = leafIterator.nextAtom(); leafAtom != null;
+                 leafAtom = leafIterator.nextAtom()) {
                 ArrayList list = (ArrayList)atomAgentManager.getAgent(leafAtom);
                 for (int i=0; i<list.size(); i++) {
                     bondManager.releaseBond(list.get(i));
@@ -162,8 +162,8 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     iterator.setBasis(molecule);
                     iterator.setTarget(newAtom);
                     iterator.reset();
-                    while (iterator.hasNext()) {
-                        AtomSet bondedAtoms = iterator.next();
+                    for (AtomSet bondedAtoms = iterator.next(); bondedAtoms != null;
+                         bondedAtoms = iterator.next()) {
                         Object bond = bondManager.makeBond(bondedAtoms, bondedPotential);
                         bondList.add(bond);
                     }

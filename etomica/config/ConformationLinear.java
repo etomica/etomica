@@ -77,8 +77,8 @@ public class ConformationLinear extends Conformation {
             
         double xNext = -bondLength*0.5*(size-1);
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            IAtom a = atomIterator.nextAtom();
+        for (IAtom a = atomIterator.nextAtom(); a != null;
+             a = atomIterator.nextAtom()) {;
             if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();

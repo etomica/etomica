@@ -35,10 +35,10 @@ public class AtomPairSet implements java.io.Serializable {
         IAtom[] atoms = new IAtom[N];
         iterator.reset();
         int k=0;
-        while(iterator.hasNext()) {
-            IAtom atom = iterator.nextAtom();
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
             atoms[k++] = atom;
-        } 
+        }
         for(int i=0; i<N-1; i++) {
             aPairs[i] = new AtomPair[N-1-i];
             for(int j=0; j<N-1-i; j++) {

@@ -182,7 +182,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         if (iterator.size() != nAtoms) throw new IllegalStateException("move should work on number of molecules in phase");
         iterator.reset();
         int i=0;
-        while (iterator.hasNext()) {
+        for (IAtomGroup a = (IAtomGroup)iterator.nextAtom(); a != null;
+             a = (IAtomGroup)iterator.nextAtom()) {
             selectedMolecules[i++] = (IAtomGroup)iterator.nextAtom();
         }
         return selectedMolecules;

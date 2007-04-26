@@ -70,8 +70,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         iterator.reset();
         int i=0;
         iterator.next();
-        while (iterator.hasNext()) {
-            selectedAtoms[i++] = iterator.nextAtom();
+        for (IAtom a = iterator.nextAtom(); a != null;
+             a = iterator.nextAtom()) {
+            selectedAtoms[i++] = a;
         }
         return selectedAtoms;
     }

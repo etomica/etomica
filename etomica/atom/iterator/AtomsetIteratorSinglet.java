@@ -36,9 +36,13 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
     /**
      * Defines atom returned by iterator and leaves iterator unset.
      * Call to reset() must be performed before beginning iteration.
+     * @throws a NullPointerException if the AtomSet is null
      */
     public void setAtom(AtomSet a) {
-        if (Debug.ON && a != null && a.count() != nBody) throw new IllegalArgumentException("Wrong AtomSet count");
+        if (a == null) {
+            throw new NullPointerException();
+        }
+        if (Debug.ON && a.count() != nBody) throw new IllegalArgumentException("Wrong AtomSet count");
     	atom = a;
     	unset();
     }
@@ -46,17 +50,11 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
     /**
      * returns 1 if atom has been specified, zero otherwise.
      */
-    public int size() {return atom != null ? 0 : 1;}
+    public int size() {return 1;}
 
 	public void allAtoms(AtomsetAction action) {
 		action.actionPerformed(atom);
 	}
-    
-    /**
-     * Returns true if the an atom has been set and a call to reset() has been
-     * performed, without any subsequent calls to next().
-     */
-    public boolean hasNext() {return hasNext;}
     
     /**
      * Sets iterator to a state where hasNext() returns false.

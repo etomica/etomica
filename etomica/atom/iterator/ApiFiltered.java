@@ -28,15 +28,6 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	public ApiFiltered(AtomPairIterator iterator, AtomPairFilter filter) {
 		this.iterator = iterator;
 		this.filter = filter;
-        nextAtoms = new AtomPair();
-        next = new AtomPair();
-	}
-
-	/**
-	 * Indicates whether iterator has another iterate to return.
-	 */
-	public boolean hasNext() {
-		return hasNext;
 	}
 
     /**
@@ -44,14 +35,6 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
      */
     public void reset() {
 	    iterator.reset();
-        hasNext = false;
-        while(iterator.hasNext()) {
-            next = iterator.nextPair();
-            if(filter.accept(next)) {
-                hasNext = true;
-                break;
-            }
-        }
     }
 
 	/**
@@ -59,7 +42,6 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	 */
 	public void unset() {
 		iterator.unset();
-		hasNext = false;
 	}
 
 	/**
@@ -74,16 +56,11 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
      * Returns the next pair and advances the iterator.
      */
     public AtomPair nextPair() {
-        next.copyTo(nextAtoms);
-        hasNext = false;
-        while(iterator.hasNext()) {
+        AtomPair next = iterator.nextPair();
+        while (next != null && !filter.accept(next)) {
             next = iterator.nextPair();
-            if(filter.accept(next)) {
-                hasNext = true;
-                break;
-            }
         }
-        return nextAtoms;
+        return next;
     }
     
 	/**
@@ -158,12 +135,9 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
         }
 	}
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 	protected final AtomPairIterator iterator;
 	protected final AtomPairFilter filter;
-	private AtomPair next;
-	private final AtomPair nextAtoms;
-    private boolean hasNext;
 
 	/**
 	 * Returns a new action that wraps the given action such that action is performed

@@ -3,6 +3,7 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 
 /**
  * Pair iterator synthesized from two atom iterators, such that the inner-loop
@@ -72,7 +73,8 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java
      * Sets the iterator such that hasNext is false.
      */
     public void unset() {
-        hasNext = false;
+        aiInner.unset();
+        aiOuter.unset();
     }
 
     /**
@@ -84,27 +86,23 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java
     }
 
     /**
-     * Indicates whether the iterator has completed its iteration.
-     */
-    public boolean hasNext() {
-        return hasNext;
-    }
-
-    /**
      * Resets the iterator, so that it is ready to go through all of its pairs.
      * A previously returned pair may be altered by this method.
      */
     public void reset() {
         aiOuter.reset();
         aiInner.reset();
-        hasNext = aiOuter.hasNext() && aiInner.hasNext();
-        if (hasNext) {
-            if (doSwap) {
-                pair.atom1 = aiOuter.nextAtom();
-            }
-            else {
-                pair.atom0 = aiOuter.nextAtom();
-            }
+        IAtom nextOuter = aiOuter.nextAtom();
+        if (nextOuter == null) {
+            aiInner.unset();
+            return;
+        }
+
+        if (doSwap) {
+            pair.atom1 = nextOuter;
+        }
+        else {
+            pair.atom0 = nextOuter;
         }
     }
 
@@ -118,31 +116,37 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java
      * iterate.
      */
     public AtomPair nextPair() {
-        if (!hasNext) {
-            return null;
-        }
         //Advance the inner loop, if it is not at its end.
-        if (aiInner.hasNext()) {
+        IAtom nextInner = aiInner.nextAtom();
+        if (nextInner != null) {
             if (doSwap) {
-                pair.atom0 = aiInner.nextAtom();
+                pair.atom0 = nextInner;
             }
             else {
-                pair.atom1 = aiInner.nextAtom();
+                pair.atom1 = nextInner;
             }
         }
         //Advance the outer loop, if the inner loop has reached its end.
         else {
+            IAtom nextOuter = aiOuter.nextAtom();
+            if (nextOuter == null) {
+                return null;
+            }
             aiInner.reset();
+            nextInner = aiInner.nextAtom();
+            if (nextInner == null) {
+                return null;
+            }
+
             if (doSwap) {
-                pair.atom1 = aiOuter.nextAtom();
-                pair.atom0 = aiInner.nextAtom();
+                pair.atom1 = nextOuter;
+                pair.atom0 = nextInner;
             }
             else {
-                pair.atom0 = aiOuter.nextAtom();
-                pair.atom1 = aiInner.nextAtom();
+                pair.atom0 = nextOuter;
+                pair.atom1 = nextInner;
             }
         }
-        hasNext = aiInner.hasNext() || aiOuter.hasNext();
         return pair;
     }
 
@@ -151,20 +155,22 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java
      */
     public void allAtoms(AtomsetAction action) {
         aiOuter.reset();
-        while (aiOuter.hasNext()) {
+        for (IAtom outerAtom = aiOuter.nextAtom(); outerAtom != null;
+             outerAtom = aiOuter.nextAtom()) {
             if (doSwap) {
-                pair.atom1 = aiOuter.nextAtom();
+                pair.atom1 = outerAtom;
             }
             else {
-                pair.atom0 = aiOuter.nextAtom();
+                pair.atom0 = outerAtom;
             }
             aiInner.reset();
-            while (aiInner.hasNext()) {
+            for (IAtom innerAtom = aiInner.nextAtom(); innerAtom != null;
+                 innerAtom = aiInner.nextAtom()) {
                 if (doSwap) {
-                    pair.atom0 = aiInner.nextAtom();
+                    pair.atom0 = innerAtom;
                 }
                 else {
-                    pair.atom1 = aiInner.nextAtom();
+                    pair.atom1 = innerAtom;
                 }
                 action.actionPerformed(pair);
             }
@@ -175,11 +181,9 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java
         return 2;
     }
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private final AtomPair pair = new AtomPair();
-    private boolean hasNext;
     private final AtomIterator aiInner, aiOuter;
     private final boolean doSwap;
-
 }
 

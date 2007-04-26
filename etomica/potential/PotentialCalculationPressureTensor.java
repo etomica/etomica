@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -41,8 +42,8 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 
 		iterator.reset();
-		while(iterator.hasNext()) {
-            potentialSoft.gradient(iterator.next(), pressureTensor);
+        for (AtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
+            potentialSoft.gradient(atoms, pressureTensor);
 		}
 	}
     
@@ -72,12 +73,12 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         workTensor.E(0);
         atomIterator.reset();
 
-        if (!atomIterator.hasNext()) {
+        AtomLeaf firstAtom = (AtomLeaf)atomIterator.nextAtom();
+            
+        if (firstAtom == null) {
             return pressureTensor;
         }
         
-        AtomLeaf firstAtom = (AtomLeaf)atomIterator.nextAtom();
-            
         if (firstAtom instanceof ICoordinateKinetic) {
             if (integrator != null) {
                 warningPrinted = true;
@@ -98,8 +99,8 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         // simulation is dynamic, use the velocities
         atomIterator.reset();
 
-        while (atomIterator.hasNext()) {
-            IAtom atom = atomIterator.nextAtom();
+        for (IAtom atom = atomIterator.nextAtom(); atom != null;
+             atom = atomIterator.nextAtom()) {
             ICoordinateKinetic coord = (ICoordinateKinetic)atom;
             workTensor.Ev1v2(coord.getVelocity(), coord.getVelocity());
             workTensor.TE(((AtomTypeLeaf)atom.getType()).getMass());

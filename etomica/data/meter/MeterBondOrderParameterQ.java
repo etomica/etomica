@@ -55,8 +55,8 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
         NearestImageTransformer nearestImageTransformer = phase.getBoundary();
         pairIterator.setPhase(phase);
         pairIterator.reset();
-        while(pairIterator.hasNext()) {
-            AtomPair pair = (AtomPair)pairIterator.next();
+        for (AtomPair pair = (AtomPair)pairIterator.next(); pair != null;
+             pair = (AtomPair)pairIterator.next()) {
             dr.Ev1Mv2(((AtomLeaf)pair.atom1).getPosition(),((AtomLeaf)pair.atom0).getPosition());
             nearestImageTransformer.nearestImage(dr);
         	double r2 = dr.squared();

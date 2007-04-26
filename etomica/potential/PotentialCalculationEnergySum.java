@@ -20,8 +20,7 @@ public final class PotentialCalculationEnergySum extends PotentialCalculation {
 	 */
 	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
 		iterator.reset();
-		while(iterator.hasNext()) {
-            AtomSet atoms = iterator.next();
+		for (AtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
 			sum += potential.energy(atoms);
 		}
 	}

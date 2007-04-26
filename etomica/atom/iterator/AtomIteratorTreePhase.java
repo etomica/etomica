@@ -35,8 +35,7 @@ import etomica.phase.Phase;
 public class AtomIteratorTreePhase extends AtomIteratorTree implements AtomIteratorPhaseDependent {
     
 	/**
-	 * Default gives a leaf-atom iterator.  Must set a root node and
-	 * reset before using.
+	 * Default gives a leaf-atom iterator.
 	 */
     public AtomIteratorTreePhase() {
     	this(Integer.MAX_VALUE);
@@ -45,8 +44,7 @@ public class AtomIteratorTreePhase extends AtomIteratorTree implements AtomItera
     /**
      * Constructs iterator that will iterate over atoms at the given depth below
      * a (to-be-specified) root node.  Iterates atoms only at the given level, and
-     * not those above it (doAllNodes = false by default).  Must set a root node
-     * and reset before using.
+     * not those above it (doAllNodes = false by default).
      * @param d depth in tree for iteration.
      */
 	public AtomIteratorTreePhase(int d) {
@@ -85,47 +83,34 @@ public class AtomIteratorTreePhase extends AtomIteratorTree implements AtomItera
      * by reset status. Clobbers iteration state.
      */
     public void allAtoms(AtomsetAction act) {
-        if(phase == null || iterationDepth == 0) return;
+        listIterator.setList(phase.getSpeciesMaster().getAgentList());
         listIterator.reset();
-        while(listIterator.hasNext()) {
-            IAtom atom = listIterator.nextAtom();
+        for (IAtom atom = listIterator.nextAtom(); atom != null;
+             atom = listIterator.nextAtom()) {
             if (atom.isLeaf() || iterationDepth == 1) {
                 act.actionPerformed(atom);
+                continue;
             }
-            else {
-                if (treeIterator == null) {
-                    treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
-                    treeIterator.setDoAllNodes(doAllNodes);
-                }
-                treeIterator.setRootAtom(atom);
-                treeIterator.allAtoms(act);
+            
+            if (doAllNodes) {
+                act.actionPerformed(atom);
             }
+
+            if (treeIterator == null) {
+                treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
+                treeIterator.setDoAllNodes(doAllNodes);
+            }
+            treeIterator.setRootAtom(atom);
+            treeIterator.allAtoms(act);
         }
         unset();
     }
 
     public void reset() {
-        if (phase == null) {
-            unset();
-            return;
-        }
+        listIterator.setList(phase.getSpeciesMaster().getAgentList());
         listIterator.reset();
-        treeIterator = null;
-        next = null;
-        if (listIterator.size() > 0) {
-            next = listIterator.nextAtom();
 
-            if (iterationDepth > 1) {
-                treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
-                treeIterator.setDoAllNodes(doAllNodes);
-                treeIterator.setRootAtom(next); 
-                treeIterator.reset();
-                if (doAllNodes) {
-                    treeIterator.next();
-                }
-            }
-        }
-        if(!doAllNodes && iterationDepth>1 && !next.isLeaf()) nextAtom();
+        if (treeIterator != null) treeIterator.unset();
     }
 
     /**

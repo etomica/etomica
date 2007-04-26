@@ -73,8 +73,8 @@ public final class IntegratorHardField extends IntegratorHard {
         
         double t2 = 0.5*tStep*tStep;
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)atomIterator.nextAtom()) {
             HardFieldAgent agent = (HardFieldAgent)agentManager.getAgent(a);
             agent.decrementCollisionTime(tStep);
             a.getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a).getVelocity());
@@ -100,11 +100,11 @@ public final class IntegratorHardField extends IntegratorHard {
         
         //Compute all forces
         atomIterator.reset();
-        while(atomIterator.hasNext()) {   //zero forces on all atoms
-            HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent(atomIterator.nextAtom());
-            
-            iagent.forceFree = true;
+        for (IAtom atom = atomIterator.nextAtom(); atom != null;
+             atom = atomIterator.nextAtom()) {
+            ((HardFieldAgent)agentManager.getAgent(atom)).forceFree = true;
         }
+        //zero forces on all atoms
         forceSum.reset();
         //Compute forces on each atom
         potential.calculate(phase, fieldsOnly, forceSum);
@@ -117,14 +117,14 @@ public final class IntegratorHardField extends IntegratorHard {
     public void scaleMomenta(double s) {
         double rs = 1.0/s;
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)atomIterator.nextAtom()) {
             ((ICoordinateKinetic)a).getVelocity().TE(s); //scale momentum
             ((Agent)agentManager.getAgent(a)).eventLinker.sortKey *= rs;
         }
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            IAtom a = atomIterator.nextAtom();
+        for (IAtom a = atomIterator.nextAtom(); a != null;
+             a = atomIterator.nextAtom()) {
  //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
  //                               a.coord.momentum().squared());
             HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent(a);
@@ -182,12 +182,10 @@ public final class IntegratorHardField extends IntegratorHard {
 		public void doCalculation(AtomsetIterator iterator, Potential potential) {
 			super.doCalculation(iterator,potential);
             iterator.reset();
-            while(iterator.hasNext()) {
-                AtomSet atoms = iterator.next();
+            for (AtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {
                 ((HardFieldAgent)integratorAgentManager.getAgent(atoms.getAtom(0))).forceFree = false;
             }
 		}
     }//end ForceSums
 
 }//end of IntegratorHardField
-

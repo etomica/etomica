@@ -177,8 +177,8 @@ public class PotentialGroup extends Potential {
             //if(firstIterate) ((AtomsetIteratorBasisDependent)link.iterator).setDirective(id);
             link.iterator.setBasis(basisAtoms);
             link.iterator.reset();
-            while(link.iterator.hasNext()) {
-                sum += link.potential.energy(link.iterator.next());
+            for (AtomSet atoms = link.iterator.next(); atoms != null; atoms = link.iterator.next()) {
+                sum += link.potential.energy(atoms);
             }
         }
         return sum;
@@ -234,8 +234,8 @@ public class PotentialGroup extends Potential {
             }
     	}
     	iterator.reset();//loop over atom groups affected by this potential group
-    	while (iterator.hasNext()) {
-    	    AtomSet basisAtoms = iterator.next();
+    	for (AtomSet basisAtoms = iterator.next(); basisAtoms != null;
+             basisAtoms = iterator.next()) {
     	    for (PotentialLinker link=first; link!= null; link=link.next) {
     	        if(!link.enabled) continue;
     	        link.iterator.setBasis(basisAtoms);

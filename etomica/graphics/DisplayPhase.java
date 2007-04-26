@@ -546,27 +546,27 @@ public class DisplayPhase extends Display implements EtomicaElement {
         /**
          * Returns the atom nearest the currently selected point
          */
-        private IAtom selectAtom() {
-            IAtom nearestAtom = null;
-            double r2Min = Double.MAX_VALUE;
-            atomIterator.reset();
-            while(atomIterator.hasNext()) {
-                AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
-                double r2 = Space.r2(point,atom.getPosition(),getPhase().getBoundary());
-                if(r2 < r2Min) {
-                    nearestAtom = atom;
-                    r2Min = r2;
-                }
-            }
-            return nearestAtom;
-        }
+//        private IAtom selectAtom() {
+//            IAtom nearestAtom = null;
+//            double r2Min = Double.MAX_VALUE;
+//            atomIterator.reset();
+//            while(atomIterator.hasNext()) {
+//                AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
+//                double r2 = Space.r2(point,atom.getPosition(),getPhase().getBoundary());
+//                if(r2 < r2Min) {
+//                    nearestAtom = atom;
+//                    r2Min = r2;
+//                }
+//            }
+//            return nearestAtom;
+//        }
         
         /**
          * Returns the molecule nearest the currently selected point
          */
-        private IAtom selectMolecule() {
+//        private IAtom selectMolecule() {
             //phase.moleculeIterator needs to be defined to implement method
-            throw new RuntimeException("method DisplayPhase.selectMolecule not implemented");
+//            throw new RuntimeException("method DisplayPhase.selectMolecule not implemented");
             
         /*    Atom nearestMolecule = null;
             double r2Min = Double.MAX_VALUE;
@@ -579,7 +579,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 }
             }
             return nearestMolecule;*/
-        }  
+//        }  
         
         
 //		public void keyPressed(KeyEvent evt) {

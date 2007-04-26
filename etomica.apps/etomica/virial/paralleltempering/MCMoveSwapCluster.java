@@ -54,8 +54,8 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
         iterator1.reset();
         iterator2.reset();
 
-        while(iterator1.hasNext()) {
-            AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom();
+        for (AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom(); a1 != null;
+             a1 = (AtomLeaf)iterator1.nextAtom()) {
             AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
 
             //swap coordinates
@@ -97,8 +97,8 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
         iterator1.reset();
         iterator2.reset();
 
-        while(iterator1.hasNext()) {
-            AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom();
+        for (AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom(); a1 != null;
+             a1 = (AtomLeaf)iterator1.nextAtom()) {
             AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
 
             //swap coordinates

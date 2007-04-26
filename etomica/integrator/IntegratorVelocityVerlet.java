@@ -72,9 +72,9 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     // assumes one phase
     public void doStepInternal() {
         atomIterator.reset();              //reset iterator of atoms
-        while(atomIterator.hasNext()) {    //loop over all atoms
-            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();  //  advancing positions full step
-            MyAgent agent = (MyAgent)agentManager.getAgent(a);     //  and momenta half step
+        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)atomIterator.nextAtom()) {
+            MyAgent agent = (MyAgent)agentManager.getAgent(a);
             IVector r = a.getPosition();
             IVector v = ((ICoordinateKinetic)a).getVelocity();
             v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
@@ -91,8 +91,8 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         
         //Finish integration step
         atomIterator.reset();
-        while(atomIterator.hasNext()) {     //loop over atoms again
-            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();   //  finishing the momentum step
+        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)atomIterator.nextAtom()) {
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             IVector velocity = ((ICoordinateKinetic)a).getVelocity();
             workTensor.Ev1v2(velocity,velocity);

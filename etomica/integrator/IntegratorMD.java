@@ -230,8 +230,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
         momentum.E(0);
         if (atomIterator.size() > 1) {
             atomIterator.reset();
-            while(atomIterator.hasNext()) {
-                AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+            for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+                 a = (AtomLeaf)atomIterator.nextAtom()) {
                 double mass = ((AtomTypeLeaf)a.getType()).getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass,((ICoordinateKinetic)a).getVelocity());
@@ -240,8 +240,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
             momentum.TE(1.0/atomIterator.size());
             atomIterator.reset();
             //set net momentum to 0
-            while(atomIterator.hasNext()) {
-                AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+            for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+                 a = (AtomLeaf)atomIterator.nextAtom()) {
                 double rm = ((AtomTypeLeaf)a.getType()).rm();
                 if (rm != 0) {
                     ((ICoordinateKinetic)a).getVelocity().PEa1Tv1(-rm,momentum);
@@ -250,8 +250,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
             if (Debug.ON) {
                 momentum.E(0);
                 atomIterator.reset();
-                while(atomIterator.hasNext()) {
-                    AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+                for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+                     a = (AtomLeaf)atomIterator.nextAtom()) {
                     double mass = ((AtomTypeLeaf)a.getType()).getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,((ICoordinateKinetic)a).getVelocity());
@@ -276,8 +276,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
             s = Math.sqrt(temperature / t);
         }
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)atomIterator.nextAtom()) {
             ((ICoordinateKinetic)a).getVelocity().TE(s); //scale momentum
         }
         return scale;

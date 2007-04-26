@@ -85,8 +85,8 @@ public class WriteConfiguration implements Action {
         try {
             iterator.reset();
             IVector writePosition = phase.getSpace().makeVector();
-            while (iterator.hasNext()) {
-                AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+            for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+                 atom = (AtomLeaf)iterator.nextAtom()) {
                 writePosition.E(atom.getPosition());
                 if (doApplyPBC) {
                     IVector shift = phase.getBoundary().centralImage(writePosition);

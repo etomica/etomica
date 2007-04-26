@@ -152,8 +152,9 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         //skip the first one
         iterator.next();
         int i=0;
-        while (iterator.hasNext()) {
-            selectedMolecules[i++] = (IAtomGroup)iterator.nextAtom();
+        for (IAtomGroup a = (IAtomGroup)iterator.nextAtom(); a != null;
+             a = (IAtomGroup)iterator.nextAtom()) {
+            selectedMolecules[i++] = a;
         }
         return selectedMolecules;
     }

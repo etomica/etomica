@@ -100,8 +100,9 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
         double xMaxSquared = xMax*xMax;
         iterator.setPhase(phase);
         iterator.reset();
-        while(iterator.hasNext()) {                 //iterate over all pairs
-            AtomPair pair = (AtomPair)iterator.next();
+        // iterate over all pairs
+        for (AtomPair pair = (AtomPair)iterator.next(); pair != null;
+             pair = (AtomPair)iterator.next()) {
             dr.Ev1Mv2(((AtomLeaf)pair.atom1).getPosition(),((AtomLeaf)pair.atom0).getPosition());
             nearestImageTransformer.nearestImage(dr);
             double r2 = dr.squared();       //compute pair separation

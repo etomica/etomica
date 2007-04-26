@@ -145,8 +145,8 @@ public final class Debug {
         if (ATOM1_INDEX > -1 || ATOM2_INDEX > -1) {
             AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
             iterator.reset();
-            while (iterator.hasNext()) {
-                IAtom atom = iterator.nextAtom();
+            for (IAtom atom = iterator.nextAtom(); atom != null;
+                 atom = iterator.nextAtom()) {
                 if (atom.getGlobalIndex() == ATOM1_INDEX) {
                     pair.atom0 = atom;
                     if (pair.atom1 != null || ATOM2_INDEX < 0) {

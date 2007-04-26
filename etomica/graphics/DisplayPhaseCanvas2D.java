@@ -166,16 +166,17 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         }
         atomIterator.setPhase(displayPhase.getPhase());
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            drawAtom(g, atomOrigin, (AtomLeaf)atomIterator.nextAtom());
+        for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)atomIterator.nextAtom()) {
+            drawAtom(g, atomOrigin, atom);
         }
             
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
             Boundary boundary = displayPhase.getPhase().getBoundary();
             atomIterator.reset();
-            while(atomIterator.hasNext()) {
-                AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+            for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+                 a = (AtomLeaf)atomIterator.nextAtom()) {
                 if(!(a.getType() instanceof AtomTypeSphere)) continue;
                 float[][] shifts = boundary.getOverflowShifts(a.getPosition(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {

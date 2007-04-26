@@ -41,8 +41,9 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
         //compute local molar density
         int nSum = 0;
         iterator.reset();
-        while(iterator.hasNext()) {
-            if(shape.contains(((AtomLeaf)iterator.nextAtom()).getPosition())) nSum++;
+        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)iterator.nextAtom()) {
+            if(shape.contains(atom.getPosition())) nSum++;
         }
         return nSum/shape.getVolume();
     }

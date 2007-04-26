@@ -41,10 +41,6 @@ public class AtomIteratorTreePhaseTest extends IteratorTestAbstract {
         LinkedList list = null;
         int count = 0;
 
-        //test initial iterator provides no iterates
-        list = generalIteratorMethodTests(treeIterator);
-//        assertEquals(list.size(), 0);
-        
         //test iteration over all nodes from speciesMaster
         count = 3 + n0a*(1 + nAtoms) + n1a*(1) 
                 + n2a*(1 + nTree[0]*(1 + nTree[1]*(1 + nTree[2])));

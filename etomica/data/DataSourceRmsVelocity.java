@@ -5,7 +5,6 @@ import java.io.Serializable;
 import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorNull;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -62,8 +61,8 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, DataSourceIndepe
 	public Data getData() {
 		iterator.reset();
         histogramRMS.reset();
-		while (iterator.hasNext()) {
-			AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+		for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)iterator.nextAtom()) {
 			histogramRMS.addValue(Math.sqrt(((ICoordinateKinetic)atom).getVelocity().squared()));
 		}
 
@@ -115,11 +114,8 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, DataSourceIndepe
 	 * 
 	 * @param iterator
 	 */
-	public void setIterator(AtomIterator iterator) {
-		if (iterator == null)
-			this.iterator = AtomIteratorNull.INSTANCE;
-		else
-			this.iterator = iterator;
+	public void setIterator(AtomIterator newIterator) {
+	    iterator = newIterator;
 	}
 
 	/**

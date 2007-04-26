@@ -48,8 +48,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         //We're using the instantaneous velocity tensor with the average virial tensor
         //not quite right, but works out in the end.
         iterator.reset();
-        while (iterator.hasNext()) {
-            IAtom a = iterator.nextAtom();
+        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
             v.Ev1v2(((ICoordinateKinetic)a).getVelocity(), ((ICoordinateKinetic)a).getVelocity());
             v.TE((((AtomTypeLeaf)a.getType()).rm()));
             data.x.PE(v);

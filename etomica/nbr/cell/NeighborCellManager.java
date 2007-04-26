@@ -161,8 +161,8 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         }
         
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            IAtom atom = atomIterator.nextAtom();
+        for (IAtom atom = atomIterator.nextAtom(); atom != null;
+             atom = atomIterator.nextAtom()) {
             if (atom.getType().isInteracting()) {
                 assignCell(atom);
             }
@@ -246,18 +246,15 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             MCMovePhase move = (MCMovePhase)evt.getMCMove();
             AtomIterator iterator = move.affectedAtoms();
             iterator.reset();
-            while (iterator.hasNext()) {
-                IAtom atom = iterator.nextAtom();
+            for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
+                updateCell(atom);
                 if (!atom.isLeaf()) {
                     treeIterator.setRootAtom(atom);
                     treeIterator.reset();
-                    while (treeIterator.hasNext()) {
-                        IAtom childAtom = treeIterator.nextAtom();
+                    for (IAtom childAtom = treeIterator.nextAtom();
+                         childAtom != null; childAtom = treeIterator.nextAtom()) {
                         updateCell(childAtom);
                     }
-                }
-                else {
-                    updateCell(atom);
                 }
             }
         }

@@ -37,32 +37,35 @@ public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable
     }
 
     /**
-     * Indicates whether iterator has another iterate.
-     */
-    public boolean hasNext() {
-        return nextOuterIndex < outerList.size() && nextInnerIndex < innerList.size();
-    }
-
-    /**
      * Sets iterator in condition to begin iteration.
      * 
      * @throws IllegalStateException
      *             if outer and inner lists have been set to the same instance
      */
     public void reset() {
-        if (outerList == innerList && outerList != emptyList) {
+        if (outerList == innerList) {
             throw new IllegalStateException(
                     "ApiInterList will not work correctly if inner and outer lists are the same instance");
         }
-        nextOuterIndex = 0;
-        nextInnerIndex = 0;
+        outerIndex = 0;
+        if (outerList.size() == 0) {
+            innerIndex = innerList.size() - 1;
+            return;
+        }
+        innerIndex = -1;
+        atoms.atom0 = outerList.get(outerIndex);
     }
 
     /**
      * Sets iterator such that hasNext is false.
      */
     public void unset() {
-        nextOuterIndex = outerList.size();
+        if (outerList != null) {
+            outerIndex = outerList.size() - 1;
+        }
+        if (innerList != null) {
+            innerIndex = innerList.size() - 1;
+        }
     }
 
     /**
@@ -76,15 +79,16 @@ public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable
      * Returns the next iterate pair. Returns null if hasNext() is false.
      */
     public AtomPair nextPair() {
-        if (!hasNext())
-            return null;
-        atoms.atom0 = outerList.get(nextOuterIndex);
-        atoms.atom1 = innerList.get(nextInnerIndex);
-        nextInnerIndex++;
-        if (nextInnerIndex == innerList.size()) {
-            nextOuterIndex++;
-            nextInnerIndex = 0;
+        if (innerIndex > innerList.size() - 2) {
+            if (outerIndex > outerList.size() - 2 || innerList.size() == 0) {
+                return null;
+            }
+            outerIndex++;
+            atoms.atom0 = outerList.get(outerIndex);
+            innerIndex = -1;
         }
+        innerIndex++;
+        atoms.atom1 = innerList.get(innerIndex);
         return atoms;
     }
 
@@ -124,7 +128,7 @@ public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable
      *            the new atom list for iteration
      */
     public void setOuterList(AtomArrayList newList) {
-        this.outerList = (newList != null) ? newList : emptyList;
+        this.outerList = newList;
         unset();
     }
 
@@ -136,7 +140,7 @@ public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable
      *            the new atom list for iteration
      */
     public void setInnerList(AtomArrayList newList) {
-        this.innerList = (newList != null) ? newList : emptyList;
+        this.innerList = newList;
         unset();
     }
 
@@ -156,8 +160,6 @@ public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable
 
     private static final long serialVersionUID = 1L;
     private AtomArrayList outerList, innerList;
-    private int nextOuterIndex, nextInnerIndex;
-    private final AtomArrayList emptyList = new AtomArrayList();
+    private int outerIndex, innerIndex;
     private final AtomPair atoms = new AtomPair();
-
 }

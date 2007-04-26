@@ -20,8 +20,6 @@ public final class AtomIteratorNull implements AtomIterator, Serializable {
     
     public void allAtoms(AtomsetAction action) {}
 
-    public boolean hasNext() {return false;}
-
     public AtomSet next() {return null;}
 
     public IAtom nextAtom() {return null;}

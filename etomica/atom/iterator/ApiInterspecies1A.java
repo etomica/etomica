@@ -181,10 +181,6 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         iterator.allAtoms(action);
     }
     
-    public boolean hasNext() {
-        return iterator.hasNext();
-    }
-    
     public int nBody() {
         return 2;
     }

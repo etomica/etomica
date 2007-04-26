@@ -125,18 +125,10 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
     }
 
     /**
-     * Indicates whether iterator has another iterate to return.
-     */
-    public boolean hasNext() {
-        return next != null;
-    }
-
-    /**
      * Puts iterator in state ready for iteration.
      */
     public void reset() {
         iterator.reset();
-        nextAtom();
     }
 
     /**
@@ -144,19 +136,15 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
      */
     public void unset() {
         iterator.unset();
-        next = null;
     }
 
     /**
      * Returns the next atom from the iterator that meets the filter's criteria.
      */
     public IAtom nextAtom() {
-        IAtom nextAtom = next;
-        next = null;
-        while (iterator.hasNext() && next == null) {
-            next = iterator.nextAtom();
-            if (!filter.accept(next))
-                next = null;
+        IAtom nextAtom = iterator.nextAtom();
+        while (nextAtom != null && !filter.accept(nextAtom)) {
+            nextAtom = iterator.nextAtom();
         }
         return nextAtom;
     }
@@ -201,10 +189,9 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
         return iterator;
     }
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
     protected final AtomIterator iterator;
     private final AtomFilter filter;
-    private IAtom next;
     private final ActionWrapper actionWrapper;
 
     /**

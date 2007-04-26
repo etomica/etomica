@@ -51,8 +51,14 @@ public class AtomIteratorArrayListTest extends IteratorTestAbstract {
         
         //check handling of null list
         iterator.setList(null);
-        list = generalIteratorMethodTests(iterator);
-        assertEquals(list.size(), 0);
+        boolean exceptionThrown = false;
+        try {
+            list = generalIteratorMethodTests(iterator);
+        }
+        catch (RuntimeException e) {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
         
     }
 

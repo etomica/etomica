@@ -65,8 +65,9 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
     public void addEachToList(AtomArrayList atomList) {
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(atomList);
         iterator.reset();
-        while(iterator.hasNext()) {
-            actionPerformed(iterator.nextAtom());
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
+            actionPerformed(atom);
         }
     }
     

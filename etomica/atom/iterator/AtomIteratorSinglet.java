@@ -47,18 +47,12 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     /**
      * returns 1 if atom is not null, 0 if atom is null.
      */
-    public int size() {return (atom == null) ? 0 : 1;}
+    public int size() {return atom != null ? 1 : 0;}
 
 	public void allAtoms(AtomsetAction action) {
-		if(atom != null) action.actionPerformed(atom);
+		if (atom != null) action.actionPerformed(atom);
 	}
         
-    /**
-     * Returns true if the an atom has been set and a call to reset() has been
-     * performed, without any subsequent calls to next().
-     */
-    public boolean hasNext() {return hasNext;}
-    
     /**
      * Sets iterator to a state where hasNext() returns false.
      */
@@ -68,7 +62,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
      * Resets iterator to a state where hasNext is true.
      */
     public void reset() {
-        hasNext = (atom != null); 
+        hasNext = atom != null; 
     }
     
     /**

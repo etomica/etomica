@@ -30,13 +30,6 @@ public abstract class AtomsetIteratorAdapter implements AtomsetIterator, java.io
 	}
 
 	/* (non-Javadoc)
-	 * @see etomica.AtomIterator#hasNext()
-	 */
-	public boolean hasNext() {
-		return iterator.hasNext();
-	}
-
-	/* (non-Javadoc)
 	 * @see etomica.AtomIterator#reset()
 	 */
 	public void reset() {

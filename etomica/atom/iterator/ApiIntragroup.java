@@ -66,18 +66,9 @@ public final class ApiIntragroup implements AtomPairIterator,
         
         if (upListNow) {
             apiUp.reset();
-            if(!apiUp.hasNext()) {
-                upListNow = false;
-            }
         }
-        
-        if(!upListNow) {//accounts for possibility that upIterator is empty
-            apiUp.unset();
-            if(doGoDown) {
-                apiDown.reset();
-            } else {
-                apiDown.unset();
-            }
+        else {
+            apiDown.reset();
         }
 	}
     
@@ -122,10 +113,6 @@ public final class ApiIntragroup implements AtomPairIterator,
         return counter.callCount();
 	}
     
-    public boolean hasNext() {
-        return upListNow ? apiUp.hasNext() : apiDown.hasNext();
-    }
-
     public AtomSet next() {
         return nextPair();
     }
@@ -133,11 +120,14 @@ public final class ApiIntragroup implements AtomPairIterator,
     public AtomPair nextPair() {
         if (upListNow) {
             AtomPair next = apiUp.nextPair();
-            if (!apiUp.hasNext() && doGoDown) {
-                upListNow = false;
-                apiDown.reset();
+            if (next != null && (next.atom0 == null || next.atom1 == null)) {
+                throw new RuntimeException("oops "+next);
             }
-            return next;
+            if (next != null || !doGoDown) {
+                return next;
+            }
+            upListNow = false;
+            apiDown.reset();
         }
         return apiDown.nextPair();
     }

@@ -66,16 +66,12 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         nextCursor = 0;
     }
     
-    public boolean hasNext() {
-        return nextCursor < next.count();
-    }
-    
     public void unset() {
         next.getArrayList().clear();
     }
     
     public AtomSet next() {
-        if (!hasNext()) {
+        if (nextCursor + 1 > next.count()) {
             return null;
         }
         if (nextCursor < 0) {
@@ -97,8 +93,8 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
     
     public void allAtoms(AtomsetAction action) {
         reset();
-        while (hasNext()) {
-            action.setAtoms(next());
+        for (AtomSet atoms = next(); atoms != null; atoms = next()) {
+            action.setAtoms(atoms);
             action.actionPerformed();
         }
     }

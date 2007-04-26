@@ -170,8 +170,9 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         }
         atomIterator.setPhase(displayPhase.getPhase());
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            drawAtom(g, displayPhase.getOrigin(), (AtomLeaf)atomIterator.nextAtom());
+        for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)atomIterator.nextAtom()) {
+            drawAtom(g, displayPhase.getOrigin(), atom);
         }
             
         //Draw overflow images if so indicated

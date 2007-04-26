@@ -46,8 +46,8 @@ public final class PhaseImposePbc extends PhaseActionAdapter {
 		Boundary boundary = phase.getBoundary();
 		iterator.reset();
         if (applyToMolecules) {
-            while (iterator.hasNext()) {
-                IAtom molecule = iterator.nextAtom();
+            for (IAtom molecule = iterator.nextAtom(); molecule != null;
+                 molecule = iterator.nextAtom()) {
                 IVector shift = boundary.centralImage(moleculePosition.position(molecule));
                 if (!shift.isZero()) {
                     translator.setTranslationVector(shift);
@@ -56,8 +56,8 @@ public final class PhaseImposePbc extends PhaseActionAdapter {
             }
         }
         else {
-            while (iterator.hasNext()) {
-                AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+            for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+                 atom = (AtomLeaf)iterator.nextAtom()) {
                 IVector shift = boundary.centralImage(atom.getPosition());
                 if (!shift.isZero()) {
                     atom.getPosition().PE(shift);

@@ -3,7 +3,6 @@
 package etomica.integrator;
 import etomica.EtomicaInfo;
 import etomica.action.PhaseInflate;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.iterator.AtomsetIterator;
@@ -20,7 +19,7 @@ import etomica.modifier.ModifierBoolean;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential2Soft;
-import etomica.potential.PotentialCalculation;
+import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
@@ -161,12 +160,12 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     }
     
     protected void calculateForces() {
-        
         //Compute all forces
+
         atomIterator.reset();
-        while(atomIterator.hasNext()) {   //zero forces on all atoms
-            ((Agent)agentManager.getAgent(atomIterator.nextAtom())).force.E(0.0);
-        }
+        //zero forces on all atoms
+        forceSumNPH.reset();
+
         forceSumNPH.u = 0.0;
         forceSumNPH.w = 0.0;
         forceSumNPH.x = 0.0;
@@ -285,7 +284,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         private DataTag tag;
     }
         
-    public static final class ForceSumNPH extends PotentialCalculation {
+    public static final class ForceSumNPH extends PotentialCalculationForceSum {
         
         private static final long serialVersionUID = 1L;
         double u; //energy sum
@@ -296,7 +295,6 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         private final IVector dr;
         private final IVector dv;
         private NearestImageTransformer nearestImageTransformer;
-        protected AtomAgentManager integratorAgentManager;
 
         public ForceSumNPH(Space space) {
             dr = space.makeVector();
@@ -307,16 +305,12 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             nearestImageTransformer = phase.getBoundary();
         }
         
-        public void setAgentManager(AtomAgentManager agentManager) {
-            integratorAgentManager = agentManager;
-        }
-        
         //pair
         public void doCalculation(AtomsetIterator iterator, Potential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
             iterator.reset();
-            while(iterator.hasNext()) {
-                AtomPair pair = (AtomPair)iterator.next();
+            for (AtomPair pair = (AtomPair)iterator.next(); pair != null;
+                 pair = (AtomPair)iterator.next()) {
 
                 AtomLeaf atom0 = (AtomLeaf)pair.atom0;
                 AtomLeaf atom1 = (AtomLeaf)pair.atom1;

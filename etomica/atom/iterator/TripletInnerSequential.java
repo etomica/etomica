@@ -46,26 +46,6 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
         targetAtom = newTargetAtom;
     }
 
-    public boolean hasNext() {
-        if (stateUpDown == 0) {
-            // if we're not going to go down, we're done when we reach 2 from the end
-            if (cursor < childList.size() - 2) {
-                return true;
-            }
-            return false;
-        }
-        if (stateUpDown == 1) {
-            if (cursor < childList.size() - 1 && cursor > 0) {
-                return true;
-            }
-            return false;
-        }
-        if (stateUpDown == 2 && cursor > 1 && cursor < childList.size()) {
-            return true;
-        }
-        return false;
-    }
-
     public void reset() {
         if (targetAtom != null) {
             cursor = childList.indexOf(targetAtom);
@@ -129,8 +109,8 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
 
     public void allAtoms(AtomsetAction action) {
         reset();
-        while (hasNext()) {
-            action.actionPerformed(next());
+        for (AtomSet atoms = next(); atoms != null; atoms = next()) {
+            action.actionPerformed(atoms);
         }
     }
 

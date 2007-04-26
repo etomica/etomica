@@ -48,9 +48,9 @@ public class CheckCBMCHexane implements Action {
 
         // Check that bond lengths are 0.4;
         moleculeIterator.reset();
-        while (moleculeIterator.hasNext()) {
-            AtomArrayList atomList = ((IAtomGroup) moleculeIterator.nextAtom())
-                    .getChildList();
+        for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
+             atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
+            AtomArrayList atomList = atom.getChildList();
             for (int i = 0; i < atomList.size() - 1; i++) {
                 // vex.E(((AtomLeaf)atomList.get(i)).getPosition());
                 vex.ME(((AtomLeaf) atomList.get(i + 1)).getPosition());
@@ -68,9 +68,9 @@ public class CheckCBMCHexane implements Action {
         // Check that bond angles are 109.47 degrees
         moleculeIterator.reset();
         tol = 0.0000005;
-        while (moleculeIterator.hasNext()) {
-            AtomArrayList atomList = ((IAtomGroup) moleculeIterator.nextAtom())
-                    .getChildList();
+        for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
+             atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
+            AtomArrayList atomList = atom.getChildList();
             for (int i = 0; i < atomList.size() - 2; i++) {
                 vex.E(((AtomLeaf) atomList.get(i)).getPosition());
                 vex.ME(((AtomLeaf) atomList.get(i + 1)).getPosition());
@@ -91,9 +91,9 @@ public class CheckCBMCHexane implements Action {
         tol = 0.0000000001;
         double makeGood;
         moleculeIterator.reset();
-        while (moleculeIterator.hasNext()) {
-            AtomArrayList atomList = ((IAtomGroup) moleculeIterator.nextAtom())
-                    .getChildList();
+        for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
+             atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
+            AtomArrayList atomList = atom.getChildList();
             for (int i = 0; i < atomList.size() - 3; i++) {
                 vex.E(((AtomLeaf) atomList.get(i)).getPosition());
                 vex.ME(((AtomLeaf) atomList.get(i + 1)).getPosition());

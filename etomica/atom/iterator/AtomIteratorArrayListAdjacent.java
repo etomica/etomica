@@ -13,8 +13,7 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 
 /**
  * Returns one or both of the atoms adjacent to a specified atom in
- * its sequence list (i.e., the AtomList containing its seq linker).
- * If adjacent linker has no atom (is a tab or header) no corresponding
+ * its parent's child list. If adjacent linker has no atom no corresponding
  * atom is given as an iterate; thus iterator may give 0, 1, or 2 iterates
  * depending on presence of adjacent atoms and specification of iteration
  * direction.
@@ -73,13 +72,6 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     }
 
     /**
-     * Returns true if another iterate is forthcoming, false otherwise.
-     */
-    public boolean hasNext() {
-        return hasNext;
-    }
-
-    /**
      * Returns 1, indicating that this is an atom AtomSet iterator.
      */
     public int nBody() {
@@ -97,41 +89,31 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      * Returns the next iterator, or null if hasNext is false.
      */
     public IAtom nextAtom() {
-        if (!hasNext) {
-            return null;
-        }
         if(upListNow) {
             upListNow = false;
-            if (direction == IteratorDirective.Direction.UP || firstCursor == 0) {
-                hasNext = false;
-            }
             return list.get(firstCursor+1);
         }
-        hasNext = false;
-        return list.get(firstCursor-1);
+        else if (dnListNow) {
+            dnListNow = false;
+            return list.get(firstCursor-1);
+        }
+        return null;
     }
 
     /**
      * Readies the iterator to begin iteration.
      */
     public void reset() {
-        upListNow = false;
-        hasNext = true;
-        if ((direction != IteratorDirective.Direction.DOWN) && (firstCursor < list.size()-1)) {
-            upListNow = true;
-            return;
-        }
-        if ((direction != IteratorDirective.Direction.UP) && (firstCursor > 0)) {
-            return;
-        }
-        hasNext = false;
+        upListNow = ((direction != IteratorDirective.Direction.DOWN) && (firstCursor < list.size()-1));
+        dnListNow = ((direction != IteratorDirective.Direction.UP) && (firstCursor > 0));
     }
 
     /**
      * Puts iterator in a state where hasNext is false.
      */
     public void unset() {
-        hasNext = false;
+        upListNow = false;
+        dnListNow = false;
     }   
     
     /**
@@ -147,9 +129,8 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     private static final long serialVersionUID = 1L;
     private int firstCursor;
     private final Direction direction;
-    private boolean upListNow;
+    private boolean upListNow, dnListNow;
     private AtomArrayList list;
-    private boolean hasNext;
     private final AtomToIndex atomToIndex;
     private final AtomToArrayList atomToArrayList;
 }

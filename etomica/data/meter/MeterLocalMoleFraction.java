@@ -74,8 +74,8 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         int totalSum = 0, speciesSum = 0;
         iterator.reset();
-        while(iterator.hasNext()) {
-            AtomLeaf a = (AtomLeaf)iterator.nextAtom();
+        for (AtomLeaf a = (AtomLeaf)iterator.nextAtom(); a != null;
+             a = (AtomLeaf)iterator.nextAtom()) {
             tempVec.Ev1Mv2(a.getPosition(), shapeOrigin);
             if(shape.contains(tempVec)) {
                 totalSum++;

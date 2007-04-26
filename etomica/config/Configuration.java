@@ -2,8 +2,6 @@ package etomica.config;
 
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomGroup;
-import etomica.atom.SpeciesAgent;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.phase.Phase;
 
 /**
@@ -44,13 +42,9 @@ public abstract class Configuration implements java.io.Serializable {
      */
     protected AtomArrayList[] getMoleculeLists(Phase phase) {
         AtomArrayList speciesAgentList = phase.getSpeciesMaster().getAgentList();
-        AtomIteratorArrayListSimple speciesAgentIterator = new AtomIteratorArrayListSimple(speciesAgentList);
         AtomArrayList[] moleculeLists = new AtomArrayList[speciesAgentList.size()];
-        int i=0;
-        speciesAgentIterator.reset();
-        while (speciesAgentIterator.hasNext()) {
-            SpeciesAgent agent = (SpeciesAgent)speciesAgentIterator.nextAtom();
-            moleculeLists[i++] = ((IAtomGroup)agent).getChildList();
+        for (int i=0; i<speciesAgentList.size(); i++) {
+            moleculeLists[i] = ((IAtomGroup)speciesAgentList.get(i)).getChildList();
         }
         return moleculeLists;
     }

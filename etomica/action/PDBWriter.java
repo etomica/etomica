@@ -83,8 +83,8 @@ public class PDBWriter implements Action, Serializable {
         iterator.reset();
         elementAtomType.clear();
         int atomCount = 0;
-        while (iterator.hasNext()) {
-            AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
+        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)iterator.nextAtom()) {
             Iterator elementIterator = elementAtomType.iterator();
             int elementIndex = -1;
             while (elementIterator.hasNext()) {

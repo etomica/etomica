@@ -2,6 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.data.DataSourceScalar;
@@ -64,24 +65,28 @@ public class MeterRadiusGyration extends DataSourceScalar {
         AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
         int nLeafAtomsTot = 0;
         double r2Tot = 0.0;
-        while (iterator.hasNext()) {
+        for (IAtom atom = iterator.nextAtom(); atom != null;
+             atom = iterator.nextAtom()) {
             // loop over molecules
-            leafIterator.setRootAtom(iterator.nextAtom());
+            leafIterator.setRootAtom(atom);
             leafIterator.reset();
-            if (!leafIterator.hasNext()) {
-                continue;
-            }
+
             // find center of mass
             //do the first iterate explicitly, assume there is at least
             // one leaf atom
             AtomLeaf firstAtom = (AtomLeaf)leafIterator.nextAtom();
+            if (firstAtom == null || firstAtom == atom) {
+                // molecule with no atoms!  or a leaf molecule
+                // it's hard to tell since AtomIteratorTree is happy to be a singlet iterator
+                continue;
+            }
             int nLeafAtoms = 1;
             realPos.E(firstAtom.getPosition());
             cm.E(realPos);
             IVector prevPosition = firstAtom.getPosition();
-            while (leafIterator.hasNext()) {
+            for (AtomLeaf a = (AtomLeaf)leafIterator.nextAtom(); a != null;
+                 a = (AtomLeaf)leafIterator.nextAtom()) {
                 nLeafAtoms++;
-                AtomLeaf a = (AtomLeaf)leafIterator.nextAtom();
                 IVector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
@@ -97,8 +102,8 @@ public class MeterRadiusGyration extends DataSourceScalar {
             double r2 = 0.0;
             leafIterator.reset();
             realPos.E(firstAtom.getPosition());
-            while (leafIterator.hasNext()) {
-                AtomLeaf a = (AtomLeaf)leafIterator.nextAtom();
+            for (AtomLeaf a = (AtomLeaf)leafIterator.nextAtom(); a != null;
+                 a = (AtomLeaf)leafIterator.nextAtom()) {
                 IVector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate
