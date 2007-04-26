@@ -227,11 +227,9 @@ public class ClipPlaneEditor {
                 	break;
                 case PLANE_SELECTION_BOX:
                 	latticePlane.setPosition(t);
-System.out.println("BOX  " + latticePlane.getPosition() + "  " + latticePlane.getSpacePosition());
                 	break;
                 case POSITION_SLIDER:
                 	latticePlane.setSpacePosition(t);
-System.out.println("SLIDER  " + latticePlane.getPosition() + "  " + latticePlane.getSpacePosition());
                 	break;
                 case 5: break; //4th hexagonal index
             }
