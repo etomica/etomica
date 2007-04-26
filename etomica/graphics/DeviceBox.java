@@ -342,10 +342,10 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
 
     	int value = 0; //<NEW VALUE HERE>
     	DeviceBoxValueChangedEvent ev = new DeviceBoxValueChangedEvent(this, value);
-    	Enumeration enum = copyOfListeners.elements();
-    	while(enum.hasMoreElements()) {
+    	Enumeration vcElements = copyOfListeners.elements();
+    	while(vcElements.hasMoreElements()) {
     		DeviceBoxValueChangedListener listener =
-    			(DeviceBoxValueChangedListener)enum.nextElement();
+    			(DeviceBoxValueChangedListener)vcElements.nextElement();
     		listener.deviceBoxValueChanged(ev);
     	}
 
