@@ -1,6 +1,7 @@
 package etomica.modules.entropylottery;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.phase.Phase;
@@ -30,7 +31,7 @@ public class ConfigurationZero extends Configuration {
 
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
         iterator.reset();
-        while (iterator.hasNext()) {
+        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
            atomActionTranslateTo.actionPerformed(iterator.nextAtom());
         }
     }

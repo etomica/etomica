@@ -67,8 +67,8 @@ public class ConformationTube extends Conformation {
 		theta0 = 0;
 		ctr = 0;
 
-		while (atomIterator.hasNext()) {
-			AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)atomIterator.nextAtom()) {
 
 			a.getPosition().setX(0, x);
 			a.getPosition().setX(1, y);

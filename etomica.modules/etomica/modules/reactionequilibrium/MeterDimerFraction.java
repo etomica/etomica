@@ -1,5 +1,6 @@
 package etomica.modules.reactionequilibrium;
 
+import etomica.atom.AtomAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
@@ -21,7 +22,7 @@ public final class MeterDimerFraction implements DataSource {
         DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Dimer Fraction", Fraction.DIMENSION, new int[]{5});
         dataInfo = new DataInfoTable("Dimer Fraction", new DataInfoDoubleArray[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
         setName(NameMaker.makeName(this.getClass()));
-        agentSource = sim;
+        agentManager = sim.getAgentManager();
         tag = new DataTag();
         dataInfo.addTag(tag);
     }
@@ -39,12 +40,10 @@ public final class MeterDimerFraction implements DataSource {
     }
     
     public Data getData() {
-        agents = agentSource.getAgents(phase);
         for(int i=0; i<count.length; i++) {count[i] = 0;}
         iterator.reset();
-        while(iterator.hasNext()) {
-        	IAtom a = iterator.nextAtom();
-        	IAtom partner = agents[a.getGlobalIndex()];
+        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
+        	IAtom partner = (IAtom)agentManager.getAgent(a);
   //      	if(partner != null) System.out.println(a.node.index()+" "+partner.node.index());
             if(a.getType().getSpecies()== speciesA) {
                if(partner == null) {
@@ -111,7 +110,6 @@ public final class MeterDimerFraction implements DataSource {
     private final DataInfoTable dataInfo;
     private int[] count = new int[5];
     private AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    protected final ReactionEquilibrium agentSource;
-    protected IAtom[] agents;
+    protected final AtomAgentManager agentManager;
     private final DataTag tag;
 }

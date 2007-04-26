@@ -4,6 +4,7 @@ import javax.swing.JPanel;
 
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
@@ -446,12 +447,12 @@ public class ReactionEquilibriumGraphic {
             nSlider.setMaximum(40);
             nSlider.setPostAction(new Action() {
                 public void actionPerformed() {
-                    IAtom[] agents = sim.getAgents(sim.phase1);
+                    AtomAgentManager agentManager = sim.getAgentManager();
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
                     iter.reset();
-                    while (iter.hasNext()) {
+                    for (IAtom a = iter.nextAtom(); a != null; a = iter.nextAtom()) {
                         //                      System.out.println(iter.peek().toString());
-                        agents[iter.nextAtom().getGlobalIndex()] = null;
+                        agentManager.setAgent(a, null);
                     }
                     try {
                     	sim.integratorHard1.reset();

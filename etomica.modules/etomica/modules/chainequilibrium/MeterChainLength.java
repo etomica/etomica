@@ -2,7 +2,6 @@ package etomica.modules.chainequilibrium;
 
 import java.io.Serializable;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -29,9 +28,9 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
 
     public MeterChainLength(ReactionEquilibrium sim) {
         setName(NameMaker.makeName(this.getClass()));
-        agentSource = sim;
         setupData(40);
         tag = new DataTag();
+        agentManager = sim.getAgentManager();
     }
     
     public DataTag getTag() {
@@ -71,7 +70,6 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
     //returns the number of molecules with [1,2,3,4,5,6,7-10,10-13,13-25, >25]
     // atoms
     public Data getData() {
-        agents = agentSource.getAgents(phase);
         
         double[] histogram = data.getData();
         for (int i=0; i<histogram.length; i++) {
@@ -80,15 +78,13 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
 
         // untag all the Atoms
         iterator.reset();
-        while (iterator.hasNext()) {
-            IAtom a = iterator.nextAtom();
+        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
             ((AtomTag)tagManager.getAgent(a)).tagged = false;
         }
 
         iterator.reset();
 
-        while(iterator.hasNext()) {
-            IAtom a = iterator.nextAtom();
+        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
             // if an Atom is tagged, it was already counted as part of 
             // another chain
             if (((AtomTag)tagManager.getAgent(a)).tagged) continue;
@@ -125,7 +121,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
     protected int recursiveTag(IAtom a) {
         ((AtomTag)tagManager.getAgent(a)).tagged = true;
 
-        IAtom[] nbrs = agents[a.getGlobalIndex()];
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
 
         int ctr = 1;
         
@@ -176,8 +172,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
     private Phase phase;
     private String name;
     private AtomAgentManager tagManager;
-    private final ReactionEquilibrium agentSource;
-    private IAtom[][] agents;
+    private AtomAgentManager agentManager;
     private DataFunction data;
     private DataDoubleArray xData;
     private DataInfoDoubleArray xDataInfo;

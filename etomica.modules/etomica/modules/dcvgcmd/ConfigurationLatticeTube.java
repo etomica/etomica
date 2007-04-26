@@ -119,8 +119,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         indexIterator.reset();
         
         // first species (mono spheres)
-        while(iterator.hasNext()) {
-            IAtom a = iterator.nextAtom();
+        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
             if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
@@ -141,8 +140,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         iterator.reset();
         
         // second species (mono spheres)
-        while(iterator.hasNext()) {
-            IAtom a = iterator.nextAtom();
+        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
             if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
@@ -161,8 +159,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(phase.getSpace()));
         // put them all at 0.  oops
         atomActionTranslateTo.setDestination(phase.getSpace().makeVector());
-        while (iterator.hasNext()){
-        	IAtom a = iterator.nextAtom();
+        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
         	Conformation config = a.getType().creator().getConformation();
             config.initializePositions(((IAtomGroup)a).getChildList());
             atomActionTranslateTo.actionPerformed(a);

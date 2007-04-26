@@ -51,9 +51,9 @@ public class IntegratorHardPiston extends IntegratorHard {
     public void updatePiston() {
         atomIterator.reset();
         listToUpdate.clear();
-        while (atomIterator.hasNext()) {
-            // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
-            IAtom atom1 = (IAtom)atomIterator.next();
+        // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
+        for (IAtom atom1 = atomIterator.nextAtom(); atom1 != null;
+             atom1 = atomIterator.nextAtom()) {
             PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atom1) && Debug.LEVEL > 1) || (Debug.anyAtom(atom1) && Debug.LEVEL > 2))) {
                 System.out.println(atom1+" thought it would collide with the piston");

@@ -9,6 +9,7 @@ package etomica.modules.chainequilibrium;
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
@@ -91,12 +92,13 @@ class MySpeciesEditor extends javax.swing.JPanel {
             
             Action anotherAction = new Action() {
                 public void actionPerformed() {
-                    IAtom[][] agents = sim.getAgents(sim.phase1);
+                    AtomAgentManager agentManager = sim.getAgentManager();
                     AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
                     iter.reset();
-                    while (iter.hasNext()) {
+                    for (IAtom atom = iter.nextAtom(); atom != null;
+                         atom = iter.nextAtom()) {
                         //                      System.out.println(iter.peek().toString());
-                        IAtom[] a = agents[iter.nextAtom().getGlobalIndex()];
+                        IAtom[] a = (IAtom[])agentManager.getAgent(atom);
                         a[0] = null;
                         a[1] = null;
                     }
@@ -107,7 +109,6 @@ class MySpeciesEditor extends javax.swing.JPanel {
                     simGraphic.displayPhase1.repaint();
                     
                 }
-                public String getLabel() {return "";}
                 
             };
             targetAction = new ActionGroupSeries(new Action[] {targetAction, anotherAction});

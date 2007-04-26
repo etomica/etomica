@@ -28,8 +28,7 @@ public class MeterFreeEnergy extends DataSourceScalar implements DataSource {
     public double getDataAsScalar() {
         iterator.reset();
         double sum = 0.0;
-        while(iterator.hasNext()) {
-            IAtom a = iterator.nextAtom();
+        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
             sum += target.energy(a) - reference.energy(a);
         }
         return Math.exp(-sum);

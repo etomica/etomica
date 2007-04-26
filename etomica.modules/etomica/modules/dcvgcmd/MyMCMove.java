@@ -98,8 +98,8 @@ public class MyMCMove extends MCMoveInsertDelete {
     	double zBoundary = phase.getBoundary().getDimensions().x(2);
     	double zmin = nearOrigin ? -0.5*zBoundary : 0.5*(1.0-zFraction)*zBoundary;
     	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
-    	while(atomIterator.hasNext()) {
-    		AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
+        for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom(); atom != null;
+             atom = (AtomLeaf)atomIterator.nextAtom()) {
     		double z = atom.getPosition().x(2);
     		if(z < zmin || z > zmax) continue;
     		activeAtoms.add(atom);

@@ -1,4 +1,5 @@
 package etomica.modules.chainequilibrium;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -29,13 +30,12 @@ import etomica.space.Space;
 public class P2SquareWellBonded extends P2SquareWell {
 
     private static final long serialVersionUID = 1L;
-    private ReactionEquilibrium agentSource;
-	private IAtom[][] agents;
+    private AtomAgentManager agentManager;
     private Phase phase;
 
 	public P2SquareWellBonded(Space space, ReactionEquilibrium sim, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
-		agentSource = sim;
+        agentManager = sim.getAgentManager();
 	}
 
     public void setPhase(Phase newPhase){
@@ -47,9 +47,10 @@ public class P2SquareWellBonded extends P2SquareWell {
      * This function will tell the user, if passed an atom weither or not that atom can bond
 	 */
 	protected boolean full(IAtom a) {
-		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
-			if (agents[a.getGlobalIndex()][i] == null) {
+			if (nbrs[i] == null) {
 				return false;
 			}
 		}
@@ -60,9 +61,10 @@ public class P2SquareWellBonded extends P2SquareWell {
      * This will tell you what the lowest open space is in atom a
 	 */
 	protected int lowest(IAtom a){
-		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
-			if (agents[a.getGlobalIndex()][i] == null) {
+			if (nbrs[i] == null) {
 				return i;
 			}
 		}
@@ -75,9 +77,10 @@ public class P2SquareWellBonded extends P2SquareWell {
      * need to first re-retrieve agents
 	 */
 	protected boolean areBonded(IAtom a, IAtom b){
-		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
-			if (agents[a.getGlobalIndex()][i] == b){		
+			if (nbrs[i] == b){		
 				return true;
 			}
 		}
@@ -93,8 +96,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		}
 		int i = lowest(a);		// (0 is the First Space) 
 		int j = lowest(b);
-		agents[a.getGlobalIndex()][i] = b;
-		agents[b.getGlobalIndex()][j] = a;
+        ((IAtom[])agentManager.getAgent(a))[i] = b;
+        ((IAtom[])agentManager.getAgent(b))[j] = a;
 	}
 	
 	/**
@@ -106,10 +109,11 @@ public class P2SquareWellBonded extends P2SquareWell {
 		}
         boolean success = false;
 		// Unbonding the Atom, Atom A's side
-		int j = agents[a.getGlobalIndex()].length;	//check INDEXING
+        IAtom[] nbrs = (IAtom[])agentManager.getAgent(a);
+		int j = nbrs.length;	//check INDEXING
 		for(int i=0; i != j; ++i){
-			if (agents[a.getGlobalIndex()][i] == b){	// double bonds???
-				agents[a.getGlobalIndex()][i] = null;
+			if (nbrs[i] == b){	// double bonds???
+				nbrs[i] = null;
                 success = true;
 			}
 		}
@@ -118,10 +122,11 @@ public class P2SquareWellBonded extends P2SquareWell {
         }
         success = false;
 		// Unbonding the Atom, Atom B's side
-		j = agents[b.getGlobalIndex()].length;	//check INDEXING
+        nbrs = (IAtom[])agentManager.getAgent(b);
+        j = nbrs.length;
 		for(int i=0; i != j; ++i){
-			if (agents[b.getGlobalIndex()][i] == a){	// double bonds???
-				agents[b.getGlobalIndex()][i] = null;
+			if (nbrs[i] == a){	// double bonds???
+				nbrs[i] = null;
                 success = true;
 			}
 		}
@@ -135,7 +140,6 @@ public class P2SquareWellBonded extends P2SquareWell {
 	 * kinematics.
 	 */
 	public double collisionTime(AtomSet atoms, double falseTime) {
-        agents = agentSource.getAgents(phase);
 	
 // ************ This gets run all the time!! More than Bump Method
 		//System.out.println("P2SquaredWell: ran Collision Time");	

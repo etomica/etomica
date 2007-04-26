@@ -31,8 +31,8 @@ public class MeterEntropy extends DataSourceScalar implements DataSource {
         }
         atomIterator.setPhase(phase);
         atomIterator.reset();
-        while(atomIterator.hasNext()) {
-            AtomLeaf a = (AtomLeaf)atomIterator.nextAtom();
+        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
+             a = (AtomLeaf)atomIterator.nextAtom()) {
             int x = (int)Math.round(a.getPosition().x(0)+dimensions.x(0)*0.5-0.5);
             atomCount[x]++;
         }

@@ -5,7 +5,6 @@ import javax.swing.JPanel;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
@@ -40,7 +39,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public P2SquareWellBonded ABbonded;
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
-    public AtomAgentManagerBond agentManager;
+    public AtomAgentManager agentManager;
     public IAtom[] agents;
     
     public ReactionEquilibrium() {
@@ -106,14 +105,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         integratorHard1.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase1)));
+        agentManager = new AtomAgentManager(this,phase1);
 	}
     
-    public IAtom[] getAgents(Phase phase) {
-        // the other classes don't know it, but there's only one phase.  :)
-        if (agentManager == null) {
-          agentManager = new AtomAgentManagerBond(this,phase);
-        }
-        return agentManager.getAgents();
+    public AtomAgentManager getAgentManager() {
+        return agentManager;
     }
 
     public Class getAgentClass() {
@@ -154,24 +150,5 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 		//     sim.controller1.start();
 	}//end of main
 
-    /**
-     * Inner class to let us cheat and access and modify elements of the agents array.
-     */
-    protected static class AtomAgentManagerBond extends AtomAgentManager {
-
-        public AtomAgentManagerBond(ReactionEquilibrium sim, Phase phase) {
-            super(sim, phase, true);
-        }
-
-        /**
-         * Returns the array of Cells for the Phase, indexed by the Atom's
-         * global index.
-         */
-        protected IAtom[] getAgents() {
-            return (IAtom[])agents;
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
 }
 
