@@ -103,6 +103,11 @@ public class SimulationGraphic implements SimulationContainer {
               * unable to reproduce after adding this, anyway.
               */
              if(display.canvas instanceof JComponent) {
+               /* setting to false and then true just in case that's enough
+                * to fix it, since switching tabs on a gray startup will
+                * always make the panel draw properly again
+                */
+               ((JComponent)display.canvas).setVisible(false);
                ((JComponent)display.canvas).setVisible(true);
              }
              

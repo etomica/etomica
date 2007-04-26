@@ -9,6 +9,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
+import javax.swing.JComponent;
+
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFilter;
@@ -110,6 +112,19 @@ public class DisplayPhase extends Display implements EtomicaElement {
         this(phase,new Pixel());
     }
     
+    /**
+     * Warning: after instantiation, clients using G3DSys may need to toggle
+     * display.canvas.setVisible false and then true to fix the 'sometimes
+     * gray' bug.
+     * 
+     * i.e.;
+     * if(display.canvas instanceof JComponent) {
+     * ((JComponent)display.canvas).setVisible(false);
+     * ((JComponent)display.canvas).setVisible(true);
+     * }
+     * @param phase
+     * @param pixel
+     */
     public DisplayPhase(Phase phase, Pixel pixel) {
         super();
         setPixelUnit(pixel);
