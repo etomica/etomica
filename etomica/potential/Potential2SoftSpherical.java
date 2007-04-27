@@ -122,7 +122,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
         nearestImageTransformer = phase.getBoundary();
     }
 
-    private final IVector[] gradient;
+    protected final IVector[] gradient;
     protected NearestImageTransformer nearestImageTransformer;
     protected final IVector dr;
     
