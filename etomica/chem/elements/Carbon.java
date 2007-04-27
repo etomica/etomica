@@ -6,8 +6,8 @@ package etomica.chem.elements;
  * @author Andrew
  */
 public class Carbon extends ElementChemical {
-    
-    protected Carbon(String symbol) {
+
+	protected Carbon(String symbol) {
         this(symbol, 12.0107);
     }
     
@@ -16,4 +16,6 @@ public class Carbon extends ElementChemical {
     }
 
     public static final Carbon INSTANCE = new Carbon("C");
+    
+	private static final long serialVersionUID = 1L;
 }
