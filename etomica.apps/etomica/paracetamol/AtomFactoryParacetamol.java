@@ -1,6 +1,5 @@
 package etomica.paracetamol;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
@@ -8,6 +7,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtom;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
@@ -47,7 +47,7 @@ public class AtomFactoryParacetamol extends AtomFactory{
 	}
 	
 	
-	public Atom makeAtom() {
+	public IAtom makeAtom() {
 
 		AtomParacetamol moleculeParacetamol = new AtomParacetamol(atomType);
 		
