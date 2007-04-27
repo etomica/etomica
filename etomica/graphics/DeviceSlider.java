@@ -146,8 +146,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
         slider.setDecimalSliderMinorTickSpacing(50);
 
         gbConst.gridx = 0; gbConst.gridy = 0;
-        gbLayout.setConstraints(getSlider(), gbConst);
-        panel.add(getSlider());        
+        gbLayout.setConstraints(slider, gbConst);
+        panel.add(slider);        
 
         setShowValues(false); // default is false to show values of slider
         setEditValues(false); // default is false to edit values of slider thru textField
@@ -316,8 +316,8 @@ public class DeviceSlider extends Device implements EtomicaElement {
         panel.removeAll();
         textField.setColumns(column);                                                                  
         gbConst.gridx = 0; gbConst.gridy = 0;
-        gbLayout.setConstraints(getSlider(), gbConst);
-        panel.add(getSlider());        
+        gbLayout.setConstraints(slider, gbConst);
+        panel.add(slider);        
         if(s=="HORIZONTAL") {
             gbConst.gridx = 1; gbConst.gridy = 0; 
             gbLayout.setConstraints(textField, gbConst);
@@ -331,7 +331,7 @@ public class DeviceSlider extends Device implements EtomicaElement {
     }
     
     public void setSliderVerticalOrientation(boolean b){
-        if(b){getSlider().setOrientation(SwingConstants.VERTICAL);}
+        if(b){slider.setOrientation(SwingConstants.VERTICAL);}
     }
     
     public boolean getEditValues(){ return editValues;}

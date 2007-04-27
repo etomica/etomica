@@ -1,8 +1,8 @@
 package etomica.integrator;
 
-import etomica.atom.IAtom;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.util.IRandom;
@@ -34,10 +34,11 @@ public class IntegratorAnalytic extends IntegratorMD {
         if(action == null) return;
         elapsedTime += getTimeStep();
         action.setTime(elapsedTime);
-        atomIterator.reset();
-        for (IAtom atom = atomIterator.nextAtom(); atom != null;
-             atom = atomIterator.nextAtom()) {
-            action.actionPerformed(atom);
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            action.actionPerformed(a);
         }
     }
     
@@ -49,15 +50,6 @@ public class IntegratorAnalytic extends IntegratorMD {
     public void setAction(AtomAction action) {this.action = action;}
     
     public AtomAction getAction() {return action;}
-    
-	/**
-	 * Overrides superclass method to instantiate iterators when iteratorFactory in phase is changed.
-	 * Called by Integrator.addPhase and Integrator.iteratorFactorObserver.
-	 */
-	public void setPhase(Phase p) {
-	    super.setPhase(p);
-        atomIterator.setPhase(p);
-    }
     
     private double elapsedTime = 0.0;
     

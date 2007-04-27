@@ -1,7 +1,8 @@
 package etomica.action;
 
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.meter.MeterTemperature;
 import etomica.phase.Phase;
 import etomica.space.ICoordinateKinetic;
@@ -36,7 +37,6 @@ public class PhaseQuench extends PhaseActionAdapter {
     public void setPhase(Phase p) {
         super.setPhase(p);
         meterTemperature.setPhase(phase);
-        atomIterator.setPhase(phase);
     }
     
 	/**
@@ -46,10 +46,10 @@ public class PhaseQuench extends PhaseActionAdapter {
 		if(phase == null) return;
 		double currentTemperature = meterTemperature.getDataAsScalar();
 		double scale = Math.sqrt(temperature / currentTemperature);
-		atomIterator.reset();
-        for (ICoordinateKinetic coord = (ICoordinateKinetic)atomIterator.nextAtom();
-             coord != null; coord = (ICoordinateKinetic)atomIterator.nextAtom()) {
-			coord.getVelocity().TE(scale);
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+			((ICoordinateKinetic)(AtomLeaf)leafList.get(iLeaf)).getVelocity().TE(scale);
         }
 	}
 
@@ -70,5 +70,4 @@ public class PhaseQuench extends PhaseActionAdapter {
     private static final long serialVersionUID = 1L;
 	private double temperature;
 	private MeterTemperature meterTemperature;
-	private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
 }

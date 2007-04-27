@@ -4,7 +4,6 @@ import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
 import etomica.lattice.LatticeCubicFcc;
@@ -24,12 +23,9 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     
     private static final long serialVersionUID = 2L;
     private AtomGroupAction translator0, translator1;
-    private final AtomIteratorArrayListSimple iterator0, iterator1;
     
     public ConfigurationZincblende(double latticeConstant) {
         super(new LatticeCubicFcc(latticeConstant));
-        iterator0 = new AtomIteratorArrayListSimple();
-        iterator1 = new AtomIteratorArrayListSimple();
     }
     
     
@@ -79,18 +75,15 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         ((AtomActionTranslateBy)translator1.getAction()).setTranslationVector(shift);
 
         // Place molecules
-        iterator0.setList(lists[0]);
-        iterator0.reset();
-        iterator1.setList(lists[1]);
-        iterator1.reset();
         indexIterator.reset();
+        int i = 0;
         while (indexIterator.hasNext()) {
             int[] ii = indexIterator.next();
             IVector site = (IVector) lattice.site(ii);
             atomActionTranslateTo.setDestination(site);
 
-            IAtom a0 = iterator0.nextAtom();
-            IAtom a1 = iterator1.nextAtom();
+            IAtom a0 = lists[0].get(i);
+            IAtom a1 = lists[1].get(i);
             atomActionTranslateTo.actionPerformed(a0);
             atomActionTranslateTo.actionPerformed(a1);
 

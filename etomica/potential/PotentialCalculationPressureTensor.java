@@ -1,10 +1,9 @@
 package etomica.potential;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
@@ -23,7 +22,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     protected final Space space;
-    protected final AtomIteratorLeafAtoms atomIterator;
+    protected AtomArrayList leafList;
     protected IntegratorPhase integrator;
     protected boolean warningPrinted;
     
@@ -31,7 +30,6 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         this.space = space;
         pressureTensor = space.makeTensor();
         workTensor = space.makeTensor();
-        atomIterator = new AtomIteratorLeafAtoms();
     }
     
     /**
@@ -48,7 +46,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
 	}
     
     public void setPhase(Phase newPhase) {
-        atomIterator.setPhase(newPhase);
+        leafList = newPhase.getSpeciesMaster().getLeafList();
     }
     
     public void zeroSum() {
@@ -69,15 +67,14 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
      * PotentialMaster.calculate
      */
     public Tensor getPressureTensor() {
-        // now handle the kinetic part
-        workTensor.E(0);
-        atomIterator.reset();
-
-        AtomLeaf firstAtom = (AtomLeaf)atomIterator.nextAtom();
-            
-        if (firstAtom == null) {
+        if (leafList.size() == 0) {
             return pressureTensor;
         }
+        
+        // now handle the kinetic part
+        workTensor.E(0);
+
+        AtomLeaf firstAtom = (AtomLeaf)leafList.get(0);
         
         if (firstAtom instanceof ICoordinateKinetic) {
             if (integrator != null) {
@@ -91,16 +88,15 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         else {
             int D = integrator.getPhase().getSpace().D();
             for (int i=0; i<D; i++) {
-                pressureTensor.PE(atomIterator.size()*integrator.getTemperature());
+                pressureTensor.PE(leafList.size()*integrator.getTemperature());
             }
             return pressureTensor;
         }
 
         // simulation is dynamic, use the velocities
-        atomIterator.reset();
-
-        for (IAtom atom = atomIterator.nextAtom(); atom != null;
-             atom = atomIterator.nextAtom()) {
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf atom = (AtomLeaf)leafList.get(iLeaf);
             ICoordinateKinetic coord = (ICoordinateKinetic)atom;
             workTensor.Ev1v2(coord.getVelocity(), coord.getVelocity());
             workTensor.TE(((AtomTypeLeaf)atom.getType()).getMass());

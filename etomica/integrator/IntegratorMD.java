@@ -4,7 +4,7 @@ import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.IAtom;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
@@ -32,7 +32,6 @@ public abstract class IntegratorMD extends IntegratorPhase {
         this.random = random;
         setTimeStep(timeStep);
         thermostat = ThermostatType.ANDERSEN;
-        atomIterator = new AtomIteratorLeafAtoms();
         setThermostatInterval(100);
         meterKE = new MeterKineticEnergy();
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature, random);
@@ -53,7 +52,6 @@ public abstract class IntegratorMD extends IntegratorPhase {
     public void setPhase(Phase p) {
         super.setPhase(p);
         meterTemperature.setPhase(p);
-        atomIterator.setPhase(p);
         meterKE.setPhase(p);
     }
 
@@ -204,7 +202,11 @@ public abstract class IntegratorMD extends IntegratorPhase {
      */
     protected void randomizeMomenta() {
         atomActionRandomizeVelocity.setTemperature(temperature);
-        atomIterator.allAtoms(atomActionRandomizeVelocity);
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            atomActionRandomizeVelocity.actionPerformed(leafList.get(iLeaf));
+        }
     }
     
     /**
@@ -223,25 +225,25 @@ public abstract class IntegratorMD extends IntegratorPhase {
      * Crude method to enforce constant-temperature constraint
      * Scales momenta of all atoms by a constant factor so that 
      * phase adheres to setpoint temperature.  The state of the 
-     * integrator needs to be updated after calling this method.
+     * integrator may need to be updated after calling this method.
      * @return the factor velocities were scaled by 
      */
     protected double scaleMomenta() {
         momentum.E(0);
-        if (atomIterator.size() > 1) {
-            atomIterator.reset();
-            for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-                 a = (AtomLeaf)atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        if (nLeaf > 1) {
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                IAtom a = leafList.get(iLeaf);
                 double mass = ((AtomTypeLeaf)a.getType()).getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass,((ICoordinateKinetic)a).getVelocity());
                 }
             }
-            momentum.TE(1.0/atomIterator.size());
-            atomIterator.reset();
+            momentum.TE(1.0/nLeaf);
             //set net momentum to 0
-            for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-                 a = (AtomLeaf)atomIterator.nextAtom()) {
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                IAtom a = leafList.get(iLeaf);
                 double rm = ((AtomTypeLeaf)a.getType()).rm();
                 if (rm != 0) {
                     ((ICoordinateKinetic)a).getVelocity().PEa1Tv1(-rm,momentum);
@@ -249,15 +251,14 @@ public abstract class IntegratorMD extends IntegratorPhase {
             }
             if (Debug.ON) {
                 momentum.E(0);
-                atomIterator.reset();
-                for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-                     a = (AtomLeaf)atomIterator.nextAtom()) {
+                for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                    IAtom a = leafList.get(iLeaf);
                     double mass = ((AtomTypeLeaf)a.getType()).getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,((ICoordinateKinetic)a).getVelocity());
                     }
                 }
-                momentum.TE(1.0/atomIterator.size());
+                momentum.TE(1.0/nLeaf);
                 if (Math.sqrt(momentum.squared()) > 1.e-10) {
                     System.out.println("Net momentum per leaf atom is "+momentum+" but I expected it to be 0");
                 }
@@ -275,9 +276,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
             t = meterTemperature.getDataAsScalar();
             s = Math.sqrt(temperature / t);
         }
-        atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            IAtom a = leafList.get(iLeaf);
             ((ICoordinateKinetic)a).getVelocity().TE(s); //scale momentum
         }
         return scale;
@@ -306,7 +306,6 @@ public abstract class IntegratorMD extends IntegratorPhase {
     protected final IRandom random;
     protected double timeStep;
     protected double currentKineticEnergy;
-    protected final AtomIteratorLeafAtoms atomIterator;
     protected ThermostatType thermostat;
     private int thermostatCount, thermostatInterval;
     protected MeterKineticEnergy meterKE;

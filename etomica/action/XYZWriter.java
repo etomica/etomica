@@ -7,11 +7,11 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementChemical;
 import etomica.phase.Phase;
@@ -25,7 +25,7 @@ import etomica.phase.Phase;
 public class XYZWriter implements Action, Serializable {
 
     public XYZWriter(Phase aPhase) {
-        iterator = new AtomIteratorLeafAtoms(aPhase);
+        leafList = aPhase.getSpeciesMaster().getLeafList();
         elementAtomType = new LinkedList();
     }
 
@@ -67,11 +67,11 @@ public class XYZWriter implements Action, Serializable {
             return;
         }
         try {
-            iterator.reset();
-            fileWriter.write(Integer.toString(iterator.size())+"\n");
+            fileWriter.write(Integer.toString(leafList.size())+"\n");
             fileWriter.write("#\n");
-            for  (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
-                  atom = (AtomLeaf)iterator.nextAtom()) {
+            int nLeaf = leafList.size();
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                AtomLeaf atom = (AtomLeaf)leafList.get(iLeaf);
                 Element element = ((AtomTypeLeaf)atom.getType()).getElement();
                 String symbol = element.getSymbol();
                 if (!(element instanceof ElementChemical)) {
@@ -136,7 +136,7 @@ public class XYZWriter implements Action, Serializable {
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
     private final LinkedList elementAtomType;
-    private final AtomIteratorLeafAtoms iterator;
+    private final AtomArrayList leafList;
     private boolean doAppend;
     
     private static final class ElementLinker implements Serializable {

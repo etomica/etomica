@@ -1,8 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataSourceAtomic;
@@ -101,9 +100,10 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         Boundary boundary = phase.getBoundary();
         data.E(0);
         double[] y = data.getData();
-        ai1.reset();
-        for (AtomLeaf a = (AtomLeaf)ai1.nextAtom(); a != null;
-             a = (AtomLeaf)ai1.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             double value = ((DataDouble)meter.getData(a)).x;
             position.E(a.getPosition());
             position.PE(boundary.centralImage(position));
@@ -142,7 +142,6 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         double halfBox = 0.5*phase.getBoundary().getDimensions().dot(profileVector);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
-        ai1.setPhase(phase);
     }
 
     public String getName() {
@@ -170,8 +169,4 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
      */
     DataSourceAtomic meter;
     protected final DataTag tag;
-    
-    
-    private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();
-    
-}//end of MeterProfile
+}

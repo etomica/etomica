@@ -162,7 +162,6 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected void calculateForces() {
         //Compute all forces
 
-        atomIterator.reset();
         //zero forces on all atoms
         forceSumNPH.reset();
 

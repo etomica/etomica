@@ -1,7 +1,7 @@
 package etomica.action;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -13,7 +13,6 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 
     private static final long serialVersionUID = 1L;
 	private final IVector translationVector;
-    private final AtomIteratorLeafAtoms iterator;
 
 	/**
 	 * Constructor requires space instance to define a translation vector.
@@ -22,8 +21,6 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 	 */
 	public PhaseTranslate(Space space) {
 		translationVector = space.makeVector();
-        iterator = new AtomIteratorLeafAtoms();
-        
 	}
 
 	/**
@@ -49,11 +46,11 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 	public void actionPerformed() {
 		if (phase == null)
 			return;
-        iterator.setPhase(phase);
-        iterator.reset();
-        for (AtomLeaf leafAtom = (AtomLeaf)iterator.nextAtom(); leafAtom != null; 
-             leafAtom = (AtomLeaf)iterator.nextAtom()) {
-            leafAtom.getPosition().PE(translationVector);
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            a.getPosition().PE(translationVector);
         }
 	}
 

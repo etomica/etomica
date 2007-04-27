@@ -2,6 +2,7 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -83,9 +84,10 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         pressureTensor.E(forceSum.getPressureTensor());
 
         //take step
-        atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             pressureTensor.E(forceSum.getPressureTensor());
             IVector v = ((ICoordinateKinetic)a).getVelocity();
             workTensor.Ev1v2(v,v);
@@ -117,9 +119,10 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     }
     
     protected void updateMrLast() {
-        atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a).getVelocity());//06/13/03 removed minus sign before timeStep
         }

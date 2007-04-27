@@ -2,10 +2,10 @@ package etomica.graphics;
 
 import java.awt.Color;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.Api1ACell;
 import etomica.phase.Phase;
@@ -16,8 +16,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     public ColorSchemeNeighbor(Simulation sim, Phase phase) {
         super(phase);
         typeColorScheme = new ColorSchemeByType();
-        allIterator = new AtomIteratorLeafAtoms();
-        allIterator.setPhase(phase);
+        leafList = phase.getSpeciesMaster().getLeafList();
         nbrIterator = new Api1ACell(sim.getSpace().D(), sim.getDefaults().atomSize,((PotentialMasterNbr)sim.getPotentialMaster()).getCellAgentManager());
         nbrIterator.setDirection(null);
         nbrIterator.setPhase(phase);
@@ -25,10 +24,10 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     
     public void colorAllAtoms() {
         Color[] atomColors = agentManager.getAgents();
-        allIterator.reset();
 		//color all atoms according to their type
-        for (AtomLeaf atom = (AtomLeaf)allIterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)allIterator.nextAtom()) {
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf atom = (AtomLeaf)leafList.get(iLeaf);
             atomColors[atom.getGlobalIndex()] = typeColorScheme.getAtomColor(atom);//Color.green;
         }
         if (referenceAtom == null) {
@@ -61,6 +60,6 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     private static final long serialVersionUID = 1L;
     private IAtom referenceAtom;
     private final Api1ACell nbrIterator;
-    private final AtomIteratorLeafAtoms allIterator;
+    private final AtomArrayList leafList;
     private final ColorSchemeByType typeColorScheme;
 }

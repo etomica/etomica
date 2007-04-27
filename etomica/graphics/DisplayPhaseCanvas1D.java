@@ -7,10 +7,10 @@ import java.awt.RenderingHints;
 import java.awt.TextField;
 import java.util.Iterator;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.space.Boundary;
 import etomica.space.IVector;
 import etomica.species.Species;
@@ -28,7 +28,6 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = new Color(185,185,185, 110);
-    private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     
     public DisplayPhaseCanvas1D(DisplayPhase _phase) {
         displayPhase = _phase;
@@ -168,11 +167,10 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms();
         }
-        atomIterator.setPhase(displayPhase.getPhase());
-        atomIterator.reset();
-        for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)atomIterator.nextAtom()) {
-            drawAtom(g, displayPhase.getOrigin(), atom);
+        AtomArrayList leafList = displayPhase.getPhase().getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            drawAtom(g, displayPhase.getOrigin(), (AtomLeaf)leafList.get(iLeaf));
         }
             
         //Draw overflow images if so indicated

@@ -2,7 +2,6 @@ package etomica.config;
 
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -16,7 +15,6 @@ public abstract class ConformationChain extends Conformation {
 
 	public ConformationChain(Space space){	
 		super(space);		
-		atomIterator = new AtomIteratorArrayListSimple();
 		//orientationVector = space.makeVector();
 		//wrongNumberOfVectors = "Wrong number of vectors in the argument to ConformationChain subclass.";
 	}
@@ -43,19 +41,16 @@ public abstract class ConformationChain extends Conformation {
 		int size = atomlist.size();
     	if(size == 0) return;
     
-    	atomIterator.setList(atomlist);
-    	atomIterator.reset();
-    
     	reset();
 	
     	//space.makeVector() zeroes the made Vector automatically
     	IVector currentPosition = space.makeVector();
     
     	//Zero the first atom.
-    	((AtomLeaf)atomIterator.nextAtom()).getPosition().E(0.0);
+        ((AtomLeaf)atomlist.get(0)).getPosition().E(0);
     	
-    	for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        for (int iLeaf=0; iLeaf<size; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)atomlist.get(iLeaf);
     		//TODO someday, we might want a to be a chunk-of-atoms
     		currentPosition.PE(nextVector());
     		a.getPosition().E(currentPosition);
@@ -79,8 +74,6 @@ public abstract class ConformationChain extends Conformation {
 */	
 	
 	//TODO Should we have a method here that moves the atom somehow- rotate, translate, etc.?
-	
-	private final AtomIteratorArrayListSimple atomIterator;
 
 	//private Vector orientationVector;	
 }

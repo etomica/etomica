@@ -2,21 +2,19 @@ package etomica.graphics;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.TextField;
 
-import javax.swing.JPanel;
 import javax.vecmath.Point3f;
 
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
@@ -31,7 +29,6 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	implements AgentSource, BondManager {
 
   private TextField scaleText = new TextField();
-  private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
 
   //will handle all actual drawing
   private G3DSys gsys;
@@ -110,13 +107,13 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     
     ColorScheme colorScheme = displayPhase.getColorScheme();
     AtomFilter atomFilter = displayPhase.getAtomFilter();
-    atomIterator.setPhase(displayPhase.getPhase());
-    atomIterator.reset();
     if(colorScheme instanceof ColorSchemeCollective) {
       ((ColorSchemeCollective)colorScheme).colorAllAtoms();
     }
-    for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-         a = (AtomLeaf)atomIterator.nextAtom()) {
+    AtomArrayList leafList = displayPhase.getPhase().getSpeciesMaster().getLeafList();
+    int nLeaf = leafList.size();
+    for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+        AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
       if (a==null || !(a.getType() instanceof AtomTypeSphere)) continue;
       Ball ball = (Ball)aam.getAgent(a);
       if (ball == null) {

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import etomica.EtomicaInfo;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -71,9 +72,10 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
     // assumes one phase
     public void doStepInternal() {
-        atomIterator.reset();              //reset iterator of atoms
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             MyAgent agent = (MyAgent)agentManager.getAgent(a);
             IVector r = a.getPosition();
             IVector v = ((ICoordinateKinetic)a).getVelocity();
@@ -90,9 +92,8 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         }
         
         //Finish integration step
-        atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             IVector velocity = ((ICoordinateKinetic)a).getVelocity();
             workTensor.Ev1v2(velocity,velocity);

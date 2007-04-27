@@ -1,10 +1,9 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataTag;
@@ -26,11 +25,7 @@ import etomica.units.Energy;
  */
 
 public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializable {
-    /**
-     * Iterator of atoms.
-     */
-    private final AtomIteratorPhaseDependent ai1 = new AtomIteratorLeafAtoms();
-    
+
     public MeterTensorVelocity(Space space) {
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("pp/m",Energy.DIMENSION, space);
@@ -61,17 +56,17 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
      */
     public Data getData() {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-        ai1.setPhase(phase);
-        ai1.reset();
         data.E(0.0);
         int count = 0;
-        for (IAtom a = ai1.nextAtom(); a != null;
-             a = ai1.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             getData(a);
             data.PE(atomData);
             count++;
         }
-        data.TE(1.0/count);
+        data.TE(1.0/nLeaf);
         return data;
     }
     

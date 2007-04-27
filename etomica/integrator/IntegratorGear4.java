@@ -4,6 +4,7 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -99,7 +100,6 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     protected void calculateForces() {
         //Compute all forces
 
-        atomIterator.reset();
         //zero forces on all atoms
         forceSum.reset();
         //Compute forces on each atom
@@ -109,9 +109,10 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     
     protected void corrector() {
         
-        atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             IVector r = a.getPosition();
             IVector v = ((ICoordinateKinetic)a).getVelocity();
@@ -141,9 +142,10 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     }//end of corrector
         
     protected void predictor() {
-        atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             IVector r = a.getPosition();
             IVector v = ((ICoordinateKinetic)a).getVelocity();
@@ -179,9 +181,10 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
 
     public void reset() throws ConfigurationOverlapException {
         calculateForces();
-        atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             agent.dr1.E(((ICoordinateKinetic)a).getVelocity());
             agent.dr2.Ea1Tv1(((AtomTypeLeaf)a.getType()).rm(),agent.force);

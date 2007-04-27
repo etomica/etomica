@@ -6,6 +6,7 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.action.Action;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
@@ -17,10 +18,10 @@ import etomica.space.IVector;
  * @author andrew
  */
 public class ActionVelocityWindow implements Action {
-    private final AtomIteratorLeafAtoms iterator;
+    private final AtomArrayList leafList;
     
     public ActionVelocityWindow(Phase phase) {
-        iterator = new AtomIteratorLeafAtoms(phase);
+        leafList = phase.getSpeciesMaster().getLeafList();
     }
     
     public void actionPerformed() {
@@ -29,10 +30,10 @@ public class ActionVelocityWindow implements Action {
         textArea.setEditable(false);
         textArea.setBackground(Color.white);
         textArea.setForeground(Color.black);
-        iterator.reset();
-        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)iterator.nextAtom()) {
-            IVector vel = ((ICoordinateKinetic)atom).getVelocity();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IVector vel = ((ICoordinateKinetic)a).getVelocity();
             String str = Double.toString(vel.x(0));
             for (int i=1; i<vel.getD(); i++) {
                 str += " "+Double.toString(vel.x(i));

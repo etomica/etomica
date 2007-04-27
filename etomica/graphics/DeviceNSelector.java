@@ -43,8 +43,8 @@ public class DeviceNSelector extends DeviceSlider {
         int max = 60;
         if (agent.getNMolecules() > max) max = agent.getNMolecules();
 	    setMaximum(max);
-	    getSlider().setSnapToTicks(false);
-	    getSlider().setMajorTickSpacing(10);
+	    slider.setSnapToTicks(false);
+	    slider.setMajorTickSpacing(10);
 	    graphic(null).setSize(new java.awt.Dimension(40,30));
         setModifier(new ModifierNMolecule(agent));
         if (resetAction != null) {

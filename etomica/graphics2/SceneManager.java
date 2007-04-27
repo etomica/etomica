@@ -8,7 +8,6 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
@@ -173,7 +172,6 @@ public final class SceneManager {
     static final int DRAW_BOUNDARY_MAX = 4;
     
 
-    protected final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     protected AtomFilter atomFilter;
     protected double scale;
     protected Phase phase;

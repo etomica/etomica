@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 
@@ -19,7 +19,7 @@ public class ConfigurationFile extends Configuration {
     }
     
     public void initializeCoordinates(Phase phase) {
-        AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms(phase);
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         String fileName = confName+".pos";
         FileReader fileReader;
         try {
@@ -29,10 +29,10 @@ public class ConfigurationFile extends Configuration {
         }
         try {
             BufferedReader bufReader = new BufferedReader(fileReader);
-            atomIterator.reset();
-            for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom(); atom != null;
-                 atom = (AtomLeaf)atomIterator.nextAtom()) {
-                setPosition(atom,bufReader.readLine());
+            int nLeaf = leafList.size();
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+                setPosition(a,bufReader.readLine());
             }
             fileReader.close();
         } catch(IOException e) {

@@ -1,8 +1,8 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
@@ -47,8 +47,10 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
 
         //We're using the instantaneous velocity tensor with the average virial tensor
         //not quite right, but works out in the end.
-        iterator.reset();
-        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             v.Ev1v2(((ICoordinateKinetic)a).getVelocity(), ((ICoordinateKinetic)a).getVelocity());
             v.TE((((AtomTypeLeaf)a.getType()).rm()));
             data.x.PE(v);
@@ -94,7 +96,6 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
 
     private static final long serialVersionUID = 1L;
     private double t0;
-    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private Tensor v;
     private IntegratorHard integratorHard;
     private String name;

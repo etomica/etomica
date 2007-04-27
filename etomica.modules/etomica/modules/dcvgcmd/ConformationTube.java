@@ -2,7 +2,6 @@ package etomica.modules.dcvgcmd;
 
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;
 
@@ -50,10 +49,6 @@ public class ConformationTube extends Conformation {
 		if (size == 0)
 			return;
 
-		AtomIteratorArrayListSimple atomIterator = new AtomIteratorArrayListSimple();
-		atomIterator.setList(atomList);
-		atomIterator.reset();
-
 		int N = 0;
 		double theta, theta0, x, y, z, dz;
 		int ctr;
@@ -67,8 +62,9 @@ public class ConformationTube extends Conformation {
 		theta0 = 0;
 		ctr = 0;
 
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        int nLeaf = atomList.size();
+        for (int i=0; i<nLeaf; i++) {
+            AtomLeaf a = (AtomLeaf)atomList.get(i);
 
 			a.getPosition().setX(0, x);
 			a.getPosition().setX(1, y);

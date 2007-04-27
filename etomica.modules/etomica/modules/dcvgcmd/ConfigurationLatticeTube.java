@@ -2,10 +2,9 @@ package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.config.Conformation;
 import etomica.graphics.ColorSchemeByType;
@@ -45,16 +44,13 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	
     public void initializeCoordinates(Phase phase) {
         AtomArrayList[] lists = getMoleculeLists(phase);
-        if(lists.length == 0) return;
-        AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple();
-        iterator.setList(lists[0]);
-        if(iterator.size() == 0) {return;}
+        if(lists.length == 0 || lists[0].size() == 0) return;
         
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {
             basisSize = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
         }
-        int nCells = (int)Math.ceil((double)iterator.size()/(double)basisSize);
+        int nCells = (int)Math.ceil((double)lists[0].size()/(double)basisSize);
         
         //determine scaled shape of simulation volume
         IVector shape = phase.getSpace().makeVector();
@@ -115,16 +111,12 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         myLat = new MyLattice(lattice, latticeScaling, offset);
 
         // Place molecules  
-        iterator.reset();
         indexIterator.reset();
         
         // first species (mono spheres)
-        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
-            if (!a.isLeaf()) {
-                //initialize coordinates of child atoms
-                Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((IAtomGroup)a).getChildList());
-            }
+        int nSpheres = lists[0].size();
+        for (int i=0; i<nSpheres; i++) {
+            AtomLeaf a = (AtomLeaf)lists[0].get(i);
             
             int[] ii = indexIterator.next();
             IVector site = (IVector) myLat.site(ii);
@@ -136,16 +128,11 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         offset.setX(2,z+phase.getBoundary().getDimensions().x(2)*(1-length));
         myLat = new MyLattice(lattice, latticeScaling, offset);
         indexIterator.reset();
-        iterator.setList(lists[1]);
-        iterator.reset();
         
+        nSpheres = lists[1].size();
         // second species (mono spheres)
-        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
-            if (!a.isLeaf()) {
-                //initialize coordinates of child atoms
-                Conformation config = a.getType().creator().getConformation();
-                config.initializePositions(((IAtomGroup)a).getChildList());
-            }
+        for (int i=0; i<nSpheres; i++) {
+            AtomLeaf a = (AtomLeaf)lists[1].get(i);
             
             int[] ii = indexIterator.next();
             IVector site = (IVector) myLat.site(ii);
@@ -154,14 +141,14 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
         
         //loop for multiple tubes.
-        iterator.setList(lists[2]);
-        iterator.reset();
+        int nTubes = lists[2].size();
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(phase.getSpace()));
         // put them all at 0.  oops
         atomActionTranslateTo.setDestination(phase.getSpace().makeVector());
-        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
+        for (int i=0; i<nTubes; i++) {
+            IAtomGroup a = (IAtomGroup)lists[2].get(i);
         	Conformation config = a.getType().creator().getConformation();
-            config.initializePositions(((IAtomGroup)a).getChildList());
+            config.initializePositions(a.getChildList());
             atomActionTranslateTo.actionPerformed(a);
         }
         

@@ -3,8 +3,8 @@ package etomica.action;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 
@@ -15,14 +15,6 @@ import etomica.space.IVector;
  * ConfigurationFile.
  */
 public class WriteConfiguration implements Action {
-
-    /**
-     * Returns a default instance.  The configuration name and phase should be 
-     * set via setConfName and setPhase before use.
-     */
-    public WriteConfiguration() {
-        iterator = new AtomIteratorLeafAtoms(null);
-    }
 
     /**
      * Sets the configuration name.  The file written to is newConfName.pos_new
@@ -43,7 +35,6 @@ public class WriteConfiguration implements Action {
      */
     public void setPhase(Phase newPhase) {
         phase = newPhase;
-        iterator.setPhase(newPhase);
         setDoApplyPBC(true);
     }
     
@@ -83,11 +74,12 @@ public class WriteConfiguration implements Action {
             return;
         }
         try {
-            iterator.reset();
             IVector writePosition = phase.getSpace().makeVector();
-            for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
-                 atom = (AtomLeaf)iterator.nextAtom()) {
-                writePosition.E(atom.getPosition());
+            AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+            int nLeaf = leafList.size();
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+                writePosition.E(a.getPosition());
                 if (doApplyPBC) {
                     IVector shift = phase.getBoundary().centralImage(writePosition);
                     if (!shift.isZero()) {
@@ -110,5 +102,4 @@ public class WriteConfiguration implements Action {
     private String confName;
     private Phase phase;
     private boolean doApplyPBC;
-    private final AtomIteratorLeafAtoms iterator;
 }

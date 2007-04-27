@@ -14,8 +14,6 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -177,17 +175,17 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * more than one of the positions.
      */
     public IAtom[] nearestAtom(IVector[] r) {
-    	AtomIterator iterator = new AtomIteratorLeafAtoms(this);
+        AtomArrayList leafList = speciesMaster.getLeafList();
+        int nLeaf = leafList.size();
     	IAtom[] nearest = new IAtom[r.length];
     	for(int i=0; i<r.length; i++) {
 	    	double r2Min = Double.MAX_VALUE;
-	    	iterator.reset();
-	    	for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
-                 atom = (AtomLeaf)iterator.nextAtom()) {
-	    		double r2 = Space.r2(atom.getPosition(), r[i], boundary);
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+	    		double r2 = Space.r2(a.getPosition(), r[i], boundary);
 	    		if(r2 < r2Min) {
 	    			r2Min = r2;
-	    			nearest[i] = atom;
+	    			nearest[i] = a;
 	    		}
 	    	}
     	}
@@ -269,12 +267,11 @@ public class Phase implements EtomicaElement, java.io.Serializable {
             out.writeObject(species.getSpeciesSignature());
             out.writeInt(((SpeciesAgent)agents.get(i)).getNMolecules());
         }
-        AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-        iterator.setPhase(this);
-        iterator.reset();
-        for (AtomLeaf a = (AtomLeaf)iterator.nextAtom(); a != null;
-             a = (AtomLeaf)iterator.nextAtom()) {
-            out.writeObject(((AtomLeaf)iterator.nextAtom()).getPosition());
+        AtomArrayList leafList = speciesMaster.getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            out.writeObject(a.getPosition());
         }
     }
     
@@ -314,9 +311,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
             newPhase.getAgent(newSpecies).setNMolecules(nMolecules);
         }
 
-        AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-        iterator.setPhase(newPhase);
-        iterator.reset();
             //XXX broken
         // loop over the atoms
 //            ((AtomLeaf)iterator.nextAtom()).getCoord().E((ICoordinate)in.readObject());

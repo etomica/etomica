@@ -1,7 +1,6 @@
 package etomica.models.water;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;
 
@@ -13,31 +12,26 @@ public class ConformationWaterTIP4P extends Conformation {
     private double bondLengthOH = 0.9572;
     private double angleHOH = 104.52*Math.PI/180.;
     private double rOM=0.15;
-    private final AtomIteratorArrayListSimple iterator;
 
     public ConformationWaterTIP4P(Space space) {
         super(space);
-        iterator = new AtomIteratorArrayListSimple();
     }
     
     public void initializePositions(AtomArrayList list){
         
-        iterator.setList(list);
         double x = 0.0;
         double y = 0.0;
         
-        iterator.reset();
-        
-        AtomLeaf o = (AtomLeaf)iterator.nextAtom();
+        AtomLeaf o = (AtomLeaf)list.get(0);
         o.getPosition().E(new double[] {x, y, 0.0});
                
-        AtomLeaf h1 = (AtomLeaf)iterator.nextAtom();
+        AtomLeaf h1 = (AtomLeaf)list.get(1);
         h1.getPosition().E(new double[] {x+bondLengthOH, y, 0.0});
                 
-        AtomLeaf h2 = (AtomLeaf)iterator.nextAtom();
+        AtomLeaf h2 = (AtomLeaf)list.get(2);
         h2.getPosition().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
         
-        AtomLeaf m = (AtomLeaf)iterator.nextAtom();
+        AtomLeaf m = (AtomLeaf)list.get(3);
         m.getPosition().E(new double[] {x+rOM*Math.cos(angleHOH/2.0), y+rOM*Math.sin(angleHOH/2.0), 0.0});
 
     }

@@ -5,11 +5,11 @@ import java.awt.Graphics;
 import java.awt.TextField;
 import java.util.Iterator;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
@@ -25,7 +25,6 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     private int annotationHeight = 12;
     private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private final static Color wellColor = Color.pink;//new Color(185,185,185, 110);
-    private final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     private final int[] atomOrigin;
     private final IVector boundingBox;
         
@@ -164,19 +163,17 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms();
         }
-        atomIterator.setPhase(displayPhase.getPhase());
-        atomIterator.reset();
-        for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)atomIterator.nextAtom()) {
-            drawAtom(g, atomOrigin, atom);
+        AtomArrayList leafList = displayPhase.getPhase().getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            drawAtom(g, atomOrigin, (AtomLeaf)leafList.get(iLeaf));
         }
             
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
             Boundary boundary = displayPhase.getPhase().getBoundary();
-            atomIterator.reset();
-            for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-                 a = (AtomLeaf)atomIterator.nextAtom()) {
+            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+                AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
                 if(!(a.getType() instanceof AtomTypeSphere)) continue;
                 float[][] shifts = boundary.getOverflowShifts(a.getPosition(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {

@@ -1,5 +1,6 @@
 package etomica.integrator.mcmove;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -21,8 +22,6 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 
     private static final long serialVersionUID = 1L;
 	private final IntegratorPhase integrator1, integrator2;	
-	private final AtomIteratorLeafAtoms iterator1 = new AtomIteratorLeafAtoms();
-	private final AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
 	private final AtomIteratorLeafAtoms affectedAtomIterator = new AtomIteratorLeafAtoms();
 	private final IVector r;
 	private double u1, u2, temp1, temp2, deltaU1;
@@ -62,14 +61,12 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
      * @throws RuntimeException wrapping a ConfigurationOverlapException if overlap is detected in either phase
 	 */
 	public void acceptNotify() {
-		iterator1.setPhase(integrator1.getPhase());
-		iterator2.setPhase(integrator2.getPhase());
-
-		iterator1.reset();
-		iterator2.reset();
-
-        for (AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom(); a1 != null; a1 = (AtomLeaf)iterator1.nextAtom()) {
-			AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
+        AtomArrayList leafList1 = integrator1.getPhase().getSpeciesMaster().getLeafList();
+        AtomArrayList leafList2 = integrator2.getPhase().getSpeciesMaster().getLeafList();
+        int nLeaf = leafList1.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a1 = (AtomLeaf)leafList1.get(iLeaf);
+            AtomLeaf a2 = (AtomLeaf)leafList2.get(iLeaf);
 
 			r.E(a1.getPosition());
 				

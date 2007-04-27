@@ -9,10 +9,10 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
 
 /**
@@ -24,7 +24,7 @@ import etomica.phase.Phase;
 public class PDBWriter implements Action, Serializable {
 
     public PDBWriter(Phase aPhase) {
-        iterator = new AtomIteratorLeafAtoms(aPhase);
+        leafList = aPhase.getSpeciesMaster().getLeafList();
         try {
             Class.forName("java.util.Formatter");
         }
@@ -80,11 +80,11 @@ public class PDBWriter implements Action, Serializable {
         catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        iterator.reset();
         elementAtomType.clear();
         int atomCount = 0;
-        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)iterator.nextAtom()) {
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf atom = (AtomLeaf)leafList.get(iLeaf);
             Iterator elementIterator = elementAtomType.iterator();
             int elementIndex = -1;
             while (elementIterator.hasNext()) {
@@ -160,7 +160,7 @@ public class PDBWriter implements Action, Serializable {
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
     private final LinkedList elementAtomType = new LinkedList();
-    private final AtomIteratorLeafAtoms iterator;
+    private final AtomArrayList leafList;
     
     private static final class ElementLinker implements Serializable {
         private static final long serialVersionUID = 1L;

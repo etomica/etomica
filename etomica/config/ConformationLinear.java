@@ -2,9 +2,8 @@ package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.IAtom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.IAtomGroup;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -35,7 +34,6 @@ public class ConformationLinear extends Conformation {
         translator = new AtomActionTranslateBy(space);
         moveToOrigin = new AtomActionTranslateTo(space);
         translationVector = translator.getTranslationVector();
-        atomIterator = new AtomIteratorArrayListSimple();
     }
 
     public void setBondLength(double b) {
@@ -73,12 +71,10 @@ public class ConformationLinear extends Conformation {
         int size = atomList.size();
         if(size == 0) return;
 
-        atomIterator.setList(atomList);
-            
         double xNext = -bondLength*0.5*(size-1);
-        atomIterator.reset();
-        for (IAtom a = atomIterator.nextAtom(); a != null;
-             a = atomIterator.nextAtom()) {;
+        int nLeaf = atomList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)atomList.get(iLeaf);
             if (!a.isLeaf()) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
@@ -98,5 +94,4 @@ public class ConformationLinear extends Conformation {
     private IVector translationVector;
     private AtomActionTranslateBy translator;
     private AtomActionTranslateTo moveToOrigin;
-    protected final AtomIteratorArrayListSimple atomIterator;
 }

@@ -15,13 +15,8 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
-import etomica.atom.AtomLeaf;
-import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.phase.Phase;
 import etomica.space.IVector;
-import etomica.space.Space;
 import etomica.units.Pixel;
 
 /**
@@ -88,25 +83,14 @@ public class DisplayPhase extends Display implements EtomicaElement {
 
     private double toPixels;
         
- /**
-  * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
-  * into the central cell.  When the phase is drawn, these "overflow portions" are not normally
-  * included in the central image.  Setting this flag to <code>true</code> causes extra drawing
-  * to be done so that the overflow portions are properly rendered.  This is particularly helpful
-  * to have on when imageShells is non-zero.  Default value is <code>false</code>.
-  */
-  private boolean drawOverflow = false;
-  
-  /**
-   * Iterator of atoms in the displayed phase
-   */
-   private AtomIterator atomIterator;
-   
-   static {
- //       _3dEnabled = true;
- //       try {new DisplayPhaseCanvas3DOpenGL(null, 10, 10);}
- //       catch (NoClassDefFoundError err) {_3dEnabled = false;}
-   }
+    /**
+     * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
+     * into the central cell.  When the phase is drawn, these "overflow portions" are not normally
+     * included in the central image.  Setting this flag to <code>true</code> causes extra drawing
+     * to be done so that the overflow portions are properly rendered.  This is particularly helpful
+     * to have on when imageShells is non-zero.  Default value is <code>false</code>.
+     */
+    private boolean drawOverflow = false;
   
     public DisplayPhase(Phase phase) {
         this(phase,new Pixel());
@@ -252,8 +236,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 }
             }
         });
-
-        atomIterator = new AtomIteratorLeafAtoms(p);
     }
 
     public void setPhaseCanvas(DisplayCanvas phaseCanvas) {

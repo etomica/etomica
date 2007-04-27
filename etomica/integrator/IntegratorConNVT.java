@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -79,66 +80,61 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-    public void doStepInternal() {
-		double dim = phase.getSpace().D();  //get the dimension
-		
-        //Compute forces on each atom
-		forceSum.reset();
-        potential.calculate(phase, allAtoms, forceSum);
-	
-		//MoveA
-		//Advance velocities from T-Dt/2 to T without constraint
-		atomIterator.reset();	
-		double Free=0.0;
-		//degrees of freedom
-		Free=((phase.moleculeCount()-1)*dim); 
-		
-		double k=0.0;
+  	public void doStepInternal() {
+  	    double dim = phase.getSpace().D();  //get the dimension
+
+  	    //Compute forces on each atom
+  	    forceSum.reset();
+  	    potential.calculate(phase, allAtoms, forceSum);
+
+  	    //MoveA
+        //Advance velocities from T-Dt/2 to T without constraint
+        double Free=0.0;
+        //degrees of freedom
+        Free=((phase.moleculeCount()-1)*dim); 
+
+        double k=0.0;
         double chi;
-		for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
-			IVector v = ((ICoordinateKinetic)a).getVelocity();
-            
-			work1.E(v); //work1 = v
-			work2.E(((Agent)agentManager.getAgent(a)).force);	//work2=F
-			work1.PEa1Tv1(halfTime*((AtomTypeLeaf)a.getType()).rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
-            
-        	k+=work1.squared();
- 
-		}   
-    	//calculate scaling factor chi
-		
-		chi= Math.sqrt(Temper*Free/(mass*k));
-		
-		//calculate constrained velocities at T+Dt/2
-		atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
-			Agent agent = (Agent)agentManager.getAgent(a);
-			IVector v = ((ICoordinateKinetic)a).getVelocity();
-		
-			double scale = (2.0*chi-1.0); 
-			work3.Ea1Tv1(scale,v); 
-			work4.Ea1Tv1(chi*((AtomTypeLeaf)a.getType()).rm(),agent.force);
-			work4.TE(timeStep);
-			work3.PE(work4);
-			v.E(work3);
-				
-		} 
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IVector v = ((ICoordinateKinetic)a).getVelocity();
 
-		atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
-			IVector r = a.getPosition();
-			IVector v = ((ICoordinateKinetic)a).getVelocity();
-            
-			work.Ea1Tv1(timeStep,v);
-			work.PE(r);
-			r.E(work);
-		}
+            work1.E(v); //work1 = v
+            work2.E(((Agent)agentManager.getAgent(a)).force);	//work2=F
+            work1.PEa1Tv1(halfTime*((AtomTypeLeaf)a.getType()).rm(),work2); //work1= p/m + F*Dt2/m = v + F*Dt2/m
 
-        
-    }//end of doStep
+            k+=work1.squared();
+        }   
+
+        //calculate scaling factor chi
+        chi= Math.sqrt(Temper*Free/(mass*k));
+
+        //calculate constrained velocities at T+Dt/2
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            Agent agent = (Agent)agentManager.getAgent(a);
+            IVector v = ((ICoordinateKinetic)a).getVelocity();
+
+            double scale = (2.0*chi-1.0); 
+            work3.Ea1Tv1(scale,v); 
+            work4.Ea1Tv1(chi*((AtomTypeLeaf)a.getType()).rm(),agent.force);
+            work4.TE(timeStep);
+            work3.PE(work4);
+            v.E(work3);
+        } 
+
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IVector r = a.getPosition();
+            IVector v = ((ICoordinateKinetic)a).getVelocity();
+
+            work.Ea1Tv1(timeStep,v);
+            work.PE(r);
+            r.E(work);
+        }
+  	}
     
 
     public Class getAgentClass() {

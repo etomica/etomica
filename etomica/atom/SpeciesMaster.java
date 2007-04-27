@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.phase.Phase;
@@ -303,12 +302,11 @@ public final class SpeciesMaster implements java.io.Serializable {
         phase.getAgent(species1).setNMolecules(2);
         phase.getAgent(species2).setNMolecules(2);
 
-        AtomIteratorLeafAtoms leafIterator = new AtomIteratorLeafAtoms();
-        leafIterator.setPhase(phase);
-        leafIterator.reset();
-        for (AtomSet atom = leafIterator.next(); atom != null;
-             atom = leafIterator.next()) {
-            System.out.println(atom.toString());
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            System.out.println(a.toString());
         }
         System.out.println();
     }//end of main

@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -72,9 +73,10 @@ public final class IntegratorHardField extends IntegratorHard {
         calculateForces();
         
         double t2 = 0.5*tStep*tStep;
-        atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             HardFieldAgent agent = (HardFieldAgent)agentManager.getAgent(a);
             agent.decrementCollisionTime(tStep);
             a.getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a).getVelocity());
@@ -99,9 +101,10 @@ public final class IntegratorHardField extends IntegratorHard {
     private void calculateForces() {
         
         //Compute all forces
-        atomIterator.reset();
-        for (IAtom atom = atomIterator.nextAtom(); atom != null;
-             atom = atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            IAtom atom = leafList.get(iLeaf);
             ((HardFieldAgent)agentManager.getAgent(atom)).forceFree = true;
         }
         //zero forces on all atoms
@@ -116,15 +119,15 @@ public final class IntegratorHardField extends IntegratorHard {
     */
     public void scaleMomenta(double s) {
         double rs = 1.0/s;
-        atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
             ((ICoordinateKinetic)a).getVelocity().TE(s); //scale momentum
             ((Agent)agentManager.getAgent(a)).eventLinker.sortKey *= rs;
         }
-        atomIterator.reset();
-        for (IAtom a = atomIterator.nextAtom(); a != null;
-             a = atomIterator.nextAtom()) {
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
  //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
  //                               a.coord.momentum().squared());
             HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent(a);

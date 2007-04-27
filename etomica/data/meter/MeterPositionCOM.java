@@ -3,9 +3,9 @@
  */
 package etomica.data.meter;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
@@ -40,14 +40,15 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
      * Returns the position of the center of mass of all atoms in the phase.
      */
     public Data getData() {
-        iterator.reset();
         positionSum.E(0.0);
         double massSum = 0.0;
-        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)iterator.nextAtom()) {
-            double mass = ((AtomTypeLeaf)atom.getType()).getMass();
+        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        int nLeaf = leafList.size();
+        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            double mass = ((AtomTypeLeaf)a.getType()).getMass();
             massSum += mass;
-            positionSum.PEa1Tv1(mass,atom.getPosition());
+            positionSum.PEa1Tv1(mass,a.getPosition());
         }
         positionSum.TE(1.0/massSum);
         return data;
@@ -62,9 +63,8 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
     /**
      * @param phase The phase to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        iterator.setPhase(phase);
+    public void setPhase(Phase newPhase) {
+        phase = newPhase;
     }
     
     public String getName() {
@@ -85,7 +85,6 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     private Phase phase;
-    private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private final IVector positionSum;
     private final DataVector data;    
     private final DataInfo dataInfo;
