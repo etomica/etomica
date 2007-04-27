@@ -136,7 +136,7 @@ public class DataLogger implements DataPipe, ControllerListener, java.io.Seriali
         return currentTime;
     }
     
-    private void closeFile(){ 
+    public void closeFile(){ 
         try {
             if(fileIsOpen) { fileWriter.close(); fileIsOpen = false;}
             if(!sameFileEachTime) fileName = "";
