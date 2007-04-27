@@ -5,9 +5,11 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
+import etomica.data.types.DataDouble;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceCheckBox;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.lattice.LatticePlane;
 import etomica.modifier.Modifier;
@@ -31,9 +33,10 @@ public class ClipPlaneEditor {
     public JPanel getPanel() {return panel;}
     
     private JPanel panel;
-    protected DeviceBox boxA, boxB, boxC, boxD, boxH;
+    protected DeviceBox boxH, boxK, boxL;
     protected LatticePlane latticePlane;
     private DeviceSlider positionSlider;
+    private DisplayBox distanceDisplay;
     
     protected DisplayPhase display;
 
@@ -52,13 +55,11 @@ public class ClipPlaneEditor {
 	private final int MILLER_INDEX_H = 0;
 	private final int MILLER_INDEX_K = 1;
 	private final int MILLER_INDEX_L = 2;
-	private final int PLANE_SELECTION_BOX = 3;
-	private final int POSITION_SLIDER = 4;
+	private final int PLANE_SELECTION_SLIDER = 3;
 
-	private final int SLIDER_DECIMAL_PLACES = 2;
+	private final int SLIDER_DECIMAL_PLACES = 1;
+	private final int DISTANCE_PRECISION = 4;
 
-	private final double PLANE_TOLERANCE = 5.0e-3;
-	
 
     public ClipPlaneEditor(final LatticePlane latticePlane, final DisplayPhase display) {
 
@@ -101,76 +102,66 @@ public class ClipPlaneEditor {
         ModifierLatticePlane modifier;
         latticePlane.setOrigin(new Vector3D());
         // Miller i indices
-        boxA = new DeviceBox();
+        boxH = new DeviceBox();
         modifier = new ModifierLatticePlane(MILLER_INDEX_H);
         modifier.setLabel("h");
-        boxA.setModifier(modifier);
-        boxA.setInteger(true);
+        boxH.setModifier(modifier);
+        boxH.setInteger(true);
         // Miller j indices
-        boxB = new DeviceBox();
+        boxK = new DeviceBox();
         modifier = new ModifierLatticePlane(MILLER_INDEX_K);
         modifier.setLabel("k");
-        boxB.setModifier(modifier);
-        boxB.setInteger(true);
+        boxK.setModifier(modifier);
+        boxK.setInteger(true);
         // Miller k indices
-        boxC = new DeviceBox();
+        boxL = new DeviceBox();
         modifier = new ModifierLatticePlane(MILLER_INDEX_L);
         modifier.setLabel("l");
-        boxC.setModifier(modifier);
-        boxC.setInteger(true);
-        // position text box
-        boxD = new DeviceBox();
-        modifier = new ModifierLatticePlane(PLANE_SELECTION_BOX);
-        modifier.setLabel("Plane Selection");
-        boxD.setModifier(modifier);
-        boxD.setInteger(false);
-        boxD.setPrecision(2);
-        // not sure
-        boxH = new DeviceBox();
-        boxH.setModifier(new ModifierLatticePlane(5));//4th index for hexagonal lattices
-        boxH.setEditable(false);
-        boxH.setInteger(true);
+        boxL.setModifier(modifier);
+        boxL.setInteger(true);
 
         millerPanel = new JPanel(new GridLayout(1,0));
         TitledBorder millerBorder = new TitledBorder("Miller Indices");
         millerBorder.setTitleJustification(TitledBorder.CENTER);
         millerPanel.setBorder(millerBorder);
-        millerPanel.add(boxA.graphic());
-        millerPanel.add(boxB.graphic());
-        millerPanel.add(boxC.graphic());
-        
-        boxA.doUpdate();
-        boxB.doUpdate();
-        boxC.doUpdate();
-        boxD.doUpdate();
+        millerPanel.add(boxH.graphic());
+        millerPanel.add(boxK.graphic());
+        millerPanel.add(boxL.graphic());
 
-        positionSlider = new DeviceSlider(null, new ModifierLatticePlane(POSITION_SLIDER));
+        boxH.doUpdate();
+        boxK.doUpdate();
+        boxL.doUpdate();
+
+        positionSlider = new DeviceSlider(null, new ModifierLatticePlane(PLANE_SELECTION_SLIDER));
         positionSlider.setPrecision(SLIDER_DECIMAL_PLACES);
-        positionSlider.setMinimum(minimumPosition);
-        positionSlider.setMaximum(maximumPosition);
+// NEED TO SET MIN/MAX PLANE WHICH ARE DYNAMIC ...
+positionSlider.setMinimum(minimumPosition);
+positionSlider.setMaximum(maximumPosition);
+//        positionSlider.setMinimum(minimumPosition);
+//        positionSlider.setMaximum(maximumPosition);
         positionSlider.setNMajor(4);
         positionSlider.getSlider().setValue(0);
-        positionSlider.setLabel("Distance From Origin");
+        positionSlider.setLabel("Plane Selection");
         positionSlider.setShowBorder(true);
-        positionSlider.setPostAction(new Action() {
-            public void actionPerformed() {
-                boxD.doUpdate();
-                display.repaint();
-            }
-        });
+        positionSlider.setShowValues(true);
+        positionSlider.setEditValues(true);
+
+        distanceDisplay = new DisplayBox();
+        distanceDisplay.setLabel("Distance from Origin");
+        distanceDisplay.setPrecision(DISTANCE_PRECISION);
 
         JPanel distancePanel = new JPanel();
         TitledBorder distanceBorder = new TitledBorder("Position");
         distanceBorder.setTitleJustification(TitledBorder.CENTER);
         distancePanel.setBorder(distanceBorder);
         distancePanel.add(positionSlider.graphic());
-        distancePanel.add(boxD.graphic());
-        
+        distancePanel.add(distanceDisplay.graphic());
+
         JPanel checkboxPanel = new JPanel(new java.awt.GridLayout(0,1));
         checkboxPanel.add(clipToggle.graphic());
         checkboxPanel.add(highlightToggle.graphic());
         checkboxPanel.add(showplaneToggle.graphic());
-        
+
         int ix=0; 
         int iy=0;
         panel = new JPanel(new java.awt.GridBagLayout());
@@ -179,11 +170,9 @@ public class ClipPlaneEditor {
         ix = 0;
         gbc0.gridx = ix; gbc0.gridy = ++iy;
         panel.add(millerPanel, gbc0);
-        
+
         gbc0.gridx = ix; gbc0.gridy = ++iy;
         panel.add(distancePanel, gbc0);
-
-        latticePlane.setTolerance(PLANE_TOLERANCE);
 
         update();
     }
@@ -191,13 +180,6 @@ public class ClipPlaneEditor {
     public LatticePlane latticePlane() {return latticePlane;}
 
     public void update() {
-//        if(latticePlane.isPrimitiveHexagonal()) {
-//            millerPanel.add(boxH.graphic(), 2);
-//            millerPanel.revalidate();
-//        } else {
-//            millerPanel.remove(boxH.graphic());
-//            millerPanel.revalidate();
-//        }
         positionSlider.doUpdate();
         display.repaint();
     }
@@ -225,26 +207,23 @@ public class ClipPlaneEditor {
                 case MILLER_INDEX_L: 
                 	latticePlane.setMillerIndex(index,(int)t);
                 	break;
-                case PLANE_SELECTION_BOX:
+                case PLANE_SELECTION_SLIDER:
                 	latticePlane.setPosition(t);
                 	break;
-                case POSITION_SLIDER:
-                	latticePlane.setSpacePosition(t);
-                	break;
-                case 5: break; //4th hexagonal index
             }
-            update();
+        	DataDouble doubleD = new DataDouble();
+        	doubleD.E(latticePlane.getSpacePosition());
+            distanceDisplay.putData(doubleD);
+            display.repaint();
         }
+
         public double getValue() {
             switch(index) {
                 default:
                 case MILLER_INDEX_H: 
                 case MILLER_INDEX_K: 
                 case MILLER_INDEX_L: return latticePlane.getMillerIndex(index);
-                case PLANE_SELECTION_BOX: return latticePlane.getPosition();
-                case POSITION_SLIDER: return latticePlane.getSpacePosition();
-                case 5: return -(latticePlane.getMillerIndex(MILLER_INDEX_H) +
-                		         latticePlane.getMillerIndex(MILLER_INDEX_K));
+                case PLANE_SELECTION_SLIDER: return latticePlane.getPosition();
             }
         }
         public etomica.units.Dimension getDimension() {return Null.DIMENSION;}

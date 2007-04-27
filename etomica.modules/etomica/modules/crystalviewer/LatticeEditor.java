@@ -94,7 +94,7 @@ public class LatticeEditor {
 
         anglePanel = new JPanel(new GridLayout(1,3));
         sizePanel = new JPanel(new GridLayout(1,3));
-        
+        sizePanel.setBorder(new TitledBorder("Cell Dimensions"));
         DeviceSlider nSlider = new DeviceSlider(null, new NModifier());
         nSlider.setPrecision(0);
         nSlider.setMinimum(1);
@@ -163,6 +163,7 @@ public class LatticeEditor {
 
             newBox.setUnit(Degree.UNIT);
             anglePanel.add(newBox.graphic());
+            anglePanel.setBorder(new TitledBorder("Angles"));
             angleBoxes = (DeviceBox[])Arrays.addObject(angleBoxes, newBox);
 
             newBox.setPostAction(new Action() {
