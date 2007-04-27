@@ -78,7 +78,19 @@ public class PrimitiveOrthorhombic extends Primitive {
         setSize(newSize);
     }
     public double getSizeC() {return size[2];}
-    
+
+    public double getAngleAlpha() {
+        return angle[0];
+    }
+
+    public double getAngleBeta() {
+        return angle[1];
+    }
+
+    public double getAngleGamma() {
+        return angle[2];
+    }
+
     /**
      * Returns a new, identical instance of this primitive.
      */

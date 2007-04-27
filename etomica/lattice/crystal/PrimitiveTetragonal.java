@@ -59,7 +59,19 @@ public class PrimitiveTetragonal extends Primitive {
         setSize(new double[]{ab, ab, newC});
     }
     public double getSizeC() {return size[2];}
-    
+
+    public double getAngleAlpha() {
+        return angle[0];
+    }
+
+    public double getAngleBeta() {
+        return angle[1];
+    }
+
+    public double getAngleGamma() {
+        return angle[2];
+    }
+
     protected void update() {
         super.update();
         latticeVectors[0].setX(0, size[0]);

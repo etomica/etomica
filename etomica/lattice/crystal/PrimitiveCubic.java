@@ -75,7 +75,19 @@ public class PrimitiveCubic extends Primitive {
      * Returns the common length of all primitive vectors.
      */
     public double getSizeABC() {return aBC;}
-    
+
+    public double getAngleAlpha() {
+        return angle[0];
+    }
+
+    public double getAngleBeta() {
+        return angle[1];
+    }
+
+    public double getAngleGamma() {
+        return angle[2];
+    }
+
     public void scaleSize(double scale) {
         setSizeABC(scale*aBC);
     }
