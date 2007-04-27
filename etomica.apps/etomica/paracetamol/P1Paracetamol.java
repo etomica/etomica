@@ -37,7 +37,6 @@ public class P1Paracetamol extends Potential1 {
 
 	}
 
-	@Override
 	public double energy(AtomSet moleculeParacetamol) {
 		
 		AtomParacetamol atomNode = (AtomParacetamol)moleculeParacetamol;
