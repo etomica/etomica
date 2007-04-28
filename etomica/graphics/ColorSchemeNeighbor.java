@@ -23,12 +23,11 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     }
     
     public void colorAllAtoms() {
-        Color[] atomColors = agentManager.getAgents();
 		//color all atoms according to their type
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             AtomLeaf atom = (AtomLeaf)leafList.get(iLeaf);
-            atomColors[atom.getGlobalIndex()] = typeColorScheme.getAtomColor(atom);//Color.green;
+            agentManager.setAgent(atom, typeColorScheme.getAtomColor(atom));
         }
         if (referenceAtom == null) {
             return;
@@ -39,13 +38,13 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
              pair = nbrIterator.nextPair()) {
             IAtom atom = pair.atom1;
             if(atom.getType() == referenceAtom.getType()) {
-                atomColors[atom.getGlobalIndex()] = Color.blue;
+                agentManager.setAgent(atom, Color.blue);
             } else {
-                atomColors[atom.getGlobalIndex()] = Color.yellow;
+                agentManager.setAgent(atom, Color.yellow);
             }
         }
         //color green the target atom 
-        atomColors[referenceAtom.getGlobalIndex()] = Color.green;
+        agentManager.setAgent(referenceAtom, Color.green);
     }
     
     public void setAtom(IAtom a) {
