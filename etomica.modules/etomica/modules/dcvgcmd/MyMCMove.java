@@ -3,7 +3,6 @@ package etomica.modules.dcvgcmd;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.phase.Phase;
@@ -30,7 +29,6 @@ public class MyMCMove extends MCMoveInsertDelete {
         this.integrator = integrator;
         randomizer = new AtomActionRandomizeVelocity(0, random);
         activeAtoms = new AtomArrayList();
-        atomIterator = new AtomIteratorArrayListSimple();
 	}
 
     public void setPhase(Phase p) {
@@ -94,12 +92,13 @@ public class MyMCMove extends MCMoveInsertDelete {
     
     public void setupActiveAtoms() {
     	activeAtoms.clear();
-    	atomIterator.reset();
     	double zBoundary = phase.getBoundary().getDimensions().x(2);
     	double zmin = nearOrigin ? -0.5*zBoundary : 0.5*(1.0-zFraction)*zBoundary;
     	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
-        for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)atomIterator.nextAtom()) {
+        int nMolecules = moleculeList.size();
+        for (int i=0; i<nMolecules; i++) {
+            AtomLeaf atom = (AtomLeaf)moleculeList.get(i);
+
     		double z = atom.getPosition().x(2);
     		if(z < zmin || z > zmax) continue;
     		activeAtoms.add(atom);
@@ -116,7 +115,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private Vector3D position;
 	private boolean nearOrigin;
 	private final AtomArrayList activeAtoms;
-	private final AtomIteratorArrayListSimple atomIterator;
+    private AtomArrayList moleculeList;
 	private final AtomActionRandomizeVelocity randomizer;
     private final IntegratorPhase integrator;
     protected int testMoleculeIndex;
@@ -144,6 +143,6 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 */
 	public void setSpecies(Species s) {
 		super.setSpecies(s);
-		atomIterator.setList(speciesAgent.getChildList());
+		moleculeList = speciesAgent.getChildList();
 	}
 }
