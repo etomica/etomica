@@ -12,6 +12,7 @@ import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
+import etomica.util.Arrays;
 
 /**
  * Coordinator of all species agents in a phase. Parent is SpeciesRoot, and
@@ -28,6 +29,7 @@ public final class SpeciesMaster implements java.io.Serializable {
         phaseEventManager = eventManager;
         indexReservoir = new int[reservoirSize];
         maxIndex = -1;
+        leafIndices = new int[0];
         reservoirCount = 0;
         phase = p;
         treeIteratorRoot = new AtomIteratorTreeRoot();
@@ -136,7 +138,8 @@ public final class SpeciesMaster implements java.io.Serializable {
         }
         treeIteratorPhase.setPhase(phase);
         treeIteratorPhase.reset();
-        // loop over all the atoms.  Any atoms whose index is 
+        // loop over all the atoms.  Any atoms whose index is larger than what
+        // the new maxIndex will be get new indices
         for (IAtom a = treeIteratorPhase.nextAtom(); a != null;
              a = treeIteratorPhase.nextAtom()) {
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
@@ -144,11 +147,14 @@ public final class SpeciesMaster implements java.io.Serializable {
                 // Just re-invoke the Atom's method without first "returning"
                 // the index to the reservoir.  The old index gets dropped on the
                 // floor.
+                int oldGlobalIndex = a.getGlobalIndex();
                 a.setGlobalIndex(this);
+                leafIndices[a.getGlobalIndex()] = leafIndices[oldGlobalIndex];
                 phaseEventManager.fireEvent(event);
             }
         }
         maxIndex -= reservoirSize;
+        leafIndices = Arrays.resizeArray(leafIndices, maxIndex);
         PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(phase, maxIndex);
         phaseEventManager.fireEvent(event);
         if (reservoirCount != 0) {
@@ -174,7 +180,8 @@ public final class SpeciesMaster implements java.io.Serializable {
         if (numNewAtoms > reservoirCount) {
             PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(phase, maxIndex + numNewAtoms - reservoirCount);
             phaseEventManager.fireEvent(event);
-        }            
+            leafIndices = Arrays.resizeArray(leafIndices, maxIndex + numNewAtoms - reservoirCount + reservoirSize);
+        }
     }
     
     /**
@@ -210,18 +217,26 @@ public final class SpeciesMaster implements java.io.Serializable {
 
         newAtom.setGlobalIndex(this);
         if (newAtom.isLeaf()) {
-            ((AtomLeaf)newAtom).setLeafIndex(leafList.size());
+            int globalIndex = newAtom.getGlobalIndex();
+            if (globalIndex > leafIndices.length-1) {
+                leafIndices = Arrays.resizeArray(leafIndices, globalIndex + reservoirSize);
+            }
+            leafIndices[globalIndex] = leafList.size();
             leafList.add(newAtom);
         } else {
             treeIteratorRoot.setRootAtom(newAtom);
             treeIteratorRoot.reset();
             for (IAtom childAtom = treeIteratorRoot.nextAtom(); childAtom != null;
                  childAtom = treeIteratorRoot.nextAtom()) {
+                childAtom.setGlobalIndex(this);
                 if (childAtom.getType().isLeaf()) {
-                    ((AtomLeaf)childAtom).setLeafIndex(leafList.size());
+                    int globalIndex = childAtom.getGlobalIndex();
+                    if (globalIndex > leafIndices.length-1) {
+                        leafIndices = Arrays.resizeArray(leafIndices, globalIndex + reservoirSize);
+                    }
+                    leafIndices[globalIndex] = leafList.size();
                     leafList.add(childAtom);
                 }
-                childAtom.setGlobalIndex(this);
             }
         }
         phaseEventManager.fireEvent(new PhaseAtomAddedEvent(phase, newAtom));
@@ -240,13 +255,13 @@ public final class SpeciesMaster implements java.io.Serializable {
         phaseEventManager.fireEvent(new PhaseAtomRemovedEvent(phase, oldAtom));
         returnGlobalIndex(oldAtom.getGlobalIndex());
         if (oldAtom.isLeaf()) {
-            int leafIndex = ((AtomLeaf)oldAtom).getLeafIndex();
+            int leafIndex = leafIndices[oldAtom.getGlobalIndex()];
             leafList.removeAndReplace(leafIndex);
             leafList.maybeTrimToSize();
             // if we didn't remove the last atom, removeAndReplace
             // inserted the last atom in the emtpy spot.  Set its leaf index.
             if (leafList.size() > leafIndex) {
-                ((AtomLeaf)leafList.get(leafIndex)).setLeafIndex(leafIndex);
+                leafIndices[leafList.get(leafIndex).getGlobalIndex()] = leafIndex;
             }
         } else {
             treeIteratorRoot.setRootAtom(oldAtom);
@@ -255,15 +270,23 @@ public final class SpeciesMaster implements java.io.Serializable {
                  childAtom = treeIteratorRoot.nextAtom()) {
                 returnGlobalIndex(childAtom.getGlobalIndex());
                 if (childAtom.getType().isLeaf()) {
-                    int leafIndex = ((AtomLeaf)childAtom).getLeafIndex();
+                    int leafIndex = leafIndices[childAtom.getGlobalIndex()];
                     leafList.removeAndReplace(leafIndex);
                     if (leafList.size() > leafIndex) {
-                        ((AtomLeaf)leafList.get(leafIndex)).setLeafIndex(leafIndex);
+                        leafIndices[leafList.get(leafIndex).getGlobalIndex()] = leafIndex;
                     }
                 }
             }
             leafList.maybeTrimToSize();
         }
+    }
+    
+    /**
+     * Returns the index of the given leaf atom within the SpeciesMaster's
+     * leaf list.  The given leaf atom must be in the SpeciesMaster's Phase. 
+     */
+    public int getLeafIndex(AtomLeaf atomLeaf) {
+        return leafIndices[atomLeaf.getGlobalIndex()];
     }
 
     private static final long serialVersionUID = 2L;
@@ -272,18 +295,20 @@ public final class SpeciesMaster implements java.io.Serializable {
     /**
      * List of leaf atoms in phase
      */
-    private final AtomArrayList leafList = new AtomArrayList();
+    protected final AtomArrayList leafList = new AtomArrayList();
 
-    private final AtomIteratorTreePhase treeIteratorPhase;
-    private final AtomIteratorTreeRoot treeIteratorRoot;
+    protected final AtomIteratorTreePhase treeIteratorPhase;
+    protected final AtomIteratorTreeRoot treeIteratorRoot;
 
     protected int moleculeCount;
     protected final PhaseEventManager phaseEventManager;
 
-    private int[] indexReservoir;
-    private int reservoirSize = 50;
-    private int reservoirCount;
-    private int maxIndex;
+    protected int[] indexReservoir;
+    protected int reservoirSize = 50;
+    protected int reservoirCount;
+    protected int maxIndex;
+    
+    protected int[] leafIndices;
     
     /**
      * non-graphic main method to test handling of leaf atom list.
@@ -309,6 +334,6 @@ public final class SpeciesMaster implements java.io.Serializable {
             System.out.println(a.toString());
         }
         System.out.println();
-    }//end of main
+    }
 
-}//end of SpeciesMaster
+}

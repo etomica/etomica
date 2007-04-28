@@ -5,15 +5,7 @@ import etomica.space.IVector;
 import etomica.space.Space;
 
  /**
-  * Object corresponding to one physical atom or group of atoms. Each atom holds
-  * the following publicly accessible fields:
-  * <ul>
-  * <li>a Coordinate instance (fieldname: coord) that is constructed by the
-  * governing space class; the coordinate stores information about the state of
-  * the atom -- usually its position and momentum, but other definitions are possible
-  * <li>an AtomType instance (fieldname: type) that holds information this atom
-  * has in common with other atoms made by the same factory
-  * </ul>
+  * Atom that represents a physical atom with a position.
   * <p>
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
@@ -37,25 +29,10 @@ public class AtomLeaf extends Atom implements ICoordinate {
     
     public boolean isLeaf() {return true;}
     
-    public final void setLeafIndex(int newLeafIndex) {
-        leafIndex = newLeafIndex;
-    }
-    
-    public final int getLeafIndex() {
-        return leafIndex;
-    }
-    
     public IVector getPosition() {
         return position;
     }
     
-    /**
-     * leafIndex is an index to the AtomArrayList of all leaf atoms in the phase.
-     * List is maintained by the speciesMaster node.
-     */
-    private int leafIndex;
-
     private static final long serialVersionUID = 2L;
     protected final IVector position;
-    
 }
