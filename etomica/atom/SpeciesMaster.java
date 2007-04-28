@@ -169,8 +169,8 @@ public final class SpeciesMaster implements java.io.Serializable {
     public void notifyNewAtoms(int numNewAtoms) {
         // has no actual effect within this object.  We just notify things to 
         // prepare for an increase in the max index.  If things assume that the
-        // max index has actually increased, there's no harm since there's 
-        // nothing that says the max index can't be too large.
+        // actual max index has already increased, there's no harm since
+        // there's nothing that says the max index can't be too large.
         if (numNewAtoms > reservoirCount) {
             PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(phase, maxIndex + numNewAtoms - reservoirCount);
             phaseEventManager.fireEvent(event);
@@ -243,7 +243,7 @@ public final class SpeciesMaster implements java.io.Serializable {
             int leafIndex = ((AtomLeaf)oldAtom).getLeafIndex();
             leafList.removeAndReplace(leafIndex);
             leafList.maybeTrimToSize();
-            // if we removed didn't remove the last atom, removeAndReplace
+            // if we didn't remove the last atom, removeAndReplace
             // inserted the last atom in the emtpy spot.  Set its leaf index.
             if (leafList.size() > leafIndex) {
                 ((AtomLeaf)leafList.get(leafIndex)).setLeafIndex(leafIndex);
