@@ -6,10 +6,8 @@ import etomica.util.FunctionInvertible;
 /**
  * Extends the configurable modifier to permit a function to be applied to
  * a value before the modified property is set.  Correspondingly, the value
- * obtained from a get of the modified property has applied the inverse
- * of the function.
+ * obtained from a get of the property has applied the inverse of the function.
  *
- * @see ModifierGeneral
  * @author David Kofke
  */
  
@@ -28,14 +26,14 @@ public class ModifierFunctionWrapper extends ModifierGeneral {
     public FunctionInvertible getFunction() {return function;}
     
     /**
-     * Applies function to given value before setting modulated property.
+     * Applies function to given value before setting modified property.
      */
     public void setValue(double d) {
         super.setValue(function.f(d));
     }
     
     /**
-     * Applies inverse of function to modulated property before returning it.
+     * Applies inverse of function to property before returning it.
      */
     public double getValue() {
         return function.inverse(super.getValue());
