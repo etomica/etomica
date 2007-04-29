@@ -154,7 +154,9 @@ public final class SpeciesMaster implements java.io.Serializable {
             }
         }
         maxIndex -= reservoirSize;
-        leafIndices = Arrays.resizeArray(leafIndices, maxIndex);
+        if (leafIndices.length > maxIndex + 1 + reservoirSize) {
+            leafIndices = Arrays.resizeArray(leafIndices, maxIndex+1);
+        }
         PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(phase, maxIndex);
         phaseEventManager.fireEvent(event);
         if (reservoirCount != 0) {
@@ -180,7 +182,7 @@ public final class SpeciesMaster implements java.io.Serializable {
         if (numNewAtoms > reservoirCount) {
             PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(phase, maxIndex + numNewAtoms - reservoirCount);
             phaseEventManager.fireEvent(event);
-            leafIndices = Arrays.resizeArray(leafIndices, maxIndex + numNewAtoms - reservoirCount + reservoirSize);
+            leafIndices = Arrays.resizeArray(leafIndices, maxIndex + numNewAtoms - reservoirCount + 1 + reservoirSize);
         }
     }
     
@@ -219,7 +221,7 @@ public final class SpeciesMaster implements java.io.Serializable {
         if (newAtom.isLeaf()) {
             int globalIndex = newAtom.getGlobalIndex();
             if (globalIndex > leafIndices.length-1) {
-                leafIndices = Arrays.resizeArray(leafIndices, globalIndex + reservoirSize);
+                leafIndices = Arrays.resizeArray(leafIndices, globalIndex + 1 + reservoirSize);
             }
             leafIndices[globalIndex] = leafList.size();
             leafList.add(newAtom);
@@ -232,7 +234,7 @@ public final class SpeciesMaster implements java.io.Serializable {
                 if (childAtom.getType().isLeaf()) {
                     int globalIndex = childAtom.getGlobalIndex();
                     if (globalIndex > leafIndices.length-1) {
-                        leafIndices = Arrays.resizeArray(leafIndices, globalIndex + reservoirSize);
+                        leafIndices = Arrays.resizeArray(leafIndices, globalIndex + 1 + reservoirSize);
                     }
                     leafIndices[globalIndex] = leafList.size();
                     leafList.add(childAtom);
@@ -253,7 +255,6 @@ public final class SpeciesMaster implements java.io.Serializable {
         }
         
         phaseEventManager.fireEvent(new PhaseAtomRemovedEvent(phase, oldAtom));
-        returnGlobalIndex(oldAtom.getGlobalIndex());
         if (oldAtom.isLeaf()) {
             int leafIndex = leafIndices[oldAtom.getGlobalIndex()];
             leafList.removeAndReplace(leafIndex);
@@ -263,12 +264,13 @@ public final class SpeciesMaster implements java.io.Serializable {
             if (leafList.size() > leafIndex) {
                 leafIndices[leafList.get(leafIndex).getGlobalIndex()] = leafIndex;
             }
+            returnGlobalIndex(oldAtom.getGlobalIndex());
         } else {
+            returnGlobalIndex(oldAtom.getGlobalIndex());
             treeIteratorRoot.setRootAtom(oldAtom);
             treeIteratorRoot.reset();
             for (IAtom childAtom = treeIteratorRoot.nextAtom(); childAtom != null;
                  childAtom = treeIteratorRoot.nextAtom()) {
-                returnGlobalIndex(childAtom.getGlobalIndex());
                 if (childAtom.getType().isLeaf()) {
                     int leafIndex = leafIndices[childAtom.getGlobalIndex()];
                     leafList.removeAndReplace(leafIndex);
@@ -276,6 +278,7 @@ public final class SpeciesMaster implements java.io.Serializable {
                         leafIndices[leafList.get(leafIndex).getGlobalIndex()] = leafIndex;
                     }
                 }
+                returnGlobalIndex(childAtom.getGlobalIndex());
             }
             leafList.maybeTrimToSize();
         }
