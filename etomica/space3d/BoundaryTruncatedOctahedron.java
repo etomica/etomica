@@ -2,7 +2,7 @@ package etomica.space3d;
 
 import etomica.exception.MethodNotImplementedException;
 import etomica.lattice.IndexIterator;
-import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.SpecialFunctions;
 import etomica.math.geometry.Plane;
@@ -46,7 +46,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         dimensionsCopy = space.makeVector();
         dimensionsHalf = space.makeVector();
         dimensionsHalfCopy = space.makeVector();
-        indexIterator = new IndexIteratorSequential(space.D());
+        indexIterator = new IndexIteratorRectangular(space.D());
         needShift = new boolean[space.D()];//used by getOverflowShifts
         updateDimensions();
     }
@@ -72,7 +72,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     private class IndexIteratorSequentialFiltered
       implements IndexIteratorSizable {
       
-      private IndexIteratorSequential iis;
+      private IndexIteratorRectangular iis;
       private boolean hasnext;
       private int[] vals;
       private int[] retvals;
@@ -80,7 +80,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
       int numLayers;
       
       public IndexIteratorSequentialFiltered(int D, IVector[] v) {
-        iis = new IndexIteratorSequential(D);
+        iis = new IndexIteratorRectangular(D);
         vecs = v;
         hasnext = false;
         vals = new int[D];
@@ -345,7 +345,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     protected final IVector dimensionsCopy;
     protected final IVector dimensionsHalf;
     protected final IVector dimensionsHalfCopy;
-    private final IndexIteratorSequential indexIterator;
+    private final IndexIteratorRectangular indexIterator;
     private final boolean[] needShift;
     protected final boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];

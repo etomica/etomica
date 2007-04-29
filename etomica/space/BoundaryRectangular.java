@@ -1,6 +1,6 @@
 package etomica.space;
 
-import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.LineSegment;
@@ -52,7 +52,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
         
         temp = (IVectorRandom)space.makeVector();
         dimensionsCopy = space.makeVector();
-        indexIterator = new IndexIteratorSequential(space.D());
+        indexIterator = new IndexIteratorRectangular(space.D());
         needShift = new boolean[space.D()];//used by getOverflowShifts
         updateDimensions();
     }
@@ -146,7 +146,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
       int n = 0;
       for(int i=0; i<isPeriodic.length; i++)
         if(isPeriodic[i]) n++;
-      return new IndexIteratorSequential(n);
+      return new IndexIteratorRectangular(n);
     }
     
     /**
@@ -224,7 +224,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
     private final IVectorRandom temp;
     protected final IVector dimensions;
     protected final IVector dimensionsCopy;
-    private final IndexIteratorSequential indexIterator;
+    private final IndexIteratorRectangular indexIterator;
     private final boolean[] needShift;
     protected boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];

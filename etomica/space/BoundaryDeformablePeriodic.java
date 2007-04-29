@@ -2,7 +2,7 @@ package etomica.space;
 
 import java.io.Serializable;
 
-import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
@@ -86,7 +86,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         dimensions = space.makeVector();
         dimensionsCopy = space.makeVector();
         dimensionsHalf = space.makeVector();
-        indexIterator = new IndexIteratorSequential(space.D());
+        indexIterator = new IndexIteratorRectangular(space.D());
         update();
     }
     
@@ -416,7 +416,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
         return edgeVectors;
     }
     public IndexIteratorSizable getIndexIterator() {
-      return new IndexIteratorSequential(edgeVectors.length);
+      return new IndexIteratorRectangular(edgeVectors.length);
     }
     
 	public double[][] imageOrigins(int nShells) {
@@ -507,7 +507,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
     private final int D;
     private final PeriodicTransform2[] edgePairTransforms;
     private final PeriodicTransform3[] edgeTripletTransforms;
-    private final IndexIteratorSequential indexIterator;
+    private final IndexIteratorRectangular indexIterator;
     private double[][] origins = new double[0][];
     protected final IRandom random;
     private final static double halfTol = 0.50000000001;

@@ -20,7 +20,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
 import etomica.lattice.BravaisLatticeCrystal;
-import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
@@ -34,12 +34,12 @@ import etomica.space3d.Vector3D;
 public class GrainBoundaryConfiguration extends Configuration {
 
 	/**
-     * Constructs class using instances of IndexIteratorSequential as the default
+     * Constructs class using instances of IndexIteratorRectangular as the default
      * index iterators.
      */
     public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB) {
-        this(latticeA, latticeB, new IndexIteratorSequential(latticeA.D()), 
-        		new IndexIteratorSequential(latticeB.D()));
+        this(latticeA, latticeB, new IndexIteratorRectangular(latticeA.D()), 
+        		new IndexIteratorRectangular(latticeB.D()));
     }
 
     /**

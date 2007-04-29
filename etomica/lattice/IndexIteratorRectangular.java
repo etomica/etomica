@@ -1,5 +1,6 @@
 package etomica.lattice;
 
+import etomica.util.Arrays;
 
 /**
  * Simple sizeable index iterator that is in effect a set of nested loops.
@@ -9,11 +10,7 @@ package etomica.lattice;
  * (0,0), (0,1), (1,0), (1,1), (2,0), (2,1).
  */
 
-/*
- * History
- * Created on Jan 6, 2005 by kofke
- */
-public class IndexIteratorSequential implements IndexIterator,
+public class IndexIteratorRectangular implements IndexIterator,
   IndexIteratorSizable, java.io.Serializable {
 
     /**
@@ -21,7 +18,7 @@ public class IndexIteratorSequential implements IndexIterator,
      * Default size is 1 for each dimension.  setSize and reset are
      * needed before beginning iteration. 
      */
-    public IndexIteratorSequential(int D) {
+    public IndexIteratorRectangular(int D) {
         this.D = D;
         size = new int[D];
         for(int i=0; i<D; i++) size[i] = 1;
@@ -91,6 +88,21 @@ public class IndexIteratorSequential implements IndexIterator,
         }
     }
 
+    public static void main(String[] args) {
+        IndexIteratorRectangular iterator = new IndexIteratorRectangular(3);
+        iterator.reset();
+        System.out.println("Start 1");
+        while(iterator.hasNext()) {
+            System.out.println(Arrays.toString(iterator.next()));
+        }
+        iterator.setSize(new int[] {5,2,4});
+        iterator.reset();
+        System.out.println("Start 2");
+        while(iterator.hasNext()) {
+            System.out.println(Arrays.toString(iterator.next()));
+        }
+    }
+
     private final int[] size;
     private final int[] index;
     private final int D;
@@ -99,4 +111,5 @@ public class IndexIteratorSequential implements IndexIterator,
     private int count;
     private int maxCount;
     private static final long serialVersionUID = 1L;
+    
 }

@@ -10,7 +10,7 @@ import etomica.config.Conformation;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
 import etomica.lattice.BravaisLatticeCrystal;
-import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
@@ -29,7 +29,7 @@ import etomica.util.Default;
 public class ConfigurationLatticeTube extends ConfigurationLattice {
 
     public ConfigurationLatticeTube(BravaisLatticeCrystal lattice, double length) {
-        this(lattice, length, new IndexIteratorSequential(lattice.D()));//need a default iterator
+        this(lattice, length, new IndexIteratorRectangular(lattice.D()));//need a default iterator
     }
 	/**
 	 * Constructor for ConfigurationLatticeTube.

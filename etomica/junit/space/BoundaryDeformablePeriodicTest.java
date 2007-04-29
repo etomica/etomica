@@ -7,7 +7,7 @@ import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
-import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorRectangular;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -40,7 +40,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         dr1 = space.makeVector();
         dr2 = space.makeVector();
         drStep = space.makeVector();
-        imageIndexIterator = new IndexIteratorSequential(space.D());
+        imageIndexIterator = new IndexIteratorRectangular(space.D());
         imageIndexIterator.setSize(3);
     }
     /*
@@ -50,7 +50,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         if(interactive) display.setPixelUnit(new Pixel(2));
         edgeVectors = space.makeVectorArray(space.D());  
         boundary.boundaryTensor().assignTo(edgeVectors);
-        positionIndexIterator = new IndexIteratorSequential(space.D());
+        positionIndexIterator = new IndexIteratorRectangular(space.D());
         positionIndexIterator.setSize(iMax);
         positionIndexIterator.reset();
         while(positionIndexIterator.hasNext()) {
@@ -126,7 +126,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     }
     
     public static void main(String[] args) {
-//        IndexIteratorSequential indexIterator = new IndexIteratorSequential(2);
+//        IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(2);
 //        int iMax = 10;
 //        indexIterator.setSize(iMax);
 //        indexIterator.reset();
@@ -153,7 +153,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     
     BoundaryDeformablePeriodic boundary;
     Space space;
-    IndexIteratorSequential positionIndexIterator, imageIndexIterator;
+    IndexIteratorRectangular positionIndexIterator, imageIndexIterator;
     int iMax;
     IVector dr, dr1, dr2, drStep;
     IVector[] edgeVectors;

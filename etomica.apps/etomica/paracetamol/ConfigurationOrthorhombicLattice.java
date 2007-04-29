@@ -7,7 +7,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
-import etomica.lattice.IndexIteratorSequential;
+import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
@@ -42,11 +42,11 @@ import etomica.species.SpeciesSpheresMono;
 public class ConfigurationOrthorhombicLattice extends Configuration {
 
     /**
-     * Constructs class using instance of IndexIteratorSequential as the default
+     * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
     public ConfigurationOrthorhombicLattice(SpaceLattice lattice) {
-        this(lattice, new IndexIteratorSequential(lattice.D()));
+        this(lattice, new IndexIteratorRectangular(lattice.D()));
     }
 
     /**
