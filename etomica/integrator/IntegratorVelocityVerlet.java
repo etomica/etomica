@@ -3,9 +3,9 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -30,7 +30,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     
-    protected AtomAgentManager agentManager;
+    protected AtomLeafAgentManager agentManager;
 
     public IntegratorVelocityVerlet(Simulation sim) {
         this(sim.getPotentialMaster(),sim.getRandom(),
@@ -63,7 +63,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             agentManager.dispose();
         }
         super.setPhase(p);
-        agentManager = new AtomAgentManager(this,p);
+        agentManager = new AtomLeafAgentManager(this,p);
         forceSum.setAgentManager(agentManager);
     }
     

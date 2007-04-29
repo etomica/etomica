@@ -3,6 +3,7 @@ package etomica.modules.chainequilibrium;
 import java.io.Serializable;
 
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -150,7 +151,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
             // allow old agentManager to de-register itself as a PhaseListener
             tagManager.dispose();
         }
-        tagManager = new AtomAgentManager(this,phase);
+        tagManager = new AtomLeafAgentManager(this,phase);
         
         iterator.setPhase(phase);
     }
@@ -171,7 +172,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private Phase phase;
     private String name;
-    private AtomAgentManager tagManager;
+    private AtomLeafAgentManager tagManager;
     private AtomAgentManager agentManager;
     private DataFunction data;
     private DataDoubleArray xData;

@@ -3,9 +3,9 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -42,7 +42,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     static final double GEAR3 = 1./3.;
     static final double GEAR4 = 1./24.;
 
-    protected AtomAgentManager agentManager;
+    protected AtomLeafAgentManager agentManager;
 
     public IntegratorGear4(Simulation sim) {
         this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
@@ -72,7 +72,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
             agentManager.dispose();
         }
         super.setPhase(p);
-        agentManager = new AtomAgentManager(this,p);
+        agentManager = new AtomLeafAgentManager(this,p);
         forceSum.setAgentManager(agentManager);
     }
 

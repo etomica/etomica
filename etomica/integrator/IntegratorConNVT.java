@@ -1,8 +1,8 @@
 package etomica.integrator;
 
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -36,7 +36,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
     IVector work, work1, work2, work3, work4;
     double halfTime, mass;
 
-    protected AtomAgentManager agentManager;
+    protected AtomLeafAgentManager agentManager;
 
     public IntegratorConNVT(Simulation sim) {
         this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
@@ -63,7 +63,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
             agentManager.dispose();
         }
         super.setPhase(p);
-        agentManager = new AtomAgentManager(this,p);
+        agentManager = new AtomLeafAgentManager(this,p);
         forceSum.setAgentManager(agentManager);
     }
     

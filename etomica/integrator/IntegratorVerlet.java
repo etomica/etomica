@@ -1,9 +1,9 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -30,7 +30,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
 
     IVector work;
 
-    protected AtomAgentManager agentManager;
+    protected AtomLeafAgentManager agentManager;
 
     public IntegratorVerlet(Simulation sim) {
         this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,
@@ -69,7 +69,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
             agentManager.dispose();
         }
         super.setPhase(p);
-        agentManager = new AtomAgentManager(this,p);
+        agentManager = new AtomLeafAgentManager(this,p);
         forceSum.setAgentManager(agentManager);
     }
     

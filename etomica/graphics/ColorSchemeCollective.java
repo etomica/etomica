@@ -1,8 +1,8 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
@@ -15,10 +15,10 @@ import etomica.phase.Phase;
  */
 public abstract class ColorSchemeCollective extends ColorScheme implements AgentSource {
     
-    protected AtomAgentManager agentManager;
+    protected AtomLeafAgentManager agentManager;
     
     public ColorSchemeCollective(Phase phase) {
-        agentManager = new AtomAgentManager(this, phase);
+        agentManager = new AtomLeafAgentManager(this, phase);
     }
     
     //determine color

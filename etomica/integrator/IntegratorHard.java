@@ -6,6 +6,7 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
@@ -66,7 +67,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     protected double collisionTimeStep;
     protected int collisionCount;
     
-    protected AtomAgentManager agentManager;
+    protected AtomLeafAgentManager agentManager;
 
     public IntegratorHard(Simulation sim) {
         this(sim.getPotentialMaster(),sim.getRandom(), sim.getDefaults().timeStep,sim.getDefaults().temperature);
@@ -92,7 +93,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             phase.getEventManager().removeListener(this);
         }
         super.setPhase(newPhase);
-        agentManager = new AtomAgentManager(this,newPhase);
+        agentManager = new AtomLeafAgentManager(this,newPhase);
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown.setAgentManager(agentManager);
         reverseCollisionHandler.setAgentManager(agentManager);
@@ -676,9 +677,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      * agents as needed.
 	 */
     public Object makeAgent(IAtom a) {
-        if (!a.getType().isLeaf()) {
-            return null;
-        }
         return new Agent(a,this);
     }
     

@@ -3,6 +3,7 @@ import java.awt.Color;
 
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
@@ -12,7 +13,7 @@ public class ColorSchemeRandom extends ColorScheme implements AgentSource {
     
     public ColorSchemeRandom(Phase phase, IRandom random) {
         this.random = random;
-        agentManager = new AtomAgentManager(this, phase);
+        agentManager = new AtomLeafAgentManager(this, phase);
     }
     
     public Color getAtomColor(AtomLeaf a) {
@@ -30,6 +31,6 @@ public class ColorSchemeRandom extends ColorScheme implements AgentSource {
     public void releaseAgent(Object agent, IAtom atom) {}
 
     private static final long serialVersionUID = 2L;
-    private final AtomAgentManager agentManager;
+    private final AtomLeafAgentManager agentManager;
     private final IRandom random;
 }

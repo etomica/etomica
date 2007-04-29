@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -37,7 +37,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 	public P2SquareWellBonded AAbonded;
 	public P2SquareWellBonded ABbonded;
 	public P2SquareWellBonded BBbonded;
-    public AtomAgentManager agentManager;
+    public AtomLeafAgentManager agentManager;
     public IAtom[] agents;
 	
     public ReactionEquilibrium() {
@@ -95,10 +95,10 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 		activityIntegrate.setSleepPeriod(1);
 		getController().addAction(activityIntegrate);
 		integratorHard1.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase1)));
-        agentManager = new AtomAgentManager(this,phase1);
+        agentManager = new AtomLeafAgentManager(this,phase1);
 	}
     
-    public AtomAgentManager getAgentManager() {
+    public AtomLeafAgentManager getAgentManager() {
         return agentManager;
     }
 
