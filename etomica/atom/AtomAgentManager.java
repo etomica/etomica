@@ -32,7 +32,9 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     public AtomAgentManager(AgentSource source, Phase phase, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
-        this.phase = phase;
+        speciesMaster = phase.getSpeciesMaster();
+        treeIterator = new AtomIteratorTreeRoot();
+        treeIterator.setDoAllNodes(true);
         setupPhase();
     }        
     
@@ -63,7 +65,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
      * Convenience method to return the phase the Manager is tracking.
      */
     public Phase getPhase(){
-        return phase;
+        return speciesMaster.getPhase();
     }
     
     /**
@@ -71,8 +73,8 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
      */
     public void dispose() {
         // remove ourselves as a listener to the phase
-        phase.getEventManager().removeListener(this);
-        AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
+        speciesMaster.getPhase().getEventManager().removeListener(this);
+        AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(speciesMaster.getPhase(),Integer.MAX_VALUE,true);
         iterator.reset();
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
@@ -91,13 +93,12 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
      * Sets the Phase in which this AtomAgentManager will manage Atom agents.
      */
     protected void setupPhase() {
-        phase.getEventManager().addListener(this, isBackend);
-        SpeciesMaster speciesMaster = phase.getSpeciesMaster();
+        speciesMaster.getPhase().getEventManager().addListener(this, isBackend);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 speciesMaster.getMaxGlobalIndex()+1+speciesMaster.getIndexReservoirSize());
         // fill in the array with agents from all the atoms
-        AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
+        AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(speciesMaster.getPhase(),Integer.MAX_VALUE,true);
         iterator.reset();
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
@@ -111,10 +112,6 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
             if (evt instanceof PhaseAtomAddedEvent) {
                 addAgent(a);
                 if (a instanceof IAtomGroup) {
-                    if (treeIterator == null) {
-                        treeIterator = new AtomIteratorTreeRoot(Integer.MAX_VALUE);
-                        treeIterator.setDoAllNodes(true);
-                    }
                     // add all atoms below this atom
                     treeIterator.setRootAtom(a);
                     treeIterator.reset();
@@ -132,10 +129,6 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                     agents[index] = null;
                 }
                 if (a instanceof IAtomGroup) {
-                    if (treeIterator == null) {
-                        treeIterator = new AtomIteratorTreeRoot(Integer.MAX_VALUE);
-                        treeIterator.setDoAllNodes(true);
-                    }
                     // nuke all atoms below this atom
                     treeIterator.setRootAtom(a);
                     treeIterator.reset();
@@ -157,7 +150,6 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
             }
         }
         else if (evt instanceof PhaseGlobalAtomIndexEvent) {
-            SpeciesMaster speciesMaster = evt.getPhase().getSpeciesMaster();
             int reservoirSize = speciesMaster.getIndexReservoirSize();
             int newMaxIndex = ((PhaseGlobalAtomIndexEvent)evt).getMaxIndex();
             if (agents.length > newMaxIndex+reservoirSize || agents.length < newMaxIndex) {
@@ -173,7 +165,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     protected void addAgent(IAtom a) {
         if (agents.length < a.getGlobalIndex()+1) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = Arrays.resizeArray(agents,a.getGlobalIndex()+1+phase.getSpeciesMaster().getIndexReservoirSize());
+            agents = Arrays.resizeArray(agents,a.getGlobalIndex()+1+speciesMaster.getIndexReservoirSize());
         }
         agents[a.getGlobalIndex()] = agentSource.makeAgent(a);
     }
@@ -202,11 +194,11 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private final AgentSource agentSource;
+    protected final AgentSource agentSource;
     protected Object[] agents;
-    private AtomIteratorTreeRoot treeIterator;
-    private final Phase phase;
-    private final boolean isBackend;
+    protected final AtomIteratorTreeRoot treeIterator;
+    protected final SpeciesMaster speciesMaster;
+    protected final boolean isBackend;
     
     /**
      * Iterator that loops over the agents, skipping null elements
