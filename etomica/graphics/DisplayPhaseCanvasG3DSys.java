@@ -7,10 +7,10 @@ import java.awt.TextField;
 
 import javax.vecmath.Point3f;
 
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
@@ -34,7 +34,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
   private G3DSys gsys;
   private final double[] coords;
 	
-  private AtomAgentManager aam;
+  private AtomLeafAgentManager aam;
     
   private Polytope oldPolytope;
   private Line[] polytopeLines;
@@ -63,7 +63,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     
     //init AtomAgentManager, to sync G3DSys and Etomica models
     //this automatically adds the atoms
-    aam = new AtomAgentManager(this, displayPhase.getPhase(), false);
+    aam = new AtomLeafAgentManager(this, displayPhase.getPhase(), false);
 
     //gsys.refresh();
   }
@@ -242,7 +242,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
   }
 	
   public Object makeAgent(IAtom a) {
-    if ( !(a instanceof AtomLeaf) || !(a.getType() instanceof AtomTypeSphere)) return null;
+    if (!(a.getType() instanceof AtomTypeSphere)) return null;
     ((AtomLeaf)a).getPosition().assignTo(coords);
     
     float diameter = (float)((AtomTypeSphere)a.getType()).getDiameter();
