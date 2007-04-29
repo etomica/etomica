@@ -5,8 +5,8 @@ import etomica.util.FunctionInvertible;
 
 /**
  * Extends the configurable modifier to permit a function to be applied to
- * a value before the modulated property is set.  Correspondingly, the value
- * obtained from a get of the modulated property has applied the inverse
+ * a value before the modified property is set.  Correspondingly, the value
+ * obtained from a get of the modified property has applied the inverse
  * of the function.
  *
  * @see ModifierGeneral
