@@ -5,9 +5,11 @@ import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAtomAddedEvent;
 import etomica.phase.PhaseAtomIndexChangedEvent;
+import etomica.phase.PhaseAtomLeafIndexChangedEvent;
 import etomica.phase.PhaseAtomRemovedEvent;
 import etomica.phase.PhaseEventManager;
 import etomica.phase.PhaseGlobalAtomIndexEvent;
+import etomica.phase.PhaseGlobalAtomLeafIndexEvent;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
@@ -143,11 +145,11 @@ public final class SpeciesMaster implements java.io.Serializable {
         for (IAtom a = treeIteratorPhase.nextAtom(); a != null;
              a = treeIteratorPhase.nextAtom()) {
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
-                PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(phase, a, a.getGlobalIndex());
                 // Just re-invoke the Atom's method without first "returning"
                 // the index to the reservoir.  The old index gets dropped on the
                 // floor.
                 int oldGlobalIndex = a.getGlobalIndex();
+                PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(phase, a, oldGlobalIndex);
                 a.setGlobalIndex(this);
                 leafIndices[a.getGlobalIndex()] = leafIndices[oldGlobalIndex];
                 phaseEventManager.fireEvent(event);
@@ -174,7 +176,7 @@ public final class SpeciesMaster implements java.io.Serializable {
      * adding atoms, but if adding many Atoms, calling this will improve
      * performance.
      */
-    public void notifyNewAtoms(int numNewAtoms) {
+    public void notifyNewAtoms(int numNewAtoms, int numNewLeafAtoms) {
         // has no actual effect within this object.  We just notify things to 
         // prepare for an increase in the max index.  If things assume that the
         // actual max index has already increased, there's no harm since
@@ -183,6 +185,10 @@ public final class SpeciesMaster implements java.io.Serializable {
             PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(phase, maxIndex + numNewAtoms - reservoirCount);
             phaseEventManager.fireEvent(event);
             leafIndices = Arrays.resizeArray(leafIndices, maxIndex + numNewAtoms - reservoirCount + 1 + reservoirSize);
+        }
+        if (numNewLeafAtoms > 1) {
+            PhaseGlobalAtomLeafIndexEvent leafEvent = new PhaseGlobalAtomLeafIndexEvent(phase, leafList.size() + numNewLeafAtoms);
+            phaseEventManager.fireEvent(leafEvent);
         }
     }
     
@@ -262,7 +268,11 @@ public final class SpeciesMaster implements java.io.Serializable {
             // if we didn't remove the last atom, removeAndReplace
             // inserted the last atom in the emtpy spot.  Set its leaf index.
             if (leafList.size() > leafIndex) {
-                leafIndices[leafList.get(leafIndex).getGlobalIndex()] = leafIndex;
+                IAtom movedAtom = leafList.get(leafIndex);
+                int globalIndex = movedAtom.getGlobalIndex();
+                PhaseAtomLeafIndexChangedEvent event = new PhaseAtomLeafIndexChangedEvent(phase, movedAtom, leafIndices[globalIndex]);
+                leafIndices[globalIndex] = leafIndex;
+                phaseEventManager.fireEvent(event);
             }
             returnGlobalIndex(oldAtom.getGlobalIndex());
         } else {
@@ -275,7 +285,11 @@ public final class SpeciesMaster implements java.io.Serializable {
                     int leafIndex = leafIndices[childAtom.getGlobalIndex()];
                     leafList.removeAndReplace(leafIndex);
                     if (leafList.size() > leafIndex) {
-                        leafIndices[leafList.get(leafIndex).getGlobalIndex()] = leafIndex;
+                        IAtom movedAtom = leafList.get(leafIndex);
+                        int globalIndex = movedAtom.getGlobalIndex();
+                        PhaseAtomLeafIndexChangedEvent event = new PhaseAtomLeafIndexChangedEvent(phase, movedAtom, leafIndices[globalIndex]);
+                        leafIndices[globalIndex] = leafIndex;
+                        phaseEventManager.fireEvent(event);
                     }
                 }
                 returnGlobalIndex(childAtom.getGlobalIndex());
@@ -288,7 +302,7 @@ public final class SpeciesMaster implements java.io.Serializable {
      * Returns the index of the given leaf atom within the SpeciesMaster's
      * leaf list.  The given leaf atom must be in the SpeciesMaster's Phase. 
      */
-    public int getLeafIndex(AtomLeaf atomLeaf) {
+    public int getLeafIndex(IAtom atomLeaf) {
         return leafIndices[atomLeaf.getGlobalIndex()];
     }
 

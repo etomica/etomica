@@ -60,7 +60,8 @@ public final class SpeciesAgent extends AtomGroup {
      * @param n  the new number of molecules for this species
      */
     public void setNMolecules(int n) {
-        speciesMaster.notifyNewAtoms((n-getNMolecules())*type.getSpecies().moleculeFactory().getNumTreeAtoms());
+        speciesMaster.notifyNewAtoms((n-getNMolecules())*type.getSpecies().moleculeFactory().getNumTreeAtoms(),
+                                     (n-getNMolecules())*type.getSpecies().moleculeFactory().getNumLeafAtoms());
         if(n > childList.size()) {
             for(int i=childList.size(); i<n; i++) addNewAtom();
         }
