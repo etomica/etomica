@@ -110,7 +110,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
             IAtom a = ((PhaseAtomEvent)evt).getAtom();
             if (evt instanceof PhaseAtomAddedEvent) {
                 addAgent(a);
-                if (!a.isLeaf()) {
+                if (a instanceof IAtomGroup) {
                     if (treeIterator == null) {
                         treeIterator = new AtomIteratorTreeRoot(Integer.MAX_VALUE);
                         treeIterator.setDoAllNodes(true);
@@ -131,7 +131,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                     agentSource.releaseAgent(agents[index], a);
                     agents[index] = null;
                 }
-                if (!a.isLeaf()) {
+                if (a instanceof IAtomGroup) {
                     if (treeIterator == null) {
                         treeIterator = new AtomIteratorTreeRoot(Integer.MAX_VALUE);
                         treeIterator.setDoAllNodes(true);

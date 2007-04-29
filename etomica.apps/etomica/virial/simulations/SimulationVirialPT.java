@@ -1,6 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.IAtomGroup;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
@@ -95,7 +96,7 @@ public class SimulationVirialPT extends Simulation {
             
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
-            if (phase[iTemp].molecule(0).isLeaf()) {
+            if (!(phase[iTemp].molecule(0) instanceof IAtomGroup)) {
                 mcMoveAtom1[iTemp] = new MCMoveClusterAtom(this);
                 mcMoveAtom1[iTemp].setStepSize(1.15);
                 moveManager.addMCMove(mcMoveAtom1[iTemp]);

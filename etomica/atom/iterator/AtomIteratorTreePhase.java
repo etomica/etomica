@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.phase.Phase;
 
 /**
@@ -87,7 +88,7 @@ public class AtomIteratorTreePhase extends AtomIteratorTree implements AtomItera
         listIterator.reset();
         for (IAtom atom = listIterator.nextAtom(); atom != null;
              atom = listIterator.nextAtom()) {
-            if (atom.isLeaf() || iterationDepth == 1) {
+            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
                 act.actionPerformed(atom);
                 continue;
             }

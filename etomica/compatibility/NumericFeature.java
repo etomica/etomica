@@ -2,8 +2,6 @@ package etomica.compatibility;
 
 import java.io.Serializable;
 
-import etomica.compatibility.Feature;
-
 public class NumericFeature extends Feature implements Serializable
 {
 	public NumericFeature( String aname, double avalue ) { super(aname); value=avalue; }

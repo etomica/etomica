@@ -2,8 +2,6 @@ package etomica.compatibility;
 
 import java.io.Serializable;
 
-import etomica.compatibility.Requirement;
-
 public class ClassRequirement extends Requirement implements Serializable
 {
 	ClassRequirement( Class aclass )

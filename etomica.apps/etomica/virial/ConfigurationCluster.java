@@ -41,7 +41,7 @@ public class ConfigurationCluster extends Configuration {
 		iterator.reset();
         for (IAtom a = iterator.nextAtom(); a != null;
              a = iterator.nextAtom()) {
-            if (!a.isLeaf()) {
+            if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());

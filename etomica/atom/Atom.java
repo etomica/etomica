@@ -89,7 +89,7 @@ public abstract class Atom implements IAtom, java.io.Serializable {
 //        return Integer.toBinaryString(node.index());
     	if(this instanceof SpeciesAgent) return "Agent(" + signature() + ")";
     	if(parent instanceof SpeciesAgent) return "Molecule(" + signature() + ")";
-    	else if(isLeaf()) return "Atom(" + signature() + ")";
+    	else if(!(this instanceof IAtomGroup)) return "Atom(" + signature() + ")";
     	else return "Group(" + signature() + ")";
     }    
 
@@ -109,8 +109,6 @@ public abstract class Atom implements IAtom, java.io.Serializable {
         return type;
     }
 
-    public abstract boolean isLeaf();
-    
     /**
      * Informs the Atom that the given AtomGroup is its parent.
      * This method should only be called by the parent.

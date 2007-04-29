@@ -185,7 +185,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * Convenience method used by setupIterator
      */
     private void setupBasisIteration() {
-        if (basis.isLeaf()) {
+        if (!(basis instanceof IAtomGroup)) {
             //if the basis is a leaf atom, we define the iterates to be just
             //the basis atom itself
             littleList.clear();

@@ -7,6 +7,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTreePhase;
@@ -243,7 +244,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             iterator.reset();
             for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
                 updateCell(atom);
-                if (!atom.isLeaf()) {
+                if (atom instanceof IAtomGroup) {
                     treeIterator.setRootAtom(atom);
                     treeIterator.reset();
                     for (IAtom childAtom = treeIterator.nextAtom();
@@ -258,7 +259,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             if (atom.getType().isInteracting()) {
                 Boundary boundary = phase.getBoundary();
                 neighborCellManager.removeFromCell(atom);
-                if (!atom.isLeaf()) {
+                if (atom instanceof IAtomGroup) {
                     IVector shift = boundary.centralImage(moleculePosition.position(atom));
                     if (!shift.isZero()) {
                         translator.setTranslationVector(shift);

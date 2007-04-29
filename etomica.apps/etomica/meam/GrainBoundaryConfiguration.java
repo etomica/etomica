@@ -171,7 +171,7 @@ public class GrainBoundaryConfiguration extends Configuration {
             	a = atomIteratorMobileA.nextAtom();	
             	//System.out.println(ii[2] + "  |  " + a);
             }
-            if (!a.isLeaf()) {
+            if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());
@@ -199,7 +199,7 @@ public class GrainBoundaryConfiguration extends Configuration {
             	a = atomIteratorMobileB.nextAtom();
             	
             }
-            if (!a.isLeaf()) {
+            if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());

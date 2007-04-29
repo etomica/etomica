@@ -62,7 +62,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
         int nAtoms = list.size();
         for (int iAtom=0; iAtom<nAtoms; iAtom++) {
             IAtom atom = list.get(iAtom);
-            if (atom.isLeaf() || iterationDepth == 1) {
+            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
                 act.actionPerformed(atom);
                 continue;
             }
@@ -114,7 +114,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
         }
         for (IAtom atom = listIterator.nextAtom(); atom != null;
              atom = listIterator.nextAtom()) {
-            if (atom.isLeaf() || iterationDepth == 1) {
+            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
                 return atom;
             }
             if (treeIterator == null) {

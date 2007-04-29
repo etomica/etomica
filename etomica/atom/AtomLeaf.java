@@ -26,9 +26,7 @@ public class AtomLeaf extends Atom implements ICoordinate {
         super();
         position = space.makeVector();
     }
-    
-    public boolean isLeaf() {return true;}
-    
+
     public IVector getPosition() {
         return position;
     }

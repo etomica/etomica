@@ -218,7 +218,7 @@ public final class SpeciesMaster implements java.io.Serializable {
         }
 
         newAtom.setGlobalIndex(this);
-        if (newAtom.isLeaf()) {
+        if (!(newAtom instanceof IAtomGroup)) {
             int globalIndex = newAtom.getGlobalIndex();
             if (globalIndex > leafIndices.length-1) {
                 leafIndices = Arrays.resizeArray(leafIndices, globalIndex + 1 + reservoirSize);
@@ -255,7 +255,7 @@ public final class SpeciesMaster implements java.io.Serializable {
         }
         
         phaseEventManager.fireEvent(new PhaseAtomRemovedEvent(phase, oldAtom));
-        if (oldAtom.isLeaf()) {
+        if (!(oldAtom instanceof IAtomGroup)) {
             int leafIndex = leafIndices[oldAtom.getGlobalIndex()];
             leafList.removeAndReplace(leafIndex);
             leafList.maybeTrimToSize();

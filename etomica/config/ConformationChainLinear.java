@@ -75,7 +75,7 @@ public class ConformationChainLinear extends ConformationChain {
         int nLeaf = atomList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             AtomLeaf a = (AtomLeaf)atomList.get(iLeaf);
-            if (!a.isLeaf()) {
+            if (a instanceof IAtomGroup) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());

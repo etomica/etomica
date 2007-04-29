@@ -131,7 +131,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     }
     
     public Object makeAgent(IAtom newAtom) {
-        if (!(newAtom.getParentGroup() instanceof SpeciesAgent) && newAtom.isLeaf()) {
+        if (!(newAtom.getParentGroup() instanceof SpeciesAgent) && !(newAtom instanceof IAtomGroup)) {
             // we got a leaf atom in a mult-atom molecule
             ArrayList bondList = new ArrayList(); 
             Model.PotentialAndIterator[] bondIterators = 

@@ -83,15 +83,13 @@ public class AtomGroup extends Atom implements IAtomGroup {
     private IAtom getDescendant(int n, int[] path) {
         IAtom child = childList.get(path[n]);
         if(path.length - 1 > n) {//go further down hierarchy
-            if(child.isLeaf()) {//no more there
+            if(!(child instanceof IAtomGroup)) {//no more there
                 throw new IllegalArgumentException("Depth of requested descendant exceeds depth of atom hierarchy");
             }//get indicated descendant recursively
             child = ((AtomGroup)child).getDescendant(n+1, path);
         }
         return child;
     }
-    
-    public boolean isLeaf() {return false;}
     
     /**
      * Returns the children of this group in an array of atoms.

@@ -33,11 +33,6 @@ public interface IAtom extends AtomSet {
     public AtomType getType();
 
     /**
-     * Returns true of this IAtom is a leaf IAtom.
-     */
-    public boolean isLeaf();
-
-    /**
      * Informs the Atom that the given AtomGroup is its parent.
      * This method should only be called by the parent.
      */

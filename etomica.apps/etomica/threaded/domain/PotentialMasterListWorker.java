@@ -165,7 +165,7 @@ public class PotentialMasterListWorker extends Thread {
         }//end of for
 
 		//		if atom has children, repeat process with them
-        if(!atom.isLeaf()) {
+        if(atom instanceof IAtomGroup) {
             potentialArray = pmlt.getIntraPotentials(atom.getType());
             potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
