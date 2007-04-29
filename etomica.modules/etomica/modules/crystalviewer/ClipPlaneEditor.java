@@ -132,6 +132,10 @@ public class ClipPlaneEditor {
         boxK.doUpdate();
         boxL.doUpdate();
 
+        distanceDisplay = new DisplayBox();
+        distanceDisplay.setLabel("Distance from Origin");
+        distanceDisplay.setPrecision(DISTANCE_PRECISION);
+
         positionSlider = new DeviceSlider(null, new ModifierLatticePlane(PLANE_SELECTION_SLIDER));
         positionSlider.setPrecision(SLIDER_DECIMAL_PLACES);
 // NEED TO SET MIN/MAX PLANE WHICH ARE DYNAMIC ...
@@ -145,10 +149,6 @@ positionSlider.setMaximum(maximumPosition);
         positionSlider.setShowBorder(true);
         positionSlider.setShowValues(true);
         positionSlider.setEditValues(true);
-
-        distanceDisplay = new DisplayBox();
-        distanceDisplay.setLabel("Distance from Origin");
-        distanceDisplay.setPrecision(DISTANCE_PRECISION);
 
         JPanel distancePanel = new JPanel();
         TitledBorder distanceBorder = new TitledBorder("Position");
