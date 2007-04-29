@@ -1,7 +1,6 @@
 package etomica.space3d;
 
 import etomica.exception.MethodNotImplementedException;
-import etomica.lattice.IndexIterator;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.SpecialFunctions;
@@ -66,10 +65,10 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     }
 
     public IndexIteratorSizable getIndexIterator(){
-      return new IndexIteratorSequentialFiltered(vecs.length,vecs);
+      return new IndexIteratorRectangularFiltered(vecs.length,vecs);
     }
     
-    private class IndexIteratorSequentialFiltered
+    private class IndexIteratorRectangularFiltered
       implements IndexIteratorSizable {
       
       private IndexIteratorRectangular iis;
@@ -79,7 +78,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
       private IVector[] vecs;
       int numLayers;
       
-      public IndexIteratorSequentialFiltered(int D, IVector[] v) {
+      public IndexIteratorRectangularFiltered(int D, IVector[] v) {
         iis = new IndexIteratorRectangular(D);
         vecs = v;
         hasnext = false;
@@ -177,9 +176,9 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
       double x = dimensions.x(0)*.5;
       if(vecs == null || vecs[0].x(0) == 0) {
         vecs = new IVector[] {
-            space.makeVector(new double[]{-x,x,x}),
-            space.makeVector(new double[]{x,-x,x}),
-            space.makeVector(new double[]{x,x,-x}) };
+            Space.makeVector(new double[]{-x,x,x}),
+            Space.makeVector(new double[]{x,-x,x}),
+            Space.makeVector(new double[]{x,x,-x}) };
       }
       else if(vecs[1].x(0) != x) {
         double ratio = x/vecs[1].x(0);
