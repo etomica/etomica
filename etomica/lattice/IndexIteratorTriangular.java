@@ -4,7 +4,7 @@ import etomica.util.Arrays;
 
 
 /**
- * Returns arrays of int such that int[0] >= int[1] >= ... >= int[D-1], where
+ * Iterates arrays of int such that a[0] >= a[1] >= ... >= a[D-1] >= 0, where
  * D is the length of the array, which is set at construction.  For example, 
  * if D is 3, will return, with successive calls to next():
  * {0,0,0}<br>
@@ -18,7 +18,7 @@ import etomica.util.Arrays;
  * {2,2,1}<br>
  * {2,2,2}<br>
  * {3,0,0}<br>
- * etc.
+ * etc.<br>
  *
  * @author David Kofke
  *
@@ -27,7 +27,7 @@ import etomica.util.Arrays;
 public class IndexIteratorTriangular implements IndexIterator, java.io.Serializable {
 
     /**
-     * 
+     * Constructs iterator that will return int arrays of length D.
      */
     public IndexIteratorTriangular(int D) {
         this.D = D;
@@ -45,7 +45,9 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
     
     /**
      * Returns the next iterate.  Status of hasNext is not relevant to behavior, and
-     * will continue return new iterates with repeated calls.
+     * will continue return new iterates with repeated calls.  The same array instance 
+     * is returned with each call to this method; only its element values are modified in accordance
+     * with the design of the iteration.
      */
     public int[] next() {
         increment(index, D-1);

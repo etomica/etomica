@@ -3,20 +3,24 @@ package etomica.lattice;
 import etomica.util.Arrays;
 
 /**
- * Simple sizeable index iterator that is in effect a set of nested loops.
- * index[D-1] iterates from 0 to size[D-1], and this is nested in iteration
- * over index[D-2], etc.  For example, if size = {3,2}, iteration would give
- * these values for index<br>
- * (0,0), (0,1), (1,0), (1,1), (2,0), (2,1).
+ * Iterates arrays of int, such that 0 <= a[0] <= size[0], 0 <= a[1] <= size[1], etc., 
+ * thereby spanning a rectangular region. For example, if size = {3,2}, iteration would give
+ * these values and then expire:<br>
+ * {0,0}<br>
+ * {0,1}<br>
+ * {1,0}<br>
+ * {1,1}<br>
+ * {2,0}<br>
+ * {2,1}
  */
 
-public class IndexIteratorRectangular implements IndexIterator,
-  IndexIteratorSizable, java.io.Serializable {
+public class IndexIteratorRectangular implements IndexIterator, IndexIteratorSizable, java.io.Serializable {
 
     /**
-     * Constructs iterator that gives an index array of length D.
-     * Default size is 1 for each dimension.  setSize and reset are
-     * needed before beginning iteration. 
+     * Constructs iterator that returns int arrays of length D.
+     * Default size is 1 for each dimension, so that only the iterate {0,0,..,0}
+     * is returned; setSize can be used to modify the range.
+     * Call to reset is required before beginning iteration, in any case. 
      */
     public IndexIteratorRectangular(int D) {
         this.D = D;
@@ -26,8 +30,8 @@ public class IndexIteratorRectangular implements IndexIterator,
         index = new int[D];
     }
 
-    /* (non-Javadoc)
-     * @see etomica.lattice.IndexIterator#reset()
+    /**
+     * Puts iterator in a condition to begin iteration.  First iterate is {0,...,0}
      */
     public void reset() {
         for(int i=0; i<D; i++) {
@@ -37,15 +41,17 @@ public class IndexIteratorRectangular implements IndexIterator,
         count = 0;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.lattice.IndexIterator#hasNext()
+    /**
+     * Indicates whether all iterates have been returned since last call to reset().
      */
     public boolean hasNext() {
         return count < maxCount;
     }
 
-    /* (non-Javadoc)
-     * @see etomica.lattice.IndexIterator#next()
+    /**
+     * Returns the next iterate, or null if hasNext is false. The same array instance 
+     * is returned with each call to this method; only its element values are modified in accordance
+     * with the design of the iteration.
      */
     public int[] next() {
         if(!hasNext()) return null;
@@ -57,7 +63,6 @@ public class IndexIteratorRectangular implements IndexIterator,
     /**
      * Sets range of all indexes to the given value
      * Indices returned vary from 0 to size-1
-     * @param size
      */
     public void setSize(int size) {
         maxCount = 1;
@@ -67,6 +72,10 @@ public class IndexIteratorRectangular implements IndexIterator,
         }
     }
     
+    /**
+     * Sets the individual ranges for the elements of the returned
+     * array.  Each element index[k] iterates over values from 0 to size[k]-1. 
+     */
     public void setSize(int[] size) {
         if(size.length != D) throw new IllegalArgumentException("Length of array inconsistent with dimension of iterator");
         maxCount = 1;
@@ -76,6 +85,9 @@ public class IndexIteratorRectangular implements IndexIterator,
         }
     }
 
+    /**
+     * Returns the length of the integer array that is returned as an iterate.
+     */
     public int getD() {
         return D;
     }
@@ -88,6 +100,9 @@ public class IndexIteratorRectangular implements IndexIterator,
         }
     }
 
+    /**
+     * main method to test and demonstrate class.
+     */
     public static void main(String[] args) {
         IndexIteratorRectangular iterator = new IndexIteratorRectangular(3);
         iterator.reset();
