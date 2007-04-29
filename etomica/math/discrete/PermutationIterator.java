@@ -1,26 +1,14 @@
 package etomica.math.discrete;
 
 /**
- * @author kofke
- *
  * Iterator that returns different permutations of a sequence of integers when
  * called in successive iterations.  For example, if constructed with n = 3,
  * will return, in successive calls to next(), the arrays {0,1,2}, {0,2,1},
  * {2,0,1}, {1,0,2}, {1,2,0}, {2,1,0}.
  */
-
-/* History
- * 08/20/03 (DAK) new
- */
  
 public class PermutationIterator implements java.io.Serializable {
 
-	private final PermutationIterator subPermutation;
-	private boolean hasNext = false;
-	private int[] subIndex;
-	private int iLast;//place to position largest element
-	private int n;
-	
 	//constructor for use by NullSinglet inner class
 	private PermutationIterator() {
 		subPermutation = null;
@@ -90,6 +78,7 @@ public class PermutationIterator implements java.io.Serializable {
 	// implemention of PermutationIterator.
 	private static class NullSinglet extends PermutationIterator {
 		private boolean hasNext = false;
+        private static final long serialVersionUID = 1L;
 		public boolean hasNext() {return hasNext;}
 		public void reset() {hasNext = true;}
 		public int[] next() {
@@ -108,4 +97,12 @@ public class PermutationIterator implements java.io.Serializable {
 			System.out.println(a[a.length-1]+"}");
 		}
 	}
+    
+    private final PermutationIterator subPermutation;
+    private boolean hasNext = false;
+    private int[] subIndex;
+    private int iLast;//place to position largest element
+    private int n;
+    private static final long serialVersionUID = 1L;
+    
 }
