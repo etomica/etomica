@@ -57,8 +57,6 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         setMillerIndices(millerIndices);
     }
     
-    public boolean isPrimitiveHexagonal() {return primitive instanceof PrimitiveHexagonal;}
-    
     /**
      * Sets the plane to the orientation specified by the given Miller indices
      * applied to the current primitive.
