@@ -55,7 +55,9 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     
     /**
      * Sets the agent associated with the given atom to be the given agent.
-     * The IAtom must be from the Phase associated with this instance.
+     * The IAtom must be from the Phase associated with this instance.  The
+     * IAtom's old agent is not released.  This should be done manually if
+     * needed.
      */
     public void setAgent(IAtom a, Object newAgent) {
         agents[a.getGlobalIndex()] = newAgent;
