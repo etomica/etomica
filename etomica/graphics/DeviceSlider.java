@@ -275,6 +275,12 @@ public class DeviceSlider extends Device implements EtomicaElement {
                         textField.setText(String.valueOf(oldX));
                         return;
                     }
+                    if (newX < minimum) {
+            	        newX = minimum;
+                    }
+                    else if (newX > maximum) {
+                    	newX = maximum;
+                    }
                     if (newX != oldX) {
                         // user tabbed or clicked out of the text field
                         setValue(newX);
