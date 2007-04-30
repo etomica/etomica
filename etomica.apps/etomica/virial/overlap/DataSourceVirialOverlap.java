@@ -12,7 +12,8 @@ import etomica.units.Fraction;
  */
 public class DataSourceVirialOverlap extends DataSourceScalar {
 
-	private AccumulatorVirialOverlapSingleAverage refAccumulator, targetAccumulator;
+    private static final long serialVersionUID = 1L;
+    private AccumulatorVirialOverlapSingleAverage refAccumulator, targetAccumulator;
 	private final int nBennetPoints;
 	
 	public DataSourceVirialOverlap(AccumulatorVirialOverlapSingleAverage aRefAccumulator, 
