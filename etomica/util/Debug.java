@@ -88,7 +88,7 @@ public final class Debug {
 	 * @return true if any of the atoms in the atoms array should be debugged
 	 */
 	public static boolean anyAtom(AtomSet atoms) {
-		for (int i=0; i<atoms.count(); i++) {
+		for (int i=0; i<atoms.getAtomCount(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if ((ATOM1_INDEX > -1 && globalIndex == ATOM1_INDEX) || (ATOM2_INDEX > -1 && globalIndex == ATOM2_INDEX)) return true;
             if (atoms.getAtom(i).getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
@@ -110,7 +110,7 @@ public final class Debug {
 	 * @return true if all of the atoms in the atoms array should be debugged
 	 */
 	public static boolean allAtoms(AtomSet atoms) {
-		for (int i=0; i<atoms.count(); i++) {
+		for (int i=0; i<atoms.getAtomCount(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if (globalIndex != ATOM1_INDEX && globalIndex != ATOM2_INDEX) return false;  
             if (atoms.getAtom(i).getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {

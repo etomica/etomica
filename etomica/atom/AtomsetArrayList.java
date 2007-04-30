@@ -19,7 +19,7 @@ public class AtomsetArrayList implements AtomSet, java.io.Serializable {
      */
     public AtomsetArrayList(AtomSet atomSet) {
         this();
-        atoms.ensureCapacity(atomSet.count());
+        atoms.ensureCapacity(atomSet.getAtomCount());
         for (int i = 0; i < atoms.size(); i++) {
             atoms.add(atomSet.getAtom(i));
         }
@@ -58,8 +58,8 @@ public class AtomsetArrayList implements AtomSet, java.io.Serializable {
      */
     public void setAtoms(AtomSet atomSet) {
         atoms.clear();
-        atoms.ensureCapacity(atomSet.count());
-        for (int i = 0; i < atomSet.count(); i++) {
+        atoms.ensureCapacity(atomSet.getAtomCount());
+        for (int i = 0; i < atomSet.getAtomCount(); i++) {
             atoms.add(atomSet.getAtom(i));
         }
     }
@@ -67,7 +67,7 @@ public class AtomsetArrayList implements AtomSet, java.io.Serializable {
     /**
      * Returns the length of the wrapped array.
      */
-    public int count() {
+    public int getAtomCount() {
         return atoms.size();
     }
 

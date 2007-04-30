@@ -71,7 +71,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
     }
     
     public AtomSet next() {
-        if (nextCursor + 1 > next.count()) {
+        if (nextCursor + 1 > next.getAtomCount()) {
             return null;
         }
         if (nextCursor < 0) {
@@ -104,7 +104,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
      * a call to reset().
      */
     public int size() {
-        return next.count();
+        return next.getAtomCount();
     }
 
     private static final long serialVersionUID = 1L;

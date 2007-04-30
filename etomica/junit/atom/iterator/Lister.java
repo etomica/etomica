@@ -39,7 +39,7 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
 	}
 
 	public IAtom getAtom() {
-		return (atoms == null || atoms.count() < 1) ? null : atoms.getAtom(0);
+		return (atoms == null || atoms.getAtomCount() < 1) ? null : atoms.getAtom(0);
 	}
 
 	/**

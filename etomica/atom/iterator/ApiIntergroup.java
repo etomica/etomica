@@ -77,7 +77,7 @@ public class ApiIntergroup extends AtomPairIteratorAdapter implements
      * until a proper basis is specified via another call to this method.
      */
     public void setBasis(AtomSet basisAtoms) {
-        if (basisAtoms == null || basisAtoms.count() != 2) {
+        if (basisAtoms == null || basisAtoms.getAtomCount() != 2) {
             aiOuter.setBasis(null);
         } else {
             aiOuter.setBasis(basisAtoms.getAtom(0));

@@ -56,7 +56,7 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
                     //XXX atoms.count might not equal f.length.  The potential might size its 
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
-                    for (int i=0; i<atoms.count(); i++) {
+                    for (int i=0; i<atoms.getAtomCount(); i++) {
                         ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
                     }
 			}

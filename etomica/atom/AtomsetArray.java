@@ -19,7 +19,7 @@ public class AtomsetArray implements AtomSet, java.io.Serializable {
      * zero-body AtomSet if argument is null.
      */
     public AtomsetArray(AtomSet atomSet) {
-        this((atomSet != null) ? atomSet.count() : 0);
+        this((atomSet != null) ? atomSet.getAtomCount() : 0);
         for (int i = 0; i < atoms.length; i++) {
             atoms[i] = atomSet.getAtom(i);
         }
@@ -85,7 +85,7 @@ public class AtomsetArray implements AtomSet, java.io.Serializable {
      *             if argument is null
      */
     public void setAtoms(AtomSet atomSet) {
-        if (atomSet.count() != atoms.length)
+        if (atomSet.getAtomCount() != atoms.length)
             throw new IllegalArgumentException("Wrong size for atomSet");
         for (int i = 0; i < atoms.length; i++) {
             atoms[i] = atomSet.getAtom(i);
@@ -95,7 +95,7 @@ public class AtomsetArray implements AtomSet, java.io.Serializable {
     /**
      * Returns the length of the wrapped array.
      */
-    public int count() {
+    public int getAtomCount() {
         return atoms.length;
     }
     

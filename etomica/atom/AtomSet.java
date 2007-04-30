@@ -16,5 +16,5 @@ public interface AtomSet extends java.io.Serializable {
     /**
      * @return the number of atoms in the set
      */
-    public int count();
+    public int getAtomCount();
 }

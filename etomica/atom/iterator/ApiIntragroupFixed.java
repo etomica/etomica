@@ -86,7 +86,7 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
      * specified via another call to this method.
      */
     public void setBasis(AtomSet basisAtoms) {
-        if (basisAtoms == null || basisAtoms.count() != 1) {
+        if (basisAtoms == null || basisAtoms.getAtomCount() != 1) {
             basisAtom = null;
         } else {
             basisAtom = basisAtoms.getAtom(0);

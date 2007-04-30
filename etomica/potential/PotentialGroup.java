@@ -168,7 +168,7 @@ public class PotentialGroup extends Potential {
     
     //TODO this needs some work
     public double energy(AtomSet basisAtoms) {
-        if(basisAtoms.count() != this.nBody()) {
+        if(basisAtoms.getAtomCount() != this.nBody()) {
             throw new IllegalArgumentException("Error: number of atoms for energy calculation inconsistent with order of potential");
         }
         double sum = 0.0;

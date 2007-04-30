@@ -81,13 +81,13 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      *              if atoms.count() is not 0 or 1
      */
     public void setBasis(AtomSet atoms) {
-        if (atoms == null || atoms.count() == 0) {
+        if (atoms == null || atoms.getAtomCount() == 0) {
             basis = null;
             littleList.clear();
             list = littleList;
             listIterator.setList(list);
             needSetupIterator = false;
-        } else if (atoms.count() == 1) {
+        } else if (atoms.getAtomCount() == 1) {
             basis = atoms.getAtom(0);
             needSetupIterator = true;
         } else {

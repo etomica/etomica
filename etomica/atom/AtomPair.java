@@ -26,7 +26,7 @@ public class AtomPair implements AtomSet, java.io.Serializable {
     /* (non-Javadoc)
      * @see etomica.AtomSet#count()
      */
-    public final int count() {
+    public final int getAtomCount() {
         return 2;
     }
     

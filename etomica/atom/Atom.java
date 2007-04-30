@@ -42,7 +42,7 @@ public abstract class Atom implements IAtom, java.io.Serializable {
     /**
      * Returns 1, indicating that this AtomSet is an Atom.
      */
-    public final int count() {return 1;}
+    public final int getAtomCount() {return 1;}
     
     /**
      * Returns this if i==0, otherwise throws exception.

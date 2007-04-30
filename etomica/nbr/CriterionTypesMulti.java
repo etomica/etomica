@@ -24,7 +24,7 @@ public class CriterionTypesMulti extends CriterionAdapter {
      * if the wrapped criterion also accepts the AtomSet.
      */
     public boolean accept(AtomSet atoms) {
-        final int nAtoms = atoms.count();
+        final int nAtoms = atoms.getAtomCount();
         for (int i=0; i<types.length; i++) {
             boolean accepted = false;
             for (int j=0; j<nAtoms; j++) {

@@ -29,7 +29,7 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
      * @param a The atom that will be returned by this iterator upon reset.
      */
     public AtomsetIteratorSinglet(AtomSet a) {
-    	this(a.count());
+    	this(a.getAtomCount());
     	setAtom(a);
     }
         
@@ -42,7 +42,7 @@ public class AtomsetIteratorSinglet implements AtomsetIterator, java.io.Serializ
         if (a == null) {
             throw new NullPointerException();
         }
-        if (Debug.ON && a.count() != nBody) throw new IllegalArgumentException("Wrong AtomSet count");
+        if (Debug.ON && a.getAtomCount() != nBody) throw new IllegalArgumentException("Wrong AtomSet count");
     	atom = a;
     	unset();
     }

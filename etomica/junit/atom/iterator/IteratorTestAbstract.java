@@ -145,7 +145,7 @@ public abstract class IteratorTestAbstract extends TestCase {
         iterator.reset();
         for (AtomSet atomSet = iterator.next(); atomSet != null;
              atomSet = iterator.next()) {
-            assertEquals(atomSet.count(), iterator.nBody());
+            assertEquals(atomSet.getAtomCount(), iterator.nBody());
         }
 
         print("Just tested nBody method");

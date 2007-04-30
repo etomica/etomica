@@ -58,7 +58,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		}
 		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
 		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
-		for(int j = 1; j < atoms.count(); j++) {
+		for(int j = 1; j < atoms.getAtomCount(); j++) {
 			AtomLeaf atomj = (AtomLeaf)atoms.getAtom(j);
 			rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
 			nearestImageTransformer.nearestImage(rij);
@@ -70,7 +70,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			* by any atom k which may be between them.
 			*/
 			double Sij = 1.0;
-			for(int k = 1; k < atoms.count(); k++) {
+			for(int k = 1; k < atoms.getAtomCount(); k++) {
 				if (k == j) continue;
 				AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
 				rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
@@ -335,14 +335,14 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	private double calcVirial(AtomSet atoms, Tensor pressureTensor) {
         double virial = 0;
         
-		if (atoms.count() > gnEi.length) {
-			gnEi = new Vector3D[atoms.count()];
-			for (int i = 0; i < atoms.count(); i++) {
+		if (atoms.getAtomCount() > gnEi.length) {
+			gnEi = new Vector3D[atoms.getAtomCount()];
+			for (int i = 0; i < atoms.getAtomCount(); i++) {
 				gnEi[i] = (Vector3D)space.makeVector();
 			}
 		}
 		else {
-			for (int i = 0; i < atoms.count(); i++) {
+			for (int i = 0; i < atoms.getAtomCount(); i++) {
 			gnEi[i].E(0);
 			}
 		}
@@ -367,7 +367,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         sumt1GiRhoj0.E(0); sumt2GiRhoj0.E(0);  sumt3GiRhoj0.E(0); 
         
         
-        for(int n = 1; n < atoms.count(); n++) {
+        for(int n = 1; n < atoms.getAtomCount(); n++) {
         	AtomLeaf atomn = (AtomLeaf)atoms.getAtom(n);
             rin.Ev1Mv2(atomn.getPosition(), atom0.getPosition());
             nearestImageTransformer.nearestImage(rin);
@@ -407,7 +407,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     			int indexj = atomn.getType().getIndex(); pj = parameters[indexj];
     			// to calculate Sij, giSij, gjSij
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
-            	for(int k = 1; k < atoms.count(); k++) {
+            	for(int k = 1; k < atoms.getAtomCount(); k++) {
             		AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
             		if (k == n) continue; // continue to next k atom
             		rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
@@ -867,7 +867,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
              * again.
              */
             
-            for(int j = 1; j < atoms.count(); j++) {
+            for(int j = 1; j < atoms.getAtomCount(); j++) {
             	//The k atom, n, must not be treated as one of the other j atoms.
             	if (j == n) continue; // continue to next j atom
         		AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
@@ -929,7 +929,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	// To calculate Sij. l is k != n.
 	        	// We can start Sij out with the value for Sijk (k = n).
 	        	double Sij = Sijk;
-	        	for(int l = 1; l < atoms.count(); l++) {
+	        	for(int l = 1; l < atoms.getAtomCount(); l++) {
 	        		if (l == j || l == n) continue; //already have Sijk for n = k
 	    			AtomLeaf atoml = (AtomLeaf) atoms.getAtom(l);
 	    			ril.Ev1Mv2(atoml.getPosition(), atom0.getPosition());

@@ -116,7 +116,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
             divisor = 1;
             return;
         }
-        switch (targetAtoms.count()) {
+        switch (targetAtoms.getAtomCount()) {
             case 0:
                 divisor = 1;
                 break;
