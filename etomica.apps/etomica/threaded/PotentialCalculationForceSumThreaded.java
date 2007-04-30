@@ -1,12 +1,11 @@
 package etomica.threaded;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
-import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.phase.Phase;
@@ -18,7 +17,7 @@ import etomica.space.IVector;
 public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements PotentialCalculationThreaded, AgentSource{
 
 	final protected PotentialCalculationForceSum[] pc;
-	protected AtomAgentManager[] atomAgentManager;
+	protected AtomLeafAgentManager[] atomAgentManager;
     
 	public PotentialCalculationForceSumThreaded(PotentialCalculationForceSum[] pc) {
 		this.pc = pc;
@@ -33,10 +32,10 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
     
 	public void setAgentManager(AtomAgentManager agentManager) {
         super.setAgentManager(agentManager);
-        atomAgentManager = new AtomAgentManager[pc.length];
+        atomAgentManager = new AtomLeafAgentManager[pc.length];
         
         for (int i=0; i<pc.length; i++){
-            atomAgentManager[i] = new AtomAgentManager(this, agentManager.getPhase());
+            atomAgentManager[i] = new AtomLeafAgentManager(this, agentManager.getPhase());
             pc[i].setAgentManager(atomAgentManager[i]);
             agentManager.getPhase();
 		}
