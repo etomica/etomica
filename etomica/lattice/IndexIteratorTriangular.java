@@ -2,11 +2,11 @@ package etomica.lattice;
 
 import etomica.util.Arrays;
 
-
 /**
  * Iterates arrays of int such that a[0] >= a[1] >= ... >= a[D-1] >= 0, where
- * D is the length of the array, which is set at construction.  For example, 
- * if D is 3, will return, with successive calls to next():
+ * D is the length of the array, which is set at construction.  Termination is
+ * specified via the maxElement field.
+ * For example, if D is 3, and maxElement is 2, iterator will return with successive calls to next():<br>
  * {0,0,0}<br>
  * {1,0,0}<br>
  * {1,1,0}<br>
@@ -17,21 +17,41 @@ import etomica.util.Arrays;
  * {2,2,0}<br>
  * {2,2,1}<br>
  * {2,2,2}<br>
- * {3,0,0}<br>
- * etc.<br>
+ *
+ * The iterator may be set to disallow equal elements, so that iterates instead obey a[0] > a[1] > ... > a[D-1] >= 0.
+ * Then, for example, if D = 3 and maxElement is 4, successive calls to next() return<br>
+ * {2,1,0}<br>
+ * {3,1,0}<br>
+ * {3,2,0}<br>
+ * {3,2,1}<br>
+ * {4,1,0}<br>
+ * {4,2,0}<br>
+ * {4,2,1}<br>
+ * {4,3,0}<br>
+ * {4,3,1}<br>
+ * {4,3,2}<br>
  *
  * @author David Kofke
  *
  */
 
+/*
+ * Note that IndexIteratorTriangular(D, maxElement, allowEqualElements=false) returns the same set of arrays as
+ * CombinationIterator(n = maxElement+1, k = D) (but returned in a different order, and with the elements permuted)
+ */ 
 public class IndexIteratorTriangular implements IndexIterator, java.io.Serializable {
 
     /**
-     * Constructs iterator that will return int arrays of length D.
+     * Constructs iterator that will return int arrays of length D.  Default value
+     * of maxElement is D-1.
      */
     public IndexIteratorTriangular(int D) {
+        if(D < 0) throw new IllegalArgumentException("Iterator must have non-negative dimension. Given value is "+D);
         this.D = D;
-        setNumberOfIterates(Integer.MAX_VALUE);
+        index = new int[D];
+        indexCopy = new int[D];
+        setAllowEqualElements(true);
+        setMaxElement(D-1);
         reset();
     }
 
@@ -40,7 +60,7 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
      * since last call to reset().
      */
     public boolean hasNext() {
-        return iterateCount < numberOfIterates;
+        return hasNext;
     }
     
     /**
@@ -52,7 +72,8 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
     public int[] next() {
         increment(index, D-1);
         iterateCount++;
-        return index;
+        System.arraycopy(index, 0, indexCopy, 0, index.length);
+        return indexCopy;
     }
     
     /**
@@ -60,16 +81,41 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
      * iterate count to zero.
      */
     public void reset() {
-        index = new int[D];
+        for(int i=0; i<D; i++) {
+            index[i] = 0;
+        }
         iterateCount = 0;
-        index[D-1] = -1;
+        if(allowEqualElements) {
+            hasNext = maxElement >= 0;
+        } else {
+            for(int i=0; i<D; i++) {
+                index[i] = D-1-i;
+            }
+            hasNext = (maxElement >= D-1);
+        }
+        if(D > 0) {
+            index[D-1] = -1;
+        } else {
+            hasNext = false;
+        }
     }
     
     private void increment(int[] idx, int d) {
         idx[d]++;
-        while(d > 0 && idx[d] > idx[d-1]) {
-            idx[d] = 0;
-            idx[--d]++;//decrement d, then increment idx
+        if(allowEqualElements) {
+            while(d > 0 && idx[d] > idx[d-1]) {
+                idx[d] = 0;
+                idx[--d]++;//decrement d, then increment idx
+            }
+            hasNext = (idx[D-1] < maxElement);
+        } else {
+            while(d > 0 && idx[d] >= idx[d-1]) {
+                idx[--d]++;//decrement d, then increment idx
+            }
+            for(int i=d+1; i<D; i++) {
+                idx[i] = D-1-i;
+            }
+            hasNext = (idx[0] < maxElement || idx[D-1] < maxElement-(D-1));
         }
     }
 
@@ -80,16 +126,29 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
         return D;
     }
  
-    public int getNumberOfIterates() {
-        return numberOfIterates;
+    /**
+     * Sets flag indicating whether iterates may have elements that are equal to one another.
+     */
+    public void setAllowEqualElements(boolean b) {
+        allowEqualElements = b;
+    }
+    
+    public boolean isAllowEqualElements() {
+        return allowEqualElements;
+    }
+
+    public int getMaxElement() {
+        return maxElement;
     }
 
     /**
-     * Sets the value of the number of iterates that can be returned before hasNext
-     * begins to return false.
+     * Sets the largest allow value for any element to have.  If allowEqualElements,
+     * the last iterate from the iterator will have all elements equal to this value;
+     * if not allowEqualElements, the last iterate will have its zeroth element equal
+     * to this value.
      */
-    public void setNumberOfIterates(int numberOfIterates) {
-        this.numberOfIterates = numberOfIterates;
+    public void setMaxElement(int maxElement) {
+        this.maxElement = maxElement;
     }
 
     /**
@@ -97,22 +156,27 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
      */
     public static void main(String[] args) {
         IndexIteratorTriangular iterator = new IndexIteratorTriangular(3);
-        iterator.setNumberOfIterates(30);
+        iterator.setMaxElement(4);
+        //iterator.setAllowEqualElements(false);
         iterator.reset();
-        System.out.println("Start 2");
+        System.out.println("Start");
+        int count = 0;
         while(iterator.hasNext()) {
             int[] a = iterator.next();
             int sum = 0;
             for(int i=0; i<a.length; i++) {
                 sum += a[i]*a[i];
             }
-            System.out.println(Arrays.toString(a)+" "+Math.sqrt(sum));
+            System.out.println(++count+". "+Arrays.toString(a)+" "+Math.sqrt(sum));
         }
     }
 
-    private int[] index;
+    private final int[] index;
+    private final int[] indexCopy;
     private int D;
-    private int numberOfIterates;
     private int iterateCount;
+    private boolean allowEqualElements;
+    private boolean hasNext;
+    private int maxElement;
     private static final long serialVersionUID = 1L;
 }

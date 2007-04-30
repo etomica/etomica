@@ -23,17 +23,23 @@ public class IndexIteratorRectangular implements IndexIterator, IndexIteratorSiz
      * Call to reset is required before beginning iteration, in any case. 
      */
     public IndexIteratorRectangular(int D) {
+        if(D < 0) throw new IllegalArgumentException("Iterator must have non-negative dimension. Given value is "+D);
         this.D = D;
         size = new int[D];
         for(int i=0; i<D; i++) size[i] = 1;
         setSize(size);
         index = new int[D];
+        indexCopy = new int[D];
     }
 
     /**
      * Puts iterator in a condition to begin iteration.  First iterate is {0,...,0}
      */
     public void reset() {
+        if(D == 0) {
+            count = maxCount;
+            return;
+        }
         for(int i=0; i<D; i++) {
             index[i] = 0;
         }
@@ -51,13 +57,15 @@ public class IndexIteratorRectangular implements IndexIterator, IndexIteratorSiz
     /**
      * Returns the next iterate, or null if hasNext is false. The same array instance 
      * is returned with each call to this method; only its element values are modified in accordance
-     * with the design of the iteration.
+     * with the design of the iteration.  Elements of returned array may be modified and will not
+     * affect iteration.
      */
     public int[] next() {
         if(!hasNext()) return null;
         increment(index, D-1);
         count++;
-        return index;
+        System.arraycopy(index, 0, indexCopy, 0, index.length);
+        return indexCopy;
     }
     
     /**
@@ -74,7 +82,7 @@ public class IndexIteratorRectangular implements IndexIterator, IndexIteratorSiz
     
     /**
      * Sets the individual ranges for the elements of the returned
-     * array.  Each element index[k] iterates over values from 0 to size[k]-1. 
+     * array. Each element index[k] iterates over values from 0 to size[k]-1. 
      */
     public void setSize(int[] size) {
         if(size.length != D) throw new IllegalArgumentException("Length of array inconsistent with dimension of iterator");
@@ -120,6 +128,7 @@ public class IndexIteratorRectangular implements IndexIterator, IndexIteratorSiz
 
     private final int[] size;
     private final int[] index;
+    private final int[] indexCopy;
     private final int D;
     //count is the number of iterates given since last reset
     //when this equals maxCount, iteration is done

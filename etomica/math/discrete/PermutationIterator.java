@@ -1,5 +1,9 @@
 package etomica.math.discrete;
 
+import etomica.lattice.IndexIterator;
+import etomica.math.SpecialFunctions;
+import etomica.util.Arrays;
+
 /**
  * Iterator that returns different permutations of a sequence of integers when
  * called in successive iterations.  For example, if constructed with n = 3,
@@ -7,11 +11,19 @@ package etomica.math.discrete;
  * {2,0,1}, {1,0,2}, {1,2,0}, {2,1,0}.
  */
  
-public class PermutationIterator implements java.io.Serializable {
+/*
+ * Description of algorithm:  To generate int[] having n elements, this instance
+ * will use a subiterator instance to generate permutations of n-1 elements.  For
+ * each such permutation, this instance will place the additional element (an int equal to n-1)
+ * successively at the positions 0, 1, 2,...,n-1 in the sequence returned by the
+ * subiterator.
+ */
+public class PermutationIterator implements IndexIterator, java.io.Serializable {
 
 	//constructor for use by NullSinglet inner class
 	private PermutationIterator() {
 		subPermutation = null;
+        n = 0;
 	}
 	public PermutationIterator(int n) {
 		super();
@@ -73,6 +85,10 @@ public class PermutationIterator implements java.io.Serializable {
 		}
 		return b;
 	}
+    
+    public int getD() {
+        return n;
+    }
 		
 	// Iterator that returns one null value (which isn't used) then expires.  Used to close recursive
 	// implemention of PermutationIterator.
@@ -88,21 +104,27 @@ public class PermutationIterator implements java.io.Serializable {
 	}
 	
 	public static void main(String[] args) {
-		int n = Integer.parseInt(args[0]);
+		//int n = Integer.parseInt(args[0]);
+        int n = 5;
 		PermutationIterator p = new PermutationIterator(n);
+        int count = 0;
 		while(p.hasNext) {
 			int[] a = p.next();
-			System.out.print("{");
-			for(int i=0; i<a.length-1; i++) System.out.print(a[i]+", ");
-			System.out.println(a[a.length-1]+"}");
+            System.out.println(Arrays.toString(a));
+            count++;
+//			System.out.print("{");
+//			for(int i=0; i<a.length-1; i++) System.out.print(a[i]+", ");
+//			System.out.println(a[a.length-1]+"}");
 		}
+        System.out.println("number of iterates: "+count);
+        System.out.println("expected number: "+SpecialFunctions.factorial(5));
 	}
     
     private final PermutationIterator subPermutation;
     private boolean hasNext = false;
     private int[] subIndex;
     private int iLast;//place to position largest element
-    private int n;
+    private final int n;
     private static final long serialVersionUID = 1L;
     
 }
