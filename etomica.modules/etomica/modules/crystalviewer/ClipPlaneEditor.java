@@ -48,8 +48,8 @@ public class ClipPlaneEditor {
     private JPanel millerPanel;
 
     // minimum and maximum value for the slider.
-    private int minimumPosition = -10;
-    private int maximumPosition = 10;
+    private int minimumPosition = -15;
+    private int maximumPosition = 15;
 
     // Input widget unique IDs 
 	private final int MILLER_INDEX_H = 0;

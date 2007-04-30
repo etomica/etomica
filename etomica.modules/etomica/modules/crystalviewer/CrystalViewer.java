@@ -1,7 +1,11 @@
 package etomica.modules.crystalviewer;
 
+import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
@@ -41,7 +45,7 @@ public class CrystalViewer {
         species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
         
-        panel = new JPanel();
+        panel = new JPanel(new BorderLayout());
         
         BasisMonatomic basisMonatomic = new BasisMonatomic(sim.getSpace());
         
@@ -75,10 +79,38 @@ public class CrystalViewer {
         controlTabs.add("Plane", clipPlaneEditor.getPanel());
         JPanel controlPanel = new JPanel();
         controlPanel.add(controlTabs);
-        panel.add(controlPanel);
-        panel.add(displayPhase.graphic());
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.add(controlPanel);
+        mainPanel.add(displayPhase.graphic());
+
+        addMenu();
+        panel.add(mainPanel);
     }
-    
+
+    private void addMenu() {
+    	JMenuBar mBar = new JMenuBar();
+    	JMenu fileMenu = new JMenu("File");
+    	JMenuItem exitBtn = new JMenuItem("Exit");
+    	exitBtn.addActionListener(new java.awt.event.ActionListener() {
+    		public void actionPerformed(java.awt.event.ActionEvent ev) {
+    			System.exit(0);
+    		}
+    	});
+    	fileMenu.add(exitBtn);
+    	JMenu helpMenu = new JMenu("Help");
+    	JMenuItem aboutBtn = new JMenuItem("About Crystal Viewer");
+    	aboutBtn.setEnabled(false);
+    	helpMenu.add(aboutBtn);
+
+    	mBar.add(fileMenu);
+    	mBar.add(helpMenu);
+
+    	panel.add(mBar, BorderLayout.NORTH);
+
+
+    }
+
     public void update(BravaisLattice currentLattice) {
         latticePlane.setPrimitive(currentLattice.getPrimitive());
         displayPhase.setLabel(currentLattice.toString());
