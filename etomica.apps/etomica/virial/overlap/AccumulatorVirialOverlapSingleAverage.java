@@ -1,10 +1,8 @@
 package etomica.virial.overlap;
 
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.Data;
 import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.simulation.Simulation;
 import etomica.util.Debug;
 
@@ -14,7 +12,7 @@ import etomica.util.Debug;
  */
 public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAverage {
 
-	public AccumulatorVirialOverlapSingleAverage(Simulation sim, int aNBennetPoints, boolean aIsReference) {
+    public AccumulatorVirialOverlapSingleAverage(Simulation sim, int aNBennetPoints, boolean aIsReference) {
 		this(sim.getDefaults().blockSize,aNBennetPoints, aIsReference);
 	}
 	
@@ -67,15 +65,26 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
         }
         double value1 = ((DataDoubleArray)value).getData()[1];
         for (int j=0; j<nBennetPoints; j++) {
-            // this is actually blockSum[1], but for all the various values of the overlap parameter
-            // this doesn't look right, but it is.
-            // http://rheneas.eng.buffalo.edu/~andrew/overlapf.pdf
-            double v = value1*(1+expX[j]);
-            if (isReference) {
-                v /= value1 + expX[j];
+            double v;
+            if (Double.isInfinite(value1)) {
+                if (isReference) {
+                    v = 1+expX[j];
+                }
+                else {
+                    v = 1+1.0/expX[j];
+                }
             }
             else {
-                v /= expX[j]*value1 + 1;
+                // this is actually blockSum[1], but for all the various values of the overlap parameter
+                // this doesn't look right, but it is.
+                // http://rheneas.eng.buffalo.edu/~andrew/overlapf.pdf
+                v = 1 + expX[j];
+                if (isReference) {
+                    v /= (1.0 + expX[j]/value1);
+                }
+                else {
+                    v /= (expX[j] + 1.0/value1);
+                }
             }
             bennetSum[j] += v;
             blockOverlapSum[j] += v;
@@ -147,18 +156,19 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
  	/**
  	 * Resets all sums to zero
  	 */
-     public void reset() {
-         for (int i=0; i<nBennetPoints; i++) {
-         	bennetSum[i] = 0.0;
-         	overlapSum[i] = 0.0;
+    public void reset() {
+        for (int i=0; i<nBennetPoints; i++) {
+            bennetSum[i] = 0.0;
+            overlapSum[i] = 0.0;
             overlapSumSquare[i] = 0.0;
-         	blockOverlapSum[i] = 0.0;
+            blockOverlapSum[i] = 0.0;
             blockOverlapSumSq[i] = 0.0;
             overlapSumSquareBlock[i] = 0.0;
-         }
-     	 super.reset();
-     }
+        }
+        super.reset();
+    }
      
+    private static final long serialVersionUID = 1L;
     private final double[] overlapSum, blockOverlapSum;
     private final double[] overlapSumSquare, blockOverlapSumSq;
     private final double[] overlapSumSquareBlock;
