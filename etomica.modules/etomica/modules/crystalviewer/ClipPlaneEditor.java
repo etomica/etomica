@@ -174,6 +174,11 @@ positionSlider.setMaximum(maximumPosition);
         gbc0.gridx = ix; gbc0.gridy = ++iy;
         panel.add(distancePanel, gbc0);
 
+        // Add a componenet listner to the panel
+        ClipPlaneEditorComponentListener listener =
+        	                    new ClipPlaneEditorComponentListener();
+        panel.addComponentListener(listener);
+
         update();
     }
 
@@ -227,5 +232,21 @@ positionSlider.setMaximum(maximumPosition);
             }
         }
         public etomica.units.Dimension getDimension() {return Null.DIMENSION;}
+    }
+    
+    class ClipPlaneEditorComponentListener implements java.awt.event.ComponentListener {
+        public void componentShown(java.awt.event.ComponentEvent ev) {
+        	// When the screen is first shown, update the distance from
+        	// origin.
+        	DataDouble doubleD = new DataDouble();
+        	doubleD.E(latticePlane.getSpacePosition());
+            distanceDisplay.putData(doubleD);
+        }
+        public void componentMoved(java.awt.event.ComponentEvent ev) {
+        }
+        public void componentResized(java.awt.event.ComponentEvent ev) {
+        }
+        public void componentHidden(java.awt.event.ComponentEvent ev) {
+        }    	
     }
 }
