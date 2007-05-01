@@ -38,6 +38,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     
   private Polytope oldPolytope;
   private Line[] polytopeLines;
+  private boolean boundaryDisplayed = false;
   
   public DisplayPhaseCanvasG3DSys(DisplayPhase _phase) {
     //old stuff
@@ -149,7 +150,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
       //send iterator to g3dsys
       gsys.setBoundaryVectorsIterator(
           wrapIndexIterator((boundary.getIndexIterator())));
-      
+
       if (polytopeLines != null) {
         for (int i=0; i<polytopeLines.length; i++) {
           gsys.removeFig(polytopeLines[i]);
@@ -162,7 +163,9 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
         polytopeLines[i] = new Line(gsys, G3DSys.getColix(Color.WHITE), 
             new Point3f((float)vertices[0].x(0), (float)vertices[0].x(1), (float)vertices[0].x(2)), 
             new Point3f((float)vertices[1].x(0), (float)vertices[1].x(1), (float)vertices[1].x(2)));
-        gsys.addFig(polytopeLines[i]);
+        if (displayPhase.getShowBoundary() == true) {
+            gsys.addFig(polytopeLines[i]);
+        }
       }
       oldPolytope = polytope;
     }
@@ -172,9 +175,25 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
         IVector[] vertices = lines[i].getVertices();
         polytopeLines[i].setStart((float)vertices[0].x(0), (float)vertices[0].x(1), (float)vertices[0].x(2));
         polytopeLines[i].setEnd((float)vertices[1].x(0), (float)vertices[1].x(1), (float)vertices[1].x(2));
+
+        if (displayPhase.getShowBoundary() == false &&
+        	boundaryDisplayed == true) {
+        	gsys.removeFig(polytopeLines[i]);
+        }
+        else if (displayPhase.getShowBoundary() == true &&
+        		 boundaryDisplayed == false) {
+        	gsys.addFig(polytopeLines[i]);
+        }
       }
     }
-        
+
+    if (displayPhase.getShowBoundary() == false) {
+  	  boundaryDisplayed = false;
+    }
+    else {
+  	  boundaryDisplayed = true;
+    }
+
     // set boundary vectors for image shell
     IVector[] vecs = boundary.getPeriodicVectors();
     double[] dvecs = new double[vecs.length*3]; //assuming 3-dimensional vectors

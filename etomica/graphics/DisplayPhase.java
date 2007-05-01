@@ -48,6 +48,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
     private final int D = 2;
     protected ColorScheme colorScheme = new ColorSchemeByType();
     protected AtomFilter atomFilter = AtomFilterStatic.ACCEPT_ALL;
+    protected boolean displayBoundary = true;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
     private Phase phase;
             
@@ -434,6 +435,21 @@ public class DisplayPhase extends Display implements EtomicaElement {
      */
     public int getDrawingHeight() {
         return drawingHeight;
+    }
+
+    /**
+     * Set the flag indicating if the boundary should be drawn.
+     * @return
+     */
+    public void setShowBoundary(boolean b) {
+    	displayBoundary = b;
+    }
+
+    /**
+     * Get the flag indicating if the boundary should be drawn.
+     */
+    public boolean getShowBoundary() {
+    	return displayBoundary;
     }
 
     /**
