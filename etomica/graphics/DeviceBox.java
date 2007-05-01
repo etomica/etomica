@@ -328,7 +328,6 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     }
 
     public void deviceBoxValueChanged(DeviceBoxValueChangedEvent ev) {
-    	System.out.println("Value changed callback!!!!");
 
         this.doUpdate();
     } // end deviceBoxValueChanged
