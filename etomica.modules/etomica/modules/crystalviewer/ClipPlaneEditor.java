@@ -45,6 +45,7 @@ public class ClipPlaneEditor {
     protected java.awt.Color atomColor = java.awt.Color.red;
     protected ColorSchemePlane colorScheme;
     protected boolean showPlane = true;
+    protected boolean showBoundary = true;
     private JPanel millerPanel;
 
     // minimum and maximum value for the slider.
@@ -97,6 +98,16 @@ public class ClipPlaneEditor {
                 if(b) display.addDrawable(latticePlane);
                 else  display.removeDrawable(latticePlane);
             }
+        });
+
+        // box to toggle crystal boundary display
+        DeviceCheckBox crystalboundaryToggle = new DeviceCheckBox("Show boundary", new ModifierBoolean() {
+            public boolean getBoolean() {return showBoundary;}
+            public void setBoolean(boolean b) {
+                showBoundary = b;
+                display.setShowBoundary(b);
+                display.repaint();
+                }
         });
 
         ModifierLatticePlane modifier;
@@ -157,10 +168,14 @@ positionSlider.setMaximum(maximumPosition);
         distancePanel.add(positionSlider.graphic());
         distancePanel.add(distanceDisplay.graphic());
 
-        JPanel checkboxPanel = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel checkboxPanel = new JPanel(new java.awt.GridLayout(2,2));
+        TitledBorder checkboxBorder = new TitledBorder("Display Features");
+        checkboxBorder.setTitleJustification(TitledBorder.CENTER);
+        checkboxPanel.setBorder(checkboxBorder);
         checkboxPanel.add(clipToggle.graphic());
         checkboxPanel.add(highlightToggle.graphic());
         checkboxPanel.add(showplaneToggle.graphic());
+        checkboxPanel.add(crystalboundaryToggle.graphic());
 
         int ix=0; 
         int iy=0;
