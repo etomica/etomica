@@ -1,5 +1,6 @@
 package etomica.modules.crystalviewer;
 import java.awt.GridLayout;
+import java.awt.Dimension;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -59,8 +60,13 @@ public class ClipPlaneEditor {
 	private final int PLANE_SELECTION_SLIDER = 3;
 
 	private final int SLIDER_DECIMAL_PLACES = 1;
-	private final int DISTANCE_PRECISION = 4;
+	private final int DISTANCE_PRECISION    = 4;
 
+	private final int MILLER_BOX_WIDTH  = 35;
+	private final int MILLER_BOX_HEIGHT = 55;
+	
+	private final int MILLER_INDEX_MIN = -10;
+	private final int MILLER_INDEX_MAX = 10;
 
     public ClipPlaneEditor(final LatticePlane latticePlane, final DisplayPhase display) {
 
@@ -118,18 +124,21 @@ public class ClipPlaneEditor {
         modifier.setLabel("h");
         boxH.setModifier(modifier);
         boxH.setInteger(true);
+        boxH.graphic().setPreferredSize(new Dimension(MILLER_BOX_WIDTH, MILLER_BOX_HEIGHT));
         // Miller j indices
         boxK = new DeviceBox();
         modifier = new ModifierLatticePlane(MILLER_INDEX_K);
         modifier.setLabel("k");
         boxK.setModifier(modifier);
         boxK.setInteger(true);
+        boxK.graphic().setPreferredSize(new Dimension(MILLER_BOX_WIDTH, MILLER_BOX_HEIGHT));
         // Miller k indices
         boxL = new DeviceBox();
         modifier = new ModifierLatticePlane(MILLER_INDEX_L);
         modifier.setLabel("l");
         boxL.setModifier(modifier);
         boxL.setInteger(true);
+        boxL.graphic().setPreferredSize(new Dimension(MILLER_BOX_WIDTH, MILLER_BOX_HEIGHT));
 
         millerPanel = new JPanel(new GridLayout(1,0));
         TitledBorder millerBorder = new TitledBorder("Miller Indices");
@@ -149,11 +158,9 @@ public class ClipPlaneEditor {
 
         positionSlider = new DeviceSlider(null, new ModifierLatticePlane(PLANE_SELECTION_SLIDER));
         positionSlider.setPrecision(SLIDER_DECIMAL_PLACES);
-// NEED TO SET MIN/MAX PLANE WHICH ARE DYNAMIC ...
-positionSlider.setMinimum(minimumPosition);
-positionSlider.setMaximum(maximumPosition);
-//        positionSlider.setMinimum(minimumPosition);
-//        positionSlider.setMaximum(maximumPosition);
+        // NEED TO SET MIN/MAX PLANE WHICH ARE DYNAMIC ...
+        positionSlider.setMinimum(minimumPosition);
+        positionSlider.setMaximum(maximumPosition);
         positionSlider.setNMajor(4);
         positionSlider.getSlider().setValue(0);
         positionSlider.setLabel("Plane Selection");
@@ -225,7 +232,15 @@ positionSlider.setMaximum(maximumPosition);
                 case MILLER_INDEX_H: 
                 case MILLER_INDEX_K: 
                 case MILLER_INDEX_L: 
-                	latticePlane.setMillerIndex(index,(int)t);
+                	if ((int)t >= MILLER_INDEX_MIN && (int)t <= MILLER_INDEX_MAX) {
+                		latticePlane.setMillerIndex(index,(int)t);
+                	}
+                	else if ((int)t < MILLER_INDEX_MIN) {
+                	    latticePlane.setMillerIndex(index,MILLER_INDEX_MIN);
+                	}
+                	else {
+                		latticePlane.setMillerIndex(index,MILLER_INDEX_MAX);
+                	}
                 	break;
                 case PLANE_SELECTION_SLIDER:
                 	latticePlane.setPosition(t);
