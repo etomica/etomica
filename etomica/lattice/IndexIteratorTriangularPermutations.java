@@ -47,8 +47,8 @@ public class IndexIteratorTriangularPermutations implements IndexIterator, java.
     public IndexIteratorTriangularPermutations(int D) {
         if(D < 0) throw new IllegalArgumentException("Iterator must have non-negative dimension. Given value is "+D);
         this.D = D;
-        indexIterator = new IndexIteratorTriangular(D);
-        indexIterator.setAllowEqualElements(true);
+        coreIterator = new IndexIteratorTriangular(D);
+        coreIterator.setAllowEqualElements(true);
         permutationIterator = new PermutationDegenerateIterator(D);
         nextIterate = new int[D];
         vals = new int[D];
@@ -56,7 +56,7 @@ public class IndexIteratorTriangularPermutations implements IndexIterator, java.
         
     }
     public int getD() {
-        return indexIterator.getD();
+        return coreIterator.getD();
     }
 
     public boolean hasNext() {
@@ -70,8 +70,8 @@ public class IndexIteratorTriangularPermutations implements IndexIterator, java.
         if(permutationIterator.hasNext()) {
             permute = permutationIterator.next();
         } else {
-            if(indexIterator.hasNext()) {
-                resetPermutationIterator(indexIterator.next());
+            if(coreIterator.hasNext()) {
+                resetPermutationIterator(coreIterator.next());
                 permute = permutationIterator.next();
             } else {
                 hasNext = false;
@@ -82,9 +82,9 @@ public class IndexIteratorTriangularPermutations implements IndexIterator, java.
 
     public void reset() {
         hasNext = false;
-        indexIterator.reset();
-        if(indexIterator.hasNext()) {
-            resetPermutationIterator(indexIterator.next());
+        coreIterator.reset();
+        if(coreIterator.hasNext()) {
+            resetPermutationIterator(coreIterator.next());
             if(permutationIterator.hasNext()) {
                 permute = permutationIterator.next();
                 hasNext = true;
@@ -92,12 +92,8 @@ public class IndexIteratorTriangularPermutations implements IndexIterator, java.
         }
     }
     
-    public void setMaxElement(int maxElement) {
-        indexIterator.setMaxElement(maxElement);
-    }
-    
-    public int getMaxElement() {
-        return indexIterator.getMaxElement();
+    public IndexIteratorTriangular getCoreIterator() {
+        return coreIterator;
     }
     
     private void resetPermutationIterator(int[] baseIterate) {
@@ -122,7 +118,7 @@ public class IndexIteratorTriangularPermutations implements IndexIterator, java.
      */
     public static void main(String[] args) {
         IndexIteratorTriangularPermutations iterator = new IndexIteratorTriangularPermutations(1);
-        iterator.setMaxElement(2);
+        iterator.getCoreIterator().setMaxElement(2);
         iterator.reset();
         System.out.println("Start");
         int count = 0;
@@ -136,7 +132,7 @@ public class IndexIteratorTriangularPermutations implements IndexIterator, java.
         }
     }
 
-    private final IndexIteratorTriangular indexIterator;
+    private final IndexIteratorTriangular coreIterator;
     private final PermutationDegenerateIterator permutationIterator;
     private int[] permute;
     private int[] nextIterate;
