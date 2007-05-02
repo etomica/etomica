@@ -120,9 +120,10 @@ public class IndexIteratorReflecting implements IndexIterator {
      * Method to test and demonstrate class.
      */
     public static void main(String[] args) {
-        IndexIteratorTriangularPermutations iterator = new IndexIteratorTriangularPermutations(0);
+        IndexIteratorTriangularPermutations iterator = new IndexIteratorTriangularPermutations(3);
         IndexIteratorReflecting reflectIterator = new IndexIteratorReflecting(iterator);
-        iterator.setMaxElement(4);
+        iterator.getCoreIterator().setMaxElementMin(1);
+        iterator.getCoreIterator().setMaxElement(1);
         //reflectIterator.setReflecting(new boolean[] {true, true});
         reflectIterator.reset();
         System.out.println("Start");
