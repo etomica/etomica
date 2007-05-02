@@ -4,6 +4,7 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+import javax.swing.JComponent;
 
 import etomica.action.Action;
 import etomica.data.types.DataDouble;
@@ -63,7 +64,7 @@ public class ClipPlaneEditor {
 	private final int DISTANCE_PRECISION    = 4;
 
 	private final int MILLER_BOX_WIDTH  = 35;
-	private final int MILLER_BOX_HEIGHT = 55;
+	private final int MILLER_BOX_HEIGHT = 45;
 	
 	private final int MILLER_INDEX_MIN = -10;
 	private final int MILLER_INDEX_MAX = 10;
@@ -124,21 +125,30 @@ public class ClipPlaneEditor {
         modifier.setLabel("h");
         boxH.setModifier(modifier);
         boxH.setInteger(true);
-        boxH.graphic().setPreferredSize(new Dimension(MILLER_BOX_WIDTH, MILLER_BOX_HEIGHT));
         // Miller j indices
         boxK = new DeviceBox();
         modifier = new ModifierLatticePlane(MILLER_INDEX_K);
         modifier.setLabel("k");
         boxK.setModifier(modifier);
         boxK.setInteger(true);
-        boxK.graphic().setPreferredSize(new Dimension(MILLER_BOX_WIDTH, MILLER_BOX_HEIGHT));
         // Miller k indices
         boxL = new DeviceBox();
         modifier = new ModifierLatticePlane(MILLER_INDEX_L);
         modifier.setLabel("l");
         boxL.setModifier(modifier);
         boxL.setInteger(true);
-        boxL.graphic().setPreferredSize(new Dimension(MILLER_BOX_WIDTH, MILLER_BOX_HEIGHT));
+
+        // Was not compiling in Java 1.4.  Component class (return
+        // type of graphic() method) does not contain the setPreferredSize
+        // method.  JComponent does.  I'm going to cast.
+        JComponent j;
+        j = (JComponent)boxH.graphic();
+        j.setPreferredSize(new Dimension(MILLER_BOX_WIDTH, MILLER_BOX_HEIGHT));
+        j = (JComponent)boxK.graphic();
+        j.setPreferredSize(new Dimension(MILLER_BOX_WIDTH, MILLER_BOX_HEIGHT));
+        j = (JComponent)boxL.graphic();
+        j.setPreferredSize(new Dimension(MILLER_BOX_WIDTH, MILLER_BOX_HEIGHT));
+
 
         millerPanel = new JPanel(new GridLayout(1,0));
         TitledBorder millerBorder = new TitledBorder("Miller Indices");
