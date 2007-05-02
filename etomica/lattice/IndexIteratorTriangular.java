@@ -52,6 +52,7 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
         indexCopy = new int[D];
         setAllowEqualElements(true);
         setMaxElement(D-1);
+        setMaxElementMin(0);
         reset();
     }
 
@@ -71,29 +72,29 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
      */
     public int[] next() {
         increment(index, D-1);
-        iterateCount++;
         System.arraycopy(index, 0, indexCopy, 0, index.length);
         return indexCopy;
     }
     
     /**
-     * Sets iterator to begin returning iterates, beginning with {0,...,0}, and sets
-     * iterate count to zero.
+     * Sets iterator to begin returning iterates.
      */
     public void reset() {
-        for(int i=0; i<D; i++) {
-            index[i] = 0;
-        }
-        iterateCount = 0;
         if(allowEqualElements) {
-            hasNext = maxElement >= 0;
+            for(int i=0; i<D; i++) {
+                index[i] = 0;
+            }
+            hasNext = maxElement >= maxElementMin;
         } else {
             for(int i=0; i<D; i++) {
                 index[i] = D-1-i;
             }
-            hasNext = (maxElement >= D-1);
+            hasNext = (maxElement >= D-1) && (maxElement >= maxElementMin);
         }
-        if(D > 0) {
+        if(D == 1) {
+            index[0] = Math.max(0, maxElementMin)-1;
+        } else if(D > 1) {
+            index[0] = Math.max(index[0], maxElementMin);
             index[D-1] = -1;
         } else {
             hasNext = false;
@@ -151,11 +152,21 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
         this.maxElement = maxElement;
     }
 
+    public int getMaxElementMin() {
+        return maxElementMin;
+    }
+
+    public void setMaxElementMin(int maxElementMin) {
+        if(maxElementMin < 0) throw new IllegalArgumentException("Input value of maxElementMin must be nonnegative. Alas, this value was input: "+maxElementMin);
+        this.maxElementMin = maxElementMin;
+    }
+
     /**
      * Method to test and demonstrate class.
      */
     public static void main(String[] args) {
         IndexIteratorTriangular iterator = new IndexIteratorTriangular(3);
+        iterator.setMaxElementMin(0);
         iterator.setMaxElement(4);
         //iterator.setAllowEqualElements(false);
         iterator.reset();
@@ -174,9 +185,9 @@ public class IndexIteratorTriangular implements IndexIterator, java.io.Serializa
     private final int[] index;
     private final int[] indexCopy;
     private int D;
-    private int iterateCount;
     private boolean allowEqualElements;
     private boolean hasNext;
     private int maxElement;
+    private int maxElementMin;
     private static final long serialVersionUID = 1L;
 }
