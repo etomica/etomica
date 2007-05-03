@@ -11,7 +11,7 @@ public interface Function {
     /**
      * The function f(x) = constant
      */
-    public static class Constant implements FunctionInvertible, FunctionDifferentiable, java.io.Serializable {
+    public static class Constant implements FunctionDifferentiable, java.io.Serializable {
 
         private double c;
 
@@ -25,10 +25,6 @@ public interface Function {
 
         public double f(double x) {
             return c;
-        }
-
-        public double inverse(double f) {
-            throw new RuntimeException("function not invertible");
         }
 
         public double dfdx(double x) {
@@ -139,7 +135,7 @@ public interface Function {
     /**
      * The function f(x) = abs(x)
      */
-    public static class Abs implements FunctionInvertible, FunctionDifferentiable, java.io.Serializable {
+    public static class Abs implements FunctionDifferentiable, java.io.Serializable {
 
         public double f(double x) {
             return Math.abs(x);
@@ -147,10 +143,6 @@ public interface Function {
 
         public double dfdx(double x) {
             return x > 0 ? 1 : -1;
-        }
-
-        public double inverse(double x) {
-            throw new RuntimeException("function not invertible");
         }
 
         public final static Abs INSTANCE = new Abs();
