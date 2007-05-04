@@ -16,7 +16,7 @@ import etomica.space.Space;
  * positions scaled to keep them in the same relative positions. Inflation can
  * be isotropically or anisotropically.
  */
-public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
+public class PhaseInflate extends PhaseActionAdapter implements Undoable {
 
     /**
      * Constructs action with a default scale of 1.0.  Requires call
@@ -126,9 +126,9 @@ public final class PhaseInflate extends PhaseActionAdapter implements Undoable {
     }
 
     private static final long serialVersionUID = 1L;
-    private final AtomIteratorAllMolecules moleculeIterator;
-    private final AtomActionTranslateBy translator;
-    private final AtomGroupAction groupScaler;
-    private final IVector scaleVector;
-    private final AtomPositionGeometricCenter moleculeCenter;
+    protected final AtomIteratorAllMolecules moleculeIterator;
+    protected final AtomActionTranslateBy translator;
+    protected final AtomGroupAction groupScaler;
+    protected final IVector scaleVector;
+    protected final AtomPositionGeometricCenter moleculeCenter;
 }
