@@ -7,6 +7,7 @@ import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.Species;
 
 /**
  * Implementation of CoordinateDefinitionMolecule that handles hexane.
@@ -20,12 +21,17 @@ import etomica.space3d.Vector3D;
  */
 public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
-    public CoordinateDefinitionHexane() {
+    public CoordinateDefinitionHexane(SpeciesHexane species){
         super(Space3D.getInstance(), 3);
+
+        length = species.getBondLength();
+        phi = species.getBondAngle();
+        
         axes = new Vector3D[3];
         axes[0] = new Vector3D();
         axes[1] = new Vector3D();
         axes[2] = new Vector3D();
+        angles = new Vector3D();
         axis0prime = new Vector3D();
         b = new Vector3D();
         bPrime = new Vector3D();
@@ -33,6 +39,10 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         deltaVPrime = new Vector3D();
         c = new Vector3D();
         deltaV = new Vector3D();
+        
+        vex = new Vector3D();
+        temp = new Vector3D();
+        axial = new Vector3D();
     }
 
     public double[] calcU(IAtom molecule) {
@@ -141,8 +151,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         u[5] = Math.acos(dot);
 
         // figure out whether the angle should be negative or not, acos can't
-        // tell
-        // deltaV x axes[1] will point along the molecule axis or opposite to it
+        // tell deltaV x axes[1] will point along the molecule axis or opposite to it
         deltaV.XE(axes[1]);
         // (deltaV x axes[1]) dot axes[0] will be positive if the cross product
         // points
@@ -154,6 +163,69 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             // do the same thing in setToU
             u[5] = -u[5];
         }
+        
+      double tol = 0.0000000001;
+      for (int i = 0; i < 6 - 3; i++) {
+          vex.E(((AtomLeaf) ((IAtomGroup) molecule)
+                  .getChildList().get(i)).getPosition());
+          vex.ME(((AtomLeaf) ((IAtomGroup) molecule)
+                  .getChildList().get(i+1)).getPosition());
+          temp.E(((AtomLeaf) ((IAtomGroup) molecule)
+                  .getChildList().get(i+3)).getPosition());        
+          temp.ME(((AtomLeaf) ((IAtomGroup) molecule)
+                  .getChildList().get(i+2)).getPosition());        
+          axial.E(((AtomLeaf) ((IAtomGroup) molecule)
+                  .getChildList().get(i+2)).getPosition());
+          axial.ME(((AtomLeaf) ((IAtomGroup) molecule)
+                  .getChildList().get(i+1)).getPosition());
+                      
+          // Project each vector onto the axial vector, and subtract the
+          // axial portion from the result, leaving the radial portion
+          axial.normalize();
+          axial.TE(length * Math.cos((Math.PI - phi))); // (Pi - phi is
+                                                          // 180 - 109.47,
+                                                          // or the acute
+                                                          // angle)
+          vex.ME(axial);
+          axial.TE(-1.0); // we do this because we have assumed that
+          // the angle between the two vectors (axial
+          // & whatever) is obtuse. The angle between
+          // axial and temp is acute, so we reverse
+          // axial to make the angle acute.
+          temp.ME(axial);
+
+          vex.normalize();
+          temp.normalize();
+
+          // Calculate the angle between the projected vectors
+
+          /*
+           * We have to do some stuff to "fix" answers that are just over
+           * 1.0 or under -1.0 because we get NaN, and sometimes we are
+           * just really close (like, into the pico and femto range) and
+           * we can make that happy.
+           */
+          double makeGood = vex.dot(temp);
+          if (makeGood < -1) {
+              if ((makeGood + tol) > -1) {
+                  makeGood = -1.0;
+              }
+          }
+          if (makeGood > 1) {
+              if ((makeGood - tol) < 1) {
+                  makeGood = 1.0;
+              }
+          }
+          
+          u[6+i] = Math.acos(makeGood) - angles.x(i);
+          
+      }//end of the for loop that calculates the angles and stores the differences.
+
+        
+        
+        
+        
+        
         return u;
     }
 
@@ -161,38 +233,93 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // handle center-of-mass part
         super.initNominalU(molecule);
         // assume they're all oriented the same way.
-        if (true)
-            throw new RuntimeException("Don't yet know how to set orientation");
-        int index = 0;// this was passed in as an argument. will go away once
-                        // orientation is done right
-        if (index == 0) {
-            // Set up all the axes based on the molecule atom0, the reference
-            // molecule
-            // Long rotational axis of atom 0
-            IVector leafPos1 = ((AtomLeaf) ((IAtomGroup) molecule)
-                    .getChildList().get(0)).getPosition();
-            IVector leafPos2 = ((AtomLeaf) ((IAtomGroup) molecule)
-                    .getChildList().get(1)).getPosition();
-            IVector leafPos3 = ((AtomLeaf) ((IAtomGroup) molecule)
-                    .getChildList().get(2)).getPosition();
-            // axes[0] should point from the 0th atom on the molecule to the 2nd
-            // atom on the molecule
-            axes[0].Ev1Mv2(leafPos3, leafPos1);
-            // Now we take the midpoint between the 0th atom and the 2nd atom.
-            axes[1].Ev1Pv2(leafPos1, leafPos3);
-            axes[1].TE(-0.5);
-            // Then we subtract the midpoint from the location of the 1st atom
-            // on the molecule to get our final vector.
-            // AKA isosceleshappyvector
-            axes[1].PE(leafPos2);
+        
+        // Set up all the axes based on the molecule atom0, the reference
+        // molecule
+        // Long rotational axis of atom 0
+        IVector leafPos1 = ((AtomLeaf) ((IAtomGroup) molecule)
+                .getChildList().get(0)).getPosition();
+        IVector leafPos2 = ((AtomLeaf) ((IAtomGroup) molecule)
+                .getChildList().get(1)).getPosition();
+        IVector leafPos3 = ((AtomLeaf) ((IAtomGroup) molecule)
+                .getChildList().get(2)).getPosition();
+        // axes[0] should point from the 0th atom on the molecule to the 2nd
+        // atom on the molecule
+        axes[0].Ev1Mv2(leafPos3, leafPos1);
+        // Now we take the midpoint between the 0th atom and the 2nd atom.
+        axes[1].Ev1Pv2(leafPos1, leafPos3);
+        axes[1].TE(-0.5);
+        // Then we subtract the midpoint from the location of the 1st atom
+        // on the molecule to get our final vector.
+        // AKA isosceleshappyvector
+        axes[1].PE(leafPos2);
 
-            // Normalize our axes
-            axes[0].TE(1.0 / Math.sqrt(axes[0].squared()));
-            axes[1].TE(1.0 / Math.sqrt(axes[1].squared()));
+        // Normalize our axes
+        axes[0].TE(1.0 / Math.sqrt(axes[0].squared()));
+        axes[1].TE(1.0 / Math.sqrt(axes[1].squared()));
 
-            // Last axis is simply normal to the other two
-            axes[2].E(axes[0]);
-            axes[2].XE(axes[1]);
+        // Last axis is simply normal to the other two
+        axes[2].E(axes[0]);
+        axes[2].XE(axes[1]);
+        
+//        double tol = 0.0000000001;
+//        for (int i = 0; i < 6 - 3; i++) {
+//            vex.E(((AtomLeaf) ((IAtomGroup) molecule)
+//                    .getChildList().get(i)).getPosition());
+//            vex.ME(((AtomLeaf) ((IAtomGroup) molecule)
+//                    .getChildList().get(i+1)).getPosition());
+//            temp.E(((AtomLeaf) ((IAtomGroup) molecule)
+//                    .getChildList().get(i+3)).getPosition());        
+//            temp.ME(((AtomLeaf) ((IAtomGroup) molecule)
+//                    .getChildList().get(i+2)).getPosition());        
+//            axial.E(((AtomLeaf) ((IAtomGroup) molecule)
+//                    .getChildList().get(i+2)).getPosition());
+//            axial.ME(((AtomLeaf) ((IAtomGroup) molecule)
+//                    .getChildList().get(i+1)).getPosition());
+//                        
+//            // Project each vector onto the axial vector, and subtract the
+//            // axial portion from the result, leaving the radial portion
+//            axial.normalize();
+//            axial.TE(length * Math.cos((Math.PI - phi))); // (Pi - phi is
+//                                                            // 180 - 109.47,
+//                                                            // or the acute
+//                                                            // angle)
+//            vex.ME(axial);
+//            axial.TE(-1.0); // we do this because we have assumed that
+//            // the angle between the two vectors (axial
+//            // & whatever) is obtuse. The angle between
+//            // axial and temp is acute, so we reverse
+//            // axial to make the angle acute.
+//            temp.ME(axial);
+//
+//            vex.normalize();
+//            temp.normalize();
+//
+//            // Calculate the angle between the projected vectors
+//
+//            /*
+//             * We have to do some stuff to "fix" answers that are just over
+//             * 1.0 or under -1.0 because we get NaN, and sometimes we are
+//             * just really close (like, into the pico and femto range) and
+//             * we can make that happy.
+//             */
+//            double makeGood = vex.dot(temp);
+//            if (makeGood < -1) {
+//                if ((makeGood + tol) > -1) {
+//                    makeGood = -1.0;
+//                }
+//            }
+//            if (makeGood > 1) {
+//                if ((makeGood - tol) < 1) {
+//                    makeGood = 1.0;
+//                }
+//            }
+//            angles.setX(i, Math.acos(makeGood));
+//        }//end of the for loop that calculate the initial angles and stores them.
+        
+        //We know this from the initial model; the intial torsional angles are PI
+        for(int i = 0; i < 3; i++){
+            angles.setX(i, Math.PI);
         }
     }
 
@@ -208,4 +335,18 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     private final Vector3D c, deltaV, b;
 
     private Vector3D[] axes;
+    
+    private Vector3D angles;
+    
+    private Vector3D vex, temp, axial;
+    
+    private double length, phi;
+
+    public void setLength(double length) {
+        this.length = length;
+    }
+
+    public void setPhi(double phi) {
+        this.phi = phi;
+    }
 }
