@@ -217,7 +217,7 @@ public class TestHexaneHarmonic extends Simulation {
         }
         
         NormalModes normalModes = new NormalModesFromFile(filename, 3);
-        CoordinateDefinitionHexane coordinateDefinitionHexane = new CoordinateDefinitionHexane();
+        CoordinateDefinitionHexane coordinateDefinitionHexane = new CoordinateDefinitionHexane((SpeciesHexane)sim.getSpeciesManager().getSpecies()[0]);
         
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionHexane, normalModes);
         harmonicEnergy.setPhase(sim.phase);
