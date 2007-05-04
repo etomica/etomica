@@ -11,6 +11,7 @@ import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
+import etomica.data.meter.MeterPressureByVolumeChange;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -77,27 +78,33 @@ public class TestHexane extends Simulation {
         phase.getAgent(species).setNMolecules(numMolecules);
 //        config.initializeCoordinates(phase);
 
-        integrator = new IntegratorMC(getPotentialMaster(), getRandom(), defaults.temperature);
-        moveMolecule = new MCMoveMolecule(getPotentialMaster(), getRandom(), 0.1, 1, false);
-//        moveVolume = new MCMoveVolume(potentialMaster, phase.space(), sim.getDefaults().pressure);
-//        moveVolume.setPhase(phase);
-//        crank = new MCMoveCrankshaft();
-        
-//         snake = new MCMoveReptate(this);
-//         snake.setPhase(phase);
-         
-         rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
-         rot.setPhase(phase);
+        integrator = new IntegratorMC(getPotentialMaster(), getRandom(),
+                defaults.temperature);
+        moveMolecule = new MCMoveMolecule(getPotentialMaster(), getRandom(),
+                0.1, 1, false);
+        // moveVolume = new MCMoveVolume(potentialMaster, phase.space(),
+        // sim.getDefaults().pressure);
+        // moveVolume.setPhase(phase);
+        // crank = new MCMoveCrankshaft();
 
-         // 0.025 for translate, 0.042 for rotate for rho=0.3737735
-         moveMolecule.setStepSize(0.024);
-         rot.setStepSize(0.042);
+        // snake = new MCMoveReptate(this);
+        // snake.setPhase(phase);
 
-         growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(), getRandom(), integrator, phase, species, 20);
-         growMolecule.setPhase(phase);
-         
-        //nan we're going to need some stuff in there to set the step sizes and other stuff like that.
-        
+        rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
+        rot.setPhase(phase);
+
+        // 0.025 for translate, 0.042 for rotate for rho=0.3737735
+        moveMolecule.setStepSize(0.024);
+        rot.setStepSize(0.042);
+
+        growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(),
+                getRandom(), integrator, phase, species, 20);
+        growMolecule.setPhase(phase);
+        integrator.getMoveManager().addMCMove(growMolecule);
+
+        // nan we're going to need some stuff in there to set the step sizes and
+        // other stuff like that.
+
         integrator.getMoveManager().addMCMove(moveMolecule);
 //        integrator.getMoveManager().addMCMove(snake);
         integrator.getMoveManager().addMCMove(rot);
@@ -179,7 +186,60 @@ public class TestHexane extends Simulation {
 //        
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
 
-        bdry =  new BoundaryDeformableLattice(primitive, getRandom(), new int[]{4,6,6});
+        // //INTRAMOLECULAR POTENTIAL STUFF
+        //
+        // //This PotentialGroup will hold all the intramolecular potentials.
+        // //We give 1 as the argument because we are using 1 molecule to
+        // iterate
+        // // on. The actual interactions between the atoms on the molecules
+        // will
+        // // be calculated by a Potential2, but their summation is the
+        // molecule's
+        // //effect on itself, which is a Potential1, or a Potential with nBody
+        // =
+        // // 1.
+        // PotentialGroup potentialChainIntra =
+        // potentialMaster.makePotentialGroup(1);
+        //
+        // //BONDED INTERACTIONS
+        //
+        // // This potential simulates the bonds between atoms in a molecule.
+        // // XXX It will be superceded by a set of MC moves at some point in
+        // the
+        // // future.
+        // //This potential uses hard sphere interactions to model the bonded
+        // // interactions of the atoms of the molecule.
+        // //We make the bonding length 0.4 * sigma per Malanoski 1999.
+        // potential = new P2HardSphere(space, defaults.atomSize * bondFactor,
+        // defaults.ignoreOverlap);
+        //        
+        // //We will need an atom pair iterator (Api) that runs through the
+        // atoms
+        // // on a single molecule.
+        // //The atom pair iterator (Api) runs through the atoms on a single
+        // // molecule.
+        // // It has an inner loop and an outer loop.
+        // ApiIntragroup bonded = ApiBuilder.makeAdjacentPairIterator();
+        // //We add the Potential and its Iterator to the PotentialGroup, in one
+        // // fell swoop. Yay us!
+        // potentialChainIntra.addPotential(potential, bonded);
+        //        
+        // //NONBONDED INTERACTIONS
+        // //This potential describes the basic hard sphere interactions between
+        // // 2 atoms of a molecule.
+        //        
+        // //Only the atoms next to each other interact, so we have two
+        // criteria:
+        // // The atoms must be on the same molecule- CriterionMolecular
+        // // The atoms must be separated by 3 bonds, or 2 other atoms.
+        // ApiIntragroup nonbonded = ApiBuilder.makeNonAdjacentPairIterator(2);
+        // potentialChainIntra.addPotential(potential, nonbonded);
+        //        
+        // potentialMaster.addPotential(potentialChainIntra, new AtomType[] {
+        // species.getMoleculeType() } );
+
+        bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[] {
+                4, 6, 6 });
         phase.setBoundary(bdry);
 
         //Initialize the positions of the atoms.
@@ -204,8 +264,7 @@ public class TestHexane extends Simulation {
         if (graphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim);
             simGraphic.makeAndDisplayFrame();
-        }
-        else {
+        } else {
 
             String filename = "normal_modes_hexane";
 
@@ -216,9 +275,14 @@ public class TestHexane extends Simulation {
             // the meter can grab the lattice points
             MeterNormalMode meterNormalMode = new MeterNormalMode();
             meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-            meterNormalMode.setCoordinateDefinition(new CoordinateDefinitionHexane());
+            meterNormalMode.setCoordinateDefinition(new CoordinateDefinitionHexane((SpeciesHexane)sim.getSpeciesManager().getSpecies()[0]));
             meterNormalMode.setPhase(sim.phase);
             System.out.println("0");
+
+            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace());
+            meterPressure.setIntegrator(sim.integrator);
+
+            System.out.println("1");
             
             long nSteps = 1000000;
             sim.activityIntegrate.setMaxSteps(nSteps/10);
