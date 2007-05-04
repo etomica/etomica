@@ -118,8 +118,8 @@ public class ReadParameters implements java.io.Serializable {
             int i = line.indexOf(' ');
             String token = line.substring(0,i).trim();
             String value = line.substring(i).trim();
-            if (value.length() == 1) {
-                throw new RuntimeException("bogus line encountered in "+fileName);
+            if (value.length() == 0) {
+                throw new RuntimeException("bogus line encountered in "+fileName+" "+line);
             }
             boolean foundField = false;
             for (int j=0; j<fields.length; j++) {
