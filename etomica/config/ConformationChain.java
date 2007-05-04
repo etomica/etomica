@@ -49,7 +49,7 @@ public abstract class ConformationChain extends Conformation {
     	//Zero the first atom.
         ((AtomLeaf)atomlist.get(0)).getPosition().E(0);
     	
-        for (int iLeaf=0; iLeaf<size; iLeaf++) {
+        for (int iLeaf=1; iLeaf<size; iLeaf++) {
             AtomLeaf a = (AtomLeaf)atomlist.get(iLeaf);
     		//TODO someday, we might want a to be a chunk-of-atoms
     		currentPosition.PE(nextVector());
