@@ -35,11 +35,15 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
         setBondLength(0.4);
 
-        phi = (180 - 109.47) / 360.0 * 2.0 * Math.PI; // makes sure the vector
+        phi = ((SpeciesHexane)species).getBondAngle();
+        lowerTorsLimit = ((SpeciesHexane)species).getLowerLimit();
+        upperTorsLimit = ((SpeciesHexane)species).getUpperLimit();
+        
+//        phi = (180 - 109.47) / 360.0 * 2.0 * Math.PI; // makes sure the vector
         // is pointing in the right direction on the cosine section
 
-        lowerTorsLimit = 108.6919204 / 360.0 * 2.0 * Math.PI;
-        upperTorsLimit = 251.3080797 / 360.0 * 2.0 * Math.PI;
+//        lowerTorsLimit = 108.6919204 / 360.0 * 2.0 * Math.PI;
+//        upperTorsLimit = 251.3080797 / 360.0 * 2.0 * Math.PI;
         limit = (upperTorsLimit - lowerTorsLimit) / 2;
 
         rotor = p.getSpace().makeTensor();

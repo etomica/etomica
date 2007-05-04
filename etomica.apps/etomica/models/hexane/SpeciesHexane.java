@@ -19,6 +19,31 @@ public class SpeciesHexane extends etomica.species.SpeciesSpheres {
         super(sim, 6, new ElementSimple("M", sim.getDefaults().atomMass), 
               new ConformationHexane(sim.getSpace()));
         getMoleculeType().setPositionDefinition(new AtomPositionCOM(sim.getSpace()));
+    
+        
+        bondLength = 0.4;
+//        bondAngle = 109.47 * 2.0 * Math.PI/360.0;
+        phi = (180 - 109.47) / 360.0 * 2.0 * Math.PI;
+        lowerLimit = 108.6919204 / 360.0 * 2.0 * Math.PI;
+        upperLimit = 251.3080797 / 360.0 * 2.0 * Math.PI;
+        
     }
     
+    double bondLength, phi, upperLimit, lowerLimit;
+
+    public double getBondAngle() {
+        return phi;
+    }
+
+    public double getBondLength() {
+        return bondLength;
+    }
+
+    public double getLowerLimit() {
+        return lowerLimit;
+    }
+
+    public double getUpperLimit() {
+        return upperLimit;
+    }
 }
