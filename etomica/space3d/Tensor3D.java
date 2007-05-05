@@ -3,6 +3,7 @@ package etomica.space3d;
 
 import etomica.space.IVector;
 import etomica.space.Tensor;
+import etomica.space2d.Tensor2D;
 import etomica.util.Function;
 
 public class Tensor3D implements Tensor, java.io.Serializable {
@@ -162,6 +163,18 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         zx-=u1.z*u2.x; zy-=u1.z*u2.y; zz-=u1.z*u2.z;
     }
     
+    public void PEa1Tt1(double a1, Tensor t1) {
+        xx += a1*((Tensor3D)t1).xx;
+        xy += a1*((Tensor3D)t1).xy;
+        xz += a1*((Tensor3D)t1).xz;
+        yx += a1*((Tensor3D)t1).yx;
+        yy += a1*((Tensor3D)t1).yy;
+        yz += a1*((Tensor3D)t1).yz;
+        zx += a1*((Tensor3D)t1).zx;
+        zy += a1*((Tensor3D)t1).zy;
+        zz += a1*((Tensor3D)t1).zz;
+    }
+
     public void TE(double a) {
         xx*=a; xy*=a; xz*=a; 
         yx*=a; yy*=a; yz*=a; 
@@ -232,7 +245,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
     }
 
     public String toString() {
-        return "("+xx+", "+xy+", "+xz+")\n("+yx+", "+yy+", "+yz+")"+")\n("+zx+", "+zy+", "+zz+")";
+        return "("+xx+", "+xy+", "+xz+")\n("+yx+", "+yy+", "+yz+")"+"\n("+zx+", "+zy+", "+zz+")";
     }
 
 }
