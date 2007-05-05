@@ -4,9 +4,9 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 
 
@@ -148,8 +148,8 @@ public class P2SquareWellBonded extends P2SquareWell {
             // ** Makes 2 things, and atomPair pair, 
             AtomPair pair = (AtomPair) atoms;
             
-            ICoordinateKinetic coord0 = (ICoordinateKinetic)pair.atom0;
-            ICoordinateKinetic coord1 = (ICoordinateKinetic)pair.atom1;
+            IAtomKinetic coord0 = (IAtomKinetic)pair.atom0;
+            IAtomKinetic coord1 = (IAtomKinetic)pair.atom1;
             dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
             
             dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
@@ -175,8 +175,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 
         IAtom atom0 = ((AtomPair)pair).atom0;
         IAtom atom1 = ((AtomPair)pair).atom1;
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
+        IAtomKinetic coord0 = (IAtomKinetic)atom0;
+        IAtomKinetic coord1 = (IAtomKinetic)atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

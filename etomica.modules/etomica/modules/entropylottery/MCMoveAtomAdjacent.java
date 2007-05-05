@@ -1,9 +1,9 @@
 package etomica.modules.entropylottery;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.integrator.mcmove.MCMovePhase;
@@ -42,7 +42,7 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
         translationVector.E(0);
         int i = random.nextInt(translationVector.getD());
         translationVector.setX(i, random.nextInt(2)*2-1);
-        ((AtomLeaf)atom).getPosition().PE(translationVector);
+        ((IAtomPositioned)atom).getPosition().PE(translationVector);
         return true;
     }
     
@@ -55,7 +55,7 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
      */
     public double getB() {
         boolean[] periodicity = ((BoundaryPeriodic)phase.getBoundary()).getPeriodicity();
-        IVector position = ((AtomLeaf)atom).getPosition();
+        IVector position = ((IAtomPositioned)atom).getPosition();
         IVector dimensions = phase.getBoundary().getDimensions();
         for (int i=0; i<position.getD(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary
@@ -92,7 +92,7 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
      */
     public void rejectNotify() {
         translationVector.TE(-1);
-        ((AtomLeaf)atom).getPosition().PE(translationVector);
+        ((IAtomPositioned)atom).getPosition().PE(translationVector);
     }
         
     

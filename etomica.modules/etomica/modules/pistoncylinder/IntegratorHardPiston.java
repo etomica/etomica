@@ -1,7 +1,6 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
@@ -56,7 +55,7 @@ public class IntegratorHardPiston extends IntegratorHard {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf atom1 = (AtomLeaf)leafList.get(iLeaf);
+            IAtom atom1 = leafList.get(iLeaf);
             PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atom1) && Debug.LEVEL > 1) || (Debug.anyAtom(atom1) && Debug.LEVEL > 2))) {
                 System.out.println(atom1+" thought it would collide with the piston");

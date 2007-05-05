@@ -3,7 +3,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Iterator;
 
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -114,8 +114,8 @@ public class DisplayPhaseCanvas1DBins extends DisplayCanvas {
         }
         atomIterator.setPhase(phase);
         atomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)atomIterator.nextAtom()) {
+        for (IAtomPositioned a = (IAtomPositioned)atomIterator.nextAtom(); a != null;
+             a = (IAtomPositioned)atomIterator.nextAtom()) {
             int x = (int)Math.round(a.getPosition().x(0)+dimensions.x(0)*0.5-0.5);
             atomCount[x]++;
         }

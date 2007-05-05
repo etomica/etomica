@@ -1,11 +1,10 @@
 package etomica.modules.osmosis;
 import etomica.EtomicaInfo;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomKinetic;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -44,8 +43,9 @@ public class P1HardWall extends Potential1 implements PotentialHard {
 
      
     public double collisionTime(AtomSet a, double falseTime) {
-        IVector r = ((AtomLeaf)a).getPosition();
-        IVector v = ((ICoordinateKinetic)a).getVelocity();
+        IAtomKinetic atom = (IAtomKinetic)a;
+        IVector r = atom.getPosition();
+        IVector v = atom.getVelocity();
         double vx = v.x(0);
         // cheat!  We want to ignore collisions from the left.  The initial
         // config sometimes plops atoms on the left.
@@ -63,12 +63,13 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     }
 
     public void bump(AtomSet a, double falseTime) {
-        IVector v = ((ICoordinateKinetic)a).getVelocity();
+        IAtomKinetic atom = (IAtomKinetic)a;
+        IVector v = atom.getVelocity();
 
         v.setX(0,-v.x(0));
 
-        double newP = ((AtomLeaf)a).getPosition().x(0) - falseTime*v.x(0)*2.0;
-        ((AtomLeaf)a).getPosition().setX(0,newP);
+        double newP = atom.getPosition().x(0) - falseTime*v.x(0)*2.0;
+        atom.getPosition().setX(0,newP);
     }
 
     public double energyChange() {

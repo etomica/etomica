@@ -3,6 +3,7 @@ package etomica.modules.dcvgcmd;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
@@ -45,9 +46,8 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     }
 
     public double energy(AtomSet atom) {
-        AtomLeaf a = (AtomLeaf) atom;
         IVector dimensions = boundary.getDimensions();
-        double rz = a.getPosition().x(2);
+        double rz = ((IAtomPositioned)atom).getPosition().x(2);
         double dzHalf = 0.5 * dimensions.x(2);
         return energy(dzHalf + rz) + energy(dzHalf - rz);
     }//end of energy
@@ -73,9 +73,8 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     }
 
     public IVector[] gradient(AtomSet atom) {
-        AtomLeaf a = (AtomLeaf) atom;
         IVector dimensions = boundary.getDimensions();
-        double rz = a.getPosition().x(2);
+        double rz = ((IAtomPositioned)atom).getPosition().x(2);
         double dzHalf = 0.5 * dimensions.x(2);
         double gradz = gradient(rz + dzHalf) - gradient(dzHalf - rz);
         gradient[0].setX(2, gradz);

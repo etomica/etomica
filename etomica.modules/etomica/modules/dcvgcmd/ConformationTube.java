@@ -1,7 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.config.Conformation;
 import etomica.space.Space;
 
@@ -64,7 +64,7 @@ public class ConformationTube extends Conformation {
 
         int nLeaf = atomList.size();
         for (int i=0; i<nLeaf; i++) {
-            AtomLeaf a = (AtomLeaf)atomList.get(i);
+            IAtomPositioned a = (IAtomPositioned)atomList.get(i);
 
 			a.getPosition().setX(0, x);
 			a.getPosition().setX(1, y);

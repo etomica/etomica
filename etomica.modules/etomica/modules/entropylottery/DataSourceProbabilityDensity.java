@@ -1,6 +1,6 @@
 package etomica.modules.entropylottery;
 
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -79,8 +79,8 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
             atomIterator.setPhase(phase);
             atomIterator.reset();
             double[] atomCount = data.getData();
-            for (AtomLeaf a = (AtomLeaf)atomIterator.nextAtom(); a != null;
-                 a = (AtomLeaf)atomIterator.nextAtom()) {
+            for (IAtomPositioned a = (IAtomPositioned)atomIterator.nextAtom(); a != null;
+                 a = (IAtomPositioned)atomIterator.nextAtom()) {
                 int x = (int)Math.round(a.getPosition().x(0)+dimensions.x(0)*0.5-0.5);
                 atomCount[x]++;
             }

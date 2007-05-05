@@ -2,8 +2,8 @@ package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.config.ConfigurationLattice;
 import etomica.config.Conformation;
@@ -116,7 +116,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         // first species (mono spheres)
         int nSpheres = lists[0].size();
         for (int i=0; i<nSpheres; i++) {
-            AtomLeaf a = (AtomLeaf)lists[0].get(i);
+            IAtom a = lists[0].get(i);
             
             int[] ii = indexIterator.next();
             IVector site = (IVector) myLat.site(ii);
@@ -132,7 +132,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         nSpheres = lists[1].size();
         // second species (mono spheres)
         for (int i=0; i<nSpheres; i++) {
-            AtomLeaf a = (AtomLeaf)lists[1].get(i);
+            IAtom a = lists[1].get(i);
             
             int[] ii = indexIterator.next();
             IVector site = (IVector) myLat.site(ii);
