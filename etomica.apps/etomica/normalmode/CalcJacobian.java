@@ -58,15 +58,15 @@ public class CalcJacobian {
                         // single degree of freedom.
                         // All kR must be 100% in-phase or 100% out of phase. kR-phaseAngle will be 0 or pi
                         if (!Double.isNaN(phaseAngle) && Math.abs(Math.sin(kR-phaseAngle)) > 1.e-10) {
-                            throw new RuntimeException("oops "+iVector+" "+waveVectors[iVector]);
+                            throw new RuntimeException("oops "+iVector+" "+waveVectors[iVector]+" "+phaseAngle+" "+kR);
                         }
                         phaseAngle = kR;
                         // either one works so long as it's not 0
                         if (Math.abs(coskR) > 0.1) {
-                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = Math.signum(coskR);
+                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = coskR > 0 ? 1 : -1;
                         }
                         else {
-                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = Math.signum(sinkR);
+                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = sinkR > 0 ? 1 : -1;
                         }
                     }
                 }
