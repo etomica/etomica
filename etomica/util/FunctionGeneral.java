@@ -1,7 +1,7 @@
 package etomica.util;
 
 import etomica.data.Data;
-import etomica.data.DataInfo;
+import etomica.data.IDataInfo;
 
 /**
  * Interface for the basic features of a general function that maps an object
@@ -22,6 +22,6 @@ public interface FunctionGeneral {
     /**
      * Returns a DataInfo that describes the Data object that is returned by this function's f method.
      */
-    public DataInfo getDataInfo();
+    public IDataInfo getDataInfo();
 
 }
