@@ -50,7 +50,9 @@ public class SimTarget extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        phase = new Phase(this);
+        bdry = new BoundaryRectangularPeriodic(this);
+        phase = new Phase(bdry);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 
         integrator = new IntegratorHard(this);
@@ -68,8 +70,6 @@ public class SimTarget extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
 
-        bdry = new BoundaryRectangularPeriodic(this);
-        phase.setBoundary(bdry);
         phase.setDensity(density);
 
         if (space.D() == 1) {

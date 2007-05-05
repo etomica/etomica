@@ -47,7 +47,9 @@ public class SimHarmonic extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        phase = new Phase(this);
+        bdry = new BoundaryRectangularPeriodic(this);
+        phase = new Phase(bdry);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 
         integrator = new IntegratorMC(this);
@@ -58,8 +60,6 @@ public class SimHarmonic extends Simulation {
         MCMoveHarmonic move = new MCMoveHarmonic(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(move);
         
-        bdry = new BoundaryRectangularPeriodic(this);
-        phase.setBoundary(bdry);
         phase.setDensity(density);
 
         if (space.D() == 1) {
