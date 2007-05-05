@@ -184,10 +184,10 @@ public interface Function {
         private final double eps;
         
         /**
-         * Constructs with default cutoff value of 1e-10.
+         * Constructs with default cutoff value of 2 Double.MIN_VALUE.
          */
         public Chop() {
-            this(1.e-10);
+            this(2.0*Double.MIN_VALUE);
         }
         
         public Chop(double eps) {
