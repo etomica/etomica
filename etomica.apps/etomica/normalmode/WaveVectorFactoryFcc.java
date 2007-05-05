@@ -57,7 +57,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
                             && 2 * (kx - ky - kz) <= 3 * numCells
                             && 2 * (kx - ky - kz) > -3 * numCells) {
                         
-                        boolean flip = kx < 0 || (kx == 0 && ky < 0) || (kx == 0 && ky == 0 && kz < 0);
+                        boolean flip = kx < 0 || (kx == 0 && (ky < 0 || (ky == 0 && kz < 0)));
                         if (flip) {
                             if (waveVectorIndices[-kx+numCells][-ky+numCells][-kz+numCells] == 0) {
                                 // this one was unique
@@ -108,6 +108,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         sim.addPhase(phase);
         phase.setDimensions(new Vector3D(nCells, nCells, nCells));
         Species species = new SpeciesSpheresMono(sim);
+        sim.getSpeciesManager().addSpecies(species);
         phase.getAgent(species).setNMolecules(4*nCells*nCells*nCells);
         PrimitiveFcc primitive = new PrimitiveFcc(sim.getSpace(), 1/Math.sqrt(2));
         
