@@ -1,6 +1,6 @@
 package etomica.virial.paralleltempering;
 
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -54,9 +54,9 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
         iterator1.reset();
         iterator2.reset();
 
-        for (AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom(); a1 != null;
-             a1 = (AtomLeaf)iterator1.nextAtom()) {
-            AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
+        for (IAtomPositioned a1 = (IAtomPositioned)iterator1.nextAtom(); a1 != null;
+             a1 = (IAtomPositioned)iterator1.nextAtom()) {
+            IAtomPositioned a2 = (IAtomPositioned)iterator2.nextAtom();
 
             //swap coordinates
             r.E(a1.getPosition());
@@ -97,9 +97,9 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
         iterator1.reset();
         iterator2.reset();
 
-        for (AtomLeaf a1 = (AtomLeaf)iterator1.nextAtom(); a1 != null;
-             a1 = (AtomLeaf)iterator1.nextAtom()) {
-            AtomLeaf a2 = (AtomLeaf)iterator2.nextAtom();
+        for (IAtomPositioned a1 = (IAtomPositioned)iterator1.nextAtom(); a1 != null;
+             a1 = (IAtomPositioned)iterator1.nextAtom()) {
+            IAtomPositioned a2 = (IAtomPositioned)iterator2.nextAtom();
 
             //swap coordinates
             r.E(a1.getPosition());

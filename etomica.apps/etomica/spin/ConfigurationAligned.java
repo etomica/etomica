@@ -1,6 +1,6 @@
 package etomica.spin;
 
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.phase.Phase;
@@ -29,8 +29,8 @@ public class ConfigurationAligned extends Configuration {
     public void initializeCoordinates(Phase phase) {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
         iterator.reset();
-        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)iterator.nextAtom()) {
+        for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom(); atom != null;
+             atom = (IAtomPositioned)iterator.nextAtom()) {
             IVector spin = atom.getPosition();
             spin.E(0.0);
             spin.setX(0,1.0);

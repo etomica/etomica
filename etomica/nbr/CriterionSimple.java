@@ -1,10 +1,10 @@
 package etomica.nbr;
 
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
@@ -81,14 +81,14 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
         if (Debug.ON && interactionRange > Math.sqrt(neighborRadius2)) {
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
-		r2 = ((AtomLeaf)atom).getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
+		r2 = ((IAtomPositioned)atom).getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
         if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
-            System.out.println("atom "+atom+" displacement "+r2+" "+((AtomLeaf)atom).getPosition());
+            System.out.println("atom "+atom+" displacement "+r2+" "+((IAtomPositioned)atom).getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor)+")");
 			System.out.println("old position "+agentManager.getAgent(atom));
-			System.out.println("new position "+((AtomLeaf)atom).getPosition());
+			System.out.println("new position "+((IAtomPositioned)atom).getPosition());
             throw new RuntimeException("stop that");
 		}
 		return r2 > displacementLimit2;
@@ -107,7 +107,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 
 	public boolean accept(AtomSet pair) {
-        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getPosition(),((AtomLeaf)((AtomPair)pair).atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)((AtomPair)pair).atom1).getPosition(),((IAtomPositioned)((AtomPair)pair).atom0).getPosition());
         nearestImageTransformer.nearestImage(dr);
         if (Debug.ON && neighborRadius2 < interactionRange*interactionRange) {
             throw new IllegalStateException("neighbor radius "+Math.sqrt(neighborRadius2)+" is less than interaction range "+interactionRange);
@@ -122,7 +122,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	}
 	
 	public void reset(IAtom atom) {
-        ((IVector)agentManager.getAgent(atom)).E(((AtomLeaf)atom).getPosition());
+        ((IVector)agentManager.getAgent(atom)).E(((IAtomPositioned)atom).getPosition());
 	}
 
     public Class getAgentClass() {

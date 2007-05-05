@@ -2,13 +2,12 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomPositioned;
 import etomica.graphics.Drawable;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -64,7 +63,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     public double energy(AtomSet a) {
         IVector dimensions = boundary.getDimensions();
-        IVector pos = ((AtomLeaf)a).getPosition();
+        IVector pos = ((IAtomPositioned)a).getPosition();
         for (int i=0; i<work.getD(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;
@@ -81,8 +80,8 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     public double energyChange() {return 0.0;}
     
     public double collisionTime(AtomSet a, double falseTime) {
-        work.E(((AtomLeaf)a).getPosition());
-        IVector v = ((ICoordinateKinetic)a).getVelocity();
+        work.E(((IAtomKinetic)a).getPosition());
+        IVector v = ((IAtomKinetic)a).getVelocity();
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
@@ -119,8 +118,9 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
 //    public void bump(IntegratorHard.Agent agent) {
 //        Atom a = agent.atom();
     public void bump(AtomSet a, double falseTime) {
-        work.E(((AtomLeaf)a).getPosition());
-        IVector v = ((ICoordinateKinetic)a).getVelocity();
+        IAtomKinetic atom = (IAtomKinetic)a;
+        work.E(atom.getPosition());
+        IVector v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getDimensions();
         double delmin = Double.MAX_VALUE;
@@ -138,14 +138,14 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         }
         if (Debug.ON && Math.abs(work.x(imin)-collisionRadius+dimensions.x(imin)*0.5)/collisionRadius > 1.e-9 
                 && Math.abs(0.5*dimensions.x(imin)-work.x(imin)-collisionRadius)/collisionRadius > 1.e-9) {
-            System.out.println(a+" "+work+" "+dimensions);
+            System.out.println(atom+" "+work+" "+dimensions);
             System.out.println("stop that");
         }
         v.setX(imin,-v.x(imin));
         // dv = 2*NewVelocity
-        double newP = ((AtomLeaf)a).getPosition().x(imin) - falseTime*v.x(imin)*2.0;
-        ((AtomLeaf)a).getPosition().setX(imin,newP);
-        double dp = 2.0/(((AtomTypeLeaf)((IAtom)a).getType()).rm())*(-v.x(imin));
+        double newP = atom.getPosition().x(imin) - falseTime*v.x(imin)*2.0;
+        atom.getPosition().setX(imin,newP);
+        double dp = 2.0/(((AtomTypeLeaf)atom.getType()).rm())*(-v.x(imin));
         lastVirial = dp;
         lastCollisionDim = imin;
     }//end of bump

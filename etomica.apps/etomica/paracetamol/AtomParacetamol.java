@@ -1,8 +1,8 @@
 package etomica.paracetamol;
 
 import etomica.atom.AtomGroup;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
+import etomica.atom.IAtomPositioned;
 
 public class AtomParacetamol extends AtomGroup{
 
@@ -10,7 +10,7 @@ public class AtomParacetamol extends AtomGroup{
 		super(atomType);
 	}
 	
-	public AtomLeaf O1, O2, C1, C2, C3, C4, C5, C6, C7, C8, N;
+	public IAtomPositioned O1, O2, C1, C2, C3, C4, C5, C6, C7, C8, N;
 	public final static int indexC1 = 0;
 	public final static int indexC2 = 1;
 	public final static int indexC3 = 2;

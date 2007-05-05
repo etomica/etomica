@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -33,7 +33,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
-        ((AtomLeaf)atom).getPosition().PE(translationVector);
+        ((IAtomPositioned)atom).getPosition().PE(translationVector);
 		((PhaseCluster)phase).trialNotify();
 		uNew = Double.NaN;
 		return true;

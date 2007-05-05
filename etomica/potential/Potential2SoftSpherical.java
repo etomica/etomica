@@ -1,8 +1,8 @@
 package etomica.potential;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
@@ -59,7 +59,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public double energy(AtomSet atoms) {
         AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((AtomLeaf)pair.atom1).getPosition(),((AtomLeaf)pair.atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
         nearestImageTransformer.nearestImage(dr);
         return u(dr.squared());
     }
@@ -69,7 +69,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public double virial(AtomSet atoms) {
         AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((AtomLeaf)pair.atom1).getPosition(),((AtomLeaf)pair.atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
         nearestImageTransformer.nearestImage(dr);
         return du(dr.squared());
     }
@@ -79,7 +79,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public double hyperVirial(AtomSet atoms) {
         AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((AtomLeaf)pair.atom1).getPosition(),((AtomLeaf)pair.atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
         return d2u(r2) + du(r2);
@@ -90,7 +90,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      */
     public IVector[] gradient(AtomSet atoms) {
         AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((AtomLeaf)pair.atom1).getPosition(),((AtomLeaf)pair.atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
         gradient[1].Ea1Tv1(du(r2)/r2,dr);

@@ -1,7 +1,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -65,8 +65,8 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
         AtomArrayList leafList2 = integrator2.getPhase().getSpeciesMaster().getLeafList();
         int nLeaf = leafList1.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a1 = (AtomLeaf)leafList1.get(iLeaf);
-            AtomLeaf a2 = (AtomLeaf)leafList2.get(iLeaf);
+            IAtomPositioned a1 = (IAtomPositioned)leafList1.get(iLeaf);
+            IAtomPositioned a2 = (IAtomPositioned)leafList2.get(iLeaf);
 
 			r.E(a1.getPosition());
 				

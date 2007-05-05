@@ -1,12 +1,11 @@
 package etomica.normalmode;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.data.DataSourceScalar;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
 import etomica.space1d.Space1D;
@@ -69,16 +68,16 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         setEigenvalues(normalModes.getEigenvalues(newPhase));
     }
     
-    public void setWaveVectors(IVector[] newWaveVectors, double[] coefficients) {
+    protected void setWaveVectors(IVector[] newWaveVectors, double[] coefficients) {
         waveVectors = newWaveVectors;
         waveVectorCoefficients = coefficients;
     }
     
-    public void setEigenvectors(double[][][] eigenvectors) {
+    protected void setEigenvectors(double[][][] eigenvectors) {
         this.eigenvectors = (double[][][])eigenvectors.clone();
     }
     
-    public void setEigenvalues(double[][] eigenvalues) {
+    protected void setEigenvalues(double[][] eigenvalues) {
         omegaSquared = new double[eigenvalues.length][eigenvalues[0].length];
         for (int i=0; i<omegaSquared.length; i++) {
             for (int j=0; j<omegaSquared[i].length; j++) {
@@ -110,18 +109,15 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
 
-        Phase phase = new Phase(sim);
+        Phase phase = new Phase(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), L));
+        sim.addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
-
-        Boundary bdry = new BoundaryRectangularPeriodic(sim);
-        phase.setBoundary(bdry);
-        bdry.getDimensions().E(L);
 
         AtomArrayList atoms = phase.getSpeciesMaster().getLeafList();
 
         for(int i=0; i<numAtoms; i++) {
-            ((AtomLeaf)atoms.get(i)).getPosition().E((i+0.5)*L/numAtoms - 0.5*L);
-            System.out.println(((AtomLeaf)atoms.get(i)).getPosition().x(0));
+            ((IAtomPositioned)atoms.get(i)).getPosition().E((i+0.5)*L/numAtoms - 0.5*L);
+            System.out.println(((IAtomPositioned)atoms.get(i)).getPosition().x(0));
         }
         
         CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(Space1D.getInstance());
@@ -129,8 +125,8 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
 
         MeterHarmonicEnergy meter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         meter.setPhase(phase);
-        ((AtomLeaf)atoms.get(1)).getPosition().PE(0.5);
-        ((AtomLeaf)atoms.get(6)).getPosition().PE(-1.5);
+        ((IAtomPositioned)atoms.get(1)).getPosition().PE(0.5);
+        ((IAtomPositioned)atoms.get(6)).getPosition().PE(-1.5);
         System.out.println("Harmonic energy: "+meter.getDataAsScalar());
     }
 }

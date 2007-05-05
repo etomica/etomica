@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -41,7 +40,7 @@ public class AtomGroupVelocityAverage implements Serializable {
             vectorSum = sum;
         }
         public void actionPerformed(IAtom a) {
-            vectorSum.PE(((ICoordinateKinetic)a).getVelocity());
+            vectorSum.PE(((IAtomKinetic)a).getVelocity());
             massSum += ((AtomTypeLeaf)a.getType()).getMass();
         }
         private static final long serialVersionUID = 1L;

@@ -8,10 +8,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementChemical;
 import etomica.phase.Phase;
@@ -71,7 +71,7 @@ public class XYZWriter implements Action, Serializable {
             fileWriter.write("#\n");
             int nLeaf = leafList.size();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                AtomLeaf atom = (AtomLeaf)leafList.get(iLeaf);
+                IAtomPositioned atom = (IAtomPositioned)leafList.get(iLeaf);
                 Element element = ((AtomTypeLeaf)atom.getType()).getElement();
                 String symbol = element.getSymbol();
                 if (!(element instanceof ElementChemical)) {

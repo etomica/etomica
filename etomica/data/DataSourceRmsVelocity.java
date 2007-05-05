@@ -2,8 +2,8 @@ package etomica.data;
 
 import java.io.Serializable;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
@@ -11,7 +11,6 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.ICoordinateKinetic;
 import etomica.units.DimensionRatio;
 import etomica.units.Length;
 import etomica.units.Null;
@@ -61,9 +60,9 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, DataSourceIndepe
 	public Data getData() {
 		iterator.reset();
         histogramRMS.reset();
-		for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)iterator.nextAtom()) {
-			histogramRMS.addValue(Math.sqrt(((ICoordinateKinetic)atom).getVelocity().squared()));
+		for (IAtomKinetic atom = (IAtomKinetic)iterator.nextAtom(); atom != null;
+             atom = (IAtomKinetic)iterator.nextAtom()) {
+			histogramRMS.addValue(Math.sqrt(atom.getVelocity().squared()));
 		}
 
         //covertly invoke getHistogram, which actually calculates the histogram
@@ -92,7 +91,7 @@ public class DataSourceRmsVelocity implements DataSourceAtomic, DataSourceIndepe
     }
     
     public Data getData(IAtom a) {
-        atomData.x = Math.sqrt(((ICoordinateKinetic)a).getVelocity().squared());
+        atomData.x = Math.sqrt(((IAtomKinetic)a).getVelocity().squared());
         return atomData;
     }
     

@@ -1,7 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataSourceAtomic;
@@ -103,7 +103,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
             double value = ((DataDouble)meter.getData(a)).x;
             position.E(a.getPosition());
             position.PE(boundary.centralImage(position));

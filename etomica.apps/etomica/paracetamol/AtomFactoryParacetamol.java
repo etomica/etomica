@@ -3,11 +3,11 @@ package etomica.paracetamol;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
@@ -51,17 +51,17 @@ public class AtomFactoryParacetamol extends AtomFactory{
 
 		AtomParacetamol moleculeParacetamol = new AtomParacetamol(atomType);
 		
-		moleculeParacetamol.O1 = (AtomLeaf)oFactory.makeAtom();
-		moleculeParacetamol.O2 = (AtomLeaf)oFactory.makeAtom();
-		moleculeParacetamol.C1 = (AtomLeaf)cFactory.makeAtom();
-		moleculeParacetamol.C2 = (AtomLeaf)cFactory.makeAtom();
-		moleculeParacetamol.C3 = (AtomLeaf)cFactory.makeAtom();
-		moleculeParacetamol.C4 = (AtomLeaf)cFactory.makeAtom();
-		moleculeParacetamol.C5 = (AtomLeaf)cFactory.makeAtom();
-		moleculeParacetamol.C6 = (AtomLeaf)cFactory.makeAtom();
-		moleculeParacetamol.C7 = (AtomLeaf)cFactory.makeAtom();
-		moleculeParacetamol.C8 = (AtomLeaf)cFactory.makeAtom();
-		moleculeParacetamol.N  = (AtomLeaf)nFactory.makeAtom();
+		moleculeParacetamol.O1 = (IAtomPositioned)oFactory.makeAtom();
+		moleculeParacetamol.O2 = (IAtomPositioned)oFactory.makeAtom();
+		moleculeParacetamol.C1 = (IAtomPositioned)cFactory.makeAtom();
+		moleculeParacetamol.C2 = (IAtomPositioned)cFactory.makeAtom();
+		moleculeParacetamol.C3 = (IAtomPositioned)cFactory.makeAtom();
+		moleculeParacetamol.C4 = (IAtomPositioned)cFactory.makeAtom();
+		moleculeParacetamol.C5 = (IAtomPositioned)cFactory.makeAtom();
+		moleculeParacetamol.C6 = (IAtomPositioned)cFactory.makeAtom();
+		moleculeParacetamol.C7 = (IAtomPositioned)cFactory.makeAtom();
+		moleculeParacetamol.C8 = (IAtomPositioned)cFactory.makeAtom();
+		moleculeParacetamol.N  = (IAtomPositioned)nFactory.makeAtom();
 		//set parent
 		moleculeParacetamol.addChildAtom(moleculeParacetamol.C1);
 		moleculeParacetamol.addChildAtom(moleculeParacetamol.C2);

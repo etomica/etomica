@@ -1,8 +1,8 @@
 package etomica.integrator.mcmove;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
@@ -83,8 +83,8 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     
     protected void doTransform() {
         leafAtomIterator.reset();
-        for (AtomLeaf a = (AtomLeaf)leafAtomIterator.nextAtom(); a != null;
-             a = (AtomLeaf)leafAtomIterator.nextAtom()) {
+        for (IAtomPositioned a = (IAtomPositioned)leafAtomIterator.nextAtom(); a != null;
+             a = (IAtomPositioned)leafAtomIterator.nextAtom()) {
             IVector r = a.getPosition();
             r.ME(r0);
             phase.getBoundary().nearestImage(r);

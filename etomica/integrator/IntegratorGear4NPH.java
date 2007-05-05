@@ -3,8 +3,8 @@
 package etomica.integrator;
 import etomica.EtomicaInfo;
 import etomica.action.PhaseInflate;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
@@ -22,7 +22,6 @@ import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -311,13 +310,11 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             for (AtomPair pair = (AtomPair)iterator.next(); pair != null;
                  pair = (AtomPair)iterator.next()) {
 
-                AtomLeaf atom0 = (AtomLeaf)pair.atom0;
-                AtomLeaf atom1 = (AtomLeaf)pair.atom1;
-                ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
-                ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
-                dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
+                IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
+                IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
+                dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
                 
-                dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+                dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
                 nearestImageTransformer.nearestImage(dr);
 
                 double r2 = dr.squared();

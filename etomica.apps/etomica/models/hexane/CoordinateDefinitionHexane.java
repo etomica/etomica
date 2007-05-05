@@ -1,13 +1,12 @@
 package etomica.models.hexane;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 
 /**
  * Implementation of CoordinateDefinitionMolecule that handles hexane.
@@ -53,11 +52,11 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // Now we play with the molecule we are measuring.
 
         // Long rotational axis of atom 1
-        IVector leafPos1 = ((AtomLeaf) ((IAtomGroup) molecule)
+        IVector leafPos1 = ((IAtomPositioned) ((IAtomGroup) molecule)
                 .getChildList().get(0)).getPosition();
-        IVector leafPos2 = ((AtomLeaf) ((IAtomGroup) molecule)
+        IVector leafPos2 = ((IAtomPositioned) ((IAtomGroup) molecule)
                 .getChildList().get(1)).getPosition();
-        IVector leafPos3 = ((AtomLeaf) ((IAtomGroup) molecule)
+        IVector leafPos3 = ((IAtomPositioned) ((IAtomGroup) molecule)
                 .getChildList().get(2)).getPosition();
         axis0prime.Ev1Mv2(leafPos3, leafPos1);
         // axis0Prime goes from the 1st atom on the molecule to the 3rd atom on
@@ -166,17 +165,17 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         
       double tol = 0.0000000001;
       for (int i = 0; i < 6 - 3; i++) {
-          vex.E(((AtomLeaf) ((IAtomGroup) molecule)
+          vex.E(((IAtomPositioned) ((IAtomGroup) molecule)
                   .getChildList().get(i)).getPosition());
-          vex.ME(((AtomLeaf) ((IAtomGroup) molecule)
+          vex.ME(((IAtomPositioned) ((IAtomGroup) molecule)
                   .getChildList().get(i+1)).getPosition());
-          temp.E(((AtomLeaf) ((IAtomGroup) molecule)
+          temp.E(((IAtomPositioned) ((IAtomGroup) molecule)
                   .getChildList().get(i+3)).getPosition());        
-          temp.ME(((AtomLeaf) ((IAtomGroup) molecule)
+          temp.ME(((IAtomPositioned) ((IAtomGroup) molecule)
                   .getChildList().get(i+2)).getPosition());        
-          axial.E(((AtomLeaf) ((IAtomGroup) molecule)
+          axial.E(((IAtomPositioned) ((IAtomGroup) molecule)
                   .getChildList().get(i+2)).getPosition());
-          axial.ME(((AtomLeaf) ((IAtomGroup) molecule)
+          axial.ME(((IAtomPositioned) ((IAtomGroup) molecule)
                   .getChildList().get(i+1)).getPosition());
                       
           // Project each vector onto the axial vector, and subtract the
@@ -237,11 +236,11 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // Set up all the axes based on the molecule atom0, the reference
         // molecule
         // Long rotational axis of atom 0
-        IVector leafPos1 = ((AtomLeaf) ((IAtomGroup) molecule)
+        IVector leafPos1 = ((IAtomPositioned) ((IAtomGroup) molecule)
                 .getChildList().get(0)).getPosition();
-        IVector leafPos2 = ((AtomLeaf) ((IAtomGroup) molecule)
+        IVector leafPos2 = ((IAtomPositioned) ((IAtomGroup) molecule)
                 .getChildList().get(1)).getPosition();
-        IVector leafPos3 = ((AtomLeaf) ((IAtomGroup) molecule)
+        IVector leafPos3 = ((IAtomPositioned) ((IAtomGroup) molecule)
                 .getChildList().get(2)).getPosition();
         // axes[0] should point from the 0th atom on the molecule to the 2nd
         // atom on the molecule

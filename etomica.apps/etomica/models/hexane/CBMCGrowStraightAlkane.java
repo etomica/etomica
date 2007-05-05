@@ -1,7 +1,7 @@
 package etomica.models.hexane;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
@@ -9,7 +9,6 @@ import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
-import etomica.util.HistogramSimple;
 import etomica.util.IRandom;
 
 /**
@@ -94,40 +93,40 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                 // trials
                 if (i == beginIndex) { // If we're placing the first atom of a
                     // molecule
-                    (((AtomLeaf) atomList.get(i)).getPosition()).E(phase
+                    (((IAtomPositioned) atomList.get(i)).getPosition()).E(phase
                             .getBoundary().randomPosition());
                 } else if (i == beginIndex + dir) { // If we're placing the
                     // second atom of a molecule
-                    ((AtomLeaf) atomList.get(i)).getPosition().E(
+                    ((IAtomPositioned) atomList.get(i)).getPosition().E(
                             calcRandomBond());
-                    ((AtomLeaf) atomList.get(i)).getPosition().PE(
-                            ((AtomLeaf) atomList.get(i - dir)).getPosition());
+                    ((IAtomPositioned) atomList.get(i)).getPosition().PE(
+                            ((IAtomPositioned) atomList.get(i - dir)).getPosition());
                 } else if (i == beginIndex + dir * 2) {// If we're placing the
                     // third atom of a
                     // molecule
-                    ((AtomLeaf) atomList.get(i)).getPosition().E(
-                            calcRandomBondWithAngle((AtomLeaf) atomList.get(i
-                                    - dir), (AtomLeaf) atomList
+                    ((IAtomPositioned) atomList.get(i)).getPosition().E(
+                            calcRandomBondWithAngle((IAtomPositioned) atomList.get(i
+                                    - dir), (IAtomPositioned) atomList
                                     .get(i - 2 * dir)));
-                    ((AtomLeaf) atomList.get(i)).getPosition().PE(
-                            ((AtomLeaf) atomList.get(i - dir)).getPosition());
+                    ((IAtomPositioned) atomList.get(i)).getPosition().PE(
+                            ((IAtomPositioned) atomList.get(i - dir)).getPosition());
                 } else {// For the rest of the atoms in a molecule
-                    ((AtomLeaf) atomList.get(i)).getPosition().E(
+                    ((IAtomPositioned) atomList.get(i)).getPosition().E(
                             calcRandomBondWithAngleAndTorsion(
-                                    (AtomLeaf) atomList.get(i - dir),
-                                    (AtomLeaf) atomList.get(i - 2 * dir),
-                                    (AtomLeaf) atomList.get(i - 3 * dir), k));
-                    ((AtomLeaf) atomList.get(i)).getPosition().PE(
-                            ((AtomLeaf) atomList.get(i - dir)).getPosition());
+                                    (IAtomPositioned) atomList.get(i - dir),
+                                    (IAtomPositioned) atomList.get(i - 2 * dir),
+                                    (IAtomPositioned) atomList.get(i - 3 * dir), k));
+                    ((IAtomPositioned) atomList.get(i)).getPosition().PE(
+                            ((IAtomPositioned) atomList.get(i - dir)).getPosition());
                 }
 
                 // store new position & angle
-                storePos[k].E(((AtomLeaf) atomList.get(i)).getPosition());
+                storePos[k].E(((IAtomPositioned) atomList.get(i)).getPosition());
 
                 // evaluate the Boltzmann factor of this configuration
                 // (configuration of this molecule, for this trial)
                 // and store it.
-                uExt = calcExternalEnergy(((AtomLeaf) atomList.get(i)));
+                uExt = calcExternalEnergy(atomList.get(i));
                 if (i == endIndex || i == 0) {
                     a[k] = numTrial * Math.exp(-beta * uExt);
                 } else {
@@ -164,7 +163,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             }
 
             // Move the atom to the selected position
-            ((AtomLeaf) atomList.get(i)).getPosition().E(storePos[pickThisOne]);
+            ((IAtomPositioned) atomList.get(i)).getPosition().E(storePos[pickThisOne]);
 
             // System.out.println("New pos: "+
             // ((AtomLeaf)atomList.get(i)).getPosition());
@@ -188,37 +187,37 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
                 if (i == beginIndex) { // If we're placing the first atom of a
                     // molecule
-                    (((AtomLeaf) atomList.get(i)).getPosition()).E(phase
+                    (((IAtomPositioned) atomList.get(i)).getPosition()).E(phase
                             .getBoundary().randomPosition());
                 } else if (i == beginIndex + dir) { // If we're placing the
                     // second atom of a molecule
-                    ((AtomLeaf) atomList.get(i)).getPosition().E(
+                    ((IAtomPositioned) atomList.get(i)).getPosition().E(
                             calcRandomBond());
-                    ((AtomLeaf) atomList.get(i)).getPosition().PE(
-                            ((AtomLeaf) atomList.get(i - dir)).getPosition());
+                    ((IAtomPositioned) atomList.get(i)).getPosition().PE(
+                            ((IAtomPositioned) atomList.get(i - dir)).getPosition());
                 } else if (i == beginIndex + dir * 2) {// If we're placing the
                     // third atom of a
                     // molecule
-                    ((AtomLeaf) atomList.get(i)).getPosition().E(
-                            calcRandomBondWithAngle((AtomLeaf) atomList.get(i
-                                    - dir), (AtomLeaf) atomList
+                    ((IAtomPositioned) atomList.get(i)).getPosition().E(
+                            calcRandomBondWithAngle((IAtomPositioned) atomList.get(i
+                                    - dir), (IAtomPositioned) atomList
                                     .get(i - 2 * dir)));
-                    ((AtomLeaf) atomList.get(i)).getPosition().PE(
-                            ((AtomLeaf) atomList.get(i - dir)).getPosition());
+                    ((IAtomPositioned) atomList.get(i)).getPosition().PE(
+                            ((IAtomPositioned) atomList.get(i - dir)).getPosition());
                 } else {// For the rest of the atoms in a molecule
-                    ((AtomLeaf) atomList.get(i)).getPosition().E(
+                    ((IAtomPositioned) atomList.get(i)).getPosition().E(
                             calcRandomBondWithAngleAndTorsion(
-                                    (AtomLeaf) atomList.get(i - dir),
-                                    (AtomLeaf) atomList.get(i - 2 * dir),
-                                    (AtomLeaf) atomList.get(i - 3 * dir), k));
-                    ((AtomLeaf) atomList.get(i)).getPosition().PE(
-                            ((AtomLeaf) atomList.get(i - dir)).getPosition());
+                                    (IAtomPositioned) atomList.get(i - dir),
+                                    (IAtomPositioned) atomList.get(i - 2 * dir),
+                                    (IAtomPositioned) atomList.get(i - 3 * dir), k));
+                    ((IAtomPositioned) atomList.get(i)).getPosition().PE(
+                            ((IAtomPositioned) atomList.get(i - dir)).getPosition());
                 }
 
                 // evaluate the Boltzmann factor of this configuration
                 // (configuration of this molecule, for this trial)
                 // and store it.
-                uExt = calcExternalEnergy(((AtomLeaf) atomList.get(i)));
+                uExt = calcExternalEnergy(atomList.get(i));
                 if (i == endIndex || i == 0) {
                     a[k] = numTrial * Math.exp(-beta * uExt);
                 } else {
@@ -229,8 +228,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
             // do the k-loop stuff for the actual position of the molecule,
             // since we are in the old section
-            ((AtomLeaf) atomList.get(i)).getPosition().E(positionOld[i]);
-            uExt = calcExternalEnergy(((AtomLeaf) atomList.get(i)));
+            ((IAtomPositioned) atomList.get(i)).getPosition().E(positionOld[i]);
+            uExt = calcExternalEnergy(atomList.get(i));
             if (i == endIndex || i == 0) {
                 a[numTrial - 1] = numTrial * Math.exp(-beta * uExt);
             } else {
@@ -284,7 +283,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
      * @return a new bond vector
      */
     // Based on algorithm 45 in Frenkel & Smit
-    protected IVector calcRandomBondWithAngle(AtomLeaf a, AtomLeaf b) {
+    protected IVector calcRandomBondWithAngle(IAtomPositioned a, IAtomPositioned b) {
         double phi;
         double ubb;
 
@@ -316,8 +315,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
      * @return new bond vector
      */
     // Based on algorithm 46 in Frenkel & Smit
-    protected IVector calcRandomBondWithAngleAndTorsion(AtomLeaf a, AtomLeaf b,
-            AtomLeaf c, int dorkball) {
+    protected IVector calcRandomBondWithAngleAndTorsion(IAtomPositioned a, IAtomPositioned b,
+            IAtomPositioned c, int dorkball) {
         if (phase.getSpace().D() != 3) {
             throw new IllegalArgumentException("Torsional bond is only used "
                     + "in 3D simulations");

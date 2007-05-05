@@ -10,6 +10,7 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
+import etomica.atom.IAtomPositioned;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
@@ -60,7 +61,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         createOffScreen(width,height);
     }
        
-    protected void drawAtom(Graphics g, int origin[], AtomLeaf a) {
+    protected void drawAtom(Graphics g, int origin[], IAtomPositioned a) {
         if(!displayPhase.getAtomFilter().accept(a)) return;
         IVector r = a.getPosition();
         int sigmaP, xP, yP, baseXP, baseYP;
@@ -166,14 +167,14 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         AtomArrayList leafList = displayPhase.getPhase().getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            drawAtom(g, atomOrigin, (AtomLeaf)leafList.get(iLeaf));
+            drawAtom(g, atomOrigin, (IAtomPositioned)leafList.get(iLeaf));
         }
             
         //Draw overflow images if so indicated
         if(displayPhase.getDrawOverflow()) {
             Boundary boundary = displayPhase.getPhase().getBoundary();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+                IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
                 if(!(a.getType() instanceof AtomTypeSphere)) continue;
                 float[][] shifts = boundary.getOverflowShifts(a.getPosition(),0.5*((AtomTypeSphere)a.getType()).getDiameter());  //should instead of radius have a size for all AtomC types
                 for(int i=shifts.length-1; i>=0; i--) {

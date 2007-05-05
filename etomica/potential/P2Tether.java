@@ -3,9 +3,8 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -55,13 +54,11 @@ public class P2Tether extends Potential2HardSpherical {
      * Implements collision dynamics for pair attempting to separate beyond tether distance
      */
     public final void bump(AtomSet pair, double falseTime) {
-        IAtom atom0 = ((AtomPair)pair).atom0;
-        IAtom atom1 = ((AtomPair)pair).atom1;
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
-        dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
+        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
-        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
         nearestImageTransformer.nearestImage(dr);
 
@@ -72,10 +69,10 @@ public class P2Tether extends Potential2HardSpherical {
         lastCollisionVirial = 2.0/(rm0 + rm1)*bij;
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        coord0.getVelocity().PEa1Tv1( rm0,dv);
-        coord1.getVelocity().PEa1Tv1(-rm1,dv);
-        coord0.getPosition().PEa1Tv1(-falseTime*rm0,dv);
-        coord1.getPosition().PEa1Tv1( falseTime*rm1,dv);
+        atom0.getVelocity().PEa1Tv1( rm0,dv);
+        atom1.getVelocity().PEa1Tv1(-rm1,dv);
+        atom0.getPosition().PEa1Tv1(-falseTime*rm0,dv);
+        atom1.getPosition().PEa1Tv1( falseTime*rm1,dv);
     }
 
 
@@ -101,8 +98,8 @@ public class P2Tether extends Potential2HardSpherical {
      * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomPair)pair).atom0;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomPair)pair).atom1;
+        IAtomKinetic coord0 = (IAtomKinetic)((AtomPair)pair).atom0;
+        IAtomKinetic coord1 = (IAtomKinetic)((AtomPair)pair).atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

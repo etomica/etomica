@@ -3,8 +3,8 @@ package etomica.graphics2;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 
 /**
  * Colors the atom according to the color given by its type field.  
@@ -22,7 +22,7 @@ implements ColorScheme, java.io.Serializable
  /**
   * Initialize atom color to the color of its type
   */
-    public final int atomColor(AtomLeaf a) 
+    public final int atomColor(IAtom a) 
     {
     	Integer index = (Integer) colormap.get( a.getType() );
     	if ( index==null )

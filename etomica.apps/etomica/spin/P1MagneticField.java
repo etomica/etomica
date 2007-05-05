@@ -1,7 +1,7 @@
 package etomica.spin;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.potential.Potential1;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -30,7 +30,7 @@ public class P1MagneticField extends Potential1 {
      * @see etomica.Potential#energy(etomica.AtomSet)
      */
     public double energy(AtomSet atoms) {
-        IVector r = ((AtomLeaf)atoms).getPosition();
+        IVector r = ((IAtomPositioned)atoms).getPosition();
         return h * r.dot(direction);
     }
     

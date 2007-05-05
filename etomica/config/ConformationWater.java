@@ -1,7 +1,7 @@
 package etomica.config;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.space.Space;
 
 
@@ -20,13 +20,13 @@ public class ConformationWater extends Conformation {
         double x = 6.0;
         double y = 6.0;
         
-        AtomLeaf o = (AtomLeaf)list.get(0);
+        IAtomPositioned o = (IAtomPositioned)list.get(0);
         o.getPosition().E(new double[] {x, y, 0.0});
                
-        AtomLeaf h1 = (AtomLeaf)list.get(1);
+        IAtomPositioned h1 = (IAtomPositioned)list.get(1);
         h1.getPosition().E(new double[] {x+bondLengthOH, y, 0.0});
                 
-        AtomLeaf h2 = (AtomLeaf)list.get(2);
+        IAtomPositioned h2 = (IAtomPositioned)list.get(2);
         h2.getPosition().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
     }
         

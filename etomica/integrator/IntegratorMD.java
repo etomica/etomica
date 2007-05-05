@@ -2,16 +2,15 @@ package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.units.Dimension;
 import etomica.units.Time;
@@ -179,11 +178,11 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 if (initialized) {
                     AtomArrayList atomList = phase.getSpeciesMaster().getLeafList();
                     int index = random.nextInt(atomList.size());
-                    AtomLeaf a = (AtomLeaf)atomList.get(index);
+                    IAtomKinetic a = (IAtomKinetic)atomList.get(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();
-                    currentKineticEnergy -= 0.5*m*((ICoordinateKinetic)a).getVelocity().squared();
-                    randomizeMomentum((AtomLeaf)atomList.get(index));
-                    currentKineticEnergy += 0.5*m*((ICoordinateKinetic)a).getVelocity().squared();
+                    currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
+                    randomizeMomentum(a);
+                    currentKineticEnergy += 0.5*m*a.getVelocity().squared();
                 }
             }
             // ANDERSEN was handled at the start
@@ -216,7 +215,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
      * after calling this method.
      * @param atom whose momenta is be randomized
      */
-    protected void randomizeMomentum(AtomLeaf atom) {
+    protected void randomizeMomentum(IAtomKinetic atom) {
         atomActionRandomizeVelocity.setTemperature(temperature);
         atomActionRandomizeVelocity.actionPerformed(atom);
     }
@@ -237,25 +236,25 @@ public abstract class IntegratorMD extends IntegratorPhase {
                 IAtom a = leafList.get(iLeaf);
                 double mass = ((AtomTypeLeaf)a.getType()).getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
-                    momentum.PEa1Tv1(mass,((ICoordinateKinetic)a).getVelocity());
+                    momentum.PEa1Tv1(mass,((IAtomKinetic)a).getVelocity());
                 }
             }
             momentum.TE(1.0/nLeaf);
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtom a = leafList.get(iLeaf);
+                IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
                 double rm = ((AtomTypeLeaf)a.getType()).rm();
                 if (rm != 0) {
-                    ((ICoordinateKinetic)a).getVelocity().PEa1Tv1(-rm,momentum);
+                    a.getVelocity().PEa1Tv1(-rm,momentum);
                 }
             }
             if (Debug.ON) {
                 momentum.E(0);
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                    IAtom a = leafList.get(iLeaf);
+                    IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
                     double mass = ((AtomTypeLeaf)a.getType()).getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
-                        momentum.PEa1Tv1(mass,((ICoordinateKinetic)a).getVelocity());
+                        momentum.PEa1Tv1(mass,a.getVelocity());
                     }
                 }
                 momentum.TE(1.0/nLeaf);
@@ -277,8 +276,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
             s = Math.sqrt(temperature / t);
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = leafList.get(iLeaf);
-            ((ICoordinateKinetic)a).getVelocity().TE(s); //scale momentum
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            a.getVelocity().TE(s); //scale momentum
         }
         return scale;
     }

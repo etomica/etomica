@@ -2,7 +2,7 @@ package etomica.action;
 
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
-import etomica.space.ICoordinateKinetic;
+import etomica.atom.IAtomKinetic;
 import etomica.space.IVector;
 import etomica.util.IRandom;
 
@@ -32,7 +32,7 @@ public class AtomActionRandomizeVelocity extends AtomActionAdapter {
      * mass is infinite, assigns a zero velocity.
      */
     public void actionPerformed(IAtom a) {
-        IVector velocity = ((ICoordinateKinetic)a).getVelocity();
+        IVector velocity = ((IAtomKinetic)a).getVelocity();
         double mass = ((AtomTypeLeaf)a.getType()).getMass();
         if(Double.isInfinite(mass)) {
             velocity.E(0.0);

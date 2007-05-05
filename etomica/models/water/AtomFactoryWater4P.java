@@ -3,11 +3,11 @@ package etomica.models.water;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
@@ -52,10 +52,10 @@ public class AtomFactoryWater4P extends AtomFactory {
 	public IAtom makeAtom() {
         isMutable = false;
         AtomWater4P water = new AtomWater4P(atomType);
-		water.O = (AtomLeaf)oFactory.makeAtom();
-        water.H1 = (AtomLeaf)hFactory.makeAtom();
-        water.H2 = (AtomLeaf)hFactory.makeAtom();
-        water.M = (AtomLeaf)mFactory.makeAtom();
+		water.O = (IAtomPositioned)oFactory.makeAtom();
+        water.H1 = (IAtomPositioned)hFactory.makeAtom();
+        water.H2 = (IAtomPositioned)hFactory.makeAtom();
+        water.M = (IAtomPositioned)mFactory.makeAtom();
         water.addChildAtom(water.O);
         water.addChildAtom(water.H1);
         water.addChildAtom(water.H2);

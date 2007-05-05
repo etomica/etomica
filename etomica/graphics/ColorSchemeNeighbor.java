@@ -3,9 +3,9 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.Api1ACell;
 import etomica.phase.Phase;
@@ -26,7 +26,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
 		//color all atoms according to their type
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf atom = (AtomLeaf)leafList.get(iLeaf);
+            IAtomPositioned atom = (IAtomPositioned)leafList.get(iLeaf);
             agentManager.setAgent(atom, typeColorScheme.getAtomColor(atom));
         }
         if (referenceAtom == null) {

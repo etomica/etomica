@@ -5,11 +5,12 @@ import java.io.Serializable;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
@@ -24,7 +25,6 @@ import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.util.Debug;
 import etomica.util.IRandom;
@@ -142,13 +142,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
                     IVector dr = phase.getSpace().makeVector();
                     IVector dv = phase.getSpace().makeVector();
 
-                    AtomLeaf atom0 = (AtomLeaf)pair.atom0;
-                    AtomLeaf atom1 = (AtomLeaf)pair.atom1;
-                    ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
-                    ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
-                    dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
+                    IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
+                    IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
+                    dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
                     
-                    dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+                    dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
                     phase.getBoundary().nearestImage(dr);
 
                     dr.PEa1Tv1(oldTime,dv);
@@ -163,17 +161,15 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             }
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
                 debugPair = Debug.getAtoms(phase);
-                if (debugPair.atom0 instanceof AtomLeaf && debugPair.atom1 instanceof AtomLeaf) {
+                if (!(debugPair.atom0 instanceof IAtomGroup && debugPair.atom1 instanceof IAtomGroup)) {
                     IVector dr = phase.getSpace().makeVector();
                     IVector dv = phase.getSpace().makeVector();
 
-                    AtomLeaf atom0 = (AtomLeaf)debugPair.atom0;
-                    AtomLeaf atom1 = (AtomLeaf)debugPair.atom1;
-                    ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
-                    ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
-                    dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
+                    IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
+                    IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
+                    dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
                     
-                    dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+                    dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
                     phase.getBoundary().nearestImage(dr);
 
                     dr.PEa1Tv1(collisionTimeStep,dv);
@@ -181,11 +177,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
                     if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
                         System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
                         if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0)).getVelocity());
-                            dr.PE(((AtomLeaf)debugPair.atom0).getPosition());
+                            dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)debugPair.atom0).getVelocity());
+                            dr.PE(((IAtomKinetic)debugPair.atom0).getPosition());
                             System.out.println(debugPair.atom0+" coordinates "+dr);
-                            dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom1)).getVelocity());
-                            dr.PE(((AtomLeaf)debugPair.atom1).getPosition());
+                            dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)debugPair.atom1).getVelocity());
+                            dr.PE(((IAtomKinetic)debugPair.atom1).getPosition());
                             System.out.println(debugPair.atom1+" coordinates "+dr);
                         }
                     }
@@ -195,10 +191,10 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
                                 +" with potential "+(p!=null ? p.getClass() : null));
                     }
                 }
-                else if (Debug.LEVEL > 2 && debugPair.atom0 instanceof AtomLeaf) {
+                else if (Debug.LEVEL > 2 && !(debugPair.atom0 instanceof IAtomGroup)) {
                     IVector dr = potential.getSpace().makeVector();
-                    dr.Ea1Tv1(collisionTimeStep,((ICoordinateKinetic)((AtomLeaf)debugPair.atom0)).getVelocity());
-                    dr.PE(((AtomLeaf)debugPair.atom0).getPosition());
+                    dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)debugPair.atom0).getVelocity());
+                    dr.PE(((IAtomKinetic)debugPair.atom0).getPosition());
                     System.out.println(debugPair.atom0+" coordinates "+dr);
                 }
             }
@@ -358,9 +354,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
-			a.getPosition().PEa1Tv1(tStep,((ICoordinateKinetic)a).getVelocity());
+			a.getPosition().PEa1Tv1(tStep,a.getVelocity());
 		}
 	}
 
@@ -448,7 +444,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      * Updates collision time appropriately after randomizing momentum
      * as part of the Andersen thermostat.
      */
-    protected void randomizeMomentum(AtomLeaf atom) {
+    protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
         updateAtom(atom);
     }

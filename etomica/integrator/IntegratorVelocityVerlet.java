@@ -4,10 +4,10 @@ import java.io.Serializable;
 
 import etomica.EtomicaInfo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
@@ -16,7 +16,6 @@ import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -75,10 +74,10 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             MyAgent agent = (MyAgent)agentManager.getAgent(a);
             IVector r = a.getPosition();
-            IVector v = ((ICoordinateKinetic)a).getVelocity();
+            IVector v = a.getVelocity();
             v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
         }
@@ -93,9 +92,9 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         
         //Finish integration step
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
-            IVector velocity = ((ICoordinateKinetic)a).getVelocity();
+            IVector velocity = a.getVelocity();
             workTensor.Ev1v2(velocity,velocity);
             workTensor.TE(((AtomTypeLeaf)a.getType()).getMass());
             pressureTensor.PE(workTensor);

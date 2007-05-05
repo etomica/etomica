@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.Integrator;
@@ -130,8 +130,8 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 				fileWriter.write(temp+"\n");
 				iterator.reset();
 				int i=0;
-				for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                     atom != null; atom = (AtomLeaf)iterator.nextAtom()) {
+				for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom();
+                     atom != null; atom = (IAtomPositioned)iterator.nextAtom()) {
 					IVector atomPosition = atom.getPosition();
 					for (int j=0;j < phasedim.getD();j++){
 						double actualDistance;
@@ -211,8 +211,8 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		public void updateAtomOldCoord(){
 			iterator.reset();
 			int i=0;
-            for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                 atom != null; atom = (AtomLeaf)iterator.nextAtom()) {
+            for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom();
+                 atom != null; atom = (IAtomPositioned)iterator.nextAtom()) {
 				atomOldCoord[i].E(atom.getPosition());
 				i++;
 			}
@@ -224,8 +224,8 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			
 			// workVector is modified to hold a value of box lengths an atom has traveled
 			// atomPBIarray is filled here
-            for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom();
-                 atom != null; atom = (AtomLeaf)iterator.nextAtom()) {
+            for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom();
+                 atom != null; atom = (IAtomPositioned)iterator.nextAtom()) {
 				workVector.E(atomOldCoord[i]);
 				workVector.ME(atom.getPosition()); 
 				workVector.DE(phaseDim);

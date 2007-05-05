@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 import etomica.action.AtomActionAdapter;
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -23,7 +23,7 @@ public class AtomActionTransformed extends AtomActionAdapter {
     }
     
     public void actionPerformed(IAtom atom) {
-    	transformationTensor.transform(((AtomLeaf)atom).getPosition());
+    	transformationTensor.transform(((IAtomPositioned)atom).getPosition());
     }
        
     public Tensor getTransformationTensor(){

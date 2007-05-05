@@ -1,15 +1,13 @@
 package etomica.models.hexane;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.Tensor;
 import etomica.species.Species;
-import etomica.util.DoubleRange;
-import etomica.util.HistogramSimple;
 import etomica.util.IRandom;
 
 /**
@@ -57,7 +55,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     // Different because we know the bond angle
     // All moves are accepted
-    protected IVector calcRandomBondWithAngle(AtomLeaf a, AtomLeaf b) {
+    protected IVector calcRandomBondWithAngle(IAtomPositioned a, IAtomPositioned b) {
         // temp will be the radial vector
         // vex will be the axial vector
 
@@ -116,8 +114,8 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     }
 
-    protected IVector calcRandomBondWithAngleAndTorsion(AtomLeaf a, AtomLeaf b,
-            AtomLeaf c, int place) {
+    protected IVector calcRandomBondWithAngleAndTorsion(IAtomPositioned a, IAtomPositioned b,
+            IAtomPositioned c, int place) {
         // Get a random number, and place it between the limits on the new
         // atom's placement. The angle must be between lowerTorsLimit,
         // and upperTorsLimit.

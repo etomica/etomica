@@ -1,8 +1,8 @@
 package etomica.lattice;
 
 import etomica.atom.AtomFilter;
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
 import etomica.space.IVector;
@@ -42,7 +42,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     }
     
     public boolean accept(IAtom a) {
-        return !plane.isPositiveSide((Vector3D)((AtomLeaf)a).getPosition());
+        return !plane.isPositiveSide((Vector3D)((IAtomPositioned)a).getPosition());
     }
 
     public void setTolerance(double tolerance) {
@@ -115,8 +115,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         //use normal as a work vector, giving a point contained by the plane
         //in its desired position
         delta.E(origin);
-		delta.PEa1Tv1((d+0.000001)*2.0*Math.PI/normal.squared(),normal);
-//		delta.PEa1Tv1(((double)i+0.000001)*2.0*Math.PI,normal);
+		delta.PEa1Tv1(d*2.0*Math.PI/normal.squared(),normal);
         plane.moveTo(delta);
     }
     

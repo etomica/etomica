@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.space.ICoordinate;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -10,7 +9,7 @@ import etomica.space.Space;
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
   */
-public class AtomLeaf extends Atom implements ICoordinate {
+public class AtomLeaf extends Atom implements IAtomPositioned {
 
     public AtomLeaf(Space space, AtomType type) {
         super(type);

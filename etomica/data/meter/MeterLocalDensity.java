@@ -1,7 +1,7 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
@@ -41,8 +41,8 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
         //compute local molar density
         int nSum = 0;
         iterator.reset();
-        for (AtomLeaf atom = (AtomLeaf)iterator.nextAtom(); atom != null;
-             atom = (AtomLeaf)iterator.nextAtom()) {
+        for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom(); atom != null;
+             atom = (IAtomPositioned)iterator.nextAtom()) {
             if(shape.contains(atom.getPosition())) nSum++;
         }
         return nSum/shape.getVolume();

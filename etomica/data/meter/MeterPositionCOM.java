@@ -4,8 +4,8 @@
 package etomica.data.meter;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
@@ -45,7 +45,7 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
             double mass = ((AtomTypeLeaf)a.getType()).getMass();
             massSum += mass;
             positionSum.PEa1Tv1(mass,a.getPosition());

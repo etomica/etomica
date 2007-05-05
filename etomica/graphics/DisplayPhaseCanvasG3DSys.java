@@ -9,11 +9,11 @@ import javax.vecmath.Point3f;
 
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFilter;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
@@ -114,7 +114,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     AtomArrayList leafList = displayPhase.getPhase().getSpeciesMaster().getLeafList();
     int nLeaf = leafList.size();
     for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-        AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+        IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
       if (a==null || !(a.getType() instanceof AtomTypeSphere)) continue;
       Ball ball = (Ball)aam.getAgent(a);
       if (ball == null) {
@@ -262,10 +262,10 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
 	
   public Object makeAgent(IAtom a) {
     if (!(a.getType() instanceof AtomTypeSphere)) return null;
-    ((AtomLeaf)a).getPosition().assignTo(coords);
+    ((IAtomPositioned)a).getPosition().assignTo(coords);
     
     float diameter = (float)((AtomTypeSphere)a.getType()).getDiameter();
-    Ball newBall = new Ball(gsys, G3DSys.getColix((displayPhase.getColorScheme().getAtomColor((AtomLeaf)a))),
+    Ball newBall = new Ball(gsys, G3DSys.getColix((displayPhase.getColorScheme().getAtomColor(a))),
         (float)coords[0], (float)coords[1], (float)coords[2], diameter);
     gsys.addFig(newBall);
     return newBall;

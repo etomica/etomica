@@ -1,8 +1,8 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtomKinetic;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
@@ -11,7 +11,6 @@ import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
 import etomica.phase.Phase;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Temperature;
@@ -50,8 +49,8 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
-            v.Ev1v2(((ICoordinateKinetic)a).getVelocity(), ((ICoordinateKinetic)a).getVelocity());
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            v.Ev1v2(a.getVelocity(), a.getVelocity());
             v.TE((((AtomTypeLeaf)a.getType()).rm()));
             data.x.PE(v);
         }

@@ -11,20 +11,20 @@ import etomica.util.Debug;
 public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Serializable {
 
     public IVector position(IAtom atom) {
-        AtomLeaf atomLeaf = getFirstChildLeafAtom(atom);
+        IAtomPositioned atomLeaf = getFirstChildLeafAtom(atom);
         if (atomLeaf == null) {
             return null;
         }
         return atomLeaf.getPosition();
     }
     
-    protected AtomLeaf getFirstChildLeafAtom(IAtom atom) {
+    protected IAtomPositioned getFirstChildLeafAtom(IAtom atom) {
         if (!(atom instanceof IAtomGroup)) {
-            return (AtomLeaf)atom;
+            return (IAtomPositioned)atom;
         }
         AtomArrayList childList = ((IAtomGroup)atom).getChildList();
         for (int i = 0; i < childList.size(); i++) {
-            AtomLeaf a1 = getFirstChildLeafAtom(childList.get(i));
+            IAtomPositioned a1 = getFirstChildLeafAtom(childList.get(i));
             if(a1 != null) return a1;
             if (Debug.ON) {
                 System.out.println("You have yourself a AtomGroup with no children.  That just seems silly.");

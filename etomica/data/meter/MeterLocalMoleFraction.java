@@ -1,7 +1,7 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
@@ -74,8 +74,8 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         int totalSum = 0, speciesSum = 0;
         iterator.reset();
-        for (AtomLeaf a = (AtomLeaf)iterator.nextAtom(); a != null;
-             a = (AtomLeaf)iterator.nextAtom()) {
+        for (IAtomPositioned a = (IAtomPositioned)iterator.nextAtom(); a != null;
+             a = (IAtomPositioned)iterator.nextAtom()) {
             tempVec.Ev1Mv2(a.getPosition(), shapeOrigin);
             if(shape.contains(tempVec)) {
                 totalSum++;

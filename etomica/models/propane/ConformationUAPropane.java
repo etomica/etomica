@@ -1,6 +1,6 @@
 package etomica.models.propane;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.config.Conformation;
 import etomica.space.Space;
 
@@ -21,13 +21,13 @@ public class ConformationUAPropane extends Conformation {
         double x = 0.0;
         double y = 0.0;
         
-        AtomLeaf UA1 = (AtomLeaf)list.get(0);
+        IAtomPositioned UA1 = (IAtomPositioned)list.get(0);
         UA1.getPosition().E(new double[] {x, y, 0.0});
                
-        AtomLeaf UA2 = (AtomLeaf)list.get(1);
+        IAtomPositioned UA2 = (IAtomPositioned)list.get(1);
         UA2.getPosition().E(new double[] {x+bondLength, y, 0.0});
                 
-        AtomLeaf UA3 = (AtomLeaf)list.get(2);
+        IAtomPositioned UA3 = (IAtomPositioned)list.get(2);
         UA3.getPosition().E(new double[] {x+bondLength+bondLength*Math.cos(Math.PI-bondAngle), y+bondLength*Math.sin(Math.PI-bondAngle), 0.0});
     }
     

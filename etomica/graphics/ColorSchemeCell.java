@@ -3,7 +3,7 @@ package etomica.graphics;
 import java.awt.Color;
 import java.util.HashMap;
 
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.lattice.FiniteLattice;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
@@ -27,7 +27,7 @@ public class ColorSchemeCell extends ColorScheme {
         }
     }
     
-    public Color getAtomColor(AtomLeaf a) {
+    public Color getAtomColor(IAtom a) {
         return (Color)hash.get(cellManager.getCell(a));
     }
     

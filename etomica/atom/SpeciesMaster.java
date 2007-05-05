@@ -348,7 +348,7 @@ public final class SpeciesMaster implements java.io.Serializable {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
             System.out.println(a.toString());
         }
         System.out.println();

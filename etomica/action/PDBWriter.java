@@ -10,9 +10,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 
 /**
@@ -84,7 +84,7 @@ public class PDBWriter implements Action, Serializable {
         int atomCount = 0;
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf atom = (AtomLeaf)leafList.get(iLeaf);
+            IAtomPositioned atom = (IAtomPositioned)leafList.get(iLeaf);
             Iterator elementIterator = elementAtomType.iterator();
             int elementIndex = -1;
             while (elementIterator.hasNext()) {

@@ -1,11 +1,11 @@
 package etomica.models.hexane;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMovePhaseStep;
@@ -90,28 +90,28 @@ public class MCMoveReptate extends MCMovePhaseStep {
        int numChildren = childlist.size();
        
        if(forward){
-           IVector position = ((AtomLeaf)childlist.get(numChildren-1)).getPosition();
+           IVector position = ((IAtomPositioned)childlist.get(numChildren-1)).getPosition();
            positionOld.E(position);
            for (int j = numChildren - 1; j > 0; j--) {
-               IVector position2 = ((AtomLeaf)childlist.get(j-1)).getPosition();
+               IVector position2 = ((IAtomPositioned)childlist.get(j-1)).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           ((AtomLeaf)childlist.get(0)).getPosition().PE(tempV);
+           ((IAtomPositioned)childlist.get(0)).getPosition().PE(tempV);
        }
        else {
-           IVector position = ((AtomLeaf)childlist.get(0)).getPosition();
+           IVector position = ((IAtomPositioned)childlist.get(0)).getPosition();
            positionOld.E(position);
            for(int j = 0; j < numChildren-1; j++){
-               IVector position2 = ((AtomLeaf)childlist.get(j+1)).getPosition();
+               IVector position2 = ((IAtomPositioned)childlist.get(j+1)).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           ((AtomLeaf)childlist.get(numChildren - 1)).getPosition().PE(tempV);
+           ((IAtomPositioned)childlist.get(numChildren - 1)).getPosition().PE(tempV);
            
        }
        
@@ -136,22 +136,22 @@ public class MCMoveReptate extends MCMovePhaseStep {
         AtomArrayList childlist = ((IAtomGroup)atom).getChildList();
         int numChildren = childlist.size();
         if (!forward) {
-            IVector position = ((AtomLeaf)childlist.get(numChildren-1)).getPosition();
+            IVector position = ((IAtomPositioned)childlist.get(numChildren-1)).getPosition();
             for (int j=numChildren-1; j>0; j--) {
-                IVector position2 = ((AtomLeaf)childlist.get(j-1)).getPosition();
+                IVector position2 = ((IAtomPositioned)childlist.get(j-1)).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            ((AtomLeaf)childlist.get(0)).getPosition().E(positionOld);
+            ((IAtomPositioned)childlist.get(0)).getPosition().E(positionOld);
         }
         else {
-            IVector position = ((AtomLeaf)childlist.get(0)).getPosition();
+            IVector position = ((IAtomPositioned)childlist.get(0)).getPosition();
             for (int j=0; j<numChildren-1; j++) {
-                IVector position2 = ((AtomLeaf)childlist.get(j+1)).getPosition();
+                IVector position2 = ((IAtomPositioned)childlist.get(j+1)).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            ((AtomLeaf)childlist.get(numChildren-1)).getPosition().E(positionOld);
+            ((IAtomPositioned)childlist.get(numChildren-1)).getPosition().E(positionOld);
         }
         
         

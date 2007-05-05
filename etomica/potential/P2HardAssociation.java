@@ -1,11 +1,9 @@
 package etomica.potential;
 
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -39,13 +37,11 @@ public class P2HardAssociation extends Potential2HardSpherical {
     */
     public void bump(AtomSet pair, double falseTime) {
         double eps = 1e-6;
-        IAtom atom0 = ((AtomPair)pair).atom0;
-        IAtom atom1 = ((AtomPair)pair).atom1;
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)atom0;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)atom1;
-        dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
+        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
-        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
         nearestImageTransformer.nearestImage(dr);
 
@@ -74,13 +70,13 @@ public class P2HardAssociation extends Potential2HardSpherical {
         }
         lastCollisionVirialr2 = lastCollisionVirial/r2;
         dv.Ea1Tv1(lastCollisionVirialr2,dr);
-        coord0.getVelocity().PE(dv);
-        coord1.getVelocity().ME(dv);
-        coord0.getPosition().Ea1Tv1(-falseTime,dv);
-        coord1.getPosition().Ea1Tv1(falseTime,dv);
+        atom0.getVelocity().PE(dv);
+        atom1.getVelocity().ME(dv);
+        atom0.getPosition().Ea1Tv1(-falseTime,dv);
+        atom1.getPosition().Ea1Tv1(falseTime,dv);
         if(nudge != 0) {
-            coord0.getPosition().PEa1Tv1(-nudge,dr);
-            coord1.getPosition().PEa1Tv1(nudge,dr);
+            atom0.getPosition().PEa1Tv1(-nudge,dr);
+            atom1.getPosition().PEa1Tv1(nudge,dr);
         }
     }
     
@@ -100,11 +96,11 @@ public class P2HardAssociation extends Potential2HardSpherical {
     * collision of the wells.  Takes into account both separation and convergence.
     */
     public double collisionTime(AtomSet pair, double falseTime) {
-        ICoordinateKinetic coord0 = (ICoordinateKinetic)((AtomPair)pair).atom0;
-        ICoordinateKinetic coord1 = (ICoordinateKinetic)((AtomPair)pair).atom1;
-        dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
+        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
-        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
         nearestImageTransformer.nearestImage(dr);
 

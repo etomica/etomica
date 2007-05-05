@@ -7,10 +7,8 @@ import javax.swing.JFrame;
 
 import etomica.action.Action;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.IAtomKinetic;
 import etomica.phase.Phase;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 
 /**
@@ -32,8 +30,8 @@ public class ActionVelocityWindow implements Action {
         textArea.setForeground(Color.black);
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
-            IVector vel = ((ICoordinateKinetic)a).getVelocity();
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IVector vel = a.getVelocity();
             String str = Double.toString(vel.x(0));
             for (int i=1; i<vel.getD(); i++) {
                 str += " "+Double.toString(vel.x(i));

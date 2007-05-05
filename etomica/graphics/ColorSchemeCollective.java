@@ -1,7 +1,6 @@
 package etomica.graphics;
 import java.awt.Color;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -25,7 +24,7 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
     //then assign it to atom like this: atomColors[atomIndex] = color
     public abstract void colorAllAtoms();
     
-    public Color getAtomColor(AtomLeaf a) {
+    public Color getAtomColor(IAtom a) {
         return (Color)agentManager.getAgent(a);
     }
    

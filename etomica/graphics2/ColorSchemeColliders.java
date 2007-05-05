@@ -1,6 +1,6 @@
 package etomica.graphics2;
 
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 import etomica.integrator.IntegratorHard;
 
 /**
@@ -33,7 +33,7 @@ public class ColorSchemeColliders implements ColorScheme {
     /**
      * Applies the special colors to the colliding pair while coloring all other atoms with baseColor.
      */ 
-    public int atomColor(AtomLeaf a) {
+    public int atomColor(IAtom a) {
     	if ( !colorsProvided )
     		throw new RuntimeException( "Colors not yet provided to ColorSchemeColliders object - use SetColor(Device) or SetColor(Color,Color,Color) before calling atomColor()");
         IntegratorHard.Agent colliderAgent = integrator.colliderAgent();

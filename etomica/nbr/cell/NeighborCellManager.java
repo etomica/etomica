@@ -3,11 +3,11 @@ package etomica.nbr.cell;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTreePhase;
@@ -276,7 +276,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
                     }
                 }
                 else {
-                    boundary.nearestImage(((AtomLeaf)atom).getPosition());
+                    boundary.nearestImage(((IAtomPositioned)atom).getPosition());
                 }
                 neighborCellManager.assignCell(atom);
             }

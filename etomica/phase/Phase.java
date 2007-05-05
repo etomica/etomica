@@ -9,9 +9,9 @@ import java.lang.reflect.InvocationTargetException;
 import etomica.EtomicaElement;
 import etomica.action.PhaseInflate;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.SpeciesMaster;
 import etomica.simulation.Simulation;
@@ -177,7 +177,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     	for(int i=0; i<r.length; i++) {
 	    	double r2Min = Double.MAX_VALUE;
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+                IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
 	    		double r2 = Space.r2(a.getPosition(), r[i], boundary);
 	    		if(r2 < r2Min) {
 	    			r2Min = r2;
@@ -266,7 +266,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         AtomArrayList leafList = speciesMaster.getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
             out.writeObject(a.getPosition());
         }
     }

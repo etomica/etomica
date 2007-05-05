@@ -4,8 +4,8 @@
 package etomica.data.meter;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtomKinetic;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataSource;
@@ -14,7 +14,6 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
 import etomica.phase.Phase;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;
@@ -51,9 +50,9 @@ public class MeterMomentumCOM implements DataSource, java.io.Serializable {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             double mass = ((AtomTypeLeaf)a.getType()).getMass();
-            momentumSum.PEa1Tv1(mass,((ICoordinateKinetic)a).getVelocity());
+            momentumSum.PEa1Tv1(mass,a.getVelocity());
         }
         return data;
     }

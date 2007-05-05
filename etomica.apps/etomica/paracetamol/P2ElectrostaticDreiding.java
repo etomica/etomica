@@ -1,8 +1,8 @@
 package etomica.paracetamol;
 
 import etomica.EtomicaElement;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -31,8 +31,8 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2LennardJonesDre
     
     public double energy(AtomSet atomSet) {
     	
-    	AtomLeaf atom0 = (AtomLeaf)atomSet.getAtom(0);
-    	AtomLeaf atom1 = (AtomLeaf)atomSet.getAtom(1);
+        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
+        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
     	dr01.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
     	nearestImageTransformer.nearestImage(dr01);
         double r2 = dr01.squared();
@@ -47,8 +47,8 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2LennardJonesDre
     
     public IVector [] gradient(AtomSet atomSet) {
     	
-    	AtomLeaf atom0 = (AtomLeaf)atomSet.getAtom(0);
-    	AtomLeaf atom1 = (AtomLeaf)atomSet.getAtom(1);
+        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
+        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
     	dr01.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
     	nearestImageTransformer.nearestImage(dr01);
         double r2 = dr01.squared();

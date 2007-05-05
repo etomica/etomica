@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
@@ -28,9 +28,9 @@ public class P3BondAngle extends Potential {
     }
 
     public double energy(AtomSet atomSet) {
-        AtomLeaf atom0 = (AtomLeaf)atomSet.getAtom(0);
-        AtomLeaf atom1 = (AtomLeaf)atomSet.getAtom(1);
-        AtomLeaf atom2 = (AtomLeaf)atomSet.getAtom(2);
+        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
+        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
+        IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
         dr12.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
         dr23.Ev1Mv2(atom2.getPosition(),atom1.getPosition());
         nearestImageTransformer.nearestImage(dr12);

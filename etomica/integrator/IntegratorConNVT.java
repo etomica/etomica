@@ -1,17 +1,16 @@
 package etomica.integrator;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.IRandom;
@@ -98,8 +97,8 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
-            IVector v = ((ICoordinateKinetic)a).getVelocity();
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IVector v = a.getVelocity();
 
             work1.E(v); //work1 = v
             work2.E(((Agent)agentManager.getAgent(a)).force);	//work2=F
@@ -113,9 +112,9 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
         //calculate constrained velocities at T+Dt/2
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
-            IVector v = ((ICoordinateKinetic)a).getVelocity();
+            IVector v = a.getVelocity();
 
             double scale = (2.0*chi-1.0); 
             work3.Ea1Tv1(scale,v); 
@@ -126,9 +125,9 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         } 
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             IVector r = a.getPosition();
-            IVector v = ((ICoordinateKinetic)a).getVelocity();
+            IVector v = a.getVelocity();
 
             work.Ea1Tv1(timeStep,v);
             work.PE(r);

@@ -1,8 +1,8 @@
 package etomica.virial;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -25,7 +25,7 @@ public abstract class MayerFunctionSpherical implements MayerFunction, java.io.S
     public abstract double f(double r2, double beta);
 
     public double f(AtomSet pair, double beta) {
-        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getPosition(),((AtomLeaf)((AtomPair)pair).atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)((AtomPair)pair).atom1).getPosition(),((IAtomPositioned)((AtomPair)pair).atom0).getPosition());
         return f(dr.squared(), beta);
     }
 

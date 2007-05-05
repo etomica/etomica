@@ -2,8 +2,8 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -30,7 +30,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
      * Assigns the given array u to be the current position of the atom minus its lattice position
      */
     public double[] calcU(IAtom atom) {
-        IVector pos = ((AtomLeaf) atom).getPosition();
+        IVector pos = ((IAtomPositioned) atom).getPosition();
         IVector site = getLatticePosition(atom);
         workVector.Ev1Mv2(pos, site);
         workVector.assignTo(u);
@@ -47,7 +47,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     public void setToU(IAtom atom, double[] newU) {
         workVector.E(newU);
         IVector site = getLatticePosition(atom);
-        ((AtomLeaf) atom).getPosition().Ev1Pv2(site, workVector);
+        ((IAtomPositioned) atom).getPosition().Ev1Pv2(site, workVector);
     }
 
     protected final IVector workVector;

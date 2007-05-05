@@ -4,10 +4,10 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
@@ -15,7 +15,6 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.IRandom;
@@ -112,10 +111,10 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             IVector r = a.getPosition();
-            IVector v = ((ICoordinateKinetic)a).getVelocity();
+            IVector v = a.getVelocity();
             work1.E(v);
             work1.PEa1Tv1(chi,r);
             work2.E(work1);
@@ -145,10 +144,10 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             IVector r = a.getPosition();
-            IVector v = ((ICoordinateKinetic)a).getVelocity();
+            IVector v = a.getVelocity();
             r.PEa1Tv1(p1, agent.dr1);
             r.PEa1Tv1(p2, agent.dr2);
             r.PEa1Tv1(p3, agent.dr3);
@@ -184,9 +183,9 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
-            agent.dr1.E(((ICoordinateKinetic)a).getVelocity());
+            agent.dr1.E(a.getVelocity());
             agent.dr2.Ea1Tv1(((AtomTypeLeaf)a.getType()).rm(),agent.force);
             agent.dr3.E(0.0);
             agent.dr4.E(0.0);

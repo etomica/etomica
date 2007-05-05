@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
 import etomica.phase.Phase;
@@ -35,8 +35,8 @@ public class ConfigurationFileXYZ extends Configuration{
 	            atomIterator.reset();
 	            //Skips the first line, which contains numAtoms
 	            bufReader.readLine();
-	            for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
-                     atom != null; atom = (AtomLeaf)atomIterator.nextAtom()) {
+	            for (IAtomPositioned atom = (IAtomPositioned)atomIterator.nextAtom();
+                     atom != null; atom = (IAtomPositioned)atomIterator.nextAtom()) {
 	                setPosition(atom,bufReader.readLine());
 	            }
 	            fileReader.close();
@@ -45,14 +45,14 @@ public class ConfigurationFileXYZ extends Configuration{
 	        }
 	        atomIterator.reset();
 	        
-            for (AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
-                 atom != null; atom = (AtomLeaf)atomIterator.nextAtom()) {
+            for (IAtomPositioned atom = (IAtomPositioned)atomIterator.nextAtom();
+                 atom != null; atom = (IAtomPositioned)atomIterator.nextAtom()) {
 	        	translatePosition(atom);
 	        }
 	        
 		}
 		
-		private void setPosition(AtomLeaf atom, String string) {
+		private void setPosition(IAtomPositioned atom, String string) {
 	        String[] coordStr = string.split(" +");
             IVector pos = atom.getPosition();
             for (int i=0; i<pos.getD(); i++) {
@@ -65,7 +65,7 @@ public class ConfigurationFileXYZ extends Configuration{
             dim.ME(min);
 	    }
 
-        private void translatePosition(AtomLeaf atom){
+        private void translatePosition(IAtomPositioned atom){
             atom.getPosition().ME(min);
             atom.getPosition().PEa1Tv1(-0.5,dim);
 		}

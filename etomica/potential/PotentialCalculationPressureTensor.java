@@ -1,13 +1,12 @@
 package etomica.potential;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -74,9 +73,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         // now handle the kinetic part
         workTensor.E(0);
 
-        AtomLeaf firstAtom = (AtomLeaf)leafList.get(0);
-        
-        if (firstAtom instanceof ICoordinateKinetic) {
+        if (leafList.get(0) instanceof IAtomKinetic) {
             if (integrator != null) {
                 warningPrinted = true;
                 System.out.println("Ignoring Integrator's temperature and using actual Atom velocities.  You shouldn't have given me an Integrator.");
@@ -96,9 +93,8 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         // simulation is dynamic, use the velocities
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf atom = (AtomLeaf)leafList.get(iLeaf);
-            ICoordinateKinetic coord = (ICoordinateKinetic)atom;
-            workTensor.Ev1v2(coord.getVelocity(), coord.getVelocity());
+            IAtomKinetic atom = (IAtomKinetic)leafList.get(iLeaf);
+            workTensor.Ev1v2(atom.getVelocity(), atom.getVelocity());
             workTensor.TE(((AtomTypeLeaf)atom.getType()).getMass());
             pressureTensor.PE(workTensor);
         }

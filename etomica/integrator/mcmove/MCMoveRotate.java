@@ -1,6 +1,5 @@
 package etomica.integrator.mcmove;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -23,7 +22,7 @@ public class MCMoveRotate extends MCMovePhaseStep {
     private final Orientation oldOrientation;
     private AtomSource atomSource;
 
-    private transient AtomLeaf molecule;
+    private transient ICoordinateAngular molecule;
     private transient double uOld;
     private transient double uNew = Double.NaN;
     private transient Orientation orientation;
@@ -62,11 +61,11 @@ public class MCMoveRotate extends MCMovePhaseStep {
      
     public boolean doTrial() {
         if(phase.moleculeCount()==0) {return false;}
-        molecule = (AtomLeaf)atomSource.getAtom();
+        molecule = (ICoordinateAngular)atomSource.getAtom();
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
-        orientation = ((ICoordinateAngular)molecule).getOrientation(); 
+        orientation = molecule.getOrientation(); 
         oldOrientation.E(orientation);  //save old orientation
         orientation.randomRotation(random, stepSize);
         uNew = Double.NaN;

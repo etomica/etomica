@@ -1,7 +1,6 @@
 package etomica.virial;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtomGroup;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -54,7 +53,7 @@ public class PhaseCluster extends Phase {
         if(cPairSet == null) {
             // assume 1 species
             AtomArrayList molecules = ((IAtomGroup)getSpeciesMaster().getAgentList().get(0)).getChildList();
-            if (molecules.get(0) instanceof AtomLeaf) {
+            if (!(molecules.get(0) instanceof IAtomGroup)) {
                 cPairSet = new CoordinatePairLeafSet(molecules,space);
                 cPairTrialSet = new CoordinatePairLeafSet(molecules,space);
             }

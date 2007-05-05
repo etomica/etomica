@@ -16,7 +16,7 @@ public class ColorSchemeRandom extends ColorScheme implements AgentSource {
         agentManager = new AtomLeafAgentManager(this, phase);
     }
     
-    public Color getAtomColor(AtomLeaf a) {
+    public Color getAtomColor(IAtom a) {
         return (Color)agentManager.getAgent(a);
     }
    

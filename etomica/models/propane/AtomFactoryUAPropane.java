@@ -3,11 +3,11 @@ package etomica.models.propane;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.Simulation;
 
@@ -39,8 +39,8 @@ public class AtomFactoryUAPropane extends AtomFactory {
 	 */
 	public IAtom makeAtom() {
         AtomUAPropane propane = new AtomUAPropane(atomType);
-        propane.UA1 = (AtomLeaf)UAFactory.makeAtom();
-        propane.UA2 = (AtomLeaf)UAFactory.makeAtom();
+        propane.UA1 = (IAtomPositioned)UAFactory.makeAtom();
+        propane.UA2 = (IAtomPositioned)UAFactory.makeAtom();
         propane.addChildAtom(propane.UA1);
         propane.addChildAtom(propane.UA2);
 		conformation.initializePositions(propane.getChildList());

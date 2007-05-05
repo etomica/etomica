@@ -2,14 +2,14 @@ package etomica.graphics2;
 
 
 
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtom;
 /**
 * Simplest color scheme - colors all atoms with baseColor. 
 * @author Henrique
 */
 public class ColorSchemeSimple implements ColorScheme, java.io.Serializable {
     public ColorSchemeSimple(Color color) { setBaseColor(color); }
-    public int atomColor(AtomLeaf a) {return 0;}
+    public int atomColor(IAtom a) {return 0;}
     
     public final void setBaseColor(Color c) {baseColor = c;}
     public final Color getBaseColor() {return baseColor;}

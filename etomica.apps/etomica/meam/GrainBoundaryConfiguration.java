@@ -11,10 +11,10 @@ package etomica.meam;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.config.Configuration;
@@ -113,7 +113,7 @@ public class GrainBoundaryConfiguration extends Configuration {
      */
     public void initializeCoordinates(Phase phase) {
     	AtomArrayList[] lists = getMoleculeLists(phase);
-    	IVector firstAtomPosition = ((AtomLeaf)lists[0].get(0)).getPosition();
+    	IVector firstAtomPosition = ((IAtomPositioned)lists[0].get(0)).getPosition();
     	
     	System.out.println("At beginning of initializePositions  "+ firstAtomPosition);
     	
@@ -177,7 +177,7 @@ public class GrainBoundaryConfiguration extends Configuration {
                 config.initializePositions(((IAtomGroup)a).getChildList());
             }
             IVector site = (IVector) myLatA.site(ii);
-            if (((AtomLeaf)a).getPosition() == firstAtomPosition) {
+            if (((IAtomPositioned)a).getPosition() == firstAtomPosition) {
             	System.out.println();
             }
             atomActionTranslateTo.setDestination(site);

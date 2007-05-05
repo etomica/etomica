@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -42,7 +42,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinition
     	
     	for (int i =0; i < list.size(); i++){
     		
-    		IVector pos = ((AtomLeaf)((IAtomGroup)molecule).getChildList().get(i)).getPosition();
+    		IVector pos = ((IAtomPositioned)((IAtomGroup)molecule).getChildList().get(i)).getPosition();
     		IVector site = getLatticePosition(((IAtomGroup)molecule).getChildList().get(i));
     		
     		for (int j =0; j <space.D(); j++){

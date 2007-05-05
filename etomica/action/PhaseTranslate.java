@@ -1,7 +1,7 @@
 package etomica.action;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -49,7 +49,7 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
             a.getPosition().PE(translationVector);
         }
 	}

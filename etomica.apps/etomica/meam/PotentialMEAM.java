@@ -1,7 +1,7 @@
 package etomica.meam;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
@@ -56,10 +56,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		for (int i = 0; i < sum.length; i++) {
     		sum[i] = 0;
 		}
-		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
+        IAtomPositioned atom0 = (IAtomPositioned)atoms.getAtom(0);
 		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
 		for(int j = 1; j < atoms.getAtomCount(); j++) {
-			AtomLeaf atomj = (AtomLeaf)atoms.getAtom(j);
+            IAtomPositioned atomj = (IAtomPositioned)atoms.getAtom(j);
 			rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
 			nearestImageTransformer.nearestImage(rij);
 			double r = Math.sqrt(rij.squared()); 
@@ -72,7 +72,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			double Sij = 1.0;
 			for(int k = 1; k < atoms.getAtomCount(); k++) {
 				if (k == j) continue;
-				AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
+                IAtomPositioned atomk = (IAtomPositioned) atoms.getAtom(k);
 				rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
 				nearestImageTransformer.nearestImage(rik);
 				double ik = Math.sqrt(rik.squared()); 
@@ -283,8 +283,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 
     protected double rhoi(AtomSet atoms) {
     	double rhoi0 = rhoi0(), gamma = gamma();
-    	AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		pi = parameters[atom0.getType().getIndex()];
+		pi = parameters[atoms.getAtom(0).getType().getIndex()];
     	if (pi == pSn) {
     		return (2.0 * rhoi0) / (1.0 + Math.exp(-gamma)); //Sn
     	}
@@ -297,8 +296,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	public double energy(AtomSet atoms) {
 		calcSums(atoms);
 		double rhoi = rhoi(atoms);
-		AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
-		pi = parameters[atom0.getType().getIndex()];
+		pi = parameters[atoms.getAtom(0).getType().getIndex()];
 		double F = pi.A * pi.Ec * (rhoi/pi.Z) * Math.log(rhoi/pi.Z);
 		return F + (0.5*sum[PHI]);
 	}
@@ -353,7 +351,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 			rhoi3sq = rhoi3sq(), tav1 = tav1(), tav2 = tav2(), tav3 = tav3(), 
 			gamma = gamma(), rhoi = rhoi(atoms);
         
-        AtomLeaf atom0 = (AtomLeaf)atoms.getAtom(0);
+        IAtomPositioned atom0 = (IAtomPositioned)atoms.getAtom(0);
 		int indexi = atom0.getType().getIndex(); pi = parameters[indexi];
 		
 		sumGiPhi.E(0); sumGiRhoj0.E(0); sumGiRhoj2.E(0);
@@ -368,7 +366,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
         
         
         for(int n = 1; n < atoms.getAtomCount(); n++) {
-        	AtomLeaf atomn = (AtomLeaf)atoms.getAtom(n);
+            IAtomPositioned atomn = (IAtomPositioned)atoms.getAtom(n);
             rin.Ev1Mv2(atomn.getPosition(), atom0.getPosition());
             nearestImageTransformer.nearestImage(rin);
             double in = Math.sqrt(rin.squared());
@@ -408,7 +406,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     			// to calculate Sij, giSij, gjSij
             	double Sij = 1.0; giSij.E(0); gjSij.E(0);
             	for(int k = 1; k < atoms.getAtomCount(); k++) {
-            		AtomLeaf atomk = (AtomLeaf) atoms.getAtom(k);
+                    IAtomPositioned atomk = (IAtomPositioned) atoms.getAtom(k);
             		if (k == n) continue; // continue to next k atom
             		rik.Ev1Mv2(atomk.getPosition(), atom0.getPosition());
             		nearestImageTransformer.nearestImage(rik);
@@ -870,7 +868,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
             for(int j = 1; j < atoms.getAtomCount(); j++) {
             	//The k atom, n, must not be treated as one of the other j atoms.
             	if (j == n) continue; // continue to next j atom
-        		AtomLeaf atomj = (AtomLeaf) atoms.getAtom(j);
+                IAtomPositioned atomj = (IAtomPositioned) atoms.getAtom(j);
         		rij.Ev1Mv2(atomj.getPosition(), atom0.getPosition());
         		nearestImageTransformer.nearestImage(rij);
         		double ij = Math.sqrt(rij.squared());
@@ -931,7 +929,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	        	double Sij = Sijk;
 	        	for(int l = 1; l < atoms.getAtomCount(); l++) {
 	        		if (l == j || l == n) continue; //already have Sijk for n = k
-	    			AtomLeaf atoml = (AtomLeaf) atoms.getAtom(l);
+                    IAtomPositioned atoml = (IAtomPositioned) atoms.getAtom(l);
 	    			ril.Ev1Mv2(atoml.getPosition(), atom0.getPosition());
 	    			nearestImageTransformer.nearestImage(ril);
 	    			double il = Math.sqrt(ril.squared());

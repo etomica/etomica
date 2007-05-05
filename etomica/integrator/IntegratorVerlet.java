@@ -2,10 +2,10 @@ package etomica.integrator;
 
 import etomica.EtomicaInfo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
@@ -13,7 +13,6 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -87,9 +86,9 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             pressureTensor.E(forceSum.getPressureTensor());
-            IVector v = ((ICoordinateKinetic)a).getVelocity();
+            IVector v = a.getVelocity();
             workTensor.Ev1v2(v,v);
             workTensor.TE(((AtomTypeLeaf)a.getType()).getMass());
             pressureTensor.PE(workTensor);
@@ -122,9 +121,9 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
-            agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)a).getVelocity());//06/13/03 removed minus sign before timeStep
+            agent.rMrLast.Ea1Tv1(timeStep,a.getVelocity());//06/13/03 removed minus sign before timeStep
         }
     }
 
@@ -143,10 +142,10 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
      * Updates MrLast appropriately after randomizing momentum
      * as part of the Andersen thermostat.
      */
-    protected void randomizeMomentum(AtomLeaf atom) {
+    protected void randomizeMomentum(IAtomKinetic atom) {
         super.randomizeMomentum(atom);
         Agent agent = (Agent)agentManager.getAgent(atom);
-        agent.rMrLast.Ea1Tv1(timeStep,((ICoordinateKinetic)atom).getVelocity());//06/13/03 removed minus sign before timeStep
+        agent.rMrLast.Ea1Tv1(timeStep,atom.getVelocity());//06/13/03 removed minus sign before timeStep
     }
     
 //--------------------------------------------------------------

@@ -4,9 +4,9 @@ package etomica.graphics2;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
@@ -81,7 +81,7 @@ public final class SceneManager {
         agentIterator.reset();
         while (agentIterator.hasNext()) {
             SphereShapeWrapper wrapper = (SphereShapeWrapper)agentIterator.next();
-            AtomLeaf a = wrapper.atom;
+            IAtomPositioned a = wrapper.atom;
             int c = colorScheme.atomColor(a);
             IVector r = a.getPosition();
 
@@ -222,7 +222,7 @@ public final class SceneManager {
                 return null;
             }
             SphereShapeWrapper wrapper = new SphereShapeWrapper();
-            wrapper.atom = (AtomLeaf)a;
+            wrapper.atom = (IAtomPositioned)a;
             if (a.getType() instanceof AtomTypeSphere) {
                 wrapper.shape = renderer.createSphere();
                 
@@ -242,7 +242,7 @@ public final class SceneManager {
     }
 
     public static class SphereShapeWrapper {
-        public AtomLeaf atom;
+        public IAtomPositioned atom;
         public Renderable.Sphere shape;
     }
     

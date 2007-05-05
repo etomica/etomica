@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 
@@ -78,7 +78,7 @@ public class WriteConfiguration implements Action {
             AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
             int nLeaf = leafList.size();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                AtomLeaf a = (AtomLeaf)leafList.get(iLeaf);
+                IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
                 writePosition.E(a.getPosition());
                 if (doApplyPBC) {
                     IVector shift = phase.getBoundary().centralImage(writePosition);

@@ -1,7 +1,7 @@
 package etomica.potential;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
@@ -50,10 +50,10 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 	}
 	
 	public IVector[] gradient(AtomSet atomSet, Tensor pressureTensor){
-		AtomLeaf atom0 = (AtomLeaf)atomSet.getAtom(0);
-		AtomLeaf atom1 = (AtomLeaf)atomSet.getAtom(1);
-		AtomLeaf atom2 = (AtomLeaf)atomSet.getAtom(2);
-		AtomLeaf atom3 = (AtomLeaf)atomSet.getAtom(3);
+        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
+        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
+        IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
+        IAtomPositioned atom3 = (IAtomPositioned)atomSet.getAtom(3);
 		dr12.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 		dr23.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
 		dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
@@ -120,10 +120,10 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 	}
 	
 	public double energy(AtomSet atomSet){
-		AtomLeaf atom0 = (AtomLeaf)atomSet.getAtom(0);
-		AtomLeaf atom1 = (AtomLeaf)atomSet.getAtom(1);
-		AtomLeaf atom2 = (AtomLeaf)atomSet.getAtom(2);
-		AtomLeaf atom3 = (AtomLeaf)atomSet.getAtom(3);
+        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
+        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
+        IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
+        IAtomPositioned atom3 = (IAtomPositioned)atomSet.getAtom(3);
 		dr12.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 		dra. Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 		dr23.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
@@ -163,10 +163,10 @@ public class P4TorsionDreiding extends Potential implements PotentialSoft {
 	 */
 	
 	public double du(AtomSet atomSet){
-		AtomLeaf atom0 = (AtomLeaf)atomSet.getAtom(0);
-		AtomLeaf atom1 = (AtomLeaf)atomSet.getAtom(1);
-		AtomLeaf atom2 = (AtomLeaf)atomSet.getAtom(2);
-		AtomLeaf atom3 = (AtomLeaf)atomSet.getAtom(3);
+        IAtomPositioned atom0 = (IAtomPositioned)atomSet.getAtom(0);
+        IAtomPositioned atom1 = (IAtomPositioned)atomSet.getAtom(1);
+        IAtomPositioned atom2 = (IAtomPositioned)atomSet.getAtom(2);
+        IAtomPositioned atom3 = (IAtomPositioned)atomSet.getAtom(3);
 		dr12.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
 		dr23.Ev1Mv2(atom1.getPosition(), atom2.getPosition());
 		dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());

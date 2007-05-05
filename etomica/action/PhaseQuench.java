@@ -1,11 +1,10 @@
 package etomica.action;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.data.meter.MeterTemperature;
 import etomica.phase.Phase;
-import etomica.space.ICoordinateKinetic;
 
 /**
  * Scales all velocities of a phase so that its kinetic temperature is equal to
@@ -49,7 +48,7 @@ public class PhaseQuench extends PhaseActionAdapter {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-			((ICoordinateKinetic)(AtomLeaf)leafList.get(iLeaf)).getVelocity().TE(scale);
+			((IAtomKinetic)leafList.get(iLeaf)).getVelocity().TE(scale);
         }
 	}
 
