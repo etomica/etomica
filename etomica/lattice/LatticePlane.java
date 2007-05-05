@@ -4,7 +4,6 @@ import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.math.geometry.Plane;
 import etomica.space.IVector;
 import etomica.space.Space;

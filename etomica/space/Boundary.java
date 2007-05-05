@@ -1,6 +1,5 @@
 package etomica.space;
 
-import etomica.lattice.IndexIterator;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Polytope;
 
