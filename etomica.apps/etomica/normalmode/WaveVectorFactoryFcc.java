@@ -57,21 +57,44 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
                             && 2 * (kx - ky - kz) <= 3 * numCells
                             && 2 * (kx - ky - kz) > -3 * numCells) {
                         
+                        int ix = numCells;
+                        int iy = numCells;
+                        int iz = numCells;
                         boolean flip = kx < 0 || (kx == 0 && (ky < 0 || (ky == 0 && kz < 0)));
                         if (flip) {
-                            if (waveVectorIndices[-kx+numCells][-ky+numCells][-kz+numCells] == 0) {
-                                // this one was unique
-                                count++;
-                            }
-                            waveVectorIndices[-kx+numCells][-ky+numCells][-kz+numCells]++;
+                            ix -= kx;
+                            iy -= ky;
+                            iz -= kz;
                         }
                         else {
-                            if (waveVectorIndices[kx+numCells][ky+numCells][kz+numCells] == 0) {
-                                // this one was unique
-                                count++;
-                            }
-                            waveVectorIndices[kx+numCells][ky+numCells][kz+numCells]++;
+                            ix += kx;
+                            iy += ky;
+                            iz += kz;
                         }
+                        
+                        if (numCells % 2 == 0) {
+                            if (iy == numCells*2 && ix == numCells && iz == 3*numCells/2) {
+                                System.out.println("here "+ix+" "+iy+" "+iz);
+                                ix = numCells*2;
+                                iy = numCells;
+                            }
+                            else if (iz == numCells*2) {
+                                if (ix == numCells && iy == 3*numCells/2) {
+                                    ix = numCells*2;
+                                    iz = numCells;
+                                }
+                                else if (iy == numCells && ix == 3*numCells/2) {
+                                    iy = numCells*2;
+                                    iz = numCells;
+                                }
+                            }
+                        }
+                        
+                        if (waveVectorIndices[ix][iy][iz] == 0) {
+                            // this one was unique
+                            count++;
+                        }
+                        waveVectorIndices[ix][iy][iz]++;
                     }
                 }
             }
