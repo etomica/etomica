@@ -42,8 +42,7 @@ public class CalcJacobian {
             iterator.reset();
             // sum T over atoms
             int atomCount = 0;
-            boolean realIsZero = false;
-            boolean imaginaryIsZero = false;
+            double phaseAngle = Double.NaN;
             for (IAtom atom = iterator.nextAtom(); atom != null;
                  atom = iterator.nextAtom()) {
                 IVector latticePosition = (IVector)siteManager.getAgent(atom);
@@ -55,22 +54,20 @@ public class CalcJacobian {
                         tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = coskR;
                         tempJacobian[(vectorPos+1)*coordinateDim+iDim][atomCount*coordinateDim+iDim] = -sinkR;
                     }
-                    else if (Math.abs(sinkR) < 1.e-14) {
-                        if (realIsZero) {
-                            throw new RuntimeException("oops "+iVector+" "+waveVectors[iVector]);
-                        }
-                        imaginaryIsZero = true;
-                        tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = coskR;
-                    }
-                    else if (Math.abs(coskR) < 1.e-14) {
-                        if (imaginaryIsZero) {
-                            throw new RuntimeException("oops "+iVector+" "+waveVectors[iVector]);
-                        }
-                        realIsZero = true;
-                        tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = -sinkR;
-                    }
                     else {
-                        throw new RuntimeException("oops");
+                        // single degree of freedom.
+                        // All kR must be 100% in-phase or 100% out of phase. kR-phaseAngle will be 0 or pi
+                        if (!Double.isNaN(phaseAngle) && Math.abs(Math.sin(kR-phaseAngle)) > 1.e-10) {
+                            throw new RuntimeException("oops "+iVector+" "+waveVectors[iVector]);
+                        }
+                        phaseAngle = kR;
+                        // either one works so long as it's not 0
+                        if (Math.abs(coskR) > 0.1) {
+                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = Math.signum(coskR);
+                        }
+                        else {
+                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = Math.signum(sinkR);
+                        }
                     }
                 }
                 atomCount++;
