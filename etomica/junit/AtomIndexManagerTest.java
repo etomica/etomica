@@ -34,6 +34,8 @@ public class AtomIndexManagerTest extends TestCase {
         sim.getSpeciesManager().addSpecies(species1);
         Phase phase0 = new Phase(sim);
         Phase phase1 = new Phase(sim);
+        sim.addPhase(phase0);
+        sim.addPhase(phase1);
         phase0.getAgent(species0).setNMolecules(20);
         phase0.getAgent(species1).setNMolecules(10);
         phase1.getAgent(species0).setNMolecules(20);

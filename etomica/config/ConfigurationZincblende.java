@@ -99,6 +99,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         Simulation sim = new Simulation(Space3D.getInstance());
         sim.getDefaults().atomSize = 5.0;
         Phase phase = new Phase(sim);
+        sim.addPhase(phase);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(speciesSpheres0);

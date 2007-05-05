@@ -69,6 +69,7 @@ public class SWMD3D extends Simulation {
 
 
     phase = new Phase(this);
+    addPhase(phase);
     potential  = new etomica.potential.P2SquareWell(this);
     potential.setLambda(1.6);
 

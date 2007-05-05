@@ -104,6 +104,7 @@ public class HSMD3D extends Simulation {
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         //deformed

@@ -255,6 +255,7 @@ public class ConfigurationLattice extends Configuration {
         Simulation sim = new Simulation(Space3D.getInstance());
         sim.getDefaults().atomSize = 5.0;
         Phase phase = new Phase(sim);
+        sim.addPhase(phase);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
         int k = 4;

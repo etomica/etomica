@@ -47,6 +47,7 @@ public class LjMd2D extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         potential = new P2LennardJones(this);

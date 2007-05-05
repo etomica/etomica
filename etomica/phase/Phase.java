@@ -61,11 +61,17 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * Constructs phase with default rectangular periodic boundary.
      */
     public Phase(Simulation sim) {
-        space = sim.getSpace();
+        this(new BoundaryRectangularPeriodic(sim));
+    }
+    
+    /**
+     * Constructs phase with the given boundary
+     */
+    public Phase(Boundary boundary) {
+        space = boundary.getSpace();
         eventManager = new PhaseEventManager();
         speciesMaster = new SpeciesMaster(this, eventManager);
-        setBoundary(new BoundaryRectangularPeriodic(sim));
-        sim.addPhase(this);
+        setBoundary(boundary);
         setName(null);
         
         inflateEvent = new PhaseInflateEvent(this);
@@ -268,6 +274,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     public static Phase readPhase(ObjectInputStream in, Simulation sim, SpeciesResolver resolver) throws IOException, ClassNotFoundException {
         Boundary newBoundary = (Boundary)in.readObject();
         Phase newPhase = new Phase(sim);
+        sim.addPhase(newPhase);
         newPhase.setBoundary(newBoundary);
         
         Species[] mySpecies = sim.getSpeciesManager().getSpecies();

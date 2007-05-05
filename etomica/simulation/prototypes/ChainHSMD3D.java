@@ -64,6 +64,7 @@ public class ChainHSMD3D extends Simulation {
         ((ConformationLinear)model.getConformation()).setAngle(1,0.5);
         
         phase = new Phase(this);
+        addPhase(phase);
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc());
         species.getAgent(phase).setNMolecules(numAtoms);
         config.initializeCoordinates(phase);

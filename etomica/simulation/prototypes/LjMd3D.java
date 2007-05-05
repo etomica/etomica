@@ -48,6 +48,7 @@ public class LjMd3D extends Simulation {
         getSpeciesManager().addSpecies(species);
         phase.getAgent(species).setNMolecules(50);
         phase = new Phase(this);
+        addPhase(phase);
         potential = new P2LennardJones(this);
         this.potentialMaster.addPotential(potential,new Species[]{species,species});
         

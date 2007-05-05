@@ -61,6 +61,7 @@ public class HSMD3DNoNbr extends Simulation {
         this.potentialMaster.addPotential(potential,new Species[]{species,species});
 
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 //        phase.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.setPhase(phase);

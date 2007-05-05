@@ -54,6 +54,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         sim.getSpeciesManager().addSpecies(species1);
         sim.getSpeciesManager().addSpecies(species0);
         Phase phase = new Phase(sim);
+        sim.addPhase(phase);
         phase.getAgent(species0).setNMolecules(3);
         phase.getAgent(species1).setNMolecules(2);
         phase.getAgent(species2).setNMolecules(3);

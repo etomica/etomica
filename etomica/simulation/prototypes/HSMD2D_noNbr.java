@@ -58,6 +58,7 @@ public class HSMD2D_noNbr extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 	    phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
 	    P2HardSphere potential = new P2HardSphere(this);

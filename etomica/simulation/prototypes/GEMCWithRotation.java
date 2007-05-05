@@ -48,6 +48,7 @@ public class GEMCWithRotation extends Simulation {
         getSpeciesManager().addSpecies(species);
 
 	    phase1 = new Phase(this);
+        addPhase(phase1);
         phase1.getAgent(species).setNMolecules(200);
         
 	    IntegratorMC integratorMC = new IntegratorMC(this);
@@ -59,9 +60,10 @@ public class GEMCWithRotation extends Simulation {
         
 
 	    phase2 = new Phase(this);
+        addPhase(phase2);
         phase2.getAgent(species).setNMolecules(200);
         integratorMC = new IntegratorMC(this);
-        integratorMC.setPhase(phase1);
+        integratorMC.setPhase(phase2);
         moveManager = integratorMC.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom()));
         moveManager.addMCMove(new MCMoveAtom(this));

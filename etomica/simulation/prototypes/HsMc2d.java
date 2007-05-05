@@ -43,6 +43,7 @@ public class HsMc2d extends Simulation {
         getSpeciesManager().addSpecies(species);
         getSpeciesManager().addSpecies(species2);
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(20);
         phase.getAgent(species2).setNMolecules(20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);

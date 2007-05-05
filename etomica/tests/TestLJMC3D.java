@@ -55,6 +55,7 @@ public class TestLJMC3D extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 	    phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
         phase.setDensity(0.65);
         potential = new P2LennardJones(this);

@@ -72,6 +72,7 @@ public class HSMD2D extends Simulation {
         potentialMaster.addPotential(potential22,new Species[]{species2,species});
 
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(512);
         phase.getAgent(species2).setNMolecules(5);
         NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);

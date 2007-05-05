@@ -89,6 +89,7 @@ public class UnitTestUtil {
         }
         for (int i = 0; i < nPhase; i++) {
             Phase phase = new Phase(sim);
+            sim.addPhase(phase);
             if (species0 != null)
                 phase.getAgent(species0).setNMolecules(n0[i]);
             if (species1 != null)
@@ -130,6 +131,7 @@ public class UnitTestUtil {
                 new int[] { 9, 11, 6, 3, 3 }, new Default());
         //        new SpeciesSpheres(sim);
         Phase phase = new Phase(sim);
+        sim.addPhase(phase);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomFactoryHetero factory = new AtomFactoryHetero(sim);
             AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];

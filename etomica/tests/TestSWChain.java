@@ -90,6 +90,7 @@ public class TestSWChain extends Simulation {
         sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
 
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(numMolecules);
         NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
         integrator.addListener(nbrManager);

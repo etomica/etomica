@@ -58,6 +58,7 @@ public class TestHSMD3D extends Simulation {
         potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species2,species2});
         
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
         phase.getAgent(species2).setNMolecules(numAtoms/100);
         NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
