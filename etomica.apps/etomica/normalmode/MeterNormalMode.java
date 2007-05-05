@@ -154,10 +154,6 @@ public class MeterNormalMode implements DataSource, Action, Serializable {
         return tag;
     }
     
-    public String getLabel() {
-        return "a label";
-    }
-    
     private static final long serialVersionUID = 1L;
     private IVector[] waveVectors;
     private WaveVectorFactory waveVectorFactory;
