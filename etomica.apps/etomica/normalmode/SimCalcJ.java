@@ -110,7 +110,7 @@ public class SimCalcJ extends Simulation {
         double d = m.det();
         double d2 = Math.abs(d) / (Math.pow(nA,(D*(nA-1))/2.0));
         System.out.println("raw det = "+d+" (log2 det = "+Math.log(Math.abs(d))/Math.log(2)+")");
-        System.out.println("dx/dq det = "+1/d2+" (log2 det = "+Math.log(d2)/Math.log(2)+")");
+        System.out.println("dx/dq det = "+1/d2+" (log2 det = "+Math.log(1.0/d2)/Math.log(2)+")");
     }
 
     private static final long serialVersionUID = 1L;
