@@ -7,6 +7,7 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
+import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 
 /**
@@ -16,10 +17,9 @@ import etomica.space.IVector;
  */
 public class CheckCBMCHexane implements Action {
 
-    public CheckCBMCHexane(Phase p) {
+    public CheckCBMCHexane(Phase p, PotentialMaster potentialMaster) {
         phase = p;
-        energyMeter = new MeterPotentialEnergy(phase.getSimulation()
-                .getPotentialMaster());
+        energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setPhase(phase);
 
         moleculeIterator = new AtomIteratorAllMolecules(phase);

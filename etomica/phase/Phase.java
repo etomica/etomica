@@ -61,7 +61,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * Constructs phase with default rectangular periodic boundary.
      */
     public Phase(Simulation sim) {
-        this.sim = sim;
         space = sim.getSpace();
         eventManager = new PhaseEventManager();
         speciesMaster = new SpeciesMaster(this, eventManager);
@@ -73,19 +72,10 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     }
     
     /**
-     * Returns the Simulation holding this Phase.  No, you shouldn't be calling
-     * this method.  It's here for SpeciesAgent.getNMolecules, which shouldn't
-     * be calling this method either!
-     */
-    public Simulation getSimulation() {
-        return sim;
-    }
-    
-    /**
      * Resets the Phase's index.  This should only need to be called from the
      * Simulation when another Phase is removed.
      */
-    public void resetIndex() {
+    public void resetIndex(Simulation sim) {
         Phase[] phases = sim.getPhases();
         for (int i=0; i<phases.length; i++) {
             if (phases[i] == this) {
@@ -321,7 +311,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         return eventManager;
     }
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     private Boundary boundary;
     private SpeciesMaster speciesMaster;
     private boolean lrcEnabled = true;
@@ -329,7 +319,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     protected final Space space;
     private final PhaseEventManager eventManager;
     private final PhaseEvent inflateEvent;
-    private Simulation sim;
     private int index;
 }
         

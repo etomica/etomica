@@ -58,7 +58,7 @@ public class Simulation implements java.io.Serializable  {
 
     public final void addPhase(Phase newPhase) {
         phaseList = (Phase[])Arrays.addObject(phaseList, newPhase);
-        newPhase.resetIndex();
+        newPhase.resetIndex(this);
         speciesManager.phaseAddedNotify(newPhase);
         eventManager.fireEvent(new SimulationPhaseAddedEvent(newPhase));
     }
@@ -67,7 +67,7 @@ public class Simulation implements java.io.Serializable  {
         phaseList = (Phase[])Arrays.removeObject(phaseList, oldPhase);
 
         for (int i = oldPhase.getIndex(); i<phaseList.length; i++) {
-            phaseList[i].resetIndex();
+            phaseList[i].resetIndex(this);
         }
         
         eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldPhase));

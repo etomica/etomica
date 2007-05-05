@@ -73,11 +73,6 @@ public final class SpeciesAgent extends AtomGroup {
                 removeChildAtom(getChildList().get(i-1));
             }
         }
-        if (n == 0) {
-            // if there are no molecules of this Species, the factory can be mutable
-            // yes, this is horrible.
-            type.getSpecies().getFactory().checkMutable(speciesMaster.getPhase().getSimulation());
-        }
     }
     
     public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
