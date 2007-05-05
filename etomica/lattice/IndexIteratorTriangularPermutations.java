@@ -5,10 +5,10 @@ import etomica.util.Arrays;
 
 /**
  * Generates all unique iterates formed as permutations of iterates given by IndexIteratorTriangular with
- * allowEqualElements set to true.   This aims to generate iterates over a cubic region, such that each subsequent
- * iterates has a sum-squared magnitude that is greater than that of previous iterates (this is accomplished
+ * allowEqualElements set to true.   This aims to generate iterates over a pyrimidal region, such that each subsequent
+ * iterate has a sum-squared magnitude that is greater than that of previous iterates (this is accomplished
  * only approximately; some iterates are "closer" to origin than some others that precede it).  This ordering
- * contrasts with IndexIteratorRectangular which nests iteration over each coordinate direction. 
+ * contrasts with IndexIteratorRectangular which nests iteration over each coordinate direction.
  * 
  * For example, with D set to 3 (at construction), and maxElement = 2, the following iterates are generated:
  * {0,0,0}<br>
