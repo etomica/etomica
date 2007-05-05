@@ -86,6 +86,7 @@ public class OsmosisSim extends Simulation {
         
         //construct phase
 	    phase = new Phase(this);
+        addPhase(phase);
         phase.setBoundary(new BoundaryRectangularNonperiodic(space, getRandom()));
         phase.getBoundary().setDimensions(new Vector2D(30.0, 30.0));
         phase.getAgent(speciesA).setNMolecules(30);

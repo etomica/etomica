@@ -118,6 +118,7 @@ public class MEAM_MC extends Simulation {
         ((AtomTypeSphere)cu.getFactory().getType()).setDiameter(2.5561); 
         
 	    phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(sn).setNMolecules(216);
         phase.getAgent(ag).setNMolecules(0);
         phase.getAgent(cu).setNMolecules(0);

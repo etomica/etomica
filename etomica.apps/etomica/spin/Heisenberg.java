@@ -45,6 +45,7 @@ public class Heisenberg extends Simulation {
         ((PotentialMasterSite)potentialMaster).setSimulation(this);
         defaults.makeLJDefaults();
         phase = new Phase(this);
+        addPhase(phase);
         int numAtoms = space.powerD(nCells);
         spins = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(spins);

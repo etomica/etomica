@@ -50,9 +50,9 @@ public class PistonCylinder extends Simulation {
         defaults.atomMass = 16;
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        phase = new Phase(this);
+        phase = new Phase(new BoundaryPistonCylinder(space, getRandom()));
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(112);
-        phase.setBoundary(new BoundaryPistonCylinder(space, getRandom()));
         IVector newDim;
         Configuration config;
         if (space.D() == 2) {

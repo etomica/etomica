@@ -132,6 +132,7 @@ public class ZeoliteSimulation extends Simulation {
         getController().addAction(activityIntegrate);
         
         phase = new Phase(this);
+        addPhase(phase);
         NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
         integrator.addListener(nbrManager);
         species = new SpeciesSpheresMono[numAtoms.length];

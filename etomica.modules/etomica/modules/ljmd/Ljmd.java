@@ -55,6 +55,7 @@ public class Ljmd extends Simulation {
 	    
         //construct phase
 	    phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(N);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         integrator.setPhase(phase);

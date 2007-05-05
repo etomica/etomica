@@ -57,6 +57,7 @@ public class LJMD3DThreaded extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         phase = new Phase(this);
+        addPhase(phase);
         species.getAgent(phase).setNMolecules(numAtoms);
         phase.setDensity(0.65);
         

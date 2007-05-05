@@ -197,8 +197,8 @@ public class MEAM_3DMDwithGB extends Simulation {
         nAImpurity = 0; nAVacancy = 0;
         nBImpurity = 0; nBVacancy = 0;
         
-        phase = new Phase(this);
-        phase.setBoundary(new BoundaryRectangularSlit(this, 2));
+        phase = new Phase(new BoundaryRectangularSlit(this, 2));
+        addPhase(phase);
         
         // beta-Sn phase
         

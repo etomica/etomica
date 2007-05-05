@@ -162,6 +162,7 @@ public class DCVGCMD extends Simulation {
 
 
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(20);
         phase.getAgent(species1).setNMolecules(20);
         phase.getAgent(speciesTube).setNMolecules(1);

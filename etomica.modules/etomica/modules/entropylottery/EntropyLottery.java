@@ -34,9 +34,9 @@ public class EntropyLottery extends Simulation {
         getSpeciesManager().addSpecies(species);
         
         //construct phase
-	    phase = new Phase(this);
+	    phase = new Phase(new BoundaryRectangularNonperiodic(space, getRandom()));
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(N);
-        phase.setBoundary(new BoundaryRectangularNonperiodic(space, getRandom()));
         IVector dimensions = space.makeVector();
         dimensions.E(10);
         phase.getBoundary().setDimensions(dimensions);

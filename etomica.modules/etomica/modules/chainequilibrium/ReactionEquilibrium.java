@@ -57,6 +57,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         integratorHard1.setThermostatInterval(10);
 
         phase1 = new Phase(this);
+        addPhase(phase1);
         integratorHard1.setPhase(phase1);	
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);

@@ -57,6 +57,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 
         //construct phase
         phase1 = new Phase(this);
+        addPhase(phase1);
         integratorHard1.setPhase(phase1);
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);

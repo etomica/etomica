@@ -71,6 +71,7 @@ public class TestYukawaMD3D extends Simulation{
 		species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 		phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
         NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
         integrator.addListener(nbrManager);

@@ -164,6 +164,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         Simulation sim = new Simulation(Space3D.getInstance());
 		sim.getDefaults().atomSize = 3.0;
 		Phase phase = new Phase(sim);
+        sim.addPhase(phase);
         SpeciesSpheresMono species1 = new SpeciesSpheresMono(sim);
 		SpeciesSpheresMono species2 = new SpeciesSpheresMono(sim);
 		int k = 4;

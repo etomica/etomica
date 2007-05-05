@@ -195,6 +195,7 @@ public class MEAMMd3DThreaded extends Simulation {
         
         
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(sn).setNMolecules(0);
         phase.getAgent(ag).setNMolecules(numAtoms);
         phase.getAgent(cu).setNMolecules(0);

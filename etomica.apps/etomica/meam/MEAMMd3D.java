@@ -187,6 +187,7 @@ public class MEAMMd3D extends Simulation {
         
         
         phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(sn).setNMolecules(0);
         phase.getAgent(ag).setNMolecules(256);
         phase.getAgent(cu).setNMolecules(0);

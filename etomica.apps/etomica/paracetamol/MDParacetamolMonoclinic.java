@@ -125,6 +125,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         getController().addAction(activityIntegrate);
         
         phase = new Phase(this);
+        addPhase(phase);
         phase.setDimensions(Space.makeVector(new double[] {25,25,25}));
         species = new SpeciesParacetamol(this);
         getSpeciesManager().addSpecies(species);

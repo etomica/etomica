@@ -69,6 +69,7 @@ public class JouleThomsonSim extends Simulation {
 	    potential = new P2LennardJones(this);
         potentialMaster.addPotential(potential, new Species[]{species, species});
 	    phase = new Phase(this);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(nAtoms);
         
         SpaceLattice lattice;

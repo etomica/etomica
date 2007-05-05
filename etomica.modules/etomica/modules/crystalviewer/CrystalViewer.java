@@ -41,6 +41,7 @@ public class CrystalViewer {
         sim.getDefaults().makeLJDefaults();
         center = sim.getSpace().makeVector();
         phase  = new Phase(sim);
+        sim.addPhase(phase);
 
         species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);

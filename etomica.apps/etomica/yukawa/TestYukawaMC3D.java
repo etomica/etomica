@@ -59,6 +59,7 @@ public class TestYukawaMC3D extends Simulation{
         getSpeciesManager().addSpecies(species);
 		phase.getAgent(species).setNMolecules(numAtoms);
 		phase = new Phase(this);
+        addPhase(phase);
 		phase.setDensity(0.65);
 		potential = new P2Yukawa(this);
 		double truncationRadius = 3.0*potential.getKappa();

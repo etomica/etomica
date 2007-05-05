@@ -197,8 +197,8 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 //        getSpeciesManager().addSpecies(agB);
         getSpeciesManager().addSpecies(cuB);
         
-        phase = new Phase(this);
-        phase.setBoundary(new BoundaryRectangularSlit(this, 2));
+        phase = new Phase(new BoundaryRectangularSlit(this, 2));
+        addPhase(phase);
         
         
         double aA, bA, cA, aB, bB, cB;

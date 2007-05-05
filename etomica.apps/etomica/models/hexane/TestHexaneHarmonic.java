@@ -87,7 +87,9 @@ public class TestHexaneHarmonic extends Simulation {
 
         SpeciesHexane species = new SpeciesHexane(this);
         getSpeciesManager().addSpecies(species);
-        phase = new Phase(this);
+        bdry =  new BoundaryDeformableLattice(primitive, getRandom(), new int[]{4,6,6});
+        phase = new Phase(bdry);
+        addPhase(phase);
         phase.getAgent(species).setNMolecules(numMolecules);
 //        config.initializeCoordinates(phase);
 
@@ -190,9 +192,6 @@ public class TestHexaneHarmonic extends Simulation {
 //        potentialChainIntra.addPotential(potential, nonbonded);
 //        
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
-
-        bdry =  new BoundaryDeformableLattice(primitive, getRandom(), new int[]{4,6,6});
-        phase.setBoundary(bdry);
 
         //Initialize the positions of the atoms.
         config.initializeCoordinates(phase);
