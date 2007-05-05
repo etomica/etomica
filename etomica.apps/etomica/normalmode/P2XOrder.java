@@ -1,9 +1,9 @@
 package etomica.normalmode;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
@@ -43,7 +43,7 @@ public class P2XOrder extends Potential2 {
      * Zero if x coordinates are ordered differently from atom indexes.
      */
     public double energy(AtomSet pair) {
-        dr.Ev1Mv2(((AtomLeaf)((AtomPair)pair).atom1).getPosition(), ((AtomLeaf)((AtomPair)pair).atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)((AtomPair)pair).atom1).getPosition(), ((IAtomPositioned)((AtomPair)pair).atom0).getPosition());
         int dI = ((AtomPair)pair).atom1.getIndex() - ((AtomPair)pair).atom0.getIndex();
         if (Math.abs(dI) == ((AtomPair)pair).atom1.getParentGroup().getChildList().size()-1) {
             phase.getBoundary().nearestImage(dr);
