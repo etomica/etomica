@@ -37,8 +37,7 @@ import etomica.units.Pixel;
 public class SimHarmonic extends Simulation {
 
     public SimHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
-//        super(space, true, new PotentialMasterList(space));
-        super(space);
+        super(space, true, new PotentialMasterList(space));
 
         int D = space.D();
         
