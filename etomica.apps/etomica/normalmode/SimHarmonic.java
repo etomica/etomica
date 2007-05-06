@@ -21,8 +21,8 @@ import etomica.lattice.crystal.Primitive;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
-import etomica.potential.Potential;
-import etomica.potential.Potential2Spherical;
+import etomica.potential.Potential2;
+import etomica.potential.Potential2HardSpherical;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
@@ -133,9 +133,9 @@ public class SimHarmonic extends Simulation {
         SimHarmonic sim = new SimHarmonic(Space.getInstance(D), nA, density, filename, harmonicFudge);
         
         //add hard potentials for FEP calculations.  With de novo sampling potential is not otherwise used.
-        Potential p2 = new P2HardSphere(sim.getSpace(), 1.0, true);
+        Potential2 p2 = new P2HardSphere(sim.getSpace(), 1.0, true);
         if (D == 1) {
-            p2 = new P2XOrder(sim.getSpace(), (Potential2Spherical)p2);
+            p2 = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)p2);
         }
         sim.getPotentialMaster().addPotential(p2, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
 

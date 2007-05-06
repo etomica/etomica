@@ -7,9 +7,12 @@ import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
+import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2Spherical;
+import etomica.potential.PotentialHard;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space.Tensor;
 
 /**
  * Hard potential that enforces ordering of the x-coordinates of the
@@ -20,14 +23,14 @@ import etomica.space.Space;
  * @author David Kofke
  * @author Jhumpa Adhikari
  */
-public class P2XOrder extends Potential2 {
+public class P2XOrder extends Potential2 implements Potential2Spherical, PotentialHard {
     
     private static final long serialVersionUID = 1L;
     protected final IVector dr;
     protected Phase phase;
-    protected Potential2Spherical wrappedPotential;
+    protected Potential2HardSpherical wrappedPotential;
     
-    public P2XOrder(Space space, Potential2Spherical wrappedPotential) {
+    public P2XOrder(Space space, Potential2HardSpherical wrappedPotential) {
         super(space);
         dr = space.makeVector();
         this.wrappedPotential = wrappedPotential;
@@ -72,5 +75,27 @@ public class P2XOrder extends Potential2 {
         phase = newPhase;
         ((Potential)wrappedPotential).setPhase(newPhase);
     }
-    
-}//end of P2XOrder
+
+    public void bump(AtomSet atom, double falseTime) {
+        wrappedPotential.bump(atom, falseTime);
+    }
+
+    public double collisionTime(AtomSet atom, double falseTime) {
+        return wrappedPotential.collisionTime(atom, falseTime);
+    }
+
+    public double energyChange() {
+        return wrappedPotential.energyChange();
+    }
+
+    public double lastCollisionVirial() {
+        return wrappedPotential.lastCollisionVirial();
+    }
+
+    public Tensor lastCollisionVirialTensor() {
+        return wrappedPotential.lastCollisionVirialTensor();
+    }
+    public double u(double r2) {
+        return wrappedPotential.u(r2);
+    }
+}
