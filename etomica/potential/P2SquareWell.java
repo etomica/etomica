@@ -64,8 +64,8 @@ public class P2SquareWell extends Potential2HardSpherical {
      * both approaching and diverging
      */
     public void bump(AtomSet pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)((AtomPair)pair).atom0;
+        IAtomKinetic atom1 = (IAtomKinetic)((AtomPair)pair).atom1;
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());

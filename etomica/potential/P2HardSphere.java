@@ -1,6 +1,7 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
@@ -60,8 +61,8 @@ public class P2HardSphere extends Potential2HardSpherical {
      * Time to collision of pair, assuming free-flight kinematics
      */
     public double collisionTime(AtomSet pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
-        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        IAtomKinetic atom0 = (IAtomKinetic)((AtomPair)pair).atom0;
+        IAtomKinetic atom1 = (IAtomKinetic)((AtomPair)pair).atom1;
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
