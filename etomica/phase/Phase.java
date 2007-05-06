@@ -79,9 +79,18 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     
     /**
      * Resets the Phase's index.  This should only need to be called from the
-     * Simulation when another Phase is removed.
+     * Simulation class.
+     * 
+     * @param sim  The Simulation to which this Phase was added.  Passing null
+     *             notifies the Phase that it was removed from the Simulation
+     *             (the index is set to 0).
      */
     public void resetIndex(Simulation sim) {
+        if (sim == null) {
+            // sim is notifying us that we got removed.
+            index = 0;
+            return;
+        }
         Phase[] phases = sim.getPhases();
         for (int i=0; i<phases.length; i++) {
             if (phases[i] == this) {
@@ -89,7 +98,8 @@ public class Phase implements EtomicaElement, java.io.Serializable {
                 return;
             }
         }
-        index = 0;
+        // you really shouldn't be calling resetIndex unless you're a simulation!
+        throw new IllegalArgumentException(sim+" does not contain me");
     }
 
     public int getIndex() {

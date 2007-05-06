@@ -57,6 +57,11 @@ public class Simulation implements java.io.Serializable  {
     }
 
     public final void addPhase(Phase newPhase) {
+        for (int i=0; i<phaseList.length; i++) {
+            if (phaseList[i] == newPhase) {
+                throw new IllegalArgumentException("Phase "+newPhase+" is already a part of this Simulation");
+            }
+        }
         phaseList = (Phase[])Arrays.addObject(phaseList, newPhase);
         newPhase.resetIndex(this);
         speciesManager.phaseAddedNotify(newPhase);
@@ -64,11 +69,25 @@ public class Simulation implements java.io.Serializable  {
     }
     
     public final void removePhase(Phase oldPhase) {
+        boolean found = false;
+        for (int i=0; i<phaseList.length; i++) {
+            if (phaseList[i] == oldPhase) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            throw new IllegalArgumentException("Phase "+oldPhase+" is not part of this Simulation");
+        }
+
         phaseList = (Phase[])Arrays.removeObject(phaseList, oldPhase);
 
         for (int i = oldPhase.getIndex(); i<phaseList.length; i++) {
             phaseList[i].resetIndex(this);
         }
+        
+        // notify oldPhase that we no longer have it.
+        oldPhase.resetIndex(null);
         
         eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldPhase));
     }
