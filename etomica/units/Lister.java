@@ -1,14 +1,16 @@
 package etomica.units;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.LinkedList;
-import java.util.Iterator;
-import java.util.StringTokenizer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import etomica.units.systems.*;
+
+import etomica.units.systems.UnitSystem;
 
 public final class Lister {
 

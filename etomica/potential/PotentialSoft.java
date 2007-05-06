@@ -26,7 +26,7 @@ public interface PotentialSoft {
     
     /**
      * Returns the same gradient as gradient(AtomSet) and also adds in the
-     * contribution of the give AtomSet to the pressureTensor.  Their
+     * contribution of the AtomSet to the pressureTensor.  Their
      * contribution is added to the given Tensor.  This combined method exists
      * for computational efficiency.  Calculating the pressureTensor is
      * generally trivial once the gradient is known but often requires

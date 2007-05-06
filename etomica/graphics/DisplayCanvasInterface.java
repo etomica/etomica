@@ -5,13 +5,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import etomica.atom.AtomFilter;
 import etomica.units.Pixel;
 
- /* History of changes
-  * 09/07/02 (DAK) added atomFilter
-  */
-  
 public interface DisplayCanvasInterface {
 
     //Quality Constants

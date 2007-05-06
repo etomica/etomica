@@ -1,9 +1,10 @@
 package etomica.units;
 
-import java.lang.reflect.*;
-import java.util.LinkedList;
+import java.lang.reflect.Field;
 import java.util.Iterator;
-import etomica.units.systems.*;
+import java.util.LinkedList;
+
+import etomica.units.systems.UnitSystem;
 
 public final class UnitFilter {
 

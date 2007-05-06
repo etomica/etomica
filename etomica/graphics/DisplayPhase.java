@@ -9,8 +9,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
-import javax.swing.JComponent;
-
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFilter;
@@ -29,14 +27,6 @@ import etomica.units.Pixel;
  * @author Steve Hotchkiss
  */
  
- /* History of changes
-  * 09/21/02 (DAK) (temporary) new addDrawable method to add any object, for handling in Space3DOpenGL
-  * 01/04/03 (DAK) changed behavior of r/t/z key press to make them "sticky",
-  * so that user need not keep key pressed to enable action.  Subsequent press
-  * releases key
-  * 08/08/03 (DAK) added listener for '<' and '>' keypresses to affect
-  * drawExpansionFactor in DisplayPhaseCanvas3DOpenGL
-  */
 public class DisplayPhase extends Display implements EtomicaElement {
         
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region

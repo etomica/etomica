@@ -1,11 +1,9 @@
-//class includes a main method to demonstrate and test its use
 package etomica.graphics;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-
-import java.util.Vector;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,14 +23,6 @@ import etomica.util.EnumeratedType;
  *
  * @author David Kofke
  */
- 
- /* History of changes
-  * 09/05/02 (DAK) new from DisplayBox
-  * 09/22/02 (DAK) added integer flag to indicate display as decimal or integer
-  * 09/24/02 (DAK) added key listener that increments/decrements with arrow keys, if integer
-  * 09/27/02 (DAK) modified BoxListener so that it handles NumberFormatException appropriately
-  *                added set/is Editable fields
-  */
  
 public class DeviceBox extends Device implements EtomicaElement, javax.swing.event.ChangeListener, DeviceBoxValueChangedListener {
     
