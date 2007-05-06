@@ -30,6 +30,7 @@ import etomica.potential.P3BondAngleDreiding;
 import etomica.potential.P4TorsionDreiding;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
+import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;

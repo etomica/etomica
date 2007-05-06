@@ -1,9 +1,7 @@
 
-package etomica.paracetamol;
+package etomica.space;
 
 import etomica.lattice.crystal.Primitive;
-import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.IVector;
 import etomica.util.IRandom;
 
 /**
