@@ -46,7 +46,7 @@ public class P2XOrder extends Potential2 {
         dr.Ev1Mv2(((IAtomPositioned)((AtomPair)pair).atom1).getPosition(), ((IAtomPositioned)((AtomPair)pair).atom0).getPosition());
         int dI = ((AtomPair)pair).atom1.getIndex() - ((AtomPair)pair).atom0.getIndex();
         if (Math.abs(dI) == ((AtomPair)pair).atom1.getParentGroup().getChildList().size()-1) {
-            phase.getBoundary().nearestImage(dr);
+            dr.PEa1Tv1(dI > 0 ? -1 : 1, phase.getBoundary().getDimensions());
             return (dr.x(0) * dI > 0.0) ? Double.POSITIVE_INFINITY : wrappedPotential.u(dr.squared());
         }
         else if (dI == 1 || dI == -1) {
