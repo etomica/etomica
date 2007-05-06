@@ -8,6 +8,10 @@ import etomica.phase.Phase;
  */
 public class NormalModes1DHR implements NormalModes {
     
+    public NormalModes1DHR() {
+        harmonicFudge = 1;
+    }
+    
     public double[][] getOmegaSquared(Phase phase) {
         if(phase.getSpace().D() != 1) {
             throw new RuntimeException("Must give a phase for a 1D system"); 
