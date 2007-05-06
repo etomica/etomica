@@ -86,11 +86,20 @@ public class MCMoveHarmonic extends MCMovePhase {
         iterator.reset();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
 
+        lastEnergy = 0;
+
         for (int iVector=0; iVector<waveVectors.length; iVector++) {
             for (int j=0; j<coordinateDim; j++) {
                 //generate real and imaginary parts of random normal-mode coordinate Q
-                rRand[iVector][j] = random.nextGaussian() * stdDev[iVector][j];
-                iRand[iVector][j] = random.nextGaussian() * stdDev[iVector][j];
+                double realGauss = random.nextGaussian();
+                double imaginaryGauss = random.nextGaussian();
+                rRand[iVector][j] = realGauss * stdDev[iVector][j];
+                iRand[iVector][j] = imaginaryGauss * stdDev[iVector][j];
+                //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
+                // it's hard to know which.  So long as we don't put an atom at the origin
+                // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
+                if (waveVectorCoefficients[iVector] == 0.5) realGauss = 0;
+                lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
             }
         }
         for (IAtom atom = iterator.nextAtom(); atom != null;
@@ -128,7 +137,15 @@ public class MCMoveHarmonic extends MCMovePhase {
         // return 0 to guarantee success
         return 0;
     }
-
+    
+    /**
+     * Returns the harmonic energy of the configuration based on the last
+     * harmonic move made by this MC Move.
+     */
+    public double getLastTotalEnergy() {
+        return lastEnergy;
+    }
+    
     public void acceptNotify() {
     }
 
@@ -152,4 +169,5 @@ public class MCMoveHarmonic extends MCMovePhase {
     protected double[][] iRand;
     protected double normalization;
     protected final IRandom random;
+    protected double lastEnergy;
 }
