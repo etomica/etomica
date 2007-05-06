@@ -62,6 +62,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         int nCells = 6;
         Simulation sim = new Simulation(Space1D.getInstance());
         Phase phase = new Phase(sim);
+        sim.addPhase(phase);
         phase.setDimensions(new Vector1D(nCells));
         Species species = new SpeciesSpheresMono(sim);
         phase.getAgent(species).setNMolecules(nCells*nCells*nCells);
