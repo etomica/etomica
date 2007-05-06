@@ -71,7 +71,7 @@ public class MeterHarmonicSingleEnergy implements DataSource {
         normalModes.getWaveVectorFactory().makeWaveVectors(newPhase);
         setWaveVectors(normalModes.getWaveVectorFactory().getWaveVectors(),normalModes.getWaveVectorFactory().getCoefficients());
         setEigenvectors(normalModes.getEigenvectors(newPhase));
-        setEigenvalues(normalModes.getEigenvalues(newPhase));
+        setOmegaSquared(normalModes.getOmegaSquared(newPhase));
 
         dataInfo = new DataInfoDoubleArray("Harmonic single energy", Energy.DIMENSION, new int[]{waveVectors.length,coordinateDim});
         data = new DataDoubleArray(new int[]{waveVectors.length,coordinateDim});
@@ -90,12 +90,12 @@ public class MeterHarmonicSingleEnergy implements DataSource {
         this.eigenvectors = (double[][][])eigenVectors.clone();
     }
     
-    public void setEigenvalues(double[][] eigenvalues) {
-        omegaSquared = new double[eigenvalues.length][eigenvalues[0].length];
+    public void setOmegaSquared(double[][] omega2) {
+        omegaSquared = new double[omega2.length][omega2[0].length];
         for (int i=0; i<omegaSquared.length; i++) {
             for (int j=0; j<omegaSquared[i].length; j++) {
                 // omega is sqrt(kT)/eigenvalue
-                omegaSquared[i][j] = 1.0/eigenvalues[i][j];
+                omegaSquared[i][j] = omega2[i][j];
             }
         }
     }

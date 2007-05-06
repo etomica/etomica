@@ -31,11 +31,11 @@ public class MCMoveHarmonic extends MCMovePhase {
         return coordinateDefinition;
     }
 
-    public void setEigenValues(double[][] eigenValues, double[] coeff) {
-        stdDev = new double[eigenValues.length][eigenValues[0].length];
+    public void setOmegaSquared(double[][] omega2, double[] coeff) {
+        stdDev = new double[omega2.length][omega2[0].length];
         for (int i=0; i<stdDev.length; i++) {
             for (int j=0; j<stdDev[i].length; j++) {
-                stdDev[i][j] = Math.sqrt(0.5*eigenValues[i][j]/coeff[i]);
+                stdDev[i][j] = Math.sqrt(1.0/(2.0*omega2[i][j]*coeff[i]));
             }
         }
     }

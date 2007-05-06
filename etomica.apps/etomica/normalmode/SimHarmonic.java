@@ -37,7 +37,8 @@ import etomica.units.Pixel;
 public class SimHarmonic extends Simulation {
 
     public SimHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
-        super(space, true, new PotentialMasterList(space));
+//        super(space, true, new PotentialMasterList(space));
+        super(space);
 
         int D = space.D();
         
@@ -81,7 +82,7 @@ public class SimHarmonic extends Simulation {
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(phase);
-        move.setEigenValues(normalModes.getEigenvalues(phase), waveVectorFactory.getCoefficients());
+        move.setOmegaSquared(normalModes.getOmegaSquared(phase), waveVectorFactory.getCoefficients());
         move.setEigenVectors(normalModes.getEigenvectors(phase));
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
@@ -102,9 +103,9 @@ public class SimHarmonic extends Simulation {
         int nA = 108;
         double density = 1.04;
         double harmonicFudge = 1;
-        long steps = 400000;
+        long steps = 800000;
         if (D == 1) {
-            nA = 10;
+            nA = 3;
             density = 0.5;
         }
         boolean graphic = false;

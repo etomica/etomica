@@ -6,9 +6,9 @@ import etomica.phase.Phase;
  * Provides information about all the normal modes for a periodic system.  The periodicity is
  * described by a set of wave vectors, which are provided via a WaveVectorFactory.  For
  * each wave vector there is a set of coupled degrees of freedom (e.g., xyz motions) that have been 
- * further decomposed into normal modes with corresponding eigenvalues and eigenvectors.  
+ * further decomposed into normal modes with corresponding frequencies and eigenvectors.  
  * 
- * In most cases these eigenvalues/vectors are determined via a simulation and recorded to file; the
+ * In most cases these frequencies/vectors are determined via a simulation and recorded to file; the
  * implmentation of this class then reads the data and provides it via the interface methods.     
  */
 public interface NormalModes {
@@ -20,10 +20,11 @@ public interface NormalModes {
     public WaveVectorFactory getWaveVectorFactory();
 
     /**
-     * First index corresponds to the wave vector, and second index is the eigenvalue
-     * for the corresponding eigenvector. Length of second index is coordinateDim.
+     * Returns an array giving the frequencies (squared) corresponding to the normal-mode
+     * motions. First index indicates the wave vector, and second index indicates the
+     * eigenvector. Length of second index is coordinateDim.
      */
-    public double[][] getEigenvalues(Phase phase);
+    public double[][] getOmegaSquared(Phase phase);
 
     /**
      * First index corresponds to the wave vector; second index gives the eigenvector, and
@@ -33,9 +34,10 @@ public interface NormalModes {
     public double[][][] getEigenvectors(Phase phase);
     
     /**
-     * Set the fudge factor applied to eigenvalues.  The eigenvalues returned
-     * by getEigenvalues will be the actual values multiplied by the given
-     * fudge factor.
+     * Set the fudge factor applied to frequencies.  The squared-frequencies returned
+     * by getOmegaSquared will be the nominal values divided by the given
+     * fudge factor.  Thus a smaller value of this fudge factor will make for "tighter"
+     * harmonic springs, corresponding to to smaller deviation from the lattice sites.
      */
     public void setHarmonicFudge(double newHarmonicFudge);
 }

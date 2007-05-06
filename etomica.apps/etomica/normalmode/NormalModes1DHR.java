@@ -3,23 +3,23 @@ package etomica.normalmode;
 import etomica.phase.Phase;
 
 /**
- * Normal-mode quantities for a 1-dimensional system of hard rods.  S matrix
- * is given using an analytic solution.
+ * Normal-mode quantities for a 1-dimensional system of hard rods.  Frequencies are defined
+ * in terms of pair correlations (S matrix), which is given using an analytic solution.
  */
 public class NormalModes1DHR implements NormalModes {
     
-    public double[][] getEigenvalues(Phase phase) {
+    public double[][] getOmegaSquared(Phase phase) {
         if(phase.getSpace().D() != 1) {
             throw new RuntimeException("Must give a phase for a 1D system"); 
         }
         int nA = phase.moleculeCount();
         double L = phase.getBoundary().getDimensions().x(0);
         int mMax = nA/2;
-        double[][] eVals = new double[mMax][1];
+        double[][] omega2= new double[mMax][1];
         for(int m=1; m<=mMax; m++) {
-            eVals[m-1][0] = harmonicFudge*S1DHR(m, L, nA);
+            omega2[m-1][0] = 1.0/(harmonicFudge*S1DHR(m, L, nA));
         }
-        return eVals;
+        return omega2;
     }
 
     public double[][][] getEigenvectors(Phase phase) {

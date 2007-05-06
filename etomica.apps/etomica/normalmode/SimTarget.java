@@ -111,13 +111,13 @@ public class SimTarget extends Simulation {
     public static void main(String[] args) {
         
         //set up simulation parameters
-        int D = 3;
+        int D = 1;
         int nA = 108;
         double density = 1.04;
         double harmonicFudge = 1;
         double simTime = 1000;
         if (D == 1) {
-            nA = 10;
+            nA = 3;
             density = 0.5;
             simTime = 400000;
         }
@@ -215,14 +215,14 @@ public class SimTarget extends Simulation {
         }
         System.out.println("Harmonic free energy correction (independent approx): "+deltaA+" +/- "+deltaAerr);
         
-        double[][] eVals = normalModes.getEigenvalues(sim.phase);
+        double[][] omega2 = normalModes.getOmegaSquared(sim.phase);
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
         double AHarmonic = 0.5*Math.log(nA) - 0.5*(nA-1)*Math.log(2.0*Math.PI);
         if(nA % 2 == 0) AHarmonic += 0.5*Math.log(2.0);
         int coordinateDim = 1;
-        for(int i=0; i<eVals.length; i++) {
+        for(int i=0; i<omega2.length; i++) {
             for(int j=0; j<coordinateDim; j++) {
-                AHarmonic -= coeffs[i]*Math.log(eVals[i][j]/coeffs[i]);//coeffs in log?
+                AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]);
             }
         }
 
