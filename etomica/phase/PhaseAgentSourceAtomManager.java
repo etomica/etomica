@@ -23,5 +23,6 @@ public class PhaseAgentSourceAtomManager implements PhaseAgentSource, java.io.Se
         ((AtomAgentManager)agent).dispose();
     }
 
+    private static final long serialVersionUID = 1L;
     private final AgentSource atomAgentSource;
 }
