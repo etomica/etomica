@@ -3,7 +3,8 @@ package etomica.atom;
 import etomica.space.IVector;
 
 /**
- * Interface for a IAtom that includes a Vector that defines the atom's position.
+ * Interface for a IAtom that includes an IVector that defines the atom's
+ * position.
  */
 public interface IAtomPositioned extends IAtom {
     
