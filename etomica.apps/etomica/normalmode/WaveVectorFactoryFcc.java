@@ -73,8 +73,8 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
                         }
                         
                         if (numCells % 2 == 0) {
+                            // <0,2pi/L,4pi/L> is the same as <4pi/L,2pi/L,0>
                             if (iy == numCells*2 && ix == numCells && iz == 3*numCells/2) {
-                                System.out.println("here "+ix+" "+iy+" "+iz);
                                 ix = numCells*2;
                                 iy = numCells;
                             }
@@ -86,6 +86,32 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
                                 else if (iy == numCells && ix == 3*numCells/2) {
                                     iy = numCells*2;
                                     iz = numCells;
+                                }
+                            }
+                            
+                            // <0,-2pi/L,4pi/L> is the same as -<0,2pi/L,4pi/L>
+                            if (iy == numCells*2) {
+                                if (ix == numCells && iz == numCells/2) {
+                                    iz = 3*numCells/2;
+                                }
+                                else if (ix == numCells/2 && iz == numCells) {
+                                    ix = 3*numCells/2;
+                                }
+                            }
+                            else if (iz == numCells*2) {
+                                if (ix == numCells && iy == numCells/2) {
+                                    iy = 3*numCells/2;
+                                }
+                                else if (iy == numCells && ix == numCells/2) {
+                                    ix = 3*numCells/2;
+                                }
+                            }
+                            else if (ix == numCells*2) {
+                                if (iz == numCells && iy == numCells/2) {
+                                    iy = 3*numCells/2;
+                                }
+                                else if (iy == numCells && iz == numCells/2) {
+                                    iz = 3*numCells/2;
                                 }
                             }
                         }
