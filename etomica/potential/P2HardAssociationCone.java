@@ -1,7 +1,6 @@
 package etomica.potential;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -71,8 +70,8 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
      * Returns the pair potential energy.
      */
     public double energy(AtomSet atoms) {
-        ICoordinateAngular coord0 = (ICoordinateAngular)((AtomPair)atoms).atom0;
-        ICoordinateAngular coord1 = (ICoordinateAngular)((AtomPair)atoms).atom1;
+        ICoordinateAngular coord0 = (ICoordinateAngular)atoms.getAtom(0);
+        ICoordinateAngular coord1 = (ICoordinateAngular)atoms.getAtom(1);
         dr.Ev1Mv2(coord1.getPosition(),coord0.getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();

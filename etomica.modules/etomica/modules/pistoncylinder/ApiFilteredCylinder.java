@@ -1,7 +1,7 @@
 package etomica.modules.pistoncylinder;
 
-import etomica.atom.AtomPair;
-import etomica.atom.AtomPairFilter;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomsetFilter;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiFiltered;
 import etomica.atom.iterator.AtomPairIterator;
@@ -15,7 +15,7 @@ import etomica.space.IVector;
  * Our own ApiFiltered that's phase-dependent
  */
 public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorPhaseDependent {
-    public ApiFilteredCylinder(AtomPairIterator iterator, AtomPairFilter filter) {
+    public ApiFilteredCylinder(AtomPairIterator iterator, AtomsetFilter filter) {
         super(iterator, filter);
     }
 
@@ -28,7 +28,7 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorP
      * Filter to expclude any pair with an atom within some distance from a 
      * wall. 
      */
-    public static class AtomFilterInCylinder implements AtomPairFilter {
+    public static class AtomFilterInCylinder implements AtomsetFilter {
         public AtomFilterInCylinder(Boundary boundary, P1HardMovingBoundary pistonPotential, double padding) {
             dimensions = boundary.getDimensions();
             this.pistonPotential = pistonPotential;
@@ -37,7 +37,7 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorP
             bitFlipper = 1;
         }
         
-        public boolean accept(AtomPair atoms) {
+        public boolean accept(AtomSet atoms) {
             double radius = pistonPotential.getCollisionRadius()+padding;
             // always reject if both atoms are near a wall.  always accept if
             // both atoms are away from the wall.  If one is near and one not, 

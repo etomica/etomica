@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
@@ -39,8 +38,8 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     }
 
     public double energy(AtomSet pair) {
-        IAtomPositioned atom0 = (IAtomPositioned)((AtomPair)pair).atom0;
-        IAtomPositioned atom1 = (IAtomPositioned)((AtomPair)pair).atom1;
+        IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
+        IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         nearestImageTransformer.nearestImage(dr);
@@ -62,8 +61,8 @@ public class P2TriangleWell extends Potential2 implements EtomicaElement {
     // what could call this?
     public IVector force(AtomSet pair){
         
-        IAtomPositioned atom0 = (IAtomPositioned)((AtomPair)pair).atom0;
-        IAtomPositioned atom1 = (IAtomPositioned)((AtomPair)pair).atom1;
+        IAtomPositioned atom0 = (IAtomPositioned)pair.getAtom(0);
+        IAtomPositioned atom1 = (IAtomPositioned)pair.getAtom(1);
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         nearestImageTransformer.nearestImage(dr);

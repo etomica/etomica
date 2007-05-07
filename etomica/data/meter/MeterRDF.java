@@ -1,7 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
-import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
@@ -101,9 +101,9 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
         iterator.setPhase(phase);
         iterator.reset();
         // iterate over all pairs
-        for (AtomPair pair = (AtomPair)iterator.next(); pair != null;
-             pair = (AtomPair)iterator.next()) {
-            dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
+        for (AtomSet pair = iterator.next(); pair != null;
+             pair = iterator.next()) {
+            dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
             nearestImageTransformer.nearestImage(dr);
             double r2 = dr.squared();       //compute pair separation
             if(r2 < xMaxSquared) {

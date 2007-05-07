@@ -1,6 +1,5 @@
 package etomica.nbr;
 
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 
 /**
@@ -34,12 +33,13 @@ public class CriterionInterMolecular extends CriterionAdapter {
     
     public boolean accept(AtomSet pair) {
         // Only ask the intracriterion if it exists and the pair is intramolecular. 
-        if (intraCriterion != null && (((AtomPair)pair).atom0.inSameMolecule(((AtomPair)pair).atom1)) &&
+        if (intraCriterion != null && (pair.getAtom(0).inSameMolecule(pair.getAtom(1))) &&
                 !intraCriterion.accept(pair)) {
             return false;
         }
         return subCriterion.accept(pair);
     }
     
+    private static final long serialVersionUID = 1L;
     private NeighborCriterion intraCriterion;
 }

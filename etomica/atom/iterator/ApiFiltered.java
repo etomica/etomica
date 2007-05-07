@@ -8,8 +8,8 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomPair;
-import etomica.atom.AtomPairFilter;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomsetFilter;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
@@ -25,7 +25,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	 * Returns the iterates of the given iterator that meet
 	 * the critertia of the given filter.
 	 */
-	public ApiFiltered(AtomPairIterator iterator, AtomPairFilter filter) {
+	public ApiFiltered(AtomPairIterator iterator, AtomsetFilter filter) {
 		this.iterator = iterator;
 		this.filter = filter;
 	}
@@ -137,16 +137,16 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 
     private static final long serialVersionUID = 2L;
 	protected final AtomPairIterator iterator;
-	protected final AtomPairFilter filter;
+	protected final AtomsetFilter filter;
 
 	/**
 	 * Returns a new action that wraps the given action such that action is performed
 	 * only on the atoms meeting the filter's criteria.
 	 */
-	private static AtomsetAction actionWrapper(final AtomPairFilter filter, final AtomsetAction action) {
+	private static AtomsetAction actionWrapper(final AtomsetFilter filter, final AtomsetAction action) {
 		return new AtomsetActionAdapter() {
 			public void actionPerformed(AtomSet atom) {
-				if(filter.accept((AtomPair)atom)) action.actionPerformed(atom);
+				if(filter.accept(atom)) action.actionPerformed(atom);
 			}
 		};
 	}

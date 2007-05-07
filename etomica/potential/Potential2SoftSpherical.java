@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
@@ -58,8 +57,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Energy of the pair as given by the u(double) method
      */
     public double energy(AtomSet atoms) {
-        AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         return u(dr.squared());
     }
@@ -68,8 +66,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Virial of the pair as given by the du(double) method
      */
     public double virial(AtomSet atoms) {
-        AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         return du(dr.squared());
     }
@@ -78,8 +75,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Hypervirial of the pair as given by the du(double) and d2u(double) methods
      */
     public double hyperVirial(AtomSet atoms) {
-        AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
         return d2u(r2) + du(r2);
@@ -89,8 +85,7 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
      * Gradient of the pair potential as given by the du(double) method.
      */
     public IVector[] gradient(AtomSet atoms) {
-        AtomPair pair = (AtomPair)atoms;
-        dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
+        dr.Ev1Mv2(((IAtomPositioned)atoms.getAtom(1)).getPosition(),((IAtomPositioned)atoms.getAtom(0)).getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
         gradient[1].Ea1Tv1(du(r2)/r2,dr);

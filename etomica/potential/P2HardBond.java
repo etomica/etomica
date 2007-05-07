@@ -1,11 +1,9 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.IAtomPositioned;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -84,8 +82,8 @@ public class P2HardBond extends Potential2HardSpherical {
      * tether distance
      */
     public final void bump(AtomSet pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)((AtomPair)pair).atom0;
-        IAtomKinetic atom1 = (IAtomKinetic)((AtomPair)pair).atom1;
+        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -131,11 +129,11 @@ public class P2HardBond extends Potential2HardSpherical {
      * free-flight kinematics
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
-        IAtomKinetic coord0 = (IAtomKinetic)((AtomPair)pair).atom0;
-        IAtomKinetic coord1 = (IAtomKinetic)((AtomPair)pair).atom1;
-        dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
+        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
+        dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
-        dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+        dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
         dr.PEa1Tv1(falseTime,dv);
         nearestImageTransformer.nearestImage(dr);
 
@@ -151,8 +149,8 @@ public class P2HardBond extends Potential2HardSpherical {
         if (Debug.ON && Debug.DEBUG_NOW && ((r2 > maxBondLengthSquared && bij > 0.0) ||
                 (r2 < minBondLengthSquared && bij < 0.0))) {
             System.out.println("in P2HardBond.collisionTime, "+pair+" "+r2+" "+bij+" "+maxBondLengthSquared);
-            System.out.println(((IAtomPositioned)((AtomPair)pair).atom0).getPosition());
-            System.out.println(((IAtomPositioned)((AtomPair)pair).atom1).getPosition());
+            System.out.println(atom0.getPosition());
+            System.out.println(atom1.getPosition());
             throw new RuntimeException("overlap");
         }
         double discr;

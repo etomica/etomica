@@ -1,7 +1,6 @@
 
 package etomica.nbr;
 
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 
@@ -25,8 +24,8 @@ public class CriterionTypePair extends CriterionAdapter {
      * the wrapped criterion also accepts the pair.
      */
     public boolean accept(AtomSet pair) {
-        AtomType atom0Type = ((AtomPair)pair).atom0.getType();
-        AtomType atom1Type = ((AtomPair)pair).atom1.getType();
+        AtomType atom0Type = pair.getAtom(0).getType();
+        AtomType atom1Type = pair.getAtom(1).getType();
         if ( (atom0Type == type0 && atom1Type == type1) ||
              (atom0Type == type1 && atom1Type == type0) ) {
             return subCriterion.accept(pair);

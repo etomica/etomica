@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomsetIterator;
@@ -49,8 +48,8 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
 					((IntegratorPhase.Forcible)integratorAgentManager.getAgent((IAtom)atoms)).force().ME(f[0]);
 					break;
 				case 2:
-                    ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(((AtomPair)atoms).atom0)).force().ME(f[0]);
-                    ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(((AtomPair)atoms).atom1)).force().ME(f[1]);
+                    ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+                    ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
 			 		break;
                 default:
                     //XXX atoms.count might not equal f.length.  The potential might size its 

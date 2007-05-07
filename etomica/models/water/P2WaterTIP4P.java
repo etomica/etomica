@@ -1,7 +1,6 @@
 
 package etomica.models.water;
 
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
@@ -29,9 +28,8 @@ public class P2WaterTIP4P extends Potential2 {
         double sum = 0.0;
         double r2 = 0.0;
 
-        AtomPair pair = (AtomPair)atoms;
-        AtomWater4P water1 = (AtomWater4P)pair.atom0;
-        AtomWater4P water2 = (AtomWater4P)pair.atom1;
+        AtomWater4P water1 = (AtomWater4P)atoms.getAtom(0);
+        AtomWater4P water2 = (AtomWater4P)atoms.getAtom(1);
 
         IVector O1r = water1.O.getPosition();
         IVector O2r = water2.O.getPosition();

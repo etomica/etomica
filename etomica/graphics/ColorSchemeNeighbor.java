@@ -3,7 +3,7 @@ package etomica.graphics;
 import java.awt.Color;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.nbr.PotentialMasterNbr;
@@ -34,9 +34,9 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
         }
         //color blue the neighbor atoms in same group
         nbrIterator.reset();
-        for (AtomPair pair = nbrIterator.nextPair(); pair != null;
-             pair = nbrIterator.nextPair()) {
-            IAtom atom = pair.atom1;
+        for (AtomSet pair = nbrIterator.next(); pair != null;
+             pair = nbrIterator.next()) {
+            IAtom atom = pair.getAtom(1);
             if(atom.getType() == referenceAtom.getType()) {
                 agentManager.setAgent(atom, Color.blue);
             } else {

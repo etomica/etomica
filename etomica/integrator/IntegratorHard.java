@@ -629,17 +629,17 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             if (iterator.nBody() != 2) return;
             iterator.reset();
             // look for pairs in which pair[0] is the collision partner of pair[1]
-            for (AtomPair pair = (AtomPair)iterator.next(); pair != null;
-                 pair = (AtomPair)iterator.next()) {
-                IAtom aPartner = ((Agent)integratorAgentManager.getAgent(pair.atom0)).collisionPartner();
+            for (AtomSet pair = iterator.next(); pair != null;
+                 pair = iterator.next()) {
+                IAtom aPartner = ((Agent)integratorAgentManager.getAgent(pair.getAtom(0))).collisionPartner();
                 if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(pair) && Debug.LEVEL > 1) || (Debug.anyAtom(pair) && Debug.LEVEL > 2))) {
-                    System.out.println(pair.atom1+" thought it would collide with "+aPartner);
+                    System.out.println(pair.getAtom(1)+" thought it would collide with "+aPartner);
                 }
-                if(aPartner == pair.atom1) {
+                if(aPartner == pair.getAtom(1)) {
                     if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(pair) || Debug.LEVEL > 2)) {
-                        System.out.println("Will update "+pair.atom0+" because it wanted to collide with "+aPartner);
+                        System.out.println("Will update "+pair.getAtom(0)+" because it wanted to collide with "+aPartner);
                     }
-                    listToUpdate.add(pair.atom0);
+                    listToUpdate.add(pair.getAtom(0));
                 }
             }
         }

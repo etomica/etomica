@@ -1,6 +1,5 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
@@ -64,8 +63,8 @@ public class P2SquareWell extends Potential2HardSpherical {
      * both approaching and diverging
      */
     public void bump(AtomSet pair, double falseTime) {
-        IAtomKinetic atom0 = (IAtomKinetic)((AtomPair)pair).atom0;
-        IAtomKinetic atom1 = (IAtomKinetic)((AtomPair)pair).atom1;
+        IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+        IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
         dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
         
         dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -143,8 +142,8 @@ public class P2SquareWell extends Potential2HardSpherical {
      * approach, or when they edge of the wells are reached as atoms diverge.
      */
     public double collisionTime(AtomSet pair, double falseTime) {
-        IAtomKinetic coord0 = (IAtomKinetic)((AtomPair)pair).atom0;
-        IAtomKinetic coord1 = (IAtomKinetic)((AtomPair)pair).atom1;
+        IAtomKinetic coord0 = (IAtomKinetic)pair.getAtom(0);
+        IAtomKinetic coord1 = (IAtomKinetic)pair.getAtom(1);
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

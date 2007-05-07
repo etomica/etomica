@@ -1,6 +1,5 @@
 package etomica.modules.reactionequilibrium;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -68,15 +67,15 @@ public class P2SquareWellBonded extends P2SquareWell {
         
         if (ignoreOverlap) {
             
-            // ** Makes 2 things, and atomPair pair, 
-            AtomPair pair = (AtomPair) atoms;
-            IAtom a1Partner = (IAtom)agentManager.getAgent(pair.atom0);
+            IAtomKinetic atom0 = (IAtomKinetic)atoms.getAtom(0);
+            IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(0);
 
-            IAtomKinetic coord0 = (IAtomKinetic)pair.atom0;
-            IAtomKinetic coord1 = (IAtomKinetic)pair.atom1;
-            dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
+            // ** Makes 2 things, and atomPair pair, 
+            IAtom a1Partner = (IAtom)agentManager.getAgent(atom0);
+
+            dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
             
-            dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+            dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
             dr.PEa1Tv1(falseTime,dv);
             nearestImageTransformer.nearestImage(dr);
 
@@ -84,8 +83,8 @@ public class P2SquareWellBonded extends P2SquareWell {
             double bij = dr.dot(dv);
 
             //inside well but not mutually bonded; collide now if approaching
-            if ((a1Partner != pair.atom1 && r2 < wellDiameterSquared)
-             || (a1Partner == pair.atom1 && r2 < coreDiameterSquared))
+            if ((a1Partner != atom1 && r2 < wellDiameterSquared)
+             || (a1Partner == atom1 && r2 < coreDiameterSquared))
                 return (bij < 0.0) ? falseTime : Double.POSITIVE_INFINITY;
         }
         //mutually bonded, or outside well; collide as SW
@@ -99,8 +98,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 		
 		// *** Data Declaration Section
 
-        IAtom atom0 = ((AtomPair)pair).atom0;
-        IAtom atom1 = ((AtomPair)pair).atom1;
+        IAtom atom0 = pair.getAtom(0);
+        IAtom atom1 = pair.getAtom(1);
         IAtomKinetic coord0 = (IAtomKinetic)atom0;
         IAtomKinetic coord1 = (IAtomKinetic)atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());

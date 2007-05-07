@@ -3,7 +3,7 @@
 package etomica.integrator;
 import etomica.EtomicaInfo;
 import etomica.action.PhaseInflate;
-import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
@@ -307,11 +307,11 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         public void doCalculation(AtomsetIterator iterator, Potential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
             iterator.reset();
-            for (AtomPair pair = (AtomPair)iterator.next(); pair != null;
-                 pair = (AtomPair)iterator.next()) {
+            for (AtomSet pair = iterator.next(); pair != null;
+                 pair = iterator.next()) {
 
-                IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
-                IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
+                IAtomKinetic atom0 = (IAtomKinetic)pair.getAtom(0);
+                IAtomKinetic atom1 = (IAtomKinetic)pair.getAtom(1);
                 dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
                 
                 dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
@@ -325,8 +325,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
                 rvx += hv * dr.dot(dv)/r2;
                 IVector[] f = potentialSoft.gradient(pair);
                 vf += dv.dot(f[0]); //maybe should be (-)?
-                ((Agent)integratorAgentManager.getAgent(pair.atom0)).force().ME(f[0]);
-                ((Agent)integratorAgentManager.getAgent(pair.atom1)).force().ME(f[1]);
+                ((Agent)integratorAgentManager.getAgent(atom0)).force().ME(f[0]);
+                ((Agent)integratorAgentManager.getAgent(atom1)).force().ME(f[1]);
             }
         }
     }

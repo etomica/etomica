@@ -1,6 +1,5 @@
 package etomica.modules.chainequilibrium;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -146,19 +145,17 @@ public class P2SquareWellBonded extends P2SquareWell {
 		if (ignoreOverlap) {
 			
             // ** Makes 2 things, and atomPair pair, 
-            AtomPair pair = (AtomPair) atoms;
+            IAtomKinetic atom0 = (IAtomKinetic)atoms.getAtom(0);
+            IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(1);
+            dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
             
-            IAtomKinetic coord0 = (IAtomKinetic)pair.atom0;
-            IAtomKinetic coord1 = (IAtomKinetic)pair.atom1;
-            dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
-            
-            dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());
+            dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
             dr.PEa1Tv1(falseTime,dv);
             nearestImageTransformer.nearestImage(dr);
 
 			double r2 = dr.squared();
 			double bij = dr.dot(dv);
-			boolean areBonded = areBonded(pair.atom0,pair.atom1);
+			boolean areBonded = areBonded(atom0, atom1);
 			//inside well but not mutually bonded; collide now if approaching
             if (!areBonded && r2 < wellDiameterSquared) {
                 return (bij < 0) ? falseTime : Double.POSITIVE_INFINITY;
@@ -173,8 +170,8 @@ public class P2SquareWellBonded extends P2SquareWell {
 	
 	public void bump(AtomSet pair, double falseTime) {
 
-        IAtom atom0 = ((AtomPair)pair).atom0;
-        IAtom atom1 = ((AtomPair)pair).atom1;
+        IAtom atom0 = pair.getAtom(0);
+        IAtom atom1 = pair.getAtom(1);
         IAtomKinetic coord0 = (IAtomKinetic)atom0;
         IAtomKinetic coord1 = (IAtomKinetic)atom1;
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());

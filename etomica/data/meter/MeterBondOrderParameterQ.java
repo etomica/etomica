@@ -1,7 +1,7 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
@@ -55,9 +55,9 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
         NearestImageTransformer nearestImageTransformer = phase.getBoundary();
         pairIterator.setPhase(phase);
         pairIterator.reset();
-        for (AtomPair pair = (AtomPair)pairIterator.next(); pair != null;
-             pair = (AtomPair)pairIterator.next()) {
-            dr.Ev1Mv2(((IAtomPositioned)pair.atom1).getPosition(),((IAtomPositioned)pair.atom0).getPosition());
+        for (AtomSet pair = pairIterator.next(); pair != null;
+             pair = pairIterator.next()) {
+            dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
             nearestImageTransformer.nearestImage(dr);
         	double r2 = dr.squared();
             if(r2 < r2Cut) {

@@ -1,6 +1,5 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
@@ -98,8 +97,8 @@ public class P2Tether extends Potential2HardSpherical {
      * Time at which two atoms will reach the end of their tether, assuming free-flight kinematics
      */
     public final double collisionTime(AtomSet pair, double falseTime) {
-        IAtomKinetic coord0 = (IAtomKinetic)((AtomPair)pair).atom0;
-        IAtomKinetic coord1 = (IAtomKinetic)((AtomPair)pair).atom1;
+        IAtomKinetic coord0 = (IAtomKinetic)pair.getAtom(0);
+        IAtomKinetic coord1 = (IAtomKinetic)pair.getAtom(1);
         dv.Ev1Mv2(coord1.getVelocity(), coord0.getVelocity());
         
         dr.Ev1Mv2(coord1.getPosition(), coord0.getPosition());

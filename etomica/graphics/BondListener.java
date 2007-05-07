@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
@@ -88,8 +87,8 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                 iterator.setBasis(molecule);
                 iterator.setTarget(null);
                 iterator.reset();
-                for  (AtomPair bondedPair = (AtomPair)iterator.next(); bondedPair != null;
-                      bondedPair = (AtomPair)iterator.next()) {
+                for  (AtomSet bondedPair = iterator.next(); bondedPair != null;
+                      bondedPair = iterator.next()) {
                     
                     Object bond = bondManager.makeBond(bondedPair, bondedPotential);
 

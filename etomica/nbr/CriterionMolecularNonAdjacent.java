@@ -1,6 +1,6 @@
 package etomica.nbr;
 
-import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 
 /**
  * 
@@ -24,10 +24,10 @@ public final class CriterionMolecularNonAdjacent extends
      * 
      * @see etomica.atom.AtomPairFilter#accept(etomica.AtomPair)
      */
-    public boolean accept(AtomPair pair) {
+    public boolean accept(AtomSet pair) {
 
-        int a0 = pair.atom0.getIndex();
-        int a1 = pair.atom1.getIndex();
+        int a0 = pair.getAtom(0).getIndex();
+        int a1 = pair.getAtom(1).getIndex();
         int temp;
 
         //we do not need to consider a0 = a1, because then temp will be 0, and

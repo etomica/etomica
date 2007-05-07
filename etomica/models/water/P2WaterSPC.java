@@ -1,7 +1,6 @@
 
 package etomica.models.water;
 
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
@@ -33,8 +32,8 @@ public class P2WaterSPC extends Potential2 {
 		double sum = 0.0;
 		double r2 = 0.0;
 			
-		AtomWater3P water1 = (AtomWater3P)((AtomPair)pair).atom0;
-		AtomWater3P water2 = (AtomWater3P)((AtomPair)pair).atom1;
+		AtomWater3P water1 = (AtomWater3P)pair.getAtom(0);
+		AtomWater3P water2 = (AtomWater3P)pair.getAtom(1);
 		
 		//compute O-O distance to consider truncation	
 		IVector O1r = water1.O.getPosition();

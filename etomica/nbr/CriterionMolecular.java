@@ -1,16 +1,11 @@
 package etomica.nbr;
 
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 
 /**
  * Pair criterion that judges whether two atoms are or are not in
  * the same molecule. Configurable to accept intra- or inter-molecular
  * pairs. 
- */
-
-/*
- * Created on Mar 2, 2005
  */
 public class CriterionMolecular extends CriterionAdapter {
 
@@ -44,12 +39,12 @@ public class CriterionMolecular extends CriterionAdapter {
      * that given by any subCriterion.
      */
     public boolean accept(AtomSet pair) {
-        if (isIntraMolecular != (((AtomPair)pair).atom0.inSameMolecule(((AtomPair)pair).atom1))) {
+        if (isIntraMolecular != (pair.getAtom(0).inSameMolecule(pair.getAtom(1)))) {
             return false;
         }
         return subCriterion.accept(pair);
     }
     
+    private static final long serialVersionUID = 1L;
     private boolean isIntraMolecular;
-
 }

@@ -2,6 +2,7 @@ package etomica.virial;
 
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 
@@ -24,7 +25,7 @@ public class AtomPairSet implements java.io.Serializable {
     /**
      * Returns atom pair for ith and jth atoms in set.
      */
-    public AtomPair getAPair(int i, int j) {
+    public AtomSet getAPair(int i, int j) {
         if(i==j) throw new IllegalArgumentException("Error: asking for pair formed with both atoms the same");
         return i<j ? aPairs[i][j-i-1] : aPairs[j][i-j-1];
     }
@@ -50,5 +51,6 @@ public class AtomPairSet implements java.io.Serializable {
         }
     }
     
+    private static final long serialVersionUID = 1L;
     private final AtomPair[][] aPairs;
 }

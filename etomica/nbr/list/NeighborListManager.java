@@ -5,7 +5,7 @@ import etomica.action.PhaseImposePbc;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -228,9 +228,10 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         cellNbrIterator.reset();
         //TODO change looping scheme so getPotentials isn't called for every pair
         //consider doing this by introducing ApiNested interface, with hasNextInner and hasNextOuter methods
-        for (AtomPair pair = cellNbrIterator.nextPair(); pair != null;
+        for (AtomSet pair = cellNbrIterator.nextPair(); pair != null;
              pair = cellNbrIterator.nextPair()) {
-            IAtom atom0 = pair.atom0;
+            IAtom atom0 = pair.getAtom(0);
+            IAtom atom1 = pair.getAtom(1);
             PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
             Potential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
@@ -239,9 +240,9 @@ public class NeighborListManager implements IntegratorNonintervalListener,
                     continue;
                 }
                 if (criteria[i].accept(pair)) {
-                    ((AtomNeighborLists)agentManager2Body.getAgent(pair.atom0)).addUpNbr(pair.atom1,i);
-                    ((AtomNeighborLists)agentManager2Body.getAgent(pair.atom1)).addDownNbr(pair.atom0,
-                            potentialMaster.getRangedPotentials(pair.atom1.getType()).getPotentialIndex(potentials[i]));
+                    ((AtomNeighborLists)agentManager2Body.getAgent(atom0)).addUpNbr(atom1,i);
+                    ((AtomNeighborLists)agentManager2Body.getAgent(atom1)).addDownNbr(atom0,
+                            potentialMaster.getRangedPotentials(atom1.getType()).getPotentialIndex(potentials[i]));
                 }
             }
         }

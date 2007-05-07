@@ -1,7 +1,6 @@
 
 package etomica.models.propane;
 
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.potential.Potential2;
@@ -32,9 +31,8 @@ public class P2UAPropane extends Potential2 {
         double sum = 0.0;
         double r2 = 0.0;
 
-        AtomPair pair = (AtomPair)atoms;
-        AtomUAPropane molecule1 = (AtomUAPropane)pair.atom0;
-        AtomUAPropane molecule2 = (AtomUAPropane)pair.atom1;
+        AtomUAPropane molecule1 = (AtomUAPropane)atoms.getAtom(0);
+        AtomUAPropane molecule2 = (AtomUAPropane)atoms.getAtom(1);
 
         IVector propane1UA1r = molecule1.UA1.getPosition();
         IVector propane2UA1r = molecule2.UA1.getPosition();
