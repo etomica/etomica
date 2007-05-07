@@ -1,6 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.action.PhaseInflate;
+import etomica.action.PhaseInflateDeformable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -43,6 +44,21 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         iteratorDirective = new IteratorDirective();
         inflater = new PhaseInflate(space);
         tag = new DataTag();
+    }
+    
+    public MeterPressureByVolumeChange(Space space, PhaseInflateDeformable pid){
+        this(space, makeDefaultDimensions(space.D()), pid);
+    }
+    
+    public MeterPressureByVolumeChange(Space space, boolean[] dimensions, PhaseInflateDeformable pid){
+        this.space = space;
+        setX(-0.001, 0.001, 10);
+        inflateDimensions = new boolean[space.D()];
+        setInflateDimensions(dimensions);
+        iteratorDirective = new IteratorDirective();
+        inflater = pid;
+        tag = new DataTag();
+        
     }
     
     public static EtomicaInfo getEtomicaInfo() {

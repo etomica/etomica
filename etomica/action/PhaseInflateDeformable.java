@@ -18,24 +18,15 @@ public class PhaseInflateDeformable extends PhaseInflate{
 
     public PhaseInflateDeformable(Space space){
         super(space);
-        setup();
+        tempTens = space.makeTensor();
+        tempTensInv = space.makeTensor();
     }
     
     public PhaseInflateDeformable(Phase phase){
-        super(phase.getSpace());
+        this(phase.getSpace());
         setPhase(phase);
-        setup();
     }
-    
-    /*
-     * Method that does the setup needed; used by the constructors.
-     * This makes sure we only need to make changes one place.
-     */
-    private void setup(){
-        tempTens = phase.getSpace().makeTensor();
-        tempTensInv = phase.getSpace().makeTensor();
-    }
-    
+   
     /**
      * Performs isotropic inflation.
      */

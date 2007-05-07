@@ -6,6 +6,7 @@ package etomica.models.hexane;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.PhaseInflateDeformable;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
@@ -280,7 +281,8 @@ public class TestHexane extends Simulation {
             meterNormalMode.setPhase(sim.phase);
             System.out.println("0");
 
-            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace());
+            PhaseInflateDeformable pid = new PhaseInflateDeformable(sim.getSpace());
+            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
             meterPressure.setIntegrator(sim.integrator);
 
             System.out.println("1");
