@@ -31,7 +31,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
     
         double[] d = primitive.getSize();
         int[] numCells = new int[phase.getSpace().D()];
-        IVector[] reciprocals =  primitive.reciprocal().vectors();;
+        IVector[] reciprocals =  primitive.reciprocal().vectors();
         IVector[] waveVectorBasis = new IVector[reciprocals.length];
         
         for (int i=0; i<phase.getSpace().D(); i++) {
@@ -49,31 +49,51 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         }
         int[][][] waveVectorIndices = new int[2*kMax[0]+1][2*kMax[1]+1][2*kMax[2]+1];
         int count = 0;
-        // this will find 4(numCells)^3 vectors.  Some of them have negatives 
+        int[] idx = new int[3];
+        // if we have an odd number of cells, we flip the first non-zero component
+        // positive.  If we have an even number of cells, we do so, but ignore any
+        // component equal to the max.  And, for even number of cells, if we flip,
+        // we re-flip any component that flips to -max. 
+        boolean flip2 = numCells[0] % 2 == 0;
+        // this will find N-1 vectors.  Some of them have negatives 
         // within the set others do not.  If its negative is within the set, 
         // exclude the negative, but remember it was there -- they will have 
         // coefficients of '1' while the ones without a negative in the set 
-        // will have coefficients of '0.5'.  The ones without a negative have
-        // instead a vector which handles the same degree of freedom.
+        // will have coefficients of '0.5'.
         for (int kx = kMin[0]; kx < kMax[0]+1; kx++) {
             for (int ky = kMin[1]; ky < kMax[1]+1; ky++) {
                 for (int kz = kMin[2]; kz < kMax[2]+1; kz++) {
                     if (kx == 0 && ky == 0 && kz == 0) continue;
+                    for (int i=0; i<3; i++) {
+                        idx[i] = kMax[i];
+                    }
                     boolean flip = kx < 0 || (kx == 0 && ky < 0) || (kx == 0 && ky == 0 && kz < 0);
+                    if (flip2) {
+                        flip = kx < 0 || ((kx == 0 || kx == kMax[0]) && ky < 0) || ((kx == 0 || kx == kMax[0]) && (ky == 0 || ky == kMax[1]) && kz < 0);
+                    }
                     if (flip) {
-                        if (waveVectorIndices[-kx+kMax[0]][-ky+kMax[1]][-kz+kMax[2]] == 0) {
-                            // this one was unique
-                            count++;
-                        }
-                        waveVectorIndices[-kx+kMax[0]][-ky+kMax[1]][-kz+kMax[2]]++;
+                        idx[0] -= kx;
+                        idx[1] -= ky;
+                        idx[2] -= kz;
                     }
                     else {
-                        if (waveVectorIndices[kx+kMax[0]][ky+kMax[1]][kz+kMax[2]] == 0) {
-                            // this one was unique
-                            count++;
-                        }
-                        waveVectorIndices[kx+kMax[0]][ky+kMax[1]][kz+kMax[2]]++;
+                        idx[0] += kx;
+                        idx[1] += ky;
+                        idx[2] += kz;
                     }
+                    if (flip2 && flip) {
+                        for (int i=0; i<3; i++) {
+                            if (idx[i] == 0) {
+                                idx[i] = 2*kMax[i];
+                            }
+                        }
+                    }
+
+                    if (waveVectorIndices[idx[0]][idx[1]][idx[2]] == 0) {
+                        // this one was unique
+                        count++;
+                    }
+                    waveVectorIndices[idx[0]][idx[1]][idx[2]]++;
                 }
             }
         }
@@ -111,6 +131,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         sim.addPhase(phase);
         phase.setDimensions(new Vector3D(nCells, nCells, nCells));
         Species species = new SpeciesSpheresMono(sim);
+        sim.getSpeciesManager().addSpecies(species);
         phase.getAgent(species).setNMolecules(nCells*nCells*nCells);
         Primitive primitive = new PrimitiveCubic(sim.getSpace(), 1);
         
