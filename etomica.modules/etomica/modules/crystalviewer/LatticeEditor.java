@@ -1,4 +1,5 @@
 package etomica.modules.crystalviewer;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -16,8 +17,6 @@ import javax.swing.border.TitledBorder;
 import etomica.action.Action;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceBoxValueChangedEvent;
-import etomica.graphics.DeviceBoxValueChangedListener;
 import etomica.graphics.DeviceSlider;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -30,7 +29,6 @@ import etomica.species.Species;
 import etomica.units.Degree;
 import etomica.units.Quantity;
 import etomica.util.Arrays;
-import etomica.graphics.DeviceBoxValueChangedListener;
 
 /**
  * Class that produces a panel with controls that permit editing of
@@ -47,11 +45,23 @@ public class LatticeEditor {
     public JPanel boxPanel;
     protected CrystalViewer viewer;
     protected final HashMap latticeNameHash;
-    protected PrimitiveVectorBox pvBox;
-	private final String[] fieldTitles = {"A", "B", "C",
+    protected LatticeEditorBoxPropertyArray pvBox = null; 
+    private final String[] fieldTitles = {"A", "B", "C",
                                           "Alpha", "Beta", "Gamma" };
     private final String[] fieldPrefix = {"size", "size", "size",
                                           "angle", "angle", "angle"};
+    private final Color[] colorList = { new Color(255, 161, 156),
+    		                            new Color(183, 255, 161),
+    		                            new Color(181, 217, 255),
+    		                            new Color(226, 217, 255),
+    		                            new Color(201, 222, 214),
+    		                            Color.WHITE,
+    		                            Color.WHITE,
+    		                            Color.WHITE,
+    		                            Color.WHITE,
+    		                            Color.WHITE
+                                      };
+
     private static final int UNIT_CELL_START_INDEX = 0;
     private static final int UNIT_CELL_END_INDEX = 2;
     private static final int ANGLE_START_INDEX = 3;
@@ -138,8 +148,8 @@ public class LatticeEditor {
         angleBoxes = new DeviceBox[0];
         sizeBoxes = new DeviceBox[0];
 
-        // Create a primitive vector box instance
-        pvBox = new PrimitiveVectorBox(this.fieldTitles, this.fieldPrefix);
+        // Create a lattice editor property box array
+        pvBox = new LatticeEditorBoxPropertyArray(this.fieldTitles, this.fieldPrefix);
 
     	// Unit cell size entry fields
         for(int box = UNIT_CELL_START_INDEX; box <= UNIT_CELL_END_INDEX; box++) {
@@ -185,6 +195,7 @@ public class LatticeEditor {
         	sizeBoxes[box].removeAllValueChangedListeners();
         }
 
+        // Need to initialze box array here
         pvBox.initialize();
 
         ModifierGeneral modifier;
@@ -197,7 +208,6 @@ public class LatticeEditor {
             if (pvBox.hasWrite(this.fieldTitles[box]) == false) {
             	sizeBoxes[box-UNIT_CELL_START_INDEX].setLabel(fieldTitles[box]);
             	sizeBoxes[box-UNIT_CELL_START_INDEX].setEditable(false);
-
                 // If there is no modifier for the box, the DeviceBox will
                 // throw a NullPointerException when its modifier is set.
                 // Discard the exception.
@@ -211,6 +221,8 @@ public class LatticeEditor {
             else {
             	sizeBoxes[box-UNIT_CELL_START_INDEX].setEditable(true);
             	sizeBoxes[box-UNIT_CELL_START_INDEX].setModifier(modifier);
+                sizeBoxes[box-UNIT_CELL_START_INDEX].setTextBackground
+                              (colorList[pvBox.getRootIndex(this.fieldTitles[box])]);
             }
         }
 
@@ -221,7 +233,6 @@ public class LatticeEditor {
             if (pvBox.hasWrite(this.fieldTitles[abox]) == false) {
                 angleBoxes[abox-ANGLE_START_INDEX].setLabel(fieldTitles[abox]);
                 angleBoxes[abox-ANGLE_START_INDEX].setEditable(false);
-
                 // If there is no modifier for the box, the DeviceBox will
                 // throw a NullPointerException when its modifier is set.
                 // Discard the exception.
@@ -292,125 +303,39 @@ public class LatticeEditor {
         }
     } // end protected class NModifier
 
+    /**
+     * LatticeEditorBoxPropertyArray
+     * @author rrassler
+     *
+     */
+    private class LatticeEditorBoxPropertyArray {
+    	private int numItems = 0;
+    	private LatticeEditorBoxProperty[] boxes = null;
+    	private int[] rootIndex = null;
 
+    	public LatticeEditorBoxPropertyArray(String[] titles, String[] prefix) {
 
-    private class PrimitiveVectorBox {
+    		if (titles.length != prefix.length) {
+    			this.numItems = 0;
+    			return;
+    		}
+    		else {
+    			this.numItems = titles.length;
+    			rootIndex = new int[this.numItems];
+    			rootIndex[0] = 0;
+    		}
 
-        private class ModifierCreation {
-        	private String[] titles = null;
-        	private String[] prefix = null;
-        	private boolean[] hasRead = null;
-        	private boolean[] hasWrite = null;
-        	private ModifierGeneral[] modifiers = null;
-            private int numItems = 0;
-          
-        	ModifierCreation(String[] title, String[] prefix,
-        			PropertyDescriptor[] properties, Primitive primitive) {
+    		boxes = new LatticeEditorBoxProperty[numItems];
 
-        	    if (title.length == prefix.length) {
-        	    	this.numItems = title.length;
-            		this.titles = title;
-            		this.prefix = prefix;
-            		this.hasRead = new boolean[numItems];
-            		this.hasWrite = new boolean[numItems];
-            		for (int i = 0; i < numItems; i++) {
-                		this.hasRead[i] = false;
-                		this.hasWrite[i] = false;
-            		}
+    		// Create property boxes
+    		for(int i = 0; i < numItems; i++) {
+			    boxes[i] = new LatticeEditorBoxProperty(titles[i], prefix[i], null);
+    		}
 
-            		modifiers = new ModifierGeneral[this.numItems];
-        	    }
-        	    else {
-        	    	return;
-        	    }
-
-        	    for(int i = 0; i < this.numItems;  i++) {
-
-    	    		for(int prop = 0; prop < properties.length;  prop++) {
-        	    		String propertyName = properties[prop].getName();
-
-        	    		if (propertyName.startsWith(this.prefix[i])) {
-        	    			if (propertyName.substring(this.prefix[i].length()).indexOf(this.titles[i]) != -1) {
-
-        	    				modifiers[i] = new ModifierGeneral(primitive, propertyName);
-
-        	                    modifiers[i].setLabel(this.titles[i]);
-                                if (properties[prop].getReadMethod() == null)
-                                	hasRead[i] = false;
-                                else
-                                	hasRead[i] = true;
-                                if (properties[prop].getWriteMethod() == null)
-                                	hasWrite[i] = false;
-                                else
-                                	hasWrite[i] = true;
-                                break;
-        	    			}
-        	    		}
-        	    	}
-        	    }
-        	}
-
-        	private int getIndex(String title) {
-        		int index = -1;
-        	    for (int i = 0; i < this.numItems;  i++) {
-        	    	if (title.equals(this.titles[i])) {
-        	    		index = i;
-        	    		break;
-        	    	}
-        	    }
-        	    return index;
-        	}
-
-        	public ModifierGeneral getModifier(String fieldTitle) {
-        		
-        	    ModifierGeneral mod = null;
-        	    int index = getIndex(fieldTitle);
-
-        	    if (index != -1) {
-        	        mod = modifiers[index];
-        	    }
-        		return mod;
-        	}
-        	
-        	public boolean getHasRead(String fieldTitle) {
-        		boolean read = false;
-        	    int index = getIndex(fieldTitle);
-
-        	    if (index != -1) {
-        	    	read = hasRead[index];
-        	    }
-        		return read;
-        	}
-
-        	public boolean getHasWrite(String fieldTitle) {
-        		boolean write = false;
-        	    int index = getIndex(fieldTitle);
-
-        	    if (index != -1) {
-        	    	write = hasWrite[index];
-        	    }
-        		return write;
-        	}
-        
-        } // private class ModifierCreation
-
-
-
-    	private PropertyDescriptor[] properties = null;  
-    	private ModifierCreation modCreater = null;
-    	private String[] fieldTitles;
-        private String[] fieldPrefix;
-
-    	PrimitiveVectorBox(String[] titles, String[] prefix) {
-    		this.fieldTitles = titles;
-    		this.fieldPrefix = prefix;
-            initialize();
     	}
 
-    	protected void initialize() {
-    		properties = null;
-    		modCreater = null;
-            
+    	public void initialize() {
+
             Primitive primitive = currentLattice.getPrimitive();
             Class c = primitive.getClass();
             //bits of this code are taken from Thinking in Java (1st edition), pages 708-713
@@ -422,23 +347,184 @@ public class LatticeEditor {
                 System.out.println("Couldn't introspect " + c.getName());
                 System.exit(1);
             }
-            properties = bi.getPropertyDescriptors();
 
-            modCreater = new ModifierCreation(fieldTitles, fieldPrefix,
-        			properties, primitive);
+        	PropertyDescriptor[] properties = bi.getPropertyDescriptors();
+            int nextRootIndex = 1;
+
+    		// initialize property boxes
+    		for(int i = 0; i < numItems; i++) {
+
+    			String myPrefix = boxes[i].getPrefix();
+    			String myTitle  = boxes[i].getTitle();
+
+    			PropertyDescriptor myProp = null;
+
+                // Pull property specific to this box from array
+        		for(int prop = 0; prop < properties.length;  prop++) {
+    	    		String propertyName = properties[prop].getName();
+
+    	    		if (propertyName.startsWith(myPrefix) &&
+    	    			propertyName.substring(myPrefix.length()).indexOf(myTitle) != -1) {
+
+    	    		    myProp = properties[prop];
+    	        		boxes[i].setProperty(myProp);
+    	        		break;
+    	    		}
+    	    	}
+
+                // Compile root index
+                int j;
+                for(j = 0; j < i;  j++) {
+                    PropertyDescriptor property = boxes[j].getProperty();
+                    if (myPrefix.equals(boxes[j].getPrefix())) {
+                        String subString = property.getName().substring(myPrefix.length(), property.getName().length());
+                        if (subString.indexOf(myTitle) != -1) {
+                            rootIndex[i] = rootIndex[j];
+                            break;
+                        }
+                    }
+                }
+
+                if(j == i && i != 0) {
+                    rootIndex[i] = nextRootIndex++;
+                }
+
+    		}
+        }
+
+    	private int getIndex(String title) {
+    		int index = -1;
+
+    		for(int i = 0; i < numItems;  i++) {
+    			if (title.equals(boxes[i].getTitle())) {
+    				index = i;
+    				break;
+    			}
+    		}
+    		return index;
     	}
 
     	private ModifierGeneral getModifier(String title) {
-    		return modCreater.getModifier(title);
+    		ModifierGeneral mod = null;
+
+    		int index = getIndex(title);
+    		if (index != -1) {
+    			mod = boxes[index].getModifier();
+    		}
+    		return mod;
     	}
 
-    	private boolean hasRead(String title) {
-    		return modCreater.getHasRead(title);
+    	public boolean hasRead(String title) {
+    		boolean value = false;
+    		
+            int index = getIndex(title);
+    		if (index != -1) {
+    			value = boxes[index].hasRead();
+    		}
+    		// Probably should throw an exception if title does
+    		// not match the title of any of the boxes
+    		return value;
     	}
 
-    	private boolean hasWrite(String title) {
-    		return modCreater.getHasWrite(title);
+    	public boolean hasWrite(String title) {
+    		boolean value = false;
+    		
+            int index = getIndex(title);
+    		if (index != -1) {
+    		    value = boxes[index].hasWrite();
+    		}
+    		// Probably should throw an exception if title does
+    		// not match the title of any of the boxes
+    		return value;
     	}
-    } // private class PrimitiveVectorBox
+
+    	public int getRootIndex(String title) {
+    		int index = -1;
+            int idx = getIndex(title);
+    			if (idx != -1) {
+    				index = rootIndex[idx];
+    		}
+            return index;
+    	}
+
+    } // End LatticeEditorBoxPropertyArray
+
+    /**
+     * LatticeEditorBoxProperty
+     * @author rrassler
+     *
+     */
+    private class LatticeEditorBoxProperty {
+
+    	private String prefix    = null;
+    	private String title     = null;
+    	private boolean hasRead  = false;
+    	private boolean hasWrite = false;
+        private PropertyDescriptor property = null;
+    	private ModifierGeneral modifier = null;
+
+    	public LatticeEditorBoxProperty(String title, String prefix, PropertyDescriptor prop) {
+    		this.title   = title;
+    		this.prefix  = prefix;
+
+    		propertyUpdate(prop);
+    	}
+
+    	private void propertyUpdate(PropertyDescriptor prop) {
+
+    		this.property = prop;
+
+    		if (property == null) {
+    			hasRead = false;
+    			hasWrite = false;
+    		}
+    		else {
+
+				modifier = new ModifierGeneral(currentLattice.getPrimitive(),
+						                       property.getName());
+                modifier.setLabel(this.title);
+
+        		if (property.getReadMethod() == null)
+    			    hasRead = false;
+    	        else
+    	        	hasRead = true;
+
+    		    if (property.getWriteMethod() == null)
+			        hasWrite = false;
+	            else
+	    	        hasWrite = true;   			
+    		}
+
+    	}
+
+    	public void setProperty(PropertyDescriptor prop) {
+    		propertyUpdate(prop);
+    	}
+
+    	public boolean hasRead() {
+    		return hasRead;
+    	}
+
+    	public boolean hasWrite() {
+    		return hasWrite;
+    	}
+
+    	public String getTitle() {
+    		return title;
+    	}
+
+    	public ModifierGeneral getModifier() {
+    		return modifier;
+    	}
+
+    	public String getPrefix() {
+    		return prefix;
+    	}
+    	
+        public PropertyDescriptor getProperty() {
+	        return property;
+        }
+
+    } // End LatticeEditorBoxProperty
 
 }

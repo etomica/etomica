@@ -1,4 +1,5 @@
 package etomica.graphics;
+import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -81,7 +82,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     public void stateChanged(javax.swing.event.ChangeEvent evt) {
         doUpdate();
     }
-    
+ 
     /**
      * Updates the display of the box with the current value given by the modifier.
      */
@@ -237,7 +238,15 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         panel.revalidate();
         panel.repaint();
     }
-    
+
+    public void setTextBackground(Color color) {
+    	textField.setBackground(color);
+    }
+
+    public Color getTextBackfround() {
+    	return textField.getBackground();
+    }
+
     public Constants.CompassDirection getLabelPosition() {
         return labelPosition;
     }
