@@ -2,10 +2,10 @@ package g3dsys.control;
 
 import g3dsys.images.Figure;
 
+import java.awt.Color;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
-import javax.swing.JPanel;
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
 
@@ -127,7 +127,7 @@ public class G3DSys {
   /**Change the background color of the G3D display
    * @param color the G3d background color to use
    */
-  public void setBGColor(int color) { g3d.setBackgroundArgb(color); }
+  public void setBGColor(Color color) { g3d.setBackgroundArgb(color2argb(color)); }
 
   /** Get G3D
    *  @return associated Graphics3D object */
@@ -392,7 +392,7 @@ public class G3DSys {
    * @param color the color to be converted
    * @returns an argb int
    **/
-  private static int color2argb(java.awt.Color color) {
+  private static int color2argb(Color color) {
     float[] compArray = color.getComponents(null);
     int a = (int)(compArray[3]*255+0.5);
     int r = (int)(compArray[0]*255+0.5);
