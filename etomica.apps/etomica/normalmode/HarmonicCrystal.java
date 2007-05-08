@@ -50,7 +50,7 @@ public class HarmonicCrystal {
 //            System.out.println(sum[1].toString());
     }
     
-    public double getHelmholtzFreeEnergy() {
+    public double getHelmholtzFreeEnergy(double temperature) {
         
         double sumA = 0.0;
         
@@ -61,32 +61,55 @@ public class HarmonicCrystal {
             double coeff = coeffs[k];
             coeffSum += coeff;
             for(int i=0; i<omega2[k].length; i++) {
-                sumA += coeff*Math.log(omega2[k][i]*coeff);
+                sumA += coeff*Math.log(omega2[k][i]*coeff/(temperature*Math.PI));
             }
         }
         int nA = (int)(2*coeffSum + 1);
-        double AHarmonic = 0.5*Math.log(nA) - 0.5*(nA-1)*Math.log(2.0*Math.PI) + sumA;
+        int D = lattice.getSpace().D();
+        double AHarmonic = sumA;
+        if (nA % 2 == 0) {
+            if (D == 3) {
+                AHarmonic += Math.log(((3*nA + 3)/2.0) / Math.pow(nA,1.5));
+                //0.5*D*Math.log(nA) - 0.5*(nA-1)*Math.log(2.0*Math.PI)
+            }
+        }
+        else {
+            if (D == 3) {
+                AHarmonic += Math.log(((3*nA - 18)/2.0) / Math.pow(nA,1.5));
+            }
+        }
 //        if(nA % 2 == 0) AHarmonic += 0.5*Math.log(2.0);
         AHarmonic /= nA;
+        AHarmonic *= temperature;
         AHarmonic += getLatticeEnergy();
-        System.out.println("Free energy: "+AHarmonic);
         return AHarmonic;
     }
     
+    public void setCellDensity(double newDensity) {
+        double oldVolume = lattice.getPrimitive().unitCell().getVolume();
+        double scale = newDensity * oldVolume;
+        Primitive primitive = lattice.getPrimitive();
+        primitive.scaleSize(1.0/Math.pow(scale, 1.0/lattice.getSpace().D()));
+        normalModes = new NormalModesSoftSpherical(primitive, potential);
+    }
+    
     public static void main(String[] args) {
-        double T = 1.0;
-        double rho = 1.0;
+        double T = 1;
+        double rho = 1.30;
         PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance());
         primitive.setCubicSize(Math.pow(2.0, 1.0/6.0));//unit density
         final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
 
         HarmonicCrystal harmonicCrystal = new HarmonicCrystal(primitive, potential);
+        harmonicCrystal.setCellDensity(rho);
         
         double u = harmonicCrystal.getLatticeEnergy();
-        double a = harmonicCrystal.getHelmholtzFreeEnergy();
+        double a = harmonicCrystal.getHelmholtzFreeEnergy(T);
         System.out.println("Lattice Energy: " + u);
         System.out.println("Helmholtz: " + a);
         double aEos = LennardJones.aFcc(T,rho);
+        double uEos = LennardJones.uStaticFcc(rho);
+        System.out.println("Energy from EOS: " + uEos);
         System.out.println("Helmholtz from EOS: " + aEos);
     }
     
