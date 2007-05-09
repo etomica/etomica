@@ -6,7 +6,7 @@ import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.SpeciesMaster;
+import etomica.atom.AtomManager;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
@@ -77,7 +77,7 @@ public class AtomIndexManagerTest extends TestCase {
       }
     }
 
-    private static SpeciesMaster getSpeciesMaster(IAtom atom) {
+    private static AtomManager getSpeciesMaster(IAtom atom) {
         IAtom speciesAgent = atom;
         while (!(speciesAgent instanceof SpeciesAgent)) {
             speciesAgent = speciesAgent.getParentGroup();
@@ -90,7 +90,7 @@ public class AtomIndexManagerTest extends TestCase {
         for(int i=0; i<atoms.length; i++) {
             assertFalse(atoms[i].isDescendedFrom(atom));
             assertFalse(atom.isDescendedFrom(atoms[i]));
-            SpeciesMaster iSpeciesMaster = getSpeciesMaster(atoms[i]);
+            AtomManager iSpeciesMaster = getSpeciesMaster(atoms[i]);
             for(int j=0; j<atoms.length; j++) {
                 if (iSpeciesMaster != getSpeciesMaster(atoms[j])) {
                     // different phases, so skip
@@ -123,7 +123,7 @@ public class AtomIndexManagerTest extends TestCase {
         for(int i=0; i<atoms.length; i++) {
             assertFalse(atoms[i].getType().isDescendedFrom(atom.getType()));
             assertFalse(atom.getType().isDescendedFrom(atoms[i].getType()));
-            SpeciesMaster iSpeciesMaster = getSpeciesMaster(atoms[i]);
+            AtomManager iSpeciesMaster = getSpeciesMaster(atoms[i]);
             for(int j=0; j<atoms.length; j++) {
                 if (iSpeciesMaster != getSpeciesMaster(atoms[j])) {
                     // different phases, so skip
@@ -164,7 +164,7 @@ public class AtomIndexManagerTest extends TestCase {
             while (!(moleculeA.getParentGroup() instanceof SpeciesAgent)) {
                 moleculeA = moleculeA.getParentGroup();
             }
-            SpeciesMaster iSpeciesMaster = getSpeciesMaster(atoms[i]);
+            AtomManager iSpeciesMaster = getSpeciesMaster(atoms[i]);
             for(int j=i0; j<atoms.length; j++) {
                 if (atoms[j].getType().getDepth() < AtomAddressManager.MOLECULE_DEPTH) {
                     continue;
@@ -198,7 +198,7 @@ public class AtomIndexManagerTest extends TestCase {
 
     IAtom atom;
     SpeciesAgent agent00, agent01, agent10, agent11;
-    SpeciesMaster master0, master1;
+    AtomManager master0, master1;
     IAtom[] atoms;
     int[] moleculeIndex, phaseIndex, speciesIndex, atomIndex;
     int i0;

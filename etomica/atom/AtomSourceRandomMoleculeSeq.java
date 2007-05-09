@@ -6,13 +6,13 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
 
     public void setPhase(Phase p) {
         super.setPhase(p);
-        speciesMaster = p.getSpeciesMaster();
-        agentList = speciesMaster.getAgentList();
+        atomManager = p.getSpeciesMaster();
+        agentList = atomManager.getAgentList();
         reset();
     }
     
     public IAtom getAtom() {
-        int moleculeCount = speciesMaster.moleculeCount();
+        int moleculeCount = atomManager.moleculeCount();
         // this is probably innapropriate for atom removal
         if (prevIndex == -1 || prevIndex > moleculeCount-1) {
             // no suitable previous atom to step forward from the beginning
@@ -51,7 +51,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
      * Reset the atom used to step from to a random molecule
      */
     public void reset() {
-        int size = speciesMaster.moleculeCount();
+        int size = atomManager.moleculeCount();
         if (size == 0) {
             prevIndex = -1;
             return;
@@ -85,7 +85,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
     
     private static final long serialVersionUID = 2L;
     protected int maxLookAhead = 10;
-    protected SpeciesMaster speciesMaster;
+    protected AtomManager atomManager;
     protected AtomArrayList moleculeList, agentList;
     protected int prevIndex, agentIndex;
 }

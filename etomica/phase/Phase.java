@@ -13,7 +13,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.SpeciesMaster;
+import etomica.atom.AtomManager;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -70,7 +70,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     public Phase(Boundary boundary) {
         space = boundary.getSpace();
         eventManager = new PhaseEventManager();
-        speciesMaster = new SpeciesMaster(this, eventManager);
+        atomManager = new AtomManager(this, eventManager);
         setBoundary(boundary);
         setName(null);
         
@@ -159,7 +159,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         if(i >= moleculeCount() || i < 0) 
             throw new IndexOutOfBoundsException("Index: "+i+
                                                 ", Number of molecules: "+moleculeCount());
-        AtomArrayList agentList = speciesMaster.getAgentList();
+        AtomArrayList agentList = atomManager.getAgentList();
         for (int agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
             AtomArrayList moleculeList = ((IAtomGroup)agentList.get(agentIndex)).getChildList();
             int count = moleculeList.size();
@@ -181,7 +181,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * more than one of the positions.
      */
     public IAtom[] nearestAtom(IVector[] r) {
-        AtomArrayList leafList = speciesMaster.getLeafList();
+        AtomArrayList leafList = atomManager.getLeafList();
         int nLeaf = leafList.size();
     	IAtom[] nearest = new IAtom[r.length];
     	for(int i=0; i<r.length; i++) {
@@ -222,7 +222,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      */
     public final SpeciesAgent getAgent(Species s) {
         //brute force it
-        AtomArrayList agentList = speciesMaster.getAgentList();
+        AtomArrayList agentList = atomManager.getAgentList();
         for (int i=0; i<agentList.size(); i++) {
             if (((SpeciesAgent)agentList.get(i)).getType().getSpecies() == s) {
                 return (SpeciesAgent)agentList.get(i);
@@ -250,30 +250,30 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     /**
      * returns the number of molecules in the phase
      */
-    public int moleculeCount() {return speciesMaster.moleculeCount();}
+    public int moleculeCount() {return atomManager.moleculeCount();}
     
     /**
      * returns the number of leaf atoms in the phase
      */
-    public int atomCount() {return speciesMaster.getLeafList().size();}
+    public int atomCount() {return atomManager.getLeafList().size();}
 
     /**
      * @return Returns the speciesMaster.
      */
-    public SpeciesMaster getSpeciesMaster() {
-        return speciesMaster;
+    public AtomManager getSpeciesMaster() {
+        return atomManager;
     }
 
     public void writePhase(ObjectOutputStream out) throws IOException {
         out.writeObject(boundary);
-        AtomArrayList agents = speciesMaster.getAgentList();
+        AtomArrayList agents = atomManager.getAgentList();
         out.writeInt(agents.size());
         for (int i=0; i<agents.size(); i++) {
             Species species = agents.get(i).getType().getSpecies();
             out.writeObject(species.getSpeciesSignature());
             out.writeInt(((SpeciesAgent)agents.get(i)).getNMolecules());
         }
-        AtomArrayList leafList = speciesMaster.getLeafList();
+        AtomArrayList leafList = atomManager.getLeafList();
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
@@ -330,7 +330,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 
     private static final long serialVersionUID = 2L;
     private Boundary boundary;
-    private SpeciesMaster speciesMaster;
+    private AtomManager atomManager;
     private boolean lrcEnabled = true;
     private String name;
     protected final Space space;

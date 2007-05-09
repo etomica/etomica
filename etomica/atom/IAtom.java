@@ -15,7 +15,7 @@ public interface IAtom extends AtomSet {
      * index (with the Phase).  This method should only be called by the
      * SpeciesMaster.
      */
-    public void setGlobalIndex(SpeciesMaster speciesMaster);
+    public void setGlobalIndex(AtomManager atomManager);
 
     /**
      * Returns the global index (within the Phase) of this Atom.  The global

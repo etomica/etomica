@@ -8,7 +8,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
-import etomica.atom.SpeciesMaster;
+import etomica.atom.AtomManager;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
@@ -95,21 +95,21 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular phase.
      */
-    private void phaseTest(SpeciesMaster speciesMaster, Species[] species) {
-        speciesTestForward(speciesMaster, species[0], species[1]);
-        speciesTestForward(speciesMaster, species[0], species[2]);
-        speciesTestForward(speciesMaster, species[1], species[2]);
+    private void phaseTest(AtomManager atomManager, Species[] species) {
+        speciesTestForward(atomManager, species[0], species[1]);
+        speciesTestForward(atomManager, species[0], species[2]);
+        speciesTestForward(atomManager, species[1], species[2]);
     }
 
     /**
      * Test iteration in various directions with different targets. Iterator
      * constructed with index of first species less than index of second.
      */
-    private void speciesTestForward(SpeciesMaster speciesMaster,
+    private void speciesTestForward(AtomManager atomManager,
             Species species0, Species species1) {
         ApiInterspecies1A api = new ApiInterspecies1A(new Species[] {
                 species0, species1 });
-        Phase phase = speciesMaster.getPhase();
+        Phase phase = atomManager.getPhase();
         AtomsetAction speciesTest = new SpeciesTestAction(
                 species0, species1);
         IAtom target = null;

@@ -93,8 +93,8 @@ public abstract class Atom implements IAtom, java.io.Serializable {
     	else return "Group(" + signature() + ")";
     }    
 
-    public void setGlobalIndex(SpeciesMaster speciesMaster) {
-        globalIndex = speciesMaster.requestGlobalIndex();
+    public void setGlobalIndex(AtomManager atomManager) {
+        globalIndex = atomManager.requestGlobalIndex();
     }
 
     public final int getGlobalIndex() {

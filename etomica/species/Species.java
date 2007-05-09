@@ -3,7 +3,7 @@ import etomica.atom.AtomFactory;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSpeciesAgent;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.SpeciesMaster;
+import etomica.atom.AtomManager;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.util.NameMaker;
@@ -34,7 +34,7 @@ import etomica.util.NameMaker;
   * 
   * @author David Kofke
   * @author C. Daniel Barnes
-  * @see SpeciesMaster
+  * @see AtomManager
   * @see SpeciesAgent
   * @see PotentialMaster
   */
@@ -90,12 +90,12 @@ public class Species implements java.io.Serializable {
      * Constructs an Agent of this species and sets its SpeciesMaster.
      * The agent's type is in common with all other agents of this species.
      * 
-     * @param speciesMaster The SpeciesMaster that will hold this SpeciesAgent
+     * @param atomManager The SpeciesMaster that will hold this SpeciesAgent
      * @return The new agent.
      */
-    public SpeciesAgent makeAgent(SpeciesMaster speciesMaster) {
-        SpeciesAgent agent = new SpeciesAgent(agentType, speciesMaster);
-        speciesMaster.addSpeciesAgent(agent);
+    public SpeciesAgent makeAgent(AtomManager atomManager) {
+        SpeciesAgent agent = new SpeciesAgent(agentType, atomManager);
+        atomManager.addSpeciesAgent(agent);
         return agent;
     }
 

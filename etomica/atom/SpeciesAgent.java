@@ -12,17 +12,17 @@ import etomica.units.Quantity;
  
 public final class SpeciesAgent extends AtomGroup {
 
-    public SpeciesAgent(AtomType type, SpeciesMaster speciesMaster) {
+    public SpeciesAgent(AtomType type, AtomManager atomManager) {
         super(type);
-        this.speciesMaster = speciesMaster;
+        this.atomManager = atomManager;
     }
 
-    public SpeciesMaster getSpeciesMaster() {
-        return speciesMaster;
+    public AtomManager getSpeciesMaster() {
+        return atomManager;
     }
     
     public String signature() {
-        return (speciesMaster != null) ? speciesMaster.getPhase().toString() + " " +getIndex()
+        return (atomManager != null) ? atomManager.getPhase().toString() + " " +getIndex()
                 : "SpeciesAgent without phase";
     }
     
@@ -39,7 +39,7 @@ public final class SpeciesAgent extends AtomGroup {
      * or one of its descendants.
      */
     public void addAtomNotify(IAtom childAtom) {
-        speciesMaster.addAtomNotify(childAtom);
+        atomManager.addAtomNotify(childAtom);
     }
     
     /**
@@ -47,7 +47,7 @@ public final class SpeciesAgent extends AtomGroup {
      * one of its descendants.
      */
     public void removeAtomNotify(IAtom childAtom) {
-         speciesMaster.removeAtomNotify(childAtom);
+         atomManager.removeAtomNotify(childAtom);
     }
 
     /**
@@ -60,7 +60,7 @@ public final class SpeciesAgent extends AtomGroup {
      * @param n  the new number of molecules for this species
      */
     public void setNMolecules(int n) {
-        speciesMaster.notifyNewAtoms((n-getNMolecules())*type.getSpecies().moleculeFactory().getNumTreeAtoms(),
+        atomManager.notifyNewAtoms((n-getNMolecules())*type.getSpecies().moleculeFactory().getNumTreeAtoms(),
                                      (n-getNMolecules())*type.getSpecies().moleculeFactory().getNumLeafAtoms());
         if(n > childList.size()) {
             for(int i=childList.size(); i<n; i++) addNewAtom();
@@ -78,5 +78,5 @@ public final class SpeciesAgent extends AtomGroup {
     public Dimension getNMoleculesDimension() {return Quantity.DIMENSION;}
 
     private static final long serialVersionUID = 2L;
-    private final SpeciesMaster speciesMaster;
+    private final AtomManager atomManager;
 }

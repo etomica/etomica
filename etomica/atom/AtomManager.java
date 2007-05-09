@@ -24,9 +24,9 @@ import etomica.util.Arrays;
  * @author David Kofke and Andrew Schultz
  */
 
-public final class SpeciesMaster implements java.io.Serializable {
+public final class AtomManager implements java.io.Serializable {
 
-    public SpeciesMaster(Phase p, PhaseEventManager eventManager) {
+    public AtomManager(Phase p, PhaseEventManager eventManager) {
         agentList = new AtomArrayList();
         phaseEventManager = eventManager;
         indexReservoir = new int[reservoirSize];

@@ -36,7 +36,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      * from the Phase associated with this instance.
      */
     public Object getAgent(IAtom a) {
-        return agents[speciesMaster.getLeafIndex(a)];
+        return agents[atomManager.getLeafIndex(a)];
     }
     
     /**
@@ -44,7 +44,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      * The IAtom must be from the Phase associated with this instance.
      */
     public void setAgent(IAtom a, Object newAgent) {
-        agents[speciesMaster.getLeafIndex(a)] = newAgent;
+        agents[atomManager.getLeafIndex(a)] = newAgent;
     }
     
     /**
@@ -52,8 +52,8 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      */
     public void dispose() {
         // remove ourselves as a listener to the phase
-        speciesMaster.getPhase().getEventManager().removeListener(this);
-        AtomArrayList leafList = speciesMaster.getLeafList();
+        atomManager.getPhase().getEventManager().removeListener(this);
+        AtomArrayList leafList = atomManager.getLeafList();
         int nLeaf = leafList.size();
         for (int i=0; i<nLeaf; i++) {
             // leaf index corresponds to the position in the leaf list
@@ -69,12 +69,12 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      * Sets the Phase in which this AtomAgentManager will manage Atom agents.
      */
     protected void setupPhase() {
-        speciesMaster.getPhase().getEventManager().addListener(this, isBackend);
+        atomManager.getPhase().getEventManager().addListener(this, isBackend);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
-                speciesMaster.getLeafList().size()+1+speciesMaster.getIndexReservoirSize());
+                atomManager.getLeafList().size()+1+atomManager.getIndexReservoirSize());
         // fill in the array with agents from all the atoms
-        AtomArrayList leafList = speciesMaster.getLeafList();
+        AtomArrayList leafList = atomManager.getLeafList();
         int nLeaf = leafList.size();
         for (int i=0; i<nLeaf; i++) {
             // leaf list position is the leaf index, so don't bother looking
@@ -107,7 +107,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
                     treeIterator.setRootAtom(a);
                     treeIterator.reset();
                     for (IAtom childAtom = treeIterator.nextAtom(); childAtom != null; childAtom = treeIterator.nextAtom()) {
-                        int index = speciesMaster.getLeafIndex(childAtom);
+                        int index = atomManager.getLeafIndex(childAtom);
                         if (agents[index] != null) {
                             // Atom used to have an agent.  nuke it.
                             agentSource.releaseAgent(agents[index], childAtom);
@@ -116,7 +116,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
                     }
                 }
                 else {
-                    int index = speciesMaster.getLeafIndex(a);
+                    int index = atomManager.getLeafIndex(a);
                     if (agents[index] != null) {
                         // Atom used to have an agent.  nuke it.
                         agentSource.releaseAgent(agents[index], a);
@@ -127,12 +127,12 @@ public class AtomLeafAgentManager extends AtomAgentManager {
             else if (evt instanceof PhaseAtomLeafIndexChangedEvent) {
                 // the atom's index changed.  assume it would get the same agent
                 int oldIndex = ((PhaseAtomLeafIndexChangedEvent)evt).getOldIndex();
-                agents[speciesMaster.getLeafIndex(a)] = agents[oldIndex];
+                agents[atomManager.getLeafIndex(a)] = agents[oldIndex];
                 agents[oldIndex] = null;
             }
         }
         else if (evt instanceof PhaseGlobalAtomLeafIndexEvent) {
-            int reservoirSize = speciesMaster.getIndexReservoirSize();
+            int reservoirSize = atomManager.getIndexReservoirSize();
             // don't use leafList.size() since the SpeciesMaster might be notifying
             // us that it's about to add leaf atoms
             int newMaxIndex = ((PhaseGlobalAtomLeafIndexEvent)evt).getMaxIndex();
@@ -150,7 +150,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      * Adds an agent for the given leaf atom to the agents array.
      */
     protected void addAgent(IAtom a) {
-        addAgent(a, speciesMaster.getLeafIndex(a));
+        addAgent(a, atomManager.getLeafIndex(a));
     }
     
     /**
@@ -160,7 +160,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
     protected void addAgent(IAtom a, int index) {
         if (agents.length < index+1) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = Arrays.resizeArray(agents,index+1+speciesMaster.getIndexReservoirSize());
+            agents = Arrays.resizeArray(agents,index+1+atomManager.getIndexReservoirSize());
         }
         agents[index] = agentSource.makeAgent(a);
     }        
