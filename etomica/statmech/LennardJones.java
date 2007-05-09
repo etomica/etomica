@@ -7,9 +7,15 @@ import etomica.util.Arrays;
  * Lennard-Jones model.
  * 
  * Equations for the fcc solid phase and liquid-fcc saturation conditions are
- * based on the empirical formulas proposed by van der Hoef ("Free energy of the
- * Lennard-Jones solid", Journal of Chemical Physics, vol 113, page 8142
- * (2000)).
+ * based on the empirical formulas proposed by van der Hoef:
+ * 
+ * [1] M.A. van der Hoef, "Free energy of the Lennard-Jones solid", Journal of
+ * Chemical Physics, vol 113, page 8142 (2000).
+ * 
+ * Equations for vapor-fcc saturation conditions are based on equations given in:
+ * 
+ * [2] M.S. van der Hoef, "Gas-solid coexistence of the Lennard-Jones system", 
+ * Journal of Chemical Physics, vol 117, page 5093 (2002).
  * 
  * No fluid-phase equations are (yet) implemented here.
  * 
@@ -28,7 +34,7 @@ public final class LennardJones {
      * Total Helmholtz free energy for the fcc solid. Does
      * not include contributions from momentum degrees of freedom
      * (alternatively, one might say that the mass is defined such that the
-     * deBroglie wavelength is unity).  Based on Eq. 21 of van der Hoef.
+     * deBroglie wavelength is unity).  Based on Eq. 21 of van der Hoef [1].
      * 
      * @param T
      *            the temperature, in units of epsilon/k (thus input is kT/epsilon)
@@ -51,7 +57,7 @@ public final class LennardJones {
 
     /**
      * Total ensemble-averaged internal potential energy for the fcc solid.
-     * Based on Eq. 19 of van der Hoef.
+     * Based on Eq. 19 of van der Hoef [1].
      * 
      * @param T
      *            temperature, in units of epsilon/k
@@ -66,7 +72,7 @@ public final class LennardJones {
     
     /**
      * Compressibility factor, P/rho/kT for the fcc solid.
-     * Based on Eq. 20 of van der Hoef.
+     * Based on Eq. 20 of van der Hoef [1].
      * 
      * @param T
      *            temperature, in units of epsilon/k
@@ -100,13 +106,14 @@ public final class LennardJones {
     }
     
     /**
-     * Returns the densities of coexisting (saturated) liquid and fcc phases.
-     * Uses Eqs. (25) and (26) of van der Hoef.
+     * Returns the densities of coexisting (saturated) liquid and fcc phases
+     * (i.e., melting and freezing densities). Uses Eqs. (25) and (26) of van
+     * der Hoef [1].
      * 
      * @param T
      *            temperature, in units of epsilon/k
-     * @return coexistence densities, in units of 1/sigma^3; liquid is element 0,
-     *         fcc solid is element 1
+     * @return coexistence densities, in units of 1/sigma^3; liquid is element
+     *         0, fcc solid is element 1
      */
     public static double[] liquidFccCoexDensities(double T) {
         double beta = 1.0/T;
@@ -127,13 +134,14 @@ public final class LennardJones {
     }
 
     /**
-     * Returns the saturation pressure for fluid-fcc coexistence. Uses Eq. (24)
-     * of van der Hoef, which is based on a formula proposed by Agrawal and Kofke,
-     * referenced therein.
+     * Returns the saturation pressure for fluid-fcc coexistence (i.e., the
+     * melting or freezing pressure). Uses Eq. (24) of van der Hoef [1], which
+     * is based on a formula proposed by Agrawal and Kofke, referenced therein.
      * 
      * @param T
      *            temperature, in units of epsilon/k
-     * @return saturation pressure, in units of epsilon/sigma^3 (thus p sigma^3/epsilon is returned)
+     * @return saturation pressure, in units of epsilon/sigma^3 (thus p
+     *         sigma^3/epsilon is returned)
      */
     public static double liquidFccCoexPressure(double T) {
         double beta = 1.0/T;
@@ -143,9 +151,53 @@ public final class LennardJones {
         return betaM54 * Math.exp(-0.4759 * Math.sqrt(beta)) * (16.89 + A * beta + B * beta*beta);
     }
     
-    
+
+    /**
+     * Returns the densities of coexisting (saturated) vapor and fcc phases
+     * (sublimation densities). Uses Eqs. (2) and (3) of van der Hoef [2].
+     * 
+     * @param T
+     *            temperature, in units of epsilon/k
+     * @return coexistence densities, in units of 1/sigma^3; vapor is element
+     *         0, fcc solid is element 1
+     */
+    public static double[] vaporFccCoexDensities(double T) {
+        double sum = -cStat[0]*cStat[0]/4.0/cStat[1]/T;
+        double Tn = 1.0;
+        for(int n=0; n<=5; n++) {
+            sum += bSub[n]*Tn;
+            Tn *= T;
+        }
+        double rhoVap = Math.exp(sum);
+        sum = Math.sqrt(-cStat[0]/2.0/cStat[1]);
+        Tn = T;
+        for(int n=1; n<=4; n++) {
+            sum += cSub[n-1]*Tn;
+            Tn *= T;
+        }
+        return new double[] {rhoVap, sum};  
+    }
+
+    /**
+     * Returns the saturation pressure for vapor-fcc coexistence. Uses Eq. (1)
+     * of van der Hoef [2].
+     * 
+     * @param T
+     *            temperature, in units of epsilon/k
+     * @return saturation pressure, in units of epsilon/sigma^3 (thus p sigma^3/epsilon is returned)
+     */
+    public static double vaporFccCoexPressure(double T) {
+        double sum = -cStat[0]*cStat[0]/4.0/cStat[1]/T;
+        double Tn= 1.0;
+        for(int n=0; n<=5; n++) {
+            sum += aSub[n]*Tn;
+            Tn *= T;
+        }
+        return T * Math.exp(sum);
+    }
+
     /*
-     * Implementation of van der Hoef's Eq. 12 for u^{ah}
+     * Implementation of van der Hoef's [1] Eq. 12 for u^{ah}
      */
     private static double uah(double T, double rho) {
         double sum = 0.0;
@@ -179,7 +231,7 @@ public final class LennardJones {
     }
 
     /*
-     * Implementation of van der Hoef's Eq. (14) for U^{ah}
+     * Implementation of van der Hoef's [1] Eq. (14) for U^{ah}
      */
     private static double Uah(double T, double rho) {
         double sum = 0.0;
@@ -196,7 +248,7 @@ public final class LennardJones {
     }
     
     public static void main(String[] args) {
-        double T = 1.0;
+        double T = 0.65;
         double rho = 1.7;
         double pSat = liquidFccCoexPressure(T);
         double[] rhoSat = liquidFccCoexDensities(T);
@@ -213,6 +265,10 @@ public final class LennardJones {
         System.out.println("rhs of Eq. 23: " + rhs);
         double zfcc = pSat/rhoSat[1]/T;
         System.out.println("Two routes to Z: "+zfcc+" "+ZFcc(T,rhoSat[1]));
+        double psub = vaporFccCoexPressure(T);
+        System.out.println("Sublimation pressure: " + psub);
+        double[] rhosub = vaporFccCoexDensities(T);
+        System.out.println("vapor, fcc coexistence densities: " + Arrays.toString(rhosub));
         
     }
     
@@ -224,6 +280,9 @@ public final class LennardJones {
     private static final double[] b = new double[] { 69.833875, -132.86963,
         97.438593, -25.848057 };
     private static final double[] cStat = new double[] {-14.45392093, 6.065940096};
+    private static final double[] aSub = new double[] {10.48631, -16.81771, 35.10031, -48.76487, 36.39136, -10.90788};
+    private static final double[] bSub = new double[] {10.49107, -16.83818, 34.95754, -47.66412, 33.90821, -9.011857};
+    private static final double[] cSub = new double[] {-0.134343, -0.0950795, 0.137215, -0.161890};
 
 
 }
