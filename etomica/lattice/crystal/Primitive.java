@@ -1,8 +1,12 @@
 package etomica.lattice.crystal;
 
+import etomica.math.geometry.LineSegment;
+import etomica.math.geometry.Parallelepiped;
+import etomica.math.geometry.Parallelogram;
 import etomica.math.geometry.Polytope;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space3d.IVector3D;
 
 /**
  * Collection of primitive elements that specify or are determined
@@ -185,6 +189,20 @@ public abstract class Primitive implements java.io.Serializable {
      * The returned cell does not remain tied to the primitive, and
      * will not be updated with changes to the primitive.
      */
-    public abstract Polytope unitCell();
+    public Polytope unitCell() {
+        if (space.D() == 1) {
+            LineSegment line = new LineSegment(space);
+            line.setLength(latticeVectors[0].x(0));
+            return line;
+        }
+        if (space.D() == 2) {
+            return new Parallelogram(space, latticeVectors[0], latticeVectors[1]);
+        }
+        if (space.D() == 3) {
+            return new Parallelepiped(space, (IVector3D)latticeVectors[0], (IVector3D)latticeVectors[1], (IVector3D)latticeVectors[2]);
+        }
+        throw new RuntimeException("I'm impressed by your ability to make a "+D+"-D space, but I really don't know how to make an appropriate unit cell");
+    }
+    
     
 }

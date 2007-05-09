@@ -34,7 +34,6 @@ public class PrimitiveTrigonal extends Primitive {
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        throw new RuntimeException("oops.  fix me");
     }
     
     /**
@@ -117,10 +116,6 @@ public class PrimitiveTrigonal extends Primitive {
     
     public Polytope wignerSeitzCell() {
         throw new RuntimeException("method PrimitiveOrthorhombic.wignerSeitzCell not yet implemented");
-    }
-    
-    public Polytope unitCell() {
-        throw new RuntimeException("method PrimitiveOrthorhombic.unitCell not yet implemented");
     }
     
     public String toString() {return "Trigonal";}

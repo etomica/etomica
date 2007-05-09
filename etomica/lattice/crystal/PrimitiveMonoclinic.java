@@ -127,10 +127,6 @@ public class PrimitiveMonoclinic extends Primitive {
         throw new RuntimeException("method PrimitiveOrthorhombic.wignerSeitzCell not yet implemented");
     }
     
-    public Polytope unitCell() {
-        throw new RuntimeException("method PrimitiveOrthorhombic.wignerSeitzCell not yet implemented");
-    }
-    
     public String toString() {return "Monoclinic";}
 
     protected static class PrimitiveMonoclinicReciprocal extends PrimitiveMonoclinic {

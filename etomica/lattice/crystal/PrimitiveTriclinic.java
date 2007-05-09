@@ -150,10 +150,6 @@ public class PrimitiveTriclinic extends Primitive {
         throw new RuntimeException("method PrimitiveOrthorhombic.wignerSeitzCell not yet implemented");
     }
     
-    public Polytope unitCell() {
-        throw new RuntimeException("method PrimitiveOrthorhombic.unitCell not yet implemented");
-    }
-    
     public String toString() {return "Triclinic";}
 
 }

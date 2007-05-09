@@ -95,11 +95,6 @@ public class PrimitiveHexagonal2D extends Primitive {
         throw new RuntimeException("method wignerSeitzCell not yet implemented");
     }
     
-    public Polytope unitCell() {
-        throw new RuntimeException("method unitCellFactory not yet implemented");
-    //    return new UnitCellFactory(simulation);
-    }
-    
     public String toString() {return "Hexagonal";}
     
 

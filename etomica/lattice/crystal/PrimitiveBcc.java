@@ -109,11 +109,6 @@ public class PrimitiveBcc extends Primitive {
         throw new RuntimeException("method PrimitiveFcc.wignerSeitzCell not yet implemented");
     }
     
-    public Polytope unitCell() {
-        throw new RuntimeException("method unitCell not yet implemented");
-//        return new UnitCellFactory(simulation);
-    }
-    
     public String toString() {return "Bcc";}
     
 }

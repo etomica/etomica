@@ -47,7 +47,7 @@ public class PrimitiveFcc extends Primitive {
     
     //called by update method of superclass
     protected void updateReciprocal() {
-        ((PrimitiveBcc)reciprocal).setCubicSize(2.0*Math.sqrt(6)*Math.PI/size[0]);
+        ((PrimitiveBcc)reciprocal).setCubicSize(Math.sqrt(6)*Math.PI/size[0]);
     }
     
     /**
@@ -112,10 +112,6 @@ public class PrimitiveFcc extends Primitive {
     
     public Polytope wignerSeitzCell() {
         throw new RuntimeException("method PrimitiveFcc.wignerSeitzCell not yet implemented");
-    }
-    
-    public Polytope unitCell() {
-        throw new RuntimeException("method unitCellFactory not yet implemented");
     }
     
     public String toString() {return "Fcc";}
