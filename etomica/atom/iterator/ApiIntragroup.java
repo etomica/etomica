@@ -18,8 +18,7 @@ import etomica.atom.IAtom;
  * are given; otherwise, if an atom is specified there, pairs will be formed from the
  * childList atoms with the basis' child from which the target atom is descended.  
  */
-public final class ApiIntragroup implements AtomPairIterator,
-		AtomsetIteratorBasisDependent, AtomsetIteratorDirectable,
+public final class ApiIntragroup implements AtomsetIteratorBasisDependent, AtomsetIteratorDirectable,
         Serializable {
 
     /**
@@ -114,22 +113,15 @@ public final class ApiIntragroup implements AtomPairIterator,
 	}
     
     public AtomSet next() {
-        return nextPair();
-    }
-    
-    public AtomPair nextPair() {
         if (upListNow) {
-            AtomPair next = apiUp.nextPair();
-            if (next != null && (next.atom0 == null || next.atom1 == null)) {
-                throw new RuntimeException("oops "+next);
-            }
+            AtomSet next = apiUp.next();
             if (next != null || !doGoDown) {
                 return next;
             }
             upListNow = false;
             apiDown.reset();
         }
-        return apiDown.nextPair();
+        return apiDown.next();
     }
     
     /**

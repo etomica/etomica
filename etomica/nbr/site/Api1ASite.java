@@ -9,7 +9,6 @@ import etomica.action.AtomsetCount;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -24,7 +23,7 @@ import etomica.space.BoundaryPeriodic;
  * Iteration is performed using site lists.
  * Direction is related to ordering of sites.
  */
-public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.Serializable {
+public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
     
     /**
 	 * Constructor makes iterator that must have phase specified and then be 
@@ -89,15 +88,7 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
         return counter.callCount();
 	}
 	
-    public boolean hasNext() {
-        return next != null;
-    }
-    
     public AtomSet next() {
-        return nextPair();
-    }
-    
-    public AtomPair nextPair() {
         if (upListNow) {
             if (neighborIterator.hasNext()) {
                 pair.atom1 = ((AtomSite)neighborIterator.next()).getAtom();
@@ -148,7 +139,6 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
             pair.atom1 = targetAtom;
         }
         neighborIterator.reset();
-        next = ((AtomSite)neighborIterator.next()).getAtom();
     }
     
     /**
@@ -181,7 +171,6 @@ public class Api1ASite implements AtomsetIteratorPDT, AtomPairIterator, java.io.
     private boolean upListNow;
     private IteratorDirective.Direction direction;
     private IAtom targetAtom;
-    private IAtom next;
     private final PhaseAgentManager phaseAgentManager;
     private NeighborSiteManager neighborSiteManager;
     

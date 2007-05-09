@@ -10,7 +10,7 @@ import etomica.atom.AtomSet;
  * Incorrect behavior will result if both lists refer to the same instance.
  *  
  */
-public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable {
+public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable {
 
     /**
      * Construct iterator with an empty lists. No iterates will be given until
@@ -69,16 +69,10 @@ public class ApiInterArrayList implements AtomPairIterator, java.io.Serializable
     }
 
     /**
-     * Same as nextPair.
+     * Returns the next iterate pair. Returns null if there are no more
+     * iterates.
      */
     public AtomSet next() {
-        return nextPair();
-    }
-
-    /**
-     * Returns the next iterate pair. Returns null if hasNext() is false.
-     */
-    public AtomPair nextPair() {
         if (innerIndex > innerList.size() - 2) {
             if (outerIndex > outerList.size() - 2 || innerList.size() == 0) {
                 return null;

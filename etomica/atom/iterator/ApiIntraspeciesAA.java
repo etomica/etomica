@@ -7,7 +7,7 @@ import etomica.species.Species;
  * Gives pairs formed from the molecules of a single species in a phase. Species
  * is specified at construction and cannot be changed afterwards.
  */
-public class ApiIntraspeciesAA extends AtomPairIteratorAdapter implements
+public class ApiIntraspeciesAA extends AtomsetIteratorAdapter implements
         AtomsetIteratorPhaseDependent {
 
     /**

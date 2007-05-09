@@ -1,14 +1,13 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 
 /**
  * Returns iterates from a list.  
  */
-public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectable, java.io.Serializable {
+public class ApiSequence1A implements AtomsetIteratorDirectable, java.io.Serializable {
 
     /**
      * Constructor makes iterator that must have list specified and then be 
@@ -83,19 +82,15 @@ public class ApiSequence1A implements AtomPairIterator, AtomsetIteratorDirectabl
     }
     
     public AtomSet next() {
-        return nextPair();
-    }
-    
-    public AtomPair nextPair() {
         if (upListNow) {
-            AtomPair next = apiUp.nextPair();
+            AtomSet next = apiUp.next();
             if(next != null || !doGoDown) {
                 return next;
             }
             upListNow = false;
             apiDown.reset();
         }
-        return apiDown.nextPair();
+        return apiDown.next();
     }
     
     /**

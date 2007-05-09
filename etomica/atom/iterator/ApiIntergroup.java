@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
  * Iterator that returns pairs formed using two different basis atoms, so that
  * the iterates are taken from two different groups.
  */
-public class ApiIntergroup extends AtomPairIteratorAdapter implements
+public class ApiIntergroup extends AtomsetIteratorAdapter implements
         AtomsetIteratorBasisDependent, ApiComposite {
 
     /**

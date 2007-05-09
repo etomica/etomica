@@ -3,11 +3,10 @@ package etomica.nbr.cell;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiInterArrayList;
 import etomica.atom.iterator.ApiIntraArrayList;
-import etomica.atom.iterator.AtomPairIterator;
+import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
@@ -17,7 +16,7 @@ import etomica.space.BoundaryPeriodic;
 /**
  * Returns iterates formed from all cell-based neighbor pairs.
  */
-public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, java.io.Serializable {
+public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable {
 
     /**
      * Constructor makes iterator that must have phase specified and then be
@@ -95,15 +94,8 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
         throw new RuntimeException("oops");
     }
     
-    public AtomSet next() {
-        return nextPair();
-    }
-    
-    public AtomPair nextPair() {
-        AtomPair nextPair = listIterator.nextPair();
-        if (nextPair != null && (nextPair.atom0 == null || nextPair.atom1 == null)) {
-            throw new RuntimeException("oops "+nextPair);
-        }
+    public AtomSet nextPair() {
+        AtomSet nextPair = listIterator.next();
         if (nextPair == null) {
             return advanceLists();
         }
@@ -133,14 +125,14 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
     
     // Moves to next pair of lists that can provide an iterate
     // This should be invoked only if listIterator.hasNext is false
-    private AtomPair advanceLists() {
+    private AtomSet advanceLists() {
         do {
               //advance neighbor cell
             if(neighborIterator.hasNext()) {
                 interListIterator.setInnerList(((Cell)neighborIterator.next()).occupants());
                 listIterator = interListIterator;
                 interListIterator.reset();
-                AtomPair pair = listIterator.nextPair();
+                AtomSet pair = listIterator.next();
                 if (pair != null) {
                     return pair;
                 }
@@ -159,7 +151,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
                     listIterator = intraListIterator;
                     intraListIterator.reset();
                         
-                    AtomPair pair = listIterator.nextPair();
+                    AtomSet pair = listIterator.next();
                     if (pair != null) {
                         return pair;
                     }
@@ -181,7 +173,7 @@ public class ApiAACell implements AtomPairIterator, AtomsetIteratorCellular, jav
     }
    
     private static final long serialVersionUID = 1L;
-    private AtomPairIterator listIterator;
+    private AtomsetIterator listIterator;
     private final Phase phase;
     private final ApiIntraArrayList intraListIterator;
     private final ApiInterArrayList interListIterator;

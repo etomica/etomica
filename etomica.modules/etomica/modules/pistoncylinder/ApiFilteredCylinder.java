@@ -4,7 +4,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomsetFilter;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiFiltered;
-import etomica.atom.iterator.AtomPairIterator;
+import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
 import etomica.phase.Phase;
 import etomica.potential.P1HardMovingBoundary;
@@ -15,7 +15,7 @@ import etomica.space.IVector;
  * Our own ApiFiltered that's phase-dependent
  */
 public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorPhaseDependent {
-    public ApiFilteredCylinder(AtomPairIterator iterator, AtomsetFilter filter) {
+    public ApiFilteredCylinder(AtomsetIterator iterator, AtomsetFilter filter) {
         super(iterator, filter);
     }
 

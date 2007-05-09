@@ -19,7 +19,7 @@ import etomica.atom.IAtom;
  * afterwards.  Default behavior has outer loop atoms as atom0, and inner loop atoms
  * as atom1.
  */
-public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java.io.Serializable {
+public final class ApiInnerFixed implements ApiComposite, java.io.Serializable {
 
     /**
      * Construct a pair iterator using the given atom iterators. Requires call
@@ -106,16 +106,12 @@ public final class ApiInnerFixed implements AtomPairIterator, ApiComposite, java
         }
     }
 
-    public final AtomSet next() {
-        return nextPair();
-    }
-
     /**
      * Returns the next pair of atoms. The same AtomPair instance is returned
      * every time, but the Atoms it holds are (of course) different for each
      * iterate.
      */
-    public AtomPair nextPair() {
+    public final AtomSet next() {
         //Advance the inner loop, if it is not at its end.
         IAtom nextInner = aiInner.nextAtom();
         if (nextInner != null) {

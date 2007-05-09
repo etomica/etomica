@@ -12,7 +12,7 @@ import etomica.atom.AtomSet;
 /**
  * Returns all pairs formed from a single list of atoms.
  */
-public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable {
+public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable {
 
     /**
      * Construct iterator with an empty list. No iterates will be given until a
@@ -61,14 +61,10 @@ public class ApiIntraArrayList implements AtomPairIterator, java.io.Serializable
         return list.size() * (list.size() - 1) / 2;
     }
 
-    public AtomSet next() {
-        return nextPair();
-    }
-
     /**
      * Returns the next iterate pair. Returns null if hasNext() is false.
      */
-    public AtomPair nextPair() {
+    public AtomSet next() {
         if (innerIndex > list.size() - 2) {
             if (outerIndex > list.size() - 3) {
                 return null;

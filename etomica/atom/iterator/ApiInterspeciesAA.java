@@ -9,7 +9,7 @@ import etomica.species.Species;
  * Species are specified at construction and cannot be changed afterwards.
  */
 
-public class ApiInterspeciesAA extends AtomPairIteratorAdapter implements
+public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
         AtomsetIteratorPhaseDependent {
 
     /**

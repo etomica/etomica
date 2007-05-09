@@ -7,7 +7,6 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
-import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 
 /**
@@ -20,7 +19,7 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
  */
 
 
-public class ApiIndexList implements AtomsetIteratorBasisDependent, AtomPairIterator {
+public class ApiIndexList implements AtomsetIteratorBasisDependent {
 
 	
 	
@@ -100,7 +99,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent, AtomPairIter
     /**
      * Returns the iterator's pair and unsets iterator.
      */
-    public AtomPair nextPair() {
+    public AtomSet next() {
     	if (target != null){
         	for(; cursor < index.length; cursor++){   //index.length = number of pairs
         		
@@ -121,14 +120,6 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent, AtomPairIter
 		cursor++;
         return pair;
     }
-
-    /**
-     * Same as nextPair().
-     */
-    public AtomSet next() {
-        return nextPair();
-    }
-
 
     /**
      * Returns 2, indicating that this is a pair iterator.

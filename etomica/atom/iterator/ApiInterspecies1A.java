@@ -3,7 +3,6 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
@@ -33,7 +32,7 @@ import etomica.species.Species;
  * </ul>
  */
 
-public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
+public class ApiInterspecies1A implements AtomsetIteratorPDT,
         Serializable {
 
     /**
@@ -173,10 +172,6 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
         }
     }
 
-    public AtomPair nextPair() {
-        return iterator.nextPair();
-    }
-
     public void allAtoms(AtomsetAction action) {
         iterator.allAtoms(action);
     }
@@ -186,7 +181,7 @@ public class ApiInterspecies1A implements AtomPairIterator, AtomsetIteratorPDT,
     }
     
     public AtomSet next() {
-        return iterator.nextPair();
+        return iterator.next();
     }
     
     public void reset() {

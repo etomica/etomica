@@ -1,11 +1,6 @@
-/*
- * History
- * Created on Aug 13, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -24,7 +19,7 @@ import etomica.phase.Phase;
  * and cannot be changed after construction.
  * 
  */
-public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.io.Serializable {
+public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
 
     /**
      * Constructs iterator by wrapping three others.
@@ -51,10 +46,10 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      */
     public void setTarget(IAtom targetAtom) {
         if (targetAtom == null) {
-            iterator = (AtomPairIterator) apiAA;
+            iterator = apiAA;
         }
         else {
-            iterator = (AtomPairIterator) api1A;
+            iterator = api1A;
             api1A.setTarget(targetAtom);
         }
     }
@@ -98,14 +93,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
      * Same as nextPair.
      */
     public AtomSet next() {
-        return nextPair();
-    }
-
-    /**
-     * Returns next iterate.
-     */
-    public AtomPair nextPair() {
-        return iterator.nextPair();
+        return iterator.next();
     }
 
     /**
@@ -148,7 +136,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, AtomPairIterator, java.i
     }
     
     private static final long serialVersionUID = 1L;
-    private AtomPairIterator iterator;
+    private AtomsetIterator iterator;
     private final AtomsetIteratorPDT api1A;
     private final AtomsetIteratorPhaseDependent apiAA;
     private Phase phase;

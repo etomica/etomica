@@ -1,13 +1,8 @@
-/*
- * History
- * Created on Aug 23, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.action.AtomsetCount;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetFilter;
 import etomica.atom.IAtom;
@@ -19,13 +14,13 @@ import etomica.atom.iterator.IteratorDirective.Direction;
  */
 
 public class ApiFiltered implements AtomsetIteratorDirectable, 
-            AtomsetIteratorBasisDependent, AtomPairIterator, java.io.Serializable {
+            AtomsetIteratorBasisDependent, java.io.Serializable {
 	
     /**
 	 * Returns the iterates of the given iterator that meet
 	 * the critertia of the given filter.
 	 */
-	public ApiFiltered(AtomPairIterator iterator, AtomsetFilter filter) {
+	public ApiFiltered(AtomsetIterator iterator, AtomsetFilter filter) {
 		this.iterator = iterator;
 		this.filter = filter;
 	}
@@ -49,16 +44,9 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	 * filter's criteria.
 	 */
 	public AtomSet next() {
-	    return nextPair();
-    }
-	
-    /**
-     * Returns the next pair and advances the iterator.
-     */
-    public AtomPair nextPair() {
-        AtomPair next = iterator.nextPair();
+        AtomSet next = iterator.next();
         while (next != null && !filter.accept(next)) {
-            next = iterator.nextPair();
+            next = iterator.next();
         }
         return next;
     }
@@ -136,7 +124,7 @@ public class ApiFiltered implements AtomsetIteratorDirectable,
 	}
 
     private static final long serialVersionUID = 2L;
-	protected final AtomPairIterator iterator;
+	protected final AtomsetIterator iterator;
 	protected final AtomsetFilter filter;
 
 	/**

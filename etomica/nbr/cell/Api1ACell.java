@@ -12,7 +12,6 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayList;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
@@ -27,8 +26,8 @@ import etomica.space.BoundaryPeriodic;
  * Direction is related to ordering of cells and, within a cell, ordering of
  * molecules in cell's occupant list.
  */
-public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular, 
-        AtomPairIterator, java.io.Serializable {
+public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
+                                  java.io.Serializable {
     
     /**
      * Constructor makes iterator that must have phase specified and then be
@@ -124,10 +123,6 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     }
     
     public AtomSet next() {
-        return nextPair();
-    }
-    
-    public AtomPair nextPair() {
         IAtom innerAtom = aiInner.nextAtom();
         if (innerAtom == null) {
             innerAtom = advanceLists();

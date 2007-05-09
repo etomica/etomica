@@ -8,7 +8,6 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
@@ -194,7 +193,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @param partners array of atom1 expected in the pair iterates
      * @return the Lister list of iterates
      */
-    protected LinkedList testApiIterates(AtomPairIterator iterator, IteratorDirective.Direction direction,
+    protected LinkedList testApiIterates(AtomsetIterator iterator, IteratorDirective.Direction direction,
             IAtom iterate, IAtom[] partners) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
@@ -213,7 +212,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * Same as testApiIterates, but with atom1 the same in all pair iterates, while
      * atom0 varies.
      */
-    protected LinkedList testApiIteratesSwap(AtomPairIterator iterator, IAtom iterate, IAtom[] partners) {
+    protected LinkedList testApiIteratesSwap(AtomsetIterator iterator, IAtom iterate, IAtom[] partners) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<partners.length; i++) {
@@ -227,7 +226,7 @@ public abstract class IteratorTestAbstract extends TestCase {
     /**
      * Tests that iterator gives two particular iterates
      */
-    protected LinkedList testApiTwoIterates(AtomPairIterator iterator, AtomPair pair0, AtomPair pair1) {
+    protected LinkedList testApiTwoIterates(AtomsetIterator iterator, AtomPair pair0, AtomPair pair1) {
         if((pair0.atom1 == null || pair0.atom0 == null) && (pair1.atom0 == null || pair1.atom1 == null)) {
             testNoIterates(iterator);
             return new LinkedList();
@@ -243,7 +242,7 @@ public abstract class IteratorTestAbstract extends TestCase {
     /**
      * Tests that iterator gives a single particular iterate.
      */
-    protected LinkedList testApiOneIterate(AtomPairIterator iterator, AtomPair pair) {
+    protected LinkedList testApiOneIterate(AtomsetIterator iterator, AtomPair pair) {
         if(pair.atom0 == null || pair.atom1 == null) {
             testNoIterates(iterator);
             return new LinkedList();
@@ -276,7 +275,7 @@ public abstract class IteratorTestAbstract extends TestCase {
      * @param dn array of atom1 expected in the dnlist pair iterates
      * @return the Lister list of iterates
      */
-    protected LinkedList testApiIterates(AtomPairIterator iterator, IAtom iterate, IAtom[] up, IAtom[] dn) {
+    protected LinkedList testApiIterates(AtomsetIterator iterator, IAtom iterate, IAtom[] up, IAtom[] dn) {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<up.length; i++) {

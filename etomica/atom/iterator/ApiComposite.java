@@ -1,14 +1,10 @@
-/*
- * History
- * Created on Dec 3, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 
 /**
  * Interface for an atom pair iterator that is formed from two atom iterators.
  */
-public interface ApiComposite extends AtomPairIterator {
+public interface ApiComposite extends AtomsetIterator {
 
     /**
      * @return inner-loop iterator
