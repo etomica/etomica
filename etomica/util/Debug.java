@@ -79,6 +79,9 @@ public final class Debug {
      */
     public static final int PHASE_INDEX = 0;
     
+    /**
+     * The minimum allowable distance between Atoms.
+     */
     public static final double ATOM_SIZE = 1.0;
     
 	/**
