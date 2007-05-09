@@ -50,7 +50,8 @@ public class PhaseInflateDeformable extends PhaseInflate{
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1.0);
-        for(IAtom molecule = moleculeIterator.nextAtom(); molecule != null;){
+        for(IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
+                molecule = moleculeIterator.nextAtom()){
             translationVector.E(moleculeCenter.position(molecule));
             tempTensInv.transform(translationVector);
             translationVector.TE(scaleVector);
