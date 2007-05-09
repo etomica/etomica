@@ -27,10 +27,10 @@ public class Parallelogram extends Polygon implements Parallelotope {
     /**
      * Constructs a parallelogram with the given edge vectors.
      */
-    public Parallelogram(Space embeddedSpace, Vector2D a, Vector2D b) {
+    public Parallelogram(Space embeddedSpace, IVector a, IVector b) {
         super(embeddedSpace, 4);
-        this.a = (Vector2D)embeddedSpace.makeVector();
-        this.b = (Vector2D)embeddedSpace.makeVector();
+        this.a = embeddedSpace.makeVector();
+        this.b = embeddedSpace.makeVector();
         setEdgeVectors(new IVector[] {a, b});
     }
 
@@ -79,6 +79,6 @@ public class Parallelogram extends Polygon implements Parallelotope {
         updateVertices();
     }
 
-    private final Vector2D a, b;
+    private final IVector a, b;
     private static final long serialVersionUID = 1L;
 }
