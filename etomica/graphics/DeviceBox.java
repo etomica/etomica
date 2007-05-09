@@ -243,7 +243,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
     	textField.setBackground(color);
     }
 
-    public Color getTextBackfround() {
+    public Color getTextBackground() {
     	return textField.getBackground();
     }
 
