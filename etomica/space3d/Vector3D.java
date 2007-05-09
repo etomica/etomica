@@ -8,7 +8,7 @@ import etomica.util.IRandom;
 /**
  * Implementation of the Vector class for a 3-dimensional space.
  */
-public final class Vector3D implements IVectorRandom, java.io.Serializable {
+public final class Vector3D implements IVectorRandom, IVector3D, java.io.Serializable {
 
     double x, y, z;
     private static final long serialVersionUID = 1L;
@@ -242,10 +242,10 @@ public final class Vector3D implements IVectorRandom, java.io.Serializable {
         z = 1.0 - 2.0 * zsq;
     }
 
-    public void XE(Vector3D u) {//cross product
-        double xNew = y * u.z - z * u.y;
-        double yNew = z * u.x - x * u.z;
-        z = x * u.y - y * u.x;
+    public void XE(IVector3D u) {//cross product
+        double xNew = y * u.x(2) - z * u.x(1);
+        double yNew = z * u.x(0) - x * u.x(2);
+        z = x * u.x(1) - y * u.x(0);
         y = yNew;
         x = xNew;
     }
