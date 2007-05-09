@@ -38,6 +38,7 @@ public class CalcJacobian {
             }
             vectorPos = 1;
         }
+        double sqrtN = Math.sqrt(iterator.size());
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
             iterator.reset();
             // sum T over atoms
@@ -51,8 +52,8 @@ public class CalcJacobian {
                 double sinkR = Math.sin(kR);
                 for (int iDim = 0; iDim < coordinateDim; iDim++) {
                     if (waveVectorCoefficients[iVector] == 1) {
-                        tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = coskR;
-                        tempJacobian[(vectorPos+1)*coordinateDim+iDim][atomCount*coordinateDim+iDim] = -sinkR;
+                        tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = coskR / sqrtN;
+                        tempJacobian[(vectorPos+1)*coordinateDim+iDim][atomCount*coordinateDim+iDim] = -sinkR / sqrtN;
                     }
                     else {
                         // single degree of freedom.
@@ -63,10 +64,10 @@ public class CalcJacobian {
                         phaseAngle = kR;
                         // either one works so long as it's not 0
                         if (Math.abs(coskR) > 0.1) {
-                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = coskR > 0 ? 1 : -1;
+                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = coskR > 0 ? 1.0/sqrtN : -1.0/sqrtN;
                         }
                         else {
-                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = sinkR > 0 ? 1 : -1;
+                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = sinkR > 0 ? 1.0/sqrtN : -1.0/sqrtN;
                         }
                     }
                 }
