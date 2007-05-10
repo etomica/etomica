@@ -106,6 +106,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
   
   public void setBoundaryFrameColor(Color color) {
       boundaryFrameColor = color;
+      oldPolytope = null;
   }
   
   public Color getBoundaryFrameColor() {
