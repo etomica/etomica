@@ -1,12 +1,16 @@
 package etomica.modules.crystalviewer;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLattice;
@@ -93,15 +97,25 @@ public class CrystalViewer {
     	JMenuBar mBar = new JMenuBar();
     	JMenu fileMenu = new JMenu("File");
     	JMenuItem exitBtn = new JMenuItem("Exit");
-    	exitBtn.addActionListener(new java.awt.event.ActionListener() {
-    		public void actionPerformed(java.awt.event.ActionEvent ev) {
+    	exitBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
     			System.exit(0);
     		}
     	});
     	fileMenu.add(exitBtn);
     	JMenu helpMenu = new JMenu("Help");
     	JMenuItem aboutBtn = new JMenuItem("About Crystal Viewer");
-    	aboutBtn.setEnabled(false);
+    	aboutBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			AboutBoxWindow about =
+    				new AboutBoxWindow(panel,
+    					               "About Crystal Viewer",
+    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
+    					               new String[] { "Colin Tedlock", "Robert Rassler" });
+    			about.setVisible(true);
+    		}
+    	});
+    	aboutBtn.setEnabled(true);
     	helpMenu.add(aboutBtn);
 
     	mBar.add(fileMenu);
