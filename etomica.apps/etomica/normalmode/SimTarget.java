@@ -16,18 +16,21 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLattice;
-import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.LatticeCubicSimple;
+import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
@@ -41,7 +44,7 @@ import etomica.species.SpeciesSpheresMono;
 public class SimTarget extends Simulation {
 
     public SimTarget(Space space, int numAtoms, double density) {
-        super(space, true, new PotentialMasterList(space));
+        super(space, true, (space.D() == 1 ? new PotentialMasterList(space) : new PotentialMaster(space)));
 
         
         defaults.makeLJDefaults();
@@ -50,8 +53,7 @@ public class SimTarget extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        bdry = new BoundaryRectangularPeriodic(this);
-        phase = new Phase(bdry);
+        phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 
@@ -70,19 +72,21 @@ public class SimTarget extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
 
-        phase.setDensity(density);
-
+        Primitive primitive;
         if (space.D() == 1) {
-            lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
-            if (numAtoms < 4 || density <= 0.5) {
-                // use P1HardPeriodic at low density.  The atoms can group together and
-                // then the atoms on the edges of the group can be >box/2 away and approaching 
-                ((IntegratorHard)integrator).setNullPotential(new P1HardPeriodic(space));
-            }
+            primitive = new PrimitiveCubic(space, 1.0/density);
+            boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+            integrator.setNullPotential(new P1HardPeriodic(space));
+        } else {
+            primitive = new PrimitiveFcc(space, 1);
+            double v = primitive.unitCell().getVolume();
+            primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
+            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            boundary = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{n,n,n});
         }
-        else {
-            lattice = new LatticeCubicFcc();
-        }
+        phase.setBoundary(boundary);
+
+        lattice = new BravaisLattice(primitive);
         ConfigurationLattice config = new ConfigurationLattice(lattice);
 
         config.initializeCoordinates(phase);
@@ -111,17 +115,18 @@ public class SimTarget extends Simulation {
     public static void main(String[] args) {
         
         //set up simulation parameters
-        int D = 1;
-        int nA = 108;
-        double density = 1.04;
-        double harmonicFudge = 1;
-        double simTime = 1000;
+        int D = 3;
+        int numMolecules = 27;
+        double density = 1.30;
+        double harmonicFudge = .1;
+        double simTime = 10000;
+        double temperature = 1;
         if (D == 1) {
-            nA = 3;
+            numMolecules = 3;
             density = 0.5;
-            simTime = 400000;
+            simTime = 1000000;
         }
-        String filename = "normal_modes"+D+"D";
+        String filename = "normal_modes"+D+"D_"+numMolecules+"_130";
         if (args.length > 0) {
             filename = args[0];
         }
@@ -132,7 +137,7 @@ public class SimTarget extends Simulation {
             simTime = Double.parseDouble(args[2]);
         }
         if (args.length > 3) {
-            nA = Integer.parseInt(args[3]);
+            numMolecules = Integer.parseInt(args[3]);
         }
         if (args.length > 4) {
             harmonicFudge = Double.parseDouble(args[4]);
@@ -140,13 +145,13 @@ public class SimTarget extends Simulation {
         
 
         System.out.println("Running "+(D==1 ? "1D" : (D==3 ? "FCC" : "2D hexagonal")) +" hard sphere simulation, measuring harmonic energy");
-        System.out.println(nA+" atoms at density "+density);
+        System.out.println(numMolecules+" atoms at density "+density);
         System.out.println("harmonic fudge: "+harmonicFudge);
         System.out.println(simTime+" time units");
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        SimTarget sim = new SimTarget(Space.getInstance(D), nA, density);
+        SimTarget sim = new SimTarget(Space.getInstance(D), numMolecules, density);
         
         NormalModes normalModes = null;
         if(D == 1) {
@@ -178,8 +183,12 @@ public class SimTarget extends Simulation {
         BoltzmannProcessor boltz = new BoltzmannProcessor();
         boltz.setTemperature(1.0);
         harmonicSingleFork.addDataSink(boltz);
+//        DataFork boltzFork = new DataFork();
+//        boltz.setDataSink(boltzFork);
+//        DataProcessorCorrelationMatrix boltzCorrelation = new DataProcessorCorrelationMatrix();
+//        boltzFork.addDataSink(boltzCorrelation);
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(10);
-        boltz.setDataSink(harmonicSingleAvg);
+//        boltzFork.addDataSink(harmonicSingleAvg);
         
         DataProcessorSum summer = new DataProcessorSum();
         harmonicSingleFork.addDataSink(summer);
@@ -217,12 +226,26 @@ public class SimTarget extends Simulation {
         
         double[][] omega2 = normalModes.getOmegaSquared(sim.phase);
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
-        double AHarmonic = 0.5*Math.log(nA) - 0.5*(nA-1)*Math.log(2.0*Math.PI);
-        if(nA % 2 == 0) AHarmonic += 0.5*Math.log(2.0);
-        int coordinateDim = 1;
+        double AHarmonic = 0;
         for(int i=0; i<omega2.length; i++) {
-            for(int j=0; j<coordinateDim; j++) {
-                AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]);
+            for(int j=0; j<omega2[0].length; j++) {
+                AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));//coeffs in log?
+            }
+        }
+        if (numMolecules % 2 == 0) {
+            if (D == 1) {
+                AHarmonic += Math.log(((D*numMolecules - 2)/2.0) / Math.pow(numMolecules,0.5*D));
+            }
+            else if (D == 3) {
+                AHarmonic += Math.log(((D*numMolecules + 3)/2.0) / Math.pow(numMolecules,0.5*D));
+            }
+        }
+        else {
+            if (D == 1) {
+                AHarmonic += Math.log(((D*numMolecules - 1)/2.0) / Math.pow(numMolecules,0.5*D));
+            }
+            else if (D == 3) {
+                AHarmonic += Math.log(((D*numMolecules - 18)/2.0) / Math.pow(numMolecules,0.5*D));
             }
         }
 
@@ -232,12 +255,12 @@ public class SimTarget extends Simulation {
         deltaA = Math.log(deltaA);
         
         System.out.println("Harmonic free energy correction: "+deltaA+" +/- "+deltaAerr);
-        System.out.println("Harmonic free energy correction per atom: "+deltaA/nA+" +/- "+deltaAerr/nA);
+        System.out.println("Harmonic free energy correction per atom: "+deltaA/numMolecules+" +/- "+deltaAerr/numMolecules);
         
         System.out.println("Harmonic-reference free energy: "+AHarmonic);
         
         if(D==1) {
-            double AHR = -(nA-1)*Math.log(nA/density-nA) + SpecialFunctions.lnFactorial(nA) ;
+            double AHR = -(numMolecules-1)*Math.log(numMolecules/density-numMolecules) + SpecialFunctions.lnFactorial(numMolecules) ;
             System.out.println("Hard-rod free energy: "+AHR);
         }
 
@@ -260,12 +283,34 @@ public class SimTarget extends Simulation {
         catch (IOException e) {
             throw new RuntimeException("Oops, failed to write data "+e);
         }
+        
+//        DataDoubleArray matrix = (DataDoubleArray)boltzCorrelation.getData();
+//        try {
+//            FileWriter fileWriterEE = new FileWriter(filename+".ee");
+//            int k=0;
+//            for (int i=0; i<matrix.getArrayShape(0); i++) {
+//                for (int j=0; j<matrix.getArrayShape(1); j++) {
+//                    fileWriterEE.write(i+" "+j+" "+(matrix.getValue(k)/(harmonicModesAvg.getValue(i)*harmonicModesAvg.getValue(j))-1)+"\n");
+//                    k++;
+//                }
+//            }
+//            fileWriterEE.close();
+//        }
+//        catch (IOException e) {
+//            throw new RuntimeException("Oops, failed to write data "+e);
+//        }
+//        nData = matrix.getLength();
+//        deltaA = 0;
+//        for (int i=0; i<nData; i++) {
+//            deltaA += Math.log(matrix.getValue(i));
+//        }
+//        System.out.println("pair approximation to free energy correction "+deltaA/(numMolecules-1));
     }
 
     private static final long serialVersionUID = 1L;
-    public IntegratorMD integrator;
+    public IntegratorHard integrator;
     public ActivityIntegrate activityIntegrate;
     public Phase phase;
-    public BoundaryRectangularPeriodic bdry;
+    public Boundary boundary;
     public BravaisLattice lattice;
 }
