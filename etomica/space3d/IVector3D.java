@@ -15,4 +15,8 @@ public interface IVector3D extends IVector {
      */
     public void XE(IVector3D u);
 
+    /**
+     * Sets the vector components equal to the given values.
+     */
+    public void E(double a, double b, double c);
 }
