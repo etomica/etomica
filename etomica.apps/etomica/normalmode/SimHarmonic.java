@@ -15,17 +15,19 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLattice;
-import etomica.lattice.LatticeCubicFcc;
-import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.Boundary;
+import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
@@ -37,7 +39,7 @@ import etomica.units.Pixel;
 public class SimHarmonic extends Simulation {
 
     public SimHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
-        super(space, true, new PotentialMasterList(space));
+        super(space, true, (space.D() == 1 ? new PotentialMasterList(space) : new PotentialMaster(space)));
 
         int D = space.D();
         
@@ -47,8 +49,7 @@ public class SimHarmonic extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        bdry = new BoundaryRectangularPeriodic(this);
-        phase = new Phase(bdry);
+        phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 
@@ -60,15 +61,21 @@ public class SimHarmonic extends Simulation {
         MCMoveHarmonic move = new MCMoveHarmonic(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(move);
         
-        phase.setDensity(density);
-
+        Primitive primitive;
         if (space.D() == 1) {
-            lattice = new LatticeCubicSimple(1,phase.getBoundary().getDimensions().x(0)/numAtoms);
+            primitive = new PrimitiveCubic(space, 1.0/density);
+            boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+        } else {
+            primitive = new PrimitiveFcc(space, 1);
+            double v = primitive.unitCell().getVolume();
+            primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
+            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            boundary = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{n,n,n});
         }
-        else {
-            lattice = new LatticeCubicFcc();
-        }
-        config = new ConfigurationLattice(lattice);
+        phase.setBoundary(boundary);
+
+        lattice = new BravaisLattice(primitive);
+        ConfigurationLattice config = new ConfigurationLattice(lattice);
 
         config.initializeCoordinates(phase);
         
@@ -98,17 +105,17 @@ public class SimHarmonic extends Simulation {
     public static void main(String[] args) {
         
         //set up simulation parameters
-        int D = 1;
-        int nA = 108;
-        double density = 1.04;
-        double harmonicFudge = 1;
+        int D = 3;
+        int nA = 27;
+        double density = 1.3;
+        double harmonicFudge = .1;
         long steps = 800000;
         if (D == 1) {
             nA = 3;
             density = 0.5;
         }
         boolean graphic = false;
-        String filename = "normal_modes3D";
+        String filename = "normal_modes3D_27_130";
         if (args.length > 0) {
             filename = args[0];
         }
@@ -207,13 +214,6 @@ public class SimHarmonic extends Simulation {
 //            sim.integrator.addListener(iaa);
             
             //set up measurement of S matrix, to check that configurations are generated as expected
-            Primitive primitive = sim.lattice.getPrimitive();
-            if (D == 3) {
-                primitive = ((LatticeCubicFcc)sim.lattice).getPrimitiveFcc();
-            }
-            ConfigurationLattice.MyLattice myLattice = (ConfigurationLattice.MyLattice) sim.config.getLatticeMemento();
-            IVector scaling = myLattice.latticeScaling;
-            primitive.scaleSize(scaling.x(0));
             MeterNormalMode meterNormalMode = new MeterNormalMode();
             meterNormalMode.setCoordinateDefinition(coordinateDefinitionLeaf);
             WaveVectorFactory waveVectorFactory = sim.normalModes.getWaveVectorFactory();
@@ -263,9 +263,8 @@ public class SimHarmonic extends Simulation {
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     public Phase phase;
-    public BoundaryRectangularPeriodic bdry;
+    public Boundary boundary;
     public BravaisLattice lattice;
-    public ConfigurationLattice config;
     public Species species;
     public NormalModes normalModes;
 }
