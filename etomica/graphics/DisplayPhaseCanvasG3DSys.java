@@ -39,6 +39,8 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
   private Polytope oldPolytope;
   private Line[] polytopeLines;
   private boolean boundaryDisplayed = false;
+  private Color backgroundColor;
+  private Color boundaryFrameColor;
   
   public DisplayPhaseCanvasG3DSys(DisplayPhase _phase) {
     //old stuff
@@ -61,7 +63,8 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     this.add(p);
     coords = new double[3];
     gsys = new G3DSys(p);
-    
+    setBackgroundColor(Color.BLACK);
+    setBoundaryFrameColor(Color.WHITE);
     //init AtomAgentManager, to sync G3DSys and Etomica models
     //this automatically adds the atoms
     aam = new AtomLeafAgentManager(this, displayPhase.getPhase(), false);
@@ -90,6 +93,23 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
     if(width == 0 || height == 0) return;
     super.setBounds(x,y,width,height);
     createOffScreen(width,height);
+  }
+  
+  public void setBackgroundColor(Color color) {
+      backgroundColor = color;
+      gsys.setBGColor(color);
+  }
+  
+  public Color getBackgroundColor() {
+      return backgroundColor;
+  }
+  
+  public void setBoundaryFrameColor(Color color) {
+      boundaryFrameColor = color;
+  }
+  
+  public Color getBoundaryFrameColor() {
+      return boundaryFrameColor;
   }
 
   public void doPaint(Graphics g) {
@@ -160,7 +180,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas
       polytopeLines = new Line[lines.length];
       for (int i=0; i<lines.length; i++) {
         IVector[] vertices = lines[i].getVertices();
-        polytopeLines[i] = new Line(gsys, G3DSys.getColix(Color.WHITE), 
+        polytopeLines[i] = new Line(gsys, G3DSys.getColix(boundaryFrameColor), 
             new Point3f((float)vertices[0].x(0), (float)vertices[0].x(1), (float)vertices[0].x(2)), 
             new Point3f((float)vertices[1].x(0), (float)vertices[1].x(1), (float)vertices[1].x(2)));
         if (displayPhase.getShowBoundary() == true) {
