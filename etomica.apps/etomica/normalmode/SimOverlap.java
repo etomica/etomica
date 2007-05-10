@@ -52,7 +52,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 public class SimOverlap extends Simulation {
 
     public SimOverlap(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
-        super(space, true, new PotentialMaster(space));
+        super(space, true, (space.D() == 1 ? new PotentialMasterList(space) : new PotentialMaster(space)));
 
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
@@ -71,11 +71,9 @@ public class SimOverlap extends Simulation {
         addPhase(phaseTarget);
         phaseTarget.getAgent(species).setNMolecules(numAtoms);
 
-        IntegratorHard integratorTarget = new IntegratorHard(this);
+        IntegratorHard integratorTarget = new IntegratorHard(potentialMaster, getRandom(), 4, 1.0);
 
         integratorTarget.setIsothermal(false);
-        double timeStep = 4;
-        integratorTarget.setTimeStep(timeStep);
         integrators[1] = integratorTarget;
 
         Potential2 p2 = new P2HardSphere(space, 1.0, true);
@@ -83,8 +81,6 @@ public class SimOverlap extends Simulation {
             p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
         }
         potentialMaster.addPotential(p2, new AtomType[]{species.getMoleculeType(),species.getMoleculeType()});
-
-        phaseTarget.setDensity(density);
 
         Primitive primitive;
         if (space.D() == 1) {
@@ -105,11 +101,6 @@ public class SimOverlap extends Simulation {
 
         config.initializeCoordinates(phaseTarget);
 
-        if (space.D() == 1 && (numAtoms < 4 || density <= 0.5)) {
-            // use P1HardPeriodic at low density.  The atoms can group together and
-            // then the atoms on the edges of the group can be >box/2 away and approaching 
-            integratorTarget.setNullPotential(new P1HardPeriodic(space));
-        }
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange;
             if (space.D() == 1) {
@@ -260,6 +251,9 @@ public class SimOverlap extends Simulation {
             int newMinDiffLoc = dsvo.minDiffLocation();
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
+            if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
+                throw new RuntimeException("Simulation failed to find a valid ref pref");
+            }
             System.out.println("setting ref pref to "+refPref);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,false),1);
@@ -270,6 +264,9 @@ public class SimOverlap extends Simulation {
             newMinDiffLoc = dsvo.minDiffLocation();
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
+            if (Double.isNaN(refPref) || refPref == 0 || Double.isInfinite(refPref)) {
+                throw new RuntimeException("Simulation failed to find a valid ref pref");
+            }
             System.out.println("setting ref pref to "+refPref);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,false),1);
