@@ -52,6 +52,9 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
      * Default is 4.
      */
     protected int precision;
+
+	private final java.awt.Insets borderInset = new java.awt.Insets(4, 4, 4, 4);
+
     private LabelType labelType;
     private boolean integer = false;
     private BoxListener listener = null;
@@ -221,7 +224,7 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
         }
         else if(labelType == LabelType.STRING) {
             label = new JLabel(getLabel());
-            panel.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
+            panel.setBorder(new javax.swing.border.MatteBorder(borderInset, panel.getBackground()));
             setLabelPosition(labelPosition);
         }
     }
@@ -245,6 +248,21 @@ public class DeviceBox extends Device implements EtomicaElement, javax.swing.eve
 
     public Color getTextBackground() {
     	return textField.getBackground();
+    }
+
+    public void setBorderBackground(Color color) {
+    	javax.swing.border.Border b = panel.getBorder();
+    	javax.swing.border.MatteBorder border =
+    		new javax.swing.border.MatteBorder(borderInset, color);
+
+    	// Only set the border color if the border is a MatteBorder
+    	if(b.getClass().isInstance(border)) {
+    		panel.setBorder(border);
+    	}
+    	else {
+            border = null;
+        }
+
     }
 
     public Constants.CompassDirection getLabelPosition() {

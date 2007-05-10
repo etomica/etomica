@@ -50,12 +50,12 @@ public class LatticeEditor {
                                           "Alpha", "Beta", "Gamma" };
     private final String[] fieldPrefix = {"size", "size", "size",
                                           "angle", "angle", "angle"};
-    private final Color[] colorList = { new Color(255, 161, 156),
-    		                            new Color(183, 255, 161),
-    		                            new Color(181, 217, 255),
-    		                            new Color(226, 217, 255),
-    		                            new Color(201, 222, 214),
-    		                            Color.WHITE,
+    private final Color[] colorList = { Color.RED,
+    		                            Color.GREEN,
+    		                            Color.BLUE,
+    		                            Color.CYAN,
+    		                            Color.YELLOW,
+    		                            new Color(255, 0, 255),
     		                            Color.WHITE,
     		                            Color.WHITE,
     		                            Color.WHITE,
@@ -103,7 +103,9 @@ public class LatticeEditor {
         });
 
         anglePanel = new JPanel(new GridLayout(1,3));
-        sizePanel = new JPanel(new GridLayout(1,3));
+        GridLayout gl = new GridLayout(1,3);
+        gl.setHgap(2);
+        sizePanel = new JPanel(gl);
         sizePanel.setBorder(new TitledBorder("Cell Dimensions"));
         DeviceSlider nSlider = new DeviceSlider(null, new NModifier());
         nSlider.setPrecision(0);
@@ -113,7 +115,7 @@ public class LatticeEditor {
         nSlider.setBorderAlignment(TitledBorder.CENTER);
         nSlider.setLabel("Unit Cells Per Side");
         nSlider.setShowBorder(true);
-        
+
         boxPanel = new JPanel(new GridLayout(2,1));
         boxPanel.add(sizePanel);
         TitledBorder bp = new TitledBorder("Primitive Vectors");
@@ -221,8 +223,8 @@ public class LatticeEditor {
             else {
             	sizeBoxes[box-UNIT_CELL_START_INDEX].setEditable(true);
             	sizeBoxes[box-UNIT_CELL_START_INDEX].setModifier(modifier);
-                sizeBoxes[box-UNIT_CELL_START_INDEX].setTextBackground
-                              (colorList[pvBox.getRootIndex(this.fieldTitles[box])]);
+            	sizeBoxes[box-UNIT_CELL_START_INDEX].setBorderBackground
+            	                (colorList[pvBox.getRootIndex(this.fieldTitles[box])]);
             }
         }
 
