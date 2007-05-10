@@ -251,18 +251,20 @@ public class Plane implements java.io.Serializable {
     
     /**
      * Returns true if the given point is on the side of the 
-     * plane toward which the normal vector points.  The direction
-     * of the normal vector can be inverted using the invert method.
+     * plane or over the side of the plane by epsilon or less
+     * toward which the normal vector points.  The direction
+     * of the normal vector can be inverted using the invert
+     * method.
      */
     public boolean isPositiveSide(Vector3D p) {
-        return distanceTo(p) > 0.0;
+        return distanceTo(p) > epsilon;
     }
     
     /**
      * Returns true if the given point is within a distance epsilon of this plane.
      */
     public boolean inPlane(Vector3D p) {
-        return Math.abs(distanceTo(p)) < epsilon;
+    	return Math.abs(distanceTo(p)) < epsilon;
     }
     
     /**
