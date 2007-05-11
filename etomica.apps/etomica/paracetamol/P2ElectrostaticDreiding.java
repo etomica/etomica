@@ -15,8 +15,8 @@ import etomica.space.Space;
  * 
  * 
  *	    A is in eV
- *      B is in Å
- *      C is in eV.Å^6
+ *      B is in angstrom
+ *      C is in eV.angstrom^6
  *
  * @author Tai Tan
  */
