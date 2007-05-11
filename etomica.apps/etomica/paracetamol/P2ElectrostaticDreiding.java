@@ -8,25 +8,28 @@ import etomica.space.IVector;
 import etomica.space.Space;
 
 /**
- * Dreiding: Lennard-Jones non-bonding potential.
- * Spherically symmetric potential of the form u(r) = D0*[(r0/r)^12 - 2*(r0/r)^6]
- * where D0 describes the van der Waals well depth [unit Kelvin ], 
- * and r0 is the van der Waals bond length [unit Amstrom ].
+ * Empirical Isotropic atom-atom repulsion-dispersion potential
+ * Given formula:
+ * 				
+ * 				U(r) = A*exp(-r/B) - C /r^6	
  * 
- * r0 = sigma; D0 = epsilon
+ * 
+ *	    A is in eV
+ *      B is in Å
+ *      C is in eV.Å^6
  *
  * @author Tai Tan
  */
 
-public class P2ElectrostaticDreiding extends etomica.potential.P2LennardJonesDreiding implements EtomicaElement {
+public class P2ElectrostaticDreiding extends etomica.potential.P2IsotropicRepulsionDispersion implements EtomicaElement {
 	
 	public P2ElectrostaticDreiding(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+        this(sim.getSpace(), sim.getDefaults().potentialWell, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
        
     }
 	
-    public P2ElectrostaticDreiding(Space space, double sigma, double epsilon) {
-        super(space, sigma, epsilon);
+    public P2ElectrostaticDreiding(Space space, double AA, double BB, double CC) {
+        super(space, AA, BB, CC);
     }
     
     public double energy(AtomSet atomSet) {

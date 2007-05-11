@@ -20,10 +20,10 @@ public class BasisMonoclinicParacetamol extends Basis {
     
     private static final Vector3D[] scaledPositions = new Vector3D[] {
 
-    	new Vector3D(  0.953265,    0.337679,   0.870361),
-    	new Vector3D(1-0.453265,	0.837679, 1-0.370361),
-    	new Vector3D(1-0.953265,  1-0.337679, 1-0.870361),
-    	new Vector3D(  1.453265-1,	0.162321,	1.370361-1)
+    	new Vector3D(  0.929048,    0.355078,   0.900198),
+    	new Vector3D(1-0.429048,	0.855078, 1-0.400198),
+    	new Vector3D(1-0.929048,  1-0.355078, 1-0.900198),
+    	new Vector3D(  1.429048-1,	0.144922,	1.400198-1)
 
     };
 

@@ -20,14 +20,14 @@ public class BasisOrthorhombicParacetamol extends Basis {
     
     private static final Vector3D[] scaledPositions = new Vector3D[] {
 
-    	new Vector3D(  0.172278,   0.909616,	0.275662),
-    	new Vector3D(  0.327722, 1-0.909616,	0.775662),
-    	new Vector3D(1-0.172278,   1.409616-1,	0.224338),
-    	new Vector3D(  0.672278, 1-0.409616,  1-0.275662),
-    	new Vector3D(1-0.172278, 1-0.909616,  1-0.275662),
-    	new Vector3D(  0.672278,   0.909616,	0.224338),
-    	new Vector3D(  0.172278, 1-0.409616,	0.775662),
-    	new Vector3D(  0.327722,   1.409616-1,	0.275662)
+    	new Vector3D(  0.162154,   0.936073,	0.282665),
+    	new Vector3D(  0.337846, 1-0.936073,	0.782665),
+    	new Vector3D(1-0.162154,   1.436073-1,	0.217335),
+    	new Vector3D(  0.662154, 1-0.436073,  1-0.282665),
+    	new Vector3D(1-0.162154, 1-0.936073,  1-0.282665),
+    	new Vector3D(  0.662154,   0.936073,	0.217335),
+    	new Vector3D(  0.162154, 1-0.436073,	0.782665),
+    	new Vector3D(  0.337846,   1.436073-1,	0.282665)
 
 
     };

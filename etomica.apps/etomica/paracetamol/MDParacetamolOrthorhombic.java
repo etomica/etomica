@@ -24,7 +24,7 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2Dreiding;
-import etomica.potential.P2LennardJonesDreiding;
+import etomica.potential.P2IsotropicRepulsionDispersion;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P3BondAngleDreiding;
 import etomica.potential.P4TorsionDreiding;
@@ -106,11 +106,11 @@ public class MDParacetamolOrthorhombic extends Simulation {
         // 17.248, 12.086, 7.382
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         lattice = new BravaisLatticeCrystal(primitive, basis);
-        ConfigurationOrthorhombicLattice config = new ConfigurationOrthorhombicLattice(lattice);
+        configOrthoLattice = new ConfigurationOrthorhombicLattice(lattice);
     	
         double neighborRangeFac = 1.6;
         ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
-
+        
         integrator = new IntegratorVelocityVerlet(this);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
@@ -268,12 +268,12 @@ public class MDParacetamolOrthorhombic extends Simulation {
        
         
         /*
-         * Non-bonded Potential
+         * Intra-nonbonded Potential
          * 
          * Equilibrium Radius [unit Amstrom]; Pre-factor [unit Kelvin]
          */
    
-        P2LennardJonesDreiding potentialCC = new P2LennardJonesDreiding(space, 3.472990473, 47.85589866);
+        P2IsotropicRepulsionDispersion potentialCC = new P2IsotropicRepulsionDispersion(space, 3832.147000*11604.45728, 0.277778, 25.286949*11604.45728);
         intramolecularpotential.addPotential(potentialCC, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexC4,AtomParacetamol.indexC7},
         									 {AtomParacetamol.indexC4,AtomParacetamol.indexC8},
@@ -285,7 +285,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         									 {AtomParacetamol.indexC2,AtomParacetamol.indexC8}
         		}));
 
-        P2LennardJonesDreiding potentialCO = new P2LennardJonesDreiding(space, 3.253072125, 48.00662627);
+        P2IsotropicRepulsionDispersion potentialCO = new P2IsotropicRepulsionDispersion(space, 3022.850200*11604.45728, 0.264550, 17.160239*11604.45728);
         intramolecularpotential.addPotential(potentialCO, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexC1,AtomParacetamol.indexO1},
         									 {AtomParacetamol.indexC7,AtomParacetamol.indexO1},
@@ -297,15 +297,15 @@ public class MDParacetamolOrthorhombic extends Simulation {
         									 {AtomParacetamol.indexC2,AtomParacetamol.indexO2}
         		}));
         
-        P2LennardJonesDreiding potentialON = new P2LennardJonesDreiding(space, 3.149377868, 43.30932433);
+        P2IsotropicRepulsionDispersion potentialON = new P2IsotropicRepulsionDispersion(space, 2508.044800*11604.45728, 0.258398, 12.898341*11604.45728);
         intramolecularpotential.addPotential(potentialON, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexO1,AtomParacetamol.indexN }}));
         
-        P2LennardJonesDreiding potentialCN = new P2LennardJonesDreiding(space, 3.369296217, 43.17334495);
+        P2IsotropicRepulsionDispersion potentialCN = new P2IsotropicRepulsionDispersion(space, 3179.514600*11604.45728, 0.271003, 19.006710*11604.45728);
         intramolecularpotential.addPotential(potentialCN, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexC4,AtomParacetamol.indexN }}));
         
-        P2LennardJonesDreiding potentialO1O2 = new P2LennardJonesDreiding(space, 3.033153776, 48.15782862);
+        P2IsotropicRepulsionDispersion potentialO1O2 = new P2IsotropicRepulsionDispersion(space, 2384.465800*11604.45728, 0.252525, 11.645288*11604.45728);
         intramolecularpotential.addPotential(potentialO1O2, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexO1,AtomParacetamol.indexO2}}));
        
@@ -327,7 +327,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
             }
         ((PotentialMasterList)potentialMaster).setCellRange(2);
         ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusCC);
-        P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3.472990473, 47.85589866), truncationRadiusCC); 
+        P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3832.14700*11604.45728, 0.277778, 25.286949*11604.45728), truncationRadiusCC); 
         potentialMaster.addPotential(interpotentialCC, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).cType} );
         
         if(truncationRadiusCO > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -335,7 +335,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
             }
         ((PotentialMasterList)potentialMaster).setCellRange(2);
         ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusCO);
-        P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3.253072125, 48.00662627), truncationRadiusCO); 
+        P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3022.850200*11604.45728, 0.264550, 17.160239*11604.45728), truncationRadiusCO); 
         potentialMaster.addPotential(interpotentialCO, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).oType} );
         
         if(truncationRadiusCN > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -343,7 +343,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
             }
         ((PotentialMasterList)potentialMaster).setCellRange(2);
         ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusCN);
-        P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3.369296217, 43.17334495), truncationRadiusCN); 
+        P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3179.514600*11604.45728, 0.271003, 19.006710*11604.45728), truncationRadiusCN); 
         potentialMaster.addPotential(interpotentialCN, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
         
         if(truncationRadiusON > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -351,7 +351,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
             }
         ((PotentialMasterList)potentialMaster).setCellRange(2);
         ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusON);
-        P2SoftSphericalTruncated interpotentialON = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3.149377868, 43.30932433), truncationRadiusON); 
+        P2SoftSphericalTruncated interpotentialON = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2508.044800*11604.45728, 0.258398, 12.898341*11604.45728), truncationRadiusON); 
         potentialMaster.addPotential(interpotentialON, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).oType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
         
         if(truncationRadiusOO > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -359,7 +359,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
             }
         ((PotentialMasterList)potentialMaster).setCellRange(2);
         ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusOO);
-        P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3.033153776, 48.15782862), truncationRadiusOO); 
+        P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2384.465800*11604.45728, 0.252525, 11.645288*11604.45728), truncationRadiusOO); 
         potentialMaster.addPotential(interpotentialOO, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).oType, ((AtomFactoryParacetamol)species.getFactory()).oType} );
         
         if(truncationRadiusNN > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -367,7 +367,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
             }
         ((PotentialMasterList)potentialMaster).setCellRange(2);
         ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusNN);
-        P2SoftSphericalTruncated interpotentialNN = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3.262560196, 38.94896484), truncationRadiusNN); 
+        P2SoftSphericalTruncated interpotentialNN = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2638.028500*11604.45728, 0.264550, 14.286224*11604.45728), truncationRadiusNN); 
         potentialMaster.addPotential(interpotentialNN, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).nType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
         
         ((CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(interpotentialCC)).setIntraMolecularCriterion(new CriterionNone());
@@ -380,7 +380,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         bdry =  new BoundaryRectangularPeriodic(space, getRandom(), 1); //unit cell
         bdry.setDimensions(Space.makeVector(new double []{2*17.248, 2*12.086, 4*7.382}));
         phase.setBoundary(bdry);
-       	config.initializeCoordinates(phase);
+       	configOrthoLattice.initializeCoordinates(phase);
        	
         integrator.setPhase(phase);
         
@@ -395,11 +395,6 @@ public class MDParacetamolOrthorhombic extends Simulation {
         defaults.doSleep = false;
         defaults.ignoreOverlap = true;
         etomica.paracetamol.MDParacetamolOrthorhombic sim = new etomica.paracetamol.MDParacetamolOrthorhombic(defaults);
-       // ((ActivityIntegrate)sim.getController().getAllActions()[0]).setMaxSteps(10);
-       // sim.getController().actionPerformed();
-       // ((ActivityIntegrate)sim.getController().getAllActions()[0]).setMaxSteps(Integer.MAX_VALUE);
-       // sim.integrator.setTimeStep(0.0001);
-       // sim.getController().reset();
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         
    /*****************************************************************************/    
@@ -435,6 +430,10 @@ public class MDParacetamolOrthorhombic extends Simulation {
         simGraphic.add(meterTotalbox);
         simGraphic.add(tempBox);
         
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(sim.getSpace(), 8, 20);
+        coordDef.setCellManager(sim.configOrthoLattice.getCellManager());
+        
+        
         simGraphic.makeAndDisplayFrame();
         simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(30));
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
@@ -442,6 +441,8 @@ public class MDParacetamolOrthorhombic extends Simulation {
         colorScheme.setColor(atomType.getChildTypes()[0], java.awt.Color.red);
         colorScheme.setColor(atomType.getChildTypes()[1], java.awt.Color.gray);
         colorScheme.setColor(atomType.getChildTypes()[2], java.awt.Color.blue);
+        colorScheme.setColor(atomType.getChildTypes()[3], java.awt.Color.white);
+        colorScheme.setColor(atomType.getChildTypes()[4], java.awt.Color.white);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
         simGraphic.getDisplayPhase(sim.phase).repaint();
         
@@ -449,4 +450,6 @@ public class MDParacetamolOrthorhombic extends Simulation {
     
     public BravaisLattice lattice;
     public BoundaryRectangularPeriodic bdry;
+    public CoordinateDefinitionParacetamol coordinateDefinition;
+    public ConfigurationOrthorhombicLattice configOrthoLattice;
 }//end of class

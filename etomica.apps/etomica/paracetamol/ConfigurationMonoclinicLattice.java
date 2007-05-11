@@ -2,7 +2,10 @@ package etomica.paracetamol;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
+import etomica.atom.AtomAgentManager;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.integrator.IntegratorHard;
@@ -39,7 +42,7 @@ import etomica.species.SpeciesSpheresMono;
  * lattice position for each molecule that is placed. This can be useful if it
  * is desired to associate each molecule with a lattice site.
  */
-public class ConfigurationMonoclinicLattice extends Configuration {
+public class ConfigurationMonoclinicLattice extends Configuration implements AgentSource {
 
     /**
      * Constructs class using instance of IndexIteratorRectangular as the default
@@ -102,6 +105,23 @@ public class ConfigurationMonoclinicLattice extends Configuration {
         return indices;
     }
 
+    public Class getAgentClass() {
+		return IVector.class;
+	}
+
+	public Object makeAgent(IAtom a) {
+		return null;
+	}
+
+	public void releaseAgent(Object agent, IAtom atom) {
+		
+	}
+
+	public AtomAgentManager getCellManager(){
+		
+		return cellManager;
+	}
+    
     /**
      * Places the molecules in the given phase on the positions of the
      * lattice.  
@@ -187,7 +207,8 @@ public class ConfigurationMonoclinicLattice extends Configuration {
         indexIterator.reset();
 
     	ConformationParacetamolMonoclinic regConfig = new ConformationParacetamolMonoclinic(lattice.getSpace());
-    	
+    	cellManager = new AtomAgentManager(this, phase);
+    	IVector cellPosition = null;
     	Tensor t = lattice.getSpace().makeTensor();
     	
     	for (IAtomGroup atom = (IAtomGroup)atomIterator.nextAtom(); atom != null;
@@ -222,13 +243,22 @@ public class ConfigurationMonoclinicLattice extends Configuration {
       
       	  ((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
           atomGroupAction.actionPerformed(atom);
-           
  
             if (indices != null) {
                 indices[atom.getGlobalIndex()] = (int[]) ii.clone();
             }
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(atom);
+            
+            if (ii[3] == 0){
+            	cellPosition = phase.getSpace().makeVector();
+            	cellPosition.E((IVector)myLat.site(ii));
+            	
+            	
+            //remember the coordinate of the cell
+            //Loop 8 times over the basis and we can make the cell assignment here!!
+            }
+            cellManager.setAgent(atom, cellPosition);
         }
 
     }
@@ -285,6 +315,7 @@ public class ConfigurationMonoclinicLattice extends Configuration {
     protected final AtomGroupAction atomGroupAction;
     protected MyLattice myLat;
     private int[][] indices = null;
+    private AtomAgentManager cellManager;
     private static final long serialVersionUID = 2L;
     
 

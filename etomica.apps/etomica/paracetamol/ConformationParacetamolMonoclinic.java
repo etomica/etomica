@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
 import etomica.atom.AtomArrayList;
-import etomica.atom.IAtomPositioned;
+import etomica.atom.AtomLeaf;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;
@@ -30,68 +30,125 @@ public class ConformationParacetamolMonoclinic extends Conformation{
 		
 		iterator.reset();
 		
-		IAtomPositioned c1 = (IAtomPositioned)iterator.nextAtom();
+		AtomLeaf c1 = (AtomLeaf)iterator.nextAtom();
+		x =   0.02112;
+		y = - 0.05209;
+		z =   0.13276;
 		c1.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned c2 = (IAtomPositioned)iterator.nextAtom();
-		x =   0.87932;
-		y = - 0.01900;
-		z = - 1.24329;
+		AtomLeaf c2 = (AtomLeaf)iterator.nextAtom();
+		x =   0.90043;
+		y = - 0.07109;
+		z = - 1.11054;
 		c2.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned c3 = (IAtomPositioned)iterator.nextAtom();
-		x =   2.04562;
-		y = - 0.78423;
-		z = - 1.40610;
+		AtomLeaf h1 = (AtomLeaf)iterator.nextAtom();
+		x =   0.66461;
+		y =   0.49952;
+		z = - 1.94367;
+		h1.getPosition().E(new double [] {x, y, z});
+		
+		AtomLeaf c3 = (AtomLeaf)iterator.nextAtom();
+		x =   2.06673;
+		y = - 0.83632;
+		z = - 1.27335;
 		c3.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned c4 = (IAtomPositioned)iterator.nextAtom();
-		x =   2.36686;
-		y = - 1.53602;
-		z = - 0.34044;
+		AtomLeaf h2 = (AtomLeaf)iterator.nextAtom();
+		x =   2.74509;
+		y = - 0.85319;
+		z = - 2.23162;
+		h2.getPosition().E(new double [] {x, y, z});
+		
+		AtomLeaf c4 = (AtomLeaf)iterator.nextAtom();
+		x =   2.38797;
+		y = - 1.58811;
+		z = - 0.20768;
 		c4.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned o1 = (IAtomPositioned)iterator.nextAtom();
-		x =   3.52947;
-		y = - 2.25738;
-		z = - 0.56693;
+		AtomLeaf o1 = (AtomLeaf)iterator.nextAtom();
+		x =   3.55058;
+		y = - 2.30947;
+		z = - 0.43417;
 		o1.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned c5 = (IAtomPositioned)iterator.nextAtom();
-		x =   1.49876;
-		y = - 1.52024;
-		z =   0.89670;
+		AtomLeaf h5 = (AtomLeaf)iterator.nextAtom();
+		x =   3.67175;
+		y = - 2.77967;
+		z =   0.35244;
+		h5.getPosition().E(new double [] {x, y, z});
+		
+		AtomLeaf c5 = (AtomLeaf)iterator.nextAtom();
+		x =   1.51987;
+		y = - 1.57233;
+		z =   1.02946;
 		c5.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned c6 = (IAtomPositioned)iterator.nextAtom();
-		x =   0.32387;
-		y = - 0.75997;
-		z =   1.05799;
+		AtomLeaf h3 = (AtomLeaf)iterator.nextAtom();
+		x =   1.74805;
+		y = - 2.15126;
+		z =   1.86983;
+		h3.getPosition().E(new double [] {x, y, z});
+		
+		AtomLeaf c6 = (AtomLeaf)iterator.nextAtom();
+		x =   0.34498;
+		y = - 0.81206;
+		z =   1.19075;
 		c6.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned n1 = (IAtomPositioned)iterator.nextAtom();
-		x = - 1.19895;
-		y =   0.77570;
-		z =   0.25787;
+		AtomLeaf h4 = (AtomLeaf)iterator.nextAtom();
+		x = - 0.32286;
+		y = - 0.81763;
+		z =   2.15972;
+		h4.getPosition().E(new double [] {x, y, z});
+		
+		AtomLeaf n1 = (AtomLeaf)iterator.nextAtom();
+		x = - 1.17784;
+		y =   0.72361;
+		z =   0.39062;
 		n1.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned c7 = (IAtomPositioned)iterator.nextAtom();
-		x = - 1.85739;
-		y =   1.40014;
-		z = - 0.64694;
+		AtomLeaf h6 = (AtomLeaf)iterator.nextAtom();
+		x = - 1.59813;
+		y =   0.80096;
+		z =   1.36267;
+		h6.getPosition().E(new double [] {x, y, z});
+		
+		AtomLeaf c7 = (AtomLeaf)iterator.nextAtom();
+		x = - 1.83628;
+		y =   1.34805;
+		z = - 0.51418;
 		c7.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned c8 = (IAtomPositioned)iterator.nextAtom();
-		x = - 3.10135;
-		y =   2.18139;
-		z = - 0.00476;
+		AtomLeaf o2 = (AtomLeaf)iterator.nextAtom();
+		x = - 1.46888;
+		y =   1.32871;
+		z = - 1.72035;
+		o2.getPosition().E(new double [] {x, y, z});
+		
+		AtomLeaf c8 = (AtomLeaf)iterator.nextAtom();
+		x = - 3.08023;
+		y =   2.12930;
+		z =   0.12800;
 		c8.getPosition().E(new double [] {x, y, z});
 		
-        IAtomPositioned o2 = (IAtomPositioned)iterator.nextAtom();
-		x = - 1.48999;
-		y =   1.38080;
-		z = - 1.85311;
-		o2.getPosition().E(new double [] {x, y, z});
+		AtomLeaf h7 = (AtomLeaf)iterator.nextAtom();
+		x = - 3.60051;
+		y =   1.68308;
+		z =   1.06275;
+		h7.getPosition().E(new double [] {x, y, z});
+		
+		AtomLeaf h8 = (AtomLeaf)iterator.nextAtom();
+		x = - 3.76528;
+		y =   2.19509;
+		z = - 0.59402;
+		h8.getPosition().E(new double [] {x, y, z});
+	
+		AtomLeaf h9 = (AtomLeaf)iterator.nextAtom();
+		x = - 2.77116;
+		y =   3.13489;
+		z =   0.35058;
+		h9.getPosition().E(new double [] {x, y, z});
 	
 	}
 
