@@ -104,6 +104,7 @@ public class MeterNormalMode implements DataSource, Action, Serializable {
      */
     public void actionPerformed() {
         callCount++;
+        int coordinateDim = coordinateDefinition.getCoordinateDim();
 
         // |data.E(0)| here to calculate the current value rather than the sum
         // loop over wave vectors
@@ -112,7 +113,6 @@ public class MeterNormalMode implements DataSource, Action, Serializable {
             coordinateDefinition.calcT(waveVectors[iVector], realT, imaginaryT);
             
             // add to S(k).  imaginary part of S is 0
-            int coordinateDim = coordinateDefinition.getCoordinateDim();
             double[] sValues = ((DataDoubleArray)data.getData(iVector)).getData();
             for (int i=0; i<coordinateDim; i++) {
                 for (int j=0; j<coordinateDim; j++) {
