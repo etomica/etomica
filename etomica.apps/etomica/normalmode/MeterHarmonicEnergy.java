@@ -3,6 +3,8 @@ package etomica.normalmode;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtomPositioned;
 import etomica.data.DataSourceScalar;
+import etomica.lattice.crystal.Primitive;
+import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -32,6 +34,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
     public double getDataAsScalar() {
         double energySum = 0;
         
+        boolean borked = false;
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
             coordinateDefinition.calcT(waveVectors[iVector], realT, imaginaryT);
             
@@ -39,6 +42,9 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
             // where A is made up of eigenvectors as columns
             int coordinateDim = coordinateDefinition.getCoordinateDim();
             for (int i=0; i<coordinateDim; i++) {
+                if (Double.isInfinite(omegaSquared[iVector][i])) {
+                    continue;
+                }
                 double realCoord = 0, imaginaryCoord = 0;
                 for (int j=0; j<coordinateDim; j++) {
                     realCoord += eigenvectors[iVector][j][i] * realT[j];
@@ -46,6 +52,10 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
                 }
                 double normalCoord = realCoord*realCoord + imaginaryCoord*imaginaryCoord;
                 energySum += waveVectorCoefficients[iVector] * normalCoord * omegaSquared[iVector][i];
+                if (!borked && energySum > Math.log(1e200)) {
+                    borked = true;
+                    System.out.println(iVector+" "+i+" "+realCoord+" "+imaginaryCoord+" "+(waveVectorCoefficients[iVector] * normalCoord * omegaSquared[iVector][i]));
+                }
             }
         }
         return energySum;//don't multiply by 1/2 because we're summing over only half of the wave vectors
@@ -56,7 +66,6 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
     }
 
     public void setPhase(Phase newPhase) {
-        coordinateDefinition.setPhase(newPhase);
 
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         realT = new double[coordinateDim];
@@ -114,13 +123,17 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         phase.getAgent(species).setNMolecules(numAtoms);
 
         AtomArrayList atoms = phase.getSpeciesMaster().getLeafList();
+        
+        Primitive primitive = new PrimitiveCubic(sim.getSpace());
+
+        CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive);
+        coordinateDefinition.initializeCoordinates(new int[]{numAtoms});
 
         for(int i=0; i<numAtoms; i++) {
             ((IAtomPositioned)atoms.get(i)).getPosition().E((i+0.5)*L/numAtoms - 0.5*L);
             System.out.println(((IAtomPositioned)atoms.get(i)).getPosition().x(0));
         }
         
-        CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(Space1D.getInstance());
         NormalModes normalModes = new NormalModes1DHR();
 
         MeterHarmonicEnergy meter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);

@@ -7,13 +7,11 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.config.ConfigurationLattice;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
@@ -49,12 +47,10 @@ public class SimCalcS extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 
-        integrator = new IntegratorHard(this);
+        integrator = new IntegratorHard(potentialMaster, random, 0.04, 1.0);
 
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(this, integrator);
-        double timeStep = 0.04;
-        integrator.setTimeStep(timeStep);
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
 
@@ -64,25 +60,24 @@ public class SimCalcS extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
 
-        Primitive primitive;
+        int nCells;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
+            nCells = numAtoms;
             bdry = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
             ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space));
         } else {
             primitive = new PrimitiveFcc(space, 1);
             double v = primitive.unitCell().getVolume();
             primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{n,n,n});
+            nCells = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
         }
         phase.setBoundary(bdry);
 
-        lattice = new BravaisLattice(primitive);
-        config = new ConfigurationLattice(lattice);
-
-        config.initializeCoordinates(phase);
-
+        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive);
+        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
+        
         integrator.setPhase(phase);
     }
 
@@ -94,18 +89,15 @@ public class SimCalcS extends Simulation {
         // defaults
         int D = 3;
         int nA = 27;
-        double density = 1.04;
+        double density = 1.3;
         if (D == 1) {
             nA = 3;
             density = 0.5;
         }
-        String filename = "normal_modes" + D + "D";
-        double simTime = 400;
+
+        double simTime = 100;
 
         // parse arguments
-        if (args.length > 0) {
-            filename = args[0];
-        }
         if (args.length > 1) {
             density = Double.parseDouble(args[1]);
         }
@@ -114,6 +106,10 @@ public class SimCalcS extends Simulation {
         }
         if (args.length > 3) {
             nA = Integer.parseInt(args[3]);
+        }
+        String filename = "normal_modes" + D + "D_"+nA+"_"+((int)(density*100));
+        if (args.length > 0) {
+            filename = args[0];
         }
 
         System.out.println("Running "
@@ -126,12 +122,11 @@ public class SimCalcS extends Simulation {
         // construct simulation
         SimCalcS sim = new SimCalcS(Space.getInstance(D), nA, density);
 
-        // set up initial configuration and save nominal positions
-        Primitive primitive = sim.lattice.getPrimitive();// lattice used to position atoms, not scaled to phase volume
+        Primitive primitive = sim.primitive;
 
         // set up normal-mode meter
         MeterNormalMode meterNormalMode = new MeterNormalMode();
-        meterNormalMode.setCoordinateDefinition(new CoordinateDefinitionLeaf(sim.getSpace()));
+        meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
         WaveVectorFactory waveVectorFactory;
         if (D == 1) {
             waveVectorFactory = new WaveVectorFactory1D();
@@ -159,6 +154,10 @@ public class SimCalcS extends Simulation {
 
         // start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
+        sim.activityIntegrate.setMaxSteps(nSteps/10);
+        sim.getController().actionPerformed();
+        meterNormalMode.reset();
+        sim.getController().reset();
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
 
@@ -211,6 +210,6 @@ public class SimCalcS extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public Phase phase;
     public Boundary bdry;
-    public BravaisLattice lattice;
-    public ConfigurationLattice config;
+    public Primitive primitive;
+    public CoordinateDefinition coordinateDefinition;
 }

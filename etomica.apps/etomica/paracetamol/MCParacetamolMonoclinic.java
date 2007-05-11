@@ -18,6 +18,8 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.phase.Phase;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -68,9 +70,9 @@ public class MCParacetamolMonoclinic extends Simulation {
     	 * Monoclinic Crystal
     	 */
         
-    	PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(space,  12.119, 8.944, 7.278,  1.744806);
+    	primitive = new PrimitiveMonoclinic(space,  12.119, 8.944, 7.278,  1.744806);
     	//8.944, 12.119, 7.277, 1.74533
-    	BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
+    	basis = new BasisMonoclinicParacetamol();
     	lattice = new BravaisLatticeCrystal (primitive, basis);
     	configMonoLattice = new ConfigurationMonoclinicLattice(lattice);
     	
@@ -327,8 +329,7 @@ public class MCParacetamolMonoclinic extends Simulation {
  /**********************************************************************/   
         simGraphic.add(PEbox);
         
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(sim.getSpace(), 8, 20);
-        coordDef.setCellManager(sim.configMonoLattice.getCellManager());
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(sim.phase, sim.primitive, sim.basis);
         
         
         simGraphic.makeAndDisplayFrame();
@@ -351,4 +352,6 @@ public class MCParacetamolMonoclinic extends Simulation {
     public CoordinateDefinitionParacetamol coordinateDefinition;
     public ConfigurationMonoclinicLattice configMonoLattice;
     public ActivityIntegrate actionIntegrate;
+    public Primitive primitive;
+    public Basis basis;
 }//end of class

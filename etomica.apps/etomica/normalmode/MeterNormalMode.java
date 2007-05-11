@@ -65,8 +65,6 @@ public class MeterNormalMode implements DataSource, Action, Serializable {
     public void setPhase(Phase newPhase) {
         callCount = 0;
 
-        coordinateDefinition.setPhase(newPhase);
-
         waveVectorFactory.makeWaveVectors(newPhase);
         waveVectors = waveVectorFactory.getWaveVectors();
         // we don't actually care about the coefficients

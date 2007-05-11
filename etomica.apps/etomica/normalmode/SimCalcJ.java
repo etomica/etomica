@@ -5,9 +5,10 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLatticeSimple;
 import etomica.integrator.IntegratorMD;
 import etomica.lattice.BravaisLattice;
+import etomica.lattice.BravaisLatticeCrystal;
+import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -42,13 +43,13 @@ public class SimCalcJ extends Simulation {
             bdry = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms);
         }
         else {
-            primitive = new PrimitiveFcc(space, 1);
-            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            primitive = new PrimitiveCubic(space, 2);
+            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{n,n,n});
         }
         phase.setBoundary(bdry);
 
-        lattice = new BravaisLattice(primitive);
+        lattice = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
         config = new ConfigurationLatticeSimple(lattice);
 
         config.initializeCoordinates(phase);
@@ -60,8 +61,8 @@ public class SimCalcJ extends Simulation {
     public static void main(String[] args) {
 
         // defaults
-        int D = 1;
-        int nA = 4;
+        int D = 3;
+        int nA = 32;
 
         // parse arguments
         if (args.length > 0) {

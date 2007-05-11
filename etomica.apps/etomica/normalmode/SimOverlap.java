@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -82,24 +81,23 @@ public class SimOverlap extends Simulation {
         }
         potentialMaster.addPotential(p2, new AtomType[]{species.getMoleculeType(),species.getMoleculeType()});
 
-        Primitive primitive;
+        int nCells;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundaryTarget = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
             integratorTarget.setNullPotential(new P1HardPeriodic(space));
+            nCells = numAtoms;
         } else {
             primitive = new PrimitiveFcc(space, 1);
             double v = primitive.unitCell().getVolume();
             primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            boundaryTarget = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{n,n,n});
+            nCells = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            boundaryTarget = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
         }
         phaseTarget.setBoundary(boundaryTarget);
 
-        lattice = new BravaisLattice(primitive);
-        ConfigurationLattice config = new ConfigurationLattice(lattice);
-
-        config.initializeCoordinates(phaseTarget);
+        CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(phaseTarget, primitive);
+        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
 
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange;
@@ -139,8 +137,9 @@ public class SimOverlap extends Simulation {
         }
         phaseHarmonic.setBoundary(boundaryHarmonic);
 
-        config.initializeCoordinates(phaseHarmonic);
-        
+        coordinateDefinition = new CoordinateDefinitionLeaf(phaseHarmonic, primitive);
+        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
+
         if(space.D() == 1) {
             normalModes = new NormalModes1DHR();
         } else {
@@ -154,7 +153,7 @@ public class SimOverlap extends Simulation {
         move.setEigenVectors(normalModes.getEigenvectors(phaseHarmonic));
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        move.setCoordinateDefinition(new CoordinateDefinitionLeaf(space));
+        move.setCoordinateDefinition(coordinateDefinition);
         
         move.setPhase(phaseHarmonic);
         
@@ -167,7 +166,7 @@ public class SimOverlap extends Simulation {
 
         
         // OVERLAP
-        MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(new CoordinateDefinitionLeaf(space), normalModes);
+        MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         meterHarmonicEnergy.setPhase(phaseTarget);
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
         meters[1] = meterTarget;
@@ -441,6 +440,7 @@ public class SimOverlap extends Simulation {
     public Boundary boundaryTarget, boundaryHarmonic;
     public BravaisLattice lattice;
     public NormalModes normalModes;
+    public Primitive primitive;
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;

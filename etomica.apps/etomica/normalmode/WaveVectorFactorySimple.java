@@ -63,7 +63,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         for (int kx = kMin[0]; kx < kMax[0]+1; kx++) {
             for (int ky = kMin[1]; ky < kMax[1]+1; ky++) {
                 for (int kz = kMin[2]; kz < kMax[2]+1; kz++) {
-                    if (kx == 0 && ky == 0 && kz == 0) continue;
+//                    if (kx == 0 && ky == 0 && kz == 0) continue;
                     for (int i=0; i<3; i++) {
                         idx[i] = kMax[i];
                     }

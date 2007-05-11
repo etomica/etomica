@@ -2,10 +2,13 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.atom.IAtom;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.BasisMonatomic;
+import etomica.lattice.crystal.Primitive;
+import etomica.phase.Phase;
 import etomica.space.IVector;
-import etomica.space.Space;
 
 /**
  * CoordinateDefinition implementation for monatomic molecules that are simply
@@ -20,34 +23,52 @@ import etomica.space.Space;
 public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         Serializable {
 
-    public CoordinateDefinitionLeaf(Space space) {
-        super(space.D());
-        workVector = space.makeVector();
-        u = new double[space.D()];
+    public CoordinateDefinitionLeaf(Phase phase, Primitive primitive) {
+        this(phase, primitive, new BasisMonatomic(phase.getSpace()));
+    }
+    
+    public CoordinateDefinitionLeaf(Phase phase, Primitive primitive, Basis basis) {
+        super(phase, phase.getSpace().D()*basis.getScaledCoordinates().length, primitive, basis);
+        workVector = phase.getSpace().makeVector();
+        u = new double[coordinateDim];
     }
 
     /**
      * Assigns the given array u to be the current position of the atom minus its lattice position
      */
-    public double[] calcU(IAtom atom) {
-        IVector pos = ((IAtomPositioned) atom).getPosition();
-        IVector site = getLatticePosition(atom);
-        workVector.Ev1Mv2(pos, site);
-        workVector.assignTo(u);
+    public double[] calcU(AtomSet atoms) {
+        int j = 0;
+        for (int i=0; i<atoms.getAtomCount(); i++) {
+            IAtomPositioned a = (IAtomPositioned)atoms.getAtom(i);
+            IVector pos = a.getPosition();
+            IVector site = getLatticePosition(a);
+            workVector.Ev1Mv2(pos, site);
+            for (int k=0; k<workVector.getD(); k++) {
+                u[j+k] = workVector.x(k);
+            }
+            j += workVector.getD();
+        }
         return u;
     }
 
-    public void initNominalU(IAtom atom) {
+    public void initNominalU(AtomSet molecules) {
         //nothing to do -- lattice site is all information needed for u
     }
 
     /**
      * Sets the position of the atom to be its lattice position plus the offset u
      */
-    public void setToU(IAtom atom, double[] newU) {
-        workVector.E(newU);
-        IVector site = getLatticePosition(atom);
-        ((IAtomPositioned) atom).getPosition().Ev1Pv2(site, workVector);
+    public void setToU(AtomSet atoms, double[] newU) {
+        int j = 0;
+        for (int i=0; i<atoms.getAtomCount(); i++) {
+            IAtomPositioned a = (IAtomPositioned)atoms.getAtom(i);
+            IVector pos = a.getPosition();
+            for (int k=0; k<workVector.getD(); k++) {
+                pos.setX(k, newU[j+k]);
+            }
+            j += workVector.getD();
+            pos.PE(getLatticePosition(a));
+        }
     }
 
     protected final IVector workVector;

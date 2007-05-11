@@ -5,6 +5,7 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.mcmove.MCMovePhase;
 import etomica.integrator.mcmove.MCMoveTracker;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -56,18 +57,6 @@ public class MCMoveHarmonic extends MCMovePhase {
         super.setPhase(newPhase);
         iterator.setPhase(newPhase);
 
-        coordinateDefinition.setPhase(newPhase);
-//        latticePositions = coordinateDefinition.getLatticePositions();
-//
-//        iterator.reset();
-//        int atomCount = 0;
-//        while (iterator.hasNext()) {
-//            latticePositions[atomCount] = phase.getSpace().makeVector();
-//            Atom atom = iterator.nextAtom();
-//            latticePositions[atomCount].E(atom.getType().getPositionDefinition().position(atom));
-//            atomCount++;
-//        }
-
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         u = new double[coordinateDim];
 
@@ -85,6 +74,7 @@ public class MCMoveHarmonic extends MCMovePhase {
     public boolean doTrial() {
         iterator.reset();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
+        BasisCell[] cells = coordinateDefinition.getBasisCells();
 
         lastEnergy = 0;
 
@@ -102,14 +92,14 @@ public class MCMoveHarmonic extends MCMovePhase {
                 lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
             }
         }
-        for (IAtom atom = iterator.nextAtom(); atom != null;
-             atom = iterator.nextAtom()) {
+        for (int iCell = 0; iCell<cells.length; iCell++) {
+            BasisCell cell = cells[iCell];
             for (int i=0; i<coordinateDim; i++) {
                 u[i] = 0;
             }
             //loop over wavevectors and sum contribution of each to the generalized coordinates
             for (int iVector=0; iVector<waveVectors.length; iVector++) {
-                double kR = waveVectors[iVector].dot(coordinateDefinition.getLatticePosition(atom));//getLatticePositions()[atomCount]);
+                double kR = waveVectors[iVector].dot(cell.cellPosition);//getLatticePositions()[atomCount]);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
                 
@@ -123,7 +113,7 @@ public class MCMoveHarmonic extends MCMovePhase {
             for (int i=0; i<coordinateDim; i++) {
                 u[i] *= normalization;
             }
-            coordinateDefinition.setToU(atom, u);
+            coordinateDefinition.setToU(cell.molecules, u);
         }
         return true;
     }

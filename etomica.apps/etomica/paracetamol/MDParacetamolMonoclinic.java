@@ -383,6 +383,8 @@ public class MDParacetamolMonoclinic extends Simulation {
         phase.setBoundary(bdry);
         configMonoLattice.initializeCoordinates(phase);
        	
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
+
         integrator.setPhase(phase);
         
     } //end of constructor
@@ -432,8 +434,6 @@ public class MDParacetamolMonoclinic extends Simulation {
         simGraphic.add(meterTotalbox);
         simGraphic.add(tempBox);
         
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(sim.getSpace(), 8, 20);
-        coordDef.setCellManager(sim.configMonoLattice.getCellManager());
         
         simGraphic.makeAndDisplayFrame();
         simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(30));

@@ -7,7 +7,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.Data;
 import etomica.data.DataFork;
@@ -29,7 +28,9 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.lattice.BravaisLattice;
+import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.BoltzmannProcessor;
+import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.normalmode.MeterHarmonicSingleEnergy;
 import etomica.normalmode.NormalModes;
@@ -68,12 +69,11 @@ public class TestHexaneHarmonic extends Simulation {
         super(space, false, new PotentialMaster(space));
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
-        PrimitiveHexane primitive = new PrimitiveHexane(space);
+        primitive = new PrimitiveHexane(space);
         // close packed density is 0.4165783882178116
         // Monson reports data for 0.373773507616 and 0.389566754417
         primitive.scaleSize(Math.pow(0.4165783882178116/0.373773507616,1.0/3.0));
         lattice = new BravaisLattice(primitive);
-        ConfigurationLattice config = new ConfigurationLattice(lattice);
 
         //This is the factor that multiples by the range of the potential in
         // order to define the area/volume in which neighbors are searched for.
@@ -88,7 +88,8 @@ public class TestHexaneHarmonic extends Simulation {
 
         SpeciesHexane species = new SpeciesHexane(this);
         getSpeciesManager().addSpecies(species);
-        bdry =  new BoundaryDeformableLattice(primitive, getRandom(), new int[]{4,6,6});
+        int[] nCells = new int[]{4,6,6};
+        bdry =  new BoundaryDeformableLattice(primitive, getRandom(), nCells);
         phase = new Phase(bdry);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numMolecules);
@@ -195,7 +196,8 @@ public class TestHexaneHarmonic extends Simulation {
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
 
         //Initialize the positions of the atoms.
-        config.initializeCoordinates(phase);
+        coordinateDefinition = new CoordinateDefinitionHexane(phase, primitive, species);
+        coordinateDefinition.initializeCoordinates(nCells);
 
         integrator.setPhase(phase);
         
@@ -217,9 +219,8 @@ public class TestHexaneHarmonic extends Simulation {
         }
         
         NormalModes normalModes = new NormalModesFromFile(filename, 3);
-        CoordinateDefinitionHexane coordinateDefinitionHexane = new CoordinateDefinitionHexane((SpeciesHexane)sim.getSpeciesManager().getSpecies()[0]);
         
-        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionHexane, normalModes);
+        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(sim.coordinateDefinition, normalModes);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
@@ -237,7 +238,7 @@ public class TestHexaneHarmonic extends Simulation {
         harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
         sim.register(harmonicEnergy, pump);
         
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionHexane, normalModes);
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
         harmonicSingleEnergy.setPhase(sim.phase);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
         boltz = new BoltzmannProcessor();
@@ -336,6 +337,8 @@ public class TestHexaneHarmonic extends Simulation {
  
     public MCMoveMolecule moveMolecule;
     public BravaisLattice lattice;
+    public Primitive primitive;
+    public CoordinateDefinition coordinateDefinition;
     
 //    public MCMoveVolume moveVolume;
 //    public MCMoveCrankshaft crank; 

@@ -2,7 +2,6 @@ package etomica.normalmode;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
@@ -14,7 +13,6 @@ import etomica.graphics.DisplayBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
@@ -61,23 +59,22 @@ public class SimHarmonic extends Simulation {
         MCMoveHarmonic move = new MCMoveHarmonic(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(move);
         
-        Primitive primitive;
+        int nCells;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+            nCells = numAtoms;
         } else {
             primitive = new PrimitiveFcc(space, 1);
             double v = primitive.unitCell().getVolume();
             primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            boundary = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{n,n,n});
+            nCells = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            boundary = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
         }
         phase.setBoundary(boundary);
 
-        lattice = new BravaisLattice(primitive);
-        ConfigurationLattice config = new ConfigurationLattice(lattice);
-
-        config.initializeCoordinates(phase);
+        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive);
+        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
         
         if(D == 1) {
             normalModes = new NormalModes1DHR();
@@ -92,7 +89,7 @@ public class SimHarmonic extends Simulation {
         move.setEigenVectors(normalModes.getEigenvectors(phase));
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
-        move.setCoordinateDefinition(new CoordinateDefinitionLeaf(space));
+        move.setCoordinateDefinition(coordinateDefinition);
         
         move.setPhase(phase);
         
@@ -185,11 +182,10 @@ public class SimHarmonic extends Simulation {
 
         //set up things for determining energy of harmonic system
         //read and set up wave vectors
-        CoordinateDefinitionLeaf coordinateDefinitionLeaf = new CoordinateDefinitionLeaf(sim.getSpace());
 
         if(graphic){
             //meter for harmonic system energy, sent to direct and to boltzmann average
-            MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionLeaf, sim.normalModes);
+            MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(sim.coordinateDefinition, sim.normalModes);
             harmonicEnergy.setPhase(sim.phase);
             DataFork harmonicFork = new DataFork();
             AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
@@ -215,7 +211,7 @@ public class SimHarmonic extends Simulation {
             
             //set up measurement of S matrix, to check that configurations are generated as expected
             MeterNormalMode meterNormalMode = new MeterNormalMode();
-            meterNormalMode.setCoordinateDefinition(coordinateDefinitionLeaf);
+            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
             WaveVectorFactory waveVectorFactory = sim.normalModes.getWaveVectorFactory();
             meterNormalMode.setWaveVectorFactory(waveVectorFactory);
             meterNormalMode.setPhase(sim.phase);
@@ -264,7 +260,8 @@ public class SimHarmonic extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public Phase phase;
     public Boundary boundary;
-    public BravaisLattice lattice;
     public Species species;
     public NormalModes normalModes;
+    public CoordinateDefinition coordinateDefinition;
+    public Primitive primitive;
 }

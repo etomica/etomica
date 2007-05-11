@@ -47,6 +47,9 @@ public class MeterHarmonicSingleEnergy implements DataSource {
             // where A is made up of eigenvectors as columns
             int coordinateDim = coordinateDefinition.getCoordinateDim();
             for (int i=0; i<coordinateDim; i++) {
+                if (Double.isInfinite(omegaSquared[iVector][i])) {
+                    continue;
+                }
                 double realCoord = 0, imaginaryCoord = 0;
                 for (int j=0; j<coordinateDim; j++) {
                     realCoord += realT[j] * eigenvectors[iVector][j][i];
@@ -65,7 +68,6 @@ public class MeterHarmonicSingleEnergy implements DataSource {
     }
 
     public void setPhase(Phase newPhase) {
-        coordinateDefinition.setPhase(newPhase);
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         
         normalModes.getWaveVectorFactory().makeWaveVectors(newPhase);

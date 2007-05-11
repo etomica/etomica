@@ -2,16 +2,16 @@ package etomica.paracetamol;
 
 import java.io.Serializable;
 
-import etomica.action.AtomActionTranslateTo;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.Primitive;
+import etomica.normalmode.CoordinateDefinitionMolecule;
+import etomica.phase.Phase;
 import etomica.space.IVector;
-import etomica.space.Space;
-import etomica.space3d.Vector3D;
 
 /**
  * CoordinateDefinition implementation for molecules. The class takes the first
@@ -21,56 +21,41 @@ import etomica.space3d.Vector3D;
  * 
  * @author Andrew Schultz & Tai Tan
  */
-public class CoordinateDefinitionParacetamol extends CoordinateDefinitionUpper
+public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionParacetamol(Space space,int numCellMolecule, int atomLeaf) {
-        super(space.D() * numCellMolecule * atomLeaf); // equals to coordinateDim
-        this.space = space;
-        work1 = space.makeVector();
-        atomActionTranslateTo = new AtomActionTranslateTo(space);
-        u = new double[coordinateDim];
-        axes = new Vector3D [3];
-        axes [0] = new Vector3D();
-        axes [1] = new Vector3D();
-        axes [2] = new Vector3D();
-        com = new Vector3D();
-        temp = new Vector3D();
+    public CoordinateDefinitionParacetamol(Phase phase, Primitive primitive, Basis basis) {
+        super(phase, primitive, 3, basis);
+        axes = new IVector [3];
+        axes [0] = phase.getSpace().makeVector();
+        axes [1] = phase.getSpace().makeVector();
+        axes [2] = phase.getSpace().makeVector();
+        com = phase.getSpace().makeVector();
+        temp = phase.getSpace().makeVector();
     }
 
     /*
      * 
      */
     
-    public double[] calcU(IAtom molecule) {
-    	
-    	AtomArrayList list = ((IAtomGroup)molecule).getChildList();
-    	
-    	int k =0;
-    	
-    	for (int i =0; i < list.size(); i++){
-    		
-    		IVector pos = ((IAtomPositioned)((IAtomGroup)molecule).getChildList().get(i)).getPosition();
-    		IVector site = getLatticePosition(((IAtomGroup)molecule).getChildList().get(i));
-    		
-    		for (int j =0; j <space.D(); j++){
-    		
-    			u[k] = pos.x(j) - site.x(j);
-    			
-    			k++;
-    		}					
-    	}		
+    public double[] calcU(AtomSet molecules) {
+        super.calcU(molecules);
+        
+        //XXX need to calculate u components related to orientation
+        
         return u;
-    
      }
 
     /**
      * Override if nominal U is more than the lattice position of the molecule
      */
-    public void initNominalU(IAtom molecule) {
-    	
-    	super.initNominalU(molecule);
-    	
+    public void initNominalU(AtomSet molecules) {
+    	//XXX need to save info about orientation
+        
+        //XXX loop over molecules
+        
+        IAtomGroup molecule = null;
+        
     	/*
     	 * Finding the vector for centre of mass
     	 */
@@ -97,72 +82,13 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionUpper
     
     }
 
-    public void setToU(IAtom molecule, double[] newU) {
-    	
-    	AtomArrayList list = ((IAtomGroup)molecule).getChildList();
-    	
-    	for (int i =0; i < list.size(); i++){
-    		
-    		IVector site = getLatticePosition(((IAtomGroup)molecule).getChildList().get(i));
-    		
-    		for (int j = 0; j < space.D(); j++) {
-                work1.setX(j, site.x(j) + newU[j]);
-            }
-    		atomActionTranslateTo.setDestination(work1);
-            atomActionTranslateTo.actionPerformed(((IAtomGroup)molecule).getChildList().get(i));
-    	}
-     
-    }
-    
-    public void setCellManager(AtomAgentManager cell){
-    	cellPosition = cell;
-    }
-    
-    public void calcT(IVector k, double[] realT, double[] imaginaryT) {
-        for (int i = 0; i < coordinateDim; i++) {
-            realT[i] = 0;
-            imaginaryT[i] = 0;
-        }
-        iterator.reset();
-        // sum T over atoms
+    public void setToU(AtomSet molecules, double[] newU) {
+        super.setToU(molecules, newU);
         
-        
-        int j = 0;
-        for (IAtom atom = iterator.nextAtom(); atom != null;
-             atom = iterator.nextAtom()) {
-            double[] u0 = calcU(atom);
-            
-            
-            IVector moleculeCellPosition = (IVector)cellPosition.getAgent(atom);
-            
-           
-            double kR = k.dot(moleculeCellPosition);
-            double coskR = Math.cos(kR);
-            double sinkR = Math.sin(kR);
-            for (int i = 0; i < u0.length; i++) {
-                realT[j+i] += coskR * u0[i];
-                imaginaryT[j+i] += sinkR * u0[i];
-            }
-            j+= u0.length;
-            
-            if(j == u0.length * 8){
-            	j = 0;			//loop into the next cell of molecules
-            }
-        }
-
-        for (int i = 0; i < coordinateDim; i++) {
-            realT[i] /= sqrtN;
-            imaginaryT[i] /= sqrtN;
-        }
-
+        //XXX need to set orientation of molecules
     }
 
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final IVector work1;
-    protected final double[] u;
-    protected final Vector3D [] axes;
-    protected final Vector3D com, temp;
-    protected final AtomActionTranslateTo atomActionTranslateTo;
-    protected AtomAgentManager cellPosition;
+    private static final long serialVersionUID = 2L;
+    protected final IVector [] axes;
+    protected final IVector com, temp;
 }

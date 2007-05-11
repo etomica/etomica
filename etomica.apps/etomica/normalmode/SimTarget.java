@@ -7,7 +7,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
@@ -72,24 +71,23 @@ public class SimTarget extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
 
-        Primitive primitive;
+        int nCells;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
             integrator.setNullPotential(new P1HardPeriodic(space));
+            nCells = numAtoms;
         } else {
             primitive = new PrimitiveFcc(space, 1);
             double v = primitive.unitCell().getVolume();
             primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            boundary = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{n,n,n});
+            nCells = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            boundary = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
         }
         phase.setBoundary(boundary);
 
-        lattice = new BravaisLattice(primitive);
-        ConfigurationLattice config = new ConfigurationLattice(lattice);
-
-        config.initializeCoordinates(phase);
+        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive);
+        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
 
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange;
@@ -119,7 +117,7 @@ public class SimTarget extends Simulation {
         int numMolecules = 27;
         double density = 1.30;
         double harmonicFudge = .1;
-        double simTime = 10000;
+        double simTime = 1000;
         double temperature = 1;
         if (D == 1) {
             numMolecules = 3;
@@ -160,6 +158,7 @@ public class SimTarget extends Simulation {
             normalModes = new NormalModesFromFile(filename, D);
         }
         normalModes.setHarmonicFudge(harmonicFudge);
+        double[][] omega3 = normalModes.getOmegaSquared(sim.phase);
 
         //add meters to for FEP averages
         //this one does averaging of total energy and its Boltzmann factor
@@ -171,7 +170,7 @@ public class SimTarget extends Simulation {
 //        bar.setActionInterval(50);
         
         //this one does averaging of Boltzmann factors of each mode
-        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(new CoordinateDefinitionLeaf(sim.getSpace()), normalModes);
+        MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
         harmonicSingleEnergy.setPhase(sim.phase);
         DataPump pump = new DataPump(harmonicSingleEnergy, null);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
@@ -183,12 +182,12 @@ public class SimTarget extends Simulation {
         BoltzmannProcessor boltz = new BoltzmannProcessor();
         boltz.setTemperature(1.0);
         harmonicSingleFork.addDataSink(boltz);
-//        DataFork boltzFork = new DataFork();
-//        boltz.setDataSink(boltzFork);
+        DataFork boltzFork = new DataFork();
+        boltz.setDataSink(boltzFork);
 //        DataProcessorCorrelationMatrix boltzCorrelation = new DataProcessorCorrelationMatrix();
 //        boltzFork.addDataSink(boltzCorrelation);
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(10);
-//        boltzFork.addDataSink(harmonicSingleAvg);
+        boltzFork.addDataSink(harmonicSingleAvg);
         
         DataProcessorSum summer = new DataProcessorSum();
         harmonicSingleFork.addDataSink(summer);
@@ -313,4 +312,6 @@ public class SimTarget extends Simulation {
     public Phase phase;
     public Boundary boundary;
     public BravaisLattice lattice;
+    public Primitive primitive;
+    public CoordinateDefinition coordinateDefinition;
 }

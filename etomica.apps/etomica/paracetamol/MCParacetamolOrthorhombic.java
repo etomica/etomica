@@ -302,7 +302,10 @@ public class MCParacetamolOrthorhombic extends Simulation {
         bdry.setDimensions(Space.makeVector(new double []{2*17.248, 3*12.086, 4*7.382}));
         phase.setBoundary(bdry);
        	configOrthoLattice.initializeCoordinates(phase);
-       	
+
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
+
+        
         integrator.setPhase(phase);
         //PhaseImposePbc pbc = new PhaseImposePbc(phase);
         //pbc.actionPerformed();
@@ -331,8 +334,6 @@ public class MCParacetamolOrthorhombic extends Simulation {
  /**********************************************************************/   
         simGraphic.add(PEbox);
         
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(sim.getSpace(), 8, 20);
-        coordDef.setCellManager(sim.configOrthoLattice.getCellManager());
         
         
         simGraphic.makeAndDisplayFrame();

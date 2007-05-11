@@ -3,12 +3,13 @@ package etomica.normalmode;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.eigenstuff.MyEigenvalueDecomposition;
+import Jama.EigenvalueDecomposition;
+import Jama.Matrix;
 
 public class NormalModeEigenGetter {
     
     public static void main (String[] args){
-        String filename = "normal_modes3D";
+        String filename = "normal_modes3D_32_130_cubic";
         if (args.length > 0) {
             filename = args[0];
         }
@@ -20,14 +21,14 @@ public class NormalModeEigenGetter {
             FileWriter fileWriterVal = new FileWriter(filename+".val");
             FileWriter fileWriterVec = new FileWriter(filename+".vec");
             for (int i=0; i<S.length; i++) {
-                MyEigenvalueDecomposition evaler = new MyEigenvalueDecomposition(S[0].length, S[i]);
+                EigenvalueDecomposition evaler = new EigenvalueDecomposition(new Matrix(S[i]));
                 double[] d = evaler.getRealEigenvalues();
     //            double[] e = evaler.getImagEigenvalues();
-                double[][] eigenvectors = evaler.getV();
+                Matrix eigenvectors = evaler.getV();
     
-                for (int j=0; j<eigenvectors.length; j++) {
-                    for (int k=0; k<eigenvectors[j].length; k++) {
-                        fileWriterVec.write(eigenvectors[j][k]+" ");
+                for (int j=0; j<eigenvectors.getRowDimension(); j++) {
+                    for (int k=0; k<eigenvectors.getColumnDimension(); k++) {
+                        fileWriterVec.write(eigenvectors.get(j,k)+" ");
                     }
                     fileWriterVec.write("\n");
                 }

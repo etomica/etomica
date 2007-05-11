@@ -2,10 +2,13 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.action.AtomActionTranslateTo;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.BasisMonatomic;
+import etomica.lattice.crystal.Primitive;
+import etomica.phase.Phase;
 import etomica.space.IVector;
-import etomica.space.Space;
 
 /**
  * CoordinateDefinition implementation for molecules. The class takes the first
@@ -18,20 +21,31 @@ import etomica.space.Space;
 public class CoordinateDefinitionMolecule extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMolecule(Space space, int orientationDim) {
-        super(space.D() + orientationDim);
-        this.space = space;
-        work1 = space.makeVector();
-        atomActionTranslateTo = new AtomActionTranslateTo(space);
+    public CoordinateDefinitionMolecule(Phase phase, Primitive primitive, int orientationDim) {
+        this(phase, primitive, orientationDim, new BasisMonatomic(phase.getSpace()));
+    }
+    
+    public CoordinateDefinitionMolecule(Phase phase, Primitive primitive, int orientationDim, Basis basis) {
+        super(phase, phase.getSpace().D() + orientationDim, primitive, basis);
+        work1 = phase.getSpace().makeVector();
         u = new double[coordinateDim];
     }
 
-    public double[] calcU(IAtom molecule) {
-        IVector pos = molecule.getType().getPositionDefinition().position(molecule);
-        IVector site = getLatticePosition(molecule);
-        work1.Ev1Mv2(pos, site);
-        for (int i = 0; i < pos.getD(); i++) {
-            u[i] = work1.x(i);
+    public double[] calcU(AtomSet molecules) {
+        // calculates components of U related to the the center of mass of the
+        // molecules
+        // subclass is responsible for setting orientation or intramolecular
+        // degrees of freedom
+        int j = 0;
+        for (int i=0; i<molecules.getAtomCount(); i++) {
+            IAtom molecule = molecules.getAtom(i);
+            IVector pos = molecule.getType().getPositionDefinition().position(molecule);
+            IVector site = getLatticePosition(molecule);
+            work1.Ev1Mv2(pos, site);
+            for (int k = 0; i < pos.getD(); i++) {
+                u[j+k] = work1.x(k);
+            }
+            j += pos.getD();
         }
         return u;
     }
@@ -39,21 +53,28 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     /**
      * Override if nominal U is more than the lattice position of the molecule
      */
-    public void initNominalU(IAtom molecule) {
+    public void initNominalU(AtomSet molecules) {
     }
 
-    public void setToU(IAtom molecule, double[] newU) {
-        IVector site = getLatticePosition(molecule);
-        for (int i = 0; i < space.D(); i++) {
-            work1.setX(i, site.x(i) + newU[i]);
+    public void setToU(AtomSet molecules, double[] newU) {
+        // sets the center of mass of the molecules to that specified by newU
+        // subclass is responsible for setting orientation or intramolecular
+        // degrees of freedom
+        int j = 0;
+        for (int i=0; i<molecules.getAtomCount(); i++) {
+            IAtom molecule = molecules.getAtom(i);
+            IVector site = getLatticePosition(molecule);
+            for (int k = 0; k < site.getD(); k++) {
+                work1.setX(k, site.x(k) + newU[j+k]);
+            }
+            atomActionTranslateTo.setDestination(work1);
+            atomActionTranslateTo.actionPerformed(molecule);
+            j += site.getD();
         }
-        atomActionTranslateTo.setDestination(work1);
-        atomActionTranslateTo.actionPerformed(molecule);
+
     }
 
     private static final long serialVersionUID = 1L;
-    protected final Space space;
     protected final IVector work1;
     protected final double[] u;
-    protected final AtomActionTranslateTo atomActionTranslateTo;
 }
