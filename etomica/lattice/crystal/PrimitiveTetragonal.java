@@ -17,27 +17,13 @@ public class PrimitiveTetragonal extends Primitive {
         this(space, 1.0, 1.0);
     }
     public PrimitiveTetragonal(Space space, double ab, double c) {
-        this(space, ab, c, true);
-    }
-    
-    protected PrimitiveTetragonal(Space space, double ab, double c, boolean makeReciprocal) {
-        super(space, makeReciprocal);//also makes reciprocal
+        super(space);
         setSize(new double[]{ab, ab, c});
         setAngles(new double[]{rightAngle, rightAngle, rightAngle});
     }
     
-    //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveTetragonal(space, 1, 1, false);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        double[] newReciprocalSize = new double[3];
-        newReciprocalSize[0] = 2.0 * Math.PI * size[0];
-        newReciprocalSize[1] = 2.0 * Math.PI * size[0];
-        newReciprocalSize[2] = 2.0 * Math.PI * size[2];
-        reciprocal.setSize(newReciprocalSize);
+    public Primitive makeReciprocal() {
+        return new PrimitiveTetragonal(space, 2.0 * Math.PI / size[0], 2.0 * Math.PI / size[2]);
     }
     
     public void setSizeAB(double newAB) {

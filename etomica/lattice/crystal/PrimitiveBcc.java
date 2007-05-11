@@ -17,11 +17,7 @@ public class PrimitiveBcc extends Primitive {
         this(space, 1.0);
     }
     public PrimitiveBcc(Space space, double size) {
-        this(space, size, true);
-    }
-
-    protected PrimitiveBcc(Space space, double size, boolean makeReciprocal) {
-        super(space, makeReciprocal); //also makes reciprocal
+        super(space);
         //set up orthogonal vectors of unit size
         unitVectors = new IVector[D];
         for(int i=0; i<D; i++) {
@@ -33,14 +29,8 @@ public class PrimitiveBcc extends Primitive {
         setAngles(new double[]{BCC_ANGLE, BCC_ANGLE, BCC_ANGLE});
     }
     
-    //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveFcc(space, 1, false);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        ((PrimitiveFcc)reciprocal).setCubicSize(4.0*Math.PI/size[0]);
+    public Primitive makeReciprocal() {
+        return new PrimitiveFcc(space, 4.0*Math.PI/cubicSize);
     }
     
     /**

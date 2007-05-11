@@ -2,6 +2,7 @@ package etomica.lattice.crystal;
 import etomica.math.geometry.Polytope;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 
 /**
  * Primitive group for a hexagonal system.  Primitive-vector angles
@@ -19,28 +20,17 @@ public class PrimitiveHexagonal extends Primitive {
         this(space, 1.0, 1.0);
     }
     public PrimitiveHexagonal(Space space, double ab, double c) {
-        this(space, ab, c, true);
-    }
-
-    protected PrimitiveHexagonal(Space space, double ab, double c, boolean makeReciprocal) {
-        super(space, makeReciprocal);
+        super(space);
         setSize(new double[]{ab, ab, c});
         this.ab = ab;
         setAngles(new double[]{rightAngle, rightAngle, gamma});
     }
     
     //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveHexagonalReciprocal(space, 1, 1);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        double[] newReciprocalSize = new double[3];
-        newReciprocalSize[0] = 2.0 * Math.PI * size[0] * sinGamma;
-        newReciprocalSize[1] = 2.0 * Math.PI * size[0] * sinGamma;
-        newReciprocalSize[2] = 2.0 * Math.PI * size[2];
-        reciprocal.setSize(newReciprocalSize);
+    public Primitive makeReciprocal() {
+//        return PrimitiveHexagonalReciprocal(space, 2.0*Math.PI/(ab*sinGamma),
+//                2.0*Math.PI/(ab*sinGamma), 2.0*Math.PI/size[2], 2.0*Math.PI/(size[2]*Math.sin(angle[1])), angle[1]);
+        return new PrimitiveHexagonalReciprocal(space, 2.0 * Math.PI * ab / sinGamma, 2.0 * Math.PI * size[2]);
     }
     
     public void setSizeAB(double newAB) {
@@ -121,21 +111,31 @@ public class PrimitiveHexagonal extends Primitive {
     
     public String toString() {return "Hexagonal";}
     
-
     protected static class PrimitiveHexagonalReciprocal extends PrimitiveHexagonal {
         public PrimitiveHexagonalReciprocal(Space space, double ab, double c) {
-            super(space, ab, c, false);
+            super(space, ab, c);
         }
 
         protected void update() {
-            // this will screw up latticeVectors 0 and 1, but then we'll fix it
-            super.update();
-            latticeVectors[1].setX(1,ab);
+            latticeVectors[0].setX(0, ab*sinGamma);
             latticeVectors[0].setX(1,-ab*cosGamma);
-            latticeVectors[0].setX(0,ab*sinGamma);
+            latticeVectors[1].setX(1, ab);
+            latticeVectors[2].setX(2, size[2]);
         }
         
         private static final long serialVersionUID = 1L;
+    }
+
+    public static void main(String args[]) {
+        PrimitiveHexagonal primitive = new PrimitiveHexagonal(Space3D.getInstance(), 1, 1);
+        IVector[] v = primitive.vectors();
+        Primitive reciprocal = primitive.makeReciprocal();
+        IVector[] vr = reciprocal.vectors();
+        for (int i=0; i<v.length; i++) {
+            for (int j=0; j<vr.length; j++) {
+                System.out.println(i+" "+j+" "+v[i].dot(vr[j]));
+            }
+        }
     }
 }
     

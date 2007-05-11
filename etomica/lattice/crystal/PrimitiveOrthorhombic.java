@@ -15,29 +15,14 @@ public class PrimitiveOrthorhombic extends Primitive {
         this(space, 1.0, 1.0, 1.0);
     }
     public PrimitiveOrthorhombic(Space space, double a, double b, double c) {
-        this(space, a, b, c, true);
-    }
-    
-    protected PrimitiveOrthorhombic(Space space, double a, double b, double c,
-            boolean makeReciprocal) {
-        super(space, makeReciprocal); //also makes reciprocal
+        super(space);
         //set up orthogonal vectors of unit size
         setSize(new double[]{a, b, c});
         setAngles(new double[]{rightAngle, rightAngle, rightAngle});
     }
     
-    //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveOrthorhombic(space, 1, 1, 1, false);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        double[] reciprocalSize = new double[D];
-        for (int i=0; i<D; i++) {
-            reciprocalSize[i] = 2.0*Math.PI/size[i];
-        }
-        reciprocal.setSize(reciprocalSize);
+    public Primitive makeReciprocal() {
+        return new PrimitiveOrthorhombic(space, 2.0*Math.PI/size[0], 2.0*Math.PI/size[1], 2.0*Math.PI/size[2]);
     }
     
     public void setSizeA(double newA) {

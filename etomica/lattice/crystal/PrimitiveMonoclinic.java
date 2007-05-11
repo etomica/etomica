@@ -2,6 +2,7 @@ package etomica.lattice.crystal;
 import etomica.math.geometry.Polytope;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 
 /**
  * Primitive group for a monoclinic system.  One primitive-vector
@@ -16,26 +17,14 @@ public class PrimitiveMonoclinic extends Primitive {
         this(space, 1.0, 1.0, 1.0, rightAngle);
     }
     public PrimitiveMonoclinic(Space space, double a, double b, double c, double beta) {
-        this(space, a, b, c, beta, true);
-    }
-    
-    protected PrimitiveMonoclinic(Space space, double a, double b, double c, 
-                               double beta, boolean makeReciprocal) {
-        super(space, makeReciprocal);//also makes reciprocal
+        super(space);
         setSize(new double[]{a, b, c});//also sets reciprocal via update
         setAngleBeta(beta);
     }
     
-    //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveMonoclinic(space, 1, 1, 1, rightAngle, false);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        ((PrimitiveMonoclinic)reciprocal).setSize(new double[]{2.0*Math.PI/(size[0]*Math.sin(angle[1])),
-                    2.0*Math.PI/size[1], 2.0*Math.PI/(size[2]*Math.sin(angle[1]))});
-        ((PrimitiveMonoclinic)reciprocal).setAngleBeta(angle[1]);
+    public Primitive makeReciprocal() {
+        return new PrimitiveMonoclinicReciprocal(space, 2.0*Math.PI/(size[0]*Math.sin(angle[1])),
+                2.0*Math.PI/size[1], 2.0*Math.PI/(size[2]*Math.sin(angle[1])), angle[1]);
     }
     
     public void setSizeA(double newA) {
@@ -133,15 +122,28 @@ public class PrimitiveMonoclinic extends Primitive {
         private static final long serialVersionUID = 1L;
 
         public PrimitiveMonoclinicReciprocal(Space space, double a, double b, double c, double beta) {
-            super(space, a, b, c, beta, false);
+            super(space, a, b, c, beta);
         }
 
-        protected void updateLatticeVectors() {
-            // this will screw up latticeVectors 0 and 1, but then we'll fix it
-            super.update();
-            latticeVectors[0].setX(0,size[0]*Math.sin(angle[1]));
+        protected void update() {
+            latticeVectors[0].setX(0, size[0]*Math.sin(angle[1]));
             latticeVectors[0].setX(2,-size[0]*Math.cos(angle[1]));
-            latticeVectors[1].setX(1,size[1]);
+            latticeVectors[1].setX(1, size[1]);
+            latticeVectors[2].setX(2, size[2]);
         }
+    }
+
+    public static void main(String args[]) {
+        PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(Space3D.getInstance(), 1, 1, 1, Math.PI*100/180);
+        IVector[] v = primitive.vectors();
+        Primitive reciprocal = primitive.makeReciprocal();
+        IVector[] vr = reciprocal.vectors();
+        for (int i=0; i<v.length; i++) {
+            for (int j=0; j<vr.length; j++) {
+                System.out.println(i+" "+j+" "+v[i].dot(vr[j]));
+            }
+        }
+        System.out.println(v[0]);
+        System.out.println(vr[2]);
     }
 }

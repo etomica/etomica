@@ -13,11 +13,7 @@ import etomica.space3d.Vector3D;
 public class PrimitiveHexane extends Primitive {
     
     public PrimitiveHexane(Space space) {
-        this(space, true);
-    }
-    
-    protected PrimitiveHexane(Space space, boolean makeReciprocal) {
-        super(space, makeReciprocal);
+        super(space);
 
         fixedSizes = new double[3];
         for (int i=0; i<3; i++) {
@@ -37,33 +33,11 @@ public class PrimitiveHexane extends Primitive {
     
     
     
-    protected Primitive makeReciprocal() {
+    public Primitive makeReciprocal() {
         // lattice vectors will be totally bogus.  we'll fix them later
-        return new PrimitiveHexane(space, false);
+       throw new RuntimeException("I don't actually know how to make your reciprocal");
     }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        //XXX this does not update the reciprocal's size
-        PrimitiveHexane recip = (PrimitiveHexane)reciprocal;
-        Vector3D aStar = (Vector3D)recip.latticeVectors[0];
-        Vector3D bStar = (Vector3D)recip.latticeVectors[1];
-        Vector3D cStar = (Vector3D)recip.latticeVectors[2];
-        Vector3D aVec = (Vector3D)latticeVectors[0];
-        Vector3D bVec = (Vector3D)latticeVectors[1];
-        Vector3D cVec = (Vector3D)latticeVectors[2];
-        aStar.E(bVec);
-        aStar.XE(cVec);
-        double factor = 2.0*Math.PI/aVec.dot(aStar); // a . (b X c)
-        aStar.TE(factor);
-        bStar.E(cVec);
-        bStar.XE(aVec);
-        bStar.TE(factor);
-        cStar.E(aVec);
-        cStar.XE(bVec);
-        cStar.TE(factor);
-    }
-    
+
     /**
      * Sets A and scales B and C to maintain relative size
      */
@@ -111,10 +85,6 @@ public class PrimitiveHexane extends Primitive {
     
     public Polytope wignerSeitzCell() {
         throw new RuntimeException("method PrimitiveOrthorhombic.wignerSeitzCell not yet implemented");
-    }
-    
-    public Polytope unitCell() {
-        throw new RuntimeException("method PrimitiveOrthorhombic.unitCell not yet implemented");
     }
     
     public String toString() {return "Hexane";}

@@ -19,7 +19,6 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private final Plane plane;
     private Primitive primitive;
-    private Primitive reciprocal;
     private Vector3D normal, delta;
     private Space space;
     private int[] millerIndices;
@@ -27,7 +26,6 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     
     public LatticePlane(Primitive primitive, int[] h) {
         this.primitive = primitive;
-        reciprocal = primitive.reciprocal();
         space = primitive.getSpace();
         origin = (Vector3D)space.makeVector();
         millerIndices = new int[space.D()];
@@ -51,7 +49,6 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
 
     public void setPrimitive(Primitive primitive) {
         this.primitive = primitive;
-        reciprocal = primitive.reciprocal();
         //update orientation of plane using current miller indices and the new primitive
         setMillerIndices(millerIndices);
     }
@@ -64,7 +61,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         if(h.length != space.D()) throw new IllegalArgumentException("Error: number of miller indices passed to LatticePlane.setMillerIndices inconsistent with spatial dimension");
         double currentPosition = getPosition();
         normal.E(0.0);
-        IVector[] b = reciprocal.vectors();
+        IVector[] b = primitive.makeReciprocal().vectors();
         for(int i=0; i<h.length; i++) {
             normal.PEa1Tv1(h[i],b[i]);
             millerIndices[i] = h[i];

@@ -19,26 +19,13 @@ public class PrimitiveHexagonal2D extends Primitive {
         this(space, 1.0);
     }
     public PrimitiveHexagonal2D(Space space, double ab) {
-        this(space, ab, true);
-    }
-
-    protected PrimitiveHexagonal2D(Space space, double ab, boolean makeReciprocal) {
-        super(space, makeReciprocal);
+        super(space);
         setSize(new double[]{ab, ab});
         setAngles(new double[]{gamma});
     }
     
-    //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveHexagonal2DReciprocal(space, 1);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        double[] newReciprocalSize = new double[2];
-        newReciprocalSize[0] = 2.0 * Math.PI * size[0] * sinGamma;
-        newReciprocalSize[1] = 2.0 * Math.PI * size[0] * sinGamma;
-        reciprocal.setSize(newReciprocalSize);
+    public Primitive makeReciprocal() {
+        return new PrimitiveHexagonal2DReciprocal(space, 2.0 * Math.PI * size[0] * sinGamma);
     }
     
     public void setSizeAB(double newAB) {
@@ -100,7 +87,7 @@ public class PrimitiveHexagonal2D extends Primitive {
 
     protected static class PrimitiveHexagonal2DReciprocal extends PrimitiveHexagonal2D {
         public PrimitiveHexagonal2DReciprocal(Space space, double ab) {
-            super(space, ab, false);
+            super(space, ab);
         }
 
         protected void update() {

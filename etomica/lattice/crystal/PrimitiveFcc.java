@@ -2,6 +2,7 @@ package etomica.lattice.crystal;
 import etomica.math.geometry.Polytope;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 
 /**
  * Primitive group for a face-centered-cubic system.
@@ -20,11 +21,7 @@ public class PrimitiveFcc extends Primitive {
         this(space, 1.0);
     }
     public PrimitiveFcc(Space space, double size) {
-        this(space, size, true);
-    }
-    
-    protected PrimitiveFcc(Space space, double size, boolean makeReciprocal) {
-        super(space, makeReciprocal); //also makes reciprocal
+        super(space);
         //set up orthogonal vectors of unit size
         unitVectors = new IVector[D];
         for(int i=0; i<D; i++) {
@@ -40,14 +37,8 @@ public class PrimitiveFcc extends Primitive {
         setAngles(newAngles);
     }
     
-    //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveBcc(space, 1, false);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        ((PrimitiveBcc)reciprocal).setCubicSize(Math.sqrt(6)*Math.PI/size[0]);
+    public Primitive makeReciprocal() {
+        return new PrimitiveBcc(space, Math.sqrt(6)*Math.PI/cubicSize);
     }
     
     /**
@@ -116,4 +107,15 @@ public class PrimitiveFcc extends Primitive {
     
     public String toString() {return "Fcc";}
 
+    public static void main(String args[]) {
+        PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance(), 1);
+        IVector[] v = primitive.vectors();
+        Primitive reciprocal = primitive.makeReciprocal();
+        IVector[] vr = reciprocal.vectors();
+        for (int i=0; i<v.length; i++) {
+            for (int j=0; j<vr.length; j++) {
+                System.out.println(i+" "+j+" "+v[i].dot(vr[j]));
+            }
+        }
+    }
 }

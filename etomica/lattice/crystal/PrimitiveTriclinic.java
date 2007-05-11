@@ -2,7 +2,6 @@ package etomica.lattice.crystal;
 import etomica.math.geometry.Polytope;
 import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space3d.Vector3D;
 
 /**
  * Primitive group for a triclinic system.  No restrictions on
@@ -18,41 +17,32 @@ public class PrimitiveTriclinic extends Primitive {
     }
     public PrimitiveTriclinic(Space space, double a, double b, double c, 
                                               double alpha, double beta, double gamma) {
-        this(space, a, b, c, alpha, beta, gamma, true);
-    }
-    
-    protected PrimitiveTriclinic(Space space, double a, double b, double c,
-              double alpha, double beta, double gamma, boolean makeReciprocal) {
-        super(space, makeReciprocal);
+        super(space);
         setSize(new double[]{a, b, c});
         setAngles(new double[]{alpha, beta, gamma});
     }
 
     //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveTriclinic(space, 1, 1, 1, rightAngle, rightAngle, rightAngle, false);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
+    public Primitive makeReciprocal() {
         //XXX this does not update the reciprocal's size
-        PrimitiveTriclinic recip = (PrimitiveTriclinic)reciprocal;
-        Vector3D aStar = (Vector3D)recip.latticeVectors[0];
-        Vector3D bStar = (Vector3D)recip.latticeVectors[1];
-        Vector3D cStar = (Vector3D)recip.latticeVectors[2];
-        Vector3D aVec = (Vector3D)latticeVectors[0];
-        Vector3D bVec = (Vector3D)latticeVectors[1];
-        Vector3D cVec = (Vector3D)latticeVectors[2];
-        aStar.E(bVec);
-        aStar.XE(cVec);
-        double factor = 2.0*Math.PI/aVec.dot(aStar); // a . (b X c)
-        aStar.TE(factor);
-        bStar.E(cVec);
-        bStar.XE(aVec);
-        bStar.TE(factor);
-        cStar.E(aVec);
-        cStar.XE(bVec);
-        cStar.TE(factor);
+//        PrimitiveTriclinic recip = (PrimitiveTriclinic)reciprocal;
+//        Vector3D aStar = (Vector3D)recip.latticeVectors[0];
+//        Vector3D bStar = (Vector3D)recip.latticeVectors[1];
+//        Vector3D cStar = (Vector3D)recip.latticeVectors[2];
+//        Vector3D aVec = (Vector3D)latticeVectors[0];
+//        Vector3D bVec = (Vector3D)latticeVectors[1];
+//        Vector3D cVec = (Vector3D)latticeVectors[2];
+//        aStar.E(bVec);
+//        aStar.XE(cVec);
+//        double factor = 2.0*Math.PI/aVec.dot(aStar); // a . (b X c)
+//        aStar.TE(factor);
+//        bStar.E(cVec);
+//        bStar.XE(aVec);
+//        bStar.TE(factor);
+//        cStar.E(aVec);
+//        cStar.XE(bVec);
+//        cStar.TE(factor);
+        throw new RuntimeException("I don't know how to actually make the reciprocal for you.");
     }
     
     public void setSizeA(double newA) {

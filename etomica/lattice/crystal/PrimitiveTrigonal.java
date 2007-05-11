@@ -17,23 +17,13 @@ public class PrimitiveTrigonal extends Primitive {
     }
     public PrimitiveTrigonal(Space space, double cubicSize, 
                              double alpha, double beta, double gamma) {
-        this(space, cubicSize, alpha, beta, gamma, true);
-    }
-    
-    protected PrimitiveTrigonal(Space space, double cubicSize,
-              double alpha, double beta, double gamma, boolean makeReciprocal) {
-        super(space, makeReciprocal);
+        super(space);
         setCubicSize(cubicSize);
         setAngles(new double[]{alpha, beta, gamma});
     }
 
-    //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveTrigonal(space, 1, rightAngle, rightAngle, rightAngle, false);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
+    public Primitive makeReciprocal() {
+        throw new RuntimeException("I don't actually know how to make a reciprocal primitive");
     }
     
     /**

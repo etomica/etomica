@@ -12,29 +12,14 @@ import etomica.space.Space;
 public class PrimitiveOrthorhombicHexagonal extends Primitive {
     
     public PrimitiveOrthorhombicHexagonal(Space space, double a) {
-        this(space, a, true);
-    }
-    
-    protected PrimitiveOrthorhombicHexagonal(Space space, double a, 
-            boolean makeReciprocal) {
-        super(space, makeReciprocal); //also makes reciprocal
+        super(space);
         //set up orthogonal vectors of unit size
         setSize(new double[]{a, 2.0/Math.sqrt(3)*a});
         setAngles(new double[]{rightAngle});
     }
     
-    //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveOrthorhombicHexagonal(space, 1, false);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        double[] reciprocalSize = new double[D];
-        for (int i=0; i<D; i++) {
-            reciprocalSize[i] = 2.0*Math.PI/size[i];
-        }
-        reciprocal.setSize(reciprocalSize);
+    public Primitive makeReciprocal() {
+        return new PrimitiveOrthorhombicHexagonal(space, 2.0*Math.PI/size[0]);
     }
     
     /**

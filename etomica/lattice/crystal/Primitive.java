@@ -22,14 +22,13 @@ public abstract class Primitive implements java.io.Serializable {
     protected final double[] angle;
     protected final Space space;
     protected static final double rightAngle = 0.5*Math.PI;
-    protected final Primitive reciprocal;
     
     /**
      * This constructor is called directly when a Primitive is constructing
      * its reciprocal primitive.  For construction of the direct-lattice
      * primitive, this constructor is called via the Primitive(Simulation) constructor.
      */
-    protected Primitive(Space space, boolean makeReciprocal) {
+    public Primitive(Space space) {
         this.space = space;
         D = space.D();
         latticeVectors = new IVector[D];
@@ -43,26 +42,13 @@ public abstract class Primitive implements java.io.Serializable {
             latticeVectorsCopy[i] = space.makeVector();
             angle[i] = rightAngle;
         }
-        //if reciprocal is not null, this is a direct primitive; if it is null,
-        //this is a reciprocal primitive of another primitive that is in the
-        //process of being constructed.
-        this.reciprocal = (makeReciprocal  ? makeReciprocal() : null);
     }
     
     /**
-     * Method defining and constructing reciprocal primitive; called by
-     * constructor of Primitive.  
+     * Method defining and constructing reciprocal primitive;
      */
-     //definition of this method should take care not to lead to calling of update 
-     //method of the reciprocal primitive.
-    protected abstract Primitive makeReciprocal();
+    public abstract Primitive makeReciprocal();
     
-    /**
-     * Updates reciprocal primitive so that it is consistent with the
-     * current parameters of this primitive.  Called by update method.
-     */
-    protected abstract void updateReciprocal();
-
     /**
      * @return the space
      */
@@ -122,9 +108,6 @@ public abstract class Primitive implements java.io.Serializable {
                 return;
             }
         }
-        if (reciprocal != null) {
-            updateReciprocal();
-        }
     }
         
     /**
@@ -171,13 +154,6 @@ public abstract class Primitive implements java.io.Serializable {
     public abstract int[] latticeIndex(IVector r, int[] dimensions);
     
     /**
-     * Returns the primitive for the reciprocal lattice vectors.
-     */
-    public Primitive reciprocal() {
-        return reciprocal;
-     }
-        
-    /**
      * Returns the Wigner-Seitz cell specified by this primitive.
      * The returned cell does not remain tied to the primitive, and
      * will not be updated with changes to the primitive.
@@ -203,6 +179,4 @@ public abstract class Primitive implements java.io.Serializable {
         }
         throw new RuntimeException("I'm impressed by your ability to make a "+D+"-D space, but I really don't know how to make an appropriate unit cell");
     }
-    
-    
 }

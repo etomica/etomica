@@ -19,11 +19,7 @@ public class PrimitiveCubic extends Primitive {
         this(space, 1.0);
     }
     public PrimitiveCubic(Space space, double latticeConstant) {
-        this(space, latticeConstant, true);
-    }
-    
-    protected PrimitiveCubic(Space space, double latticeConstant, boolean makeReciprocal) {
-        super(space, makeReciprocal); //also makes reciprocal
+        super(space);
         //set up orthogonal vectors of unit size
         setSizeABC(latticeConstant); //also sets reciprocal via update
         double[] newAngles = new double[D];
@@ -33,14 +29,8 @@ public class PrimitiveCubic extends Primitive {
         setAngles(newAngles);
     }
     
-    //called by superclass constructor
-    protected Primitive makeReciprocal() {
-        return new PrimitiveCubic(space, 1, false);
-    }
-    
-    //called by update method of superclass
-    protected void updateReciprocal() {
-        ((PrimitiveCubic)reciprocal).setSizeABC(2.0*Math.PI/size[0]);
+    public Primitive makeReciprocal() {
+        return new PrimitiveCubic(space, 2.0*Math.PI/aBC);
     }
     
     /**
