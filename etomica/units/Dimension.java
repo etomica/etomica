@@ -12,7 +12,7 @@ import etomica.units.systems.UnitSystem;
  * is an array of seven value that are the exponents of these base dimensions
  * forming the specified dimension.
  */
-public abstract class Dimension implements java.io.Serializable {
+public class Dimension implements java.io.Serializable {
 
     /**
      * Number of base dimensions, equal to seven.  
@@ -39,8 +39,11 @@ public abstract class Dimension implements java.io.Serializable {
     
     /**
      * Returns the unit of this dimension as derived in the given system of units.
+     * Default constructs a CompoundUnit using the base units of the unit system.
      */
-    public abstract Unit getUnit(UnitSystem unitSystem);
+    public Unit getUnit(UnitSystem unitSystem) {
+        return new CompoundUnit(unitSystem.baseUnits(), signature());
+    }
     
     public String toString() {
         return name;
@@ -66,6 +69,7 @@ public abstract class Dimension implements java.io.Serializable {
     
     private final double[] signature;
     private final String name;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Dimension used to indicate that a group of values are not all of

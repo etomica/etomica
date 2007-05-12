@@ -110,6 +110,10 @@ public class LJ extends UnitSystem implements java.io.Serializable {
     public Unit charge() {
         return Electron.UNIT;
     }
+    
+    public Unit current() {
+        return currentUnit;
+    }
 
     public Unit dipole() {
         return dipoleUnit;
@@ -167,6 +171,7 @@ public class LJ extends UnitSystem implements java.io.Serializable {
     private final Unit volumeUnit = new Volume(this);
     private final Unit areaUnit = new Area(this);
     private final Unit viscosityUnit = new Viscosity(this);
+    private final Unit currentUnit = new Current(this);
 
     //definitions of the LJ units
     
@@ -262,6 +267,27 @@ public class LJ extends UnitSystem implements java.io.Serializable {
 
         private static final long serialVersionUID = 1;
     }
+
+    private static final class Current extends LJUnit {
+        private Current(LJ ljSystem) {
+            super(ljSystem);
+        }
+
+        public Dimension dimension() {
+            return etomica.units.Current.DIMENSION;
+        }
+
+        public String symbol() {
+            return "e"+lj.DOT+"("+lj.EPS+lj.DOT+"m"+lj.DOT+lj.SIG+Strings.exponent(2)+")"+Strings.exponent("-"+lj.HALF);
+        }
+
+        public double fromSim(double x) {
+            return x * Electron.UNIT.fromSim(1.0)/(Math.sqrt(lj.epsilon / lj.mass) / lj.sigma);
+        }
+
+        private static final long serialVersionUID = 1;
+    }
+
 
     private static final class Dipole extends LJUnit {
         private Dipole(LJ ljSystem) {

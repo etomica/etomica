@@ -5,6 +5,7 @@ import etomica.units.Area;
 import etomica.units.Candela;
 import etomica.units.Charge;
 import etomica.units.Count;
+import etomica.units.Current;
 import etomica.units.Dalton;
 import etomica.units.Decimal;
 import etomica.units.Dipole;
@@ -32,6 +33,7 @@ public abstract class UnitSystem implements java.io.Serializable {
     public abstract Unit time();
     public abstract Unit angle();
     public abstract Unit charge();
+    public abstract Unit current();
     public abstract Unit dipole();
     public abstract Unit force();
     public abstract Unit energy();
@@ -42,6 +44,10 @@ public abstract class UnitSystem implements java.io.Serializable {
     public abstract Unit viscosity();
     public Unit luminousIntensity() {
         return Candela.UNIT;
+    }
+    
+    public Unit[] baseUnits() {
+        return new Unit[] {length(), mass(), time(), current(), temperature(), quantity(), luminousIntensity()};
     }
     
  /**
@@ -56,6 +62,7 @@ public abstract class UnitSystem implements java.io.Serializable {
         public Unit time() {return Picosecond.UNIT;}
         public Unit angle() {return Radian.UNIT;}
         public Unit charge() {return Charge.SIM_UNIT;}
+        public Unit current() {return Current.SIM_UNIT;}
         public Unit dipole() {return Dipole.SIM_UNIT;}
         public Unit force() {return Force.SIM_UNIT;}
         public Unit energy() {return Energy.SIM_UNIT;}

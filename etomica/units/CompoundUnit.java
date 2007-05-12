@@ -28,6 +28,7 @@ public class CompoundUnit implements Unit {
         }
         String name = "";
         for(int i=0; i<units.length; i++) {
+            if(exponents[i] == 0.0) continue;
             name += "("+units[i].toString();
             if (exponents[i] != 1.0) {
                 name += "^"+exponents[i];
@@ -44,6 +45,7 @@ public class CompoundUnit implements Unit {
         }
         String symbol = "";
         for(int i=0; i<units.length; i++) {
+            if(exponents[i] == 0.0) continue;
             symbol += units[i].symbol();
             if (exponents[i] != 1.0) {
                 symbol += "^"+exponents[i];

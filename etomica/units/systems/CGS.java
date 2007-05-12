@@ -1,5 +1,6 @@
 package etomica.units.systems;
 
+import etomica.units.Ampere;
 import etomica.units.Barye;
 import etomica.units.CompoundUnit;
 import etomica.units.Coulomb;
@@ -52,6 +53,10 @@ public class CGS extends UnitSystem {
 
     public Unit charge() {
         return Coulomb.UNIT;
+    }
+    
+    public Unit current() {
+        return Ampere.UNIT;
     }
 
     public Unit dipole() {
