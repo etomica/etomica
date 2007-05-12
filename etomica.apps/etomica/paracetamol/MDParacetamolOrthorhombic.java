@@ -1,6 +1,8 @@
 
 package etomica.paracetamol;
 
+import java.awt.Color;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
@@ -12,6 +14,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPhaseCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
@@ -24,7 +27,7 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2Dreiding;
-import etomica.potential.P2IsotropicRepulsionDispersion;
+import etomica.potential.P2Exp6;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P3BondAngleDreiding;
 import etomica.potential.P4TorsionDreiding;
@@ -273,7 +276,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
          * Equilibrium Radius [unit Amstrom]; Pre-factor [unit Kelvin]
          */
    
-        P2IsotropicRepulsionDispersion potentialCC = new P2IsotropicRepulsionDispersion(space, 3832.147000*11604.45728, 0.277778, 25.286949*11604.45728);
+        P2Exp6 potentialCC = new P2Exp6(space, 3832.147000*11604.45728, 0.277778, 25.286949*11604.45728);
         intramolecularpotential.addPotential(potentialCC, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexC4,AtomParacetamol.indexC7},
         									 {AtomParacetamol.indexC4,AtomParacetamol.indexC8},
@@ -285,7 +288,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         									 {AtomParacetamol.indexC2,AtomParacetamol.indexC8}
         		}));
 
-        P2IsotropicRepulsionDispersion potentialCO = new P2IsotropicRepulsionDispersion(space, 3022.850200*11604.45728, 0.264550, 17.160239*11604.45728);
+        P2Exp6 potentialCO = new P2Exp6(space, 3022.850200*11604.45728, 0.264550, 17.160239*11604.45728);
         intramolecularpotential.addPotential(potentialCO, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexC1,AtomParacetamol.indexO1},
         									 {AtomParacetamol.indexC7,AtomParacetamol.indexO1},
@@ -297,15 +300,15 @@ public class MDParacetamolOrthorhombic extends Simulation {
         									 {AtomParacetamol.indexC2,AtomParacetamol.indexO2}
         		}));
         
-        P2IsotropicRepulsionDispersion potentialON = new P2IsotropicRepulsionDispersion(space, 2508.044800*11604.45728, 0.258398, 12.898341*11604.45728);
+        P2Exp6 potentialON = new P2Exp6(space, 2508.044800*11604.45728, 0.258398, 12.898341*11604.45728);
         intramolecularpotential.addPotential(potentialON, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexO1,AtomParacetamol.indexN }}));
         
-        P2IsotropicRepulsionDispersion potentialCN = new P2IsotropicRepulsionDispersion(space, 3179.514600*11604.45728, 0.271003, 19.006710*11604.45728);
+        P2Exp6 potentialCN = new P2Exp6(space, 3179.514600*11604.45728, 0.271003, 19.006710*11604.45728);
         intramolecularpotential.addPotential(potentialCN, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexC4,AtomParacetamol.indexN }}));
         
-        P2IsotropicRepulsionDispersion potentialO1O2 = new P2IsotropicRepulsionDispersion(space, 2384.465800*11604.45728, 0.252525, 11.645288*11604.45728);
+        P2Exp6 potentialO1O2 = new P2Exp6(space, 2384.465800*11604.45728, 0.252525, 11.645288*11604.45728);
         intramolecularpotential.addPotential(potentialO1O2, 
         		new ApiIndexList(new int[][]{{AtomParacetamol.indexO1,AtomParacetamol.indexO2}}));
        
@@ -444,6 +447,8 @@ public class MDParacetamolOrthorhombic extends Simulation {
         colorScheme.setColor(atomType.getChildTypes()[3], java.awt.Color.white);
         colorScheme.setColor(atomType.getChildTypes()[4], java.awt.Color.white);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
+        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBackgroundColor(Color.WHITE);
+        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBoundaryFrameColor(Color.BLACK);
         simGraphic.getDisplayPhase(sim.phase).repaint();
         
     }//end of main
