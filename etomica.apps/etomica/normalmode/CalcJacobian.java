@@ -95,7 +95,7 @@ public class CalcJacobian {
                     if (waveVectorCoefficients[iVector] == 1) {
                         // if both real and imaginary are important, handle the imaginary part
                         if (!doFull) {
-                            tempJacobian[(vectorPos+1)*coordinateDim+iDim][j+iDim] -= tempJacobian[(vectorPos+1)*coordinateDim+iDim+1][l-coordinateDim+iDim];
+                            tempJacobian[(vectorPos+1)*coordinateDim+iDim][j+iDim] -= tempJacobian[(vectorPos+1)*coordinateDim+iDim][l-coordinateDim+iDim];
                         }
                         if (Math.abs(tempJacobian[(vectorPos+1)*coordinateDim+iDim][j+iDim]) < 1.e-14) {
                             tempJacobian[(vectorPos+1)*coordinateDim+iDim][j+iDim] = 0;
