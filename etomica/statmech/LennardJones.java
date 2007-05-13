@@ -31,19 +31,28 @@ public final class LennardJones {
         //private constructor prevents instantiation
     }
     /**
-     * Total Helmholtz free energy for the fcc solid. Does
-     * not include contributions from momentum degrees of freedom
-     * (alternatively, one might say that the mass is defined such that the
-     * deBroglie wavelength is unity).  Based on Eq. 21 of van der Hoef [1].
+     * Molar Helmholtz free energy for the fcc solid, in excess of an ideal gas at the
+     * same temperature and density. Total molar free energy is obtained by adding 
+	 * T*(ln[rho] - 1) + 3*T*ln[Lambda], where Lambda is the thermal deBroglie
+     * wavelength.
+     * 
+     * More precisely, one should add the term given, plus ln[N!]/N - (ln[N]-1),
+     * which goes to zero for N->infinity, where N is the number of atoms
+     * (typically specified only for small systems). Note that this detail
+     * does not account for all finite-size effects.
+     * 
+     * Based on Eq. 21 of van der Hoef [1].
      * 
      * @param T
-     *            the temperature, in units of epsilon/k (thus input is kT/epsilon)
+     *            the temperature, in units of epsilon/k (thus input is
+     *            kT/epsilon)
      * @param rho
-     *            the number density, in units of 1/sigma^3 (thus input is rho*sigma^3)
-     * @return the Helmholtz free energy, in units of epsilon
+     *            the number density, in units of 1/sigma^3 (thus input is
+     *            rho*sigma^3)
+     * @return the excess Helmholtz free energy per atom, in units of epsilon 
      */
-    public static double aFcc(double T, double rho) {
-        double sum = T * (-1 + Math.log(rho)); // ideal part, excluding momentum contribution (deBroglie wavelength)
+    public static double aResidualFcc(double T, double rho) {
+        double sum = 0.0;
         sum += uStaticFcc(rho) - 1.5 * T * Math.log(T);// harmonic contribution, static-lattice energy plus 3/2 ln(beta)
         sum += T * Uah(T, rho); //anharmonic contribution
         double rhon1 = rho;// rho^(n+1)
@@ -253,14 +262,14 @@ public final class LennardJones {
         double pSat = liquidFccCoexPressure(T);
         double[] rhoSat = liquidFccCoexDensities(T);
         System.out.println("Input T, rho: "+ T + "  "+rho);
-        System.out.println("Helmholtz: " + aFcc(T, rho));
-        double betaAex = (aFcc(T, rho) - T * (-1 + Math.log(rho)))/T;
+        System.out.println("Helmholtz: " + aResidualFcc(T, rho));
+        double betaAex = (aResidualFcc(T, rho) - T * (-1 + Math.log(rho)))/T;
         System.out.println("betaA_excess: " + betaAex);
         System.out.println("Potential energy: " + uFcc(T, rho));
         System.out.println("Compressibility factor: " + ZFcc(T, rho));
         System.out.println("Liquid-fcc coexistence pressure: " + pSat);
         System.out.println("fcc, liquid coexistence densities: "+ Arrays.toString(rhoSat));
-        double rhs = aFcc(T,rho)/T - uStaticFcc(rho)/T + 1.5*Math.log(T) - Uah(T,rho) 
+        double rhs = aResidualFcc(T,rho)/T - uStaticFcc(rho)/T + 1.5*Math.log(T) - Uah(T,rho) 
                     + 1.5*Math.log(2*Math.PI);
         System.out.println("rhs of Eq. 23: " + rhs);
         double zfcc = pSat/rhoSat[1]/T;
@@ -270,9 +279,14 @@ public final class LennardJones {
         double[] rhosub = vaporFccCoexDensities(T);
         System.out.println("vapor, fcc coexistence densities: " + Arrays.toString(rhosub));
         
+        for(T=0.1; T<=2.0; T+=.2) {
+            for(rho=0.9; rho<=1.7; rho+=0.1) {
+                System.out.println("T, rho, Uah: "+ T + "\t" + rho + "\t" + Uah(T,rho));
+            }
+        }
     }
     
-    //Constants for van der Hoef's formulas
+    //Constants for van der Hoef's formulas, ref[1]
     private static final double[][] a = new double[][] {
         { -8.2151768, 12.070686, -6.6594615, 1.3211582 },
         { 13.404069, -20.632066, 11.564825, -2.3064801 },
@@ -280,6 +294,8 @@ public final class LennardJones {
     private static final double[] b = new double[] { 69.833875, -132.86963,
         97.438593, -25.848057 };
     private static final double[] cStat = new double[] {-14.45392093, 6.065940096};
+
+    //Constants for van der Hoef's formulas, ref[2]
     private static final double[] aSub = new double[] {10.48631, -16.81771, 35.10031, -48.76487, 36.39136, -10.90788};
     private static final double[] bSub = new double[] {10.49107, -16.83818, 34.95754, -47.66412, 33.90821, -9.011857};
     private static final double[] cSub = new double[] {-0.134343, -0.0950795, 0.137215, -0.161890};

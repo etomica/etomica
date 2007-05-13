@@ -16,6 +16,13 @@ import etomica.statmech.LennardJones;
 import etomica.units.Energy;
 import etomica.util.FunctionGeneral;
 
+/**
+ * Properties of a system of monatomic molecules occupying a lattice and interacting according
+ * to a spherically-symmetric pair potential.  Properties are given by a lattice-dynamics treatment.
+ * 
+ * @author kofke
+ *
+ */
 public class HarmonicCrystal {
 
     public HarmonicCrystal(Primitive primitive, Potential2SoftSpherical potential) {
@@ -65,6 +72,7 @@ public class HarmonicCrystal {
             }
         }
         int nA = (int)(2*coeffSum + 1);
+        System.out.println("nA: "+nA);
         int D = lattice.getSpace().D();
         double AHarmonic = sumA;
         if (nA % 2 == 0) {
@@ -95,7 +103,7 @@ public class HarmonicCrystal {
     
     public static void main(String[] args) {
         double T = 1;
-        double rho = 1.30;
+        double rho = 1.0;
         PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance());
         primitive.setCubicSize(Math.pow(2.0, 1.0/6.0));//unit density
         final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
@@ -103,11 +111,14 @@ public class HarmonicCrystal {
         HarmonicCrystal harmonicCrystal = new HarmonicCrystal(primitive, potential);
         harmonicCrystal.setCellDensity(rho);
         
+        System.out.println("Density: " + rho);
+        System.out.println("Temperature: " + T);
+        
         double u = harmonicCrystal.getLatticeEnergy();
         double a = harmonicCrystal.getHelmholtzFreeEnergy(T);
         System.out.println("Lattice Energy: " + u);
         System.out.println("Helmholtz: " + a);
-        double aEos = LennardJones.aFcc(T,rho);
+        double aEos = LennardJones.aResidualFcc(T,rho);
         double uEos = LennardJones.uStaticFcc(rho);
         System.out.println("Energy from EOS: " + uEos);
         System.out.println("Helmholtz from EOS: " + aEos);
