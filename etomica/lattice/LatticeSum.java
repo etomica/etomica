@@ -2,6 +2,7 @@ package etomica.lattice;
 
 import etomica.data.Data;
 import etomica.data.IDataInfo;
+import etomica.data.types.DataGroup;
 import etomica.space.IVector;
 import etomica.util.FunctionGeneral;
 
@@ -9,14 +10,14 @@ public class LatticeSum {
 
     public LatticeSum(SpaceLattice lattice) {
         this.lattice = lattice;
-        IndexIteratorTriangularPermutations iteratorT = new IndexIteratorTriangularPermutations(3);
+        IndexIteratorTriangularPermutations iteratorT = new IndexIteratorTriangularPermutations(lattice.getSpace().D());
         setIterator(new IndexIteratorReflecting(iteratorT));
         coreIterator = iteratorT.getCoreIterator();
         coreIterator.setMaxElement(50);
         kVector = lattice.getSpace().makeVector();
     }
 
-    public Object[] calculateSum(FunctionGeneral function) {
+    public DataGroup calculateSum(FunctionGeneral function) {
         IDataInfo dataInfo = function.getDataInfo();
         Data sumR = dataInfo.makeData();
         Data sumI = dataInfo.makeData();
@@ -43,7 +44,7 @@ public class LatticeSum {
 //            System.out.println(m + ".\t" + sumR + "\t" + sumI + "\t" + diff/sumR);
 //            diff = sumR;
         }
-        return new Object[] {sumR, sumI};
+        return new DataGroup(new Data[] {sumR, sumI});
     }
     
     public void setK(IVector k) {

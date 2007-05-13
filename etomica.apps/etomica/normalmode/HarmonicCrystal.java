@@ -25,10 +25,11 @@ import etomica.util.FunctionGeneral;
  */
 public class HarmonicCrystal {
 
-    public HarmonicCrystal(Primitive primitive, Potential2SoftSpherical potential) {
+    public HarmonicCrystal(int[] nCells, Primitive primitive, Potential2SoftSpherical potential) {
         this.potential = potential;
+        this.nCells = (int[])nCells.clone();
         lattice = new BravaisLattice(primitive);
-        normalModes = new NormalModesSoftSpherical(primitive, potential);
+        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
     }
     
     public double getLatticeEnergy() {
@@ -48,7 +49,7 @@ public class HarmonicCrystal {
         LatticeSum summer = new LatticeSum(lattice);
         summer.setK(lattice.getSpace().makeVector());
 //        System.out.println("\n k:"+kVector.toString());
-        return 0.5*((DataDouble)summer.calculateSum(function)[0]).x;
+        return 0.5*((DataDouble)summer.calculateSum(function).getData(0)).x;
 //            ((Tensor)sum[0]).map(chopper);
 //            ((Tensor)sum[1]).map(chopper);
 //            ((Tensor)sum[0]).ME(sum0);
@@ -68,7 +69,9 @@ public class HarmonicCrystal {
             double coeff = coeffs[k];
             coeffSum += coeff;
             for(int i=0; i<omega2[k].length; i++) {
-                sumA += coeff*Math.log(omega2[k][i]*coeff/(temperature*Math.PI));
+                if(omega2[k][i] != 0.0) {
+                    sumA += coeff*Math.log(omega2[k][i]*coeff/(temperature*Math.PI));
+                }
             }
         }
         int nA = (int)(2*coeffSum + 1);
@@ -98,7 +101,7 @@ public class HarmonicCrystal {
         double scale = newDensity * oldVolume;
         Primitive primitive = lattice.getPrimitive();
         primitive.scaleSize(1.0/Math.pow(scale, 1.0/lattice.getSpace().D()));
-        normalModes = new NormalModesSoftSpherical(primitive, potential);
+        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
     }
     
     public static void main(String[] args) {
@@ -108,7 +111,10 @@ public class HarmonicCrystal {
         primitive.setCubicSize(Math.pow(2.0, 1.0/6.0));//unit density
         final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
 
-        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(primitive, potential);
+        int nC = 4;
+        int[] nCells = new int[] {nC, nC, nC};
+        
+        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, potential);
         harmonicCrystal.setCellDensity(rho);
         
         System.out.println("Density: " + rho);
@@ -118,7 +124,7 @@ public class HarmonicCrystal {
         double a = harmonicCrystal.getHelmholtzFreeEnergy(T);
         System.out.println("Lattice Energy: " + u);
         System.out.println("Helmholtz: " + a);
-        double aEos = LennardJones.aResidualFcc(T,rho);
+        double aEos = LennardJones.aResidualFcc(T,rho) + T*Math.log(rho) - 1.0;
         double uEos = LennardJones.uStaticFcc(rho);
         System.out.println("Energy from EOS: " + uEos);
         System.out.println("Helmholtz from EOS: " + aEos);
@@ -126,6 +132,7 @@ public class HarmonicCrystal {
     
     private NormalModes normalModes;
     private BravaisLattice lattice;
+    private int[] nCells;
     private Potential2SoftSpherical potential;
     private static final long serialVersionUID = 1L;
     

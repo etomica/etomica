@@ -5,6 +5,7 @@ import Jama.Matrix;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.IDataInfo;
+import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeSum;
@@ -31,7 +32,7 @@ import etomica.util.RandomNumberGenerator;
 
 public class NormalModesSoftSpherical implements NormalModes {
 
-    public NormalModesSoftSpherical(Primitive primitive, Potential2SoftSpherical potential) {
+    public NormalModesSoftSpherical(int[] nCells, Primitive primitive, Potential2SoftSpherical potential) {
         
         harmonicFudge = 1.0;
         needToCalculateModes = true;
@@ -39,7 +40,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         setPrimitive(primitive);
         setPotential(potential);
         
-        nCells = new int[] {5,5,5};
+        this.nCells = (int[])nCells.clone();
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, new RandomNumberGenerator(), nCells);
         
@@ -54,6 +55,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         for(int i=0; i<kFactory.getWaveVectors().length; i++) {
             sum += kFactory.getCoefficients()[i];
         }
+        System.out.println("nCells: "+Arrays.toString(nCells));
         System.out.println("Number of wave vectors represented: "+2.0*sum);
     }
     
@@ -84,28 +86,27 @@ public class NormalModesSoftSpherical implements NormalModes {
         kVector.E(0.0);
         summer.setK(kVector);
         System.out.println("\n k:"+kVector.toString()+"   in NormalModeSoftSpherical");
-        Object[] sum = summer.calculateSum(function);
+        DataGroup sum = summer.calculateSum(function);
         DataTensor sum0 = new DataTensor(Space3D.getInstance());
-        sum0.E((Data)sum[0]);
+        sum0.E(sum.getData(0));
         Function chopper = new Function.Chop(1e-9);
         sum0.map(chopper);
-        System.out.println(sum0.toString());
+//        System.out.println(sum0.toString());
         double[][] array = new double[3][3];
-        for(int k=kFactory.getWaveVectors().length-1; k>=0; k--) {
+        for(int k=kFactory.getWaveVectors().length-1; k>0; k--) {
             kVector.E(kFactory.getWaveVectors()[k]);
             summer.setK(kVector);
-            System.out.println("\n k:"+kVector.toString());
+            System.out.println("k:"+kVector.toString());
             sum = summer.calculateSum(function);
-            ((Data)sum[0]).map(chopper);
-            ((Data)sum[1]).map(chopper);
-            ((Data)sum[0]).ME(sum0);
-            ((DataTensor)sum[0]).x.assignTo(array);
+            sum.map(chopper);
+            sum.getData(0).ME(sum0);
+            ((DataTensor)sum.getData(0)).x.assignTo(array);
             Matrix matrix = new Matrix(array);
             EigenvalueDecomposition ed = matrix.eig();
             double[] eVals = ed.getRealEigenvalues();
             double[][] eVecs = ed.getV().getArray();
             System.out.println("Real eigenvalues: " + Arrays.toString(eVals));
-            System.out.println("Imag eigenvalues: " + Arrays.toString(ed.getImagEigenvalues()));
+//            System.out.println("Imag eigenvalues: " + Arrays.toString(ed.getImagEigenvalues()));
             
             for(int j=0; j<eVals.length; j++) {
                 omega2[k][j] = eVals[j];
@@ -113,7 +114,7 @@ public class NormalModesSoftSpherical implements NormalModes {
                     eigenvectors[k][j][m] = eVecs[j][m];//need to check if indexes are right
                 }
             }
-            System.out.println(sum[0].toString());
+//            System.out.println(sum[0].toString());
 //            System.out.println();
 //            System.out.println(sum[1].toString());
         }
