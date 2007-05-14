@@ -23,6 +23,10 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
 		targetAccumulator = aTargetAccumulator;
 		nBennetPoints = aRefAccumulator.getNBennetPoints();
 	}
+    
+    public AccumulatorVirialOverlapSingleAverage[] getAccumulators() {
+        return new AccumulatorVirialOverlapSingleAverage[]{refAccumulator, targetAccumulator};
+    }
 
     /**
      * Returns the ratio of the reference to target overlap-to-virial ratios
@@ -87,10 +91,12 @@ public class DataSourceVirialOverlap extends DataSourceScalar {
         DataGroup dataGroup = (DataGroup)refAccumulator.getData(iParam);
 		double refErr = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
         double refAvg = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
+        double refRelErr = refErr/refAvg;
         dataGroup = (DataGroup)targetAccumulator.getData(iParam);
 		double targetErr = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
 		double targetAvg = ((DataDoubleArray)dataGroup.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
-		return Math.abs(avg)*Math.sqrt(refErr*refErr/(refAvg*refAvg)+targetErr*targetErr/(targetAvg*targetAvg));
+        double targetRelErr = targetErr/targetAvg;
+		return Math.abs(avg)*Math.sqrt(refRelErr*refRelErr+targetRelErr*targetRelErr);
 	}
 
     /**
