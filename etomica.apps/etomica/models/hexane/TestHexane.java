@@ -6,12 +6,17 @@ package etomica.models.hexane;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.PhaseInflate;
 import etomica.action.PhaseInflateDeformable;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
+import etomica.data.AccumulatorAverage;
+import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureByVolumeChange;
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -46,7 +51,7 @@ import etomica.space3d.Space3D;
  * this time.
  * 
  * @author nancycribbin
- *  
+ * 
  */
 
 public class TestHexane extends Simulation {
@@ -280,13 +285,20 @@ public class TestHexane extends Simulation {
             meterNormalMode.setWaveVectorFactory(waveVectorFactory);
             meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
             meterNormalMode.setPhase(sim.phase);
-            System.out.println("0");
 
             PhaseInflateDeformable pid = new PhaseInflateDeformable(sim.getSpace());
             MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
             meterPressure.setIntegrator(sim.integrator);
 
-            System.out.println("1");
+//            PhaseInflateDeformable pid = new PhaseInflateDeformable(sim.getSpace());
+//            PhaseInflate pid = new PhaseInflate(sim.phase);
+//            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace()/*, pid*/);
+//            meterPressure.setIntegrator(sim.integrator);
+//            AccumulatorAverage pressureAccumulator = new AccumulatorAverage(sim);
+//            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
+//            pressureAccumulator.setBlockSize(50);
+//            new IntervalActionAdapter(pressureManager, sim.integrator);
+          
             
             long nSteps = 1000000;
             sim.activityIntegrate.setMaxSteps(nSteps/10);
@@ -294,8 +306,8 @@ public class TestHexane extends Simulation {
             System.out.println("equilibration finished");
 
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
-            ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
-            System.out.println("1");
+//            ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
+            
             sim.getController().reset();
             sim.activityIntegrate.setMaxSteps(nSteps);
             
@@ -336,9 +348,12 @@ public class TestHexane extends Simulation {
             catch (IOException e) {
                 throw new RuntimeException("Oops, failed to write data "+e);
             }
+            
+//            double avgPressure = ((DataDouble)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
+//            System.out.println("Avg Pres = "+ avgPressure);
         }
 
-        System.out.println("Go look at the data, silly!");
+        System.out.println("Go look at the data!");
     }
 
     public ActivityIntegrate activityIntegrate;
@@ -347,9 +362,6 @@ public class TestHexane extends Simulation {
     public Phase phase;
 
     public BoundaryDeformablePeriodic bdry;
- 
-    public MCMoveMolecule moveMolecule;
-    public CBMCGrowSolidHexane growMolecule;
     public BravaisLattice lattice;
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
@@ -357,7 +369,8 @@ public class TestHexane extends Simulation {
 //    public MCMoveVolume moveVolume;
 //    public MCMoveCrankshaft crank; 
 //    public MCMoveReptate snake;
-    
+    public MCMoveMolecule moveMolecule;
+    public CBMCGrowSolidHexane growMolecule;
     public MCMoveRotateMolecule3D rot;
     
 //    public PairIndexerMolecule pri;
