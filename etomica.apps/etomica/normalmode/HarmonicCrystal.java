@@ -47,6 +47,7 @@ public class HarmonicCrystal {
             final DataDouble data = new DataDouble();
         };
         LatticeSum summer = new LatticeSum(lattice);
+        summer.setMaxElement(49);
         summer.setK(lattice.getSpace().makeVector());
 //        System.out.println("\n k:"+kVector.toString());
         return 0.5*((DataDouble)summer.calculateSum(function).getData(0)).x;
