@@ -1,6 +1,8 @@
 
 package etomica.paracetamol;
 
+import java.awt.Color;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
@@ -10,6 +12,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPhaseCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
@@ -343,6 +346,10 @@ public class MCParacetamolMonoclinic extends Simulation {
         colorScheme.setColor(atomType.getChildTypes()[4], java.awt.Color.white);
         
         simGraphic.panel().setBackground(java.awt.Color.yellow);
+        
+        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBackgroundColor(Color.WHITE);
+        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBoundaryFrameColor(Color.BLACK);
+
         simGraphic.getDisplayPhase(sim.phase).repaint();
         
     }//end of main
