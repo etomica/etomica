@@ -80,17 +80,16 @@ public class HarmonicCrystal {
         int D = lattice.getSpace().D();
         double AHarmonic = sumA;
         if (nA % 2 == 0) {
-            if (D == 3) {
-                AHarmonic += Math.log(((3*nA + 3)/2.0) / Math.pow(nA,1.5));
-                //0.5*D*Math.log(nA) - 0.5*(nA-1)*Math.log(2.0*Math.PI)
+            if (D == 1) {
+                AHarmonic += Math.log(Math.pow(2,D*(nA - 2)/2.0) / Math.pow(nA,0.5*D));
+            }
+            else if (D == 3) {
+                AHarmonic += Math.log(Math.pow(2,D*(nA - 32)/2.0) / Math.pow(nA,0.5*D));
             }
         }
         else {
-            if (D == 3) {
-                AHarmonic += Math.log(((3*nA - 18)/2.0) / Math.pow(nA,1.5));
-            }
+            AHarmonic += Math.log(Math.pow(2,D*(nA - 1)/2.0) / Math.pow(nA,0.5*D));
         }
-//        if(nA % 2 == 0) AHarmonic += 0.5*Math.log(2.0);
         AHarmonic /= nA;
         AHarmonic *= temperature;
         AHarmonic += getLatticeEnergy();
