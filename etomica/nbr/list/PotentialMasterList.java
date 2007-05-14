@@ -551,13 +551,18 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
     
     public NeighborCellManager getNbrCellManager(Phase phase) {
-        NeighborCellManager manager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
-        manager.setCellRange(cellRange);
-        return manager;
+        return (NeighborCellManager)phaseAgentManager.getAgent(phase);
     }
 
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
+
+        PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
+        iterator.reset();
+        while (iterator.hasNext()) {
+            NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
+            cellManager.setCellRange(cellRange);
+        }
     }
 
     public int getCellRange() {
