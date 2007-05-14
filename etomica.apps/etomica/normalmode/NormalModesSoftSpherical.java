@@ -40,7 +40,6 @@ public class NormalModesSoftSpherical implements NormalModes {
         setPrimitive(primitive);
         setPotential(potential);
         
-        this.nCells = (int[])nCells.clone();
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, new RandomNumberGenerator(), nCells);
         
@@ -82,6 +81,7 @@ public class NormalModesSoftSpherical implements NormalModes {
         };
         
         LatticeSum summer = new LatticeSum(lattice);
+        summer.setMaxElement(49);
         IVector kVector = new Vector3D();
         kVector.E(0.0);
         summer.setK(kVector);
@@ -160,7 +160,6 @@ public class NormalModesSoftSpherical implements NormalModes {
     private double harmonicFudge;
     private double[][] omega2;
     private double[][][] eigenvectors;
-    private int[] nCells;
     private boolean needToCalculateModes;
 
 }
