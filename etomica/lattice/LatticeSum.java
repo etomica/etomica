@@ -13,7 +13,7 @@ public class LatticeSum {
         IndexIteratorTriangularPermutations iteratorT = new IndexIteratorTriangularPermutations(lattice.getSpace().D());
         setIterator(new IndexIteratorReflecting(iteratorT));
         coreIterator = iteratorT.getCoreIterator();
-        coreIterator.setMaxElement(50);
+        setMaxElement(50);
         kVector = lattice.getSpace().makeVector();
     }
 
@@ -22,8 +22,8 @@ public class LatticeSum {
         Data sumR = dataInfo.makeData();
         Data sumI = dataInfo.makeData();
         Data work = dataInfo.makeData();
-        double diff = 0.0;
-        for(int m=1; m<50; m++) {
+//        double diff = 0.0;
+        for(int m=1; m<=maxElement; m++) {
             coreIterator.setMaxElement(m);
             coreIterator.setMaxElementMin(m);
             iterator.reset();
@@ -71,6 +71,18 @@ public class LatticeSum {
 
     public void setLattice(SpaceLattice lattice) {
         this.lattice = lattice;
+    }
+
+    public int getMaxElement() {
+        return maxElement;
+    }
+
+    /**
+     * Specifies the largest index element that will be included in the lattice sum.
+     * Default is 50. 
+     */
+    public void setMaxElement(int maxElement) {
+        this.maxElement = maxElement;
     }
     
 //    public static void main(String[] args) {
@@ -139,4 +151,5 @@ public class LatticeSum {
     private IndexIterator iterator;
     private IndexIteratorTriangular coreIterator;
     private final IVector kVector;
+    private int maxElement;
 }
