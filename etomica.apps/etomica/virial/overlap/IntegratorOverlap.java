@@ -17,22 +17,18 @@ import etomica.util.IRandom;
 public class IntegratorOverlap extends IntegratorManagerMC {
 
     public IntegratorOverlap(PotentialMaster potentialMaster, IRandom random,
-            IntegratorPhase[] aIntegrators, AccumulatorVirialOverlapSingleAverage[] virialAccumulators) {
+            IntegratorPhase[] aIntegrators) {
         super(potentialMaster, random);
         setNumSubSteps(1000);
         for (int i=0; i<aIntegrators.length; i++) {
             addIntegrator(aIntegrators[i]);
         }
         stepFreq = new double[nIntegrators];
-        accumulators = virialAccumulators;
         totNumSubSteps = new int[nIntegrators];
         setAdjustStepFreq(true);
         //there are no global moves
         setGlobalMoveInterval(Double.POSITIVE_INFINITY);
 
-        if (aIntegrators.length != accumulators.length) {
-            throw new IllegalArgumentException("Must have the same number of integrators as accumulators\n");
-        }
         // and hope nobody calls add/remove Integrators
     }
     
@@ -42,6 +38,14 @@ public class IntegratorOverlap extends IntegratorManagerMC {
      */
     public void setDSVO(DataSourceVirialOverlap dataSource) {
         dsvo = dataSource;
+        accumulators = dsvo.getAccumulators();
+        if (integrators.length != accumulators.length) {
+            throw new IllegalArgumentException("Must have the same number of integrators as accumulators\n");
+        }
+        for (int i=0; i<nIntegrators; i++) {
+            stepFreq[i] = 1.0/nIntegrators;
+            totNumSubSteps[i] = 0;
+        }
     }
 
     /**
@@ -64,7 +68,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     // of time.  There are no global moves.
     public void doStepInternal() {
         for (int i=0; i<nIntegrators; i++) {
-            int iSubSteps = 10 + (int)((numSubSteps-10*nIntegrators) * stepFreq[i]); 
+            int iSubSteps = numSubSteps/100 + (int)(numSubSteps*(1-0.01*nIntegrators) * stepFreq[i]); 
             for (int j=0; j<iSubSteps; j++) {
                 integrators[i].doStep();
             }
@@ -97,7 +101,6 @@ public class IntegratorOverlap extends IntegratorManagerMC {
      * ones with low errors.
      */
     public void adjustStepFreq() {
-        double freqTotal = 0;
         int newMinDiffLoc = dsvo.minDiffLocation();
         int nBennetPoints = accumulators[0].getNBennetPoints();
         if (newMinDiffLoc != minDiffLoc && nBennetPoints>1) {
@@ -109,33 +112,28 @@ public class IntegratorOverlap extends IntegratorManagerMC {
             DataGroup data;
             data = (DataGroup)accumulators[i].getData(minDiffLoc);
             double error = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
-            data = (DataGroup)accumulators[1-i].getData(minDiffLoc);
-            double otherRatio = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
+            double ratio = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
             if (Debug.ON && Debug.DEBUG_NOW) {
-                System.out.println(i+" "+Math.abs(error)+" "+Math.abs(otherRatio));
+                System.out.println(i+" "+Math.abs(error)+" "+Math.abs(ratio));
             }
-            if (!Double.isNaN(error) && !Double.isNaN(otherRatio)) {
-                error *= error;
-                otherRatio *= otherRatio;
-            }
-            else {
+            if (Double.isNaN(error) || Double.isNaN(ratio)) {
                 error = 1.0;
-                otherRatio = 1.0;
+                ratio = 1.0;
             }
-            stepFreq[i] = otherRatio*error*totNumSubSteps[i];
-            freqTotal += stepFreq[i];
-        }
-//        System.out.print("ratio error ");
-//        for (int j=0; j<accumulators[0].getNBennetPoints(); j++) {
-//            System.out.print(Math.sqrt(allErrors[nBennetPoints-j-1][0]*allErrors[nBennetPoints-j-1][0]+allErrors[j][1]*allErrors[j][1])+" ");
-//        }
-//        System.out.print("\n");
-//        System.out.println("avgs "+accumulators[0].getData(AccumulatorVirialAverage.AVERAGE_RATIO)[1]+" "+accumulators[1].getData(AccumulatorVirialAverage.AVERAGE_RATIO)[1]);
-//        System.out.println("ratio "+accumulators[0].getData(AccumulatorVirialAverage.AVERAGE_RATIO)[1]/accumulators[1].getData(AccumulatorVirialAverage.AVERAGE_RATIO)[1]);
-//        System.out.println("errors "+errors[0]+" "+errors[1]);
-        // normalize
-        for (int i=0; i<nIntegrators; i++) {
-            stepFreq[i] /= freqTotal;
+            double sum = 1.0;
+            for (int j=0; j<nIntegrators; j++) {
+                if (j==i) continue;
+                data = (DataGroup)accumulators[j].getData(minDiffLoc);
+                double jRatio = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1];
+                double jError = ((DataDoubleArray)data.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1];
+                if (Double.isNaN(jError) || Double.isNaN(jRatio)) {
+                    jError = 1.0;
+                    jRatio = 1.0;
+                }
+                double r = (ratio/error)*(jError/jRatio);
+                sum += r * r * totNumSubSteps[j] / totNumSubSteps[i];
+            }
+            stepFreq[i] = 1.0 / sum;
         }
         if (Debug.ON && Debug.DEBUG_NOW) {
             System.out.print("freq ");
