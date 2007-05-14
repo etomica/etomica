@@ -257,15 +257,17 @@ public final class LennardJones {
     }
     
     public static void main(String[] args) {
-        double T = 0.65;
-        double rho = 1.7;
+        double T = 1.0;
+        double rho = 1.3;
         double pSat = liquidFccCoexPressure(T);
         double[] rhoSat = liquidFccCoexDensities(T);
         System.out.println("Input T, rho: "+ T + "  "+rho);
-        System.out.println("Helmholtz: " + aResidualFcc(T, rho));
-        double betaAex = (aResidualFcc(T, rho) - T * (-1 + Math.log(rho)))/T;
-        System.out.println("betaA_excess: " + betaAex);
+        System.out.println("Residual Helmholtz: " + aResidualFcc(T, rho));
+        double betaA = (aResidualFcc(T, rho) + (-1 + Math.log(rho)));
+        System.out.println("betaA: " + betaA);
+        System.out.println("betaA anharmonic: " + Uah(T, rho));
         System.out.println("Potential energy: " + uFcc(T, rho));
+        System.out.println("Lattice energy: " + uStaticFcc(rho));
         System.out.println("Compressibility factor: " + ZFcc(T, rho));
         System.out.println("Liquid-fcc coexistence pressure: " + pSat);
         System.out.println("fcc, liquid coexistence densities: "+ Arrays.toString(rhoSat));
@@ -281,7 +283,7 @@ public final class LennardJones {
         
         for(T=0.1; T<=2.0; T+=.2) {
             for(rho=0.9; rho<=1.7; rho+=0.1) {
-                System.out.println("T, rho, Uah: "+ T + "\t" + rho + "\t" + Uah(T,rho));
+//                System.out.println("T, rho, Uah: "+ T + "\t" + rho + "\t" + Uah(T,rho));
             }
         }
     }
