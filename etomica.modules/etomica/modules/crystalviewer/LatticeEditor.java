@@ -40,6 +40,9 @@ public class LatticeEditor {
     public static int DEFAULT_SIZE = 6;
     protected int size;
     protected BravaisLattice currentLattice;
+    private JPanel panel;
+    protected Phase phase;
+    protected Species species;
     private DeviceBox[] angleBoxes, sizeBoxes;
     public JPanel anglePanel, sizePanel;
     public JPanel boxPanel;
@@ -97,6 +100,7 @@ public class LatticeEditor {
         selector.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 currentLattice = (BravaisLattice)selector.getSelectedItem();
+                changePhase();
                 initBoxes();
                 update();
             }
@@ -283,11 +287,25 @@ public class LatticeEditor {
         viewer.update(currentLattice);
     }
 
-    public JPanel getPanel() {return panel;}
+    protected void changePhase() {
+    	
+    	Phase oldPhase = phase;
+        double[]  boxSize = new double[] { viewer.sim.getDefaults().boxSize,
+                                           viewer.sim.getDefaults().boxSize,
+                                           viewer.sim.getDefaults().boxSize};
 
-    private JPanel panel;
-    protected Phase phase;
-    protected Species species;
+    	phase = new Phase(new etomica.space.BoundaryDeformableLattice
+    			                             (currentLattice.getPrimitive(),
+    			    	                   	  (etomica.util.IRandom)null,
+    			    		                  boxSize));
+    	if(oldPhase != null) {
+    	    viewer.sim.removePhase(oldPhase);
+    	}
+    	viewer.sim.addPhase(phase);
+    	viewer.displayPhase.setPhase(phase);
+    }
+
+    public JPanel getPanel() {return panel;}
 
     protected class NModifier implements Modifier {
         public void setValue(double d) {

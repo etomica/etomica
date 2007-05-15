@@ -335,7 +335,7 @@ public class G3DSys {
   public double getDepthPercent() { return tm.getDepthPercentSetting();  }
   public void setSlabPercent(float val) { tm.slabToPercent(val); }
   public void setDepthPercent(float val) { tm.depthToPercent(val); }
-
+  public void scaleFitToScreen() { tm.scaleFitToScreen(); }
 
 
   

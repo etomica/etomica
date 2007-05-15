@@ -41,8 +41,10 @@ public class DisplayPhase extends Display implements EtomicaElement {
     protected boolean displayBoundary = true;
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
     private Phase phase;
+    private boolean graphicResizable = true;
             
-    public DisplayCanvasInterface canvas;  //do not instantiate here; instead must be in graphic method
+    //do not instantiate here; instead must be in graphic method
+    public DisplayCanvasInterface canvas = null;
 
 //Explicit to 2D because drawing to 2D image
     public final int[] align = new int[D];
@@ -180,12 +182,14 @@ public class DisplayPhase extends Display implements EtomicaElement {
      * Specifies the phase for this display.  Updates atomIterator appropriately.
      */
     public void setPhase(Phase p) {
-        phase = p;
-        if(p == null) {
+
+    	Phase oldPhase = phase;
+    	phase = p;
+    	if(p == null) {
             canvas = null;
             return;
         }
-        
+
         int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
         int boxY = 1;
 
@@ -195,21 +199,33 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 boxX *=1.4;
                 boxY *=1.4;
                 //canvas = new DisplayPhaseCanvas3DOpenGL(this, boxX, boxY);
-                canvas = new DisplayPhaseCanvasG3DSys(this);
+                if(canvas == null) {
+                	canvas = new DisplayPhaseCanvasG3DSys(this);
+                    setSize(boxX, boxY);
+                }
+                else {
+                    ((DisplayPhaseCanvasG3DSys)canvas).removeObjectByPhase(oldPhase);
+                    ((DisplayPhaseCanvasG3DSys)canvas).refreshAtomAgentMgr();
+                }
                 break;
             case 2:
                 boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 canvas = new DisplayPhaseCanvas2D(this);
+                setSize(boxX, boxY);
                 break;
             case 1:
             default:
                 boxY = drawingHeight;
                 canvas = new DisplayPhaseCanvas1D(this);
+                setSize(boxX, boxY);
                 break;
         }
         
         canvas.setPixelUnit(pixel);
-        setSize(boxX, boxY);
+
+        if (graphicResizable == true) {
+             setSize(boxX, boxY);
+        }
 
         InputEventHandler listener = new InputEventHandler();
         canvas.addMouseListener(listener);
@@ -251,8 +267,9 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 boxY = drawingHeight;
                 break;
         }
-        
+
         setSize(boxX, boxY);
+
 
         InputEventHandler listener = new InputEventHandler();
         canvas.addMouseListener(listener);
@@ -440,6 +457,24 @@ public class DisplayPhase extends Display implements EtomicaElement {
      */
     public boolean getShowBoundary() {
     	return displayBoundary;
+    }
+
+    /**
+     * Set the flag indicating whether the graphic should ever resize
+     * after its size is initially established by the first graphic
+     * displayed.
+     */
+    public void setGraphicResizable(boolean b) {
+    	graphicResizable = b;
+    }
+
+    /**
+     * Get the flag indicating whether the graphic should ever resize.
+     * after its size is initially established by the first graphic
+     * displayed.
+     */
+    public boolean getGraphicResizable() {
+    	return graphicResizable;
     }
 
     /**

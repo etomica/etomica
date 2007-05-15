@@ -29,6 +29,7 @@ import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
+import etomica.space.BoundaryDeformableLattice;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -39,13 +40,20 @@ public class CrystalViewer {
     
     protected final Simulation sim;
     protected final JPanel panel;
-    
+
+    protected SpeciesSpheresMono species;
+    protected Phase phase;
+    protected IVector center;
+    protected LatticePlane latticePlane;
+    protected ClipPlaneEditor clipPlaneEditor;
+    protected DisplayPhase displayPhase;
+    protected LatticeEditor latticeEditor;
+
+
     public CrystalViewer() {
         sim = new Simulation(Space3D.getInstance());
         sim.getDefaults().makeLJDefaults();
         center = sim.getSpace().makeVector();
-        phase  = new Phase(sim);
-        sim.addPhase(phase);
 
         species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
@@ -66,11 +74,22 @@ public class CrystalViewer {
                 new LatticeHcp(),
                 new LatticeCubicDiamond()
             };
+        
+        double[]  boxSize = new double[] { sim.getDefaults().boxSize,
+        		                           sim.getDefaults().boxSize,
+        		                           sim.getDefaults().boxSize};
+        
+        phase  = new Phase(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
+        		                                         (etomica.util.IRandom)null,
+        		                                         boxSize));
+        sim.addPhase(phase);
+
         String[] latticeNames = new String[]{
                 "Simple Cubic", "Tetragonal", "Hexagonal", "Orthorhombic", "Monoclinic", "Triclinic", "FCC", "BCC", "HCP", "Diamond"};
 
         displayPhase = new DisplayPhase(phase);
         displayPhase.setPixelUnit(new Pixel(20));
+        displayPhase.setGraphicResizable(false);
 
         // we pass these to make LatticePlane happy.  they'll get whacked by update() later
         latticePlane = new LatticePlane(lattices[0].getPrimitive(), new int[] {1,0,0});
@@ -148,12 +167,4 @@ public class CrystalViewer {
         SimulationGraphic.makeAndDisplayFrame(viewer.panel, "Crystal Viewer");
     }
     
-    protected SpeciesSpheresMono species;
-    protected Phase phase;
-    protected IVector center;
-    protected LatticePlane latticePlane;
-    protected ClipPlaneEditor clipPlaneEditor;
-    protected DisplayPhase displayPhase;
-    protected LatticeEditor latticeEditor;
-        
 }
