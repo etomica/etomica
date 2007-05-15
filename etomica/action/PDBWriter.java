@@ -23,16 +23,24 @@ import etomica.phase.Phase;
  */
 public class PDBWriter implements Action, Serializable {
 
-    public PDBWriter(Phase aPhase) {
-        leafList = aPhase.getSpeciesMaster().getLeafList();
+    public PDBWriter() {
         try {
             Class.forName("java.util.Formatter");
         }
         catch (ClassNotFoundException e) {
             throw new RuntimeException("JRE 1.5 is required for PDBWriter.  Try XYZWriter instead");
         }
+    }        
+    
+    public PDBWriter(Phase aPhase) {
+        this();
+        setPhase(aPhase);
     }
 
+    public void setPhase(Phase newPhase) {
+        leafList = newPhase.getSpeciesMaster().getLeafList();
+    }
+    
     /**
      * Sets the file to write to.  This method (or setFileName) must be called
      * before calling actionPerformed and again before calling 
@@ -80,7 +88,6 @@ public class PDBWriter implements Action, Serializable {
         catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        elementAtomType.clear();
         int atomCount = 0;
         int nLeaf = leafList.size();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
@@ -160,7 +167,7 @@ public class PDBWriter implements Action, Serializable {
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
     private final LinkedList elementAtomType = new LinkedList();
-    private final AtomArrayList leafList;
+    private AtomArrayList leafList;
     
     private static final class ElementLinker implements Serializable {
         private static final long serialVersionUID = 1L;
