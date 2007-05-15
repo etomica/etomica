@@ -32,10 +32,15 @@ public class MeterBoltzmannTarget implements DataSource {
     }
 
     public Data getData() {
-        data.getData()[1] = Math.exp(-(meterHarmonicEnergy.getDataAsScalar() - meterEnergy.getDataAsScalar()) / integrator.getTemperature());
+        data.getData()[1] = Math.exp(-(meterHarmonicEnergy.getDataAsScalar() -
+                (meterEnergy.getDataAsScalar() - latticeEnergy)) / integrator.getTemperature());
         return data;
     }
 
+    public void setLatticeEnergy(double newLatticeEnergy) {
+        latticeEnergy = newLatticeEnergy;
+    }
+    
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
@@ -50,6 +55,5 @@ public class MeterBoltzmannTarget implements DataSource {
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected double sum;
-    protected int count;
+    protected double latticeEnergy;
 }

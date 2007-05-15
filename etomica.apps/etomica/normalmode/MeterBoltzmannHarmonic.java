@@ -40,11 +40,15 @@ public class MeterBoltzmannHarmonic implements DataSource {
     }
     
     public Data getData() {
-        data.getData()[1] = Math.exp(-(meterEnergy.getDataAsScalar() - mcMoveHarmonic.getLastTotalEnergy())/temperature);
+        data.getData()[1] = Math.exp(-((meterEnergy.getDataAsScalar() - latticeEnergy) - 
+                mcMoveHarmonic.getLastTotalEnergy())/temperature);
         return data;
     }
 
-
+    public void setLatticeEnergy(double newLatticeEnergy) {
+        latticeEnergy = newLatticeEnergy;
+    }
+    
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
@@ -59,6 +63,5 @@ public class MeterBoltzmannHarmonic implements DataSource {
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
-    protected double sum, sum2;
-    protected int count;
+    protected double latticeEnergy;
 }
