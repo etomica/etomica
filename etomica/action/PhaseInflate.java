@@ -4,12 +4,15 @@
  */
 package etomica.action;
 
+import etomica.atom.AtomLeaf;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.util.Debug;
 
 /**
  * Performs actions that cause volume of system to expand, with molecule
@@ -100,12 +103,14 @@ public class PhaseInflate extends PhaseActionAdapter implements Undoable {
         // the amount each coordinate is to be translated *by* (not to).
         scaleVector.PE(-1);
         IVector translationVector = translator.getTranslationVector();
+        
         for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
              molecule = moleculeIterator.nextAtom()) {
             translationVector.E(moleculeCenter.position(molecule));
             translationVector.TE(scaleVector);
             groupScaler.actionPerformed(molecule);
         }
+        
         // undo previous subtraction
         scaleVector.PE(1);
     }
@@ -131,4 +136,5 @@ public class PhaseInflate extends PhaseActionAdapter implements Undoable {
     protected final AtomGroupAction groupScaler;
     protected final IVector scaleVector;
     protected final AtomPositionGeometricCenter moleculeCenter;
+    
 }
