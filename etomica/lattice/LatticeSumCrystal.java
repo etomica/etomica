@@ -22,10 +22,10 @@ public class LatticeSumCrystal {
         //get coordinates of basis at the origin
         basisDim = lattice.getBasis().getScaledCoordinates().length;
         basis0 = new IVector[basisDim];
-        for(int i=0; i<basisDim; i++) {
-            siteIndex[spaceDim] = i;
-            basis0[i] = lattice.getSpace().makeVector();
-            basis0[i].E((IVector)lattice.site(siteIndex));
+        for(int j=0; j<basisDim; j++) {
+            siteIndex[spaceDim] = j;
+            basis0[j] = lattice.getSpace().makeVector();
+            basis0[j].E((IVector)lattice.site(siteIndex));
         }
         
     }
@@ -35,21 +35,21 @@ public class LatticeSumCrystal {
         Data work = dataInfo.makeData();
         Data[][] sumR = new Data[basisDim][basisDim];
         Data[][] sumI = new Data[basisDim][basisDim];
-        for(int i=0; i<basisDim; i++) {
-            for(int j0=0; j0<basisDim; j0++) {
-                sumR[i][j0] = dataInfo.makeData();
-                sumI[i][j0] = dataInfo.makeData();
+        for(int jp=0; jp<basisDim; jp++) {
+            for(int j=0; j<basisDim; j++) {
+                sumR[jp][j] = dataInfo.makeData();
+                sumI[jp][j] = dataInfo.makeData();
             }
         }
         
         //interactions among sites in origin cell
         //do all pairs twice, contributing once to each site of pair
         //cell-cell distance is zero, so exp(I k.r) = 1 + 0I
-        for(int i=0; i<basisDim; i++) {
-            for(int j0=0; j0<basisDim; j0++) {
-                if(i==j0) continue;
-                dr.Ev1Mv2(basis0[i], basis0[j0]);
-                sumR[i][j0].PE(function.f(dr));//don't try to add to sumR[i0][i] for efficiency because we don't know what function does for -dr
+        for(int jp=0; jp<basisDim; jp++) {
+            for(int j=0; j<basisDim; j++) {
+                if(jp==j) continue;
+                dr.Ev1Mv2(basis0[jp], basis0[j]);
+                sumR[jp][j].PE(function.f(dr));//don't try to add to sumR[i0][i] for efficiency because we don't know what function does for -dr
             }
         }
         //loop over shells
@@ -63,13 +63,13 @@ public class LatticeSumCrystal {
                 double ckr = 0;
                 double skr = 0;
                 //loop over sites in lattice cell
-                for(int i=0; i<basisDim; i++) {
-                    siteIndex[spaceDim] = i;
+                for(int jp=0; jp<basisDim; jp++) {
+                    siteIndex[spaceDim] = jp;
                     IVector site = (IVector)lattice.site(siteIndex);
                     //loop over sites in origin cell
-                    for(int j0=0; j0<basisDim; j0++) {
-                        dr.Ev1Mv2(site, basis0[j0]);
-                        if(i == 0 && j0 == 0) {
+                    for(int j=0; j<basisDim; j++) {
+                        dr.Ev1Mv2(site, basis0[j]);
+                        if(jp == 0 && j == 0) {
                             //define cell distance as distance between 0th sites in cells
                             double kDotr = kVector.dot(dr);
                             ckr = Math.cos(kDotr);
@@ -78,26 +78,28 @@ public class LatticeSumCrystal {
                         Data value = function.f(dr);
                         work.E(value);
                         work.TE(ckr);
-                        sumR[i][j0].PE(work);
+                        sumR[jp][j].PE(work);
                         work.E(value);
                         work.TE(skr);
-                        sumI[i][j0].PE(work);
+                        sumI[jp][j].PE(work);
                     }
                 }
             }
         }
-        Data[] dataArr = new Data[2*basisDim*basisDim];
-        int count = 0;
-        for(int i=0; i<basisDim; i++) {
-            for(int j0=0; j0<basisDim; j0++) {
-                dataArr[count] = sumR[i][j0];
-                dataArr[basisDim*basisDim+count] = sumI[i][j0];
-                count++;
-            }
-        }
+        
+        return new DataGroupLSC(sumR, sumI);
+//        Data[] dataArr = new Data[2*basisDim*basisDim];
+//        int count = 0;
+//        for(int jp=0; jp<basisDim; jp++) {
+//            for(int j=0; j<basisDim; j++) {
+//                dataArr[count] = sumR[jp][j];
+//                dataArr[basisDim*basisDim+count] = sumI[jp][j];
+//                count++;
+//            }
+//        }
         
         //real in first half of group, imaginary in second half
-        return new DataGroup(dataArr);
+//        return new DataGroup(dataArr);
     }
     
     public void setK(IVector k) {
@@ -144,4 +146,53 @@ public class LatticeSumCrystal {
     private final int basisDim;
     private final int spaceDim;
     private int maxElement;
+    
+    /**
+     * Helper class that encapsulates the complex basis-basis data in a manner that
+     * permits easy access to real and imaginary components for a given pair of basis
+     * elements.
+     */
+    public class DataGroupLSC extends DataGroup {
+        private DataGroupLSC(Data[][] sumR, Data[][] sumI) {
+            super(makeDataArray(sumR, sumI));
+        }
+        
+        /**
+         * Returns real part of complex data.
+         * @param j index of basis element in origin cell
+         * @param jp index of basis element in lattice cell
+         */
+        public Data getDataReal(int j, int jp) {
+            return ((DataGroup)((DataGroup)this.getData(jp)).getData(j)).getData(0);
+        }
+        
+        /**
+         * Returns imaginary part of complex data.
+         * @param j index of basis element in origin cell
+         * @param jp index of basis element in lattice cell
+         */
+        public Data getDataImaginary(int j, int jp) {
+            return ((DataGroup)((DataGroup)this.getData(jp)).getData(j)).getData(1);
+        }
+
+        private static final long serialVersionUID = 1L;
+        
+    }
+    
+    //used by DataGroupLSC constructor
+    private static Data[] makeDataArray(Data[][] sumR, Data[][] sumI) {
+        int basisDim = sumR.length;
+        DataGroup[] dataArray = new DataGroup[basisDim];
+        
+        DataGroup[] data = new DataGroup[basisDim];
+        for(int jp=0; jp<basisDim; jp++) {
+            for(int j=0; j<basisDim; j++) {
+                data[j] = new DataGroup(new Data[] {sumR[jp][j], sumI[jp][j]});
+            }
+            dataArray[jp] = new DataGroup(data);
+        }
+        return dataArray;
+    }
+
+
 }

@@ -5,10 +5,10 @@ import Jama.Matrix;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.IDataInfo;
-import etomica.data.types.DataGroup;
 import etomica.data.types.DataTensor;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeSumCrystal;
+import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.phase.Phase;
@@ -46,7 +46,8 @@ public class NormalModesPotential implements NormalModes {
         
         Phase phase = new Phase(boundary);
 
-        System.out.println("Density: "+nSites/boundary.volume());
+        System.out.println("Cell Density: "+nSites/boundary.volume());
+        System.out.println("Site Density: "+nSites/boundary.volume()*basis.getScaledCoordinates().length);
         kFactory = new WaveVectorFactorySimple(primitive);
         kFactory.makeWaveVectors(phase);
         System.out.println("Number of wave vectors: "+kFactory.getWaveVectors().length);
@@ -66,6 +67,7 @@ public class NormalModesPotential implements NormalModes {
         int eDim = basisDim * spaceDim;
         omega2 = new double[kDim][eDim];
         eigenvectors = new double[kDim][eDim][eDim];
+        //this function returns phi_{alpha,beta}, as defined in Dove Eq. 6.15
         FunctionGeneral function = new FunctionGeneral() {
             public Data f(Object obj) {
                 Vector3D r = (Vector3D)obj;
@@ -86,37 +88,35 @@ public class NormalModesPotential implements NormalModes {
         };
         
         LatticeSumCrystal summer = new LatticeSumCrystal(lattice);
+        summer.setMaxElement(49);
         IVector kVector = lattice.getSpace().makeVector();
+        
+        //calculation of self term
         kVector.E(0.0);
         summer.setK(kVector);
-        System.out.println("\n k:"+kVector.toString()+"   in NormalModeSoftSpherical");
-        DataGroup sum = summer.calculateSum(function);
-        Data[] dataArr = new Data[basisDim];
-        for(int i=0; i<basisDim; i++) {
-            dataArr[i] = new DataTensor(Space3D.getInstance());
-            dataArr[i].E(sum.getData(i));
-        }
-        DataGroup sum0 = new DataGroup(dataArr);
+        System.out.println("\n k:"+kVector.toString()+"   in NormalModesPotential");
+        DataGroupLSC sum0 = (DataGroupLSC)summer.calculateSum(function);
         Function chopper = new Function.Chop(1e-9);
         sum0.map(chopper);
 //        System.out.println(sum0.toString());
         double[][] array = new double[eDim][eDim];
-        for(int k=kFactory.getWaveVectors().length-1; k>0; k--) {
+        for(int k=1; k<kDim; k++) {
             kVector.E(kFactory.getWaveVectors()[k]);
             summer.setK(kVector);
             System.out.println("k:"+kVector.toString());
-            sum = summer.calculateSum(function);
+            DataGroupLSC sum = (DataGroupLSC)summer.calculateSum(function);
             sum.map(chopper);
-            for(int i=0; i<basisDim; i++) {
-                sum.getData(i).ME(sum0.getData(i));//can't ME DataGroups because sum0 doesn't have imag part
+            for(int j=0; j<basisDim; j++) {
+                for(int jp=0; jp<basisDim; jp++) {
+                    sum.getDataReal(j,j).ME(sum0.getDataReal(j, jp));
+                }
             }
-            int count = 0;
-            for(int i=0; i<basisDim; i++) {
-                for(int j0=0; j0<basisDim; j0++) {
-                    Tensor tensor = ((DataTensor)sum.getData(count++)).x;
-                    for(int ix=0; ix<spaceDim; ix++) {
-                        for(int iy=0; iy<spaceDim; iy++) {
-                            array[spaceDim*i+ix][spaceDim*j0+iy] = tensor.component(ix, iy);
+            for(int j=0; j<basisDim; j++) {
+                for(int jp=0; jp<basisDim; jp++) {
+                    Tensor tensor = ((DataTensor)sum.getDataReal(j,jp)).x;
+                    for(int alpha=0; alpha<spaceDim; alpha++) {
+                        for(int beta=0; beta<spaceDim; beta++) {
+                            array[spaceDim*j+alpha][spaceDim*jp+beta] = tensor.component(alpha, beta);
                         }
                     }
                 }

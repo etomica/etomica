@@ -4,10 +4,13 @@ import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
-import etomica.lattice.BravaisLattice;
-import etomica.lattice.LatticeSum;
+import etomica.lattice.BravaisLatticeCrystal;
+import etomica.lattice.LatticeSumCrystal;
+import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveFcc;
+import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space3d.Space3D;
@@ -25,19 +28,18 @@ import etomica.util.FunctionGeneral;
  */
 public class HarmonicCrystal {
 
-    public HarmonicCrystal(int[] nCells, Primitive primitive, Potential2SoftSpherical potential) {
+    public HarmonicCrystal(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential) {
         this.potential = potential;
         this.nCells = (int[])nCells.clone();
-        lattice = new BravaisLattice(primitive);
-        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
+        lattice = new BravaisLatticeCrystal(primitive, basis);
+//        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
+        normalModes = new NormalModesPotential(nCells, primitive, basis, potential);
     }
     
     public double getLatticeEnergy() {
         FunctionGeneral function = new FunctionGeneral() {
             public Data f(Object obj) {
-                Vector3D r = (Vector3D)obj;
-                double r2 = r.squared();
-                data.x = potential.u(r2);
+                data.x = potential.u(((Vector3D)obj).squared());
                 return data;
             }
             public IDataInfo getDataInfo() {
@@ -46,11 +48,19 @@ public class HarmonicCrystal {
             final DataInfo dataInfo = new DataDouble.DataInfoDouble("Lattice energy", Energy.DIMENSION);
             final DataDouble data = new DataDouble();
         };
-        LatticeSum summer = new LatticeSum(lattice);
+        LatticeSumCrystal summer = new LatticeSumCrystal(lattice);
         summer.setMaxElement(49);
         summer.setK(lattice.getSpace().makeVector());
 //        System.out.println("\n k:"+kVector.toString());
-        return 0.5*((DataDouble)summer.calculateSum(function).getData(0)).x;
+        double sum = 0;
+        double basisDim = lattice.getBasis().getScaledCoordinates().length;
+        DataGroupLSC data = (DataGroupLSC)summer.calculateSum(function);
+        for(int j=0; j<basisDim; j++) {
+            for(int jp=0; jp<basisDim; jp++) {
+                sum += ((DataDouble)data.getDataReal(j,jp)).x; 
+            }
+        }
+        return 0.5*sum/basisDim;
 //            ((Tensor)sum[0]).map(chopper);
 //            ((Tensor)sum[1]).map(chopper);
 //            ((Tensor)sum[0]).ME(sum0);
@@ -75,7 +85,8 @@ public class HarmonicCrystal {
                 }
             }
         }
-        int nA = (int)(2*coeffSum + 1);
+//        int nA = (int)(2*coeffSum + 1);
+        int nA = (int)(2*coeffSum*lattice.getBasis().getScaledCoordinates().length);
         System.out.println("nA: "+nA);
         int D = lattice.getSpace().D();
         double AHarmonic = sumA;
@@ -101,21 +112,27 @@ public class HarmonicCrystal {
         double scale = newDensity * oldVolume;
         Primitive primitive = lattice.getPrimitive();
         primitive.scaleSize(1.0/Math.pow(scale, 1.0/lattice.getSpace().D()));
-        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
+//        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
+        normalModes = new NormalModesPotential(nCells, primitive, lattice.getBasis(), potential);
+
     }
     
     public static void main(String[] args) {
         double T = 1;
         double rho = 1.0;
-        PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance());
-        primitive.setCubicSize(Math.pow(2.0, 1.0/6.0));//unit density
+//        PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance());
+//        Basis basis = new BasisMonatomic(Space3D.getInstance());
+
+        Primitive primitive = new PrimitiveCubic(Space3D.getInstance());
+        Basis basis = new BasisCubicFcc();
+        
         final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
 
         int nC = 4;
         int[] nCells = new int[] {nC, nC, nC};
         
-        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, potential);
-        harmonicCrystal.setCellDensity(rho);
+        HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential);
+        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
         
         System.out.println("Density: " + rho);
         System.out.println("Temperature: " + T);
@@ -131,7 +148,7 @@ public class HarmonicCrystal {
     }
     
     private NormalModes normalModes;
-    private BravaisLattice lattice;
+    private BravaisLatticeCrystal lattice;
     private int[] nCells;
     private Potential2SoftSpherical potential;
     private static final long serialVersionUID = 1L;
