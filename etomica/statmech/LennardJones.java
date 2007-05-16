@@ -270,7 +270,7 @@ public final class LennardJones {
         System.out.println("Lattice energy: " + uStaticFcc(rho));
         System.out.println("Compressibility factor: " + ZFcc(T, rho));
         System.out.println("Liquid-fcc coexistence pressure: " + pSat);
-        System.out.println("fcc, liquid coexistence densities: "+ Arrays.toString(rhoSat));
+        System.out.println("liquid, fcc coexistence densities: "+ Arrays.toString(rhoSat));
         double rhs = aResidualFcc(T,rho)/T - uStaticFcc(rho)/T + 1.5*Math.log(T) - Uah(T,rho) 
                     + 1.5*Math.log(2*Math.PI);
         System.out.println("rhs of Eq. 23: " + rhs);
