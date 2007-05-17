@@ -36,16 +36,17 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         
         int mMax = nA/2;
 
-        waveVectors = new Vector1D[mMax];
-        coefficients = new double[mMax];
+        waveVectors = new Vector1D[mMax+1];
+        coefficients = new double[mMax+1];
         
-        for(int m = 1; m<=mMax; m++) {
-            waveVectors[m-1] = new Vector1D(2. * Math.PI * m / L);
-            coefficients[m-1] = 1.0;
+        for(int m = 0; m<=mMax; m++) {
+            waveVectors[m] = new Vector1D(2. * Math.PI * m / L);
+            coefficients[m] = 1.0;
         }
+        coefficients[0] = 0.5;
         
         if(nA % 2 == 0) {
-            coefficients[mMax-1] = 0.5;
+            coefficients[mMax] = 0.5;
         }
 
     }
