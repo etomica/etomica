@@ -28,13 +28,18 @@ public class MCParacetamolOrthorhombicforCluster {
     	
         MCParacetamolOrthorhombic sim = new MCParacetamolOrthorhombic();
         double temperature = sim.integrator.getTemperature();
+        long maxSteps = 10;
         
         if (args.length > 0){
     		temperature = Double.parseDouble(args[0]);
     		sim.integrator.setTemperature(Kelvin.UNIT.toSim(temperature));
     	}
- 
-        sim.actionIntegrate.setMaxSteps(100000000);
+        
+        if (args.length > 1){
+        	maxSteps = Long.parseLong(args[1]);
+        }
+        
+    	sim.actionIntegrate.setMaxSteps(maxSteps/10);
         sim.getController().actionPerformed();
         
         /*****************************************************************************/    
@@ -58,6 +63,7 @@ public class MCParacetamolOrthorhombicforCluster {
              IAA.setActionInterval(200);
              
              sim.getController().reset();
+             sim.actionIntegrate.setMaxSteps(maxSteps);
              sim.getController().actionPerformed();
       /**********************************************************************/   
              

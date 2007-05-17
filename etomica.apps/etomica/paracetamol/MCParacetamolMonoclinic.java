@@ -77,8 +77,7 @@ public class MCParacetamolMonoclinic extends Simulation {
     	//8.944, 12.119, 7.277, 1.74533
     	basis = new BasisMonoclinicParacetamol();
     	lattice = new BravaisLatticeCrystal (primitive, basis);
-    	configMonoLattice = new ConfigurationMonoclinicLattice(lattice);
-    	
+    	//configMonoLattice = new ConfigurationMonoclinicLattice(lattice);
         
         integrator = new IntegratorMC(this);
         integrator.setIsothermal(false);
@@ -103,7 +102,10 @@ public class MCParacetamolMonoclinic extends Simulation {
         //actionIntegrate.setMaxSteps(1000000);
         getController().addAction(actionIntegrate);
         
+        
+        ConformationParacetamolMonoclinic conformation = new ConformationParacetamolMonoclinic(space);
         species = new SpeciesParacetamol(this);
+        species.getFactory().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
         phase = new Phase(this);
@@ -299,6 +301,7 @@ public class MCParacetamolMonoclinic extends Simulation {
         potentialMaster.addPotential(interpotentialHyHp, new AtomType[]{(
         		(AtomFactoryParacetamol)species.getFactory()).hyType, ((AtomFactoryParacetamol)species.getFactory()).hpType} );
   
+        potentialMaster.lrcMaster().setEnabled(false);
        /*
         *
         */
@@ -306,7 +309,10 @@ public class MCParacetamolMonoclinic extends Simulation {
         bdry =  new BoundaryDeformableLattice( primitive, getRandom(), new int []{2, 3, 4});
         //bdry.setDimensions(Space.makeVector(new double []{2*12.119, 3*8.944, 4*7.278}));
         phase.setBoundary(bdry);
-        configMonoLattice.initializeCoordinates(phase);
+        //configMonoLattice.initializeCoordinates(phase);
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
+        coordDef.initializeCoordinates(new int []{2, 3, 4});
+        coordDef.setBasisMonoclinic();
        	
         integrator.setPhase(phase);
         
@@ -331,8 +337,6 @@ public class MCParacetamolMonoclinic extends Simulation {
         
  /**********************************************************************/   
         simGraphic.add(PEbox);
-        
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(sim.phase, sim.primitive, sim.basis);
         
         
         simGraphic.makeAndDisplayFrame();

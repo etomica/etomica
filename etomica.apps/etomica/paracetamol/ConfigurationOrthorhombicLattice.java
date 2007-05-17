@@ -267,7 +267,7 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
           atomGroupAction.actionPerformed(atom);
              
           if (indices != null) {
-                indices[atom.getGlobalIndex()] = (int[]) ii.clone();
+                indices[atom.getGlobalIndex()] = ii.clone();
             }
             
           

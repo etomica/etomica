@@ -386,7 +386,6 @@ public class MDParacetamolOrthorhombic extends Simulation {
        	configOrthoLattice.initializeCoordinates(phase);
        	
         CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
-
         integrator.setPhase(phase);
         
     } //end of constructor

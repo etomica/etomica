@@ -71,7 +71,7 @@ public class MCParacetamolOrthorhombic extends Simulation {
         PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space, 17.248, 12.086, 7.382);
         // 17.248, 12.086, 7.382
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
-        lattice = new BravaisLatticeCrystal(primitive, basis);
+        lattice = new BravaisLatticeCrystal(primitive, basis); //lattice and config can be gone!!
         configOrthoLattice = new ConfigurationOrthorhombicLattice(lattice);
     	
         
@@ -98,7 +98,9 @@ public class MCParacetamolOrthorhombic extends Simulation {
         //actionIntegrate.setMaxSteps(1000000);
         getController().addAction(actionIntegrate);
         
+        ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
         species = new SpeciesParacetamol(this);
+        species.getFactory().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
         phase = new Phase(this);
@@ -294,6 +296,7 @@ public class MCParacetamolOrthorhombic extends Simulation {
         potentialMaster.addPotential(interpotentialHyHp, new AtomType[]{(
         		(AtomFactoryParacetamol)species.getFactory()).hyType, ((AtomFactoryParacetamol)species.getFactory()).hpType} );
   
+        potentialMaster.lrcMaster().setEnabled(false);
        /*
         *
         */
@@ -303,8 +306,9 @@ public class MCParacetamolOrthorhombic extends Simulation {
         phase.setBoundary(bdry);
        	configOrthoLattice.initializeCoordinates(phase);
 
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
-
+        //CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
+        //coordDef.initializeCoordinates(new int []{2, 3, 4});
+       	//coordDef.setBasisMonoclinic(conformation);
         
         integrator.setPhase(phase);
         //PhaseImposePbc pbc = new PhaseImposePbc(phase);
@@ -333,8 +337,6 @@ public class MCParacetamolOrthorhombic extends Simulation {
         
  /**********************************************************************/   
         simGraphic.add(PEbox);
-        
-        
         
         simGraphic.makeAndDisplayFrame();
         simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
