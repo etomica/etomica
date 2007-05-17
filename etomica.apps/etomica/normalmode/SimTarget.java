@@ -158,7 +158,6 @@ public class SimTarget extends Simulation {
             normalModes = new NormalModesFromFile(filename, D);
         }
         normalModes.setHarmonicFudge(harmonicFudge);
-        double[][] omega3 = normalModes.getOmegaSquared(sim.phase);
 
         //add meters to for FEP averages
         //this one does averaging of total energy and its Boltzmann factor
