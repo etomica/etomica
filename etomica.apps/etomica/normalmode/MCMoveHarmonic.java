@@ -1,6 +1,5 @@
 package etomica.normalmode;
 
-import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.mcmove.MCMovePhase;
@@ -63,7 +62,6 @@ public class MCMoveHarmonic extends MCMovePhase {
         rRand = new double[waveVectors.length][coordinateDim];
         iRand = new double[waveVectors.length][coordinateDim];
         
-        normalization = 1/Math.sqrt(phase.getSpeciesMaster().moleculeCount());
         
     }
 
@@ -80,6 +78,7 @@ public class MCMoveHarmonic extends MCMovePhase {
 
         for (int iVector=0; iVector<waveVectors.length; iVector++) {
             for (int j=0; j<coordinateDim; j++) {
+                if (stdDev[iVector][j] == 0) continue;
                 //generate real and imaginary parts of random normal-mode coordinate Q
                 double realGauss = random.nextGaussian();
                 double imaginaryGauss = random.nextGaussian();
@@ -88,7 +87,7 @@ public class MCMoveHarmonic extends MCMovePhase {
                 //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
                 // it's hard to know which.  So long as we don't put an atom at the origin
                 // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
-                if (waveVectorCoefficients[iVector] == 0.5) realGauss = 0;
+                if (waveVectorCoefficients[iVector] == 0.5) imaginaryGauss = 0;
                 lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
             }
         }
@@ -110,6 +109,7 @@ public class MCMoveHarmonic extends MCMovePhase {
                     }
                 }
             }
+            double normalization = 1/Math.sqrt(cells.length);
             for (int i=0; i<coordinateDim; i++) {
                 u[i] *= normalization;
             }
@@ -157,7 +157,6 @@ public class MCMoveHarmonic extends MCMovePhase {
     protected double[] u;
     protected double[][] rRand;
     protected double[][] iRand;
-    protected double normalization;
     protected final IRandom random;
     protected double lastEnergy;
 }
