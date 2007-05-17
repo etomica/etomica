@@ -68,44 +68,7 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
         atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
     }
 
-    /**
-     * Specifies whether indices used to place each atom should be remembered.
-     * Default is false.
-     */
-    public void setRememberingIndices(boolean b) {
-        indices = b ? new int[0][] : null;
-    }
 
-    /**
-     * Indicates of instance is set to remember indices used to place each atom.
-     */
-    public boolean isRememberingIndices() {
-        return indices != null;
-    }
-
-    /**
-     * Returns an array of integer arrays, each corresponding to the indexes
-     * used to place a molecule in the last call to initializePositions. The
-     * index for each atom is obtained from the returned array using the atom's
-     * global index; that is, <code>getIndices()[atom.getGlobalIndex()]</code>
-     * gives the index array for <code>atom</code>.  A new instance of this
-     * array is made with each call to initializeCoordinates.
-     * 
-     * @throws IllegalStateException
-     *             if isRememberingIndices if false, or if initializeCoordinates has not previously been called.
-     */
-    public int[][] getIndices() {
-        if (indices == null) {
-            throw new IllegalStateException(
-                    "ConfigurationLattice is not set to remember the indices.");
-        }
-        if (indices[0].length == 0) {
-            throw new IllegalStateException("initializeCoordinates has not been called for this phase");
-        }
-        return indices;
-    }
-
-    
     public Class getAgentClass() {
 		return IVector.class;
 	}
@@ -129,9 +92,6 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
      */
     public void initializeCoordinates(Phase phase) {
     	
-        if (indices != null) {
-            indices = new int[phase.getSpeciesMaster().getMaxGlobalIndex()+1][];
-        }
         AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(phase);
         int sumOfMolecules = atomIterator.size();
         if (sumOfMolecules == 0) {
@@ -266,10 +226,6 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
       	  ((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
           atomGroupAction.actionPerformed(atom);
              
-          if (indices != null) {
-                indices[atom.getGlobalIndex()] = ii.clone();
-            }
-            
           
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(atom);
@@ -338,7 +294,6 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
     protected final AtomActionTranslateTo atomActionTranslateTo;
     protected final AtomGroupAction atomGroupAction;
     protected MyLattice myLat;
-    private int[][] indices = null;
     private AtomAgentManager cellManager;
     private static final long serialVersionUID = 2L;
     
