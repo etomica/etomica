@@ -33,11 +33,8 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
 
     public double getDataAsScalar() {
         double energySum = 0;
-        
-        boolean borked = false;
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
             coordinateDefinition.calcT(waveVectors[iVector], realT, imaginaryT);
-            
             // we want to calculate Q = A T
             // where A is made up of eigenvectors as columns
             int coordinateDim = coordinateDefinition.getCoordinateDim();
@@ -47,15 +44,11 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
                 }
                 double realCoord = 0, imaginaryCoord = 0;
                 for (int j=0; j<coordinateDim; j++) {
-                    realCoord += eigenvectors[iVector][j][i] * realT[j];
-                    imaginaryCoord += eigenvectors[iVector][j][i] * imaginaryT[j];
+                    realCoord += eigenvectors[iVector][i][j] * realT[j];
+                    imaginaryCoord += eigenvectors[iVector][i][j] * imaginaryT[j];
                 }
                 double normalCoord = realCoord*realCoord + imaginaryCoord*imaginaryCoord;
                 energySum += waveVectorCoefficients[iVector] * normalCoord * omegaSquared[iVector][i];
-                if (!borked && energySum > Math.log(1e200)) {
-                    borked = true;
-                    System.out.println(iVector+" "+i+" "+realCoord+" "+imaginaryCoord+" "+(waveVectorCoefficients[iVector] * normalCoord * omegaSquared[iVector][i]));
-                }
             }
         }
         return energySum;//don't multiply by 1/2 because we're summing over only half of the wave vectors
