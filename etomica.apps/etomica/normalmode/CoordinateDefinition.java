@@ -227,7 +227,7 @@ public abstract class CoordinateDefinition {
     
     protected static class SiteSource implements AgentSource, Serializable {
         
-        protected SiteSource(Space space) {
+        public SiteSource(Space space) {
             this.space = space;
         }
         public Class getAgentClass() {
