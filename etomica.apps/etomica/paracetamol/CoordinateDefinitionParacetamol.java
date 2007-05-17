@@ -10,6 +10,7 @@ import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Conformation;
 import etomica.lattice.IndexIteratorRectangular;
@@ -54,6 +55,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         vector1 = (IVector3D)phase.getSpace().makeVector();
         vector2 = (IVector3D)phase.getSpace().makeVector();
         Normal = (IVector3D)phase.getSpace().makeVector();
+        orientationManager = new AtomAgentManager(new OrientationAgentSource(), phase);
         atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
     }
 
@@ -104,10 +106,11 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
             
             for (int i=0; i<3; i++){
             	t.setComponent(i, i, basisOrientation[ii[3]][i]);
-            	
-          	  ((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
-              atomGroupAction.actionPerformed(a);
             }
+        	
+        	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
+            atomGroupAction.actionPerformed(a);
+            System.out.println(t);
             
             position.E((IVector)lattice.site(ii));
             position.PE(offset);
@@ -133,7 +136,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         siteManager = new AtomAgentManager(new SiteSource(phase.getSpace()), phase);
     }
     
-    public double [][] setBasisOrthorhombic(){
+    public void setBasisOrthorhombic(){
     	basisOrientation = new double [8][3];
     	
     	basisOrientation[0][0] =  1;
@@ -168,10 +171,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	basisOrientation[7][1] =  1;
     	basisOrientation[7][2] =  1;
     	
-    	return basisOrientation;
     }
     
-    public double [][] setBasisMonoclinic(){
+    public void setBasisMonoclinic(){
     	basisOrientation = new double [4][3];
     	
     	basisOrientation[0][0] =  1;
@@ -190,7 +192,6 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	basisOrientation[3][1] = -1;
     	basisOrientation[3][2] =  1;
     	
-    	return basisOrientation;
     }
     
     /*
@@ -294,7 +295,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
      * Override if nominal U is more than the lattice position of the molecule
      */
     public void initNominalU(AtomSet molecules) {
-       
+    	
     	for (int i=0; i < molecules.getAtomCount() ; i++){
     		
     		IVector3D[] orientation = new IVector3D[3];
@@ -437,4 +438,22 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     protected final IVector3D vector1, vector2, Normal;
     protected AtomAgentManager orientationManager; 
     protected final AtomGroupAction atomGroupAction;
+
+    protected static class OrientationAgentSource implements AgentSource, Serializable {
+        
+        public OrientationAgentSource() {
+        }
+        public Class getAgentClass() {
+            return IVector [].class;
+        }
+        public Object makeAgent(IAtom atom) {
+            return null;
+        }
+        public void releaseAgent(Object agent, IAtom atom) {
+            //nothing to do
+        }
+        
+        private static final long serialVersionUID = 1L;
+    }
+    
 }
