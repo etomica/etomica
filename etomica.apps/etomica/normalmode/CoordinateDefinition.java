@@ -117,8 +117,6 @@ public abstract class CoordinateDefinition {
         
         initNominalU(cells[totalCells-1].molecules);
         
-        sqrtN = Math.sqrt(totalCells);
-        
         siteManager = new AtomAgentManager(new SiteSource(phase.getSpace()), phase);
     }
 
@@ -193,13 +191,14 @@ public abstract class CoordinateDefinition {
             double sinkR = Math.sin(kR);
             for (int i = 0; i < coordinateDim; i++) {
                 realT[i] += coskR * u[i];
-                imaginaryT[i] += sinkR * u[i];
+                imaginaryT[i] -= sinkR * u[i];
             }
         }
 
+        double sqrtCells = Math.sqrt(cells.length);
         for (int i = 0; i < coordinateDim; i++) {
-            realT[i] /= sqrtN;
-            imaginaryT[i] /= sqrtN;
+            realT[i] /= sqrtCells;
+            imaginaryT[i] /= sqrtCells;
         }
 
     }
@@ -225,7 +224,6 @@ public abstract class CoordinateDefinition {
     protected final Basis basis;
     protected final AtomActionTranslateTo atomActionTranslateTo;
     protected BasisCell[] cells;
-    private double sqrtN;
     
     protected static class SiteSource implements AgentSource, Serializable {
         
