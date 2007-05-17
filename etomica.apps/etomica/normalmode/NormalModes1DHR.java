@@ -19,9 +19,10 @@ public class NormalModes1DHR implements NormalModes {
         int nA = phase.moleculeCount();
         double L = phase.getBoundary().getDimensions().x(0);
         int mMax = nA/2;
-        double[][] omega2= new double[mMax][1];
+        double[][] omega2= new double[mMax+1][1];
+        omega2[0][0] = Double.POSITIVE_INFINITY;
         for(int m=1; m<=mMax; m++) {
-            omega2[m-1][0] = 1.0/(harmonicFudge*S1DHR(m, L, nA));
+            omega2[m][0] = 1.0/(harmonicFudge*S1DHR(m, L, nA));
         }
         return omega2;
     }
@@ -32,9 +33,9 @@ public class NormalModes1DHR implements NormalModes {
         }
         int nA = phase.moleculeCount();
         int mMax = nA/2;
-        double[][][] eVecs = new double[mMax][1][1];
-        for(int m=1; m<=mMax; m++) {
-            eVecs[m-1][0][0] = 1.0;  
+        double[][][] eVecs = new double[mMax+1][1][1];
+        for(int m=0; m<=mMax; m++) {
+            eVecs[m][0][0] = 1.0;  
         }
         return eVecs;
     }
