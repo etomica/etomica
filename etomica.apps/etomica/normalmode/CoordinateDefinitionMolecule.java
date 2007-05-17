@@ -42,7 +42,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             IVector pos = molecule.getType().getPositionDefinition().position(molecule);
             IVector site = getLatticePosition(molecule);
             work1.Ev1Mv2(pos, site);
-            for (int k = 0; i < pos.getD(); i++) {
+            for (int k = 0; k < pos.getD(); k++) {
                 u[j+k] = work1.x(k);
             }
             j += pos.getD();
