@@ -88,7 +88,7 @@ public class NormalModesPotential implements NormalModes {
         };
         
         LatticeSumCrystal summer = new LatticeSumCrystal(lattice);
-        summer.setMaxElement(49);
+        summer.setMaxLatticeShell(maxLatticeShell);
         IVector kVector = lattice.getSpace().makeVector();
         
         //calculation of self term
@@ -100,7 +100,7 @@ public class NormalModesPotential implements NormalModes {
         sum0.map(chopper);
 //        System.out.println(sum0.toString());
         double[][] array = new double[eDim][eDim];
-        for(int k=1; k<kDim; k++) {
+        for(int k=0; k<kDim; k++) {
             kVector.E(kFactory.getWaveVectors()[k]);
             summer.setK(kVector);
             System.out.println("k:"+kVector.toString());
@@ -126,7 +126,7 @@ public class NormalModesPotential implements NormalModes {
             double[] eVals = ed.getRealEigenvalues();
             double[][] eVecs = ed.getV().getArray();
             System.out.println("Real eigenvalues: " + Arrays.toString(eVals));
-            System.out.println("Imag eigenvalues: " + Arrays.toString(ed.getImagEigenvalues()));
+//            System.out.println("Imag eigenvalues: " + Arrays.toString(ed.getImagEigenvalues()));
             
             for(int j=0; j<eDim; j++) {
                 omega2[k][j] = eVals[j];
@@ -164,6 +164,14 @@ public class NormalModesPotential implements NormalModes {
         return kFactory;
     }
 
+    public int getMaxLatticeShell() {
+        return maxLatticeShell;
+    }
+
+    public void setMaxLatticeShell(int maxLatticeShell) {
+        this.maxLatticeShell = maxLatticeShell;
+    }
+
     public void setHarmonicFudge(double newHarmonicFudge) {
         needToCalculateModes = true;
         harmonicFudge = newHarmonicFudge;
@@ -177,6 +185,7 @@ public class NormalModesPotential implements NormalModes {
     private final BravaisLatticeCrystal lattice;
     private Potential2SoftSpherical potential;
     private WaveVectorFactory kFactory;
+    private int maxLatticeShell;
     private double harmonicFudge;
     private double temperature;
     private double[][] omega2;
