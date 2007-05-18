@@ -14,7 +14,7 @@ public class LatticeSumCrystal {
         IndexIteratorTriangularPermutations iteratorT = new IndexIteratorTriangularPermutations(spaceDim);
         setIterator(new IndexIteratorReflecting(iteratorT));
         coreIterator = iteratorT.getCoreIterator();
-        setMaxElement(50);
+        setMaxLatticeShell(50);
         kVector = lattice.getSpace().makeVector();
         dr = lattice.getSpace().makeVector();
         siteIndex = new int[lattice.D()];//lattice.D() should be spaceDim+1
@@ -53,7 +53,7 @@ public class LatticeSumCrystal {
             }
         }
         //loop over shells
-        for(int m=1; m<=maxElement; m++) {
+        for(int m=1; m<=maxLatticeShell; m++) {
             //loop over cells in shell
             coreIterator.setMaxElement(m);
             coreIterator.setMaxElementMin(m);
@@ -88,18 +88,6 @@ public class LatticeSumCrystal {
         }
         
         return new DataGroupLSC(sumR, sumI);
-//        Data[] dataArr = new Data[2*basisDim*basisDim];
-//        int count = 0;
-//        for(int jp=0; jp<basisDim; jp++) {
-//            for(int j=0; j<basisDim; j++) {
-//                dataArr[count] = sumR[jp][j];
-//                dataArr[basisDim*basisDim+count] = sumI[jp][j];
-//                count++;
-//            }
-//        }
-        
-        //real in first half of group, imaginary in second half
-//        return new DataGroup(dataArr);
     }
     
     public void setK(IVector k) {
@@ -124,16 +112,16 @@ public class LatticeSumCrystal {
         return lattice;
     }
 
-    public int getMaxElement() {
-        return maxElement;
+    public int getMaxLatticeShell() {
+        return maxLatticeShell;
     }
 
     /**
      * Specifies the largest index element that will be included in the lattice sum.
      * Default is 50. 
      */
-    public void setMaxElement(int maxElement) {
-        this.maxElement = maxElement;
+    public void setMaxLatticeShell(int maxElement) {
+        this.maxLatticeShell = maxElement;
     }
 
     private final BravaisLatticeCrystal lattice;
@@ -145,7 +133,7 @@ public class LatticeSumCrystal {
     private final IVector dr;
     private final int basisDim;
     private final int spaceDim;
-    private int maxElement;
+    private int maxLatticeShell;
     
     /**
      * Helper class that encapsulates the complex basis-basis data in a manner that
