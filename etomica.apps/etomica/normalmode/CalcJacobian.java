@@ -1,10 +1,6 @@
 package etomica.normalmode;
 
-import etomica.atom.AtomAgentManager;
-import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.normalmode.CoordinateDefinition.SiteSource;
-import etomica.phase.Phase;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.IVector;
 
 /**
@@ -13,47 +9,38 @@ import etomica.space.IVector;
  */
 public class CalcJacobian {
 
-    public CalcJacobian(int coordinateDim) {
-        this.coordinateDim = coordinateDim;
-        iterator = new AtomIteratorAllMolecules();
+    public CalcJacobian() {
     }
-    
+
     public double[][] getJacobian() {
-        int l = coordinateDim*iterator.size();
-        double[][] tempJacobian;
-        boolean doFull = false;
-        if (doFull) {
-            tempJacobian = new double[l][l];
-        }
-        else {
-            tempJacobian = new double[l-coordinateDim][l];
-        }
+        BasisCell[] cells = coordinateDefinition.getBasisCells();
+        int basisSize = cells[0].molecules.getAtomCount();
+        int l = coordinateDim * cells.length;
+        double[][] jacobian = new double[l][l];
+        // # of spatial dimensions
+        int spaceDim = waveVectors[0].getD();
         
         int vectorPos = 0;
-        if (doFull) {
-            for (int j=0; j<coordinateDim; j++) {
-                for (int i=0; i<l/coordinateDim; i++) {
-                    tempJacobian[j][i*coordinateDim+j] = 1;
-                }
-            }
-            vectorPos = 1;
-        }
-        double sqrtN = Math.sqrt(iterator.size());
+        double sqrtN = Math.sqrt(cells.length);
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
-            iterator.reset();
-            // sum T over atoms
-            int atomCount = 0;
             double phaseAngle = Double.NaN;
-            for (IAtom atom = iterator.nextAtom(); atom != null;
-                 atom = iterator.nextAtom()) {
-                IVector latticePosition = (IVector)siteManager.getAgent(atom);
+            for (int iCell = 0; iCell < cells.length; iCell++) {
+                IVector latticePosition = cells[iCell].cellPosition;
                 double kR = waveVectors[iVector].dot(latticePosition);
                 double coskR = Math.cos(kR);
                 double sinkR = Math.sin(kR);
-                for (int iDim = 0; iDim < coordinateDim; iDim++) {
+                if (Math.abs(coskR) < 1.e-14) {
+                    coskR = 0;
+                }
+                if (Math.abs(sinkR) < 1.e-14) {
+                    sinkR = 0;
+                }
+                for (int iDim = 0; iDim < spaceDim; iDim++) {
                     if (waveVectorCoefficients[iVector] == 1) {
-                        tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = coskR / sqrtN;
-                        tempJacobian[(vectorPos+1)*coordinateDim+iDim][atomCount*coordinateDim+iDim] = -sinkR / sqrtN;
+                        for (int i=0; i<basisSize; i++) {
+                            jacobian[vectorPos*coordinateDim+i*spaceDim+iDim][iCell*coordinateDim+i*spaceDim+iDim] = coskR / sqrtN;
+                            jacobian[(vectorPos+1)*coordinateDim+i*spaceDim+iDim][iCell*coordinateDim+i*spaceDim+iDim] = -sinkR / sqrtN;
+                        }
                     }
                     else {
                         // single degree of freedom.
@@ -62,57 +49,22 @@ public class CalcJacobian {
                             throw new RuntimeException("oops "+iVector+" "+waveVectors[iVector]+" "+phaseAngle+" "+kR);
                         }
                         phaseAngle = kR;
+                        double value;
                         // either one works so long as it's not 0
                         if (Math.abs(coskR) > 0.1) {
-                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = coskR > 0 ? 1.0/sqrtN : -1.0/sqrtN;
+                            value = coskR > 0 ? 1.0/sqrtN : -1.0/sqrtN;
                         }
                         else {
-                            tempJacobian[vectorPos*coordinateDim+iDim][atomCount*coordinateDim+iDim] = sinkR > 0 ? 1.0/sqrtN : -1.0/sqrtN;
+                            value = sinkR > 0 ? 1.0/sqrtN : -1.0/sqrtN;
+                        }
+                        for (int i=0; i<basisSize; i++) {
+                            jacobian[vectorPos*coordinateDim+i*spaceDim+iDim][iCell*coordinateDim+i*spaceDim+iDim] = value;
                         }
                     }
                 }
-                atomCount++;
-            }
-            for (int iDim=0; iDim<coordinateDim; iDim++) {
-                // zero out the last matrix element if it's statistically 0
-                if (Math.abs(tempJacobian[vectorPos*coordinateDim+iDim][l-coordinateDim+iDim]) < 1.e-14) {
-                    tempJacobian[vectorPos*coordinateDim+iDim][l-coordinateDim+iDim] = 0;
-                }
-                if (waveVectorCoefficients[iVector] == 1) {
-                    if (Math.abs(tempJacobian[(vectorPos+1)*coordinateDim+iDim][l-coordinateDim+iDim]) < 1.e-14) {
-                        tempJacobian[(vectorPos+1)*coordinateDim+iDim][l-coordinateDim+iDim] = 0;
-                    }
-                }
-                for (int j = 0; j < l - coordinateDim; j+=coordinateDim) {
-                    // subtract the element corresonding to the last atom from the other atoms
-                    if (!doFull) {
-                        tempJacobian[vectorPos*coordinateDim+iDim][j+iDim] -= tempJacobian[vectorPos*coordinateDim+iDim][l-coordinateDim+iDim];
-                    }
-                    if (Math.abs(tempJacobian[vectorPos*coordinateDim+iDim][j+iDim]) < 1.e-14) {
-                        // zero out the element if it's statistically 0
-                        tempJacobian[vectorPos*coordinateDim+iDim][j+iDim] = 0;
-                    }
-                    if (waveVectorCoefficients[iVector] == 1) {
-                        // if both real and imaginary are important, handle the imaginary part
-                        if (!doFull) {
-                            tempJacobian[(vectorPos+1)*coordinateDim+iDim][j+iDim] -= tempJacobian[(vectorPos+1)*coordinateDim+iDim][l-coordinateDim+iDim];
-                        }
-                        if (Math.abs(tempJacobian[(vectorPos+1)*coordinateDim+iDim][j+iDim]) < 1.e-14) {
-                            tempJacobian[(vectorPos+1)*coordinateDim+iDim][j+iDim] = 0;
-                        }
-                    }
-                }
+                // handle orientation here
             }
             vectorPos += Math.round(waveVectorCoefficients[iVector]*2);
-        }
-        if (doFull) {
-            return tempJacobian;
-        }
-        double[][] jacobian = new double[l-coordinateDim][l-coordinateDim];
-        for (int i=0; i<l-coordinateDim; i++) {
-            for (int j=0; j<l-coordinateDim; j++) {
-                jacobian[i][j] = tempJacobian[i][j];
-            }
         }
         return jacobian;
     }
@@ -131,32 +83,19 @@ public class CalcJacobian {
         return waveVectorFactory;
     }
     
-    public void setPhase(Phase newPhase) {
+    public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
+        coordinateDefinition = newCoordinateDefinition;
+        coordinateDim = coordinateDefinition.getCoordinateDim();
 
-        realT = new double[coordinateDim];
-        imaginaryT = new double[coordinateDim];
-
-        waveVectorFactory.makeWaveVectors(newPhase);
+        waveVectorFactory.makeWaveVectors(newCoordinateDefinition.getPhase());
         waveVectors = waveVectorFactory.getWaveVectors();
         waveVectorCoefficients = waveVectorFactory.getCoefficients();
-
-        siteManager = new AtomAgentManager(new SiteSource(newPhase.getSpace()), newPhase);
-        iterator.setPhase(newPhase);
-        iterator.reset();
-    }
-    
-    protected void setWaveVectors(IVector[] newWaveVectors, double[] coefficients) {
-        waveVectors = newWaveVectors;
-        waveVectorCoefficients = coefficients;
     }
     
     private static final long serialVersionUID = 1L;
     protected int coordinateDim;
-    protected double[] realT, imaginaryT;
+    protected CoordinateDefinition coordinateDefinition;
     protected IVector[] waveVectors;
     protected double[] waveVectorCoefficients;
-    protected NormalModes normalModes;
-    private final AtomIteratorAllMolecules iterator;
-    private AtomAgentManager siteManager;
     private WaveVectorFactory waveVectorFactory;
 }

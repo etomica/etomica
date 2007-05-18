@@ -2,11 +2,10 @@ package etomica.normalmode;
 
 import Jama.Matrix;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.config.ConfigurationLatticeSimple;
 import etomica.integrator.IntegratorMD;
-import etomica.lattice.BravaisLattice;
-import etomica.lattice.BravaisLatticeCrystal;
+import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
+import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
@@ -37,22 +36,26 @@ public class SimCalcJ extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 
-        Primitive primitive;
+        Basis basis;
+        int[] nCells;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1);
             bdry = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms);
+            basis = new BasisMonatomic(space);
+            nCells = new int[]{numAtoms};
         }
         else {
-            primitive = new PrimitiveCubic(space, 2);
+            primitive = new PrimitiveCubic(space, 1);
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
-            bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{n,n,n});
+            nCells = new int[]{n,n,n};
+            bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
+            basis = new BasisCubicFcc();
+            basis = new BasisMonatomic(space);
         }
         phase.setBoundary(bdry);
 
-        lattice = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
-        config = new ConfigurationLatticeSimple(lattice);
-
-        config.initializeCoordinates(phase);
+        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive, basis);
+        coordinateDefinition.initializeCoordinates(nCells);
     }
 
     /**
@@ -62,7 +65,7 @@ public class SimCalcJ extends Simulation {
 
         // defaults
         int D = 3;
-        int nA = 32;
+        int nA = 108;
 
         // parse arguments
         if (args.length > 0) {
@@ -76,8 +79,6 @@ public class SimCalcJ extends Simulation {
         // construct simulation
         SimCalcJ sim = new SimCalcJ(Space.getInstance(D), nA);
 
-        Primitive primitive = sim.lattice.getPrimitive();
-
         // set up normal-mode meter
         WaveVectorFactory waveVectorFactory;
         if (D == 1) {
@@ -85,11 +86,11 @@ public class SimCalcJ extends Simulation {
         } else if (D == 2) {
             waveVectorFactory = null;
         } else {
-            waveVectorFactory = new WaveVectorFactorySimple(primitive);
+            waveVectorFactory = new WaveVectorFactorySimple(sim.primitive);
         }
-        CalcJacobian meterJacobian = new CalcJacobian(D);
+        CalcJacobian meterJacobian = new CalcJacobian();
         meterJacobian.setWaveVectorFactory(waveVectorFactory);
-        meterJacobian.setPhase(sim.phase);
+        meterJacobian.setCoordinateDefinition(sim.coordinateDefinition);
 
         double[][] jac = meterJacobian.getJacobian();
         
@@ -104,7 +105,7 @@ public class SimCalcJ extends Simulation {
         
         Matrix m = new Matrix(jac);
         double d = Math.abs(m.det());
-        System.out.println("dx/dq det = "+1/d+" (log2 det = "+Math.log(1.0/d*Math.sqrt(nA))/Math.log(2)+")");
+        System.out.println("dx/dq det = "+1/d+" (log2 det = "+Math.log(1.0/d)/Math.log(2)+")");
     }
 
     private static final long serialVersionUID = 1L;
@@ -112,6 +113,6 @@ public class SimCalcJ extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public Phase phase;
     public Boundary bdry;
-    public BravaisLattice lattice;
-    public ConfigurationLatticeSimple config;
+    public Primitive primitive;
+    public CoordinateDefinition coordinateDefinition;
 }
