@@ -258,7 +258,9 @@ public final class LennardJones {
     
     public static void main(String[] args) {
         double T = 1.0;
-        double rho = 1.3;
+        double rho = 0.962;
+        double Tm = 0.689;
+
         double pSat = liquidFccCoexPressure(T);
         double[] rhoSat = liquidFccCoexDensities(T);
         System.out.println("Input T, rho: "+ T + "  "+rho);
@@ -281,10 +283,15 @@ public final class LennardJones {
         double[] rhosub = vaporFccCoexDensities(T);
         System.out.println("vapor, fcc coexistence densities: " + Arrays.toString(rhosub));
         
-        for(T=0.1; T<=2.0; T+=.2) {
-            for(rho=0.9; rho<=1.7; rho+=0.1) {
+//        for(double Tr=0.2; Tr<=1.01; Tr+=0.2) {
+            for(double Tr=0.0; Tr<=1.01; Tr+=0.05) {
+//            for(rho=0.9; rho<=1.7; rho+=0.1) {
+                T = Tr*Tm;
+                double a = (aResidualFcc(T, rho) + T*(-1 + Math.log(rho)));
+//                System.out.println(Tr + "\t" + a);
+                System.out.println(a);
 //                System.out.println("T, rho, Uah: "+ T + "\t" + rho + "\t" + Uah(T,rho));
-            }
+//            }
         }
     }
     
