@@ -158,6 +158,7 @@ public class SimTarget extends Simulation {
             normalModes = new NormalModesFromFile(filename, D);
         }
         normalModes.setHarmonicFudge(harmonicFudge);
+        normalModes.setTemperature(temperature);
 
         //add meters to for FEP averages
         //this one does averaging of total energy and its Boltzmann factor
@@ -179,7 +180,7 @@ public class SimTarget extends Simulation {
         DataFork harmonicSingleFork = new DataFork();
         pump.setDataSink(harmonicSingleFork);
         BoltzmannProcessor boltz = new BoltzmannProcessor();
-        boltz.setTemperature(1.0);
+        boltz.setTemperature(temperature);
         harmonicSingleFork.addDataSink(boltz);
         DataFork boltzFork = new DataFork();
         boltz.setDataSink(boltzFork);
@@ -195,7 +196,7 @@ public class SimTarget extends Simulation {
         AccumulatorAverage harmonicAvg = new AccumulatorAverage(10);
         harmonicFork.addDataSink(harmonicAvg);
         boltz = new BoltzmannProcessor();
-        boltz.setTemperature(1.0);
+        boltz.setTemperature(temperature);
         harmonicFork.addDataSink(boltz);
         AccumulatorAverage harmonicBoltzAvg = new AccumulatorAverage(10);
         boltz.setDataSink(harmonicBoltzAvg);
@@ -230,21 +231,13 @@ public class SimTarget extends Simulation {
                 AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));//coeffs in log?
             }
         }
-        if (numMolecules % 2 == 0) {
-            if (D == 1) {
-                AHarmonic += Math.log(((D*numMolecules - 2)/2.0) / Math.pow(numMolecules,0.5*D));
-            }
-            else if (D == 3) {
-                AHarmonic += Math.log(((D*numMolecules + 3)/2.0) / Math.pow(numMolecules,0.5*D));
-            }
+        int totalCells = numMolecules;
+        int basisSize = 1;
+        if (totalCells % 2 == 0) {
+            AHarmonic += Math.log(Math.pow(2.0, basisSize*D*(totalCells - Math.pow(2,D))/2.0) / Math.pow(totalCells,0.5*D));
         }
         else {
-            if (D == 1) {
-                AHarmonic += Math.log(((D*numMolecules - 1)/2.0) / Math.pow(numMolecules,0.5*D));
-            }
-            else if (D == 3) {
-                AHarmonic += Math.log(((D*numMolecules - 18)/2.0) / Math.pow(numMolecules,0.5*D));
-            }
+            AHarmonic += Math.log(Math.pow(2.0, basisSize*D*(totalCells - 1)/2.0) / Math.pow(totalCells,0.5*D));
         }
 
         //results for averaging without independent-mode approximation
