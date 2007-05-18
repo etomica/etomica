@@ -40,6 +40,10 @@ public class MCMoveHarmonic extends MCMovePhase {
         }
     }
     
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
+    
     public void setWaveVectors(IVector[] newWaveVectors) {
         waveVectors = newWaveVectors;
     }
@@ -61,8 +65,6 @@ public class MCMoveHarmonic extends MCMovePhase {
 
         rRand = new double[waveVectors.length][coordinateDim];
         iRand = new double[waveVectors.length][coordinateDim];
-        
-        
     }
 
     public AtomIterator affectedAtoms() {
@@ -75,6 +77,7 @@ public class MCMoveHarmonic extends MCMovePhase {
         BasisCell[] cells = coordinateDefinition.getBasisCells();
 
         lastEnergy = 0;
+        double sqrtT = Math.sqrt(temperature);
 
         for (int iVector=0; iVector<waveVectors.length; iVector++) {
             for (int j=0; j<coordinateDim; j++) {
@@ -82,8 +85,8 @@ public class MCMoveHarmonic extends MCMovePhase {
                 //generate real and imaginary parts of random normal-mode coordinate Q
                 double realGauss = random.nextGaussian();
                 double imaginaryGauss = random.nextGaussian();
-                rRand[iVector][j] = realGauss * stdDev[iVector][j];
-                iRand[iVector][j] = imaginaryGauss * stdDev[iVector][j];
+                rRand[iVector][j] = realGauss * stdDev[iVector][j] * sqrtT;
+                iRand[iVector][j] = imaginaryGauss * stdDev[iVector][j] * sqrtT;
                 //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
                 // it's hard to know which.  So long as we don't put an atom at the origin
                 // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
@@ -159,4 +162,5 @@ public class MCMoveHarmonic extends MCMovePhase {
     protected double[][] iRand;
     protected final IRandom random;
     protected double lastEnergy;
+    protected double temperature;
 }
