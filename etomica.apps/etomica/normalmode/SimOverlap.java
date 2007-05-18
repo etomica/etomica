@@ -50,7 +50,7 @@ import etomica.virial.overlap.IntegratorOverlap;
  */
 public class SimOverlap extends Simulation {
 
-    public SimOverlap(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
+    public SimOverlap(Space space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
         super(space, true, (space.D() == 1 ? new PotentialMasterList(space) : new PotentialMaster(space)));
 
         defaults.makeLJDefaults();
@@ -146,6 +146,7 @@ public class SimOverlap extends Simulation {
             normalModes = new NormalModesFromFile(filename, space.D());
         }
         normalModes.setHarmonicFudge(harmonicFudge);
+        normalModes.setTemperature(temperature);
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(phaseHarmonic);
@@ -348,7 +349,7 @@ public class SimOverlap extends Simulation {
         System.out.println("output data to "+filename);
 
         //instantiate simulation
-        SimOverlap sim = new SimOverlap(Space.getInstance(D), numMolecules, density, filename, harmonicFudge);
+        SimOverlap sim = new SimOverlap(Space.getInstance(D), numMolecules, density, temperature, filename, harmonicFudge);
         
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
@@ -381,21 +382,13 @@ public class SimOverlap extends Simulation {
                 AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));//coeffs in log?
             }
         }
-        if (numMolecules % 2 == 0) {
-            if (D == 1) {
-                AHarmonic += Math.log(Math.pow(2,((D*numMolecules - 2)/2.0)) / Math.pow(numMolecules,0.5*D));
-            }
-            else if (D == 3) {
-                AHarmonic += Math.log(Math.pow(2,((D*numMolecules - 24)/2.0)) / Math.pow(numMolecules,0.5*D));
-            }
+        int basisSize = 1;
+        int totalCells = numMolecules;
+        if (totalCells % 2 == 0) {
+            AHarmonic += Math.log(Math.pow(2.0, basisSize*D*(totalCells - Math.pow(2,D))/2.0) / Math.pow(totalCells,0.5*D));
         }
         else {
-            if (D == 1) {
-                AHarmonic += Math.log(Math.pow(2,((D*numMolecules - 1)/2.0)) / Math.pow(numMolecules,0.5*D));
-            }
-            else if (D == 3) {
-                AHarmonic += Math.log(Math.pow(2,((D*numMolecules - 3)/2.0)) / Math.pow(numMolecules,0.5*D));
-            }
+            AHarmonic += Math.log(Math.pow(2.0, basisSize*D*(totalCells - 1)/2.0) / Math.pow(totalCells,0.5*D));
         }
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
 
