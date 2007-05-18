@@ -8,15 +8,16 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeSumCrystal;
 import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisMonatomic;
+import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveFcc;
+import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2LennardJones;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.statmech.LennardJones;
 import etomica.units.Energy;
+import etomica.util.Arrays;
 import etomica.util.FunctionGeneral;
 
 /**
@@ -34,6 +35,7 @@ public class HarmonicCrystal {
         lattice = new BravaisLatticeCrystal(primitive, basis);
 //        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
         normalModes = new NormalModesPotential(nCells, primitive, basis, potential);
+        setMaxLatticeShell(49);
     }
     
     public double getLatticeEnergy() {
@@ -49,7 +51,7 @@ public class HarmonicCrystal {
             final DataDouble data = new DataDouble();
         };
         LatticeSumCrystal summer = new LatticeSumCrystal(lattice);
-        summer.setMaxElement(49);
+        summer.setMaxLatticeShell(maxLatticeShell);
         summer.setK(lattice.getSpace().makeVector());
 //        System.out.println("\n k:"+kVector.toString());
         double sum = 0;
@@ -71,8 +73,6 @@ public class HarmonicCrystal {
     
     public double getHelmholtzFreeEnergy(double temperature) {
         
-        double coeffSum = 0.0;
-//      int nA = (int)(2*coeffSum + 1);
         int D = lattice.getSpace().D();
         int cellCount = 1;
         int differ = 1;
@@ -85,7 +85,6 @@ public class HarmonicCrystal {
         int basisDim = lattice.getBasis().getScaledCoordinates().length;
         int moleculeCount = cellCount*basisDim;
         System.out.println("Space dimension: " + D);
-        System.out.println("coeffSum: "+coeffSum);
         System.out.println("cellCount: "+cellCount);
         System.out.println("basisDim: "+basisDim);
         System.out.println("moleculeCount: "+moleculeCount);
@@ -94,19 +93,23 @@ public class HarmonicCrystal {
 
         double[][] omega2 = normalModes.getOmegaSquared(null);//need to change signature of this method
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
-        
+        System.out.println("coeffs: "+Arrays.toString(coeffs));
         double sumA = 0.0;
         double normalModeSum = 0.0;
+        double omega2zeroCount = 0;
         for(int k=0; k<omega2.length; k++) {
             double coeff = coeffs[k];
             for(int i=0; i<omega2[k].length; i++) {
-                if(omega2[k][i] != 0.0) {
+                if(omega2[k][i] > 1.e-9) {
                     sumA += coeff*Math.log(omega2[k][i]*coeff/(temperature*Math.PI));
                     normalModeSum += coeff;
+                } else {
+                    omega2zeroCount++;
                 }
             }
         }
 
+        System.out.println("omega2==0 count: "+omega2zeroCount);
         System.out.println("2*normalModeSum + D: " + (2*normalModeSum+D));
         System.out.println("D * moleculeCount: " + (D*moleculeCount));
         sumA -= jacobian;
@@ -123,17 +126,27 @@ public class HarmonicCrystal {
         primitive.scaleSize(1.0/Math.pow(scale, 1.0/lattice.getSpace().D()));
 //        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
         normalModes = new NormalModesPotential(nCells, primitive, lattice.getBasis(), potential);
-
+        normalModes.setMaxLatticeShell(maxLatticeShell);
     }
     
-    public static void main(String[] args) {
-        double T = 1;
-        double rho = 1.0;
-        PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance());
-        Basis basis = new BasisMonatomic(Space3D.getInstance());
+    public int getMaxLatticeShell() {
+        return maxLatticeShell;
+    }
 
-//        Primitive primitive = new PrimitiveCubic(Space3D.getInstance());
-//        Basis basis = new BasisCubicFcc();
+    public void setMaxLatticeShell(int maxLatticeShell) {
+        this.maxLatticeShell = maxLatticeShell;
+        normalModes.setMaxLatticeShell(maxLatticeShell);
+    }
+
+    public static void main(String[] args) {
+        double T = 0.2*0.93;
+        double rho = 1.0;
+        int maxLatticeShell = 49;
+//        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
+//        Basis basis = new BasisMonatomic(Space3D.getInstance());
+
+        Primitive primitive = new PrimitiveCubic(Space3D.getInstance());
+        Basis basis = new BasisCubicFcc();
         
         final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
 
@@ -142,6 +155,7 @@ public class HarmonicCrystal {
         
         HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential);
         harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
+        harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
         
         System.out.println("Density: " + rho);
         System.out.println("Temperature: " + T);
@@ -150,15 +164,25 @@ public class HarmonicCrystal {
         double a = harmonicCrystal.getHelmholtzFreeEnergy(T);
         System.out.println("Lattice Energy: " + u);
         double uEos = LennardJones.uStaticFcc(rho);
-        System.out.println("Energy from EOS: " + uEos);
+        System.out.println("Lattice energy from EOS: " + uEos);
         System.out.println("Helmholtz: " + a);
-        double aEos = LennardJones.aResidualFcc(T,rho) + T*Math.log(rho) - 1.0;
+        double aEos = LennardJones.aResidualFcc(T,rho) + T*Math.log(rho) - 1.0*T;
         System.out.println("Helmholtz from EOS: " + aEos);
+        
+//        double latticeConstant = 1.0;
+//        primitive = new PrimitiveHexagonal(Space3D.getInstance(), latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant);
+//        basis = new BasisHcp();
+//        harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential);
+//        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
+//        harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
+//        u = harmonicCrystal.getLatticeEnergy();
+//        System.out.println("Lattice energy (HCP): "+u);
     }
     
-    private NormalModes normalModes;
+    private NormalModesPotential normalModes;
     private BravaisLatticeCrystal lattice;
     private int[] nCells;
+    private int maxLatticeShell;
     private Potential2SoftSpherical potential;
     private static final long serialVersionUID = 1L;
     
