@@ -22,7 +22,7 @@ public class NormalModes1DHR implements NormalModes {
         double[][] omega2= new double[mMax+1][1];
         omega2[0][0] = Double.POSITIVE_INFINITY;
         for(int m=1; m<=mMax; m++) {
-            omega2[m][0] = 1.0/(harmonicFudge*S1DHR(m, L, nA));
+            omega2[m][0] = temperature/(harmonicFudge*S1DHR(m, L, nA));
         }
         return omega2;
     }
@@ -48,7 +48,12 @@ public class NormalModes1DHR implements NormalModes {
         return waveVectorFactory;
     }
     
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
+    
     protected double harmonicFudge;
+    protected double temperature;
     private final WaveVectorFactory1D waveVectorFactory = new WaveVectorFactory1D();
 
     /**

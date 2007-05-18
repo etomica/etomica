@@ -40,4 +40,10 @@ public interface NormalModes {
      * harmonic springs, corresponding to to smaller deviation from the lattice sites.
      */
     public void setHarmonicFudge(double newHarmonicFudge);
+    
+    /**
+     * Set the temperature used for calculating omega-squared.  Omega-squared
+     * is kT/eigenvalue.
+     */
+    public void setTemperature(double newTemperature);
 }

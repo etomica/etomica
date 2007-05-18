@@ -31,16 +31,14 @@ public class NormalModesFromFile implements NormalModes {
         eigenvectors = ArrayReader2D.getFromFile(filename + ".vec");
         waveVectorFactory = new WaveVectorFactoryFromFile(filename, D);
         harmonicFudge = 1;
+        temperature = 1;
     }
 
     public double[][] getOmegaSquared(Phase phase) {
-        if (harmonicFudge == 1){ 
-            return omega2;
-        }
         double[][] fudgedOmega2 = new double[omega2.length][omega2[0].length];
         for (int i=0; i<fudgedOmega2.length; i++) {
             for (int j=0; j<fudgedOmega2[i].length; j++) {
-                fudgedOmega2[i][j] = omega2[i][j]/harmonicFudge;
+                fudgedOmega2[i][j] = temperature*omega2[i][j]/harmonicFudge;
             }
         }
         return fudgedOmega2;
@@ -57,9 +55,14 @@ public class NormalModesFromFile implements NormalModes {
     public void setHarmonicFudge(double newHarmonicFudge) {
         harmonicFudge = newHarmonicFudge;
     }
+    
+    public void setTemperature(double newTemperature) {
+        temperature = newTemperature;
+    }
 
     double[][] omega2;
     double[][][] eigenvectors;
     WaveVectorFactory waveVectorFactory;
     double harmonicFudge;
+    double temperature;
 }

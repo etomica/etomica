@@ -168,11 +168,17 @@ public class NormalModesPotential implements NormalModes {
         needToCalculateModes = true;
         harmonicFudge = newHarmonicFudge;
     }
+    
+    public void setTemperature(double newTemperature) {
+        needToCalculateModes = true;
+        temperature = newTemperature;
+    }
 
     private final BravaisLatticeCrystal lattice;
     private Potential2SoftSpherical potential;
     private WaveVectorFactory kFactory;
     private double harmonicFudge;
+    private double temperature;
     private double[][] omega2;
     private double[][][] eigenvectors;
     private boolean needToCalculateModes;
