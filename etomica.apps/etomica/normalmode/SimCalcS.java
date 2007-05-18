@@ -12,9 +12,11 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.BasisCubicFcc;
+import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.phase.Phase;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
@@ -61,21 +63,24 @@ public class SimCalcS extends Simulation {
                 sphereType });
 
         int nCells;
+        Basis basis;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             nCells = numAtoms;
             bdry = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
             ((IntegratorHard) integrator).setNullPotential(new P1HardPeriodic(space));
+            basis = new BasisMonatomic(space);
         } else {
-            primitive = new PrimitiveFcc(space, 1);
+            primitive = new PrimitiveCubic(space, 1);
             double v = primitive.unitCell().getVolume();
-            primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            nCells = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            primitive.scaleSize(Math.pow(v*density/4,-1.0/3.0));
+            nCells = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
+            basis = new BasisCubicFcc();
         }
         phase.setBoundary(bdry);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive);
+        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive, basis);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
         
         integrator.setPhase(phase);
@@ -88,14 +93,14 @@ public class SimCalcS extends Simulation {
 
         // defaults
         int D = 3;
-        int nA = 27;
+        int nA = 32;
         double density = 1.3;
         if (D == 1) {
             nA = 3;
             density = 0.5;
         }
 
-        double simTime = 100;
+        double simTime = 10000;
 
         // parse arguments
         if (args.length > 1) {
@@ -107,7 +112,7 @@ public class SimCalcS extends Simulation {
         if (args.length > 3) {
             nA = Integer.parseInt(args[3]);
         }
-        String filename = "normal_modes" + D + "D_"+nA+"_"+((int)(density*100));
+        String filename = "normal_modes" + D + "D_"+nA+"_"+((int)(density*100))+"_cubic";
         if (args.length > 0) {
             filename = args[0];
         }
@@ -142,7 +147,7 @@ public class SimCalcS extends Simulation {
                 meterNormalMode);
         fooAdapter.setActionInterval(2);
         sim.integrator.addListener(fooAdapter);
-
+        
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
         // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
         // DataSinkConsole console = new DataSinkConsole();
@@ -156,8 +161,10 @@ public class SimCalcS extends Simulation {
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.getController().actionPerformed();
+        System.out.println("equilibration finished");
         meterNormalMode.reset();
         sim.getController().reset();
+        
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
 
