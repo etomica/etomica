@@ -13,6 +13,10 @@ import etomica.util.Function;
  * @author Andrew Schultz
  */
 public class BoltzmannProcessor extends DataProcessor {
+    
+    public BoltzmannProcessor() {
+    }
+    
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
         data = incomingDataInfo.makeData();
         IDataInfoFactory factory = incomingDataInfo.getFactory();
@@ -22,8 +26,13 @@ public class BoltzmannProcessor extends DataProcessor {
         return dataInfo;
     }
     
+    public void setEnergyBase(double newEnergyBase) {
+        energyBase = newEnergyBase;
+    }
+    
     public Data processData(Data incomingData) {
         data.E(incomingData);
+        data.PE(-energyBase);
         data.TE(-1/temperature);
         data.map(Function.Exp.INSTANCE);
         return data;
@@ -44,4 +53,5 @@ public class BoltzmannProcessor extends DataProcessor {
     private static final long serialVersionUID = 1L;
     private Data data;
     private double temperature;
+    private double energyBase;
 }
