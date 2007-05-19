@@ -12,7 +12,6 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMovePhaseStep;
-import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVectorRandom;
@@ -59,12 +58,12 @@ public class MCMoveMoleculeCoupled extends MCMovePhaseStep {
         
         
         singleAction = new AtomActionTranslateBy(potentialMaster.getSpace());
+        groupTransVect = (IVectorRandom)singleAction.getTranslationVector();
+        
         moveMoleculeAction = new AtomGroupAction(singleAction);
         
         pair = new AtomPair();
         
-
-        groupTransVect = (IVectorRandom)potentialMaster.getSpace().makeVector();
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
     }
