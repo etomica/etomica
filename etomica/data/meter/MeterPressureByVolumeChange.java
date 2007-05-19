@@ -38,12 +38,12 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     
     public MeterPressureByVolumeChange(Space space, boolean[] dimensions) {
         this.space = space;
+        tag = new DataTag();
         setX(-0.001, 0.001, 10);
         inflateDimensions = new boolean[space.D()];
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
         inflater = new PhaseInflate(space);
-        tag = new DataTag();
     }
     
     public MeterPressureByVolumeChange(Space space, PhaseInflateDeformable pid){
@@ -52,12 +52,12 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     
     public MeterPressureByVolumeChange(Space space, boolean[] dimensions, PhaseInflateDeformable pid){
         this.space = space;
+        tag = new DataTag();
         setX(-0.001, 0.001, 10);
         inflateDimensions = new boolean[space.D()];
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
         inflater = pid;
-        tag = new DataTag();
         
     }
     
@@ -140,6 +140,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
             for(int j=0; j<space.D(); j++) {
                 if(!inflateDimensions[j]) scale[i].setX(j,1.0);
             }
+//            System.out.println("scale " + i +" = " + scale[i]);
         }
     }
     
@@ -164,9 +165,10 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
             double uNew = energy.getSum();
             dataArray[i] = Math.exp(-(uNew-uOld)/integrator.getTemperature()
                               + phase.moleculeCount()*x[i]);
+            inflater.undo();
         }
         
-        inflater.undo();
+
         return data;
     }
 
