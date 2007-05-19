@@ -28,7 +28,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
     public CoordinateDefinitionMolecule(Phase phase, Primitive primitive, int orientationDim, Basis basis) {
         super(phase, phase.getSpace().D() + orientationDim, primitive, basis);
         work1 = phase.getSpace().makeVector();
-        u = new double[coordinateDim];
+        u = new double[coordinateDim*basis.getScaledCoordinates().length];
     }
 
     public double[] calcU(AtomSet molecules) {
