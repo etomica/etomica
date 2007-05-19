@@ -18,6 +18,12 @@ import etomica.potential.PotentialMaster;
 import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
 
+/**
+ * Standard Monte Carlo molecule-displacement trial move.  Two molecules are moved at a
+ * time in such a way that the geometric center of the system is not changed.
+ *
+ * @author Nancy Cribbin
+ */
 public class MCMoveMoleculeCoupled extends MCMovePhaseStep {
 
     private static final long serialVersionUID = 1L;
