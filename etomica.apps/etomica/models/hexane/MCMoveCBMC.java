@@ -68,15 +68,16 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     }
 
     public void acceptNotify() {
-        // System.out.println("ACCEPTED A WHOLE MOVE!!!!!!!!!!!!!!!!!!!!!!");
+//         System.out.println("ACCEPTED A WHOLE MOVE!!!!!!!!!!!!!!!!!!!!!!");
     }
 
     public boolean doTrial() {
         // pick a molecule & get its childlist
-System.out.println("doTrial() CBMC called"); 
+//System.out.println("doTrial() CBMC called"); 
         atom = moleculeSource.getAtom();
-        if (atom == null)
+        if (atom == null){
             return false;
+        }
         affectedAtomIterator.setAtom(atom);
 
         // we assume that that atoms that make the molecule are children of the
@@ -89,8 +90,7 @@ System.out.println("doTrial() CBMC called");
             positionOld[i].E(((IAtomPositioned) atomList.get(i)).getPosition());
         }
 
-        calcRosenbluthFactors();
-        return true; // this means we were able to propose a move.
+        return calcRosenbluthFactors(); // this means we were able to propose a move.
     }
 
     public boolean doTrial(IAtom atom){
@@ -120,7 +120,7 @@ System.out.println("doTrial() CBMC called");
         return 0.0;
     }
 
-    protected abstract void calcRosenbluthFactors();
+    protected abstract boolean calcRosenbluthFactors();
 
     public void setNumberOfTrials(int n) {
         numTrial = n;
@@ -142,6 +142,7 @@ System.out.println("doTrial() CBMC called");
         for (int i = 0; i < chainlength; i++) {
             ((IAtomPositioned) atomList.get(i)).getPosition().E(positionOld[i]);
         }
+//        System.out.println("MCMoveCBMC rejects another!!");
     }
 
     public AtomIterator affectedAtoms() {

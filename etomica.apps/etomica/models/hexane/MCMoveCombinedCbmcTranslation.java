@@ -2,6 +2,7 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
@@ -12,6 +13,8 @@ import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
+import etomica.space.IVectorRandom;
+import etomica.util.Debug;
 import etomica.util.IRandom;
 
 
@@ -38,8 +41,10 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
     public MCMoveCombinedCbmcTranslation(PotentialMaster pm, MCMoveCBMC mv,
             IRandom nRandom){
         super(pm);
-        setCbmcMove(mv);
+        this.cbmcMove = mv;
         this.random = nRandom;
+        
+        setPhase(pm.getSimulation().getPhases()[0]);
         
         moleculeSource = new AtomSourceRandomMolecule();
         moleculeSource.setPhase(pm.getSimulation().getPhases()[0]);
@@ -48,6 +53,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
         energyMeter.setPhase(pm.getSimulation().getPhases()[0]);
         
         affectedAtomIterator = new AtomIteratorSinglet();
+        
         AtomActionTranslateBy translator = new AtomActionTranslateBy(pm.getSpace());
         transVect = translator.getTranslationVector();
         moveAction = new AtomGroupAction(translator);
@@ -57,6 +63,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
         newGeo = pm.getSpace().makeVector();
         temp = pm.getSpace().makeVector();
     }
+    
     public MCMoveCombinedCbmcTranslation(PotentialMaster pm, MCMoveCBMC mv, 
             IRandom nRandom, Phase ph){
         this(pm, mv, nRandom);
@@ -71,22 +78,27 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
 
     public void acceptNotify() {
         // Nothing needs to be done!
+//        System.out.println("MCMoveCombinedCbmcTranslation accepts a move");
     }
 
     public boolean doTrial() {
         molecule = moleculeSource.getAtom();
+        if(molecule == null) {return false;}
         affectedAtomIterator.setAtom(molecule);
+        
+        //save the old position, and apply the cbmc move.
         oldGeo.E(centerer.position(molecule));
         transVect.E(oldGeo);
-        
-        cbmcMove.doTrial(molecule);
-        transVect.ME(centerer.position(molecule));
+        if(!cbmcMove.doTrial(molecule)) {return false;}
+//        accepted = cbmcMove.doTrial(molecule);
 
+        //Find the new position, and apply the translation move.
+        transVect.ME(centerer.position(molecule));
         uOld = energyMeter.getDataAsScalar();
         moveAction.actionPerformed(molecule);
         uNew = energyMeter.getDataAsScalar();
-       
-        return false;
+
+        return true;
     }
 
     public double getA() {
@@ -101,10 +113,7 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
         transVect.TE(-1.0);
         moveAction.actionPerformed(molecule);
         cbmcMove.rejectNotify();
-    }
-
-    public void setCbmcMove(MCMoveCBMC cbmcMove) {
-        this.cbmcMove = cbmcMove;
+//        System.out.println("MCMoveCombinedCbmcTranslation rejects a move");
     }
 
 }

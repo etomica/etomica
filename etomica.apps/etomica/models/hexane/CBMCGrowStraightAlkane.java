@@ -59,9 +59,9 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
     }
 
     /**
-     * Calculates wOld and wNew; does not have a return value.
+     * Calculates wOld and wNew
      */
-    protected void calcRosenbluthFactors() {
+    protected boolean calcRosenbluthFactors() {
         // Pick a direction and an atom to start with
         forward = random.nextInt(2) == 0;
         int dir, endIndex, beginIndex;
@@ -140,7 +140,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                 wNew = 0.0;
                 // System.out.println("Bailing from
                 // CBMCGrowStraightAlkane.calcRosenbluthFactor() now!");
-                return;
+                rejectNotify();
+                return false;
             }
 
             // Calculate the probablilities
@@ -246,6 +247,8 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
             wOld *= sumA;
 
         }// end of i loop
+        
+        return true;
     }
 
     protected int calcStartIndex() {
