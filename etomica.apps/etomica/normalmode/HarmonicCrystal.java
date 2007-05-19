@@ -155,7 +155,7 @@ public class HarmonicCrystal {
         
         HarmonicCrystal harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential);
         harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
-        harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
+        harmonicCrystal.setMaxLatticeShell(harmonicCrystal.maxLatticeShell);
         
         System.out.println("Density: " + rho);
         System.out.println("Temperature: " + T);
