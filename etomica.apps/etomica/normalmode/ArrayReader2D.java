@@ -63,11 +63,7 @@ public class ArrayReader2D {
             }
             S = new double[allS.size()][][];
             for (int i=0; i<S.length; i++) {
-                for (int j=0; j<rows; j++) {
-                    for (int k=0; k<dim; k++) {
-                        S[i] = ((double[][])allS.get(i));
-                    }
-                }
+                S[i] = ((double[][])allS.get(i));
             }
         }
         catch (IOException e) {
