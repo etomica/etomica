@@ -163,6 +163,7 @@ public class SimOverlapLJ extends Simulation {
         move.setWaveVectors(waveVectorFactory.getWaveVectors());
         move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         move.setCoordinateDefinition(coordinateDefinitionHarmonic);
+        move.setTemperature(temperature);
         
         move.setPhase(phaseHarmonic);
         
@@ -329,7 +330,7 @@ public class SimOverlapLJ extends Simulation {
         
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
-        String inputFilename = null;
+        String inputFilename = "d0962_T06.in";
         if (args.length > 0) {
             inputFilename = args[0];
         }
@@ -361,6 +362,11 @@ public class SimOverlapLJ extends Simulation {
         //start simulation
         sim.integratorOverlap.setNumSubSteps(1000);
         numSteps /= 1000;
+
+//        StopWatcher stopWatcher = new StopWatcher("stop", sim, filename);
+//        IntervalActionAdapter iaa = new IntervalActionAdapter(stopWatcher);
+//        iaa.setActionInterval(100);
+//        sim.integratorOverlap.addListener(iaa);
 
         sim.initRefPref(refFileName, numSteps/20);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
@@ -399,7 +405,7 @@ public class SimOverlapLJ extends Simulation {
         if (totalCells % 2 == 0) {
             fac = Math.pow(2,D);
         }
-        AHarmonic += Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
+        AHarmonic -= Math.log(Math.pow(2.0, basisSize*D*(totalCells - fac)/2.0) / Math.pow(totalCells,0.5*D));
         System.out.println("Harmonic-reference free energy: "+AHarmonic*temperature);
 
         double ratio = sim.dsvo.getDataAsScalar();
@@ -440,11 +446,11 @@ public class SimOverlapLJ extends Simulation {
      */
     public static class SimOverlapParam extends ParameterBase {
         public int numMolecules = 32;
-        public double density = 1.3;
+        public double density = 1.2;
         public int D = 3;
-        public long numSteps = 10000000;
+        public long numSteps = 1000;
         public double harmonicFudge = 1;
-        public String filename = "";
+        public String filename = "d0962_T06";
         public double temperature = 1.0;
     }
 }
