@@ -3,10 +3,6 @@
  */
 package etomica.models.hexane;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import etomica.action.PhaseInflate;
 import etomica.action.PhaseInflateDeformable;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
@@ -14,22 +10,13 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureByVolumeChange;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition;
-import etomica.normalmode.MeterNormalMode;
-import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -37,7 +24,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 /**
@@ -56,6 +42,28 @@ import etomica.space3d.Space3D;
 
 public class TestHexane extends Simulation {
 
+    public ActivityIntegrate activityIntegrate;
+    public IntegratorMC integrator;
+
+    public Phase phase;
+
+    public BoundaryDeformablePeriodic bdry;
+    public BravaisLattice lattice;
+    public CoordinateDefinition coordinateDefinition;
+    public Primitive primitive;
+    
+//    public MCMoveVolume moveVolume;
+//    public MCMoveCrankshaft crank; 
+//    public MCMoveReptate snake;
+//    public MCMoveMolecule moveMolecule;
+    public CBMCGrowSolidHexane growMolecule;
+//    public MCMoveRotateMolecule3D rot;
+//    public MCMoveMoleculeCoupled coupledMove;
+        public MCMoveCombinedCbmcTranslation cctMove;
+      
+//    public PairIndexerMolecule pri;
+
+    
     public TestHexane(Space space, int numMolecules) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
@@ -87,41 +95,47 @@ public class TestHexane extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numMolecules);
 //        config.initializeCoordinates(phase);
-
         integrator = new IntegratorMC(getPotentialMaster(), getRandom(),
                 defaults.temperature);
-        moveMolecule = new MCMoveMolecule(getPotentialMaster(), getRandom(),
-                0.1, 1, false);
+        
+//        moveMolecule = new MCMoveMolecule(getPotentialMaster(), getRandom(),
+//                0.1, 1, false);
+//        // 0.025 for translate, 0.042 for rotate for rho=0.3737735
+//        moveMolecule.setStepSize(0.024);        
+//        integrator.getMoveManager().addMCMove(moveMolecule);
+//        ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
+        
         // moveVolume = new MCMoveVolume(potentialMaster, phase.space(),
         // sim.getDefaults().pressure);
         // moveVolume.setPhase(phase);
+        // integrator.getMoveManager().addMCMove(moveVolume);
+        
         // crank = new MCMoveCrankshaft();
 
         // snake = new MCMoveReptate(this);
         // snake.setPhase(phase);
-
-        rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
-        rot.setPhase(phase);
-
-        // 0.025 for translate, 0.042 for rotate for rho=0.3737735
-        moveMolecule.setStepSize(0.024);
-        rot.setStepSize(0.042);
-
+        // integrator.getMoveManager().addMCMove(snake);
+        
+//        rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
+//        rot.setPhase(phase);
+//        rot.setStepSize(0.042);
+//        integrator.getMoveManager().addMCMove(rot);
+//        ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
+        
         growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(),
                 getRandom(), integrator, phase, species, 20);
         growMolecule.setPhase(phase);
-        integrator.getMoveManager().addMCMove(growMolecule);
+//        integrator.getMoveManager().addMCMove(growMolecule);
 
+//        coupledMove = new MCMoveMoleculeCoupled(getPotentialMaster(), getRandom());
+//        integrator.getMoveManager().addMCMove(coupledMove);
+        
+        cctMove = new MCMoveCombinedCbmcTranslation(getPotentialMaster(), growMolecule, getRandom());
+        integrator.getMoveManager().addMCMove(cctMove);
+        
         // nan we're going to need some stuff in there to set the step sizes and
         // other stuff like that.
 
-        integrator.getMoveManager().addMCMove(moveMolecule);
-//        integrator.getMoveManager().addMCMove(snake);
-        integrator.getMoveManager().addMCMove(rot);
-//        integrator.getMoveManager().addMCMove(moveVolume);
-        ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
-        ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
-        
         integrator.setIsothermal(true);
         activityIntegrate = new ActivityIntegrate(this, integrator);
         activityIntegrate.setMaxSteps(2000000);
@@ -152,6 +166,11 @@ public class TestHexane extends Simulation {
         //Add the Potential to the PotentialMaster
         getPotentialMaster().addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
+        
+//        coupledMove.setPotential(potentialMaster.getPotential(new AtomType[] {
+//                species.getMoleculeType(), species.getMoleculeType() }  ));
+
+        
         
 //         //INTRAMOLECULAR POTENTIAL STUFF
 //
@@ -277,102 +296,80 @@ public class TestHexane extends Simulation {
             String filename = "normal_modes_hexane";
 
             PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
-            // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
-            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive);
-            // we need to set this up now even though we don't use it during equilibration so that
-            // the meter can grab the lattice points
-            MeterNormalMode meterNormalMode = new MeterNormalMode();
-            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
-            meterNormalMode.setPhase(sim.phase);
+//            // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
+//            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive);
+//            // we need to set this up now even though we don't use it during equilibration so that
+//            // the meter can grab the lattice points
+//            MeterNormalMode meterNormalMode = new MeterNormalMode();
+//            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
+//            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
+//            meterNormalMode.setPhase(sim.phase);
 
             PhaseInflateDeformable pid = new PhaseInflateDeformable(sim.getSpace());
+//            PhaseInflate pid = new PhaseInflate(sim.phase);
             MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
             meterPressure.setIntegrator(sim.integrator);
-
-//            PhaseInflateDeformable pid = new PhaseInflateDeformable(sim.getSpace());
-//            PhaseInflate pid = new PhaseInflate(sim.phase);
-//            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace()/*, pid*/);
-//            meterPressure.setIntegrator(sim.integrator);
-//            AccumulatorAverage pressureAccumulator = new AccumulatorAverage(sim);
-//            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
-//            pressureAccumulator.setBlockSize(50);
-//            new IntervalActionAdapter(pressureManager, sim.integrator);
+            AccumulatorAverage pressureAccumulator = new AccumulatorAverage(sim);
+            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
+            pressureAccumulator.setBlockSize(50);
+            new IntervalActionAdapter(pressureManager, sim.integrator);
           
             
-            long nSteps = 1000000;
+            long nSteps = 10;
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
             System.out.println("equilibration finished");
 
-            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
+//            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
 //            ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
             
             sim.getController().reset();
             sim.activityIntegrate.setMaxSteps(nSteps);
             
-            IntervalActionAdapter adapter = new IntervalActionAdapter(meterNormalMode);
-            adapter.setActionInterval(100);
-            sim.integrator.addListener(adapter);
+//            IntervalActionAdapter adapter = new IntervalActionAdapter(meterNormalMode);
+//            adapter.setActionInterval(100);
+//            sim.integrator.addListener(adapter);
 
             sim.getController().actionPerformed();
             
-            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
-            normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
+//            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
+//            normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
+//            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
+//            
+//            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
+//            double[] coefficients = waveVectorFactory.getCoefficients();
+//            
+//            try {
+//                FileWriter fileWriterQ = new FileWriter(filename+".Q");
+//                FileWriter fileWriterS = new FileWriter(filename+".S");
+//                for (int i=0; i<waveVectors.length; i++) {
+//                    fileWriterQ.write(Double.toString(coefficients[i]));
+//                    for (int j=0; j<waveVectors[i].getD(); j++) {
+//                        fileWriterQ.write(" "+waveVectors[i].x(j));
+//                    }
+//                    fileWriterQ.write("\n");
+//                    DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
+//                    for (int k=0; k<normalDim; k++) {
+//                        fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
+//                        for (int l=1; l<normalDim; l++) {
+//                            fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
+//                        }
+//                        fileWriterS.write("\n");
+//                    }
+//                }
+//                fileWriterQ.close();
+//                fileWriterS.close();
+//            }
+//            catch (IOException e) {
+//                throw new RuntimeException("Oops, failed to write data "+e);
+//            }
             
-            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
-            double[] coefficients = waveVectorFactory.getCoefficients();
-            
-            try {
-                FileWriter fileWriterQ = new FileWriter(filename+".Q");
-                FileWriter fileWriterS = new FileWriter(filename+".S");
-                for (int i=0; i<waveVectors.length; i++) {
-                    fileWriterQ.write(Double.toString(coefficients[i]));
-                    for (int j=0; j<waveVectors[i].getD(); j++) {
-                        fileWriterQ.write(" "+waveVectors[i].x(j));
-                    }
-                    fileWriterQ.write("\n");
-                    DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
-                    for (int k=0; k<normalDim; k++) {
-                        fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
-                        for (int l=1; l<normalDim; l++) {
-                            fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
-                        }
-                        fileWriterS.write("\n");
-                    }
-                }
-                fileWriterQ.close();
-                fileWriterS.close();
-            }
-            catch (IOException e) {
-                throw new RuntimeException("Oops, failed to write data "+e);
-            }
-            
-//            double avgPressure = ((DataDouble)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
-//            System.out.println("Avg Pres = "+ avgPressure);
+//            double avgPressure = ((DataDoubleArray)(((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index))).x;
+//              avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
+//              System.out.println("Avg Pres = "+ avgPressure);
         }
 
         System.out.println("Go look at the data!");
     }
-
-    public ActivityIntegrate activityIntegrate;
-    public IntegratorMC integrator;
-
-    public Phase phase;
-
-    public BoundaryDeformablePeriodic bdry;
-    public BravaisLattice lattice;
-    public CoordinateDefinition coordinateDefinition;
-    public Primitive primitive;
-    
-//    public MCMoveVolume moveVolume;
-//    public MCMoveCrankshaft crank; 
-//    public MCMoveReptate snake;
-    public MCMoveMolecule moveMolecule;
-    public CBMCGrowSolidHexane growMolecule;
-    public MCMoveRotateMolecule3D rot;
-    
-//    public PairIndexerMolecule pri;
 
 }

@@ -68,12 +68,12 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     }
 
     public void acceptNotify() {
-        // I rather think nothing needs to be done.
         // System.out.println("ACCEPTED A WHOLE MOVE!!!!!!!!!!!!!!!!!!!!!!");
     }
 
     public boolean doTrial() {
         // pick a molecule & get its childlist
+System.out.println("doTrial() CBMC called"); 
         atom = moleculeSource.getAtom();
         if (atom == null)
             return false;
@@ -93,6 +93,25 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         return true; // this means we were able to propose a move.
     }
 
+    public boolean doTrial(IAtom atom){
+        if (atom == null)
+            return false;
+        affectedAtomIterator.setAtom(atom);
+
+        // we assume that that atoms that make the molecule are children of the
+        // molecule.
+        atomList = ((IAtomGroup) atom).getChildList();
+        chainlength = atomList.size();
+
+        // store the old locations of every atom in the molecule in positionOld.
+        for (int i = 0; i < chainlength; i++) {
+            positionOld[i].E(((IAtomPositioned) atomList.get(i)).getPosition());
+        }
+
+        calcRosenbluthFactors();
+        return true; // this means we were able to propose a move.
+    }
+    
     public double getA() {
         return wNew / wOld;
     }
@@ -129,6 +148,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         return affectedAtomIterator;
     }
 
+    
     private static final long serialVersionUID = 1L;
 
     protected final MeterPotentialEnergy externalMeter;

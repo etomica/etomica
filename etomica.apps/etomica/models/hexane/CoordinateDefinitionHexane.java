@@ -1,5 +1,8 @@
 package etomica.models.hexane;
 
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomGroup;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
@@ -7,6 +10,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
 import etomica.phase.Phase;
 import etomica.space.IVector;
+import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
 
 /**
@@ -21,7 +25,8 @@ import etomica.space3d.Vector3D;
  */
 public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
-    public CoordinateDefinitionHexane(Phase phase, Primitive primitive, SpeciesHexane species){
+    public CoordinateDefinitionHexane(Phase phase, Primitive primitive, 
+            SpeciesHexane species){
         super(phase, primitive, 3);
 
         length = species.getBondLength();
@@ -43,6 +48,10 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         vex = new Vector3D();
         temp = new Vector3D();
         axial = new Vector3D();
+        
+        rotor = phase.getSpace().makeTensor();
+        confHex = new ConformationHexane(phase.getSpace());
+        
     }
 
     public double[] calcU(AtomSet molecules) {
@@ -166,6 +175,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             u[5] = -u[5];
         }
         
+        
+        //Calculate the torsional angles
       double tol = 0.0000000001;
       for (int i = 0; i < 6 - 3; i++) {
           vex.E(((IAtomPositioned) molecule
@@ -222,11 +233,6 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
           u[6+i] = Math.acos(makeGood) - angles.x(i);
           
       }//end of the for loop that calculates the angles and stores the differences.
-
-        
-        
-        
-        
         
         return u;
     }
@@ -265,61 +271,6 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         axes[2].E(axes[0]);
         axes[2].XE(axes[1]);
         
-//        double tol = 0.0000000001;
-//        for (int i = 0; i < 6 - 3; i++) {
-//            vex.E(((AtomLeaf) ((IAtomGroup) molecule)
-//                    .getChildList().get(i)).getPosition());
-//            vex.ME(((AtomLeaf) ((IAtomGroup) molecule)
-//                    .getChildList().get(i+1)).getPosition());
-//            temp.E(((AtomLeaf) ((IAtomGroup) molecule)
-//                    .getChildList().get(i+3)).getPosition());        
-//            temp.ME(((AtomLeaf) ((IAtomGroup) molecule)
-//                    .getChildList().get(i+2)).getPosition());        
-//            axial.E(((AtomLeaf) ((IAtomGroup) molecule)
-//                    .getChildList().get(i+2)).getPosition());
-//            axial.ME(((AtomLeaf) ((IAtomGroup) molecule)
-//                    .getChildList().get(i+1)).getPosition());
-//                        
-//            // Project each vector onto the axial vector, and subtract the
-//            // axial portion from the result, leaving the radial portion
-//            axial.normalize();
-//            axial.TE(length * Math.cos((Math.PI - phi))); // (Pi - phi is
-//                                                            // 180 - 109.47,
-//                                                            // or the acute
-//                                                            // angle)
-//            vex.ME(axial);
-//            axial.TE(-1.0); // we do this because we have assumed that
-//            // the angle between the two vectors (axial
-//            // & whatever) is obtuse. The angle between
-//            // axial and temp is acute, so we reverse
-//            // axial to make the angle acute.
-//            temp.ME(axial);
-//
-//            vex.normalize();
-//            temp.normalize();
-//
-//            // Calculate the angle between the projected vectors
-//
-//            /*
-//             * We have to do some stuff to "fix" answers that are just over
-//             * 1.0 or under -1.0 because we get NaN, and sometimes we are
-//             * just really close (like, into the pico and femto range) and
-//             * we can make that happy.
-//             */
-//            double makeGood = vex.dot(temp);
-//            if (makeGood < -1) {
-//                if ((makeGood + tol) > -1) {
-//                    makeGood = -1.0;
-//                }
-//            }
-//            if (makeGood > 1) {
-//                if ((makeGood - tol) < 1) {
-//                    makeGood = 1.0;
-//                }
-//            }
-//            angles.setX(i, Math.acos(makeGood));
-//        }//end of the for loop that calculate the initial angles and stores them.
-        
         //We know this from the initial model; the intial torsional angles are PI
         for(int i = 0; i < 3; i++){
             angles.setX(i, Math.PI);
@@ -327,24 +278,75 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     }
 
     public void setToU(AtomSet atoms, double[] u) {
+        
+        // atoms is a single molecule; we can grab its childlist for our
+        //      AtomArrayList; we're looking at an AtomGroup
+        // Put the molecule into its initial conformation
+        confHex.initializePositions(((AtomGroup)atoms).getChildList());
+        childlist = ((AtomGroup)atoms).getChildList();
+        
+        //Apply the torsional angles
+        for(int i = 0; i < 6-3; i++){
+            double cosA = Math.cos(u[6+i]);
+            double sinA = Math.sin(u[6+i]);
+            
+            // get a normal vector to the a-b vector and the b-c vector
+            // This vector is, by definition, perpendicular to the a-b vector, which
+            // makes it a radius of a circle centered on that axis.
+            vex.E(((AtomLeaf)childlist.get(i+2)).getPosition());
+            vex.ME(((AtomLeaf)childlist.get(i+1)).getPosition());
+            temp.E(((AtomLeaf)childlist.get(i+1)).getPosition());
+            temp.ME(((AtomLeaf)childlist.get(i)).getPosition());
+
+            // Create the rotation matrix for an arbitrary unit vector
+            vex.normalize();
+            rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
+                    (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
+                    (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
+                    (1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
+                    cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
+                    (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0), // yz
+                    (1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
+                    (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
+                    cosA + (1 - cosA) * vex.x(2) * vex.x(2) // zz
+            });
+
+            // Mulitply the rotation tensor by temp to get the rotated vector.
+            rotor.transform(temp);
+
+            // we normalize our vector (temp) and multiply it by the known
+            // bondlength.
+            temp.normalize();
+            temp.TE(length);
+
+            ((AtomLeaf)childlist.get(i+3)).getPosition().E(temp);
+        }
+        
+        //Apply the orientation angles
+       
+        
+        
+        
+        
+        //Translate the molecule to its proper place.
+        //Uses center of mass/ geometric center.
         super.setToU(atoms, u);
+        
         throw new RuntimeException("Don't yet know how to set orientation");
     }
 
     private static final long serialVersionUID = 1L;
-
     private final Vector3D axis0prime, bPrime, midpoint13, deltaVPrime;
-
     private final Vector3D c, deltaV, b;
-
     private Vector3D[] axes;
-    
     private Vector3D angles;
-    
     private Vector3D vex, temp, axial;
-    
     private double length, phi;
-
+    private Tensor rotor;
+    private ConformationHexane confHex;
+    private AtomArrayList childlist;
+    
+    
     public void setLength(double length) {
         this.length = length;
     }
