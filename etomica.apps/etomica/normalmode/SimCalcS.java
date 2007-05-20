@@ -1,14 +1,9 @@
 package etomica.normalmode;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
@@ -26,7 +21,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
@@ -168,47 +162,12 @@ public class SimCalcS extends Simulation {
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
 
-        // normalize averages
-        DataGroup normalModeData = (DataGroup) meterNormalMode.getData();
-        normalModeData.TE(1.0 / meterNormalMode.getCallCount());
-
-        // write wave vectors (to filename.k) and simulation results (to
-        // filename.S) to file
-        IVector[] waveVectors = waveVectorFactory.getWaveVectors();
-        double[] coefficients = waveVectorFactory.getCoefficients();
-
-        try {
-            int coordinateDim = meterNormalMode.getCoordinateDefinition()
-                    .getCoordinateDim();
-            FileWriter fileWriterK = new FileWriter(filename + ".k");
-            FileWriter fileWriterS = new FileWriter(filename + ".S");
-            for (int k = 0; k < waveVectors.length; k++) {
-                // write the wavevector with its coefficient
-                fileWriterK.write(Double.toString(coefficients[k]));
-                for (int j = 0; j < waveVectors[k].getD(); j++) {
-                    fileWriterK.write(" " + waveVectors[k].x(j));
-                }
-                fileWriterK.write("\n");
-                if (D == 1) {
-                    System.out.println(NormalModes1DHR.S1DHR(k + 1, nA / density, nA));
-                }
-
-                // write the (coordDim x coordDim) S array for the current
-                // wavevector
-                DataDoubleArray dataS = (DataDoubleArray) normalModeData.getData(k);
-                for (int j = 0; j < coordinateDim; j++) {
-                    fileWriterS.write(Double.toString(dataS.getValue(j * coordinateDim)));
-                    for (int l = 1; l < coordinateDim; l++) {
-                        fileWriterS.write(" " + dataS.getValue(j * coordinateDim + l));
-                    }
-                    fileWriterS.write("\n");
-                }
-            }
-            fileWriterK.close();
-            fileWriterS.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Oops, failed to write data " + e);
-        }
+        WriteS sWriter = new WriteS();
+        sWriter.setFilename(filename);
+        sWriter.setMeter(meterNormalMode);
+        sWriter.setWaveVectorFactory(waveVectorFactory);
+        sWriter.setOverwrite(true);
+        sWriter.actionPerformed();
 
     }
 
