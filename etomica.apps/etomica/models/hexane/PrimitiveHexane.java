@@ -12,6 +12,14 @@ import etomica.space3d.Vector3D;
 
 public class PrimitiveHexane extends Primitive {
     
+    private static final long serialVersionUID = 1L;
+    protected final Vector3D[] fixedLatticeVector = new Vector3D[]{
+        new Vector3D(-0.0450226624118149, 0.533363447960696, 2.05308369446092),
+        new Vector3D(0.355734889084923, 1.281874771828840, 0.146059929673340),
+        new Vector3D(0.763064234689232, -0.640942796742683, -0.083271977067129)};
+    protected final double[] fixedSizes;
+    private Vector3D[] temp;
+    
     public PrimitiveHexane(Space space) {
         super(space);
 
@@ -35,7 +43,41 @@ public class PrimitiveHexane extends Primitive {
     
     public Primitive makeReciprocal() {
         // lattice vectors will be totally bogus.  we'll fix them later
-       throw new RuntimeException("I don't actually know how to make your reciprocal");
+
+        Vector3D temp = new Vector3D();
+        temp.E(fixedLatticeVector[0]);
+        temp.XE(fixedLatticeVector[1]);
+        double consts = temp.dot(fixedLatticeVector[2]);
+        consts = 2.0 * Math.PI / consts;
+        
+        PrimitiveHexane recip = new PrimitiveHexane(space);
+        
+        //construct the first fixed lattice vector of the reciprocal
+        temp.E(fixedLatticeVector[1]);
+        temp.XE(fixedLatticeVector[2]);
+        temp.TE(consts);
+        for(int i = 0; i < 3; i++){
+            recip.fixedLatticeVector[0].setX(i, temp.x(i));
+        }
+    
+        //construct the second fixed lattice vector of the reciprocal
+        temp.E(fixedLatticeVector[2]);
+        temp.XE(fixedLatticeVector[0]);
+        temp.TE(consts);
+        for(int i=0; i < 3; i++){
+            recip.fixedLatticeVector[1].setX(i, temp.x(i));
+        }
+        
+        
+        //construct the third fixed lattice vector of the reciprocal
+        temp.E(fixedLatticeVector[0]);
+        temp.XE(fixedLatticeVector[1]);
+        temp.TE(consts);
+        for(int i = 0; i < 3; i++){
+            recip.fixedLatticeVector[2].setX(i, temp.x(i));
+        }
+        
+        return recip;
     }
 
     /**
@@ -88,11 +130,5 @@ public class PrimitiveHexane extends Primitive {
     }
     
     public String toString() {return "Hexane";}
-
-    private static final long serialVersionUID = 1L;
-    protected final Vector3D[] fixedLatticeVector = new Vector3D[]{new Vector3D(-0.0450226624118149, 0.533363447960696, 2.05308369446092),
-                                          new Vector3D(0.355734889084923, 1.281874771828840, 0.146059929673340),
-                                          new Vector3D(0.763064234689232, -0.640942796742683, -0.083271977067129)};
-    protected final double[] fixedSizes;
 
 }
