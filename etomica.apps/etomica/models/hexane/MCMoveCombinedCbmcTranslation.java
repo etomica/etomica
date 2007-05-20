@@ -82,6 +82,8 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
     }
 
     public boolean doTrial() {
+//        System.out.println("doTrial MCMoveCombinedCbmcTranslation called");
+        
         molecule = moleculeSource.getAtom();
         if(molecule == null) {return false;}
         affectedAtomIterator.setAtom(molecule);

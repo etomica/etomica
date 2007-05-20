@@ -61,6 +61,8 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     }
      
     public boolean doTrial() {
+//        System.out.println("doTrial MCMoveRotateMolecule called");
+        
         if(phase.moleculeCount()==0) {molecule = null; return false;}
             
         molecule = (IAtomGroup)moleculeSource.getAtom();

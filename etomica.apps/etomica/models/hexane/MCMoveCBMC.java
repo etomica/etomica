@@ -72,8 +72,9 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     }
 
     public boolean doTrial() {
+        System.out.println("doTrial() CBMC called"); 
+
         // pick a molecule & get its childlist
-//System.out.println("doTrial() CBMC called"); 
         atom = moleculeSource.getAtom();
         if (atom == null){
             return false;
