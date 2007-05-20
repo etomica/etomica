@@ -39,7 +39,7 @@ import etomica.space3d.Space3D;
  * 
  */
 
-public class TestHexaneLow100 extends Simulation {
+public class TestHexaneLow10000Small extends Simulation {
 
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
@@ -55,7 +55,7 @@ public class TestHexaneLow100 extends Simulation {
     protected CBMCGrowSolidHexane growMolecule;
     private double density;
     
-    public TestHexaneLow100(Space space, int numMolecules) {
+    public TestHexaneLow10000Small(Space space, int numMolecules) {
         super(space, false, new PotentialMaster(space));
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
@@ -79,7 +79,7 @@ public class TestHexaneLow100 extends Simulation {
 
         SpeciesHexane species = new SpeciesHexane(this);
         getSpeciesManager().addSpecies(species);
-        int[] nCells = new int[]{4,6,6};
+        int[] nCells = new int[]{2,3,3};
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
         phase = new Phase(bdry);
         addPhase(phase);
@@ -150,20 +150,24 @@ public class TestHexaneLow100 extends Simulation {
     }
 
     public static void main(String[] args) {
+        //defaults
+        int D = 3;
+        int nA = 18;
+        double density = 0.37;
+        int stepthe;
         
-        int numMolecules = 144; //144
+        int numMolecules = 18; //144
         
-        TestHexaneLow100 sim = new TestHexaneLow100(Space3D.getInstance(), numMolecules);
-
-        String filename = "normal_modes"+numMolecules+"_"+((int)(sim.density*100))+"hexane";
+        String filename = "normal_modes"+nA+"_"+((int)(density*100))+"hexane";
 
         System.out.println("Running hard sphere hexane simulation");
-        System.out.println(numMolecules + " molecules at density " + sim.density);
+        System.out.println(numMolecules + " molecules at density " + density);
         System.out.println("output data to " + filename);
 
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
-        
+        TestHexaneLow10000Small sim = new TestHexaneLow10000Small(Space3D.getInstance(), numMolecules);
+
         PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
         
         // set up normal-mode meter
@@ -180,7 +184,7 @@ public class TestHexaneLow100 extends Simulation {
         fooAdapter.setActionInterval(numMolecules);
         sim.integrator.addListener(fooAdapter);
         
-        long nSteps = 100;
+        long nSteps = 20000;
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
@@ -190,12 +194,17 @@ public class TestHexaneLow100 extends Simulation {
         sim.activityIntegrate.setMaxSteps(nSteps);      
         sim.getController().actionPerformed();
  
+        System.out.println("Calculating all the fun eigenstuff");
+        
         WriteS sWriter = new WriteS();
         sWriter.setFilename(filename);
         sWriter.setMeter(meterNormalMode);
         sWriter.setWaveVectorFactory(waveVectorFactory);
         sWriter.setOverwrite(true);
         sWriter.actionPerformed();
+        
+        System.out.println(filename + " is finished running");
+        System.out.println(nSteps + "  steps");
     }
 
 }
