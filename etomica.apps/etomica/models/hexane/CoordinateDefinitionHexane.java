@@ -27,8 +27,10 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
     public CoordinateDefinitionHexane(Phase phase, Primitive primitive, 
             SpeciesHexane species){
-        super(phase, primitive, 3);
+        super(phase, primitive, 6);
 
+        //TODO patched the orientation in the previous line
+        
         length = species.getBondLength();
         phi = species.getBondAngle();
         
