@@ -39,7 +39,7 @@ import etomica.space3d.Space3D;
  * 
  */
 
-public class TestHexaneLow10000Small extends Simulation {
+public class TestHexaneLowSmall extends Simulation {
 
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
@@ -55,7 +55,7 @@ public class TestHexaneLow10000Small extends Simulation {
     protected CBMCGrowSolidHexane growMolecule;
     private double density;
     
-    public TestHexaneLow10000Small(Space space, int numMolecules) {
+    public TestHexaneLowSmall(Space space, int numMolecules) {
         super(space, false, new PotentialMaster(space));
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
@@ -154,11 +154,10 @@ public class TestHexaneLow10000Small extends Simulation {
         int D = 3;
         int nA = 18;
         double density = 0.37;
-        int stepthe;
+        long nSteps = 100;
+        int numMolecules = nA; //144
         
-        int numMolecules = 18; //144
-        
-        String filename = "normal_modes"+nA+"_"+((int)(density*100))+"hexane";
+        String filename = "normal_modes"+nA+"_"+((int)(density*100))+"hexane"+nSteps;
 
         System.out.println("Running hard sphere hexane simulation");
         System.out.println(numMolecules + " molecules at density " + density);
@@ -166,7 +165,7 @@ public class TestHexaneLow10000Small extends Simulation {
 
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
-        TestHexaneLow10000Small sim = new TestHexaneLow10000Small(Space3D.getInstance(), numMolecules);
+        TestHexaneLowSmall sim = new TestHexaneLowSmall(Space3D.getInstance(), numMolecules);
 
         PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
         
@@ -184,7 +183,6 @@ public class TestHexaneLow10000Small extends Simulation {
         fooAdapter.setActionInterval(numMolecules);
         sim.integrator.addListener(fooAdapter);
         
-        long nSteps = 20000;
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");

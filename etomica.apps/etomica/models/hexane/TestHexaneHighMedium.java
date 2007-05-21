@@ -39,7 +39,7 @@ import etomica.space3d.Space3D;
  * 
  */
 
-public class TestHexaneLow100Small extends Simulation {
+public class TestHexaneHighMedium extends Simulation {
 
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
@@ -55,14 +55,14 @@ public class TestHexaneLow100Small extends Simulation {
     protected CBMCGrowSolidHexane growMolecule;
     private double density;
     
-    public TestHexaneLow100Small(Space space, int numMolecules) {
+    public TestHexaneHighMedium(Space space, int numMolecules) {
         super(space, false, new PotentialMaster(space));
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         primitive = new PrimitiveHexane(space);
         // close packed density is 0.4165783882178116
         // Monson reports data for 0.373773507616 and 0.389566754417
-        density = 0.373773507616;
+        density = 0.389566754417;
         primitive.scaleSize(Math.pow(0.4165783882178116/density,1.0/3.0));
         lattice = new BravaisLattice(primitive);
 
@@ -79,7 +79,7 @@ public class TestHexaneLow100Small extends Simulation {
 
         SpeciesHexane species = new SpeciesHexane(this);
         getSpeciesManager().addSpecies(species);
-        int[] nCells = new int[]{2,3,3};
+        int[] nCells = new int[]{4,3,3};
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
         phase = new Phase(bdry);
         addPhase(phase);
@@ -152,13 +152,12 @@ public class TestHexaneLow100Small extends Simulation {
     public static void main(String[] args) {
         //defaults
         int D = 3;
-        int nA = 18;
-        double density = 0.37;
-        int stepthe;
+        int nA = 36;
+        double density = 0.40;
+        long nSteps = 100;
+        int numMolecules = nA; //144
         
-        int numMolecules = 18; //144
-        
-        String filename = "normal_modes"+nA+"_"+((int)(density*100))+"hexane";
+        String filename = "normal_modes"+nA+"_"+((int)(density*100))+"hexane"+nSteps;
 
         System.out.println("Running hard sphere hexane simulation");
         System.out.println(numMolecules + " molecules at density " + density);
@@ -166,7 +165,7 @@ public class TestHexaneLow100Small extends Simulation {
 
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
-        TestHexaneLow100Small sim = new TestHexaneLow100Small(Space3D.getInstance(), numMolecules);
+        TestHexaneHighMedium sim = new TestHexaneHighMedium(Space3D.getInstance(), numMolecules);
 
         PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
         
@@ -184,7 +183,6 @@ public class TestHexaneLow100Small extends Simulation {
         fooAdapter.setActionInterval(numMolecules);
         sim.integrator.addListener(fooAdapter);
         
-        long nSteps = 100;
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.getController().actionPerformed();
         System.out.println("equilibration finished");
