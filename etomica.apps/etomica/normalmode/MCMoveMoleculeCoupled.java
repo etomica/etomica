@@ -86,6 +86,8 @@ public class MCMoveMoleculeCoupled extends MCMovePhaseStep {
     }
 
     public boolean doTrial() {
+//        System.out.println("doTrial MCMoveMoleculeCoupled called");
+        
         molecule0 = moleculeSource.getAtom();
         molecule1 = moleculeSource.getAtom();
         if(molecule0==null || molecule1==null || molecule0==molecule1) return false;
