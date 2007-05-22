@@ -124,6 +124,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         canvas.setMaximumSize(temp);
         canvas.setPreferredSize(temp);
         canvas.reshape(width, height);
+
     }
     
     /**
@@ -231,7 +232,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         canvas.addMouseListener(listener);
         canvas.addMouseMotionListener(listener);
         canvas.addKeyListener(listener);
-        
+
         canvas.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {
                 if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
@@ -460,20 +461,18 @@ public class DisplayPhase extends Display implements EtomicaElement {
     }
 
     /**
-     * Set the flag indicating whether the graphic should ever resize
-     * after its size is initially established by the first graphic
-     * displayed.
+     * Set the flag indicating whether the graphic should resize from its
+     * currently displayed size when a new phase is set.
      */
-    public void setGraphicResizable(boolean b) {
+    public void setResizeOnNewPhase(boolean b) {
     	graphicResizable = b;
     }
 
     /**
-     * Get the flag indicating whether the graphic should ever resize.
-     * after its size is initially established by the first graphic
-     * displayed.
+     * Get the flag indicating whether the graphic should resize from its
+     * currently displayed size when a new phase is set.
      */
-    public boolean getGraphicResizable() {
+    public boolean getResizeOnNewPhase() {
     	return graphicResizable;
     }
 

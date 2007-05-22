@@ -89,7 +89,7 @@ public class CrystalViewer {
 
         displayPhase = new DisplayPhase(phase);
         displayPhase.setPixelUnit(new Pixel(20));
-        displayPhase.setGraphicResizable(false);
+        displayPhase.setResizeOnNewPhase(false);
 
         // we pass these to make LatticePlane happy.  they'll get whacked by update() later
         latticePlane = new LatticePlane(lattices[0].getPrimitive(), new int[] {1,0,0});
