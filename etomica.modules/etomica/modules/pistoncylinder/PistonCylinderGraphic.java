@@ -3,11 +3,16 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -33,6 +38,7 @@ import etomica.data.DataTag;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ActionVelocityWindow;
 import etomica.graphics.ColorSchemeByType;
@@ -92,7 +98,7 @@ public class PistonCylinderGraphic {
 //            UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
             System.out.println(javax.swing.UIManager.getSystemLookAndFeelClassName());
             javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-            UIManager.put("TitledBorder.font", new Font("SansSerif", Font.PLAIN, 12));
+            UIManager.put("TitledBorder.font", new Font("SansSerif", Font.BOLD, 12));
         } catch(Exception e) {}
     }
 
@@ -459,6 +465,7 @@ public class PistonCylinderGraphic {
         java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
         gbc2.gridx = 0;
         gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
+        gbc2.insets = new java.awt.Insets(3, 1, 3, 1);
         controlPanel.add(dimensionPanel);
         controlPanel.add(startPanel,gbc2);
         displayCycles = new DisplayBox();
@@ -529,7 +536,8 @@ public class PistonCylinderGraphic {
         leftPanel.add(dataPanel, gbc2);
         
         panel.add(leftPanel, BorderLayout.WEST);
-        panel.add(displayPanel, BorderLayout.EAST);
+        panel.add(displayPanel/*, BorderLayout.EAST*/);
+        addMenu();
 
         Thread repainter = new Thread() {
             public void run() {
@@ -906,7 +914,39 @@ public class PistonCylinderGraphic {
             public String getLabel() {return "";}
         });
     }
-    
+
+    private void addMenu() {
+    	JMenuBar mBar = new JMenuBar();
+    	JMenu fileMenu = new JMenu("File");
+    	JMenuItem exitBtn = new JMenuItem("Exit");
+    	exitBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			System.exit(0);
+    		}
+    	});
+    	fileMenu.add(exitBtn);
+    	JMenu helpMenu = new JMenu("Help");
+    	JMenuItem aboutBtn = new JMenuItem("About Crystal Viewer");
+    	aboutBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			AboutBoxWindow about =
+    				new AboutBoxWindow(panel,
+    					               "About Crystal Viewer",
+    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
+    					               new String[] {"Robert Rassler" });
+    			about.setVisible(true);
+    		}
+    	});
+    	aboutBtn.setEnabled(true);
+    	helpMenu.add(aboutBtn);
+
+    	mBar.add(fileMenu);
+    	mBar.add(helpMenu);
+
+    	panel.add(mBar, BorderLayout.NORTH);
+
+    }
+
     protected class ModifierAtomDiameter implements Modifier {
 
         public void setValue(double d) {

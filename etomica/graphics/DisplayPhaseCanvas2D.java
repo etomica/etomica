@@ -56,7 +56,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
     //Override superclass methods for changing size so that scale is reset with any size change  
     // this setBounds is ultimately called by all other setSize, setBounds methods
     public void setBounds(int x, int y, int width, int height) {
-        if(width == 0 || height == 0) return;
+        if(width <= 0 || height <= 0) return;
         super.setBounds(x,y,width,height);
         createOffScreen(width,height);
     }
