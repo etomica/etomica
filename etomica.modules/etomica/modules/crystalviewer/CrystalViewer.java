@@ -57,7 +57,9 @@ public class CrystalViewer {
 
         species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
-        
+
+        javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new javax.swing.plaf.metal.DefaultMetalTheme());
+
         panel = new JPanel(new BorderLayout());
         
         BasisMonatomic basisMonatomic = new BasisMonatomic(sim.getSpace());
@@ -74,7 +76,7 @@ public class CrystalViewer {
                 new LatticeHcp(),
                 new LatticeCubicDiamond()
             };
-        
+
         double[]  boxSize = new double[] { sim.getDefaults().boxSize,
         		                           sim.getDefaults().boxSize,
         		                           sim.getDefaults().boxSize};
