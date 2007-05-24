@@ -118,6 +118,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
     }
     
     protected void setSize(int width, int height) {
+    	if(width <= 0 || height <= 0) return;
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
         canvas.setSize(width, height);
         canvas.setMinimumSize(temp);

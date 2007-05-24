@@ -40,6 +40,7 @@ public class CrystalViewer {
     
     protected final Simulation sim;
     protected final JPanel panel;
+    private JPanel mainPanel;
 
     protected SpeciesSpheresMono species;
     protected Phase phase;
@@ -61,7 +62,7 @@ public class CrystalViewer {
         javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new javax.swing.plaf.metal.DefaultMetalTheme());
 
         panel = new JPanel(new BorderLayout());
-        
+
         BasisMonatomic basisMonatomic = new BasisMonatomic(sim.getSpace());
         
         BravaisLattice[] lattices = new BravaisLattice[] {
@@ -106,8 +107,8 @@ public class CrystalViewer {
         JPanel controlPanel = new JPanel();
         controlPanel.add(controlTabs);
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.add(controlPanel);
+        mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.add(controlPanel, BorderLayout.WEST);
         mainPanel.add(displayPhase.graphic());
 
         addMenu();

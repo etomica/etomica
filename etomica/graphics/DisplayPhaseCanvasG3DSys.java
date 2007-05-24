@@ -98,7 +98,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 	// this setBounds is ultimately called by all other setSize, setBounds
 	// methods
 	public void setBounds(int x, int y, int width, int height) {
-		if (width == 0 || height == 0)
+		if (width <= 0 || height <= 0)
 			return;
 		super.setBounds(x, y, width, height);
 		createOffScreen(width, height);
@@ -107,6 +107,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 	public void setBackgroundColor(Color color) {
 		backgroundColor = color;
 		gsys.setBGColor(color);
+		p.setBackground(color);
 	}
 
 	public Color getBackgroundColor() {
