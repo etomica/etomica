@@ -125,6 +125,8 @@ public abstract class DisplayCanvas extends javax.swing.JPanel implements Displa
     public float getXRot() {return(0f);}
     public float getYRot() {return(0f);}
     public float getZoom() {return(1f);}
+    public void startRotate(float x, float y) {};
+    public void stopRotate() {};
 
     /**
      * Returns unit for conversion between simulation units and display pixels.

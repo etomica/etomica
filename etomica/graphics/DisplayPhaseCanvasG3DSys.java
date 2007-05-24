@@ -393,6 +393,10 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 		return gsys.getDepthPercent();
 	}
 
+	public void stopRotate() {
+		gsys.stopRotation();
+	}
+
 	/**
 	 * Wraps an etomica index iterator in an equivalent g3dsys interface for
 	 * transport; removes g3dsys dependency from all but the etomica.graphics

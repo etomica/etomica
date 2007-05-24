@@ -25,12 +25,14 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 class MouseManager implements MouseListener, MouseMotionListener {
-
+	
   private G3DSys gsys;
   private Component c; // for giving focus on click
 
   private int previousDragX, previousDragY;
-  
+
+  private boolean rotationComplete = true;
+
   public MouseManager(Component component, G3DSys gs) {
     component.addMouseListener(this);
     component.addMouseMotionListener(this);
@@ -45,6 +47,7 @@ class MouseManager implements MouseListener, MouseMotionListener {
    * ctrl+left drag - depth up/down
    * ctrl+right drag - slab up/down
    * shift+left drag - zoom up/down
+   * shift+right drag - start rotating
    * ctrl+shift+left drag - z axis rotation
    */
   
@@ -53,13 +56,18 @@ class MouseManager implements MouseListener, MouseMotionListener {
   final static int CTRL = Event.CTRL_MASK;   // 2
   final static int SHIFT = Event.SHIFT_MASK;
   
-  private void mouseSinglePressDrag(int deltaX, int deltaY, int modifiers) {
-    switch (modifiers) {
+  private void mouseSinglePressDrag(MouseEvent e) {
+
+	final int deltaX = e.getX() - previousDragX;
+	final int deltaY = e.getY() - previousDragY;
+	previousDragX = e.getX(); previousDragY = e.getY();
+	    
+    switch (e.getModifiers()) {
     case LEFT:
       // deltaY/X reversed here since
       // horizontal drag (x) : rotate around y, vertical (y) : rotate around x
       // also, /2 so we don't rotate too quickly
-      gsys.rotateByXY(deltaY/2.0f, deltaX/2.0f);
+    	gsys.rotateByXY(deltaY/2.0f, deltaX/2.0f);
       gsys.fastRefresh();
       break;
     case RIGHT:
@@ -78,6 +86,17 @@ class MouseManager implements MouseListener, MouseMotionListener {
       gsys.zoomDown(deltaY);
       gsys.fastRefresh();
       break;
+    case SHIFT|RIGHT:
+      // Possible to go from one rotation to another without
+      // a stop command in between.
+      if(rotationComplete == true) {
+    	    gsys.stopRotation();
+    	    rotationComplete = false;
+      }
+
+      gsys.startRotation(deltaY, deltaX);
+
+      break;
     case CTRL|SHIFT|LEFT:
       gsys.rotateByZ(-deltaX/2.0f); // - so left movement is counterclockwise
       gsys.fastRefresh();
@@ -90,18 +109,48 @@ class MouseManager implements MouseListener, MouseMotionListener {
     previousDragX = e.getX();
     previousDragY = e.getY();
   }
-  
+
+  public void mouseClicked(MouseEvent e) {
+
+	  /*
+	   * Mouse controls:
+	   * shift+right - stop rotating
+	   */
+
+	  switch (e.getModifiers()) {
+
+	    case SHIFT|RIGHT:
+            gsys.stopRotation();
+	    	break;
+	    default:
+		  break;
+	  }
+  }
+
   public void mouseDragged(MouseEvent e) {
-    int deltaX = e.getX() - previousDragX;
-    int deltaY = e.getY() - previousDragY;
-    previousDragX = e.getX(); previousDragY = e.getY();
-    mouseSinglePressDrag(deltaX, deltaY, e.getModifiers());
+    mouseSinglePressDrag(e);
   }
 
   public void mouseMoved(MouseEvent e) {}
   public void mouseEntered(MouseEvent e) {}
   public void mouseExited(MouseEvent e) {}
-  public void mouseClicked(MouseEvent e) {}
-  public void mouseReleased(MouseEvent e) {}
+  
+  public void mouseReleased(MouseEvent e) {
+
+	  /*
+	   * Mouse controls:
+	   * shift+right - rotating direction / speed complete
+	   */
+
+	  switch (e.getModifiers()) {
+
+	    case SHIFT|RIGHT:
+	    	rotationComplete = true;
+	    	break;
+	    default:
+		  break;
+	  }
+
+  }
   
 }

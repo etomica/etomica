@@ -206,6 +206,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                     setSize(boxX, boxY);
                 }
                 else {
+                	canvas.stopRotate();
                     ((DisplayPhaseCanvasG3DSys)canvas).removeObjectByPhase(oldPhase);
                     ((DisplayPhaseCanvasG3DSys)canvas).refreshAtomAgentMgr();
                 }
@@ -723,7 +724,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
             }
             keyAction(evt);
         }
-        
+
         private void keyAction(KeyEvent evt) {
             //fire an event if needed
         }

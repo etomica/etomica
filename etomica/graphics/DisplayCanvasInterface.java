@@ -74,5 +74,7 @@ public interface DisplayCanvasInterface {
     public float getXRot();
     public float getYRot();
     public float getZoom();
+    public void startRotate(float x, float y);
+    public void stopRotate();
 }
 

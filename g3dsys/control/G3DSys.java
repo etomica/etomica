@@ -52,7 +52,9 @@ public class G3DSys {
   private Graphics3D g3d; //instance of G3D
 
   private Point3i tempp; //for storing transformations
-  
+
+  private javax.swing.Timer rotater = null; // timer for graphic rotation
+
   public G3DSys(java.awt.Container window) {
     //init infrastructure
     parent = window;
@@ -251,7 +253,28 @@ public class G3DSys {
   public Point3f getCenterOfRotation() {
     return tm.getRotationCenter();
   }
-  
+
+  public void startRotation(final int deltaY, final int deltaX) {
+
+    if(rotater == null) {
+      rotater = new javax.swing.Timer(50, new java.awt.event.ActionListener() { 
+	    public void actionPerformed(java.awt.event.ActionEvent e) {
+
+          rotateByXY(deltaY, deltaX);					
+          fastRefresh();
+        }
+      });
+      rotater.start();
+    }
+  }
+
+  public void stopRotation() {
+	  if(rotater != null) {
+		  rotater.stop();
+	  }
+      rotater = null;
+  }
+
   /**
    * Set the min and maximum coordinates for the model.  The zoom level is set
    * such that everything within the box is viewable.
