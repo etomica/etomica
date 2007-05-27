@@ -77,7 +77,7 @@ public class DataLogger implements DataPipe, ControllerListener, java.io.Seriali
      * Close file when integrator is done.
      */
     public void actionPerformed(ControllerEvent evt){
-        if(dataWriter != null && (evt.getType() == ControllerEvent.NO_MORE_ACTIONS &&
+        if(dataWriter != null && (evt.getType() == ControllerEvent.NO_MORE_ACTIONS ||
             evt.getType() == ControllerEvent.HALTED)) {
             if (writeOnFinishSource != null) {
                 doWrite(writeOnFinishSource.getData());
