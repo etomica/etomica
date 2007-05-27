@@ -76,7 +76,7 @@ public class CastToTable extends DataProcessor implements Serializable {
             xDataSource = ((DataInfoFunction)inputDataInfo).getXDataSource();
             columnInfo[0] = xDataSource.getIndependentDataInfo(0);
             columnInfo[1] = inputDataInfo;
-            inputType = 6;
+            inputType = 5;
         }
         else if (inputDataInfo instanceof DataInfoDoubleArray) {
             int[] arrayShape = ((DataInfoDoubleArray) inputDataInfo)
@@ -121,7 +121,7 @@ public class CastToTable extends DataProcessor implements Serializable {
                     + inputDataInfo.getClass());
         }
         outputData = new DataTable(nColumns, nRows);
-        if (inputType == 0 || inputType == 6) {
+        if (inputType == 0 || inputType == 5) {
             // we'll actually wrap the incoming DataDoubleArray(s) in a DataTable
             outputData = null;
         }
