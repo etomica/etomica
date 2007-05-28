@@ -47,18 +47,13 @@ public class MeterHarmonicCoordinate implements DataSource {
         AtomSet molecules = cell.molecules;
         double[] u = coordinateDefinition.calcU(molecules);
         double sqrtCells = Math.sqrt(coordinateDefinition.getBasisCells().length);
-        // divide by sqrt2.  Don't ask why.
-        double sqrt2 = Math.sqrt(2);
-        for (int i = 0; i < coordinateDim; i++) {
-            u[i] *= sqrtCells / sqrt2;
-        }
 
         double[] x = data.getData();
         
         for (int i=0; i<modes.length; i++) {
             double realCoord = 0;
             for (int j=0; j<coordinateDim; j++) {
-                realCoord += u[j] * eigenvectors[0][j][i];
+                realCoord += u[j] * eigenvectors[0][modes[i]][j] * sqrtCells;
             }
             x[i] = realCoord;
         }
