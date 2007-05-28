@@ -83,10 +83,10 @@ public class MCMoveHarmonic extends MCMovePhase {
             for (int j=0; j<coordinateDim; j++) {
                 if (stdDev[iVector][j] == 0) continue;
                 //generate real and imaginary parts of random normal-mode coordinate Q
-                double realGauss = random.nextGaussian();
-                double imaginaryGauss = random.nextGaussian();
-                rRand[iVector][j] = realGauss * stdDev[iVector][j] * sqrtT;
-                iRand[iVector][j] = imaginaryGauss * stdDev[iVector][j] * sqrtT;
+                double realGauss = random.nextGaussian() * sqrtT;
+                double imaginaryGauss = random.nextGaussian() * sqrtT;
+                rRand[iVector][j] = realGauss * stdDev[iVector][j];
+                iRand[iVector][j] = imaginaryGauss * stdDev[iVector][j];
                 //XXX we know that if c(k) = 0.5, one of the gaussians will be ignored, but
                 // it's hard to know which.  So long as we don't put an atom at the origin
                 // (which is true for 1D if c(k)=0.5), it's the real part that will be ignored.
