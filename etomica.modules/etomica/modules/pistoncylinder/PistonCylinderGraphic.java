@@ -926,12 +926,12 @@ public class PistonCylinderGraphic {
     	});
     	fileMenu.add(exitBtn);
     	JMenu helpMenu = new JMenu("Help");
-    	JMenuItem aboutBtn = new JMenuItem("About Crystal Viewer");
+    	JMenuItem aboutBtn = new JMenuItem("About Piston Cylinder");
     	aboutBtn.addActionListener(new ActionListener() {
     		public void actionPerformed(ActionEvent ev) {
     			AboutBoxWindow about =
     				new AboutBoxWindow(panel,
-    					               "About Crystal Viewer",
+    					               "About Piston Cylinder",
     					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
     					               new String[] {"Robert Rassler" });
     			about.setVisible(true);
