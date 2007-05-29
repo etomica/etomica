@@ -3,16 +3,11 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -38,10 +33,10 @@ import etomica.data.DataTag;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ActionVelocityWindow;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
@@ -537,7 +532,8 @@ public class PistonCylinderGraphic {
         
         panel.add(leftPanel, BorderLayout.WEST);
         panel.add(displayPanel/*, BorderLayout.EAST*/);
-        addMenu();
+        DefaultToolbar tb = new DefaultToolbar(panel, "Piston Cylinder");
+        panel.add(tb.graphic(), BorderLayout.NORTH);
 
         Thread repainter = new Thread() {
             public void run() {
@@ -913,38 +909,6 @@ public class PistonCylinderGraphic {
             }
             public String getLabel() {return "";}
         });
-    }
-
-    private void addMenu() {
-    	JMenuBar mBar = new JMenuBar();
-    	JMenu fileMenu = new JMenu("File");
-    	JMenuItem exitBtn = new JMenuItem("Exit");
-    	exitBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			System.exit(0);
-    		}
-    	});
-    	fileMenu.add(exitBtn);
-    	JMenu helpMenu = new JMenu("Help");
-    	JMenuItem aboutBtn = new JMenuItem("About Piston Cylinder");
-    	aboutBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			AboutBoxWindow about =
-    				new AboutBoxWindow(panel,
-    					               "About Piston Cylinder",
-    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
-    					               new String[] {"Robert Rassler" });
-    			about.setVisible(true);
-    		}
-    	});
-    	aboutBtn.setEnabled(true);
-    	helpMenu.add(aboutBtn);
-
-    	mBar.add(fileMenu);
-    	mBar.add(helpMenu);
-
-    	panel.add(mBar, BorderLayout.NORTH);
-
     }
 
     protected class ModifierAtomDiameter implements Modifier {

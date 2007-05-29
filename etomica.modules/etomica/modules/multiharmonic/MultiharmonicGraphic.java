@@ -4,12 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
@@ -19,7 +14,7 @@ import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceScalar;
-import etomica.graphics.AboutBoxWindow;
+import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayPhase;
@@ -253,42 +248,11 @@ public class MultiharmonicGraphic {
         mainPanel.add(plot.graphic(), gbc2);
 
         panel.add(mainPanel);
-        panel.add(addMenu(), BorderLayout.NORTH);
+        DefaultToolbar tb = new DefaultToolbar(panel, "Multiharmonic");
+        panel.add(tb.graphic(), BorderLayout.NORTH);
 
         uUpdate.actionPerformed();
         
-    }
-
-    private JMenuBar addMenu() {
-    	JMenuBar mBar = new JMenuBar();
-    	JMenu fileMenu = new JMenu("File");
-    	JMenuItem exitBtn = new JMenuItem("Exit");
-    	exitBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			System.exit(0);
-    		}
-    	});
-    	fileMenu.add(exitBtn);
-    	JMenu helpMenu = new JMenu("Help");
-    	JMenuItem aboutBtn = new JMenuItem("About Multiharmonic");
-    	aboutBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			AboutBoxWindow about =
-    				new AboutBoxWindow(panel,
-    					               "About Multiharmonic",
-    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
-    					               new String[] {"Robert Rassler" });
-    			about.setVisible(true);
-    		}
-    	});
-    	aboutBtn.setEnabled(true);
-    	helpMenu.add(aboutBtn);
-
-    	mBar.add(fileMenu);
-    	mBar.add(helpMenu);
-
-    	return mBar;
-
     }
 
     /**

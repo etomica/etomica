@@ -2,12 +2,7 @@ package etomica.modules.joulethomson;
 
 import java.awt.Color;
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
@@ -30,9 +25,9 @@ import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterDensity;
-import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ColorSchemeTemperature;
+import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceControllerButton;
@@ -357,39 +352,8 @@ public class JouleThomson extends SimulationGraphic {
         panel().setLayout(new BorderLayout());
         panel().add(controlPanel, BorderLayout.WEST);
         panel().add(displayPanel, BorderLayout.EAST);
-        panel().add(addMenu(panel()), BorderLayout.NORTH);
-
-    }
-
-    private JMenuBar addMenu(final JPanel parent) {
-    	JMenuBar mBar = new JMenuBar();
-    	JMenu fileMenu = new JMenu("File");
-    	JMenuItem exitBtn = new JMenuItem("Exit");
-    	exitBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			System.exit(0);
-    		}
-    	});
-    	fileMenu.add(exitBtn);
-    	JMenu helpMenu = new JMenu("Help");
-    	JMenuItem aboutBtn = new JMenuItem("About Joule Thomson Experiment");
-    	aboutBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			AboutBoxWindow about =
-    				new AboutBoxWindow(parent,
-    					               "About Joule Thomson Experiment",
-    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
-    					               new String[] {"Colin Tedlock", "Robert Rassler" });
-    			about.setVisible(true);
-    		}
-    	});
-    	aboutBtn.setEnabled(true);
-    	helpMenu.add(aboutBtn);
-
-    	mBar.add(fileMenu);
-    	mBar.add(helpMenu);
-
-    	return(mBar);
+        DefaultToolbar tb = new DefaultToolbar(panel(), "Joule Thomson Experiment");
+        panel().add(tb.graphic(), BorderLayout.NORTH);
 
     }
 

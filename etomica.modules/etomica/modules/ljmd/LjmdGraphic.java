@@ -1,11 +1,6 @@
 package etomica.modules.ljmd;
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -40,9 +35,9 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
@@ -391,43 +386,12 @@ public class LjmdGraphic {
             anotherPanel.add(configButton.graphic(), gbc2);
         }
 
-        panel.add(addMenu(), BorderLayout.NORTH);
+        DefaultToolbar tb = new DefaultToolbar(panel, "Lennard-Jones Molecular Dynamics");
+        panel.add(tb.graphic(), BorderLayout.NORTH);
         JPanel subPanel = new JPanel();
-        panel.add(bigPanel, BorderLayout.EAST);
+        panel.add(bigPanel, BorderLayout.SOUTH);
         panel.add(controlPanel, BorderLayout.WEST);
         panel.add(displayPhase.graphic());
-    }
-
-    private JMenuBar addMenu() {
-    	JMenuBar mBar = new JMenuBar();
-    	JMenu fileMenu = new JMenu("File");
-    	JMenuItem exitBtn = new JMenuItem("Exit");
-    	exitBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			System.exit(0);
-    		}
-    	});
-    	fileMenu.add(exitBtn);
-    	JMenu helpMenu = new JMenu("Help");
-    	JMenuItem aboutBtn = new JMenuItem("About Lennard-Jones Molecular Dynamics");
-    	aboutBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			AboutBoxWindow about =
-    				new AboutBoxWindow(panel,
-    					               "About Lennard-Jones Molecular Dynamics",
-    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
-    					               new String[] {"Robert Rassler" });
-    			about.setVisible(true);
-    		}
-    	});
-    	aboutBtn.setEnabled(true);
-    	helpMenu.add(aboutBtn);
-
-    	mBar.add(fileMenu);
-    	mBar.add(helpMenu);
-
-    	return(mBar);
-
     }
 
     public static void main(String[] args) {

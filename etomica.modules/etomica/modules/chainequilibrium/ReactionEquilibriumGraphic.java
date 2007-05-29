@@ -1,12 +1,7 @@
 package etomica.modules.chainequilibrium;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
@@ -14,8 +9,8 @@ import etomica.action.Action;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
-import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
 import etomica.graphics.DeviceTrioControllerButton;
@@ -260,7 +255,8 @@ public class ReactionEquilibriumGraphic {
         panel.setLayout(new BorderLayout());
         panel.add(controlPanel, BorderLayout.WEST);
         panel.add(displayPanel, BorderLayout.EAST);
-        panel.add(addMenu(), BorderLayout.NORTH);
+        DefaultToolbar tb = new DefaultToolbar(panel, "Chain Reaction Equilibrium");
+        panel.add(tb.graphic(), BorderLayout.NORTH);
 
         //set the number of significant figures displayed on the table.
         javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
@@ -277,38 +273,6 @@ public class ReactionEquilibriumGraphic {
 
         numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
         initializing = false;
-    }
-
-    private JMenuBar addMenu() {
-    	JMenuBar mBar = new JMenuBar();
-    	JMenu fileMenu = new JMenu("File");
-    	JMenuItem exitBtn = new JMenuItem("Exit");
-    	exitBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			System.exit(0);
-    		}
-    	});
-    	fileMenu.add(exitBtn);
-    	JMenu helpMenu = new JMenu("Help");
-    	JMenuItem aboutBtn = new JMenuItem("About Chain Reaction Equilibrium");
-    	aboutBtn.addActionListener(new ActionListener() {
-    		public void actionPerformed(ActionEvent ev) {
-    			AboutBoxWindow about =
-    				new AboutBoxWindow(panel,
-    					               "About Chain Reaction Equilibrium",
-    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
-    					               new String[] {"Robert Rassler" });
-    			about.setVisible(true);
-    		}
-    	});
-    	aboutBtn.setEnabled(true);
-    	helpMenu.add(aboutBtn);
-
-    	mBar.add(fileMenu);
-    	mBar.add(helpMenu);
-
-    	return mBar;
-
     }
 
     public DeviceThermoSelector setup(ReactionEquilibrium sim){

@@ -77,6 +77,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
         config.initializeCoordinates(phase1);
 
+        agentManager = new AtomLeafAgentManager(this,phase1);
+
         //potentials
         AAbonded = new P2SquareWellBonded(space, this, 0.5 * defaults.atomSize, //core
                 2.0, //well multiplier
@@ -114,7 +116,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         integratorHard1.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase1)));
-        agentManager = new AtomLeafAgentManager(this,phase1);
+
 	}
     
     public AtomLeafAgentManager getAgentManager() {
