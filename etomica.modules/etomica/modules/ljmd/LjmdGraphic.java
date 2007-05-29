@@ -1,6 +1,11 @@
 package etomica.modules.ljmd;
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -35,6 +40,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
@@ -315,7 +321,6 @@ public class LjmdGraphic {
         	((javax.swing.JComponent)displayPhase.graphic()).setPreferredSize(new java.awt.Dimension(300,300));
         } catch(ClassCastException e) {}
         displayPhase.setScale(0.7);
-        bigPanel.add(displayPhase.graphic());
         bigPanel.add(displayPanel);
         
 //    	javax.swing.JPanel displayPhasePanel = new javax.swing.JPanel();//3d
@@ -368,8 +373,8 @@ public class LjmdGraphic {
         
         JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
-        gbc2.gridy = 0;
-        gbc2.gridx = java.awt.GridBagConstraints.RELATIVE;
+        gbc2.gridx = 0;
+        gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
         controlPanel.add(startPanel,gbc2);
         controlPanel.add(temperaturePanel, gbc2);
         controlPanel.add(nSlider.graphic(), gbc2);
@@ -386,11 +391,45 @@ public class LjmdGraphic {
             anotherPanel.add(configButton.graphic(), gbc2);
         }
 
-        
-        panel.add(controlPanel, java.awt.BorderLayout.NORTH);
-        panel.add(bigPanel, java.awt.BorderLayout.EAST);
+        panel.add(addMenu(), BorderLayout.NORTH);
+        JPanel subPanel = new JPanel();
+        panel.add(bigPanel, BorderLayout.EAST);
+        panel.add(controlPanel, BorderLayout.WEST);
+        panel.add(displayPhase.graphic());
     }
-    
+
+    private JMenuBar addMenu() {
+    	JMenuBar mBar = new JMenuBar();
+    	JMenu fileMenu = new JMenu("File");
+    	JMenuItem exitBtn = new JMenuItem("Exit");
+    	exitBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			System.exit(0);
+    		}
+    	});
+    	fileMenu.add(exitBtn);
+    	JMenu helpMenu = new JMenu("Help");
+    	JMenuItem aboutBtn = new JMenuItem("About Lennard-Jones Molecular Dynamics");
+    	aboutBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			AboutBoxWindow about =
+    				new AboutBoxWindow(panel,
+    					               "About Lennard-Jones Molecular Dynamics",
+    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
+    					               new String[] {"Robert Rassler" });
+    			about.setVisible(true);
+    		}
+    	});
+    	aboutBtn.setEnabled(true);
+    	helpMenu.add(aboutBtn);
+
+    	mBar.add(fileMenu);
+    	mBar.add(helpMenu);
+
+    	return(mBar);
+
+    }
+
     public static void main(String[] args) {
         Space space = Space2D.getInstance();
         if(args.length != 0) {

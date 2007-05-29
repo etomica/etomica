@@ -1,5 +1,12 @@
 package etomica.modules.reactionequilibrium;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import etomica.action.PhaseImposePbc;
@@ -12,6 +19,7 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
+import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
@@ -131,7 +139,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public void releaseAgent(Object agent, IAtom atom) {}
 
 	public static void main(String[] args) {
-		javax.swing.JFrame f = new javax.swing.JFrame(); //create a window
+		javax.swing.JFrame f = new javax.swing.JFrame("Reaction Equilibrium"); //create a window
 		f.setSize(800, 550);
 
 		ReactionEquilibrium sim = new ReactionEquilibrium();

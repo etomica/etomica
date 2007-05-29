@@ -1,7 +1,13 @@
 package etomica.modules.joulethomson;
 
 import java.awt.Color;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
@@ -24,6 +30,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterDensity;
+import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ColorSchemeTemperature;
 import etomica.graphics.DeviceBox;
@@ -285,9 +292,9 @@ public class JouleThomson extends SimulationGraphic {
         
         //tabbed pane for the big displays
     	final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
-	    javax.swing.JPanel displayPhasePanel = new javax.swing.JPanel(new java.awt.BorderLayout());
-	    displayPhasePanel.add(displayPhase1.graphic(),java.awt.BorderLayout.CENTER);
-	    if(space.D() < 3) displayPhasePanel.add(scaleSlider.getSlider(),java.awt.BorderLayout.EAST);
+	    javax.swing.JPanel displayPhasePanel = new javax.swing.JPanel(new BorderLayout());
+	    displayPhasePanel.add(displayPhase1.graphic(),BorderLayout.CENTER);
+	    if(space.D() < 3) displayPhasePanel.add(scaleSlider.getSlider(),BorderLayout.EAST);
 //   	displayPanel.add(displayPhase1.getLabel(), displayPhase1.graphic());
     	displayPanel.add(displayPhase1.getLabel(), displayPhasePanel);
     	displayPanel.add(displayTable.getLabel(), displayTable.graphic());
@@ -347,11 +354,45 @@ public class JouleThomson extends SimulationGraphic {
         controlPanel.add(sliderPanel, gbc2);
         
         panel().removeAll();
-        panel().add(controlPanel, java.awt.BorderLayout.WEST);
-        panel().add(displayPanel, java.awt.BorderLayout.EAST);
+        panel().setLayout(new BorderLayout());
+        panel().add(controlPanel, BorderLayout.WEST);
+        panel().add(displayPanel, BorderLayout.EAST);
+        panel().add(addMenu(panel()), BorderLayout.NORTH);
 
     }
-    
+
+    private JMenuBar addMenu(final JPanel parent) {
+    	JMenuBar mBar = new JMenuBar();
+    	JMenu fileMenu = new JMenu("File");
+    	JMenuItem exitBtn = new JMenuItem("Exit");
+    	exitBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			System.exit(0);
+    		}
+    	});
+    	fileMenu.add(exitBtn);
+    	JMenu helpMenu = new JMenu("Help");
+    	JMenuItem aboutBtn = new JMenuItem("About Joule Thomson Experiment");
+    	aboutBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			AboutBoxWindow about =
+    				new AboutBoxWindow(parent,
+    					               "About Joule Thomson Experiment",
+    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
+    					               new String[] {"Colin Tedlock", "Robert Rassler" });
+    			about.setVisible(true);
+    		}
+    	});
+    	aboutBtn.setEnabled(true);
+    	helpMenu.add(aboutBtn);
+
+    	mBar.add(fileMenu);
+    	mBar.add(helpMenu);
+
+    	return(mBar);
+
+    }
+
     //inner class the defines a drop-down menu to select LJ parameters to mimic
     //several real substances
     //the field "names" must be static to pass to super, and that requires this inner class to be static

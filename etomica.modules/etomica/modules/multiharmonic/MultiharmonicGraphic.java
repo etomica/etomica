@@ -1,9 +1,15 @@
 package etomica.modules.multiharmonic;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
@@ -13,6 +19,7 @@ import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceScalar;
+import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayPhase;
@@ -59,7 +66,7 @@ public class MultiharmonicGraphic {
 //        displayBox.setLabelType(DisplayBox.BORDER);
 //        displayBox.setAccumulator(sim.accumulator);
 //        panel.add(displayBox.graphic());
-        
+    
         DisplayPlot plot = new DisplayPlot();
         DataProcessorFunction log = new DataProcessorFunction(new Function() {
           public double f(double x) {
@@ -206,14 +213,15 @@ public class MultiharmonicGraphic {
 
         //Lay out components
         //main panel
-        panel = new JPanel(new GridBagLayout());
+        panel = new JPanel(new BorderLayout());
+        JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc2 = new GridBagConstraints();
         gbc2.gridx = 0;
         gbc2.gridy = 0;
         
         //controls -- start/pause and sliders
         JPanel controlPanel = new JPanel(new GridBagLayout());
-        panel.add(controlPanel, gbc2);
+        mainPanel.add(controlPanel, gbc2);
         controlPanel.add(control.graphic(), gbc2);
         JPanel sliderPanel = new JPanel(new GridLayout(3,1));
         sliderPanel.add(x0Slider.graphic());
@@ -225,7 +233,7 @@ public class MultiharmonicGraphic {
         
         //energy plot
         energyPlot.setSize(300,200);
-        panel.add(energyPlot.graphic(),gbc2);
+        mainPanel.add(energyPlot.graphic(),gbc2);
         
         //plot of potential and display of phase
         JPanel phasePanel = new JPanel(new GridBagLayout());
@@ -237,17 +245,52 @@ public class MultiharmonicGraphic {
         phasePanel.add(displayPhase.graphic(), gbc2);
         gbc2.gridx = 1;
         gbc2.gridy = 0;
-        panel.add(phasePanel, gbc2);
+        mainPanel.add(phasePanel, gbc2);
         
         //plot of running average
         gbc2.gridx = 1;
         gbc2.gridy = 1;
-        panel.add(plot.graphic(), gbc2);
+        mainPanel.add(plot.graphic(), gbc2);
+
+        panel.add(mainPanel);
+        panel.add(addMenu(), BorderLayout.NORTH);
 
         uUpdate.actionPerformed();
         
     }
-    
+
+    private JMenuBar addMenu() {
+    	JMenuBar mBar = new JMenuBar();
+    	JMenu fileMenu = new JMenu("File");
+    	JMenuItem exitBtn = new JMenuItem("Exit");
+    	exitBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			System.exit(0);
+    		}
+    	});
+    	fileMenu.add(exitBtn);
+    	JMenu helpMenu = new JMenu("Help");
+    	JMenuItem aboutBtn = new JMenuItem("About Multiharmonic");
+    	aboutBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			AboutBoxWindow about =
+    				new AboutBoxWindow(panel,
+    					               "About Multiharmonic",
+    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
+    					               new String[] {"Robert Rassler" });
+    			about.setVisible(true);
+    		}
+    	});
+    	aboutBtn.setEnabled(true);
+    	helpMenu.add(aboutBtn);
+
+    	mBar.add(fileMenu);
+    	mBar.add(helpMenu);
+
+    	return mBar;
+
+    }
+
     /**
      * This pulls the data from the DataSourceFunctions and pushes them to the
      * plot.  Doing this before was ineffective because the plot was not visible
@@ -260,7 +303,7 @@ public class MultiharmonicGraphic {
     
     public static void main(String[] args) {
         MultiharmonicGraphic simGraphic = new MultiharmonicGraphic();
-        SimulationGraphic.makeAndDisplayFrame(simGraphic.panel);
+        SimulationGraphic.makeAndDisplayFrame(simGraphic.panel, "Multiharmonic");
         simGraphic.initUPlot();
     }
 

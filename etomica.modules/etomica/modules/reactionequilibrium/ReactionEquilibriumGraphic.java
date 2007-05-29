@@ -1,5 +1,12 @@
 package etomica.modules.reactionequilibrium;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import etomica.action.Action;
@@ -20,6 +27,7 @@ import etomica.data.DataSplitter;
 import etomica.data.DataTag;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
@@ -48,6 +56,7 @@ public class ReactionEquilibriumGraphic {
 	public JPanel panel = new JPanel();
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium sim) {
+        panel.setLayout(new BorderLayout());
 		sim.register(sim.integratorHard1);
 		initializing = true;
 		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
@@ -344,8 +353,9 @@ public class ReactionEquilibriumGraphic {
 		controlPanel.add(speciesEditors, gbc2);
 		/// controlPanel.add(sliderPanel, gbc2);
 
-		panel.add(controlPanel, java.awt.BorderLayout.WEST);
-		panel.add(displayPanel, java.awt.BorderLayout.EAST);
+		panel.add(controlPanel, BorderLayout.WEST);
+		panel.add(displayPanel, BorderLayout.EAST);
+		panel.add(addMenu(), BorderLayout.NORTH);
 
 		//***************set all the colors******************
 		/*
@@ -420,6 +430,39 @@ public class ReactionEquilibriumGraphic {
 		//panel.removeAll();
 		//panel.add(panel);
 	}
+
+
+    private JMenuBar addMenu() {
+    	JMenuBar mBar = new JMenuBar();
+    	JMenu fileMenu = new JMenu("File");
+    	JMenuItem exitBtn = new JMenuItem("Exit");
+    	exitBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			System.exit(0);
+    		}
+    	});
+    	fileMenu.add(exitBtn);
+    	JMenu helpMenu = new JMenu("Help");
+    	JMenuItem aboutBtn = new JMenuItem("About Reaction Equilibrium");
+    	aboutBtn.addActionListener(new ActionListener() {
+    		public void actionPerformed(ActionEvent ev) {
+    			AboutBoxWindow about =
+    				new AboutBoxWindow(panel,
+    					               "About Reaction Equilibrium",
+    					               new String[] {"Dr. David A. Kofke", "Dr. Andrew Schultz" },
+    					               new String[] {"Robert Rassler" });
+    			about.setVisible(true);
+    		}
+    	});
+    	aboutBtn.setEnabled(true);
+    	helpMenu.add(aboutBtn);
+
+    	mBar.add(fileMenu);
+    	mBar.add(helpMenu);
+
+    	return(mBar);
+
+    }
 
 	//=================================================================
 	//panel containing species-editing devices
