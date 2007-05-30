@@ -1,12 +1,6 @@
 package etomica.modules.reactionequilibrium;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import etomica.action.PhaseImposePbc;
@@ -15,11 +9,11 @@ import etomica.action.activity.Controller;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.AboutBoxWindow;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
@@ -47,7 +41,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public P2SquareWellBonded ABbonded;
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
-    public AtomLeafAgentManager agentManager;
+    private AtomLeafAgentManager agentManager = null;
     public IAtom[] agents;
     
     public ReactionEquilibrium() {
@@ -80,13 +74,13 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         agentManager = new AtomLeafAgentManager(this,phase1);
 
         //potentials
-        AAbonded = new P2SquareWellBonded(space, this, 0.5 * defaults.atomSize, //core
+        AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * defaults.atomSize, //core
                 2.0, //well multiplier
                 defaults.potentialWell, defaults.ignoreOverlap);
-        ABbonded = new P2SquareWellBonded(space, this, 0.5 * defaults.atomSize, //core
+        ABbonded = new P2SquareWellBonded(space, agentManager, 0.5 * defaults.atomSize, //core
                 2.0, //well multiplier
                 defaults.potentialWell, defaults.ignoreOverlap);
-        BBbonded = new P2SquareWellBonded(space, this, 0.5 * defaults.atomSize, //core
+        BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * defaults.atomSize, //core
                 2.0, //well multiplier
                 defaults.potentialWell, defaults.ignoreOverlap);
 /*      P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
@@ -105,7 +99,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         potentialMaster.addPotential(BBbonded,
                 new Species[] { speciesB, speciesB });
 
-        meterDimerFraction = new MeterDimerFraction(this);
+        meterDimerFraction = new MeterDimerFraction(agentManager);
         meterDimerFraction.setSpeciesA(speciesA);
         meterDimerFraction.setPhase(phase1);
         thermometer = new MeterTemperature();
@@ -119,14 +113,14 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 
 	}
     
-    public AtomLeafAgentManager getAgentManager() {
-        return agentManager;
-    }
-
     public Class getAgentClass() {
         return IAtom.class;
     }
-    
+
+    public AtomAgentManager getAgentManager() {
+    	return agentManager;
+    }
+
     /**
      * Implementation of Atom.AgentSource interface. Agent is the 
      * bonding partner.
@@ -141,12 +135,12 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public void releaseAgent(Object agent, IAtom atom) {}
 
 	public static void main(String[] args) {
-		javax.swing.JFrame f = new javax.swing.JFrame("Reaction Equilibrium"); //create a window
+		JFrame f = new JFrame("Reaction Equilibrium"); //create a window
 		f.setSize(800, 550);
 
 		ReactionEquilibrium sim = new ReactionEquilibrium();
 		ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim);
-		f.getContentPane().add(graphic.panel);
+		f.getContentPane().add(graphic.graphic());
 		f.pack();
 		f.setVisible(true);
 		f.addWindowListener(new java.awt.event.WindowAdapter() { //anonymous

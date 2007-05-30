@@ -17,12 +17,12 @@ import etomica.units.Fraction;
 import etomica.util.NameMaker;
 
 public final class MeterDimerFraction implements DataSource {
-    public MeterDimerFraction(ReactionEquilibrium sim) {
+    public MeterDimerFraction(AtomAgentManager aam) {
         data = new DataTable(1,5);
         DataInfoDoubleArray columnInfo = new DataInfoDoubleArray("Dimer Fraction", Fraction.DIMENSION, new int[]{5});
         dataInfo = new DataInfoTable("Dimer Fraction", new DataInfoDoubleArray[]{columnInfo}, 5, new String[]{"R", "B", "R-R", "R-B", "B-B"});
         setName(NameMaker.makeName(this.getClass()));
-        agentManager = sim.getAgentManager();
+        agentManager = aam;
         tag = new DataTag();
         dataInfo.addTag(tag);
     }

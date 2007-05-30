@@ -1,10 +1,9 @@
 package etomica.modules.chainequilibrium;
 
-import javax.swing.JPanel;
-
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
@@ -25,7 +24,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 
 	public MeterChainLength molecularCount;
 	public Controller controller1;
-	public JPanel panel = new JPanel(new java.awt.BorderLayout());
 	public IntegratorHard integratorHard1;
 	public java.awt.Component display;
 	public Phase phase1;
@@ -37,17 +35,14 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 	public P2SquareWellBonded AAbonded;
 	public P2SquareWellBonded ABbonded;
 	public P2SquareWellBonded BBbonded;
-    public AtomLeafAgentManager agentManager;
+    private AtomLeafAgentManager agentManager = null;
     public IAtom[] agents;
-	
+
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
         controller1 = getController();
 
         double diameter = 1.0;
-        
-        molecularCount = new MeterChainLength(this);
-		
 
         getDefaults().atomSize = diameter;
 
@@ -68,16 +63,17 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         phase1.getAgent(speciesB).setNMolecules(40);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase1);
 
-        molecularCount.setPhase(phase1);
-
         agentManager = new AtomLeafAgentManager(this,phase1);
 
+        molecularCount = new MeterChainLength(agentManager);
+        molecularCount.setPhase(phase1);
+
 		//potentials
-        AAbonded = new P2SquareWellBonded(space, this, 0.5 * getDefaults().atomSize, 
+        AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * getDefaults().atomSize, 
                 2.0, getDefaults().potentialWell);
-		ABbonded = new P2SquareWellBonded(space, this, 0.5 * getDefaults().atomSize,
+		ABbonded = new P2SquareWellBonded(space, agentManager, 0.5 * getDefaults().atomSize,
 		        2.0, getDefaults().potentialWell);
-		BBbonded = new P2SquareWellBonded(space, this, 0.5 * getDefaults().atomSize,
+		BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * getDefaults().atomSize,
 		        2.0, getDefaults().potentialWell);
 
 		potentialMaster.addPotential(AAbonded,
@@ -101,10 +97,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 
 	}
     
-    public AtomLeafAgentManager getAgentManager() {
-        return agentManager;
-    }
-
     public Class getAgentClass() {
         return IAtom[].class;
     }
@@ -119,4 +111,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 	}
     
     public void releaseAgent(Object agent, IAtom atom) {}
+    
+    public AtomAgentManager getAgentManager() {
+    	return agentManager;
+    }
 }

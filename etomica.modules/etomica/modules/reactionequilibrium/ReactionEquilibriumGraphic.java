@@ -48,7 +48,7 @@ import etomica.util.Constants.CompassDirection;
  * Preferences - Java - Code Style - Code Templates
  */
 public class ReactionEquilibriumGraphic {
-	public JPanel panel = new JPanel();
+	private JPanel panel = new JPanel();
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium sim) {
         panel.setLayout(new BorderLayout());
@@ -524,6 +524,10 @@ public class ReactionEquilibriumGraphic {
 			setBorder(new javax.swing.border.TitledBorder(label));
 		}
 	} //end of MySpeciesEditor
+
+	public JPanel graphic() {
+		return panel;
+	}
 
 	public static class Applet extends javax.swing.JApplet {
 

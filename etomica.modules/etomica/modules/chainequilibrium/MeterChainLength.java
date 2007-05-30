@@ -27,11 +27,11 @@ import etomica.util.NameMaker;
  */
 public class MeterChainLength implements DataSource, Serializable, AgentSource, DataSourceIndependent {
 
-    public MeterChainLength(ReactionEquilibrium sim) {
+    public MeterChainLength(AtomAgentManager aam) {
         setName(NameMaker.makeName(this.getClass()));
         setupData(40);
         tag = new DataTag();
-        agentManager = sim.getAgentManager();
+        agentManager = aam;
     }
     
     public DataTag getTag() {

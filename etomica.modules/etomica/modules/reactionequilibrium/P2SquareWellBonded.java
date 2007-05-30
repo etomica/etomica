@@ -41,9 +41,9 @@ public class P2SquareWellBonded extends P2SquareWell {
 		// bondchange event
 //	}
 
-	public P2SquareWellBonded(Space space, ReactionEquilibrium sim, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
+	public P2SquareWellBonded(Space space, AtomAgentManager aam, double coreDiameter,double lambda, double epsilon,boolean ignoreOverlap) {
 		super(space, coreDiameter, lambda, epsilon, ignoreOverlap);
-        agentManager = sim.getAgentManager();
+        agentManager = aam;
 	}
 
 	public void setBarrier(double b) {
