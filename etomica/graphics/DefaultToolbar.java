@@ -59,6 +59,40 @@ public class DefaultToolbar {
 
     }
 
+    public void addAuthor(String newAuth) {
+    	String[] temp;
+
+    	if (authors == null) {
+    		temp = new String[] { newAuth };
+    	}
+    	else {
+    		temp = new String[authors.length+1];
+    		for(int i = 0; i < authors.length; i++) {
+    			temp[i] = authors[i];
+    		}
+    		temp[authors.length] = newAuth;
+    	}
+    	
+    	authors = temp;
+    }
+
+    public void addContributor(String newContrib) {
+    	String[] temp;
+
+    	if (contributors == null) {
+    		temp = new String[] { newContrib };
+    	}
+    	else {
+    		temp = new String[contributors.length+1];
+    		for(int i = 0; i < contributors.length; i++) {
+    			temp[i] = contributors[i];
+    		}
+    		temp[contributors.length] = newContrib;
+    	}
+    	
+    	contributors = temp;
+    }
+
     public JMenuBar graphic() {
     	return mBar;
     }

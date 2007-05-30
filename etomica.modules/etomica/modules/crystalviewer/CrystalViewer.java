@@ -104,6 +104,7 @@ public class CrystalViewer {
         mainPanel.add(controlPanel, BorderLayout.WEST);
         mainPanel.add(displayPhase.graphic());
         DefaultToolbar tb = new DefaultToolbar(panel, "Crystal Viewer");
+        tb.addContributor("Colin Tedlock");
         panel.add(tb.graphic(), BorderLayout.NORTH);
         panel.add(mainPanel);
     }

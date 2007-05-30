@@ -353,6 +353,7 @@ public class JouleThomson extends SimulationGraphic {
         panel().add(controlPanel, BorderLayout.WEST);
         panel().add(displayPanel, BorderLayout.EAST);
         DefaultToolbar tb = new DefaultToolbar(panel(), "Joule Thomson Experiment");
+        tb.addContributor("Colin Tedlock");
         panel().add(tb.graphic(), BorderLayout.NORTH);
 
     }
