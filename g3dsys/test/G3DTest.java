@@ -48,7 +48,6 @@ public class G3DTest extends TestCase {
             gsys.addFig(ball);
             c.add(ball);
 		}
-		gsys.recalcPPA();
 		System.out.println("added figures in "+(System.currentTimeMillis()-begin)+" milliseconds");
 		
 		begin = System.currentTimeMillis();

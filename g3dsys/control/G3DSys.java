@@ -65,7 +65,7 @@ public class G3DSys {
     //3/5/2007 rearranged init sequence so g3d is set earlier
     //  needed for imageshell
     g3d = new Graphics3D(dm);
-    g3d.setWindowSize(window.getWidth()-10, window.getHeight()-60, false);
+    g3d.setWindowSize(window.getWidth(), window.getHeight(), false);
     g3d.setBackgroundArgb(0xFF000000);
     g3d.setSlabAndDepthValues(0, Integer.MAX_VALUE);
     
@@ -112,11 +112,7 @@ public class G3DSys {
 
   /** For a thorough redraw of the display */
   public void refresh() {
-    tm.setDefaultRotation();
     dm.setSize(parent.getSize());
-    dm.setLocation(0,0);
-    tm.setScreenDimension(parent.getWidth(), parent.getHeight());
-    g3d.setWindowSize(parent.getWidth(), parent.getHeight(), false);
     dm.repaint();
   }
 
@@ -331,12 +327,6 @@ public class G3DSys {
    */
   public short perspective(int z, float d) {
     return tm.scaleToScreen(z, (int)(d*1000f));
-  }
-  /**
-   * Recalculates the pixel per Angstrom ratio
-   */
-  public void recalcPPA() {
-    //no longer needed since move to TransformManager
   }
   /**
    * Increase the zoom level by i percent

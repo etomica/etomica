@@ -121,7 +121,6 @@ class FigureManager {
       float maxx, float maxy, float maxz) {
     min.x = minx; min.y = miny; min.z = minz;
     max.x = maxx; max.y = maxy; max.z = maxz;
-    gsys.recalcPPA();
   }
 
   /**
@@ -151,9 +150,13 @@ class FigureManager {
 
   public Point3f getAverageAtomPoint() {
     Point3f average = new Point3f(0,0,0);
+    int ballCount = 0;
     for (int i = figs.length; --i >= 0;)
-      average.add(figs[i].getPoint()); //nulls in figs?
-    average.scale(1f / figs.length);
+      if (figs[i] instanceof Ball) {
+        ballCount++;
+        average.add(((Ball)figs[i]).getPoint()); //nulls in figs?
+      }
+    average.scale(1f / ballCount);
     return average;
   }
 
