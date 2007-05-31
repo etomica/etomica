@@ -18,21 +18,22 @@ public class Box extends Figure {
 	private Point3f LUT,LDT,RUT,RDT; //leftUpTop, leftDownTop, etc.
 	private Point3f LUB,LDB,RUB,RDB; //leftUpBottom, leftDownBottom, etc.
     private final Point3i t1, t2;
+    protected short _c;
 
 	public Box(G3DSys g, short c) {
-		super(g, c);
-		
+		super(g);
+		_c = c;
 		resize();
 		
-		_p = new Point3f(
-				(_gsys.getMinX() + _gsys.getMaxX())/2,
-				(_gsys.getMinY() + _gsys.getMaxY())/2,
-				(_gsys.getMinZ() + _gsys.getMaxZ())/2);
         
         t1 = new Point3i();
         t2 = new Point3i();
 		
-		g.setCenterOfRotation(_p); //rotate about center of box
+        Point3f p = new Point3f(
+                (_gsys.getMinX() + _gsys.getMaxX())/2,
+                (_gsys.getMinY() + _gsys.getMaxY())/2,
+                (_gsys.getMinZ() + _gsys.getMaxZ())/2);
+		g.setCenterOfRotation(p); //rotate about center of box
 	}
 
 	private void resize() {
@@ -84,5 +85,11 @@ public class Box extends Figure {
 	public float getD() {
 		return 0;
 	}
+
+    /** @return the color of the figure */
+    public short getColor() { return _c; }
+
+    /** set the color of the figure */
+    public void setColor(short c) { _c = c; }
 
 }

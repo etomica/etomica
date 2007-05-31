@@ -9,9 +9,11 @@ public class Axes extends Figure {
 
 	private final G3DSys gsys;
     private final Point3i t1, t2;
+    protected short _c;
 	
 	public Axes(G3DSys g, short c) {
-		super(g, c);
+		super(g);
+        _c = c;
 		gsys = g;
         t1 = new Point3i();
         t2 = new Point3i();
@@ -34,5 +36,11 @@ public class Axes extends Figure {
 	}
 
 	public float getD() { return 0; }
+
+    /** @return the color of the figure */
+    public short getColor() { return _c; }
+
+    /** set the color of the figure */
+    public void setColor(short c) { _c = c; }
 
 }

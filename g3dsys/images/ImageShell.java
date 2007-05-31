@@ -31,7 +31,7 @@ public class ImageShell extends Figure {
   //large box helper
   
   public ImageShell(G3DSys g) {
-    super(g,(short)0);
+    super(g);
     g3d = g.getG3D();
     drawme = false;
   }
@@ -96,7 +96,6 @@ public class ImageShell extends Figure {
   
   public void draw() {
     if(!drawme) return;
-    double[] vectors = _gsys.getBoundaryVectors();
     int D = vectors.length/3; //dimensionality of boundary; assume 3-dim vectors
     if(D == 0) return; //no vectors, or low dimensionality
     
@@ -134,9 +133,9 @@ public class ImageShell extends Figure {
         if(!f.drawme) continue;
         if(f instanceof Ball) {
           if(wireframe) continue; //skip spheres in wireframe mode
-          p.set(f.getX()+dx,f.getY()+dy,f.getZ()+dz);
+          p.set(((Ball)f).getX()+dx,((Ball)f).getY()+dy,((Ball)f).getZ()+dz);
           _gsys.screenSpace(p, s);
-          g3d.fillSphereCentered(f.getColor(), _gsys.perspective(s.z, f.getD()), s);
+          g3d.fillSphereCentered(((Ball)f).getColor(), _gsys.perspective(s.z, ((Ball)f).getD()), s);
         }
         else if(f instanceof g3dsys.images.Box) {
         }
@@ -150,7 +149,7 @@ public class ImageShell extends Figure {
                 ((Line)f).getEnd().z+dz);
           _gsys.screenSpace(p, s);
           _gsys.screenSpace(q, t);
-          g3d.drawDashedLine(f.getColor(),0,0,s.x,s.y,s.z,t.x,t.y,t.z);
+          g3d.drawDashedLine(((Line)f).getColor(),0,0,s.x,s.y,s.z,t.x,t.y,t.z);
         }
         else if(f instanceof g3dsys.images.Axes) {
         }
@@ -202,7 +201,7 @@ public class ImageShell extends Figure {
               ((Line)figs[i]).getEnd().z * (2*numLayers+1));
           _gsys.screenSpace(p, s);
           _gsys.screenSpace(q, t);
-          g3d.drawDashedLine(figs[i].getColor(),0,0,s.x,s.y,s.z,t.x,t.y,t.z);
+          g3d.drawDashedLine(((Line)figs[i]).getColor(),0,0,s.x,s.y,s.z,t.x,t.y,t.z);
         }
       }
     }

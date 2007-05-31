@@ -28,14 +28,14 @@ public class Bond extends Figure {
   //TODO: 'a' can cycle between cylinders, wireframe, and bonds off entirely
   private final Point3i p1i, p2i; // same in pixels, not shared
   private int bondType = CYLINDER;
+protected float _d;
   
   public Bond(G3DSys g, Ball b0, Ball b1) {
-    super(g, b0.getColor());
+    super(g);
     this.p1 = b0.getPoint();
     this.p2 = b1.getPoint();
     ball1 = b0;
     ball2 = b1;
-    _p = new Point3f((p1.x + p2.x) / 2.0f, (p1.y + p2.y) / 2.0f, (p1.z + p2.z) / 2.0f);
     p1i = new Point3i();
     p2i = new Point3i();
   }
@@ -77,5 +77,8 @@ public class Bond extends Figure {
   
   public short getColor1() { return ball1.getColor(); }
   public short getColor2() { return ball2.getColor(); }
+
+/** set the molspace diameter of the figure, when applicable */
+public void setD(float d) { _d = d; }
   
 }

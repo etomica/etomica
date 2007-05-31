@@ -10,9 +10,11 @@ public class Line extends Figure {
 	
   protected Point3f start, end;
   protected Point3i s, e;
+protected short _c;
 	
-  public Line(G3DSys m, short c, Point3f start, Point3f end) {
-    super(m,c);
+  public Line(G3DSys g, short c, Point3f start, Point3f end) {
+    super(g);
+    _c = c;
     this.start = start;
     this.end = end;
     s = new Point3i();
@@ -39,4 +41,10 @@ public class Line extends Figure {
     
   public Point3f getStart() { return start; }
   public Point3f getEnd() { return end; }
+
+/** @return the color of the figure */
+public short getColor() { return _c; }
+
+/** set the color of the figure */
+public void setColor(short c) { _c = c; }
 }
