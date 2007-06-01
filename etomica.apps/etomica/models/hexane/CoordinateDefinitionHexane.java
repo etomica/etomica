@@ -94,8 +94,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         deltaVPrime.TE(1 / Math.sqrt(deltaVPrime.squared()));
 
         // alpha is the angle between the current molecule orientation and the
-        // original
-        // molecule orientation
+        // original molecule orientation
         double cosAlpha = axis0prime.dot(axes[0]);
         if (cosAlpha > 0.999999) {
             // no rotation. if cosAlpha is too close to 1, things blow up, so
@@ -103,16 +102,14 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             deltaV.E(deltaVPrime);
         } else {
             // bprime is a vector of length 1, normal to axis0prime (the current
-            // molecule orientation)
-            // and in the plane that contains axis0prime and axes[0] (the
-            // original molecule orientation)
+            // molecule orientation) and in the plane that contains axis0prime 
+            // and axes[0] (the original molecule orientation)
             bPrime.Ea1Tv1(1.0 / cosAlpha, axes[0]);
             bPrime.ME(axis0prime);
             bPrime.TE(1 / Math.sqrt(bPrime.squared()));
 
             // b is a vector of length 1, normal to axis0 (the original molecule
-            // orientation) and
-            // in the same plane as everything else.
+            // orientation) and in the same plane as everything else.
             b.Ea1Tv1(cosAlpha, bPrime);
             // sin^2(alpha) = 1 - cos^2(alpha)
             b.PEa1Tv1(-Math.sqrt(1 - cosAlpha * cosAlpha), axis0prime);
@@ -128,18 +125,15 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             double cComponent = deltaVPrime.dot(c);
 
             // if theta is the angle of rotation of deltaVprime around
-            // axis0prime
-            // using b as theta=0. We seek to maintain that angle of rotation
-            // for
-            // deltaV around axis0, using b as theta=0
+            // axis0prime using b as theta=0. We seek to maintain that angle 
+            // of rotation for deltaV around axis0, using b as theta=0
 
             deltaV.Ea1Tv1(bComponent, b);
             deltaV.PEa1Tv1(cComponent, c);
         }
 
         // we want a unit vector. to get the real deltaV, scale it out to
-        // deltaVprime's length
-        // deltaV.TE(Math.sqrt(deltaVprime.squared()));
+        // deltaVprime's length deltaV.TE(Math.sqrt(deltaVprime.squared()));
 
         // we don't actually need these
         // newMidpoint13.Ea1Tv1(Math.sqrt(midpoint13.squared()), axes[0]);
@@ -167,10 +161,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // tell deltaV x axes[1] will point along the molecule axis or opposite to it
         deltaV.XE(axes[1]);
         // (deltaV x axes[1]) dot axes[0] will be positive if the cross product
-        // points
-        // in the same direction, but will be negative if the cross product
-        // points in
-        // the opposite direction
+        // points in the same direction, but will be negative if the cross 
+        // product points in the opposite direction
         if (deltaV.dot(axes[0]) < 0) {
             // it's arbitrary which one we flip, so long as we're consistent and
             // do the same thing in setToU
@@ -287,10 +279,77 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         confHex.initializePositions(((AtomGroup)atoms).getChildList());
         childlist = ((AtomGroup)atoms).getChildList();
         
+//        temp.E(((AtomLeaf)childlist.get(2)).getPosition());
+//        temp.ME(((AtomLeaf)childlist.get(0)).getPosition());
+//        axial.E(temp);
+//        double axislength = Math.sqrt(temp.dot(temp));
+//        
+////        temp.E(((AtomLeaf)childlist.get(1)).getPosition());
+////        temp.ME(((AtomLeaf)childlist.get(0)).getPosition());
+////        double skewlength = Math.sqrt(temp.dot(temp));
+//        //Dur, this is a bond.
+//        double skewlength = length;
+        
+        //Deal with u[3]; the rotation around axes[2]
+        double sinA = Math.sqrt(1 - u[3]*u[3]);     //use a trig identity.
+        double cosA = u[3];
+        vex.E(axes[2]);
+        rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
+                (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
+                (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
+                (1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
+                cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
+                (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0), // yz
+                (1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
+                (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
+                cosA + (1 - cosA) * vex.x(2) * vex.x(2) // zz
+        });
+        
+        //now we rotate everything about the axis.
+        for(int i = 1; i < 6; i++){
+            temp.E(((AtomLeaf)childlist.get(i)).getPosition());
+            temp.ME(((AtomLeaf)childlist.get(i-1)).getPosition());
+            rotor.transform(temp);
+        }
+        
+        //Deal with u[4]; the rotation around axes[1]
+        sinA = Math.sqrt(1 - u[4]*u[4]);     //use a trig identity.
+        cosA = u[4];
+        vex.E(axes[1]);
+        rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
+                (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
+                (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
+                (1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
+                cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
+                (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0), // yz
+                (1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
+                (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
+                cosA + (1 - cosA) * vex.x(2) * vex.x(2) // zz
+        });
+        
+        //now we rotate everything about the axis.
+        for(int i = 1; i < 6; i++){
+            temp.E(((AtomLeaf)childlist.get(i)).getPosition());
+            temp.ME(((AtomLeaf)childlist.get(i-1)).getPosition());
+            rotor.transform(temp);
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         //Apply the torsional angles
         for(int i = 0; i < 6-3; i++){
-            double cosA = Math.cos(u[6+i]);
-            double sinA = Math.sin(u[6+i]);
+            cosA = Math.cos(u[6+i]);
+            sinA = Math.sin(u[6+i]);
             
             // get a normal vector to the a-b vector and the b-c vector
             // This vector is, by definition, perpendicular to the a-b vector, which
@@ -323,12 +382,6 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
             ((AtomLeaf)childlist.get(i+3)).getPosition().E(temp);
         }
-        
-        //Apply the orientation angles
-       
-        
-        
-        
         
         //Translate the molecule to its proper place.
         //Uses center of mass/ geometric center.
