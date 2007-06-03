@@ -87,7 +87,7 @@ public class PrimitiveTriclinic extends Primitive {
     }
     public double getAngleAlpha() {return angle[0];}
     
-    public void setBeta(double t) {
+    public void setAngleBeta(double t) {
         if (t == angle[1]) {
             return;
         }
