@@ -94,28 +94,34 @@ public class HistogramExpanding extends HistogramSimple {
         newXMin = Math.floor(newXMin/deltaX) * deltaX;
         newXMax = Math.ceil(newXMax/deltaX) * deltaX;
         int newNBins = (int)Math.round((newXMax - newXMin) / deltaX);
-        // how many bins would get dropped on the left side
-        int minDiff = (int)Math.round((newXMin - xMin) / deltaX);
-        for (int i=0; i<minDiff; i++) {
-            // loop over bins on the left getting dropped
-            if (counts[i] != 0) {
-                throw new IllegalStateException("complying would drop data");
+        // if called from the constructor, we have no data to copy, so skip this
+        if (xMax != 0 || xMin != 0) {
+            // how many bins would get dropped on the left side
+            int minDiff = (int)Math.round((newXMin - xMin) / deltaX);
+            for (int i=0; i<minDiff; i++) {
+                // loop over bins on the left getting dropped
+                if (counts[i] != 0) {
+                    throw new IllegalStateException("complying would drop data");
+                }
             }
-        }
-        // how many bins would get dropped on the right side
-        int maxDiff = (int)Math.round((xMax - newXMax) / deltaX);
-        for (int i=nBins-1; i>nBins-maxDiff-1; i--) {
-            // loop over bins on the right getting dropped
-            if (counts[i] != 0) {
-                throw new IllegalStateException("complying would drop data");
+            // how many bins would get dropped on the right side
+            int maxDiff = (int)Math.round((xMax - newXMax) / deltaX);
+            for (int i=nBins-1; i>nBins-maxDiff-1; i--) {
+                // loop over bins on the right getting dropped
+                if (counts[i] != 0) {
+                    throw new IllegalStateException("complying would drop data");
+                }
             }
+            //copy old data
+            int[] newCounts = new int[newNBins];
+            for (int i=Math.max(0,minDiff); i<nBins-Math.max(0,maxDiff); i++) {
+                newCounts[i-minDiff] = counts[i];
+            }
+            counts = newCounts;
         }
-        //copy old data
-        int[] newCounts = new int[newNBins];
-        for (int i=Math.max(0,minDiff); i<nBins-Math.max(0,maxDiff); i++) {
-            newCounts[i-minDiff] = counts[i];
+        else {
+            counts = new int[newNBins];
         }
-        counts = newCounts;
         xMin = newXMin;
         xMax = newXMax;
         nBins = newNBins;
@@ -137,6 +143,7 @@ public class HistogramExpanding extends HistogramSimple {
         setXRange(new DoubleRange(xMin,xMin+deltaX*(n-0.5)));
     }
 
+    private static final long serialVersionUID = 1L;
     public static final Histogram.Factory FACTORY = new Factory(1.0);
     
     public static class Factory implements Histogram.Factory, Serializable {
