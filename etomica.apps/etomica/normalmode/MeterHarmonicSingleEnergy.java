@@ -52,8 +52,8 @@ public class MeterHarmonicSingleEnergy implements DataSource {
                 }
                 double realCoord = 0, imaginaryCoord = 0;
                 for (int j=0; j<coordinateDim; j++) {
-                    realCoord += realT[j] * eigenvectors[iVector][j][i];
-                    imaginaryCoord += imaginaryT[j] * eigenvectors[iVector][j][i];
+                    realCoord += realT[j] * eigenvectors[iVector][i][j];
+                    imaginaryCoord += imaginaryT[j] * eigenvectors[iVector][i][j];
                 }
                 double normalCoord = (realCoord*realCoord + imaginaryCoord*imaginaryCoord);
                 x[iVector*coordinateDim+i] = waveVectorCoefficients[iVector] * 
