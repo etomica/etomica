@@ -88,7 +88,6 @@ public class PrimitiveHexane extends Primitive {
     }
     
     protected void update() {
-        super.update();
         double scale = size[0]/fixedSizes[0];
         for (int i=0; i<3; i++) {
             latticeVectors[i].Ea1Tv1(scale, fixedLatticeVector[i]);
