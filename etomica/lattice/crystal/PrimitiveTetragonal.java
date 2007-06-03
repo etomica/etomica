@@ -59,7 +59,6 @@ public class PrimitiveTetragonal extends Primitive {
     }
 
     protected void update() {
-        super.update();
         latticeVectors[0].setX(0, size[0]);
         latticeVectors[1].setX(1, size[1]);
         latticeVectors[2].setX(2, size[2]);

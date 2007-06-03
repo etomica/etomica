@@ -38,7 +38,6 @@ public class PrimitiveTrigonal extends Primitive {
     }
     
     protected void update() {
-        super.update();
         double cosAlpha = Math.cos(angle[0]);
         double cosBeta = Math.cos(angle[1]);
         double cosGamma = Math.cos(angle[2]);

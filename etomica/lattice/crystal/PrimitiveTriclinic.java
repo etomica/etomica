@@ -2,6 +2,8 @@ package etomica.lattice.crystal;
 import etomica.math.geometry.Polytope;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.space3d.IVector3D;
+import etomica.space3d.Space3D;
 
 /**
  * Primitive group for a triclinic system.  No restrictions on
@@ -24,25 +26,20 @@ public class PrimitiveTriclinic extends Primitive {
 
     //called by superclass constructor
     public Primitive makeReciprocal() {
-        //XXX this does not update the reciprocal's size
-//        PrimitiveTriclinic recip = (PrimitiveTriclinic)reciprocal;
-//        Vector3D aStar = (Vector3D)recip.latticeVectors[0];
-//        Vector3D bStar = (Vector3D)recip.latticeVectors[1];
-//        Vector3D cStar = (Vector3D)recip.latticeVectors[2];
-//        Vector3D aVec = (Vector3D)latticeVectors[0];
-//        Vector3D bVec = (Vector3D)latticeVectors[1];
-//        Vector3D cVec = (Vector3D)latticeVectors[2];
-//        aStar.E(bVec);
-//        aStar.XE(cVec);
-//        double factor = 2.0*Math.PI/aVec.dot(aStar); // a . (b X c)
-//        aStar.TE(factor);
-//        bStar.E(cVec);
-//        bStar.XE(aVec);
-//        bStar.TE(factor);
-//        cStar.E(aVec);
-//        cStar.XE(bVec);
-//        cStar.TE(factor);
-        throw new RuntimeException("I don't know how to actually make the reciprocal for you.");
+        IVector3D aStar = (IVector3D)space.makeVector();
+        IVector3D bStar = (IVector3D)space.makeVector();
+        IVector3D cStar = (IVector3D)space.makeVector();
+        aStar.E(latticeVectors[1]);
+        aStar.XE((IVector3D)latticeVectors[2]);
+        double factor = 2.0*Math.PI/latticeVectors[0].dot(aStar); // a . (b X c)
+        aStar.TE(factor);
+        bStar.E(latticeVectors[2]);
+        bStar.XE((IVector3D)latticeVectors[0]);
+        bStar.TE(factor);
+        cStar.E(latticeVectors[0]);
+        cStar.XE((IVector3D)latticeVectors[1]);
+        cStar.TE(factor);
+        return new PrimitiveGeneral(space, new IVector[]{aStar, bStar, cStar});
     }
     
     public void setSizeA(double newA) {
@@ -70,7 +67,6 @@ public class PrimitiveTriclinic extends Primitive {
     public double getSizeC() {return size[2];}
 
     protected void update() {
-        super.update();
         double cosAlpha = Math.cos(angle[0]);
         double cosBeta = Math.cos(angle[1]);
         double cosGamma = Math.cos(angle[2]);
@@ -119,21 +115,11 @@ public class PrimitiveTriclinic extends Primitive {
     }        
     
     public int[] latticeIndex(IVector q) {
-        for(int i=0; i<D; i++) {
-            double x = q.x(i)/size[i];
-            idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
-        }
-        return idx;
+        throw new RuntimeException("nope");
     }
 
     public int[] latticeIndex(IVector q, int[] dimensions) {
-        for(int i=0; i<D; i++) {
-            double x = q.x(i)/size[i];
-            idx[i] = (x < 0) ? (int)x - 1 : (int)x; //we want idx to be the floor of x
-            while(idx[i] >= dimensions[i]) idx[i] -= dimensions[i];
-            while(idx[i] < 0)              idx[i] += dimensions[i];
-        }
-        return idx;
+        throw new RuntimeException("not this either");
     }
     
     public Polytope wignerSeitzCell() {
@@ -142,4 +128,15 @@ public class PrimitiveTriclinic extends Primitive {
     
     public String toString() {return "Triclinic";}
 
+    public static void main(String args[]) {
+        PrimitiveTriclinic primitive = new PrimitiveTriclinic(Space3D.getInstance(), 1, 1.5, 2, Math.PI*0.4, Math.PI*0.45, Math.PI*0.6);
+        IVector[] v = primitive.vectors();
+        Primitive reciprocal = primitive.makeReciprocal();
+        IVector[] vr = reciprocal.vectors();
+        for (int i=0; i<v.length; i++) {
+            for (int j=0; j<vr.length; j++) {
+                System.out.println(i+" "+j+" "+v[i].dot(vr[j]));
+            }
+        }
+    }
 }

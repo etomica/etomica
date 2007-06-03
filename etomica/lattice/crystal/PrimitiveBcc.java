@@ -64,7 +64,6 @@ public class PrimitiveBcc extends Primitive {
     public double getCubicSize() {return cubicSize;}
     
     protected void update() {
-        super.update();
         for(int i=0; i<D; i++) latticeVectors[i].Ea1Tv1(size[0],unitVectors[i]);
     }
 

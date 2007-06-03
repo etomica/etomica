@@ -95,20 +95,7 @@ public abstract class Primitive implements java.io.Serializable {
         update();
     }
 
-    protected void update() {
-        for (int i=0; i<D; i++) {
-            if (size[i] == 0) {
-                // we haven't been fully set up yet
-                return;
-            }
-        }
-        for (int i=0; i<angle.length; i++) {
-            if (angle[i] == 0) {
-                // we haven't been fully set up yet
-                return;
-            }
-        }
-    }
+    protected abstract void update();
         
     /**
      * Scales (multiplies) the size of each primitive vector by the given value.

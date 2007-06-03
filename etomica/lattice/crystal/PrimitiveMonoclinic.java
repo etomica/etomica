@@ -57,7 +57,6 @@ public class PrimitiveMonoclinic extends Primitive {
     //reciprocal lattice (ix = 2, iz = 0)
     // v[0] = (s,0,-c); v[1] = (0,1,0); v[2] = (0,0,1);  (times a, b, c)
     protected void update() {
-        super.update();
         latticeVectors[0].setX(0,size[0]);
         latticeVectors[1].setX(1,size[1]);
         latticeVectors[2].setX(0,size[2]*Math.cos(angle[1]));

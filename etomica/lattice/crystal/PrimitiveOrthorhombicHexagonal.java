@@ -44,7 +44,6 @@ public class PrimitiveOrthorhombicHexagonal extends Primitive {
     }
     
     protected void update() {
-        super.update();
         for (int i=0; i<D; i++) {
             latticeVectors[i].setX(i,size[i]);
         }

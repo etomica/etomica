@@ -41,7 +41,6 @@ public class PrimitiveHexagonal2D extends Primitive {
     }
     
     protected void update() {
-        super.update();
         latticeVectors[0].setX(0,size[0]);
         latticeVectors[1].setX(0,size[0]*cosGamma);
         latticeVectors[1].setX(1,size[0]*sinGamma);

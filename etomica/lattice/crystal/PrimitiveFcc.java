@@ -65,7 +65,6 @@ public class PrimitiveFcc extends Primitive {
     }
 
     protected void update() {
-        super.update();
         for(int i=0; i<D; i++) latticeVectors[i].Ea1Tv1(size[0],unitVectors[i]);
     }
     
