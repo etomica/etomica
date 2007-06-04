@@ -45,7 +45,7 @@ public final class AtomManager implements java.io.Serializable {
      * SpeciesAgents.  This method should be called by Species.
      */
     public void addSpeciesAgent(SpeciesAgent newSpeciesAgent) {
-        newSpeciesAgent.setIndex(agentList.size());
+        newSpeciesAgent.setIndex(agentList.getAtomCount());
         agentList.add(newSpeciesAgent);
         addAtomNotify(newSpeciesAgent);
     }
@@ -55,12 +55,12 @@ public final class AtomManager implements java.io.Serializable {
      * should only be called by the SpeciesManager.
      */
     public void removeSpeciesNotify(Species species) {
-        for (int i=0; i<agentList.size(); i++) {
-            IAtom speciesAgent = agentList.get(i);
+        for (int i=0; i<agentList.getAtomCount(); i++) {
+            IAtom speciesAgent = agentList.getAtom(i);
             if (speciesAgent.getType().getSpecies() == species) {
                 agentList.removeAndReplace(i);
-                if (agentList.size() > i) {
-                    agentList.get(i).setIndex(i);
+                if (agentList.getAtomCount() > i) {
+                    agentList.getAtom(i).setIndex(i);
                 }
                 agentList.maybeTrimToSize();
                 removeAtomNotify(speciesAgent);
@@ -187,7 +187,7 @@ public final class AtomManager implements java.io.Serializable {
             leafIndices = Arrays.resizeArray(leafIndices, maxIndex + numNewAtoms - reservoirCount + 1 + reservoirSize);
         }
         if (numNewLeafAtoms > 1) {
-            PhaseGlobalAtomLeafIndexEvent leafEvent = new PhaseGlobalAtomLeafIndexEvent(phase, leafList.size() + numNewLeafAtoms);
+            PhaseGlobalAtomLeafIndexEvent leafEvent = new PhaseGlobalAtomLeafIndexEvent(phase, leafList.getAtomCount() + numNewLeafAtoms);
             phaseEventManager.fireEvent(leafEvent);
         }
     }
@@ -229,7 +229,7 @@ public final class AtomManager implements java.io.Serializable {
             if (globalIndex > leafIndices.length-1) {
                 leafIndices = Arrays.resizeArray(leafIndices, globalIndex + 1 + reservoirSize);
             }
-            leafIndices[globalIndex] = leafList.size();
+            leafIndices[globalIndex] = leafList.getAtomCount();
             leafList.add(newAtom);
         } else {
             treeIteratorRoot.setRootAtom(newAtom);
@@ -242,7 +242,7 @@ public final class AtomManager implements java.io.Serializable {
                     if (globalIndex > leafIndices.length-1) {
                         leafIndices = Arrays.resizeArray(leafIndices, globalIndex + 1 + reservoirSize);
                     }
-                    leafIndices[globalIndex] = leafList.size();
+                    leafIndices[globalIndex] = leafList.getAtomCount();
                     leafList.add(childAtom);
                 }
             }
@@ -267,8 +267,8 @@ public final class AtomManager implements java.io.Serializable {
             leafList.maybeTrimToSize();
             // if we didn't remove the last atom, removeAndReplace
             // inserted the last atom in the emtpy spot.  Set its leaf index.
-            if (leafList.size() > leafIndex) {
-                IAtom movedAtom = leafList.get(leafIndex);
+            if (leafList.getAtomCount() > leafIndex) {
+                IAtom movedAtom = leafList.getAtom(leafIndex);
                 int globalIndex = movedAtom.getGlobalIndex();
                 PhaseAtomLeafIndexChangedEvent event = new PhaseAtomLeafIndexChangedEvent(phase, movedAtom, leafIndices[globalIndex]);
                 leafIndices[globalIndex] = leafIndex;
@@ -284,8 +284,8 @@ public final class AtomManager implements java.io.Serializable {
                 if (childAtom.getType().isLeaf()) {
                     int leafIndex = leafIndices[childAtom.getGlobalIndex()];
                     leafList.removeAndReplace(leafIndex);
-                    if (leafList.size() > leafIndex) {
-                        IAtom movedAtom = leafList.get(leafIndex);
+                    if (leafList.getAtomCount() > leafIndex) {
+                        IAtom movedAtom = leafList.getAtom(leafIndex);
                         int globalIndex = movedAtom.getGlobalIndex();
                         PhaseAtomLeafIndexChangedEvent event = new PhaseAtomLeafIndexChangedEvent(phase, movedAtom, leafIndices[globalIndex]);
                         leafIndices[globalIndex] = leafIndex;
@@ -346,9 +346,9 @@ public final class AtomManager implements java.io.Serializable {
         phase.getAgent(species2).setNMolecules(2);
 
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
+            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
             System.out.println(a.toString());
         }
         System.out.println();

@@ -39,9 +39,9 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         atomList.addAll(agent.getChildList());
 
         //atom in middle of list
-        IAtom atom = atomList.get(5);
-        IAtom dnAtom = atomList.get(4);
-        IAtom upAtom = atomList.get(6);
+        IAtom atom = atomList.getAtom(5);
+        IAtom dnAtom = atomList.getAtom(4);
+        IAtom upAtom = atomList.getAtom(6);
         LinkedList list = null;
         Lister test = new Lister();
         
@@ -71,8 +71,8 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         assertEquals(list, test.list);
 
         //atom at end of list        
-        atom = atomList.get(nAtoms-1);
-        dnAtom = atomList.get(nAtoms-2);
+        atom = atomList.getAtom(nAtoms-1);
+        dnAtom = atomList.getAtom(nAtoms-2);
         iteratorUp.setAtom(atom);
         iteratorDn.setAtom(atom);
         iteratorBoth.setAtom(atom);
@@ -96,8 +96,8 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         assertEquals(list, test.list);
 
         //atom at beginning of list        
-        atom = atomList.get(0);
-        upAtom = atomList.get(1);
+        atom = atomList.getAtom(0);
+        upAtom = atomList.getAtom(1);
         iteratorUp.setAtom(atom);
         iteratorDn.setAtom(atom);
         iteratorBoth.setAtom(atom);
@@ -124,8 +124,8 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         agent.setNMolecules(1);
         atomList = new AtomArrayList();
         atomList.addAll(agent.getChildList());
-        assertEquals(atomList.size(), 1);
-        atom = atomList.get(0);
+        assertEquals(atomList.getAtomCount(), 1);
+        atom = atomList.getAtom(0);
         iteratorUp.setAtom(atom);
         iteratorDn.setAtom(atom);
         iteratorBoth.setAtom(atom);

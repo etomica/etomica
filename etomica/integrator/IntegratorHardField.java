@@ -73,9 +73,9 @@ public final class IntegratorHardField extends IntegratorHard {
         
         double t2 = 0.5*tStep*tStep;
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             HardFieldAgent agent = (HardFieldAgent)agentManager.getAgent(a);
             agent.decrementCollisionTime(tStep);
             a.getPosition().PEa1Tv1(tStep,a.getVelocity());
@@ -101,9 +101,9 @@ public final class IntegratorHardField extends IntegratorHard {
         
         //Compute all forces
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.get(iLeaf);
+            IAtom atom = leafList.getAtom(iLeaf);
             ((HardFieldAgent)agentManager.getAgent(atom)).forceFree = true;
         }
         //zero forces on all atoms
@@ -119,14 +119,14 @@ public final class IntegratorHardField extends IntegratorHard {
     public void scaleMomenta(double s) {
         double rs = 1.0/s;
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             a.getVelocity().TE(s); //scale momentum
             ((Agent)agentManager.getAgent(a)).eventLinker.sortKey *= rs;
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
  //           System.out.println(a.coord.position().toString()+a.coord.momentum().toString()+"  "+
  //                               a.coord.momentum().squared());
             HardFieldAgent iagent = (HardFieldAgent)agentManager.getAgent(a);

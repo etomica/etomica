@@ -53,9 +53,9 @@ public class IntegratorHardPiston extends IntegratorHard {
         listToUpdate.clear();
         // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom1 = leafList.get(iLeaf);
+            IAtom atom1 = leafList.getAtom(iLeaf);
             PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
             if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atom1) && Debug.LEVEL > 1) || (Debug.anyAtom(atom1) && Debug.LEVEL > 2))) {
                 System.out.println(atom1+" thought it would collide with the piston");

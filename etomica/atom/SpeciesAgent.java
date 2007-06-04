@@ -26,7 +26,7 @@ public final class SpeciesAgent extends AtomGroup {
                 : "SpeciesAgent without phase";
     }
     
-    public int getNMolecules() {return childList.size();}
+    public int getNMolecules() {return childList.getAtomCount();}
             
     public IAtom addNewAtom() {
         IAtom aNew = type.getSpecies().moleculeFactory().makeAtom();
@@ -62,15 +62,15 @@ public final class SpeciesAgent extends AtomGroup {
     public void setNMolecules(int n) {
         atomManager.notifyNewAtoms((n-getNMolecules())*type.getSpecies().moleculeFactory().getNumTreeAtoms(),
                                      (n-getNMolecules())*type.getSpecies().moleculeFactory().getNumLeafAtoms());
-        if(n > childList.size()) {
-            for(int i=childList.size(); i<n; i++) addNewAtom();
+        if(n > childList.getAtomCount()) {
+            for(int i=childList.getAtomCount(); i<n; i++) addNewAtom();
         }
-        else if(n < childList.size()) {
+        else if(n < childList.getAtomCount()) {
             if(n < 0) {
                 throw new IllegalArgumentException("Number of molecules cannot be negative");
             }
-            for (int i=getChildList().size(); i>n; i--) {
-                removeChildAtom(getChildList().get(i-1));
+            for (int i=getChildList().getAtomCount(); i>n; i--) {
+                removeChildAtom(getChildList().getAtom(i-1));
             }
         }
     }

@@ -78,10 +78,10 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 
         for(int i=0; i<selectedMolecules.length; i++) {
             AtomArrayList childList = selectedMolecules[i].getChildList();
-            int numChildren = childList.size();
+            int numChildren = childList.getAtomCount();
 
             int j = random.nextInt(numChildren);
-            selectedAtoms[i] = (IAtomPositioned)childList.get(j);
+            selectedAtoms[i] = (IAtomPositioned)childList.getAtom(j);
 //            System.out.println(selectedAtoms[i]+" "+j+" before "+selectedAtoms[i].coord.position());
             IVector position = selectedAtoms[i].getPosition();
             translationVectors[i].Ea1Tv1(-1,position);
@@ -91,12 +91,12 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 //work1 is the current vector from the bonded atom to atom j
                 work1.E(position);
                 if (j == 0) {
-                    work1.ME(((IAtomPositioned)childList.get(j+1)).getPosition());
-                    position.E(((IAtomPositioned)childList.get(j+1)).getPosition());
+                    work1.ME(((IAtomPositioned)childList.getAtom(j+1)).getPosition());
+                    position.E(((IAtomPositioned)childList.getAtom(j+1)).getPosition());
                 }
                 else {
-                    work1.ME(((IAtomPositioned)childList.get(j-1)).getPosition());
-                    position.E(((IAtomPositioned)childList.get(j-1)).getPosition());
+                    work1.ME(((IAtomPositioned)childList.getAtom(j-1)).getPosition());
+                    position.E(((IAtomPositioned)childList.getAtom(j-1)).getPosition());
                 }
                 //work2 is a vector perpendicular to work1.  it can be any 
                 //perpendicular vector, but that just makes it harder!
@@ -127,8 +127,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             }
             else {
 //                System.out.println("middle move "+j);
-                IVector position0 = ((IAtomPositioned)childList.get(j-1)).getPosition();
-                IVector position2 = ((IAtomPositioned)childList.get(j+1)).getPosition();
+                IVector position0 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
+                IVector position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
                 work2.Ev1Pv2(position0, position2);
                 work2.TE(0.5);
                 //work1 is vector between the 0-2 midpoint and 1
@@ -155,8 +155,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 for (int k=0; k<numChildren; k++) {
 //                    System.out.println(i+" after "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
                     if (k > 0) {
-                        work2.E(((IAtomPositioned)childList.get(k)).getPosition());
-                        work2.ME(((IAtomPositioned)childList.get(k-1)).getPosition());
+                        work2.E(((IAtomPositioned)childList.getAtom(k)).getPosition());
+                        work2.ME(((IAtomPositioned)childList.getAtom(k-1)).getPosition());
                         double d = Math.sqrt(work2.squared());
 //                        System.out.println("distance "+d);
                         if (Math.abs(d - bondLength)/bondLength > 0.000001) {

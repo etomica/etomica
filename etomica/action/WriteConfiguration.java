@@ -76,9 +76,9 @@ public class WriteConfiguration implements Action {
         try {
             IVector writePosition = phase.getSpace().makeVector();
             AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-            int nLeaf = leafList.size();
+            int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
+                IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
                 writePosition.E(a.getPosition());
                 if (doApplyPBC) {
                     IVector shift = phase.getBoundary().centralImage(writePosition);

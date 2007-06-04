@@ -51,13 +51,13 @@ public class CheckCBMCHexane implements Action {
         for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
              atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
             AtomArrayList atomList = atom.getChildList();
-            for (int i = 0; i < atomList.size() - 1; i++) {
+            for (int i = 0; i < atomList.getAtomCount() - 1; i++) {
                 // vex.E(((AtomLeaf)atomList.get(i)).getPosition());
-                vex.ME(((IAtomPositioned) atomList.get(i + 1)).getPosition());
+                vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
                 test = Math.sqrt(vex.squared());
                 test -= length;
                 if (Math.abs(test) > tol) {
-                    System.out.println(atomList.get(i).getAddress());
+                    System.out.println(atomList.getAtom(i).getAddress());
                     throw new RuntimeException("The bond length is not "
                             + length + "!");
                 }
@@ -71,16 +71,16 @@ public class CheckCBMCHexane implements Action {
         for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
              atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
             AtomArrayList atomList = atom.getChildList();
-            for (int i = 0; i < atomList.size() - 2; i++) {
-                vex.E(((IAtomPositioned) atomList.get(i)).getPosition());
-                vex.ME(((IAtomPositioned) atomList.get(i + 1)).getPosition());
-                temp.E(((IAtomPositioned) atomList.get(i + 2)).getPosition());
-                temp.ME(((IAtomPositioned) atomList.get(i + 1)).getPosition());
+            for (int i = 0; i < atomList.getAtomCount() - 2; i++) {
+                vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
+                vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
+                temp.E(((IAtomPositioned) atomList.getAtom(i + 2)).getPosition());
+                temp.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
 
                 ang = Math.acos(vex.dot(temp) / length / length);
                 ang -= phi;
                 if (Math.abs(ang) > tol) {
-                    System.out.println(atomList.get(i).getAddress());
+                    System.out.println(atomList.getAtom(i).getAddress());
                     throw new RuntimeException("The bond angle is bad.");
                 }
             }
@@ -94,13 +94,13 @@ public class CheckCBMCHexane implements Action {
         for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
              atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
             AtomArrayList atomList = atom.getChildList();
-            for (int i = 0; i < atomList.size() - 3; i++) {
-                vex.E(((IAtomPositioned) atomList.get(i)).getPosition());
-                vex.ME(((IAtomPositioned) atomList.get(i + 1)).getPosition());
-                temp.E(((IAtomPositioned) atomList.get(i + 3)).getPosition());
-                temp.ME(((IAtomPositioned) atomList.get(i + 2)).getPosition());
-                axial.E(((IAtomPositioned) atomList.get(i + 2)).getPosition());
-                axial.ME(((IAtomPositioned) atomList.get(i + 1)).getPosition());
+            for (int i = 0; i < atomList.getAtomCount() - 3; i++) {
+                vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
+                vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
+                temp.E(((IAtomPositioned) atomList.getAtom(i + 3)).getPosition());
+                temp.ME(((IAtomPositioned) atomList.getAtom(i + 2)).getPosition());
+                axial.E(((IAtomPositioned) atomList.getAtom(i + 2)).getPosition());
+                axial.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
 
                 // Project each vector onto the axial vector, and subtract the
                 // axial portion from the result, leaving the radial portion
@@ -143,11 +143,11 @@ public class CheckCBMCHexane implements Action {
                 ang = Math.acos(makeGood);
 
                 if (ang < lowerTorsLimit) {
-                    System.out.println(atomList.get(i).getAddress());
+                    System.out.println(atomList.getAtom(i).getAddress());
                     throw new RuntimeException("Torsional angle below limit!");
                 }
                 if (upperTorsLimit < ang) {
-                    System.out.println(atomList.get(i).getAddress());
+                    System.out.println(atomList.getAtom(i).getAddress());
                     throw new RuntimeException("Torsional angle above limit!");
                 }
             }

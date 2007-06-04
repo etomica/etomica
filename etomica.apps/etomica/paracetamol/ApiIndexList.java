@@ -38,10 +38,10 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     public boolean haveTarget(IAtom a){
     	for(int i =0; i < index.length; i++){   //index.length = number of pairs
     		
-    		if (a == parentGroup.getChildList().get(index[i][0])){
+    		if (a == parentGroup.getChildList().getAtom(index[i][0])){
     			return true;
     		}
-    		if (a == parentGroup.getChildList().get(index[i][1])){
+    		if (a == parentGroup.getChildList().getAtom(index[i][1])){
     			return true;
     		}
     		
@@ -72,8 +72,8 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     public void allAtoms(AtomsetAction action) {
     	
     	for(int i =0; i < index.length; i++){   //index.length = number of pairs
-    		pair.atom0 = parentGroup.getChildList().get(index[i][0]);
-    		pair.atom1 = parentGroup.getChildList().get(index[i][1]);
+    		pair.atom0 = parentGroup.getChildList().getAtom(index[i][0]);
+    		pair.atom1 = parentGroup.getChildList().getAtom(index[i][1]);
     		
     		action.actionPerformed(pair);
     	}
@@ -103,10 +103,10 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     	if (target != null){
         	for(; cursor < index.length; cursor++){   //index.length = number of pairs
         		
-        		if (target == parentGroup.getChildList().get(index[cursor][0])){
+        		if (target == parentGroup.getChildList().getAtom(index[cursor][0])){
         			break;
         		}
-        		if (target == parentGroup.getChildList().get(index[cursor][1])){
+        		if (target == parentGroup.getChildList().getAtom(index[cursor][1])){
         			break;
         		}
         	}
@@ -115,8 +115,8 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
         if (cursor >= index.length){
         	return null;
         }
-		pair.atom0 = parentGroup.getChildList().get(index[cursor][0]);
-		pair.atom1 = parentGroup.getChildList().get(index[cursor][1]);
+		pair.atom0 = parentGroup.getChildList().getAtom(index[cursor][0]);
+		pair.atom1 = parentGroup.getChildList().getAtom(index[cursor][1]);
 		cursor++;
         return pair;
     }

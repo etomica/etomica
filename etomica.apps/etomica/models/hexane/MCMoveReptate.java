@@ -87,31 +87,31 @@ public class MCMoveReptate extends MCMovePhaseStep {
        //Pick direction & set up list of atoms to iterate
        forward = random.nextInt(2) == 0;
        AtomArrayList childlist = ((IAtomGroup)atom).getChildList();
-       int numChildren = childlist.size();
+       int numChildren = childlist.getAtomCount();
        
        if(forward){
-           IVector position = ((IAtomPositioned)childlist.get(numChildren-1)).getPosition();
+           IVector position = ((IAtomPositioned)childlist.getAtom(numChildren-1)).getPosition();
            positionOld.E(position);
            for (int j = numChildren - 1; j > 0; j--) {
-               IVector position2 = ((IAtomPositioned)childlist.get(j-1)).getPosition();
+               IVector position2 = ((IAtomPositioned)childlist.getAtom(j-1)).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           ((IAtomPositioned)childlist.get(0)).getPosition().PE(tempV);
+           ((IAtomPositioned)childlist.getAtom(0)).getPosition().PE(tempV);
        }
        else {
-           IVector position = ((IAtomPositioned)childlist.get(0)).getPosition();
+           IVector position = ((IAtomPositioned)childlist.getAtom(0)).getPosition();
            positionOld.E(position);
            for(int j = 0; j < numChildren-1; j++){
-               IVector position2 = ((IAtomPositioned)childlist.get(j+1)).getPosition();
+               IVector position2 = ((IAtomPositioned)childlist.getAtom(j+1)).getPosition();
                position.E(position2);
                position = position2;
            }
            tempV.setRandomSphere(random);
            tempV.TE(bondLength);
-           ((IAtomPositioned)childlist.get(numChildren - 1)).getPosition().PE(tempV);
+           ((IAtomPositioned)childlist.getAtom(numChildren - 1)).getPosition().PE(tempV);
            
        }
        
@@ -134,24 +134,24 @@ public class MCMoveReptate extends MCMovePhaseStep {
     
     public void rejectNotify(){
         AtomArrayList childlist = ((IAtomGroup)atom).getChildList();
-        int numChildren = childlist.size();
+        int numChildren = childlist.getAtomCount();
         if (!forward) {
-            IVector position = ((IAtomPositioned)childlist.get(numChildren-1)).getPosition();
+            IVector position = ((IAtomPositioned)childlist.getAtom(numChildren-1)).getPosition();
             for (int j=numChildren-1; j>0; j--) {
-                IVector position2 = ((IAtomPositioned)childlist.get(j-1)).getPosition();
+                IVector position2 = ((IAtomPositioned)childlist.getAtom(j-1)).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            ((IAtomPositioned)childlist.get(0)).getPosition().E(positionOld);
+            ((IAtomPositioned)childlist.getAtom(0)).getPosition().E(positionOld);
         }
         else {
-            IVector position = ((IAtomPositioned)childlist.get(0)).getPosition();
+            IVector position = ((IAtomPositioned)childlist.getAtom(0)).getPosition();
             for (int j=0; j<numChildren-1; j++) {
-                IVector position2 = ((IAtomPositioned)childlist.get(j+1)).getPosition();
+                IVector position2 = ((IAtomPositioned)childlist.getAtom(j+1)).getPosition();
                 position.E(position2);
                 position = position2;
             }
-            ((IAtomPositioned)childlist.get(numChildren-1)).getPosition().E(positionOld);
+            ((IAtomPositioned)childlist.getAtom(numChildren-1)).getPosition().E(positionOld);
         }
         
         

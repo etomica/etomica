@@ -67,8 +67,8 @@ public class ClusterCoupled implements ClusterAbstract {
     private double invert(CoordinatePairSet cPairs) {
         double minmax = -1;
         IAtomPositioned minMaxAtom = null;
-        for (int i=1; i<atomList.size(); i++) {
-            IAtomPositioned atom = (IAtomPositioned)atomList.get(i);
+        for (int i=1; i<atomList.getAtomCount(); i++) {
+            IAtomPositioned atom = (IAtomPositioned)atomList.getAtom(i);
             double r = atom.getPosition().squared(); // sqrt
             if (r == 1.0) {
                 return 1.0;
@@ -102,7 +102,7 @@ public class ClusterCoupled implements ClusterAbstract {
     }
     
     public void setPhase(PhaseCluster phase) {
-        atomList = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
+        atomList = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
     }
 
     public void setTemperature(double temperature) {

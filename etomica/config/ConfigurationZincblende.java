@@ -40,11 +40,11 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }
-        if(lists[0].size() != lists[1].size()) {
+        if(lists[0].getAtomCount() != lists[1].getAtomCount()) {
             System.err.println("Warning: different numbers of molecules for two species in ConfigurationZincBlende");
         }
         
-        int nCells = (int) Math.ceil(lists[0].size() / 4.0);
+        int nCells = (int) Math.ceil(lists[0].getAtomCount() / 4.0);
 
         // determine scaled shape of simulation volume
         IVector shape = phase.getSpace().makeVector();
@@ -82,8 +82,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
             IVector site = (IVector) lattice.site(ii);
             atomActionTranslateTo.setDestination(site);
 
-            IAtom a0 = lists[0].get(i);
-            IAtom a1 = lists[1].get(i);
+            IAtom a0 = lists[0].getAtom(i);
+            IAtom a1 = lists[1].getAtom(i);
             atomActionTranslateTo.actionPerformed(a0);
             atomActionTranslateTo.actionPerformed(a1);
 

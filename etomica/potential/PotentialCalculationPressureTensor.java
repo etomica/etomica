@@ -66,14 +66,14 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
      * PotentialMaster.calculate
      */
     public Tensor getPressureTensor() {
-        if (leafList.size() == 0) {
+        if (leafList.getAtomCount() == 0) {
             return pressureTensor;
         }
         
         // now handle the kinetic part
         workTensor.E(0);
 
-        if (leafList.get(0) instanceof IAtomKinetic) {
+        if (leafList.getAtom(0) instanceof IAtomKinetic) {
             if (integrator != null) {
                 warningPrinted = true;
                 System.out.println("Ignoring Integrator's temperature and using actual Atom velocities.  You shouldn't have given me an Integrator.");
@@ -85,15 +85,15 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
         else {
             int D = integrator.getPhase().getSpace().D();
             for (int i=0; i<D; i++) {
-                pressureTensor.PE(leafList.size()*integrator.getTemperature());
+                pressureTensor.PE(leafList.getAtomCount()*integrator.getTemperature());
             }
             return pressureTensor;
         }
 
         // simulation is dynamic, use the velocities
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic atom = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iLeaf);
             workTensor.Ev1v2(atom.getVelocity(), atom.getVelocity());
             workTensor.TE(((AtomTypeLeaf)atom.getType()).getMass());
             pressureTensor.PE(workTensor);

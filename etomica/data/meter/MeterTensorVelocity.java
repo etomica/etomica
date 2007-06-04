@@ -59,9 +59,9 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
         data.E(0.0);
         int count = 0;
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            getData(leafList.get(iLeaf));
+            getData(leafList.getAtom(iLeaf));
             data.PE(atomData);
             count++;
         }

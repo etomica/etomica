@@ -42,9 +42,9 @@ public abstract class Configuration implements java.io.Serializable {
      */
     protected AtomArrayList[] getMoleculeLists(Phase phase) {
         AtomArrayList speciesAgentList = phase.getSpeciesMaster().getAgentList();
-        AtomArrayList[] moleculeLists = new AtomArrayList[speciesAgentList.size()];
-        for (int i=0; i<speciesAgentList.size(); i++) {
-            moleculeLists[i] = ((IAtomGroup)speciesAgentList.get(i)).getChildList();
+        AtomArrayList[] moleculeLists = new AtomArrayList[speciesAgentList.getAtomCount()];
+        for (int i=0; i<speciesAgentList.getAtomCount(); i++) {
+            moleculeLists[i] = ((IAtomGroup)speciesAgentList.getAtom(i)).getChildList();
         }
         return moleculeLists;
     }

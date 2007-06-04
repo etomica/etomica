@@ -65,8 +65,8 @@ public class PotentialMasterListWorker extends Thread {
                         
            threadCalculate = System.currentTimeMillis(); 
             // Thread completes objective
-            for(int i=0; i<threadList.size(); i++){
-                calculate(threadList.get(i), id, pc);       
+            for(int i=0; i<threadList.getAtomCount(); i++){
+                calculate(threadList.getAtom(i), id, pc);       
             }
            threadCalculate = System.currentTimeMillis()-threadCalculate;
            
@@ -146,16 +146,16 @@ public class PotentialMasterListWorker extends Thread {
                     list = neighborManager.getUpList(atom);
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
-                        for (int j=0; j<iList.size(); j++) {
-                            IAtom otherAtom = iList.get(j);
+                        for (int j=0; j<iList.getAtomCount(); j++) {
+                            IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
                         }
                     }
                     list = neighborManager.getDownList(atom);
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
-                        for (int j=0; j<iList.size(); j++) {
-                            IAtom otherAtom = iList.get(j);
+                        for (int j=0; j<iList.getAtomCount(); j++) {
+                            IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
                         }
                     }
@@ -177,9 +177,9 @@ public class PotentialMasterListWorker extends Thread {
             
             //cannot use AtomIterator field because of recursive call
             AtomArrayList list = ((IAtomGroup)atom).getChildList();
-            int size = list.size();
+            int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
-                IAtom a = list.get(i);
+                IAtom a = list.getAtom(i);
                 calculate(a, id, pc);//recursive call
             }
         }

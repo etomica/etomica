@@ -29,9 +29,9 @@ public class ConfigurationFile extends Configuration {
         }
         try {
             BufferedReader bufReader = new BufferedReader(fileReader);
-            int nLeaf = leafList.size();
+            int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
+                IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
                 setPosition(a,bufReader.readLine());
             }
             fileReader.close();

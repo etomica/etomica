@@ -80,8 +80,8 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
             return next;
         }
         AtomArrayList arrayList = next.getArrayList();
-        IAtom oldFirst = arrayList.get(0);
-        arrayList.set(0,arrayList.get(nextCursor));
+        IAtom oldFirst = arrayList.getAtom(0);
+        arrayList.set(0,arrayList.getAtom(nextCursor));
         arrayList.set(nextCursor,oldFirst);
         nextCursor++;
         return next;

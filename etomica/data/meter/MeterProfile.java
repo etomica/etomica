@@ -101,9 +101,9 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         data.E(0);
         double[] y = data.getData();
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
+            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
             double value = ((DataDouble)meter.getData(a)).x;
             position.E(a.getPosition());
             position.PE(boundary.centralImage(position));

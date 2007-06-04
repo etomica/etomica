@@ -169,9 +169,9 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms();
         }
         AtomArrayList leafList = displayPhase.getPhase().getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            drawAtom(g, displayPhase.getOrigin(), (IAtomPositioned)leafList.get(iLeaf));
+            drawAtom(g, displayPhase.getOrigin(), (IAtomPositioned)leafList.getAtom(iLeaf));
         }
             
         //Draw overflow images if so indicated

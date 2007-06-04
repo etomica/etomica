@@ -58,11 +58,11 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 		Phase phase = integratorAgentManager.getPhase();
         AtomArrayList atomArrayList = phase.getSpeciesMaster().getLeafList();
       
-        for(int j=0; j<atomArrayList.size(); j++){
-            IVector force = ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atomArrayList.get(j))).force();
+        for(int j=0; j<atomArrayList.getAtomCount(); j++){
+            IVector force = ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atomArrayList.getAtom(j))).force();
       
             for(int i=0; i<pc.length; i++){
-                force.PE(((IntegratorPhase.Forcible)atomAgentManager[i].getAgent(atomArrayList.get(j))).force());
+                force.PE(((IntegratorPhase.Forcible)atomAgentManager[i].getAgent(atomArrayList.getAtom(j))).force());
                
                 
             }

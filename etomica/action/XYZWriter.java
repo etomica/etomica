@@ -67,11 +67,11 @@ public class XYZWriter implements Action, Serializable {
             return;
         }
         try {
-            fileWriter.write(Integer.toString(leafList.size())+"\n");
+            fileWriter.write(Integer.toString(leafList.getAtomCount())+"\n");
             fileWriter.write("#\n");
-            int nLeaf = leafList.size();
+            int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomPositioned atom = (IAtomPositioned)leafList.get(iLeaf);
+                IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(iLeaf);
                 Element element = ((AtomTypeLeaf)atom.getType()).getElement();
                 String symbol = element.getSymbol();
                 if (!(element instanceof ElementChemical)) {

@@ -404,9 +404,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
             //no target atoms specified
             //call calculate with each SpeciesAgent
             AtomArrayList list = phase.getSpeciesMaster().getAgentList();
-            int size = list.size();
+            int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
-                IAtom a = list.get(i);
+                IAtom a = list.getAtom(i);
                 calculate(a, id, pc, neighborManager);//call calculate with the SpeciesAgent
             }
         }
@@ -486,16 +486,16 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     list = neighborManager.getUpList(atom);
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
-                        for (int j=0; j<iList.size(); j++) {
-                            IAtom otherAtom = iList.get(j);
+                        for (int j=0; j<iList.getAtomCount(); j++) {
+                            IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
                         }
                     }
                     list = neighborManager.getDownList(atom);
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
-                        for (int j=0; j<iList.size(); j++) {
-                            IAtom otherAtom = iList.get(j);
+                        for (int j=0; j<iList.getAtomCount(); j++) {
+                            IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
                         }
                     }
@@ -514,9 +514,9 @@ public class PotentialMasterList extends PotentialMasterNbr {
             
             //cannot use AtomIterator field because of recursive call
             AtomArrayList list = ((IAtomGroup)atom).getChildList();
-            int size = list.size();
+            int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
-                IAtom a = list.get(i);
+                IAtom a = list.getAtom(i);
                 calculate(a, id, pc, neighborManager);//recursive call
             }
         }

@@ -95,8 +95,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         AtomPair basisPair = new AtomPair();
 
         AtomManager atomManager = sim.getPhases()[0].getSpeciesMaster();
-        SpeciesAgent agent0 = (SpeciesAgent)atomManager.getAgentList().get(0);
-        SpeciesAgent agent1 = (SpeciesAgent)atomManager.getAgentList().get(1);
+        SpeciesAgent agent0 = (SpeciesAgent)atomManager.getAgentList().getAtom(0);
+        SpeciesAgent agent1 = (SpeciesAgent)atomManager.getAgentList().getAtom(1);
         AtomTypeGroup agentType0 = sim.getSpeciesManager().getSpeciesAgentTypes()[0];
         AtomTypeGroup agentType1 = sim.getSpeciesManager().getSpeciesAgentTypes()[1];
         
@@ -261,8 +261,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //******* adjacent/nonadjacent setup -- basis has only one child
     private void setup4() {
         AtomManager atomManager = sim.getPhases()[1].getSpeciesMaster();
-        parent = atomManager.getAgentList().get(0);//phase1, species0
-        target = ((IAtomGroup)parent).getChildList().get(0);//the only species0 molecule
+        parent = atomManager.getAgentList().getAtom(0);//phase1, species0
+        target = ((IAtomGroup)parent).getChildList().getAtom(0);//the only species0 molecule
         targetFirst = target;
         targetLast = target;
         up = dn = upFirst = dnLast = null;
@@ -275,72 +275,72 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //************ adjacent/nonadjacent setup -- target is descended from but not direct child of basis
     private void setup3() {
         AtomManager atomManager = sim.getPhases()[0].getSpeciesMaster();
-        parent = ((IAtomGroup)atomManager.getAgentList().get(2)).getChildList().get(2); //Descendant(new int[] {2,2});//phase0, species2, molecule2
+        parent = ((IAtomGroup)atomManager.getAgentList().getAtom(2)).getChildList().getAtom(2); //Descendant(new int[] {2,2});//phase0, species2, molecule2
         AtomArrayList childList = ((IAtomGroup)parent).getChildList(); 
         target = ((AtomGroup)parent).getDescendant(new int[] {1,0,1});
         targetFirst = ((AtomGroup)parent).getDescendant(new int[] {0,0,2});
         targetLast = ((AtomGroup)parent).getDescendant(new int[] {4,1});
         up = ((AtomGroup)parent).getDescendant(new int[] {2});
-        upNon = new IAtom[] {childList.get(3), childList.get(4)};
-        upFirst = childList.get(1);
-        upFirstNon = new IAtom[] {childList.get(2), childList.get(3),
-                childList.get(4)};
-        dn = childList.get(0);
+        upNon = new IAtom[] {childList.getAtom(3), childList.getAtom(4)};
+        upFirst = childList.getAtom(1);
+        upFirstNon = new IAtom[] {childList.getAtom(2), childList.getAtom(3),
+                childList.getAtom(4)};
+        dn = childList.getAtom(0);
         dnNon = new IAtom[0];
-        dnLast = childList.get(3);
-        dnLastNon = new IAtom[] {childList.get(2),childList.get(1),
-                childList.get(0)};
-        iterate = childList.get(1);
-        iterateFirst = childList.get(0);
-        iterateLast = childList.get(4);
+        dnLast = childList.getAtom(3);
+        dnLastNon = new IAtom[] {childList.getAtom(2),childList.getAtom(1),
+                childList.getAtom(0)};
+        iterate = childList.getAtom(1);
+        iterateFirst = childList.getAtom(0);
+        iterateLast = childList.getAtom(4);
     }
 
 
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
         AtomManager atomManager = sim.getPhases()[0].getSpeciesMaster();
-        AtomArrayList moleculeList = ((IAtomGroup)atomManager.getAgentList().get(1)).getChildList();
-        parent = moleculeList.get(5);//leaf-atom basis
+        AtomArrayList moleculeList = ((IAtomGroup)atomManager.getAgentList().getAtom(1)).getChildList();
+        parent = moleculeList.getAtom(5);//leaf-atom basis
         target = parent;//atom5 
-        targetFirst = moleculeList.get(0);//atom0 
-        targetLast = moleculeList.get(9);//atom9
-        up = moleculeList.get(6);
-        upNon = new IAtom[] {moleculeList.get(7),moleculeList.get(8),
-                moleculeList.get(9)};
-        upFirst = moleculeList.get(1);
-        upFirstNon = new IAtom[] {moleculeList.get(2),moleculeList.get(3),
-                moleculeList.get(4),moleculeList.get(5),moleculeList.get(6),
-                moleculeList.get(7),moleculeList.get(8),moleculeList.get(9)};
-        dn = moleculeList.get(4);
-        dnNon = new IAtom[] {moleculeList.get(3),moleculeList.get(2),
-                moleculeList.get(1),moleculeList.get(0)};
-        dnLast = moleculeList.get(8);
-        dnLastNon = new IAtom[] {moleculeList.get(7),moleculeList.get(6),
-                moleculeList.get(5),moleculeList.get(4),moleculeList.get(3),
-                moleculeList.get(2),moleculeList.get(1),moleculeList.get(0)};
+        targetFirst = moleculeList.getAtom(0);//atom0 
+        targetLast = moleculeList.getAtom(9);//atom9
+        up = moleculeList.getAtom(6);
+        upNon = new IAtom[] {moleculeList.getAtom(7),moleculeList.getAtom(8),
+                moleculeList.getAtom(9)};
+        upFirst = moleculeList.getAtom(1);
+        upFirstNon = new IAtom[] {moleculeList.getAtom(2),moleculeList.getAtom(3),
+                moleculeList.getAtom(4),moleculeList.getAtom(5),moleculeList.getAtom(6),
+                moleculeList.getAtom(7),moleculeList.getAtom(8),moleculeList.getAtom(9)};
+        dn = moleculeList.getAtom(4);
+        dnNon = new IAtom[] {moleculeList.getAtom(3),moleculeList.getAtom(2),
+                moleculeList.getAtom(1),moleculeList.getAtom(0)};
+        dnLast = moleculeList.getAtom(8);
+        dnLastNon = new IAtom[] {moleculeList.getAtom(7),moleculeList.getAtom(6),
+                moleculeList.getAtom(5),moleculeList.getAtom(4),moleculeList.getAtom(3),
+                moleculeList.getAtom(2),moleculeList.getAtom(1),moleculeList.getAtom(0)};
     }
 
     //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
         AtomManager atomManager = sim.getPhases()[0].getSpeciesMaster();
-        parent = ((IAtomGroup)atomManager.getAgentList().get(0)).getChildList().get(2);
+        parent = ((IAtomGroup)atomManager.getAgentList().getAtom(0)).getChildList().getAtom(2);
         AtomArrayList childList = ((IAtomGroup)parent).getChildList();
-        target = childList.get(5);
-        targetFirst = childList.get(0);
-        targetLast = childList.get(9);
-        up = childList.get(6);
-        upNon = new IAtom[] {childList.get(7),childList.get(8),childList.get(9)};
-        upFirst = childList.get(1);
-        upFirstNon = new IAtom[] {childList.get(2),childList.get(3),
-                childList.get(4),childList.get(5),childList.get(6),
-                childList.get(7),childList.get(8),childList.get(9)};
-        dn = childList.get(4);
-        dnNon = new IAtom[] {childList.get(3),childList.get(2),childList.get(1),
-                childList.get(0)};
-        dnLast = childList.get(8);
-        dnLastNon = new IAtom[] {childList.get(7),childList.get(6),
-                childList.get(5),childList.get(4),childList.get(3),
-                childList.get(2),childList.get(1),childList.get(0)};
+        target = childList.getAtom(5);
+        targetFirst = childList.getAtom(0);
+        targetLast = childList.getAtom(9);
+        up = childList.getAtom(6);
+        upNon = new IAtom[] {childList.getAtom(7),childList.getAtom(8),childList.getAtom(9)};
+        upFirst = childList.getAtom(1);
+        upFirstNon = new IAtom[] {childList.getAtom(2),childList.getAtom(3),
+                childList.getAtom(4),childList.getAtom(5),childList.getAtom(6),
+                childList.getAtom(7),childList.getAtom(8),childList.getAtom(9)};
+        dn = childList.getAtom(4);
+        dnNon = new IAtom[] {childList.getAtom(3),childList.getAtom(2),childList.getAtom(1),
+                childList.getAtom(0)};
+        dnLast = childList.getAtom(8);
+        dnLastNon = new IAtom[] {childList.getAtom(7),childList.getAtom(6),
+                childList.getAtom(5),childList.getAtom(4),childList.getAtom(3),
+                childList.getAtom(2),childList.getAtom(1),childList.getAtom(0)};
         iterate = target;
         iterateFirst = targetFirst;
         iterateLast = targetLast;
@@ -403,7 +403,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //no target, n-1 iterates
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        assertEquals(list0.size(), ((IAtomGroup)parent).getChildList().size()-1);
+        assertEquals(list0.size(), ((IAtomGroup)parent).getChildList().getAtomCount()-1);
         
         //if no target, direction doesn't matter
         api.setDirection(null);
@@ -475,7 +475,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //(first and last have n-2, the other n-2 have n-3)
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        int n = ((IAtomGroup)parent).getChildList().size();
+        int n = ((IAtomGroup)parent).getChildList().getAtomCount();
         assertEquals(list0.size(), (2*(n-2) + (n-2)*(n-3))/2);
         
         //if no target, direction doesn't matter

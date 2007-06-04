@@ -28,9 +28,9 @@ public class ActionVelocityWindow implements Action {
         textArea.setEditable(false);
         textArea.setBackground(Color.white);
         textArea.setForeground(Color.black);
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             IVector vel = a.getVelocity();
             String str = Double.toString(vel.x(0));
             for (int i=1; i<vel.getD(); i++) {

@@ -85,7 +85,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
         if(insert) {
             uOld = 0.0;
             
-            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
+            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getAtomCount()-1);
             else testMolecule = moleculeFactory.makeAtom();
             speciesAgent.addChildAtom(testMolecule);
 
@@ -96,7 +96,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
                 testMolecule = null;
                 return false;
             }
-            testMolecule = moleculeList.get(random.nextInt(moleculeList.size()));
+            testMolecule = moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
             uOld = energyMeter.getDataAsScalar();

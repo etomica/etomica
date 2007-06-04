@@ -142,10 +142,10 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         test.simGraphic = makeDisplay(test);
         test.sim = test.simGraphic.getSimulation();
         AtomManager atomManager = test.sim.getPhases()[0].getSpeciesMaster();
-        AtomArrayList list = ((SpeciesAgent)atomManager.getAgentList().get(0)).getChildList();
-        test.atom0 = (AtomLeaf)list.get(0);
-        test.atom1 = (AtomLeaf)list.get(1);
-        test.atom2 = (AtomLeaf)list.get(2);
+        AtomArrayList list = ((SpeciesAgent)atomManager.getAgentList().getAtom(0)).getChildList();
+        test.atom0 = (AtomLeaf)list.getAtom(0);
+        test.atom1 = (AtomLeaf)list.getAtom(1);
+        test.atom2 = (AtomLeaf)list.getAtom(2);
         test.display = ((DisplayPhase)test.simGraphic.displayList().getFirst());
         test.interactive = true;
         test.testNearestImage();

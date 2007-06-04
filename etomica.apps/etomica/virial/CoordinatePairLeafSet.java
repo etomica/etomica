@@ -25,8 +25,8 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public CoordinatePairLeafSet(AtomArrayList list, Space space) {
-        positions = new IVector[list.size()];
-        numAtoms = list.size();
+        positions = new IVector[list.getAtomCount()];
+        numAtoms = list.getAtomCount();
         r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
         dr = space.makeVector();

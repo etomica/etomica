@@ -20,7 +20,7 @@ public class AtomsetArrayList implements AtomSet, java.io.Serializable {
     public AtomsetArrayList(AtomSet atomSet) {
         this();
         atoms.ensureCapacity(atomSet.getAtomCount());
-        for (int i = 0; i < atoms.size(); i++) {
+        for (int i = 0; i < atoms.getAtomCount(); i++) {
             atoms.add(atomSet.getAtom(i));
         }
     }
@@ -37,7 +37,7 @@ public class AtomsetArrayList implements AtomSet, java.io.Serializable {
      * Part of implementation of AtomSet interface.
      */
     public IAtom getAtom(int i) {
-        return atoms.get(i);
+        return atoms.getAtom(i);
     }
 
     /**
@@ -68,7 +68,7 @@ public class AtomsetArrayList implements AtomSet, java.io.Serializable {
      * Returns the length of the wrapped array.
      */
     public int getAtomCount() {
-        return atoms.size();
+        return atoms.getAtomCount();
     }
 
     private static final long serialVersionUID = 1L;

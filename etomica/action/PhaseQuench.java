@@ -46,9 +46,9 @@ public class PhaseQuench extends PhaseActionAdapter {
 		double currentTemperature = meterTemperature.getDataAsScalar();
 		double scale = Math.sqrt(temperature / currentTemperature);
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-			((IAtomKinetic)leafList.get(iLeaf)).getVelocity().TE(scale);
+			((IAtomKinetic)leafList.getAtom(iLeaf)).getVelocity().TE(scale);
         }
 	}
 

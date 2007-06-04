@@ -48,12 +48,12 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
                     "ApiInterList will not work correctly if inner and outer lists are the same instance");
         }
         outerIndex = 0;
-        if (outerList.size() == 0) {
-            innerIndex = innerList.size() - 1;
+        if (outerList.getAtomCount() == 0) {
+            innerIndex = innerList.getAtomCount() - 1;
             return;
         }
         innerIndex = -1;
-        atoms.atom0 = outerList.get(outerIndex);
+        atoms.atom0 = outerList.getAtom(outerIndex);
     }
 
     /**
@@ -61,10 +61,10 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      */
     public void unset() {
         if (outerList != null) {
-            outerIndex = outerList.size() - 1;
+            outerIndex = outerList.getAtomCount() - 1;
         }
         if (innerList != null) {
-            innerIndex = innerList.size() - 1;
+            innerIndex = innerList.getAtomCount() - 1;
         }
     }
 
@@ -73,16 +73,16 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * iterates.
      */
     public AtomSet next() {
-        if (innerIndex > innerList.size() - 2) {
-            if (outerIndex > outerList.size() - 2 || innerList.size() == 0) {
+        if (innerIndex > innerList.getAtomCount() - 2) {
+            if (outerIndex > outerList.getAtomCount() - 2 || innerList.getAtomCount() == 0) {
                 return null;
             }
             outerIndex++;
-            atoms.atom0 = outerList.get(outerIndex);
+            atoms.atom0 = outerList.getAtom(outerIndex);
             innerIndex = -1;
         }
         innerIndex++;
-        atoms.atom1 = innerList.get(innerIndex);
+        atoms.atom1 = innerList.getAtom(innerIndex);
         return atoms;
     }
 
@@ -91,10 +91,10 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * list.
      */
     public void allAtoms(AtomsetAction action) {
-        for (int i=0; i<outerList.size(); i++) {
-            atoms.atom0 = outerList.get(i);
-            for (int j=0; j<innerList.size(); j++) {
-                atoms.atom1 = innerList.get(j);
+        for (int i=0; i<outerList.getAtomCount(); i++) {
+            atoms.atom0 = outerList.getAtom(i);
+            for (int j=0; j<innerList.getAtomCount(); j++) {
+                atoms.atom1 = innerList.getAtom(j);
                 action.actionPerformed(atoms);
             }
         }
@@ -104,7 +104,7 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * Returns the number of iterates, which is list.size*(list.size-1)/2
      */
     public int size() {
-        return outerList.size() * innerList.size();
+        return outerList.getAtomCount() * innerList.getAtomCount();
     }
 
     /**

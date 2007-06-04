@@ -1,5 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.action.PDBWriter;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;

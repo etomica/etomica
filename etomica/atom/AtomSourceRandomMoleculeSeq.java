@@ -22,10 +22,10 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
         }
         int lookAhead = random.nextInt(maxLookAhead+1);
         
-        for ( ; agentIndex<agentList.size(); agentIndex++) {
+        for ( ; agentIndex<agentList.getAtomCount(); agentIndex++) {
             // advance through the species if needed
-            moleculeList = ((IAtomGroup)agentList.get(agentIndex)).getChildList();
-            int count = moleculeList.size();
+            moleculeList = ((IAtomGroup)agentList.getAtom(agentIndex)).getChildList();
+            int count = moleculeList.getAtomCount();
             if (prevIndex+lookAhead < count) {
                 prevIndex += lookAhead;
                 lookAhead = -1;
@@ -34,9 +34,9 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
         }
         if (lookAhead > -1) {
             // we ran out of species, so start over with the first species
-            for (agentIndex=0 ; agentIndex<agentList.size(); agentIndex++) {
-                moleculeList = ((IAtomGroup)agentList.get(agentIndex)).getChildList();
-                int count = moleculeList.size();
+            for (agentIndex=0 ; agentIndex<agentList.getAtomCount(); agentIndex++) {
+                moleculeList = ((IAtomGroup)agentList.getAtom(agentIndex)).getChildList();
+                int count = moleculeList.getAtomCount();
                 if (prevIndex+lookAhead < count) {
                     prevIndex += lookAhead;
                     lookAhead = -1;
@@ -44,7 +44,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
                 prevIndex -= count;
             }
         }
-        return moleculeList.get(prevIndex);
+        return moleculeList.getAtom(prevIndex);
     }
 
     /**
@@ -58,9 +58,9 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
         }
         prevIndex = random.nextInt(size);
         
-        for (agentIndex=0; agentIndex<agentList.size(); agentIndex++) {
-            moleculeList = ((IAtomGroup)agentList.get(agentIndex)).getChildList();
-            int count = moleculeList.size();
+        for (agentIndex=0; agentIndex<agentList.getAtomCount(); agentIndex++) {
+            moleculeList = ((IAtomGroup)agentList.getAtom(agentIndex)).getChildList();
+            int count = moleculeList.getAtomCount();
             if (prevIndex < count) {
                 break;
             }

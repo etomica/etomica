@@ -45,7 +45,7 @@ public class ConformationTube extends Conformation {
 
 	public void initializePositions(AtomArrayList atomList) {
 
-		int size = atomList.size();
+		int size = atomList.getAtomCount();
 		if (size == 0)
 			return;
 
@@ -62,9 +62,9 @@ public class ConformationTube extends Conformation {
 		theta0 = 0;
 		ctr = 0;
 
-        int nLeaf = atomList.size();
+        int nLeaf = atomList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
-            IAtomPositioned a = (IAtomPositioned)atomList.get(i);
+            IAtomPositioned a = (IAtomPositioned)atomList.getAtom(i);
 
 			a.getPosition().setX(0, x);
 			a.getPosition().setX(1, y);

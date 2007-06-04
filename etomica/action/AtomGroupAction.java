@@ -27,9 +27,9 @@ public class AtomGroupAction extends AtomActionAdapter {
     public void actionPerformed(IAtom atom) {
         if(atom instanceof IAtomGroup) {
             AtomArrayList atomList = ((IAtomGroup)atom).getChildList();
-            int size = atomList.size();
+            int size = atomList.getAtomCount();
             for(int i=0; i<size; i++) {
-                this.actionPerformed(atomList.get(i));
+                this.actionPerformed(atomList.getAtom(i));
             }
         }
         else {

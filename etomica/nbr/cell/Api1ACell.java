@@ -92,7 +92,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
             while(neighborIterator.hasNext()) {
                 Cell neighborCell = (Cell)neighborIterator.next();
                 aiSeq.setList(neighborCell.occupants());
-                if(neighborCell.occupants().size() > 0) nbrCellListIteratorUp.allAtoms(action);
+                if(neighborCell.occupants().getAtomCount() > 0) nbrCellListIteratorUp.allAtoms(action);
             }
         }
 
@@ -103,7 +103,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
             while(neighborIterator.hasNext()) {
                 Cell neighborCell = (Cell)neighborIterator.next(); 
                 aiSeq.setList(neighborCell.occupants());
-                if(neighborCell.occupants().size() > 0) nbrCellListIteratorDn.allAtoms(action);
+                if(neighborCell.occupants().getAtomCount() > 0) nbrCellListIteratorDn.allAtoms(action);
             }
         }
     }//end of allAtoms

@@ -109,9 +109,9 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     protected void corrector() {
         
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             IVector r = a.getPosition();
             IVector v = a.getVelocity();
@@ -142,9 +142,9 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         
     protected void predictor() {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             IVector r = a.getPosition();
             IVector v = a.getVelocity();
@@ -181,9 +181,9 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     public void reset() throws ConfigurationOverlapException {
         calculateForces();
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             agent.dr1.E(a.getVelocity());
             agent.dr2.Ea1Tv1(((AtomTypeLeaf)a.getType()).rm(),agent.force);

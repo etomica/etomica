@@ -32,7 +32,7 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
      */
     public IAtom getAtom() {
         if (Debug.ON && list== null) throw new IllegalStateException("must set the phase before calling getAtom");
-        return list.get(random.nextInt(list.size()));
+        return list.getAtom(random.nextInt(list.getAtomCount()));
     }
     
     private static final long serialVersionUID = 1L;

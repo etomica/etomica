@@ -67,8 +67,8 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.size(); idx++) {
-			    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
+			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
                 if(a.getPosition().x(2) >= spacePos-epsilon &&
                    a.getPosition().x(2) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(
@@ -81,7 +81,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
             if(a.getPosition().x(2) >= spacePos-epsilon &&
                a.getPosition().x(2) <= spacePos+epsilon) {
             	System.out.println(funcName + " -> Atom position : " + a.getPosition() +
@@ -125,8 +125,8 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.size(); idx++) {
-			    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
+			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
                 if(a.getPosition().x(2) >= spacePos-epsilon &&
                    a.getPosition().x(2) <= spacePos+epsilon) {
             	    assertTrue(lptu.getLatticePlane().inPlane(
@@ -139,7 +139,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
             if(a.getPosition().x(2) >= spacePos-epsilon &&
                a.getPosition().x(2) <= spacePos+epsilon) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
@@ -193,8 +193,8 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.size(); idx++) {
-			    IAtomPositioned a = (IAtomPositioned)leafList.get(idx);
+		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
+			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
@@ -208,7 +208,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
             if(dd.contains(makeArray(a.getPosition()))) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
@@ -251,14 +251,14 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.size(); idx++) {
-			    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
+			    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
             	assertFalse(lptu.getLatticePlane().inPlane(
             	    	(etomica.space3d.Vector3D)(a.getPosition())));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
             System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should not be in plane but is.");
          	fail();
@@ -295,8 +295,8 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.size(); idx++) {
-			    IAtomPositioned a = (IAtomPositioned)leafList.get(idx);
+		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
+			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
                 if(a.getPosition().x(1) >= spacePos-epsilon &&
                    a.getPosition().x(1) <= spacePos+epsilon) {
@@ -310,7 +310,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
             if(a.getPosition().x(1) >= spacePos-epsilon &&
                a.getPosition().x(1) <= spacePos+epsilon) {
                 System.out.println(funcName + " -> Atom position : " + a.getPosition() +
@@ -355,15 +355,15 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.size(); idx++) {
-			    IAtomPositioned a = (IAtomPositioned)leafList.get(idx);
+		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
+			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
             	assertFalse(lptu.getLatticePlane().inPlane(
             	    (etomica.space3d.Vector3D)(a.getPosition())));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
             System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should not be in plane but is.");
          	fail();
@@ -411,8 +411,8 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.size(); idx++) {
-			    IAtomPositioned a = (IAtomPositioned)leafList.get(idx);
+		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
+			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
 			    if(dd.contains(makeArray(a.getPosition())) == true) {
 			    	itemsFound++;
@@ -426,7 +426,7 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
             if(dd.contains(makeArray(a.getPosition()))) {
             	System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should be in plane but is not.");
@@ -472,15 +472,15 @@ public class BLCPrimitiveTetragonalLatticePlaneTest extends TestCase {
     	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
 
     	try {
-		    for(idx = 0; idx < leafList.size(); idx++) {
-			    IAtomPositioned a = (IAtomPositioned)leafList.get(idx);
+		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
+			    IAtomPositioned a = (IAtomPositioned)leafList.getAtom(idx);
 
             	assertFalse(lptu.getLatticePlane().inPlane(
             	    (etomica.space3d.Vector3D)(a.getPosition())));
 		    }
 		}
         catch (junit.framework.AssertionFailedError e) {
-		    IAtomPositioned a = (IAtomPositioned) leafList.get(idx);
+		    IAtomPositioned a = (IAtomPositioned) leafList.getAtom(idx);
             System.out.println(funcName + " ->Atom position : " + a.getPosition() +
             			" should not be in plane but is.");
          	fail();

@@ -28,10 +28,10 @@ public final class MeterTemperature extends etomica.data.meter.MeterTemperature 
 	public double getDataAsScalar() {
 		SpeciesAgent agent = phase.getAgent(species);
 		AtomArrayList list = agent.getChildList();
-		int size = list.size();
+		int size = list.getAtomCount();
 		int natoms = 0;
 		if(size > 0) {
-			natoms = size * ((IAtomGroup)list.get(0)).getChildList().size();
+			natoms = size * ((IAtomGroup)list.getAtom(0)).getChildList().getAtomCount();
 		}
 		return (2. / ((phase.atomCount()- natoms) * phase.getBoundary().getDimensions().getD()))
 				* meterKE.getDataAsScalar();

@@ -44,7 +44,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		insert = (random.nextInt(2) == 0);
 		if(insert) {
 			uOld = 0.0;
-			if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.size()-1);
+			if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getAtomCount()-1);
 			else testMolecule = moleculeFactory.makeAtom();
             speciesAgent.addChildAtom(testMolecule);
 			position = (Vector3D)phase.getBoundary().randomPosition();
@@ -59,12 +59,12 @@ public class MyMCMove extends MCMoveInsertDelete {
 			atomTranslator.setDestination(position);
 			atomTranslator.actionPerformed(testMolecule);
 		} else {//delete
-			if(activeAtoms.size() == 0) {
+			if(activeAtoms.getAtomCount() == 0) {
 				testMolecule = null;//added this line 09/19/02
 				return false;
 			}
-            testMoleculeIndex = random.nextInt(activeAtoms.size());
-			testMolecule = activeAtoms.get(testMoleculeIndex);
+            testMoleculeIndex = random.nextInt(activeAtoms.getAtomCount());
+			testMolecule = activeAtoms.getAtom(testMoleculeIndex);
 			energyMeter.setTarget(testMolecule);
 			uOld = energyMeter.getDataAsScalar();
 		} 
@@ -73,8 +73,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 	}//end of doTrial
 
 	public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-		return insert ? zFraction*phase.volume()/(activeAtoms.size()+1) 
-					  : activeAtoms.size()/zFraction/phase.volume();        
+		return insert ? zFraction*phase.volume()/(activeAtoms.getAtomCount()+1) 
+					  : activeAtoms.getAtomCount()/zFraction/phase.volume();        
 	}
 
 	public void acceptNotify() {
@@ -95,9 +95,9 @@ public class MyMCMove extends MCMoveInsertDelete {
     	double zBoundary = phase.getBoundary().getDimensions().x(2);
     	double zmin = nearOrigin ? -0.5*zBoundary : 0.5*(1.0-zFraction)*zBoundary;
     	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
-        int nMolecules = moleculeList.size();
+        int nMolecules = moleculeList.getAtomCount();
         for (int i=0; i<nMolecules; i++) {
-            IAtomPositioned atom = (IAtomPositioned)moleculeList.get(i);
+            IAtomPositioned atom = (IAtomPositioned)moleculeList.getAtom(i);
 
     		double z = atom.getPosition().x(2);
     		if(z < zmin || z > zmax) continue;

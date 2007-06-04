@@ -24,8 +24,8 @@ public class CoordinatePairMoleculeSet implements java.io.Serializable, Coordina
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public CoordinatePairMoleculeSet(AtomArrayList list, Space space) {
-        atoms = new IAtom[list.size()];
-        numAtoms = list.size();
+        atoms = new IAtom[list.getAtomCount()];
+        numAtoms = list.getAtomCount();
         r2 = new double[numAtoms*numAtoms];
         setAtoms(list);
         dr = space.makeVector();

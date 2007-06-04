@@ -18,7 +18,7 @@ public class AtomPairSet implements java.io.Serializable {
      * @param list The list of atoms for which the set of pairs is formed.
      */
     public AtomPairSet(AtomArrayList list) {
-        aPairs = new AtomPair[list.size()-1][];
+        aPairs = new AtomPair[list.getAtomCount()-1][];
         setAtoms(list);
     }
     
@@ -32,7 +32,7 @@ public class AtomPairSet implements java.io.Serializable {
 
     private void setAtoms(AtomArrayList list) {
         AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(list);
-        int N = list.size();
+        int N = list.getAtomCount();
         IAtom[] atoms = new IAtom[N];
         iterator.reset();
         int k=0;

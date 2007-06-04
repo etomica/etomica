@@ -127,9 +127,9 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 
 		// Remove old phase atoms
 		AtomArrayList leafList = p.getSpeciesMaster().getLeafList();
-		int nLeaf = leafList.size();
+		int nLeaf = leafList.getAtomCount();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtomPositioned a = (IAtomPositioned) leafList.get(iLeaf);
+			IAtomPositioned a = (IAtomPositioned) leafList.getAtom(iLeaf);
 			if (a == null || !(a.getType() instanceof AtomTypeSphere))
 				continue;
 			Ball ball = (Ball) aam.getAgent(a);
@@ -176,10 +176,10 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 
 		AtomArrayList leafList = displayPhase.getPhase().getSpeciesMaster()
 				.getLeafList();
-		int nLeaf = leafList.size();
+		int nLeaf = leafList.getAtomCount();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtomPositioned a = (IAtomPositioned) leafList.get(iLeaf);
+			IAtomPositioned a = (IAtomPositioned) leafList.getAtom(iLeaf);
 			if (a == null || !(a.getType() instanceof AtomTypeSphere))
 				continue;
 			Ball ball = (Ball) aam.getAgent(a);

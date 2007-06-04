@@ -84,9 +84,9 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
 
         //take step
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             pressureTensor.E(forceSum.getPressureTensor());
             IVector v = a.getVelocity();
             workTensor.Ev1v2(v,v);
@@ -119,9 +119,9 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     
     protected void updateMrLast() {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             agent.rMrLast.Ea1Tv1(timeStep,a.getVelocity());//06/13/03 removed minus sign before timeStep
         }

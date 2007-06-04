@@ -68,13 +68,13 @@ public class ConformationLinear extends Conformation {
     }
 
     public void initializePositions(AtomArrayList atomList) {
-        int size = atomList.size();
+        int size = atomList.getAtomCount();
         if(size == 0) return;
 
         double xNext = -bondLength*0.5*(size-1);
-        int nLeaf = atomList.size();
+        int nLeaf = atomList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = atomList.get(iLeaf);
+            IAtom a = atomList.getAtom(iLeaf);
             if (a instanceof IAtomGroup) {
                 //initialize coordinates of child atoms
                 Conformation config = a.getType().creator().getConformation();

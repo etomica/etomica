@@ -327,9 +327,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      * changed.
      */
     protected void processReverseList() {
-        int size = listToUpdate.size();
+        int size = listToUpdate.getAtomCount();
         for (int i=0; i<size; i++) {
-            IAtom reverseAtom = listToUpdate.get(i);
+            IAtom reverseAtom = listToUpdate.getAtom(i);
             Agent agent = (Agent)agentManager.getAgent(reverseAtom);
             if (agent.collisionPotential != null) {
                 agent.eventLinker.remove();
@@ -352,9 +352,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      */
 	protected void advanceAcrossTimeStep(double tStep) {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             ((Agent)agentManager.getAgent(a)).decrementCollisionTime(tStep);
 			a.getPosition().PEa1Tv1(tStep,a.getVelocity());
 		}
@@ -394,9 +394,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     public void resetCollisionTimes() {
         if(!initialized) return;
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.get(iLeaf);
+            IAtom atom = leafList.getAtom(iLeaf);
             ((Agent)agentManager.getAgent(atom)).resetCollision();
         }
         upList.setTargetAtom(null);
@@ -405,7 +405,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         potential.calculate(phase, upList, collisionHandlerUp); //assumes only one phase
         eventList.reset();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.get(iLeaf);
+            IAtom atom = leafList.getAtom(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(atom);
             if (agent.collisionPotential != null) {
                 eventList.add(agent.eventLinker);
@@ -420,9 +420,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         double s = super.scaleMomenta();
         double rs = 1.0/s;
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.get(iLeaf);
+            IAtom atom = leafList.getAtom(iLeaf);
             ((Agent)agentManager.getAgent(atom)).eventLinker.sortKey *= rs;
         }
         // don't need to update eventTree because event order didn't change

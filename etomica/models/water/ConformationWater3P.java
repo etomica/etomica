@@ -21,13 +21,13 @@ public class ConformationWater3P extends Conformation {
         double x = 0.0;
         double y = 0.0;
         
-        IAtomPositioned o = (IAtomPositioned)list.get(0);
+        IAtomPositioned o = (IAtomPositioned)list.getAtom(0);
         o.getPosition().E(new double[] {x, y, 0.0});
                
-        IAtomPositioned h1 = (IAtomPositioned)list.get(0);
+        IAtomPositioned h1 = (IAtomPositioned)list.getAtom(0);
         h1.getPosition().E(new double[] {x+bondLengthOH, y, 0.0});
                 
-        IAtomPositioned h2 = (IAtomPositioned)list.get(0);
+        IAtomPositioned h2 = (IAtomPositioned)list.getAtom(0);
         h2.getPosition().E(new double[] {x+bondLengthOH*Math.cos(angleHOH), y+bondLengthOH*Math.sin(angleHOH), 0.0});
 
     }

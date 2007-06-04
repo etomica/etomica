@@ -21,8 +21,8 @@ public class AtomGroup extends Atom implements IAtomGroup {
      * according to their position in the childList.
      */
     private void assignChildOrdinals() {
-        for (int i = 0; i < childList.size(); i++) {
-            childList.get(i).setIndex(i);
+        for (int i = 0; i < childList.getAtomCount(); i++) {
+            childList.getAtom(i).setIndex(i);
         }
     }
 
@@ -38,7 +38,7 @@ public class AtomGroup extends Atom implements IAtomGroup {
 
         newChildAtom.setParent(this);
 
-        newChildAtom.setIndex(childList.size());
+        newChildAtom.setIndex(childList.getAtomCount());
         childList.add(newChildAtom);
         addAtomNotify(newChildAtom);
     }
@@ -48,15 +48,15 @@ public class AtomGroup extends Atom implements IAtomGroup {
      * @throws IllegalArgumentException if the given atom is not a child.
      */
     public void removeChildAtom(IAtom oldChildAtom) {
-        for (int i=0; i<childList.size(); i++) {
-            if (childList.get(i) == oldChildAtom) {
+        for (int i=0; i<childList.getAtomCount(); i++) {
+            if (childList.getAtom(i) == oldChildAtom) {
                 oldChildAtom.setParent(null);
                 childList.removeAndReplace(i);
                 childList.maybeTrimToSize();
-                if (childList.size() > i) {
+                if (childList.getAtomCount() > i) {
                     // reassign the old last Atom (which is now in the removed
                     // Atom's place) to have the old Atom's index.
-                    childList.get(i).setIndex(i);
+                    childList.getAtom(i).setIndex(i);
                 }
                 removeAtomNotify(oldChildAtom);
                 return;
@@ -81,7 +81,7 @@ public class AtomGroup extends Atom implements IAtomGroup {
     }
     
     private IAtom getDescendant(int n, int[] path) {
-        IAtom child = childList.get(path[n]);
+        IAtom child = childList.getAtom(path[n]);
         if(path.length - 1 > n) {//go further down hierarchy
             if(!(child instanceof IAtomGroup)) {//no more there
                 throw new IllegalArgumentException("Depth of requested descendant exceeds depth of atom hierarchy");

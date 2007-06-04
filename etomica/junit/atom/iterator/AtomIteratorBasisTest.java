@@ -73,21 +73,21 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         AtomArrayList moleculeList0 = phase.getAgent(sim.getSpeciesManager().getSpecies()[0]).getChildList();
         AtomArrayList moleculeList1 = phase.getAgent(sim.getSpeciesManager().getSpecies()[1]).getChildList();
         AtomArrayList moleculeList2 = phase.getAgent(sim.getSpeciesManager().getSpecies()[2]).getChildList();
-        basis = moleculeList0.get(0);
+        basis = moleculeList0.getAtom(0);
         target = null;
         iterates = (AtomArrayList)((IAtomGroup)basis).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
         //test no-target iteration of a leaf basis
-        basis = ((IAtomGroup)moleculeList0.get(0)).getChildList().get(1);
+        basis = ((IAtomGroup)moleculeList0.getAtom(0)).getChildList().getAtom(1);
         target = null;
         iterate = basis;
         testOneIterate(basis, target, iterate);
         
         //test target is a child of the basis
-        basis = moleculeList0.get(0);
-        target = ((IAtomGroup)moleculeList0.get(0)).getChildList().get(1);
+        basis = moleculeList0.getAtom(0);
+        target = ((IAtomGroup)moleculeList0.getAtom(0)).getChildList().getAtom(1);
         iterate = target;
         testOneIterate(basis, target, iterate);
 
@@ -100,45 +100,45 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         assertEquals(list, testLister.list);
 
         //test target is the basis, both not a leaf; should be same as target==null
-        basis = moleculeList0.get(0);
+        basis = moleculeList0.getAtom(0);
         target = basis;
         iterates = (AtomArrayList)((IAtomGroup)basis).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
         //test target is the basis, both a leaf
-        basis = moleculeList1.get(0);
+        basis = moleculeList1.getAtom(0);
         target = basis;
         iterate = basis;
         testOneIterate(basis, target, iterate);
 
         //test target is in hierarchy above basis, a leaf; should be same as target==null
-        basis = ((IAtomGroup)moleculeList0.get(0)).getChildList().get(0);
-        target = moleculeList0.get(0);
+        basis = ((IAtomGroup)moleculeList0.getAtom(0)).getChildList().getAtom(0);
+        target = moleculeList0.getAtom(0);
         iterate = basis;
         testOneIterate(basis, target, iterate);
 
         //test target is in hierarchy apart from basis; should return no iterates
-        basis = ((IAtomGroup)moleculeList0.get(0)).getChildList().get(0);
-        target = moleculeList1.get(0);
+        basis = ((IAtomGroup)moleculeList0.getAtom(0)).getChildList().getAtom(0);
+        target = moleculeList1.getAtom(0);
         testNoIterates(basis, target);
 
         //test target is derived from basis, but is not a child of it
-        basis = moleculeList2.get(0);
-        iterate = ((IAtomGroup)basis).getChildList().get(1);
-        target = ((IAtomGroup)iterate).getChildList().get(0);
+        basis = moleculeList2.getAtom(0);
+        iterate = ((IAtomGroup)basis).getChildList().getAtom(1);
+        target = ((IAtomGroup)iterate).getChildList().getAtom(0);
         testOneIterate(basis, target, iterate);
         
         //test specifying null target
         //also test specifying deeper basis
-        basis = ((IAtomGroup)moleculeList2.get(1)).getChildList().get(2);
+        basis = ((IAtomGroup)moleculeList2.getAtom(1)).getChildList().getAtom(2);
         target = null;
         iterates = (AtomArrayList)((IAtomGroup)basis).getChildList().clone();
         list = testListIterates(basis, target, iterates);
         
         //test null basis
         basis = null;
-        target = ((IAtomGroup)((IAtomGroup)moleculeList2.get(0)).getChildList().get(1)).getChildList().get(0);
+        target = ((IAtomGroup)((IAtomGroup)moleculeList2.getAtom(0)).getChildList().getAtom(1)).getChildList().getAtom(0);
         testNoIterates(basis, target);
         
         //test null basis with null target

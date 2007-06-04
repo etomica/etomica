@@ -67,7 +67,7 @@ public class PotentialMasterListWorker extends Thread {
            threadCalculate = System.currentTimeMillis(); 
             // Thread completes objective
             for(int i=startAtom; i<stopAtom; i++){
-                calculate(threadList.get(i-startAtom), id, pc);       
+                calculate(threadList.getAtom(i-startAtom), id, pc);       
             }
            threadCalculate = System.currentTimeMillis()-threadCalculate;
            
@@ -147,16 +147,16 @@ public class PotentialMasterListWorker extends Thread {
                     list = neighborLists[atom.getIndex()+startAtom];
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
-                        for (int j=0; j<iList.size(); j++) {
-                            IAtom otherAtom = iList.get(j);
+                        for (int j=0; j<iList.getAtomCount(); j++) {
+                            IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
                         }
                     }
                     list = neighborManager.getDownList(atom);
                     if (i < list.length) {
                         AtomArrayList iList = list[i];
-                        for (int j=0; j<iList.size(); j++) {
-                            IAtom otherAtom = iList.get(j);
+                        for (int j=0; j<iList.getAtomCount(); j++) {
+                            IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
                         }
                     }
@@ -178,9 +178,9 @@ public class PotentialMasterListWorker extends Thread {
             
             //cannot use AtomIterator field because of recursive call
             AtomArrayList list = ((IAtomGroup)atom).getChildList();
-            int size = list.size();
+            int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
-                IAtom a = list.get(i);
+                IAtom a = list.getAtom(i);
                 calculate(a, id, pc);//recursive call
             }
         }
@@ -205,8 +205,8 @@ public class PotentialMasterListWorker extends Thread {
     public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, Phase phase){
         
         // Make reference to neighbor lists
-        AtomArrayList list = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().get(0)).getChildList();
-        int size = list.size();
+        AtomArrayList list = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
+        int size = list.getAtomCount();
         
         int startAtom = (threadNumber*size)/numThreads;
         int stopAtom = ((threadNumber+1)*size)/numThreads;
@@ -218,8 +218,8 @@ public class PotentialMasterListWorker extends Thread {
         neighborLists = new AtomArrayList[stopAtom-startAtom][];
                 
         for(int i=0; i<(stopAtom-startAtom); i++){
-            threadList.add(list.get(i+startAtom));
-            neighborLists[i] = neighborManager.getUpList(list.get(i+startAtom));
+            threadList.add(list.getAtom(i+startAtom));
+            neighborLists[i] = neighborManager.getUpList(list.getAtom(i+startAtom));
             
         }
             

@@ -44,7 +44,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
      */
     public boolean doTrial() {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        atom = (IAtomPositioned)leafList.get(random.nextInt(leafList.size()));
+        atom = (IAtomPositioned)leafList.getAtom(random.nextInt(leafList.getAtomCount()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
         atom.getPosition().TE(-1);

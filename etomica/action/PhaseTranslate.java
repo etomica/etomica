@@ -47,9 +47,9 @@ public final class PhaseTranslate extends PhaseActionAdapter implements Undoable
 		if (phase == null)
 			return;
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)leafList.get(iLeaf);
+            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
             a.getPosition().PE(translationVector);
         }
 	}

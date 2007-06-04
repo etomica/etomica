@@ -46,7 +46,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      */
     public int size() {
         int size = 0;
-        if(direction != IteratorDirective.Direction.DOWN && (firstCursor < list.size()-1)) {
+        if(direction != IteratorDirective.Direction.DOWN && (firstCursor < list.getAtomCount()-1)) {
             size++;
         }
         if(direction != IteratorDirective.Direction.UP && (firstCursor > 0)) {
@@ -60,13 +60,13 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      */
     public void allAtoms(AtomsetAction action) {
         if(direction != IteratorDirective.Direction.DOWN) {
-            if (firstCursor < list.size()-1) {
-                action.actionPerformed(list.get(firstCursor+1));
+            if (firstCursor < list.getAtomCount()-1) {
+                action.actionPerformed(list.getAtom(firstCursor+1));
             }
         }
         if (direction != IteratorDirective.Direction.UP) {
             if (firstCursor > 0) {
-                action.actionPerformed(list.get(firstCursor-1));
+                action.actionPerformed(list.getAtom(firstCursor-1));
             }
         }
     }
@@ -91,11 +91,11 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     public IAtom nextAtom() {
         if(upListNow) {
             upListNow = false;
-            return list.get(firstCursor+1);
+            return list.getAtom(firstCursor+1);
         }
         else if (dnListNow) {
             dnListNow = false;
-            return list.get(firstCursor-1);
+            return list.getAtom(firstCursor-1);
         }
         return null;
     }
@@ -104,7 +104,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      * Readies the iterator to begin iteration.
      */
     public void reset() {
-        upListNow = ((direction != IteratorDirective.Direction.DOWN) && (firstCursor < list.size()-1));
+        upListNow = ((direction != IteratorDirective.Direction.DOWN) && (firstCursor < list.getAtomCount()-1));
         dnListNow = ((direction != IteratorDirective.Direction.UP) && (firstCursor > 0));
     }
 

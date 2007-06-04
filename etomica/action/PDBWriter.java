@@ -89,9 +89,9 @@ public class PDBWriter implements Action, Serializable {
             throw new RuntimeException(e);
         }
         int atomCount = 0;
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned atom = (IAtomPositioned)leafList.get(iLeaf);
+            IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(iLeaf);
             Iterator elementIterator = elementAtomType.iterator();
             int elementIndex = -1;
             while (elementIterator.hasNext()) {

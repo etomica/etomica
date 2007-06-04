@@ -36,45 +36,45 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
      * Sets iterator in condition to begin iteration.
      */
     public void reset() {
-        if (list.size() < 2) {
+        if (list.getAtomCount() < 2) {
             outerIndex = 2;
             innerIndex = 2;
             return;
         }
         outerIndex = 0;
         innerIndex = 0;
-        atoms.atom0 = list.get(0);
+        atoms.atom0 = list.getAtom(0);
     }
 
     /**
      * Sets iterator such that next is null.
      */
     public void unset() {
-        outerIndex = list.size() - 2;
-        innerIndex = list.size() - 1;
+        outerIndex = list.getAtomCount() - 2;
+        innerIndex = list.getAtomCount() - 1;
     }
 
     /**
      * Returns the number of iterates, which is list.size*(list.size-1)/2
      */
     public int size() {
-        return list.size() * (list.size() - 1) / 2;
+        return list.getAtomCount() * (list.getAtomCount() - 1) / 2;
     }
 
     /**
      * Returns the next iterate pair. Returns null if hasNext() is false.
      */
     public AtomSet next() {
-        if (innerIndex > list.size() - 2) {
-            if (outerIndex > list.size() - 3) {
+        if (innerIndex > list.getAtomCount() - 2) {
+            if (outerIndex > list.getAtomCount() - 3) {
                 return null;
             }
             outerIndex++;
-            atoms.atom0 = list.get(outerIndex);
+            atoms.atom0 = list.getAtom(outerIndex);
             innerIndex = outerIndex;
         }
         innerIndex++;
-        atoms.atom1 = list.get(innerIndex);
+        atoms.atom1 = list.getAtom(innerIndex);
         return atoms;
     }
 
@@ -83,10 +83,10 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
      * list.
      */
     public void allAtoms(AtomsetAction action) {
-        for (int i=0; i<list.size()-1; i++) {
-            atoms.atom0 = list.get(i);
-            for (int j=i+1; j<list.size(); j++) {
-                atoms.atom1 = list.get(j);
+        for (int i=0; i<list.getAtomCount()-1; i++) {
+            atoms.atom0 = list.getAtom(i);
+            for (int j=i+1; j<list.getAtomCount(); j++) {
+                atoms.atom1 = list.getAtom(j);
                 action.actionPerformed(atoms);
             }
         }

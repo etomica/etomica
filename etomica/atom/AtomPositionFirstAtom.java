@@ -23,8 +23,8 @@ public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Se
             return (IAtomPositioned)atom;
         }
         AtomArrayList childList = ((IAtomGroup)atom).getChildList();
-        for (int i = 0; i < childList.size(); i++) {
-            IAtomPositioned a1 = getFirstChildLeafAtom(childList.get(i));
+        for (int i = 0; i < childList.getAtomCount(); i++) {
+            IAtomPositioned a1 = getFirstChildLeafAtom(childList.getAtom(i));
             if(a1 != null) return a1;
             if (Debug.ON) {
                 System.out.println("You have yourself a AtomGroup with no children.  That just seems silly.");

@@ -54,12 +54,12 @@ public class AtomLeafAgentManager extends AtomAgentManager {
         // remove ourselves as a listener to the phase
         atomManager.getPhase().getEventManager().removeListener(this);
         AtomArrayList leafList = atomManager.getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             // leaf index corresponds to the position in the leaf list
             Object agent = agents[i];
             if (agent != null) {
-                agentSource.releaseAgent(agent,leafList.get(i));
+                agentSource.releaseAgent(agent,leafList.getAtom(i));
             }
         }
         agents = null;
@@ -72,14 +72,14 @@ public class AtomLeafAgentManager extends AtomAgentManager {
         atomManager.getPhase().getEventManager().addListener(this, isBackend);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
-                atomManager.getLeafList().size()+1+atomManager.getIndexReservoirSize());
+                atomManager.getLeafList().getAtomCount()+1+atomManager.getIndexReservoirSize());
         // fill in the array with agents from all the atoms
         AtomArrayList leafList = atomManager.getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             // leaf list position is the leaf index, so don't bother looking
             // that up again.
-           addAgent(leafList.get(i), i);
+           addAgent(leafList.getAtom(i), i);
         }
     }
     

@@ -80,12 +80,12 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         for(int i=0; i<selectedMolecules.length; i++) {
             forward[i] = random.nextInt(2) == 0;
             AtomArrayList childList = selectedMolecules[i].getChildList();
-            int numChildren = childList.size();
+            int numChildren = childList.getAtomCount();
             for (int k=0; k<numChildren; k++) {
 //                System.out.println(i+" before "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
                 if (k > 0) {
-                    work1.E(((IAtomPositioned)childList.get(k)).getPosition());
-                    work1.ME(((IAtomPositioned)childList.get(k-1)).getPosition());
+                    work1.E(((IAtomPositioned)childList.getAtom(k)).getPosition());
+                    work1.ME(((IAtomPositioned)childList.getAtom(k-1)).getPosition());
                     double d = Math.sqrt(work1.squared());
 //                    System.out.println("distance "+d);
                     if (Math.abs(d - bondLength)/bondLength > 0.0000001) {
@@ -94,35 +94,35 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
                 }
             }
             if (forward[i]) {
-                IVector position = ((IAtomPositioned)childList.get(numChildren-1)).getPosition();
+                IVector position = ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition();
                 oldPositions[i].E(position);
                 for (int j=numChildren-1; j>0; j--) {
-                    IVector position2 = ((IAtomPositioned)childList.get(j-1)).getPosition();
+                    IVector position2 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
                     position.E(position2);
                     position = position2;
                 }
                 work1.setRandomSphere(random);
                 work1.TE(bondLength);
-                ((IAtomPositioned)childList.get(0)).getPosition().PE(work1);
+                ((IAtomPositioned)childList.getAtom(0)).getPosition().PE(work1);
             }
             else {
-                IVector position = ((IAtomPositioned)childList.get(0)).getPosition();
+                IVector position = ((IAtomPositioned)childList.getAtom(0)).getPosition();
                 oldPositions[i].E(position);
                 for (int j=0; j<numChildren-1; j++) {
-                    IVector position2 = ((IAtomPositioned)childList.get(j+1)).getPosition();
+                    IVector position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
                     position.E(position2);
                     position = position2;
                 }
                 work1.setRandomSphere(random);
                 work1.TE(bondLength);
-                ((IAtomPositioned)childList.get(numChildren-1)).getPosition().PE(work1);
+                ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition().PE(work1);
             }
 
             for (int k=0; k<numChildren; k++) {
 //                System.out.println(i+" after "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
                 if (k > 0) {
-                    work1.E(((IAtomPositioned)childList.get(k)).getPosition());
-                    work1.ME(((IAtomPositioned)childList.get(k-1)).getPosition());
+                    work1.E(((IAtomPositioned)childList.getAtom(k)).getPosition());
+                    work1.ME(((IAtomPositioned)childList.getAtom(k-1)).getPosition());
                     double d = Math.sqrt(work1.squared());
 //                    System.out.println("distance "+d);
                     if (Math.abs(d - bondLength)/bondLength > 0.0000001) {
@@ -162,24 +162,24 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.length; i++) {
             AtomArrayList childList = selectedMolecules[i].getChildList();
-            int numChildren = childList.size();
+            int numChildren = childList.getAtomCount();
             if (!forward[i]) {
-                IVector position = ((IAtomPositioned)childList.get(numChildren-1)).getPosition();
+                IVector position = ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition();
                 for (int j=numChildren-1; j>0; j--) {
-                    IVector position2 = ((IAtomPositioned)childList.get(j-1)).getPosition();
+                    IVector position2 = ((IAtomPositioned)childList.getAtom(j-1)).getPosition();
                     position.E(position2);
                     position = position2;
                 }
-                ((IAtomPositioned)childList.get(0)).getPosition().E(oldPositions[i]);
+                ((IAtomPositioned)childList.getAtom(0)).getPosition().E(oldPositions[i]);
             }
             else {
-                IVector position = ((IAtomPositioned)childList.get(0)).getPosition();
+                IVector position = ((IAtomPositioned)childList.getAtom(0)).getPosition();
                 for (int j=0; j<numChildren-1; j++) {
-                    IVector position2 = ((IAtomPositioned)childList.get(j+1)).getPosition();
+                    IVector position2 = ((IAtomPositioned)childList.getAtom(j+1)).getPosition();
                     position.E(position2);
                     position = position2;
                 }
-                ((IAtomPositioned)childList.get(numChildren-1)).getPosition().E(oldPositions[i]);
+                ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition().E(oldPositions[i]);
             }
 //            System.out.println("rejected");
         }

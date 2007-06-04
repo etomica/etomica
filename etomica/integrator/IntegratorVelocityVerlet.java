@@ -72,9 +72,9 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     // assumes one phase
     public void doStepInternal() {
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             MyAgent agent = (MyAgent)agentManager.getAgent(a);
             IVector r = a.getPosition();
             IVector v = a.getVelocity();
@@ -92,7 +92,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         
         //Finish integration step
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
 //            System.out.println("force: "+((MyAgent)a.ia).force.toString());
             IVector velocity = a.getVelocity();
             workTensor.Ev1v2(velocity,velocity);

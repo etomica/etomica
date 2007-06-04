@@ -110,14 +110,14 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
 
         //species0 target; any direction
         
-        target = phase.getAgent(species).getChildList().get(nMolecules[0]/2);
+        target = phase.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         testApiIterates(api,targetMolecule,upMolecules(targetMolecule,molecules0), dnMolecules(targetMolecule, molecules0));
         api.allAtoms(speciesTest);
 
         //species0 target; up
-        target = phase.getAgent(species).getChildList().get(nMolecules[0]/2);
+        target = phase.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(UP);
@@ -125,7 +125,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         api.allAtoms(speciesTest);
 
         //species0 target; down
-        target = phase.getAgent(species).getChildList().get(nMolecules[0]/2);
+        target = phase.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(DOWN);
@@ -133,7 +133,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         
         //species0 leafAtom target; any direction
         if(species instanceof SpeciesSpheres) {
-            target = ((IAtomGroup)phase.getAgent(species).getChildList().get(nMolecules[0]/2)).getChildList().get(1);
+            target = ((IAtomGroup)phase.getAgent(species).getChildList().getAtom(nMolecules[0]/2)).getChildList().getAtom(1);
             targetMolecule = target.getParentGroup();
             api.setTarget(target);
             api.setDirection(UP);

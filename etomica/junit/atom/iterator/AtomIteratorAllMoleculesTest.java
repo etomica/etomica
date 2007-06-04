@@ -46,8 +46,8 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         AtomArrayList moleculeList = new AtomArrayList();
         for(int i=0; i<species.length; i++) {
             AtomArrayList molecules = phase.getAgent(species[i]).getChildList();
-            for (int j=0; j<molecules.size(); j++) {
-                moleculeList.add(molecules.get(j));
+            for (int j=0; j<molecules.getAtomCount(); j++) {
+                moleculeList.add(molecules.getAtom(j));
             }
         }
         

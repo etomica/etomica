@@ -24,9 +24,9 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     
     public void colorAllAtoms() {
 		//color all atoms according to their type
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned atom = (IAtomPositioned)leafList.get(iLeaf);
+            IAtomPositioned atom = (IAtomPositioned)leafList.getAtom(iLeaf);
             agentManager.setAgent(atom, typeColorScheme.getAtomColor(atom));
         }
         if (referenceAtom == null) {

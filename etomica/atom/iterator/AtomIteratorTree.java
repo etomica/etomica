@@ -59,9 +59,9 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      */
     public void allAtoms(AtomsetAction act) {
         AtomArrayList list = ((IAtomGroup)rootAtom).getChildList();
-        int nAtoms = list.size();
+        int nAtoms = list.getAtomCount();
         for (int iAtom=0; iAtom<nAtoms; iAtom++) {
-            IAtom atom = list.get(iAtom);
+            IAtom atom = list.getAtom(iAtom);
             if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
                 act.actionPerformed(atom);
                 continue;

@@ -60,7 +60,7 @@ public class AtomIndexManagerTest extends TestCase {
         i0 = i;
         int del = 8;
         for(int j=0; j<del; j++) {
-            atoms[i++] = node[phaseIndex[j]][speciesIndex[j]].getChildList().get(moleculeIndex[j]);//7
+            atoms[i++] = node[phaseIndex[j]][speciesIndex[j]].getChildList().getAtom(moleculeIndex[j]);//7
         }
         for(int j=del; j<phaseIndex.length; j++) {
             atoms[i++] = node[phaseIndex[j]][speciesIndex[j]].getDescendant(new int[] {moleculeIndex[j], atomIndex[j]});

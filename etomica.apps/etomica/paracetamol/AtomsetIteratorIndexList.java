@@ -35,13 +35,13 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
     public boolean haveTarget(IAtom a){
     	for(int i =0; i < index.length; i++){   //index.length = number of sets
     		
-    		if (a == parentGroup.getChildList().get(index[i][0])){
+    		if (a == parentGroup.getChildList().getAtom(index[i][0])){
     			return true;
     		}
-    		if (a == parentGroup.getChildList().get(index[i][1])){
+    		if (a == parentGroup.getChildList().getAtom(index[i][1])){
     			return true;
     		}
-    		if (a == parentGroup.getChildList().get(index[i][2])){
+    		if (a == parentGroup.getChildList().getAtom(index[i][2])){
     			return true;
     		}
     	}
@@ -72,9 +72,9 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
     	
     	for(int i =0; i < index.length; i++){   //index.length = number of sets
     		
-    		atoms[0] = parentGroup.getChildList().get(index[i][0]);
-    		atoms[1] = parentGroup.getChildList().get(index[i][1]);
-    		atoms[2] = parentGroup.getChildList().get(index[i][2]);
+    		atoms[0] = parentGroup.getChildList().getAtom(index[i][0]);
+    		atoms[1] = parentGroup.getChildList().getAtom(index[i][1]);
+    		atoms[2] = parentGroup.getChildList().getAtom(index[i][2]);
     		action.actionPerformed(atomset);
     	}
     }
@@ -86,9 +86,9 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
     public boolean contains(AtomSet a) { //T: a equals the set
     	
     	for(int i =0; i < index.length; i++){   //index.length = number of pairs
-    		atoms[0] = parentGroup.getChildList().get(index[i][0]);
-    		atoms[1] = parentGroup.getChildList().get(index[i][1]);
-    		atoms[2] = parentGroup.getChildList().get(index[i][2]);
+    		atoms[0] = parentGroup.getChildList().getAtom(index[i][0]);
+    		atoms[1] = parentGroup.getChildList().getAtom(index[i][1]);
+    		atoms[2] = parentGroup.getChildList().getAtom(index[i][2]);
     		if (atomset.equals(a)){
     			return true;
     		}
@@ -105,13 +105,13 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
     	if (target != null){
         	for(; cursor < index.length; cursor++){   //index.length = number of pairs
         		
-        		if (target == parentGroup.getChildList().get(index[cursor][0])){
+        		if (target == parentGroup.getChildList().getAtom(index[cursor][0])){
         			break;
         		}
-        		if (target == parentGroup.getChildList().get(index[cursor][1])){
+        		if (target == parentGroup.getChildList().getAtom(index[cursor][1])){
         			break;
         		}
-        		if (target == parentGroup.getChildList().get(index[cursor][2])){
+        		if (target == parentGroup.getChildList().getAtom(index[cursor][2])){
         			break;
         		}
         	}
@@ -141,9 +141,9 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
     public AtomsetArray nextSet() {
         if (!hasNext())
             return null;
-		atoms[0] = parentGroup.getChildList().get(index[cursor][0]);
-		atoms[1] = parentGroup.getChildList().get(index[cursor][1]);
-		atoms[2] = parentGroup.getChildList().get(index[cursor][2]);
+		atoms[0] = parentGroup.getChildList().getAtom(index[cursor][0]);
+		atoms[1] = parentGroup.getChildList().getAtom(index[cursor][1]);
+		atoms[2] = parentGroup.getChildList().getAtom(index[cursor][2]);
 		
 		cursor++;
         return atomset;
@@ -163,9 +163,9 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
     public AtomSet peek() {
         if (!hasNext())
             return null;
-		atoms[0] = parentGroup.getChildList().get(index[cursor][0]);
-		atoms[1] = parentGroup.getChildList().get(index[cursor][1]);
-		atoms[2] = parentGroup.getChildList().get(index[cursor][2]);
+		atoms[0] = parentGroup.getChildList().getAtom(index[cursor][0]);
+		atoms[1] = parentGroup.getChildList().getAtom(index[cursor][1]);
+		atoms[2] = parentGroup.getChildList().getAtom(index[cursor][2]);
         return atomset;
     }
 

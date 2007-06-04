@@ -45,15 +45,15 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      * Puts iterator in state in which hasNext is false.
      */
  	public void unset() {
-        cursor = list.size();
+        cursor = list.getAtomCount();
     }
  
     /**
      * Returns the next iterate and advances the iterator.
      */
  	public IAtom nextAtom() {
-        if (cursor < list.size()) {
-            return list.get(cursor++);
+        if (cursor < list.getAtomCount()) {
+            return list.getAtom(cursor++);
         }
         return null;
  	}
@@ -70,16 +70,16 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      * if reset with the current list.
      */
  	public int size() {
- 		return list.size();
+ 		return list.getAtomCount();
  	}
 
     /**
      * Performs action on all elements of current list.
      */
  	public void allAtoms(AtomsetAction act) {
- 		int arraySize = list.size();
+ 		int arraySize = list.getAtomCount();
  		for (int i=0; i<arraySize; i++) {
- 			act.actionPerformed(list.get(i));
+ 			act.actionPerformed(list.getAtom(i));
  		}
  	}
 

@@ -146,12 +146,12 @@ public class MCMoveSemigrand extends MCMovePhase {
         insertAgent = agentSet[iInsert];
   
         AtomArrayList moleculeList = deleteAgent.getChildList();
-        deleteMolecule = moleculeList.get(random.nextInt(moleculeList.size()));
+        deleteMolecule = moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();
         deleteAgent.removeChildAtom(deleteMolecule);
         
-        int size = reservoirs[iInsert].size();
+        int size = reservoirs[iInsert].getAtomCount();
         if(size>0) {
             insertMolecule = reservoirs[iInsert].remove(size-1);
             insertAgent.addChildAtom(insertMolecule);

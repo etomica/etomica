@@ -21,13 +21,13 @@ public class ConformationUAPropane extends Conformation {
         double x = 0.0;
         double y = 0.0;
         
-        IAtomPositioned UA1 = (IAtomPositioned)list.get(0);
+        IAtomPositioned UA1 = (IAtomPositioned)list.getAtom(0);
         UA1.getPosition().E(new double[] {x, y, 0.0});
                
-        IAtomPositioned UA2 = (IAtomPositioned)list.get(1);
+        IAtomPositioned UA2 = (IAtomPositioned)list.getAtom(1);
         UA2.getPosition().E(new double[] {x+bondLength, y, 0.0});
                 
-        IAtomPositioned UA3 = (IAtomPositioned)list.get(2);
+        IAtomPositioned UA3 = (IAtomPositioned)list.getAtom(2);
         UA3.getPosition().E(new double[] {x+bondLength+bondLength*Math.cos(Math.PI-bondAngle), y+bondLength*Math.sin(Math.PI-bondAngle), 0.0});
     }
     

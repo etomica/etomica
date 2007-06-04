@@ -38,7 +38,7 @@ public abstract class ConformationChain extends Conformation {
 	public void initializePositions(AtomArrayList atomlist){
 		
 		//First, check that we actually have some atoms
-		int size = atomlist.size();
+		int size = atomlist.getAtomCount();
     	if(size == 0) return;
     
     	reset();
@@ -47,10 +47,10 @@ public abstract class ConformationChain extends Conformation {
     	IVector currentPosition = space.makeVector();
     
     	//Zero the first atom.
-        ((IAtomPositioned)atomlist.get(0)).getPosition().E(0);
+        ((IAtomPositioned)atomlist.getAtom(0)).getPosition().E(0);
     	
         for (int iLeaf=1; iLeaf<size; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)atomlist.get(iLeaf);
+            IAtomPositioned a = (IAtomPositioned)atomlist.getAtom(iLeaf);
     		//TODO someday, we might want a to be a chunk-of-atoms
     		currentPosition.PE(nextVector());
     		a.getPosition().E(currentPosition);

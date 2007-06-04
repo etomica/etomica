@@ -212,9 +212,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
 	    	
-	    	IVector leafPos0 = ((IAtomPositioned)molecule.getChildList().get(0)).getPosition();
-	    	IVector leafPos5 = ((IAtomPositioned)molecule.getChildList().get(5)).getPosition();
-	    	IVector leafPos10 = ((IAtomPositioned)molecule.getChildList().get(10)).getPosition();
+	    	IVector leafPos0 = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
+	    	IVector leafPos5 = ((IAtomPositioned)molecule.getChildList().getAtom(5)).getPosition();
+	    	IVector leafPos10 = ((IAtomPositioned)molecule.getChildList().getAtom(10)).getPosition();
 	    	
 	    	/*
 	    	 * Determine axis 1 by using Vector Projection
@@ -309,9 +309,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	    	 * Determine the Orientation of Each Molecule
     	    	 */
     	    	
-    	    	IVector leafPos0 = ((IAtomPositioned)molecule.getChildList().get(0)).getPosition();
-    	    	IVector leafPos5 = ((IAtomPositioned)molecule.getChildList().get(5)).getPosition();
-    	    	IVector leafPos10 = ((IAtomPositioned)molecule.getChildList().get(10)).getPosition();
+    	    	IVector leafPos0 = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
+    	    	IVector leafPos5 = ((IAtomPositioned)molecule.getChildList().getAtom(5)).getPosition();
+    	    	IVector leafPos10 = ((IAtomPositioned)molecule.getChildList().getAtom(10)).getPosition();
     	    	
     	    	
     	    	/*
@@ -400,9 +400,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    		axisNormPrime.PEa1Tv1(cComponent, c);
 	    	}
 	      	
-	    	IVector leafPos0 = ((IAtomPositioned)molecule.getChildList().get(0)).getPosition();
-	    	IVector leafPos5 = ((IAtomPositioned)molecule.getChildList().get(5)).getPosition();
-	    	IVector leafPos10 = ((IAtomPositioned)molecule.getChildList().get(10)).getPosition();
+	    	IVector leafPos0 = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
+	    	IVector leafPos5 = ((IAtomPositioned)molecule.getChildList().getAtom(5)).getPosition();
+	    	IVector leafPos10 = ((IAtomPositioned)molecule.getChildList().getAtom(10)).getPosition();
 	    	
 	    	vector1.Ev1Mv2(leafPos5, leafPos0);
 	    	

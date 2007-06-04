@@ -84,11 +84,11 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         // we assume that that atoms that make the molecule are children of the
         // molecule.
         atomList = ((IAtomGroup) atom).getChildList();
-        chainlength = atomList.size();
+        chainlength = atomList.getAtomCount();
 
         // store the old locations of every atom in the molecule in positionOld.
         for (int i = 0; i < chainlength; i++) {
-            positionOld[i].E(((IAtomPositioned) atomList.get(i)).getPosition());
+            positionOld[i].E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
         }
 
         return calcRosenbluthFactors(); // this means we were able to propose a move.
@@ -102,11 +102,11 @@ public abstract class MCMoveCBMC extends MCMovePhase {
         // we assume that that atoms that make the molecule are children of the
         // molecule.
         atomList = ((IAtomGroup) atom).getChildList();
-        chainlength = atomList.size();
+        chainlength = atomList.getAtomCount();
 
         // store the old locations of every atom in the molecule in positionOld.
         for (int i = 0; i < chainlength; i++) {
-            positionOld[i].E(((IAtomPositioned) atomList.get(i)).getPosition());
+            positionOld[i].E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
         }
 
         calcRosenbluthFactors();
@@ -141,7 +141,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
 
     public void rejectNotify() {
         for (int i = 0; i < chainlength; i++) {
-            ((IAtomPositioned) atomList.get(i)).getPosition().E(positionOld[i]);
+            ((IAtomPositioned) atomList.getAtom(i)).getPosition().E(positionOld[i]);
         }
 //        System.out.println("MCMoveCBMC rejects another!!");
     }

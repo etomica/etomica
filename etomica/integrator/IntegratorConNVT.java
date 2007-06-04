@@ -95,9 +95,9 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         double k=0.0;
         double chi;
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             IVector v = a.getVelocity();
 
             work1.E(v); //work1 = v
@@ -112,7 +112,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
         //calculate constrained velocities at T+Dt/2
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
             IVector v = a.getVelocity();
 
@@ -125,7 +125,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         } 
 
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             IVector r = a.getPosition();
             IVector v = a.getVelocity();
 

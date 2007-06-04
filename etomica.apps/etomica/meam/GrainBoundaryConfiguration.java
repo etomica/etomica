@@ -113,7 +113,7 @@ public class GrainBoundaryConfiguration extends Configuration {
      */
     public void initializeCoordinates(Phase phase) {
     	AtomArrayList[] lists = getMoleculeLists(phase);
-    	IVector firstAtomPosition = ((IAtomPositioned)lists[0].get(0)).getPosition();
+    	IVector firstAtomPosition = ((IAtomPositioned)lists[0].getAtom(0)).getPosition();
     	
     	System.out.println("At beginning of initializePositions  "+ firstAtomPosition);
     	

@@ -172,9 +172,9 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             //no target atoms specified
             //call calculate with each SpeciesAgent
             AtomArrayList list = phase.getSpeciesMaster().getAgentList();
-            int size = list.size();
+            int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
-                IAtom a = list.get(i);
+                IAtom a = list.getAtom(i);
                 calculate(a, id, pc);//call calculate with the SpeciesAgent
             }
         }
@@ -248,9 +248,9 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 
             //cannot use AtomIterator field because of recursive call
             AtomArrayList list = ((IAtomGroup)atom).getChildList();
-            int size = list.size();
+            int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
-                IAtom a = list.get(i);
+                IAtom a = list.getAtom(i);
                 calculate(a, id, pc);//recursive call
             }
 		}

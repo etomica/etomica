@@ -44,13 +44,13 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	
     public void initializeCoordinates(Phase phase) {
         AtomArrayList[] lists = getMoleculeLists(phase);
-        if(lists.length == 0 || lists[0].size() == 0) return;
+        if(lists.length == 0 || lists[0].getAtomCount() == 0) return;
         
         int basisSize = 1;
         if (lattice instanceof BravaisLatticeCrystal) {
             basisSize = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
         }
-        int nCells = (int)Math.ceil((double)lists[0].size()/(double)basisSize);
+        int nCells = (int)Math.ceil((double)lists[0].getAtomCount()/(double)basisSize);
         
         //determine scaled shape of simulation volume
         IVector shape = phase.getSpace().makeVector();
@@ -114,9 +114,9 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         indexIterator.reset();
         
         // first species (mono spheres)
-        int nSpheres = lists[0].size();
+        int nSpheres = lists[0].getAtomCount();
         for (int i=0; i<nSpheres; i++) {
-            IAtom a = lists[0].get(i);
+            IAtom a = lists[0].getAtom(i);
             
             int[] ii = indexIterator.next();
             IVector site = (IVector) myLat.site(ii);
@@ -129,10 +129,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         myLat = new MyLattice(lattice, latticeScaling, offset);
         indexIterator.reset();
         
-        nSpheres = lists[1].size();
+        nSpheres = lists[1].getAtomCount();
         // second species (mono spheres)
         for (int i=0; i<nSpheres; i++) {
-            IAtom a = lists[1].get(i);
+            IAtom a = lists[1].getAtom(i);
             
             int[] ii = indexIterator.next();
             IVector site = (IVector) myLat.site(ii);
@@ -141,12 +141,12 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
         
         //loop for multiple tubes.
-        int nTubes = lists[2].size();
+        int nTubes = lists[2].getAtomCount();
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(phase.getSpace()));
         // put them all at 0.  oops
         atomActionTranslateTo.setDestination(phase.getSpace().makeVector());
         for (int i=0; i<nTubes; i++) {
-            IAtomGroup a = (IAtomGroup)lists[2].get(i);
+            IAtomGroup a = (IAtomGroup)lists[2].getAtom(i);
         	Conformation config = a.getType().creator().getConformation();
             config.initializePositions(a.getChildList());
             atomActionTranslateTo.actionPerformed(a);

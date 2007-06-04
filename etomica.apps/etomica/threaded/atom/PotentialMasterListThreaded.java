@@ -107,9 +107,9 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 
         //cannot use AtomIterator field because of recursive call
         AtomArrayList list = phase.getSpeciesMaster().getAgentList();
-        int size = list.size();
+        int size = list.getAtomCount();
         for (int i=0; i<size; i++) {
-            IAtom a = list.get(i);
+            IAtom a = list.getAtom(i);
             calculateThreaded(a, id, pc, neighborManager);//recursive call
         }
         pc.writeData();
@@ -118,7 +118,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     protected void calculateThreaded(IAtom atom, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
            
         AtomArrayList list = ((IAtomGroup)atom).getChildList();
-        int size = list.size();
+        int size = list.getAtomCount();
         
     	
 			                            

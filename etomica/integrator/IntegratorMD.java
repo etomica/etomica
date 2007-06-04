@@ -177,8 +177,8 @@ public abstract class IntegratorMD extends IntegratorPhase {
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
                     AtomArrayList atomList = phase.getSpeciesMaster().getLeafList();
-                    int index = random.nextInt(atomList.size());
-                    IAtomKinetic a = (IAtomKinetic)atomList.get(index);
+                    int index = random.nextInt(atomList.getAtomCount());
+                    IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();
                     currentKineticEnergy -= 0.5*m*a.getVelocity().squared();
                     randomizeMomentum(a);
@@ -202,9 +202,9 @@ public abstract class IntegratorMD extends IntegratorPhase {
     protected void randomizeMomenta() {
         atomActionRandomizeVelocity.setTemperature(temperature);
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            atomActionRandomizeVelocity.actionPerformed(leafList.get(iLeaf));
+            atomActionRandomizeVelocity.actionPerformed(leafList.getAtom(iLeaf));
         }
     }
     
@@ -230,10 +230,10 @@ public abstract class IntegratorMD extends IntegratorPhase {
     protected double scaleMomenta() {
         momentum.E(0);
         AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
-        int nLeaf = leafList.size();
+        int nLeaf = leafList.getAtomCount();
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtom a = leafList.get(iLeaf);
+                IAtom a = leafList.getAtom(iLeaf);
                 double mass = ((AtomTypeLeaf)a.getType()).getMass();
                 if (mass != Double.POSITIVE_INFINITY) {
                     momentum.PEa1Tv1(mass,((IAtomKinetic)a).getVelocity());
@@ -242,7 +242,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             momentum.TE(1.0/nLeaf);
             //set net momentum to 0
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+                IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
                 double rm = ((AtomTypeLeaf)a.getType()).rm();
                 if (rm != 0) {
                     a.getVelocity().PEa1Tv1(-rm,momentum);
@@ -251,7 +251,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             if (Debug.ON) {
                 momentum.E(0);
                 for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                    IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+                    IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
                     double mass = ((AtomTypeLeaf)a.getType()).getMass();
                     if (mass != Double.POSITIVE_INFINITY) {
                         momentum.PEa1Tv1(mass,a.getVelocity());
@@ -276,7 +276,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             s = Math.sqrt(temperature / t);
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.get(iLeaf);
+            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             a.getVelocity().TE(s); //scale momentum
         }
         return scale;

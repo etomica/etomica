@@ -75,7 +75,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
             while(neighborIterator.hasNext()) {
                 Cell neighborCell = (Cell)neighborIterator.next(); 
                 interListIterator.setInnerList(neighborCell.occupants());
-                if(neighborCell.occupants().size() > 0) interListIterator.allAtoms(action);
+                if(neighborCell.occupants().getAtomCount() > 0) interListIterator.allAtoms(action);
             }
         }//end of outer loop over cells
     }//end of allAtoms

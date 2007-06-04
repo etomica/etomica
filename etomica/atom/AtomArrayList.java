@@ -179,7 +179,7 @@ public class AtomArrayList implements Cloneable,
      *
      * @return  the number of elements in this list.
      */
-    public int size() {
+    public int getAtomCount() {
     	return size;
     }
 
@@ -320,7 +320,7 @@ public class AtomArrayList implements Cloneable,
      * @param  index index of element to return.
      * @return the element at the specified position in this list.
      */
-    public IAtom get(int index) {
+    public IAtom getAtom(int index) {
         RangeCheck(index);
         return elementData[index];
     }
@@ -378,10 +378,10 @@ public class AtomArrayList implements Cloneable,
     }
     
     public void addAll(AtomArrayList atoms) {
-        ensureCapacity(size+atoms.size());
-        int newSize = size + atoms.size();
+        ensureCapacity(size+atoms.getAtomCount());
+        int newSize = size + atoms.getAtomCount();
         for (int i=size; i<newSize; i++) {
-            elementData[i] = atoms.get(i-size);
+            elementData[i] = atoms.getAtom(i-size);
         }
         size = newSize;
     }
