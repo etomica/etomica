@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
@@ -21,7 +20,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
     protected final Space space;
-    protected AtomArrayList leafList;
+    protected AtomSet leafList;
     protected IntegratorPhase integrator;
     protected boolean warningPrinted;
     

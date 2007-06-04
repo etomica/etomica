@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
@@ -136,7 +136,7 @@ public class XYZWriter implements Action, Serializable {
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
     private final LinkedList elementAtomType;
-    private final AtomArrayList leafList;
+    private final AtomSet leafList;
     private boolean doAppend;
     
     private static final class ElementLinker implements Serializable {

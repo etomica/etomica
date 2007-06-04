@@ -2,7 +2,7 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
@@ -36,7 +36,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     public void initializeCoordinates(Phase phase) {
         translator0 = new AtomGroupAction(new AtomActionTranslateBy(phase.getSpace()));
         translator1 = new AtomGroupAction(new AtomActionTranslateBy(phase.getSpace()));
-        AtomArrayList[] lists = getMoleculeLists(phase); 
+        AtomSet[] lists = getMoleculeLists(phase); 
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }

@@ -351,7 +351,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      * Uses free-flight kinematics.
      */
 	protected void advanceAcrossTimeStep(double tStep) {
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -393,7 +393,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      */
     public void resetCollisionTimes() {
         if(!initialized) return;
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
@@ -419,7 +419,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     protected double scaleMomenta() {
         double s = super.scaleMomenta();
         double rs = 1.0/s;
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);

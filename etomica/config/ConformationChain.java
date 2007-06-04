@@ -1,6 +1,6 @@
 package etomica.config;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -35,7 +35,7 @@ public abstract class ConformationChain extends Conformation {
 	 * Places a set of atoms in a linearly connected fashion.
 	 * @ param atomlist a list of atoms in the order in which they are linked
 	 */
-	public void initializePositions(AtomArrayList atomlist){
+	public void initializePositions(AtomSet atomlist){
 		
 		//First, check that we actually have some atoms
 		int size = atomlist.getAtomCount();

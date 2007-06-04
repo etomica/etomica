@@ -3,6 +3,7 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorBasis;
@@ -70,12 +71,13 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         
         //test no-target iteration of children of a basis
         Phase phase = sim.getPhases()[0];
-        AtomArrayList moleculeList0 = phase.getAgent(sim.getSpeciesManager().getSpecies()[0]).getChildList();
-        AtomArrayList moleculeList1 = phase.getAgent(sim.getSpeciesManager().getSpecies()[1]).getChildList();
-        AtomArrayList moleculeList2 = phase.getAgent(sim.getSpeciesManager().getSpecies()[2]).getChildList();
+        AtomSet moleculeList0 = phase.getAgent(sim.getSpeciesManager().getSpecies()[0]).getChildList();
+        AtomSet moleculeList1 = phase.getAgent(sim.getSpeciesManager().getSpecies()[1]).getChildList();
+        AtomSet moleculeList2 = phase.getAgent(sim.getSpeciesManager().getSpecies()[2]).getChildList();
         basis = moleculeList0.getAtom(0);
         target = null;
-        iterates = (AtomArrayList)((IAtomGroup)basis).getChildList().clone();
+        iterates = new AtomArrayList();
+        iterates.addAll(((IAtomGroup)basis).getChildList());
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
@@ -96,13 +98,14 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         list = generalIteratorMethodTests(basisIterator);
         assertEquals(list.size(), nAtoms);
         testLister.clear();
-        testLister.addEachToList(((IAtomGroup)basis).getChildList().toArray());
+        testLister.addEachToList(((IAtomGroup)basis).getChildList());
         assertEquals(list, testLister.list);
 
         //test target is the basis, both not a leaf; should be same as target==null
         basis = moleculeList0.getAtom(0);
         target = basis;
-        iterates = (AtomArrayList)((IAtomGroup)basis).getChildList().clone();
+        iterates.clear();
+        iterates.addAll(((IAtomGroup)basis).getChildList());
         list = testListIterates(basis, target, iterates);
         assertEquals(list.size(), nAtoms);
 
@@ -133,7 +136,8 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         //also test specifying deeper basis
         basis = ((IAtomGroup)moleculeList2.getAtom(1)).getChildList().getAtom(2);
         target = null;
-        iterates = (AtomArrayList)((IAtomGroup)basis).getChildList().clone();
+        iterates.clear();
+        iterates.addAll(((IAtomGroup)basis).getChildList());
         list = testListIterates(basis, target, iterates);
         
         //test null basis

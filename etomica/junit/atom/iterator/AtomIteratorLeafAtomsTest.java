@@ -2,6 +2,7 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
@@ -44,7 +45,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         for (int i = 0; i < phase.length; i++) {
             iterator.setPhase(phase[i]);
             int count = nA0 * n0[i] + n1[i] + n2[i] * n2Tree[0] * n2Tree[1];
-            LinkedList list = testIterates(iterator, phase[i].getSpeciesMaster().getLeafList().toArray());
+            LinkedList list = testIterates(iterator, ((AtomArrayList)phase[i].getSpeciesMaster().getLeafList()).toArray());
             assertEquals(list.size(), phase[i].atomCount());
             assertEquals(list.size(), count);
         }

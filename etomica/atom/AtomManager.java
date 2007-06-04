@@ -68,7 +68,7 @@ public final class AtomManager implements java.io.Serializable {
         }
     }
 
-    public AtomArrayList getAgentList() {
+    public AtomSet getAgentList() {
         return agentList;
     }
 
@@ -82,7 +82,7 @@ public final class AtomManager implements java.io.Serializable {
     /**
      * Returns an AtomArrayList containing the leaf atoms in the Phase
      */
-    public AtomArrayList getLeafList() {
+    public AtomSet getLeafList() {
         return leafList;
     }
     
@@ -345,7 +345,7 @@ public final class AtomManager implements java.io.Serializable {
         phase.getAgent(species1).setNMolecules(2);
         phase.getAgent(species2).setNMolecules(2);
 
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);

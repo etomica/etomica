@@ -7,8 +7,7 @@ import java.awt.RenderingHints;
 import java.awt.TextField;
 import java.util.Iterator;
 
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomLeaf;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.IAtomPositioned;
@@ -168,7 +167,7 @@ public class DisplayPhaseCanvas1D extends DisplayCanvas {
         if(displayPhase.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayPhase.getColorScheme()).colorAllAtoms();
         }
-        AtomArrayList leafList = displayPhase.getPhase().getSpeciesMaster().getLeafList();
+        AtomSet leafList = displayPhase.getPhase().getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             drawAtom(g, displayPhase.getOrigin(), (IAtomPositioned)leafList.getAtom(iLeaf));

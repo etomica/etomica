@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.data.meter.MeterTemperature;
@@ -45,7 +45,7 @@ public class PhaseQuench extends PhaseActionAdapter {
 		if(phase == null) return;
 		double currentTemperature = meterTemperature.getDataAsScalar();
 		double scale = Math.sqrt(temperature / currentTemperature);
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
 			((IAtomKinetic)leafList.getAtom(iLeaf)).getVelocity().TE(scale);

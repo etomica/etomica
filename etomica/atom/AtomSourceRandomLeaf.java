@@ -36,6 +36,6 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    protected AtomArrayList list = null;
+    protected AtomSet list = null;
     protected IRandom random;
 }

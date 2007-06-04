@@ -1,8 +1,8 @@
 package etomica.atom;
 
-public class AtomToParentChildList implements AtomToArrayList, java.io.Serializable {
+public class AtomToParentChildList implements AtomToAtomSet, java.io.Serializable {
 
-    public AtomArrayList getArrayList(IAtom atom) {
+    public AtomSet getAtomSet(IAtom atom) {
         return atom.getParentGroup().getChildList();
     }
 

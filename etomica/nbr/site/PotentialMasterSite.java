@@ -1,8 +1,8 @@
 package etomica.nbr.site;
 
 import etomica.atom.AtomAddressManager;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
@@ -171,7 +171,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
-            AtomArrayList list = phase.getSpeciesMaster().getAgentList();
+            AtomSet list = phase.getSpeciesMaster().getAgentList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 IAtom a = list.getAtom(i);
@@ -247,7 +247,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             }
 
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((IAtomGroup)atom).getChildList();
+            AtomSet list = ((IAtomGroup)atom).getChildList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 IAtom a = list.getAtom(i);

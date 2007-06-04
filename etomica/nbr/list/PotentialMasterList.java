@@ -3,6 +3,7 @@ package etomica.nbr.list;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
@@ -403,7 +404,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
-            AtomArrayList list = phase.getSpeciesMaster().getAgentList();
+            AtomSet list = phase.getSpeciesMaster().getAgentList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 IAtom a = list.getAtom(i);
@@ -455,7 +456,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 }
                 break;
             case 2:
-                AtomArrayList[] list;
+                AtomSet[] list;
                 if (direction != IteratorDirective.Direction.DOWN) {
                     list = neighborManager.getUpList(atom);
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
@@ -485,7 +486,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     // target's neighbors
                     list = neighborManager.getUpList(atom);
                     if (i < list.length) {
-                        AtomArrayList iList = list[i];
+                        AtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
@@ -493,7 +494,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                     }
                     list = neighborManager.getDownList(atom);
                     if (i < list.length) {
-                        AtomArrayList iList = list[i];
+                        AtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentials[i], neighborManager);
@@ -513,7 +514,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
             }
             
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((IAtomGroup)atom).getChildList();
+            AtomSet list = ((IAtomGroup)atom).getChildList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 IAtom a = list.getAtom(i);
@@ -531,7 +532,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         AtomArrayList arrayList = atomsetArrayList.getArrayList();
         arrayList.clear();
         arrayList.add(atom);
-        AtomArrayList[] list = neighborManager.getUpList(atom);
+        AtomSet[] list = neighborManager.getUpList(atom);
         if (potentialIndex < list.length) {
             arrayList.addAll(list[potentialIndex]);
         }

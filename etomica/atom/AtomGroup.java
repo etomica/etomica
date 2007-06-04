@@ -125,7 +125,7 @@ public class AtomGroup extends Atom implements IAtomGroup {
     /**
      * @return the childList
      */
-    public final AtomArrayList getChildList() {
+    public final AtomSet getChildList() {
         return childList;
     }
 

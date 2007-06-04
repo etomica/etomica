@@ -1,6 +1,7 @@
 package etomica.nbr.list;
 
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 
 /**
@@ -47,7 +48,7 @@ public class AtomNeighborLists implements java.io.Serializable {
      * array corresponds to a specific potential. A zero-length list indicates
      * that no concrete potentials apply to the atom.
      */
-    public AtomArrayList[] getUpList() {
+    public AtomSet[] getUpList() {
         return upList;
     }
 	
@@ -56,7 +57,7 @@ public class AtomNeighborLists implements java.io.Serializable {
      * array corresponds to a specific potential. A zero-length list indicates
      * that no concrete potentials apply to the atom.
      */
-    public AtomArrayList[] getDownList() {
+    public AtomSet[] getDownList() {
         return downList;
     }
     

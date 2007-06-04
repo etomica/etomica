@@ -3,6 +3,7 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreePhase;
@@ -123,7 +124,7 @@ public class AtomIteratorTreePhaseTest extends IteratorTestAbstract {
         return testListIterates(arrayList);
     }
     
-    private LinkedList testListIterates(AtomArrayList iterates) {
+    private LinkedList testListIterates(AtomSet iterates) {
         LinkedList list = generalIteratorMethodTests(treeIterator);
         Lister testLister = new Lister();
         testLister.addEachToList(iterates);

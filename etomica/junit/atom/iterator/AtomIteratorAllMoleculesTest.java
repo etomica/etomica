@@ -3,6 +3,7 @@ package etomica.junit.atom.iterator;
 import java.util.LinkedList;
 
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
@@ -45,7 +46,7 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         
         AtomArrayList moleculeList = new AtomArrayList();
         for(int i=0; i<species.length; i++) {
-            AtomArrayList molecules = phase.getAgent(species[i]).getChildList();
+            AtomSet molecules = phase.getAgent(species[i]).getChildList();
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 moleculeList.add(molecules.getAtom(j));
             }

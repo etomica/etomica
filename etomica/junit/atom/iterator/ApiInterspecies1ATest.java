@@ -4,11 +4,12 @@ import java.util.LinkedList;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
-import etomica.atom.AtomManager;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
@@ -116,8 +117,8 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         IAtom targetMolecule = null;
         //test no iterates if no target
         api.setPhase(phase);
-        IAtom[] molecules0 = phase.getAgent(species0).getChildList().toArray();
-        IAtom[] molecules1 = phase.getAgent(species1).getChildList().toArray();
+        IAtom[] molecules0 = ((AtomArrayList)phase.getAgent(species0).getChildList()).toArray();
+        IAtom[] molecules1 = ((AtomArrayList)phase.getAgent(species1).getChildList()).toArray();
         int[] nMolecules = new int[] { molecules0.length, molecules1.length };
         testNoIterates(api);
 

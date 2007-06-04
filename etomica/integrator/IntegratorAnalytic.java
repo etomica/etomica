@@ -1,6 +1,6 @@
 package etomica.integrator;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -33,7 +33,7 @@ public class IntegratorAnalytic extends IntegratorMD {
         if(action == null) return;
         elapsedTime += getTimeStep();
         action.setTime(elapsedTime);
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             action.actionPerformed(leafList.getAtom(iLeaf));

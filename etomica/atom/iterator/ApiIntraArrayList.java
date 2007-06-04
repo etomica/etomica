@@ -28,7 +28,7 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
      * 
      * @param list
      */
-    public ApiIntraArrayList(AtomArrayList list) {
+    public ApiIntraArrayList(AtomSet list) {
         setList(list);
     }
 
@@ -106,7 +106,7 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
      * @param atomList
      *            the new atom list for iteration
      */
-    public void setList(AtomArrayList newList) {
+    public void setList(AtomSet newList) {
         list = newList;
         unset();
     }
@@ -114,12 +114,12 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
     /**
      * Returns the list used to generate the pairs.
      */
-    public AtomArrayList getList() {
+    public AtomSet getList() {
         return list;
     }
 
     private static final long serialVersionUID = 1L;
-    private AtomArrayList list;
+    private AtomSet list;
     private int outerIndex, innerIndex;
     private final AtomPair atoms = new AtomPair();
 }

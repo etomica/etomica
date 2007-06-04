@@ -3,8 +3,8 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
@@ -108,7 +108,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     
     protected void corrector() {
         
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -141,7 +141,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     }//end of corrector
         
     protected void predictor() {
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -180,7 +180,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
 
     public void reset() throws ConfigurationOverlapException {
         calculateForces();
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

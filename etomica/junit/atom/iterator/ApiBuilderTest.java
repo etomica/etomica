@@ -2,15 +2,15 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
+import etomica.atom.AtomManager;
 import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.AtomManager;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.ApiIntragroup;
@@ -276,7 +276,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     private void setup3() {
         AtomManager atomManager = sim.getPhases()[0].getSpeciesMaster();
         parent = ((IAtomGroup)atomManager.getAgentList().getAtom(2)).getChildList().getAtom(2); //Descendant(new int[] {2,2});//phase0, species2, molecule2
-        AtomArrayList childList = ((IAtomGroup)parent).getChildList(); 
+        AtomSet childList = ((IAtomGroup)parent).getChildList(); 
         target = ((AtomGroup)parent).getDescendant(new int[] {1,0,1});
         targetFirst = ((AtomGroup)parent).getDescendant(new int[] {0,0,2});
         targetLast = ((AtomGroup)parent).getDescendant(new int[] {4,1});
@@ -299,7 +299,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
         AtomManager atomManager = sim.getPhases()[0].getSpeciesMaster();
-        AtomArrayList moleculeList = ((IAtomGroup)atomManager.getAgentList().getAtom(1)).getChildList();
+        AtomSet moleculeList = ((IAtomGroup)atomManager.getAgentList().getAtom(1)).getChildList();
         parent = moleculeList.getAtom(5);//leaf-atom basis
         target = parent;//atom5 
         targetFirst = moleculeList.getAtom(0);//atom0 
@@ -324,7 +324,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     private void setup1() {
         AtomManager atomManager = sim.getPhases()[0].getSpeciesMaster();
         parent = ((IAtomGroup)atomManager.getAgentList().getAtom(0)).getChildList().getAtom(2);
-        AtomArrayList childList = ((IAtomGroup)parent).getChildList();
+        AtomSet childList = ((IAtomGroup)parent).getChildList();
         target = childList.getAtom(5);
         targetFirst = childList.getAtom(0);
         targetLast = childList.getAtom(9);

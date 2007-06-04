@@ -22,7 +22,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
     /**
      * Constructs new iterator set to iterate given list (upon reset).
      */
- 	public AtomIteratorArrayListSimple(AtomArrayList atomList) {
+ 	public AtomIteratorArrayListSimple(AtomSet atomList) {
  		list = atomList;
  	}
     
@@ -30,7 +30,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      * Sets the list for iteration.  Null value will result in a
      * NullPointerException.
      */
- 	public void setList(AtomArrayList atomList) {
+ 	public void setList(AtomSet atomList) {
         list = atomList;
  	}
  	
@@ -97,5 +97,5 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      */
     protected int cursor = 0;
 
-    protected AtomArrayList list;
+    protected AtomSet list;
  }

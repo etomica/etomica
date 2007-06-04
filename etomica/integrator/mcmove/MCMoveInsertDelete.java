@@ -3,6 +3,7 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFactory;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
@@ -39,7 +40,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
 	protected final AtomArrayList reservoir;
     protected final AtomActionTranslateTo atomTranslator;
     protected AtomFactory moleculeFactory;
-    protected AtomArrayList moleculeList;
+    protected AtomSet moleculeList;
     protected IRandom random;
 
     public MCMoveInsertDelete(Simulation sim) {

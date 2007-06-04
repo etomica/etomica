@@ -4,7 +4,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomToArrayListFixed;
+import etomica.atom.AtomToAtomSetFixed;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.ApiSequence1A;
@@ -49,9 +49,9 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         //this iterator is used to loop through list of occupants of atoms's cell;
         //construct with AtomToLinker that gives appropriate linker
 //        MyAtomToLinker atomToLinker = new MyAtomToLinker();
-        atomToArrayListFixed = new AtomToArrayListFixed();
-        aiSeqDirectableUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1, atomToArrayListFixed, atomToArrayListFixed);
-        aiSeqDirectableDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1, atomToArrayListFixed, atomToArrayListFixed);
+        atomToAtomSetFixed = new AtomToAtomSetFixed();
+        aiSeqDirectableUp = new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1, atomToAtomSetFixed, atomToAtomSetFixed);
+        aiSeqDirectableDn = new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1, atomToAtomSetFixed, atomToAtomSetFixed);
         nbrCellListIteratorInner = new ApiSequence1A(aiSeqDirectableUp,aiSeqDirectableDn); //used only by allAtoms
         nbrCellListIteratorUp = new ApiInnerFixed(aiOuter, aiSeq);//used only by allAtoms
         nbrCellListIteratorDn = new ApiInnerFixed(aiOuter, aiSeq, true);//used only by allAtoms
@@ -80,7 +80,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         lattice.latticeIndex(centralCell.latticeArrayIndex,latticeIndex);
         
         //get pairs in targetMolecule's cell
-        atomToArrayListFixed.setArrayList(centralCell.occupants());
+        atomToAtomSetFixed.setArrayList(centralCell.occupants());
         nbrCellListIteratorInner.setAtom(targetAtom);
         nbrCellListIteratorInner.allAtoms(action);
 
@@ -167,7 +167,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         neighborIterator.reset();
         
         //start with targetMolecule's cell
-        atomToArrayListFixed.setArrayList(centralCell.occupants());
+        atomToAtomSetFixed.setArrayList(centralCell.occupants());
         if (upListNow) {
             aiSeqDirectableUp.setAtom(targetAtom);
             aiSeqDirectableUp.reset();
@@ -259,7 +259,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     private final CellLattice.NeighborIterator neighborIterator;
     private final AtomIteratorArrayList aiSeqDirectableUp, aiSeqDirectableDn;
     private final AtomIteratorArrayListSimple aiSeq;
-    private final AtomToArrayListFixed atomToArrayListFixed;
+    private final AtomToAtomSetFixed atomToAtomSetFixed;
     private final AtomIteratorSinglet aiOuter;
     private final AtomPair pair = new AtomPair();
     private final int[] latticeIndex;

@@ -1,6 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
@@ -58,7 +58,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
         if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
         data.E(0.0);
         int count = 0;
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             getData(leafList.getAtom(iLeaf));

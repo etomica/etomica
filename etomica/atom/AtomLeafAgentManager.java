@@ -53,7 +53,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
     public void dispose() {
         // remove ourselves as a listener to the phase
         atomManager.getPhase().getEventManager().removeListener(this);
-        AtomArrayList leafList = atomManager.getLeafList();
+        AtomSet leafList = atomManager.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             // leaf index corresponds to the position in the leaf list
@@ -74,7 +74,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 atomManager.getLeafList().getAtomCount()+1+atomManager.getIndexReservoirSize());
         // fill in the array with agents from all the atoms
-        AtomArrayList leafList = atomManager.getLeafList();
+        AtomSet leafList = atomManager.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             // leaf list position is the leaf index, so don't bother looking

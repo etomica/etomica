@@ -3,8 +3,8 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
@@ -71,7 +71,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
     // assumes one phase
     public void doStepInternal() {
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

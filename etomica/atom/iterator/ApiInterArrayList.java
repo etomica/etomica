@@ -27,7 +27,7 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * @throws IllegalArgumentException
      *             if both lists refer to the same instance
      */
-    public ApiInterArrayList(AtomArrayList outerList, AtomArrayList innerList) {
+    public ApiInterArrayList(AtomSet outerList, AtomSet innerList) {
         if (outerList == innerList) {
             throw new IllegalArgumentException(
                     "ApiInterList will not work if both iterators are the same instance");
@@ -121,7 +121,7 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * @param atomList
      *            the new atom list for iteration
      */
-    public void setOuterList(AtomArrayList newList) {
+    public void setOuterList(AtomSet newList) {
         this.outerList = newList;
         unset();
     }
@@ -133,7 +133,7 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
      * @param atomList
      *            the new atom list for iteration
      */
-    public void setInnerList(AtomArrayList newList) {
+    public void setInnerList(AtomSet newList) {
         this.innerList = newList;
         unset();
     }
@@ -141,19 +141,19 @@ public class ApiInterArrayList implements AtomsetIterator, java.io.Serializable 
     /**
      * Returns the outer list used to generate the pairs.
      */
-    public AtomArrayList getOuterList() {
+    public AtomSet getOuterList() {
         return outerList;
     }
 
     /**
      * Returns the inner list used to generate the pairs.
      */
-    public AtomArrayList getInnerList() {
+    public AtomSet getInnerList() {
         return innerList;
     }
 
     private static final long serialVersionUID = 1L;
-    private AtomArrayList outerList, innerList;
+    private AtomSet outerList, innerList;
     private int outerIndex, innerIndex;
     private final AtomPair atoms = new AtomPair();
 }

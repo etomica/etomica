@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
@@ -167,7 +167,7 @@ public class PDBWriter implements Action, Serializable {
     private static final int[] elementNum = new int[] {1, 8, 9, 7, 6, 15, 16};
     private int elementCount = 0;
     private final LinkedList elementAtomType = new LinkedList();
-    private AtomArrayList leafList;
+    private AtomSet leafList;
     
     private static final class ElementLinker implements Serializable {
         private static final long serialVersionUID = 1L;

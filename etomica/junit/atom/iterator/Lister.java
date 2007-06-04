@@ -53,9 +53,9 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
     /**
      * Performs action on each element of array.
      */
-    public void addEachToList(AtomSet[] a) {
-        for(int i=0; i<a.length; i++) {
-            actionPerformed(a[i]);
+    public void addEachToList(AtomSet a) {
+        for(int i=0; i<a.getAtomCount(); i++) {
+            actionPerformed(a.getAtom(i));
         }
     }
 

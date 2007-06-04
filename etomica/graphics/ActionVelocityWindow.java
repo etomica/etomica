@@ -6,7 +6,7 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.action.Action;
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomKinetic;
 import etomica.phase.Phase;
 import etomica.space.IVector;
@@ -16,7 +16,7 @@ import etomica.space.IVector;
  * @author andrew
  */
 public class ActionVelocityWindow implements Action {
-    private final AtomArrayList leafList;
+    private final AtomSet leafList;
     
     public ActionVelocityWindow(Phase phase) {
         leafList = phase.getSpeciesMaster().getLeafList();

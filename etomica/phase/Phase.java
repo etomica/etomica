@@ -8,12 +8,12 @@ import java.lang.reflect.InvocationTargetException;
 
 import etomica.EtomicaElement;
 import etomica.action.PhaseInflate;
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomManager;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.AtomManager;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -159,9 +159,9 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         if(i >= moleculeCount() || i < 0) 
             throw new IndexOutOfBoundsException("Index: "+i+
                                                 ", Number of molecules: "+moleculeCount());
-        AtomArrayList agentList = atomManager.getAgentList();
+        AtomSet agentList = atomManager.getAgentList();
         for (int agentIndex=0; agentIndex<agentList.getAtomCount(); agentIndex++) {
-            AtomArrayList moleculeList = ((IAtomGroup)agentList.getAtom(agentIndex)).getChildList();
+            AtomSet moleculeList = ((IAtomGroup)agentList.getAtom(agentIndex)).getChildList();
             int count = moleculeList.getAtomCount();
             if (i < count) {
                 return moleculeList.getAtom(i);
@@ -181,7 +181,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      * more than one of the positions.
      */
     public IAtom[] nearestAtom(IVector[] r) {
-        AtomArrayList leafList = atomManager.getLeafList();
+        AtomSet leafList = atomManager.getLeafList();
         int nLeaf = leafList.getAtomCount();
     	IAtom[] nearest = new IAtom[r.length];
     	for(int i=0; i<r.length; i++) {
@@ -222,7 +222,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      */
     public final SpeciesAgent getAgent(Species s) {
         //brute force it
-        AtomArrayList agentList = atomManager.getAgentList();
+        AtomSet agentList = atomManager.getAgentList();
         for (int i=0; i<agentList.getAtomCount(); i++) {
             if (((SpeciesAgent)agentList.getAtom(i)).getType().getSpecies() == s) {
                 return (SpeciesAgent)agentList.getAtom(i);
@@ -266,14 +266,14 @@ public class Phase implements EtomicaElement, java.io.Serializable {
 
     public void writePhase(ObjectOutputStream out) throws IOException {
         out.writeObject(boundary);
-        AtomArrayList agents = atomManager.getAgentList();
+        AtomSet agents = atomManager.getAgentList();
         out.writeInt(agents.getAtomCount());
         for (int i=0; i<agents.getAtomCount(); i++) {
             Species species = agents.getAtom(i).getType().getSpecies();
             out.writeObject(species.getSpeciesSignature());
             out.writeInt(((SpeciesAgent)agents.getAtom(i)).getNMolecules());
         }
-        AtomArrayList leafList = atomManager.getLeafList();
+        AtomSet leafList = atomManager.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);

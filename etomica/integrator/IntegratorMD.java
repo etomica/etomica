@@ -1,7 +1,7 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
@@ -176,7 +176,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             }
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
-                    AtomArrayList atomList = phase.getSpeciesMaster().getLeafList();
+                    AtomSet atomList = phase.getSpeciesMaster().getLeafList();
                     int index = random.nextInt(atomList.getAtomCount());
                     IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();
@@ -201,7 +201,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
      */
     protected void randomizeMomenta() {
         atomActionRandomizeVelocity.setTemperature(temperature);
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             atomActionRandomizeVelocity.actionPerformed(leafList.getAtom(iLeaf));
@@ -229,7 +229,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
      */
     protected double scaleMomenta() {
         momentum.E(0);
-        AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {

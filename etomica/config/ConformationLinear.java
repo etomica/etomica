@@ -1,7 +1,7 @@
 package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.simulation.Simulation;
@@ -67,7 +67,7 @@ public class ConformationLinear extends Conformation {
         orientation.TE(1.0/bondLength);
     }
 
-    public void initializePositions(AtomArrayList atomList) {
+    public void initializePositions(AtomSet atomList) {
         int size = atomList.getAtomCount();
         if(size == 0) return;
 

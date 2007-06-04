@@ -1,9 +1,8 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomToArrayList;
+import etomica.atom.AtomToAtomSet;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
 import etomica.atom.AtomToParentChildList;
@@ -31,11 +30,11 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     }
     
     public AtomIteratorArrayListAdjacent(IteratorDirective.Direction direction,
-            AtomToIndex atomToIndex, AtomToArrayList atomToArrayList) {
+            AtomToIndex atomToIndex, AtomToAtomSet atomToAtomSet) {
         super();
         this.direction = direction;
         this.atomToIndex = atomToIndex;
-        this.atomToArrayList = atomToArrayList;
+        this.atomToAtomSet = atomToAtomSet;
         unset();
     }
 
@@ -122,7 +121,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      * construction.
      */
     public void setAtom(IAtom atom) {
-        list = atomToArrayList.getArrayList(atom);
+        list = atomToAtomSet.getAtomSet(atom);
         firstCursor = atomToIndex.getIndex(atom);
     }
 
@@ -130,7 +129,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     private int firstCursor;
     private final Direction direction;
     private boolean upListNow, dnListNow;
-    private AtomArrayList list;
+    private AtomSet list;
     private final AtomToIndex atomToIndex;
-    private final AtomToArrayList atomToArrayList;
+    private final AtomToAtomSet atomToAtomSet;
 }

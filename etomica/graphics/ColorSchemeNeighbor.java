@@ -2,7 +2,6 @@ package etomica.graphics;
 
 import java.awt.Color;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
@@ -59,6 +58,6 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
     private static final long serialVersionUID = 1L;
     private IAtom referenceAtom;
     private final Api1ACell nbrIterator;
-    private final AtomArrayList leafList;
+    private final AtomSet leafList;
     private final ColorSchemeByType typeColorScheme;
 }

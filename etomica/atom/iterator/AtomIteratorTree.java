@@ -2,7 +2,6 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
@@ -58,7 +57,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      * by reset status. Clobbers iteration state.
      */
     public void allAtoms(AtomsetAction act) {
-        AtomArrayList list = ((IAtomGroup)rootAtom).getChildList();
+        AtomSet list = ((IAtomGroup)rootAtom).getChildList();
         int nAtoms = list.getAtomCount();
         for (int iAtom=0; iAtom<nAtoms; iAtom++) {
             IAtom atom = list.getAtom(iAtom);

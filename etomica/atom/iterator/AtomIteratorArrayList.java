@@ -2,8 +2,8 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomToArrayList;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomToAtomSet;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
 import etomica.atom.AtomToParentChildList;
@@ -31,14 +31,14 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
     }
     
     public AtomIteratorArrayList(IteratorDirective.Direction direction, int numToSkip, 
-            AtomToIndex atomToIndex, AtomToArrayList atomToArrayList) {
+            AtomToIndex atomToIndex, AtomToAtomSet atomToAtomSet) {
         if (direction == null)
             throw new IllegalArgumentException(
                     "Must specify direction to constructor of AtomLinkerIterator");
         upListNow = (direction == IteratorDirective.Direction.UP);
 
         this.atomToIndex = atomToIndex;
-        this.atomToArrayList = atomToArrayList;
+        this.atomToAtomSet = atomToAtomSet;
         this.numToSkip = numToSkip;
  	}
     
@@ -75,7 +75,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * Performs action on all elements of current list.
      */
  	public void allAtoms(AtomsetAction act) {
-        AtomArrayList localList = atomToArrayList.getArrayList(startAtom);
+        AtomSet localList = atomToAtomSet.getAtomSet(startAtom);
         int firstCursor = atomToIndex.getIndex(startAtom);
  		int arraySize = localList.getAtomCount();
         if (upListNow) {
@@ -94,7 +94,7 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
      * Puts iterator in state ready to begin iteration.
      */
  	public void reset() {
-        list = atomToArrayList.getArrayList(startAtom);
+        list = atomToAtomSet.getAtomSet(startAtom);
  		cursor = atomToIndex.getIndex(startAtom);
         if (upListNow) {
             cursor--;
@@ -130,5 +130,5 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
     private final int numToSkip;
     private IAtom startAtom;
     private final AtomToIndex atomToIndex;
-    private final AtomToArrayList atomToArrayList;
+    private final AtomToAtomSet atomToAtomSet;
  }

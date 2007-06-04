@@ -14,8 +14,12 @@
 
 package etomica.atom;
 
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
+
 import etomica.util.Debug;
 
 /**
@@ -78,7 +82,7 @@ import etomica.util.Debug;
  * @since JDK1.2
  */
 
-public class AtomArrayList implements Cloneable,
+public class AtomArrayList implements AtomSet,
 					            java.io.Serializable {
     /**
      * The array buffer into which the elements of the ArrayList are stored.
@@ -245,25 +249,6 @@ public class AtomArrayList implements Cloneable,
     }
 
     /**
-     * Returns a shallow copy of this ArrayList instance.  (The
-     * elements themselves are not copied.)
-     *
-     * @return  a clone of this ArrayList instance.
-     */
-    public Object clone() {
-    	try { 
-    		AtomArrayList v = (AtomArrayList)super.clone();
-    		v.elementData = new IAtom[size];
-    		System.arraycopy(elementData, 0, v.elementData, 0, size);
-//	    		v.modCount = 0;
-    		return v;
-    	} catch (CloneNotSupportedException e) { 
-    		// this shouldn't happen, since we are Cloneable
-    		throw new InternalError();
-    	}
-    }
-
-    /**
      * Returns an array containing all of the elements in this list
      * in the correct order.
      *
@@ -354,30 +339,8 @@ public class AtomArrayList implements Cloneable,
     	elementData[size++] = atom;
     	return true;
     }
-
-    /**
-     * Inserts the specified element at the specified position in this
-     * list. Shifts the element currently at that position (if any) and
-     * any subsequent elements to the right (adds one to their indices).
-     *
-     * @param index index at which the specified element is to be inserted.
-     * @param element element to be inserted.
-     * @throws    IndexOutOfBoundsException if index is out of range
-     *		  (index < 0 || index > size()).
-     */
-    public void add(int index, IAtom element) {
-    	if (index > size || index < 0)
-    		throw new IndexOutOfBoundsException(
-    				"Index: "+index+", Size: "+size);
-
-    	ensureCapacity(size+1);
-    	System.arraycopy(elementData, index, elementData, index + 1,
-    			size - index);
-    	elementData[index] = element;
-    	size++;
-    }
     
-    public void addAll(AtomArrayList atoms) {
+    public void addAll(AtomSet atoms) {
         ensureCapacity(size+atoms.getAtomCount());
         int newSize = size + atoms.getAtomCount();
         for (int i=size; i<newSize; i++) {
@@ -438,34 +401,11 @@ public class AtomArrayList implements Cloneable,
      * be empty after this call returns.
      */
     public void clear() {
-
-    	// Let gc do its work
     	//XXX this is extra work unless the atom is eventually deleted from the system
     	for (int i = 0; i < size; i++)
     		elementData[i] = null;
 
     	size = 0;
-    }
-
-    /**
-     * Removes from this List all of the elements whose index is between
-     * fromIndex, inclusive and toIndex, exclusive.  Shifts any succeeding
-     * elements to the left (reduces their index).
-     * This call shortens the list by (toIndex - fromIndex) elements.
-     * (If toIndex==fromIndex, this operation has no effect.)
-     *
-     * @param fromIndex index of first element to be removed.
-     * @param fromIndex index after last element to be removed.
-     */
-    protected void removeRange(int fromIndex, int toIndex) {
-    	int numMoved = size - toIndex;
-        System.arraycopy(elementData, toIndex, elementData, fromIndex,
-        		numMoved);
-
-        // Let gc do its work
-        int newSize = size - (toIndex-fromIndex);
-        while (size != newSize)
-        	elementData[--size] = null;
     }
 
     /**
@@ -517,31 +457,6 @@ public class AtomArrayList implements Cloneable,
             elementData[i] = (IAtom)s.readObject();
     }
     
-     /**
-      * Returns an iterator over the elements in this list in proper
-      * sequence. 
-      *
-      * This implementation returns a straightforward implementation of the
-      * iterator interface, relying on the backing list's size(),
-      * get(int), and remove(int) methods.
-      *
-      * Note that the iterator returned by this method will throw an
-      * UnsupportedOperationException in response to its
-      * remove method unless the list's remove(int) method is
-      * overridden.
-      *
-      * This implementation can be made to throw runtime exceptions in the face
-      * of concurrent modification, as described in the specification for the
-      * (protected) modCount field.
-      *
-      * @return an iterator over the elements in this list in proper sequence.
-      * 
-      * @see #modCount
-      */
-     public AtomIterator iterator() {
-     	return new AtomIteratorArrayListSimple(this);
-     }
-     
      public String toString() {
          StringBuffer buffer = new StringBuffer();
          for(int i=0; i<size; i++) {

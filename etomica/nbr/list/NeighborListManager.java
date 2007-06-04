@@ -4,7 +4,6 @@ import etomica.action.AtomActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
@@ -281,11 +280,11 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         this.quiet = quiet;
     }
     
-    public AtomArrayList[] getUpList(IAtom atom) {
+    public AtomSet[] getUpList(IAtom atom) {
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getUpList();
     }
 
-    public AtomArrayList[] getDownList(IAtom atom) {
+    public AtomSet[] getDownList(IAtom atom) {
         return ((AtomNeighborLists)agentManager2Body.getAgent(atom)).getDownList();
     }
 

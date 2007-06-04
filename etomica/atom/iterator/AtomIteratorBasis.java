@@ -156,8 +156,8 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      */
     private void setupIterator() {
         needSetupIterator = false;
+        littleList.clear();
         list = littleList;
-        list.clear();
         if (basis != null) {
             if (targetAtom == null) {
                 setupBasisIteration();
@@ -204,7 +204,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
     private IAtom targetAtom;
     private int targetDepth;
     private IAtom basis;
-    private AtomArrayList list;
+    private AtomSet list;
     private boolean needSetupIterator = true;//flag to indicate if
                                              // setupIterator must be called
                                              // upon reset

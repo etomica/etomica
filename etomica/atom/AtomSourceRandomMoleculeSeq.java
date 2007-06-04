@@ -86,6 +86,6 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
     private static final long serialVersionUID = 2L;
     protected int maxLookAhead = 10;
     protected AtomManager atomManager;
-    protected AtomArrayList moleculeList, agentList;
+    protected AtomSet moleculeList, agentList;
     protected int prevIndex, agentIndex;
 }

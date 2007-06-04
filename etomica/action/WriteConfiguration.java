@@ -3,7 +3,7 @@ package etomica.action;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 import etomica.space.IVector;
@@ -75,7 +75,7 @@ public class WriteConfiguration implements Action {
         }
         try {
             IVector writePosition = phase.getSpace().makeVector();
-            AtomArrayList leafList = phase.getSpeciesMaster().getLeafList();
+            AtomSet leafList = phase.getSpeciesMaster().getLeafList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
