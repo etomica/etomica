@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.data.DataSourceScalar;
 import etomica.lattice.crystal.Primitive;
@@ -115,7 +115,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         sim.addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 
-        AtomArrayList atoms = phase.getSpeciesMaster().getLeafList();
+        AtomSet atoms = phase.getSpeciesMaster().getLeafList();
         
         Primitive primitive = new PrimitiveCubic(sim.getSpace());
 

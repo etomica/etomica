@@ -1,7 +1,7 @@
 package etomica.threaded.domain;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.IteratorDirective;
@@ -119,7 +119,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     protected void calculateThreaded(Phase phase, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
-        AtomArrayList list = phase.getSpeciesMaster().getAgentList();
+        AtomSet list = phase.getSpeciesMaster().getAgentList();
         int size = list.getAtomCount();
         for (int i=0; i<size; i++) {
             IAtom a = list.getAtom(i);
@@ -130,7 +130,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         
     protected void calculateThreaded(IAtom atom, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
            
-        AtomArrayList list = ((IAtomGroup)atom).getChildList();
+        AtomSet list = ((IAtomGroup)atom).getChildList();
         int size = list.getAtomCount();
         
     	

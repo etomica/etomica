@@ -1,6 +1,7 @@
 package etomica.models.hexane;
 
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
@@ -174,7 +175,7 @@ public abstract class MCMoveCBMC extends MCMovePhase {
     protected IVector[] positionOld; // Used to store the position of the
                                         // molecule before mofing it.
 
-    protected AtomArrayList atomList;
+    protected AtomSet atomList;
 
     protected int numTrial;
 

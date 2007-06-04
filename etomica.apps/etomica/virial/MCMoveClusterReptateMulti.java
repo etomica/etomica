@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
@@ -79,7 +79,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         wOld = weightMeter.getDataAsScalar();
         for(int i=0; i<selectedMolecules.length; i++) {
             forward[i] = random.nextInt(2) == 0;
-            AtomArrayList childList = selectedMolecules[i].getChildList();
+            AtomSet childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
             for (int k=0; k<numChildren; k++) {
 //                System.out.println(i+" before "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
@@ -161,7 +161,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
 	
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.length; i++) {
-            AtomArrayList childList = selectedMolecules[i].getChildList();
+            AtomSet childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
             if (!forward[i]) {
                 IVector position = ((IAtomPositioned)childList.getAtom(numChildren-1)).getPosition();

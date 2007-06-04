@@ -1,8 +1,8 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.config.ConfigurationLattice;
@@ -43,7 +43,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 	}
 	
     public void initializeCoordinates(Phase phase) {
-        AtomArrayList[] lists = getMoleculeLists(phase);
+        AtomSet[] lists = getMoleculeLists(phase);
         if(lists.length == 0 || lists[0].getAtomCount() == 0) return;
         
         int basisSize = 1;

@@ -2,7 +2,7 @@ package etomica.modules.junit.crystalviewer;
 
 import junit.framework.TestCase;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.space.IVector;
@@ -53,7 +53,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	int idx = 0;
     	double cubicSize = 1.0;
     	double plane = 1.0;
-    	AtomArrayList leafList = null;
+    	AtomSet leafList = null;
 
         lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -114,7 +114,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	double cubicSizeB = 1.75;
     	double cubicSizeC = 2.0;
     	double plane = -2.0;
-    	AtomArrayList leafList = null;
+    	AtomSet leafList = null;
 
         lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
@@ -170,7 +170,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	AtomArrayList leafList = null;
+    	AtomSet leafList = null;
     	int size = 9;
     	double plane = 8.0;
     	int itemsFound = 0;
@@ -242,7 +242,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	AtomArrayList leafList = null;
+    	AtomSet leafList = null;
     	int dimensionSize = 4;
     	double plane = 0.0;
 
@@ -286,7 +286,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
 
     	int idx = 0;
     	double cubicSize = 1.0;
-    	AtomArrayList leafList = null;
+    	AtomSet leafList = null;
     	int dimensionSize = 4;
     	double plane = 0.5;
 
@@ -350,7 +350,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	double cubicSizeA = 0.7;
     	double cubicSizeB = 0.8;
     	double cubicSizeC = 0.9;
-    	AtomArrayList leafList = null;
+    	AtomSet leafList = null;
     	int size = 7;
     	double plane = 2.95;
     	int[] millerIndices = new int[] { 2, 2, 1 };
@@ -400,7 +400,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	double cubicSizeA = 0.7;
     	double cubicSizeB = 0.8;
     	double cubicSizeC = 0.9;
-    	AtomArrayList leafList = null;
+    	AtomSet leafList = null;
     	int size = 7;
     	double plane = 3.0;
     	int itemsFound = 0;
@@ -476,7 +476,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	double cubicSizeA = 0.7;
     	double cubicSizeB = 0.8;
     	double cubicSizeC = 0.9;
-    	AtomArrayList leafList = null;
+    	AtomSet leafList = null;
     	int size = 7;
     	double plane = 3.05;
     	int[] millerIndices = new int[] { 2, 2, 1 };

@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 
@@ -110,7 +110,7 @@ public class ClusterCoupled implements ClusterAbstract {
     }
     
     private final ClusterAbstract wrappedCluster;
-    private AtomArrayList atomList;
+    private AtomSet atomList;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     public double foo, foo2;

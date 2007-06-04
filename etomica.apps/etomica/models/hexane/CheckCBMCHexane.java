@@ -1,7 +1,7 @@
 package etomica.models.hexane;
 
 import etomica.action.Action;
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -50,7 +50,7 @@ public class CheckCBMCHexane implements Action {
         moleculeIterator.reset();
         for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
              atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
-            AtomArrayList atomList = atom.getChildList();
+            AtomSet atomList = atom.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 1; i++) {
                 // vex.E(((AtomLeaf)atomList.get(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
@@ -70,7 +70,7 @@ public class CheckCBMCHexane implements Action {
         tol = 0.0000005;
         for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
              atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
-            AtomArrayList atomList = atom.getChildList();
+            AtomSet atomList = atom.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 2; i++) {
                 vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
@@ -93,7 +93,7 @@ public class CheckCBMCHexane implements Action {
         moleculeIterator.reset();
         for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
              atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
-            AtomArrayList atomList = atom.getChildList();
+            AtomSet atomList = atom.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 3; i++) {
                 vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());

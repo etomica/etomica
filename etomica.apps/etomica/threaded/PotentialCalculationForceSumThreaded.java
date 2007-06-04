@@ -1,8 +1,8 @@
 package etomica.threaded;
 
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
@@ -56,7 +56,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 	public void writeData(){
        
 		Phase phase = integratorAgentManager.getPhase();
-        AtomArrayList atomArrayList = phase.getSpeciesMaster().getLeafList();
+        AtomSet atomArrayList = phase.getSpeciesMaster().getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
             IVector force = ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atomArrayList.getAtom(j))).force();

@@ -1,6 +1,7 @@
 package etomica.threaded.domain;
 
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
@@ -110,7 +111,7 @@ public class PotentialMasterListWorker extends Thread {
                 }
                 break;
             case 2:
-                AtomArrayList[] list;
+                AtomSet[] list;
                 if (direction != IteratorDirective.Direction.DOWN) {
                     list = neighborManager.getUpList(atom);
 //                  list.length may be less than potentials.length, if atom hasn't yet interacted with another using one of the potentials
@@ -145,7 +146,7 @@ public class PotentialMasterListWorker extends Thread {
                     // target's neighbors
                     list = neighborManager.getUpList(atom);
                     if (i < list.length) {
-                        AtomArrayList iList = list[i];
+                        AtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
@@ -153,7 +154,7 @@ public class PotentialMasterListWorker extends Thread {
                     }
                     list = neighborManager.getDownList(atom);
                     if (i < list.length) {
-                        AtomArrayList iList = list[i];
+                        AtomSet iList = list[i];
                         for (int j=0; j<iList.getAtomCount(); j++) {
                             IAtom otherAtom = iList.getAtom(j);
                             doNBodyStuff(otherAtom, id, pc, i, potentialThread);
@@ -176,7 +177,7 @@ public class PotentialMasterListWorker extends Thread {
             }
             
             //cannot use AtomIterator field because of recursive call
-            AtomArrayList list = ((IAtomGroup)atom).getChildList();
+            AtomSet list = ((IAtomGroup)atom).getChildList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 IAtom a = list.getAtom(i);
@@ -189,7 +190,7 @@ public class PotentialMasterListWorker extends Thread {
 	        AtomArrayList arrayList = atomsetArrayList.getArrayList();
 	        arrayList.clear();
 	        arrayList.add(atom);
-	        AtomArrayList[] list = neighborManager.getUpList(atom);
+	        AtomSet[] list = neighborManager.getUpList(atom);
 	        if (potentialIndex < list.length) {
 	            arrayList.addAll(list[potentialIndex]);
 	        }

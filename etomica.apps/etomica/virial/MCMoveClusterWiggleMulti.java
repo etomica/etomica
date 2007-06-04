@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
@@ -77,7 +77,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         wOld = weightMeter.getDataAsScalar();
 
         for(int i=0; i<selectedMolecules.length; i++) {
-            AtomArrayList childList = selectedMolecules[i].getChildList();
+            AtomSet childList = selectedMolecules[i].getChildList();
             int numChildren = childList.getAtomCount();
 
             int j = random.nextInt(numChildren);

@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.action.AtomAction;
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
@@ -81,8 +81,10 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     }
     
     public void selectMolecules() {
-        AtomArrayList atomList = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
-        System.arraycopy(atomList.toArray(),1,selectedMolecules,0,atomList.getAtomCount()-1);
+        AtomSet atomList = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
+        for (int i=0; i<selectedMolecules.length; i++) {
+            selectedMolecules[i] = (IAtomGroup)atomList.getAtom(i+1);
+        }
     }
 
     public double getB() {

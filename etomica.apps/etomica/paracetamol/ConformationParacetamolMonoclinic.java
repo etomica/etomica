@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;
@@ -21,7 +21,7 @@ public class ConformationParacetamolMonoclinic extends Conformation{
 		iterator = new AtomIteratorArrayListSimple();	
 	}
 	
-	public void initializePositions(AtomArrayList List){
+	public void initializePositions(AtomSet List){
 		
 		iterator.setList(List);
 		double x = 0.0;

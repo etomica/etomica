@@ -12,6 +12,7 @@ package etomica.meam;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinitionSimple;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
@@ -112,13 +113,13 @@ public class GrainBoundaryConfiguration extends Configuration {
      * lattice.  
      */
     public void initializeCoordinates(Phase phase) {
-    	AtomArrayList[] lists = getMoleculeLists(phase);
+    	AtomSet[] lists = getMoleculeLists(phase);
     	IVector firstAtomPosition = ((IAtomPositioned)lists[0].getAtom(0)).getPosition();
     	
     	System.out.println("At beginning of initializePositions  "+ firstAtomPosition);
     	
-    	AtomArrayList[] listsMobileA = new AtomArrayList[lists.length/2 - 1];
-    	AtomArrayList[] listsMobileB = new AtomArrayList[lists.length/2 - 1];
+    	AtomSet[] listsMobileA = new AtomArrayList[lists.length/2 - 1];
+    	AtomSet[] listsMobileB = new AtomArrayList[lists.length/2 - 1];
     	
     	for (int i = 1; i < lists.length/2; i++) {
     		listsMobileA[i - 1] = lists[i];

@@ -1,6 +1,5 @@
 package etomica.models.hexane;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
@@ -399,7 +398,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     private double length, phi;
     private Tensor rotor;
     private ConformationHexane confHex;
-    private AtomArrayList childlist;
+    private AtomSet childlist;
     
     
     public void setLength(double length) {
