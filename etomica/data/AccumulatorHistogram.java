@@ -66,7 +66,7 @@ public class AccumulatorHistogram extends DataAccumulator {
      */
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
         binnedDataInfo = inputDataInfo;
-        if (((DataInfoDoubleArray)inputDataInfo).getLength() != 1) {
+        if (inputDataInfo.getLength() != 1) {
             throw new IllegalArgumentException("AccumulatorHistogram can only handle single data");
         }
         setupData();
