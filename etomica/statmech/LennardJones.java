@@ -259,6 +259,12 @@ public final class LennardJones {
     public static void main(String[] args) {
         double T = 1.0;
         double rho = 0.962;
+        if (args.length > 0) {
+            T = Double.parseDouble(args[0]);
+        }
+        if (args.length > 1) {
+            rho = Double.parseDouble(args[1]);
+        }
         double Tm = 0.689;
 
         double pSat = liquidFccCoexPressure(T);
