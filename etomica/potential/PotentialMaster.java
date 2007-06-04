@@ -84,15 +84,12 @@ public class PotentialMaster implements java.io.Serializable {
     public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
     	IAtom targetAtom = id.getTargetAtom();
-    	boolean phaseChanged = (phase != mostRecentPhase);
     	mostRecentPhase = phase;
 
         for(PotentialLinker link=first; link!=null; link=link.next) {
     	    if(!link.enabled) continue;
-    	    if(phaseChanged) {
-    	        link.iterator.setPhase(phase);
-    	        link.potential.setPhase(phase);
-    	    }
+	        link.iterator.setPhase(phase);
+	        link.potential.setPhase(phase);
     	    link.iterator.setTarget(targetAtom);
     	    link.iterator.setDirection(id.direction());
     	    pc.doCalculation(link.iterator, id, link.potential);
