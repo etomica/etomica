@@ -32,8 +32,8 @@ public class MCMoveAtom extends MCMovePhaseStep {
     protected boolean fixOverlap;
     protected final IRandom random;
 
-    public MCMoveAtom(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getRandom(), sim.getDefaults().atomSize,
+    public MCMoveAtom(Simulation sim, PotentialMaster potentialMaster) {
+        this(potentialMaster, sim.getRandom(), sim.getDefaults().atomSize,
                 sim.getDefaults().boxSize/2, sim.getDefaults().ignoreOverlap);
     }
     

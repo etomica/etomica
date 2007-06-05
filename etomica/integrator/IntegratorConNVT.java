@@ -37,8 +37,8 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorConNVT(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
+    public IntegratorConNVT(Simulation sim, PotentialMaster potentialMaster) {
+        this(potentialMaster,sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
     public IntegratorConNVT(PotentialMaster potentialMaster, IRandom random, 

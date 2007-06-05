@@ -56,6 +56,8 @@ public class HSMD3D extends Simulation {
      */
     public final P2HardSphere potential;
     
+    public final PotentialMaster potentialMaster;
+    
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
@@ -75,7 +77,10 @@ public class HSMD3D extends Simulation {
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
-        super(space, true, params.useNeighborLists ? new PotentialMasterList(space, 1.6) : new PotentialMaster(space));
+        super(space, true);
+
+        potentialMaster = params.useNeighborLists ? new PotentialMasterList(space, 1.6) : new PotentialMaster(space);
+        potentialMaster.setSimulation(this);
 
         int numAtoms = params.nAtoms;
         double neighborRangeFac = 1.6;
@@ -87,7 +92,7 @@ public class HSMD3D extends Simulation {
             ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
         }
 
-        integrator = new IntegratorHard(this);
+        integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
         this.register(integrator);

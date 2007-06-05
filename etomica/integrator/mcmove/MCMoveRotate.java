@@ -6,7 +6,6 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Orientation;
 import etomica.util.IRandom;
@@ -29,10 +28,6 @@ public class MCMoveRotate extends MCMovePhaseStep {
     
     protected final IRandom random;
 
-    public MCMoveRotate(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getRandom());
-    }
-    
     public MCMoveRotate(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;

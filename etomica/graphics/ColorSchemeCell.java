@@ -9,15 +9,14 @@ import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
-import etomica.simulation.Simulation;
 import etomica.util.IRandom;
 
 public class ColorSchemeCell extends ColorScheme {
     
-    public ColorSchemeCell(Simulation sim, Phase phase) {
-        PhaseAgentManager cellAgentManager = ((PotentialMasterNbr)sim.getPotentialMaster()).getCellAgentManager();
+    public ColorSchemeCell(PotentialMasterNbr potentialMaster, IRandom random, Phase phase) {
+        PhaseAgentManager cellAgentManager = potentialMaster.getCellAgentManager();
         cellManager = (NeighborCellManager)cellAgentManager.getAgent(phase);
-        random = sim.getRandom();
+        this.random = random;
     }
     
     public void setLattice(FiniteLattice lattice) {

@@ -37,9 +37,10 @@ public class LjMd2D extends Simulation {
     }
     
     public LjMd2D(Default defaults) {
-        super(Space2D.getInstance(), false, new PotentialMaster(Space2D.getInstance()), Default.BIT_LENGTH, defaults);
+        super(Space2D.getInstance(), false, Default.BIT_LENGTH, defaults);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.makeLJDefaults();
-        integrator = new IntegratorVelocityVerlet(this);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
@@ -51,7 +52,7 @@ public class LjMd2D extends Simulation {
         phase.getAgent(species).setNMolecules(50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         potential = new P2LennardJones(this);
-        this.potentialMaster.addPotential(potential,new Species[]{species,species});
+        potentialMaster.addPotential(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities

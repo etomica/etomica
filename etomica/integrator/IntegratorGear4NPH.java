@@ -56,8 +56,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected int D;
     protected final MeterTemperature meterTemperature = new MeterTemperature();
     
-    public IntegratorGear4NPH(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,
+    public IntegratorGear4NPH(Simulation sim, PotentialMaster potentialMaster) {
+        this(potentialMaster,sim.getRandom(),sim.getDefaults().timeStep,
                 sim.getDefaults().temperature);
     }
     

@@ -33,7 +33,8 @@ public class GEMCWithRotation extends Simulation {
     }
     
     public GEMCWithRotation(Space space) {
-        super(space, false, new PotentialMaster(space));
+        super(space, false);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.atomSize = 1.2;
         defaults.makeLJDefaults();
         defaults.temperature = defaults.unitSystem.temperature().toSim(0.420);
@@ -51,22 +52,22 @@ public class GEMCWithRotation extends Simulation {
         addPhase(phase1);
         phase1.getAgent(species).setNMolecules(200);
         
-	    IntegratorMC integratorMC = new IntegratorMC(this);
+	    IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
         integratorMC.setPhase(phase1);
         MCMoveManager moveManager = integratorMC.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom()));
-        moveManager.addMCMove(new MCMoveAtom(this));
+        moveManager.addMCMove(new MCMoveAtom(this, potentialMaster));
         integrator.addIntegrator(integratorMC);
         
 
 	    phase2 = new Phase(this);
         addPhase(phase2);
         phase2.getAgent(species).setNMolecules(200);
-        integratorMC = new IntegratorMC(this);
+        integratorMC = new IntegratorMC(this, potentialMaster);
         integratorMC.setPhase(phase2);
         moveManager = integratorMC.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom()));
-        moveManager.addMCMove(new MCMoveAtom(this));
+        moveManager.addMCMove(new MCMoveAtom(this, potentialMaster));
         // GEMC integrator adds volume and molecule exchange moves once
         // it has 2 integrators
         integrator.addIntegrator(integratorMC);
@@ -85,7 +86,7 @@ public class GEMCWithRotation extends Simulation {
 	    potential = new P2LennardJones(this);
 	    potential.setSigma(((AtomTypeSphere)species.getMoleculeType()).getDiameter());
 
-        this.potentialMaster.addPotential(potential,new Species[] {species, species});
+        potentialMaster.addPotential(potential,new Species[] {species, species});
 
         integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase1)));
         integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase2)));

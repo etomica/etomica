@@ -11,6 +11,7 @@ import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -156,6 +157,7 @@ public class ConfigurationLatticeSimple extends Configuration {
 
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
+        PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
         sim.getDefaults().atomSize = 5.0;
         Phase phase = new Phase(sim);
         sim.addPhase(phase);
@@ -163,7 +165,7 @@ public class ConfigurationLatticeSimple extends Configuration {
         sim.getSpeciesManager().addSpecies(species);
         int k = 4;
         phase.getAgent(species).setNMolecules(4 * k * k * k);
-        IntegratorHard integrator = new IntegratorHard(sim);
+        IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);
         integrator.setPhase(phase);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();

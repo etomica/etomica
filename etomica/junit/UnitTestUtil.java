@@ -9,7 +9,6 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -66,8 +65,7 @@ public class UnitTestUtil {
     public static Simulation makeStandardSpeciesTree(int[] n0, int nA0,
             int[] n1, int[] n2, int[] n2Tree) {
         Space space = Space3D.getInstance();
-        Simulation sim = new Simulation(space, false, new PotentialMaster(space),
-                new int[] { 5, 4, 11, 6, 3, 3 }, new Default());
+        Simulation sim = new Simulation(space, false, new int[] { 5, 4, 11, 6, 3, 3 }, new Default());
         Species species0 = null;
         Species species1 = null;
         Species species2 = null;
@@ -127,8 +125,7 @@ public class UnitTestUtil {
     public static Simulation makeMultitypeSpeciesTree(int[] nMolecules,
             int[][] nAtoms) {
         Space space = Space3D.getInstance();
-        Simulation sim = new Simulation(space, false, new PotentialMaster(space),
-                new int[] { 9, 11, 6, 3, 3 }, new Default());
+        Simulation sim = new Simulation(space, false, new int[] { 9, 11, 6, 3, 3 }, new Default());
         //        new SpeciesSpheres(sim);
         Phase phase = new Phase(sim);
         sim.addPhase(phase);

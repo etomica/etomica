@@ -60,11 +60,11 @@ public abstract class ColorScheme implements java.io.Serializable {
       final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(0,5);
       final ColorSchemeColliders ccld =
         new ColorSchemeColliders((IntegratorHard)sim.getIntegratorList().getFirst());
-      final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim,sim.phase);
+      final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim, (PotentialMasterList)sim.potentialMaster, sim.phase);
       nghb.setAtom(sim.phase.getSpeciesMaster().getLeafList().getAtom(0));
       final ColorSchemeRandom rand = new ColorSchemeRandom(sim.phase, sim.getRandom());
-      final ColorSchemeCell cell = new ColorSchemeCell(sim,sim.phase);
-      cell.setLattice(((PotentialMasterList)sim.getPotentialMaster()).getNbrCellManager(sim.phase).getLattice());
+      final ColorSchemeCell cell = new ColorSchemeCell((PotentialMasterList)sim.potentialMaster,sim.getRandom(),sim.phase);
+      cell.setLattice(((PotentialMasterList)sim.potentialMaster).getNbrCellManager(sim.phase).getLattice());
       
       Action act = new Action() {
         public void actionPerformed() {

@@ -41,10 +41,11 @@ public class TestLJMC3D extends Simulation {
     }
 
     public TestLJMC3D(int numAtoms) {
-        super(Space3D.getInstance(), false, new PotentialMasterCell(Space3D.getInstance()));
+        super(Space3D.getInstance(), false);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(space);
         defaults.makeLJDefaults();
-	    integrator = new IntegratorMC(this);
-	    mcMoveAtom = new MCMoveAtom(this);
+	    integrator = new IntegratorMC(this, potentialMaster);
+	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
         mcMoveAtom.setStepSize(0.2*defaults.atomSize);
         ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -64,15 +65,15 @@ public class TestLJMC3D extends Simulation {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
         }
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
-        ((PotentialMasterCell)potentialMaster).setCellRange(3);
-        ((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
+        potentialMaster.setCellRange(3);
+        potentialMaster.setRange(potentialTruncated.getRange());
         potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
-        integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
+        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(phase).makeMCMoveListener());
         
         ConfigurationFile config = new ConfigurationFile("LJMC3D"+Integer.toString(numAtoms));
         config.initializeCoordinates(phase);
         integrator.setPhase(phase);
-        ((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
+        potentialMaster.getNbrCellManager(phase).assignCellAll();
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
 //        integrator.addListener(writeConfig);
     }

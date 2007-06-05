@@ -10,6 +10,7 @@ import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
@@ -34,8 +35,9 @@ public class HsMc2d extends Simulation {
 
     public HsMc2d() {
         super(Space2D.getInstance());
-	    integrator = new IntegratorMC(this);
-	    mcMoveAtom = new MCMoveAtom(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
+	    integrator = new IntegratorMC(this, potentialMaster);
+	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this, integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);

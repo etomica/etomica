@@ -7,7 +7,6 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 import etomica.util.IRandom;
 
@@ -21,10 +20,6 @@ import etomica.util.IRandom;
 
 public class IntegratorManagerMC extends Integrator {
 
-    public IntegratorManagerMC(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getRandom());
-    }
-    
     public IntegratorManagerMC(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;

@@ -6,7 +6,6 @@ import etomica.action.activity.Controller;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.util.Arrays;
@@ -35,25 +34,23 @@ public class Simulation implements java.io.Serializable  {
      * setting of isDynamic = true.
      */
     public Simulation(Space space) {
-        this(space, true, new PotentialMaster(space));
+        this(space, true);
     }
     
-    public Simulation(Space space, boolean isDynamic, PotentialMaster potentialMaster) {
-        this(space, isDynamic, potentialMaster, Default.BIT_LENGTH, new Default());
+    public Simulation(Space space, boolean isDynamic) {
+        this(space, isDynamic, Default.BIT_LENGTH, new Default());
     }
     
-    public Simulation(Space space, boolean isDynamic, PotentialMaster potentialMaster, int[] bitLength, Default defaults) {
+    public Simulation(Space space, boolean isDynamic, int[] bitLength, Default defaults) {
         this.space = space;
         this.dynamic = isDynamic;
         this.defaults = defaults;
         phaseList = new Phase[0];
         setName(NameMaker.makeName(this.getClass()));
-        this.potentialMaster = potentialMaster;
         setController(new Controller());
         random = new RandomNumberGenerator();
         eventManager = new SimulationEventManager();
         speciesManager = new SpeciesManager(this, bitLength);
-        potentialMaster.setSimulation(this);
     }
 
     public final void addPhase(Phase newPhase) {
@@ -242,13 +239,6 @@ public class Simulation implements java.io.Serializable  {
     }
     
     /**
-     * @return the potentialMaster
-     */
-    public final PotentialMaster getPotentialMaster() {
-        return potentialMaster;
-    }
-
-    /**
      * @return the space
      */
     public final Space getSpace() {
@@ -268,7 +258,6 @@ public class Simulation implements java.io.Serializable  {
     }
 
     private static final long serialVersionUID = 3L;
-    protected final PotentialMaster potentialMaster;
     protected final Space space;
     protected final SimulationEventManager eventManager;
     private Phase[] phaseList;

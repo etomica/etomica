@@ -16,6 +16,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.modifier.Modifier;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
@@ -57,10 +58,9 @@ public class SWMD3D extends Simulation {
 	
   public SWMD3D() {
 	super(Space3D.getInstance());
-//	defaults.makeLJDefaults();
-    
-    integrator = new IntegratorHard(this);
-//  integrator.addIntervalListener(((PotentialMasterNbr)potentialMaster).getNeighborManager());
+	PotentialMaster potentialMaster = new PotentialMaster(space);
+	
+    integrator = new IntegratorHard(this, potentialMaster);
     integrator.setTimeStep(0.01);
     integrator.setIsothermal(true);
     integrator.setTemperature(300);
@@ -101,8 +101,7 @@ public class SWMD3D extends Simulation {
 //	lambdaControl.setNMajor(5);
 
 
-//	mediator().go();
-    this.potentialMaster.addPotential(potential,new Species[]{species,species});
+    potentialMaster.addPotential(potential,new Species[]{species,species});
 
     integrator.setPhase(phase);
     integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));

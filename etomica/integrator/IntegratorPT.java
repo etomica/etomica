@@ -15,7 +15,6 @@ import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.units.Null;
 import etomica.util.IRandom;
 
@@ -38,10 +37,6 @@ import etomica.util.IRandom;
  * @author David Kofke
  */
 public class IntegratorPT extends IntegratorManagerMC {
-    
-    public IntegratorPT(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getRandom());
-    }
     
     public IntegratorPT(PotentialMaster potentialMaster, IRandom random) {
         this(potentialMaster, random, MCMoveSwapConfiguration.FACTORY);

@@ -39,8 +39,8 @@ public final class IntegratorHardField extends IntegratorHard {
 	    }
     };
 
-    public IntegratorHardField(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
+    public IntegratorHardField(Simulation sim, PotentialMaster potentialMaster) {
+        this(potentialMaster,sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
     }
     
     public IntegratorHardField(PotentialMaster potentialMaster, IRandom random,

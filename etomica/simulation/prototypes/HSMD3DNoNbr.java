@@ -40,14 +40,15 @@ public class HSMD3DNoNbr extends Simulation {
         this(Space3D.getInstance(), defaults);
     }
     private HSMD3DNoNbr(Space space, Default defaults) {
-        super(space, true, new PotentialMaster(space), Default.BIT_LENGTH, defaults);
+        super(space, true, Default.BIT_LENGTH, defaults);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
 
         int numAtoms = 256;
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         defaults.boxSize = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
 
-        integrator = new IntegratorHard(this);
+        integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
@@ -58,7 +59,7 @@ public class HSMD3DNoNbr extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(this);
-        this.potentialMaster.addPotential(potential,new Species[]{species,species});
+        potentialMaster.addPotential(potential,new Species[]{species,species});
 
         phase = new Phase(this);
         addPhase(phase);

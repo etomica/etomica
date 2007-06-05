@@ -36,7 +36,8 @@ public class ChainHSMD3D extends Simulation {
         this(Space3D.getInstance());
     }
     private ChainHSMD3D(Space space) {
-        super(space, true, new PotentialMasterList(space));
+        super(space, true);
+        PotentialMasterList potentialMaster = new PotentialMasterList(space);
         defaults.ignoreOverlap = true;
         int numAtoms = 704;
         int chainLength = 4;
@@ -44,9 +45,9 @@ public class ChainHSMD3D extends Simulation {
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         defaults.boxSize = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
-        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
+        potentialMaster.setRange(neighborRangeFac*defaults.atomSize);
 
-        integrator = new IntegratorHard(this);
+        integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
         
@@ -60,6 +61,7 @@ public class ChainHSMD3D extends Simulation {
         model.setBondingPotential(new P2HardBond(this));
         
         species = (SpeciesSpheres)model.makeSpecies(this);
+        potentialMaster.addModel(model);
         ((ConformationLinear)model.getConformation()).setBondLength(defaults.atomSize);
         ((ConformationLinear)model.getConformation()).setAngle(1,0.5);
         
@@ -68,7 +70,7 @@ public class ChainHSMD3D extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc());
         species.getAgent(phase).setNMolecules(numAtoms);
         config.initializeCoordinates(phase);
-        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
+        integrator.addListener(potentialMaster.getNeighborManager(phase));
 
         PhaseImposePbc pbc = new PhaseImposePbc(phase);
         integrator.addListener(new IntervalActionAdapter(pbc));

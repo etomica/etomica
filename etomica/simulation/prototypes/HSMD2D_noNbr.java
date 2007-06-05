@@ -21,6 +21,7 @@ import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
@@ -50,8 +51,8 @@ public class HSMD2D_noNbr extends Simulation {
     
     public HSMD2D_noNbr(Space2D space) {
         super(space);
-
-        integrator = new IntegratorHard(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
+        integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(this,integrator);
         getController().addAction(activityIntegrate);

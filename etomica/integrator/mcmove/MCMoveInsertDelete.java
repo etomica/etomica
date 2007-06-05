@@ -12,7 +12,6 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.util.IRandom;
 
@@ -43,10 +42,6 @@ public class MCMoveInsertDelete extends MCMovePhase {
     protected AtomSet moleculeList;
     protected IRandom random;
 
-    public MCMoveInsertDelete(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getRandom());
-    }
-    
     public MCMoveInsertDelete(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         energyMeter = new MeterPotentialEnergy(potentialMaster);

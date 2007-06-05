@@ -10,6 +10,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
@@ -21,6 +22,7 @@ import etomica.species.SpeciesSpheresMono;
  
 public class LjMd3D extends Simulation {
     
+    private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
     public Phase phase;
@@ -38,8 +40,9 @@ public class LjMd3D extends Simulation {
     
     public LjMd3D() {
         super(Space3D.getInstance());
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.makeLJDefaults();
-        integrator = new IntegratorVelocityVerlet(this);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
         activityIntegrate.setSleepPeriod(2);
@@ -50,7 +53,7 @@ public class LjMd3D extends Simulation {
         phase = new Phase(this);
         addPhase(phase);
         potential = new P2LennardJones(this);
-        this.potentialMaster.addPotential(potential,new Species[]{species,species});
+        potentialMaster.addPotential(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities

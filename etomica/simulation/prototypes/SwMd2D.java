@@ -9,6 +9,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -34,9 +35,10 @@ public class SwMd2D extends Simulation {
     }
     public SwMd2D(Space space) {
         super(space);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.makeLJDefaults();
         defaults.atomSize = 0.8;
-        integrator = new IntegratorHard(this);
+        integrator = new IntegratorHard(this, potentialMaster);
         integrator.setTimeStep(0.01);
         integrator.setEventInterval(5);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
@@ -51,10 +53,8 @@ public class SwMd2D extends Simulation {
         phase.getAgent(species).setNMolecules(50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         potential = new P2SquareWell(this);
-        this.potentialMaster.addPotential(potential,new Species[]{species,species});
+        potentialMaster.addPotential(potential,new Species[]{species,species});
         
-//      elementCoordinator.go();
-        //explicit implementation of elementCoordinator activities
         integrator.setPhase(phase);
         integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
     } 

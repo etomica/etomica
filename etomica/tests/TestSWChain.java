@@ -46,7 +46,8 @@ public class TestSWChain extends Simulation {
     }
     
     public TestSWChain(int numMolecules) {
-        super(Space3D.getInstance(), true, new PotentialMasterList(Space3D.getInstance()));
+        super(Space3D.getInstance(), true);
+        PotentialMasterList potentialMaster = new PotentialMasterList(space);
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
         double sqwLambda = 1.5;
@@ -59,14 +60,14 @@ public class TestSWChain extends Simulation {
 
         // makes eta = 0.35
         defaults.boxSize = 14.4094*Math.pow((numAtoms/2000.0),1.0/3.0);
-        integrator = new IntegratorHard(this);
+        integrator = new IntegratorHard(this, potentialMaster);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
         ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
         getController().addAction(actionIntegrate);
         actionIntegrate.setMaxSteps(nSteps);
-        ((PotentialMasterList)potentialMaster).setCellRange(2);
-        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sqwLambda*defaults.atomSize);
+        potentialMaster.setCellRange(2);
+        potentialMaster.setRange(neighborRangeFac*sqwLambda*defaults.atomSize);
 
         SpeciesSpheres species = new SpeciesSpheres(this,chainLength);
         getSpeciesManager().addSpecies(species);
@@ -84,7 +85,7 @@ public class TestSWChain extends Simulation {
 
         AtomTypeSphere sphereType = (AtomTypeSphere)((AtomFactoryHomo)species.moleculeFactory()).getChildFactory().getType();
         potentialMaster.addPotential(potential,new AtomType[]{sphereType,sphereType});
-        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(potential);
+        CriterionInterMolecular sqwCriterion = (CriterionInterMolecular)potentialMaster.getCriterion(potential);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
         nonBondedCriterion.setBonded(false);
         sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
@@ -92,7 +93,7 @@ public class TestSWChain extends Simulation {
         phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numMolecules);
-        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+        NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
         integrator.addListener(nbrManager);
 
         integrator.setPhase(phase);

@@ -26,7 +26,6 @@ public abstract class Model implements java.io.Serializable {
             species = makeSpeciesInternal(sim);
             sim.getSpeciesManager().addSpecies(species);
             initPotentials(sim);
-            sim.getPotentialMaster().addModel(this);
         }
         return species;
     }
@@ -38,11 +37,11 @@ public abstract class Model implements java.io.Serializable {
     protected abstract Species makeSpeciesInternal(Simulation sim);
 	
     /**
-     * Internal method to be implemented by subclasses the intramolecular
-     * potentials associated with this model.  Potential objects might be
-     * created earlier, but this method gives the subclass an opportunity to
-     * create the potentials after the species.  This method will only be
-     * called after the species has been created.
+     * Internal method to be implemented by subclasses to initialize the
+     * intramolecular potentials associated with this model.  Potential
+     * objects might be created earlier, but this method gives the subclass
+     * an opportunity to create the potentials after the species.  This method
+     * will only be called after the species has been created.
      */
     protected abstract void initPotentials(Simulation sim);
     

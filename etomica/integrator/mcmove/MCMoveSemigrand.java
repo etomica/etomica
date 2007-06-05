@@ -12,7 +12,6 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.util.IRandom;
 
@@ -47,10 +46,6 @@ public class MCMoveSemigrand extends MCMovePhase {
     private transient SpeciesAgent deleteAgent, insertAgent;
     private transient int iInsert, iDelete;
 
-    public MCMoveSemigrand(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getRandom());
-    }
-    
     public MCMoveSemigrand(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         this.random = random;

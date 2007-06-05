@@ -20,8 +20,8 @@ public class IntegratorAnalytic extends IntegratorMD {
     private static final long serialVersionUID = 1L;
     private AtomAction action;
     
-    public IntegratorAnalytic(Simulation sim) {
-        this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().timeStep);
+    public IntegratorAnalytic(Simulation sim, PotentialMaster potentialMaster) {
+        this(potentialMaster,sim.getRandom(),sim.getDefaults().timeStep);
     }
     
     public IntegratorAnalytic(PotentialMaster potentialMaster, IRandom random,
