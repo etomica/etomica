@@ -3,20 +3,19 @@
  */
 package etomica.models.hexane;
 
-import etomica.action.PhaseInflateDeformable;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.data.AccumulatorAverage;
-import etomica.data.DataPump;
-import etomica.data.meter.MeterPressureByVolumeChange;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
+import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition;
+import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -55,11 +54,11 @@ public class TestHexane extends Simulation {
 //    public MCMoveVolume moveVolume;
 //    public MCMoveCrankshaft crank; 
 //    public MCMoveReptate snake;
-//    public MCMoveMolecule moveMolecule;
+    public MCMoveMolecule moveMolecule;
     public CBMCGrowSolidHexane growMolecule;
-//    public MCMoveRotateMolecule3D rot;
-//    public MCMoveMoleculeCoupled coupledMove;
-        public MCMoveCombinedCbmcTranslation cctMove;
+    public MCMoveRotateMolecule3D rot;
+    public MCMoveMoleculeCoupled coupledMove;
+    public MCMoveCombinedCbmcTranslation cctMove;
       
 //    public PairIndexerMolecule pri;
 
@@ -98,12 +97,12 @@ public class TestHexane extends Simulation {
         integrator = new IntegratorMC(getPotentialMaster(), getRandom(),
                 defaults.temperature);
         
-//        moveMolecule = new MCMoveMolecule(getPotentialMaster(), getRandom(),
-//                0.1, 1, false);
-//        // 0.025 for translate, 0.042 for rotate for rho=0.3737735
-//        moveMolecule.setStepSize(0.024);        
-//        integrator.getMoveManager().addMCMove(moveMolecule);
-//        ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
+        moveMolecule = new MCMoveMolecule(getPotentialMaster(), getRandom(),
+                0.1, 1, false);
+        // 0.025 for translate, 0.042 for rotate for rho=0.3737735
+        moveMolecule.setStepSize(0.024);        
+        integrator.getMoveManager().addMCMove(moveMolecule);
+        ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
         
         // moveVolume = new MCMoveVolume(potentialMaster, phase.space(),
         // sim.getDefaults().pressure);
@@ -116,19 +115,19 @@ public class TestHexane extends Simulation {
         // snake.setPhase(phase);
         // integrator.getMoveManager().addMCMove(snake);
         
-//        rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
-//        rot.setPhase(phase);
-//        rot.setStepSize(0.042);
-//        integrator.getMoveManager().addMCMove(rot);
-//        ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
+        rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
+        rot.setPhase(phase);
+        rot.setStepSize(0.042);
+        integrator.getMoveManager().addMCMove(rot);
+        ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
         
         growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(),
                 getRandom(), integrator, phase, species, 20);
         growMolecule.setPhase(phase);
-//        integrator.getMoveManager().addMCMove(growMolecule);
+        integrator.getMoveManager().addMCMove(growMolecule);
 
-//        coupledMove = new MCMoveMoleculeCoupled(getPotentialMaster(), getRandom());
-//        integrator.getMoveManager().addMCMove(coupledMove);
+        coupledMove = new MCMoveMoleculeCoupled(getPotentialMaster(), getRandom());
+        integrator.getMoveManager().addMCMove(coupledMove);
         
         cctMove = new MCMoveCombinedCbmcTranslation(getPotentialMaster(), growMolecule, getRandom());
         integrator.getMoveManager().addMCMove(cctMove);
@@ -167,8 +166,8 @@ public class TestHexane extends Simulation {
         getPotentialMaster().addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
         
-//        coupledMove.setPotential(potentialMaster.getPotential(new AtomType[] {
-//                species.getMoleculeType(), species.getMoleculeType() }  ));
+        coupledMove.setPotential(potentialMaster.getPotential(new AtomType[] {
+                species.getMoleculeType(), species.getMoleculeType() }  ));
 
         
         
@@ -305,17 +304,17 @@ public class TestHexane extends Simulation {
 //            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
 //            meterNormalMode.setPhase(sim.phase);
 
-            PhaseInflateDeformable pid = new PhaseInflateDeformable(sim.getSpace());
-//            PhaseInflate pid = new PhaseInflate(sim.phase);
-            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
-            meterPressure.setIntegrator(sim.integrator);
-            AccumulatorAverage pressureAccumulator = new AccumulatorAverage(sim);
-            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
-            pressureAccumulator.setBlockSize(50);
-            new IntervalActionAdapter(pressureManager, sim.integrator);
+//            PhaseInflateDeformable pid = new PhaseInflateDeformable(sim.getSpace());
+////            PhaseInflate pid = new PhaseInflate(sim.phase);
+//            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
+//            meterPressure.setIntegrator(sim.integrator);
+//            AccumulatorAverage pressureAccumulator = new AccumulatorAverage(sim);
+//            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
+//            pressureAccumulator.setBlockSize(50);
+//            new IntervalActionAdapter(pressureManager, sim.integrator);
           
             
-            long nSteps = 10;
+            long nSteps = 100;
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
             System.out.println("equilibration finished");
