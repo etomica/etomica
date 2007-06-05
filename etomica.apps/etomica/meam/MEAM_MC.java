@@ -24,6 +24,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.phase.Phase;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -41,6 +42,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class MEAM_MC extends Simulation {
 	
     private static final long serialVersionUID = 1L;
+    public final PotentialMaster potentialMaster;
 	public IntegratorMC integrator;
 	public SpeciesSpheresMono sn;
     public SpeciesSpheresMono ag;
@@ -56,7 +58,7 @@ public class MEAM_MC extends Simulation {
 
 	public static void main(String[] args) {
 	    MEAM_MC sim = new MEAM_MC();
-	    MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
+	    MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
 	    energyMeter.setPhase(sim.phase);
 	    AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
 	    DisplayPlot plot = new DisplayPlot();
@@ -92,7 +94,8 @@ public class MEAM_MC extends Simulation {
 	    
 	public MEAM_MC() {
 	    super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
-	    integrator = new IntegratorMC(this);
+        potentialMaster = new PotentialMaster(space);
+	    integrator = new IntegratorMC(this, potentialMaster);
 	    integrator.getMoveManager().addMCMove(new MCMoveAtom(potentialMaster, getRandom(), 0.1, 0.2, false));
 	    integrator.setTemperature(Kelvin.UNIT.toSim(298));
 	    //integrator.setThermostatInterval(10);

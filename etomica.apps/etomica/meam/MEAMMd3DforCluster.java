@@ -43,7 +43,7 @@ public class MEAMMd3DforCluster {
     	sim.activityIntegrate.setMaxSteps(3000);
     	sim.getController().actionPerformed();
     	
-    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	
     	energyMeter.setPhase(sim.phase);

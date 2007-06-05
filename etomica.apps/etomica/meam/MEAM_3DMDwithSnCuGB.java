@@ -64,6 +64,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class MEAM_3DMDwithSnCuGB extends Simulation {
     
     private static final long serialVersionUID = 1L;
+    public final PotentialMasterList potentialMaster;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono snFixedA;
     public SpeciesSpheresMono snA;
@@ -85,7 +86,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
     public static void main(String[] args) {
     	MEAM_3DMDwithSnCuGB sim = new MEAM_3DMDwithSnCuGB();
     	
-    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	
     	energyMeter.setPhase(sim.phase);
@@ -168,8 +169,9 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
     }
     
     public MEAM_3DMDwithSnCuGB() {
-        super(Space3D.getInstance(), true, new PotentialMasterList(Space3D.getInstance())); //INSTANCE); kmb change 8/3/05
-        integrator = new IntegratorVelocityVerlet(this);
+        super(Space3D.getInstance(), true);//INSTANCE); kmb change 8/3/05
+        potentialMaster = new PotentialMasterList(space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
@@ -284,10 +286,10 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 		potentialN.setParametersIMC(cuB, ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(cuFixedB, ParameterSetMEAM.Cu3Sn);
 		potentialN.setParametersIMC(agB, ParameterSetMEAM.Ag3Sn);
-        this.getPotentialMaster().addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, cuFixedB, snB, agB, cuB});    
-        ((PotentialMasterList)getPotentialMaster()).setRange(potentialN.getRange()*1.1);
-        ((PotentialMasterList)getPotentialMaster()).setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
-        integrator.addListener(((PotentialMasterList)getPotentialMaster()).getNeighborManager(phase));
+        potentialMaster.addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, cuFixedB, snB, agB, cuB});    
+        potentialMaster.setRange(potentialN.getRange()*1.1);
+        potentialMaster.setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
+        integrator.addListener(potentialMaster.getNeighborManager(phase));
         
         integrator.setPhase(phase);
 		
