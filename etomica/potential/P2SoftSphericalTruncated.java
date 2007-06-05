@@ -67,7 +67,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
     /**
      * Mutator method for the radial cutoff distance.
      */
-    public final void setTruncationRadius(double rCut) {
+    public void setTruncationRadius(double rCut) {
         rCutoff = rCut;
         r2Cutoff = rCut*rCut;
     }
