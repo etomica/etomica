@@ -7,7 +7,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
 import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space3d.Vector3D;
+import etomica.space3d.IVector3D;
 
 /**
  * Class describing a plane through a lattice.  Holds a Plane
@@ -19,28 +19,28 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     private static final long serialVersionUID = 1L;
     private final Plane plane;
     private Primitive primitive;
-    private Vector3D normal, delta;
+    private IVector3D normal, delta;
     private Space space;
     private int[] millerIndices;
-    private Vector3D origin;
+    private IVector origin;
     
     public LatticePlane(Primitive primitive, int[] h) {
         this.primitive = primitive;
         space = primitive.getSpace();
-        origin = (Vector3D)space.makeVector();
+        origin = space.makeVector();
         millerIndices = new int[space.D()];
         if(space.D() != 3) {
             throw new IllegalArgumentException("LatticePlane not defined for other than 3D space");
         }
-        plane = new Plane();
+        plane = new Plane(space);
         plane.epsilon = 1.0e-2;//tolerance for defining a point to be in the plane
-        normal = (Vector3D)space.makeVector();
-        delta = (Vector3D)space.makeVector();
+        normal = (IVector3D)space.makeVector();
+        delta = (IVector3D)space.makeVector();
         setMillerIndices(h);
     }
     
     public boolean accept(IAtom a) {
-        return !plane.isPositiveSide((Vector3D)((IAtomPositioned)a).getPosition());
+        return !plane.isPositiveSide(((IAtomPositioned)a).getPosition());
     }
 
     public void setTolerance(double tolerance) {
@@ -130,14 +130,14 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
      * plane toward which the normal vector points.  The direction
      * of the normal vector can be inverted using the invert method.
      */
-    public boolean isPositiveSide(Vector3D p) {
+    public boolean isPositiveSide(IVector p) {
         return plane.isPositiveSide(p);
     }
     
     /**
      * Returns true if the given point is inside the plane (within some small tolerance).
      */
-    public boolean inPlane(Vector3D p) {
+    public boolean inPlane(IVector p) {
         return plane.inPlane(p);
     }
     
@@ -148,7 +148,7 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
     /**
      * Sets the origin from which the position of the atom is measured.
      */
-    public void setOrigin(Vector3D origin) {
+    public void setOrigin(IVector origin) {
         this.origin.E(origin);
     }
     public IVector getOrigin() {return origin;}

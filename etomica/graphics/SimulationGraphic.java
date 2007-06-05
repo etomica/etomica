@@ -294,7 +294,7 @@ public class SimulationGraphic implements SimulationContainer {
         }
 //        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
         simGraphic.panel().setBackground(java.awt.Color.yellow);
-        Plane plane = new Plane();
+        Plane plane = new Plane(sim.getSpace());
         plane.setThreePoints(new Vector3D(1,1,1), new Vector3D(2,2,2), new Vector3D(4,5,1));
         
     }

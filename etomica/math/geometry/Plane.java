@@ -3,7 +3,9 @@
 package etomica.math.geometry;
 
 import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.IVector3D;
+import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 
 /**
@@ -23,6 +25,7 @@ public class Plane implements java.io.Serializable {
     private IVector3D[] inPlane; //work vectors used by inPlaneSquare method
     private IVector3D work0; //work vector used by inPlaneSquare method (no-x0 version)
     private IVector3D work1; //work vector used by inPlaneSquare method (no-x0 version)
+    private final Space space;
     
     /**
      * Tolerance used to judge if a given point is in the plane.
@@ -34,21 +37,22 @@ public class Plane implements java.io.Serializable {
     /**
      * Default constructor returns the y-z plane.
      */
-    public Plane() {
-        this(1.0, 0.0, 0.0, 0.0);
+    public Plane(Space space) {
+        this(space, 1.0, 0.0, 0.0, 0.0);
     }
     /**
      * Constructs a new Plane as a copy of the given one.
      */
     public Plane(Plane original) {
-        this(original.a, original.b, original.c, original.d);
+        this(original.space, original.a, original.b, original.c, original.d);
     }
     
     /**
      * Constructs a Plane satisfying the equation a x + b y + c z + d = 0
      */
-    public Plane(double a, double b, double c, double d) {
-        if(a == 0 && b == 0 && c == 0) throw new IllegalArgumentException("Arguments to Plane constructor do not define a plane"); 
+    public Plane(Space space, double a, double b, double c, double d) {
+        if(a == 0 && b == 0 && c == 0) throw new IllegalArgumentException("Arguments to Plane constructor do not define a plane");
+        this.space = space;
         this.a = a;
         this.b = b;
         this.c = c;
@@ -87,10 +91,10 @@ public class Plane implements java.io.Serializable {
     /**
      * Defines the plane by specifying three points that lie in it.
      */
-    public void setThreePoints(Vector3D p1, Vector3D p2, Vector3D p3) {
+    public void setThreePoints(IVector3D p1, IVector3D p2, IVector3D p3) {
         if(work0 == null) {
-            work0 = new Vector3D();
-            work1 = new Vector3D();
+            work0 = (IVector3D)space.makeVector();
+            work1 = (IVector3D)space.makeVector();
         }
         work0.Ev1Mv2(p2,p1);
         work1.Ev1Mv2(p3,p1);
@@ -272,14 +276,14 @@ public class Plane implements java.io.Serializable {
      * of the normal vector can be inverted using the invert
      * method.
      */
-    public boolean isPositiveSide(Vector3D p) {
+    public boolean isPositiveSide(IVector p) {
         return distanceTo(p) > epsilon;
     }
     
     /**
      * Returns true if the given point is within a distance epsilon of this plane.
      */
-    public boolean inPlane(Vector3D p) {
+    public boolean inPlane(IVector p) {
     	return Math.abs(distanceTo(p)) < epsilon;
     }
     
@@ -335,7 +339,7 @@ public class Plane implements java.io.Serializable {
     }
     
     public static void main(String[] args) {
-        Plane plane = new Plane(2.8, 7.5, -2.1, 293.8);
+        Plane plane = new Plane(Space3D.getInstance(), 2.8, 7.5, -2.1, 293.8);
     //    Plane plane = new Plane(5.0, 0.0, 0.0, 293.8);
         IVector[] p = plane.inPlaneVectors(null);
         IVector n = plane.getNormalVector(null);

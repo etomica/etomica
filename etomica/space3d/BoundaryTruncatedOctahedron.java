@@ -35,6 +35,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     }
     public BoundaryTruncatedOctahedron(Space space, double boxSize) {
         super(space, new TruncatedOctahedron(space));
+        plane = new Plane(space);
         isPeriodic = new boolean[space.D()];
         for (int i = 0; i < space.D(); i++)
             isPeriodic[i] = true;
@@ -68,7 +69,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
       return new IndexIteratorRectangularFiltered(vecs.length,vecs);
     }
     
-    private class IndexIteratorRectangularFiltered
+    private static class IndexIteratorRectangularFiltered
       implements IndexIteratorSizable {
       
       private IndexIteratorRectangular iis;
@@ -145,7 +146,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
       public void setSize(int[] size) {
         this.numLayers = (size[0]-1)/2; // assume each dimension is same size
         int[] newsize = new int[size.length];
-        for(int i=0; i<size.length; i++) { newsize[i] = (int)(size[i]*fudgeFactor)+1; }
+        for(int i=0; i<size.length; i++) { newsize[i] = (size[i]*fudgeFactor)+1; }
         iis.setSize(newsize);
       }
       
@@ -349,6 +350,6 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
     protected final boolean[] isPeriodic;
     protected final float[][] shift0 = new float[0][0];
     protected float[][] shift;
-    private final Plane plane = new Plane();
+    private final Plane plane;
     private final Vector3D normal = new Vector3D();
 }
