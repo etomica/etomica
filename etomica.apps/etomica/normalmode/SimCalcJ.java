@@ -9,7 +9,6 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -24,7 +23,7 @@ import etomica.species.SpeciesSpheresMono;
 public class SimCalcJ extends Simulation {
 
     public SimCalcJ(Space space, int numAtoms) {
-        super(space, true, new PotentialMaster(space));
+        super(space, true);
 
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;

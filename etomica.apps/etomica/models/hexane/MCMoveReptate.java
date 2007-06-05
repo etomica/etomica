@@ -18,8 +18,8 @@ import etomica.util.IRandom;
 
 public class MCMoveReptate extends MCMovePhaseStep {
     
-    public MCMoveReptate(Simulation sim){
-        this(sim.getPotentialMaster(), sim.getRandom(), sim.getDefaults().atomSize, 
+    public MCMoveReptate(Simulation sim, PotentialMaster potentialMaster){
+        this(potentialMaster, sim.getRandom(), sim.getDefaults().atomSize, 
                 sim.getDefaults().boxSize/2, sim.getDefaults().ignoreOverlap /*, con*/);
     }
     

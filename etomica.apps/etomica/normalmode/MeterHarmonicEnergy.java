@@ -6,7 +6,6 @@ import etomica.data.DataSourceScalar;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
@@ -103,7 +102,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         int numAtoms = 8;
         double L = 10;
         
-        Simulation sim = new Simulation(Space1D.getInstance(), true, new PotentialMaster(Space1D.getInstance()));
+        Simulation sim = new Simulation(Space1D.getInstance(), true);
 
         sim.getDefaults().makeLJDefaults();
         sim.getDefaults().atomSize = 1.0;

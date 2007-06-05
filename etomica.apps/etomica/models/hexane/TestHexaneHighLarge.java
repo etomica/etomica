@@ -56,7 +56,8 @@ public class TestHexaneHighLarge extends Simulation {
     private double density;
     
     public TestHexaneHighLarge(Space space, int numMolecules) {
-        super(space, false, new PotentialMaster(space));
+        super(space, false);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         primitive = new PrimitiveHexane(space);
@@ -85,22 +86,22 @@ public class TestHexaneHighLarge extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numMolecules);
 //            config.initializeCoordinates(phase);
-        integrator = new IntegratorMC(getPotentialMaster(), getRandom(),
+        integrator = new IntegratorMC(potentialMaster, getRandom(),
                 defaults.temperature);
         
-        rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
+        rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom());
         rot.setPhase(phase);
         rot.setStepSize(0.042);
         integrator.getMoveManager().addMCMove(rot);
         ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
         
-        coupledMove = new MCMoveMoleculeCoupled(getPotentialMaster(), getRandom());
+        coupledMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(coupledMove);
         
-        growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(),
+        growMolecule = new CBMCGrowSolidHexane(potentialMaster,
                 getRandom(), integrator, phase, species, 20);
         growMolecule.setPhase(phase);
-        cctMove = new MCMoveCombinedCbmcTranslation(getPotentialMaster(), growMolecule, getRandom());
+        cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, growMolecule, getRandom());
         integrator.getMoveManager().addMCMove(cctMove);
         
         // nan we're going to need some stuff in there to set the step sizes and
@@ -134,7 +135,7 @@ public class TestHexaneHighLarge extends Simulation {
                 .moleculeFactory()).getChildFactory().getType();
 
         //Add the Potential to the PotentialMaster
-        getPotentialMaster().addPotential(potential, new AtomType[] { sphereType,
+        potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
         
         coupledMove.setPotential(potentialMaster.getPotential(new AtomType[] {

@@ -50,8 +50,9 @@ import etomica.virial.overlap.IntegratorOverlap;
 public class SimOverlapLJ extends Simulation {
 
     public SimOverlapLJ(Space space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
-        super(space, true, new PotentialMaster(space));
+        super(space, true);
 
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         integrators = new IntegratorPhase[2];

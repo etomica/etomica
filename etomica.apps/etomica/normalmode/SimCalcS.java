@@ -31,7 +31,8 @@ import etomica.species.SpeciesSpheresMono;
 public class SimCalcS extends Simulation {
 
     public SimCalcS(Space space, int numAtoms, double density) {
-        super(space, true, new PotentialMaster(space));
+        super(space, true);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
 
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;

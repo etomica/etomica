@@ -43,9 +43,9 @@ import etomica.species.SpeciesSpheresMono;
 public class SimTarget extends Simulation {
 
     public SimTarget(Space space, int numAtoms, double density) {
-        super(space, true, (space.D() == 1 ? new PotentialMasterList(space) : new PotentialMaster(space)));
+        super(space, true);
 
-        
+        PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(space) : new PotentialMaster(space));
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
 
@@ -56,7 +56,7 @@ public class SimTarget extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 
-        integrator = new IntegratorHard(this);
+        integrator = new IntegratorHard(this, potentialMaster);
 
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(this,

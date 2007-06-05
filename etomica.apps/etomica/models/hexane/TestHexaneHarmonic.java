@@ -66,7 +66,8 @@ public class TestHexaneHarmonic extends Simulation {
     public TestHexaneHarmonic(Space space, int numMolecules) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
-        super(space, false, new PotentialMaster(space));
+        super(space, false);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         primitive = new PrimitiveHexane(space);
@@ -104,7 +105,7 @@ public class TestHexaneHarmonic extends Simulation {
 //         snake = new MCMoveReptate(this);
 //         snake.setPhase(phase);
          
-         rot = new MCMoveRotateMolecule3D(getPotentialMaster(), getRandom());
+         rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom());
          rot.setPhase(phase);
          
          // 0.025 for translate, 0.042 for rotate for rho=0.3737735

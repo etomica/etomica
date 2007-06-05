@@ -40,7 +40,8 @@ public class TestHexaneCBMCOnly extends Simulation {
     public TestHexaneCBMCOnly(Space space, int numMolecules) {
         // super(space, false, new PotentialMasterNbr(space, 12.0));
         // super(space, true, new PotentialMasterList(space, 12.0));
-        super(space, false, new PotentialMaster(space));
+        super(space, false);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         PrimitiveHexane primitive = new PrimitiveHexane(space);
@@ -73,10 +74,10 @@ public class TestHexaneCBMCOnly extends Simulation {
         phase.getAgent(species).setNMolecules(numMolecules);
         // config.initializeCoordinates(phase);
 
-        integrator = new IntegratorMC(getPotentialMaster(), getRandom(),
+        integrator = new IntegratorMC(potentialMaster, getRandom(),
                 defaults.temperature);
 
-        growMolecule = new CBMCGrowSolidHexane(getPotentialMaster(),
+        growMolecule = new CBMCGrowSolidHexane(potentialMaster,
                 getRandom(), integrator, phase, species, 20);
         growMolecule.setPhase(phase);
         integrator.getMoveManager().addMCMove(growMolecule);
@@ -112,7 +113,7 @@ public class TestHexaneCBMCOnly extends Simulation {
                 .moleculeFactory()).getChildFactory().getType();
 
         // Add the Potential to the PotentialMaster
-        getPotentialMaster().addPotential(potential,
+        potentialMaster.addPotential(potential,
                 new AtomType[] { sphereType, sphereType });
 
         // //INTRAMOLECULAR POTENTIAL STUFF
