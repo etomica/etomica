@@ -141,20 +141,8 @@ public class LatticePlane implements AtomFilter, java.io.Serializable {
         return plane.inPlane(p);
     }
     
-    /**
-     * Returns a copy of the Plane that defines the orientation of this LatticePlane.
-     * Only a copy is returned, so manipulation of the returned Plane does not 
-     * affect this LatticePlane, and subsequent manipulations of this are not reflected
-     * in the copy unless this method is invoked again.
-     * Copy is returned using the Plane given in the argument; if that is null, a new
-     * Plane is instantiated and returned as the copy.
-     */
-    public Plane planeCopy(Plane copy) {
-        if(copy == null) {
-            return new Plane(plane);
-        }
-        copy.E(plane); 
-        return copy;
+    public Plane getPlane() {
+        return plane;
     }
     
     /**

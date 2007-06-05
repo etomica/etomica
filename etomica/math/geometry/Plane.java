@@ -56,6 +56,22 @@ public class Plane implements java.io.Serializable {
         normalize();
     }
     
+    public double getA() {
+        return a;
+    }
+    
+    public double getB() {
+        return b;
+    }
+    
+    public double getC() {
+        return c;
+    }
+    
+    public double getD() {
+        return d;
+    }
+    
     /**
      * Defines the plane via a normal vector (1st argument) and
      * a point (2nd argument).
@@ -210,7 +226,7 @@ public class Plane implements java.io.Serializable {
      * Uses second vector to hold result that is returned; if second vector is 
      * null, creates a new Vector instance.
      */
-    public IVector3D nearestPoint(Vector3D x0, Vector3D point) {
+    public IVector3D nearestPoint(IVector x0, IVector3D point) {
         if(point == null) point = new Vector3D();
         double factor = distanceTo(x0);
         point.E(x0.x(0)-factor*a, x0.x(1)-factor*b, x0.x(2)-factor*c);
@@ -220,14 +236,14 @@ public class Plane implements java.io.Serializable {
     /**
      * Perpendicular distance from the plane to the given point.
      */
-    public double distanceTo(Vector3D x0) {
+    public double distanceTo(IVector x0) {
         return a*x0.x(0) + b*x0.x(1) + c*x0.x(2) + d;
     }
     
     /**
      * Shifts the plane at fixed orientation so that it contains the given point.
      */
-    public void moveTo(Vector3D r) {
+    public void moveTo(IVector r) {
         d = -(a*r.x(0) + b*r.x(1) + c*r.x(2));
     }        
     
@@ -285,7 +301,7 @@ public class Plane implements java.io.Serializable {
      * otherwise makes a new array and returns it.  Square is aligned so that its vertices
      * fall on the lines defined by the inPlaneVectors result.
      */
-    public IVector3D[] inPlaneSquare(IVector x0, double d, IVector3D[] s) {
+    public IVector3D[] inPlaneSquare(IVector x0, double size, IVector3D[] s) {
         if(s == null || s.length != 4) s = new IVector3D[] {new Vector3D(), new Vector3D(), new Vector3D(), new Vector3D()};
         inPlane = inPlaneVectors(inPlane);
         IVector p1 = inPlane[0];
@@ -293,7 +309,7 @@ public class Plane implements java.io.Serializable {
       //  System.out.println("work: "+x0.toString());
       //  System.out.println("p1 : "+p1.toString());
       //  System.out.println("p2 : "+p2.toString());
-        double t = d/Math.sqrt(2.0);
+        double t = size/Math.sqrt(2.0);
         s[0].E(x0); s[0].PEa1Tv1(+t, p1);
         s[1].E(x0); s[1].PEa1Tv1(-t, p1);
         s[2].E(x0); s[2].PEa1Tv1(+t, p2);
@@ -304,8 +320,8 @@ public class Plane implements java.io.Serializable {
     /**
      * inPlaneSquare with square centered on point in plane closest to origin.
      */
-    public IVector3D[] inPlaneSquare(double d, IVector3D[] s) {
-        return inPlaneSquare(center(work0), d, s);
+    public IVector3D[] inPlaneSquare(double size, IVector3D[] s) {
+        return inPlaneSquare(center(work0), size, s);
     }
     
      

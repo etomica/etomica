@@ -15,14 +15,18 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.math.geometry.LineSegment;
+import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
 import etomica.space.IVector;
+import etomica.space3d.IVector3D;
+import etomica.util.Arrays;
 import g3dsys.control.G3DSys;
 import g3dsys.images.Ball;
 import g3dsys.images.Bond;
 import g3dsys.images.Figure;
 import g3dsys.images.Line;
+import g3dsys.images.Triangle;
 
 public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 		AgentSource, BondManager {
@@ -40,8 +44,13 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 	private boolean boundaryDisplayed = false;
 	private Color backgroundColor;
 	private Color boundaryFrameColor;
-	private Panel p = null;
+	private Panel panel = null;
 	private boolean initialOrient = false;
+    private Plane[] planes;
+    private Triangle[][] planeTriangles;
+    private IVector3D[] planeIntersections;
+    private IVector3D work, work2, work3;
+    private double[] planeAngles;
 
 	public DisplayPhaseCanvasG3DSys(DisplayPhase _phase) {
 		// old stuff
@@ -58,20 +67,26 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 		 */
 		// this.setVisible(false); // to be set visible later by
 		// SimulationGraphic
-		p = new Panel();
+		panel = new Panel();
 		this.setLayout(new java.awt.GridLayout());
-		p.setLayout(new java.awt.GridLayout());
-		p.setSize(800, 800);
-		this.add(p);
+		panel.setLayout(new java.awt.GridLayout());
+		panel.setSize(800, 800);
+		this.add(panel);
 		coords = new double[3];
-		gsys = new G3DSys(p);
+		gsys = new G3DSys(panel);
 		setBackgroundColor(Color.BLACK);
 		setBoundaryFrameColor(Color.WHITE);
 		// init AtomAgentManager, to sync G3DSys and Etomica models
 		// this automatically adds the atoms
 		aam = new AtomLeafAgentManager(this, displayPhase.getPhase(), false);
 
-		// gsys.refresh();
+		planes = new Plane[0];
+        planeTriangles = new Triangle[0][0];
+        planeIntersections = new IVector3D[0];
+        planeAngles = new double[0];
+        work = (IVector3D)displayPhase.getPhase().getSpace().makeVector();
+        work2 = (IVector3D)displayPhase.getPhase().getSpace().makeVector();
+        work3 = (IVector3D)displayPhase.getPhase().getSpace().makeVector();
 	}
 
 	/**
@@ -106,7 +121,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 	public void setBackgroundColor(Color color) {
 		backgroundColor = color;
 		gsys.setBGColor(color);
-		p.setBackground(color);
+		panel.setBackground(color);
 	}
 
 	public Color getBackgroundColor() {
@@ -207,6 +222,10 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 			ball.setZ((float) coords[2]);
 		}
 
+        for (int i=0; i<planes.length; i++) {
+            drawPlane(i);
+        }
+        
 		Boundary boundary = displayPhase.getPhase().getBoundary();
 		Polytope polytope = boundary.getShape();
 		if (polytope != oldPolytope) {
@@ -290,6 +309,148 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 		gsys.fastRefresh();
 	}
 
+    public void addPlane(Plane newPlane) {
+        planes = (Plane[])Arrays.addObject(planes, newPlane);
+        planeTriangles = (Triangle[][])Arrays.addObject(planeTriangles, new Triangle[0]);
+    }
+    
+    public void removePlane(Plane oldPlane) {
+        for (int i=0; i<planes.length; i++) {
+            if (planes[i] == oldPlane) {
+                for (int j=0; j<planeTriangles[i].length; j++) {
+                    gsys.removeFig(planeTriangles[i][j]);
+                }
+                planeTriangles = (Triangle[][])Arrays.removeObject(planeTriangles, planeTriangles[i]);
+                planes = (Plane[])Arrays.removeObject(planes, oldPlane);
+                return;
+            }
+        }
+        throw new RuntimeException("I don't know about that plane");
+    }
+        
+    public synchronized void drawPlane(int iPlane) {
+        Plane plane = planes[iPlane];
+        Boundary boundary = displayPhase.getPhase().getBoundary();
+        Polytope polytope = boundary.getShape();
+        LineSegment[] lines = polytope.getEdges();
+        int intersectionCount = 0;
+        for (int i = 0; i < lines.length; i++) {
+            IVector[] vertices = lines[i].getVertices();
+            work.Ev1Mv2(vertices[1], vertices[0]);
+            // this happens to do what we want
+            double alpha = -plane.distanceTo(vertices[0]) / 
+                            (plane.distanceTo(work) - plane.getD());
+            if (alpha >= 0 && alpha <= 1) {
+                IVector newIntersection;
+                if (planeIntersections.length == intersectionCount) {
+                    newIntersection = displayPhase.getPhase().getSpace().makeVector();
+                    planeIntersections = (IVector3D[])Arrays.addObject(planeIntersections, newIntersection);
+                }
+                else {
+                    newIntersection = planeIntersections[intersectionCount];
+                }
+                intersectionCount++;
+                newIntersection.E(vertices[0]);
+                newIntersection.PEa1Tv1(alpha, work);
+            }
+        }
+        if (intersectionCount < 3) {
+            for (int i=0; i<planeTriangles[iPlane].length; i++) {
+                gsys.removeFig(planeTriangles[iPlane][i]);
+            }
+            planeTriangles[iPlane] = new Triangle[0];
+            return;
+        }
+        
+        //find the center of the polygon
+        work.E(0);
+        for (int i=0; i<intersectionCount; i++) {
+            work.PE(planeIntersections[i]);
+        }
+        work.TE(1.0/intersectionCount);
+        
+        // convert the vertices to be vectors from the center
+        // we'll switch back later
+        for (int i=0; i<intersectionCount; i++) {
+            planeIntersections[i].ME(work);
+        }
+
+        if (planeAngles.length < intersectionCount-1) {
+            planeAngles = new double[intersectionCount-1];
+        }
+        work2.E(planeIntersections[0]);
+        work2.XE(planeIntersections[1]);
+        for (int i=1; i<intersectionCount; i++) {
+            // If you understood this without reading this comment, I'll be
+            // impressed.  The purpose here is to put the array of
+            // intersections in order such that they form a polygon and lines
+            // drawn between consecutive points don't intersect.  So we
+            // calculate the angle between the first polygon point (which is
+            // arbitrary), the center and each other point.  And we sort the
+            // points by that angle.  We check the cross product so we can
+            // distinguish 30 degrees from 330 degrees.
+            double dot = planeIntersections[0].dot(planeIntersections[i]);
+            double angle = Math.acos(dot / Math.sqrt(planeIntersections[0].squared() * planeIntersections[i].squared()));
+            work3.E(planeIntersections[0]);
+            work3.XE(planeIntersections[i]);
+            // work2 dot work3 should be |work2|^2 or -|work2|^2.  Positive
+            // indicates the angle is <180, negative indicates >180.
+            if (work3.dot(work2) < 0) {
+                angle = 2*Math.PI - angle;
+            }
+            boolean success = false;
+            for (int j=1; j<i; j++) {
+                if (angle < planeAngles[j-1]) {
+                    // insert the i point at position j, shift existing points
+                    IVector3D intersection = planeIntersections[i];
+                    for (int k=i; k>j; k--) {
+                        planeAngles[k-1] = planeAngles[k-2];
+                        planeIntersections[k] = planeIntersections[k-1];
+                    }
+                    planeIntersections[j] = intersection;
+                    planeAngles[j-1] = angle;
+                    success = true;
+                    break;
+                }
+            }
+            if (!success) {
+                planeAngles[i-1] = angle;
+            }
+        }
+
+        // we need N-2 triangles
+        while (intersectionCount < planeTriangles[iPlane].length+2) {
+            Triangle triangle = planeTriangles[iPlane][planeTriangles[iPlane].length-1];
+            gsys.removeFig(planeTriangles[iPlane][planeTriangles[iPlane].length-1]);
+            planeTriangles[iPlane] = (Triangle[])Arrays.removeObject(planeTriangles[iPlane], triangle);
+        }
+        while (intersectionCount > planeTriangles[iPlane].length+2) {
+            planeTriangles[iPlane] = (Triangle[])Arrays.addObject(planeTriangles[iPlane], new Triangle(
+                    gsys, G3DSys.getColix(Color.YELLOW), new Point3f(), new Point3f(), new Point3f()));
+            gsys.addFig(planeTriangles[iPlane][planeTriangles[iPlane].length-1]);
+        }
+
+        for (int i=0; i<intersectionCount; i++) {
+            planeIntersections[i].PE(work);
+        }
+
+        for (int i=0; i<planeTriangles[iPlane].length; i++) {
+            Triangle triangle = planeTriangles[iPlane][i];
+            Point3f p = triangle.getVertex1();
+            p.x = (float)planeIntersections[0].x(0);
+            p.y = (float)planeIntersections[0].x(1);
+            p.z = (float)planeIntersections[0].x(2);
+            p = triangle.getVertex2();
+            p.x = (float)planeIntersections[i+1].x(0);
+            p.y = (float)planeIntersections[i+1].x(1);
+            p.z = (float)planeIntersections[i+1].x(2);
+            p = triangle.getVertex3();
+            p.x = (float)planeIntersections[i+2].x(0);
+            p.y = (float)planeIntersections[i+2].x(1);
+            p.z = (float)planeIntersections[i+2].x(2);
+        }
+    }
+    
 	/**
 	 * Add a bond to the graphical display between the given pairs. The given
 	 * bondType is used to decide how the bond should be drawn.
