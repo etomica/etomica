@@ -27,6 +27,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -96,12 +97,11 @@ public class SimOverlapLJ extends Simulation {
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.45;
-//        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
+        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
+        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
         AtomType sphereType = ((AtomFactoryMono)species.moleculeFactory()).getType();
-        potentialMaster.addPotential(potential, new AtomType[] { sphereType, sphereType });
-//        potentialMaster.addPotential(potential, new AtomType[] { sphereType, sphereType });
-        atomMove.setPotential(potential);
+        potentialMaster.addPotential(pTruncated, new AtomType[] { sphereType, sphereType });
+        atomMove.setPotential(pTruncated);
         
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
@@ -205,6 +205,7 @@ public class SimOverlapLJ extends Simulation {
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iPhase) {
         accumulators[iPhase] = newAccumulator;
+        newAccumulator.setBlockSize(100);
         if (accumulatorPumps[iPhase] == null) {
             accumulatorPumps[iPhase] = new DataPump(meters[iPhase],newAccumulator);
             accumulatorAAs[iPhase] = new IntervalActionAdapter(accumulatorPumps[iPhase]);
@@ -213,7 +214,12 @@ public class SimOverlapLJ extends Simulation {
         else {
             accumulatorPumps[iPhase].setDataSink(newAccumulator);
         }
-        accumulatorAAs[iPhase].setActionInterval(1);
+        if (iPhase == 1) {
+            accumulatorAAs[iPhase].setActionInterval(phaseTarget.moleculeCount());
+        }
+        else {
+            accumulatorAAs[iPhase].setActionInterval(1);
+        }
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
             integratorOverlap.setDSVO(dsvo);
@@ -250,13 +256,19 @@ public class SimOverlapLJ extends Simulation {
         
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
+            // we only need to equilibrate the target system, and we don't need to take data
+            integrators[0].removeListener(accumulatorAAs[0]);
+            integrators[1].removeListener(accumulatorAAs[1]);
             activityIntegrate.setMaxSteps(initSteps/2);
             getController().run();
             getController().reset();
+            System.out.println("target equilibration finished");
+            integrators[0].addListener(accumulatorAAs[0]);
+            integrators[1].addListener(accumulatorAAs[1]);
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,false),1);
-            setRefPref(1e40,40);
+            setRefPref(1,60);
             activityIntegrate.setMaxSteps(initSteps);
             getController().run();
             getController().reset();
@@ -320,7 +332,6 @@ public class SimOverlapLJ extends Simulation {
             dsvo.reset();
         }
     }
-    
 
     /**
      * @param args filename containing simulation parameters
@@ -330,7 +341,7 @@ public class SimOverlapLJ extends Simulation {
         
         //set up simulation parameters
         SimOverlapParam params = new SimOverlapParam();
-        String inputFilename = "d0962_T06.in";
+        String inputFilename = null;
         if (args.length > 0) {
             inputFilename = args[0];
         }
@@ -372,6 +383,7 @@ public class SimOverlapLJ extends Simulation {
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
             throw new RuntimeException("Simulation failed to find a valid ref pref");
         }
+        System.out.flush();
         
         sim.equilibrate(refFileName, numSteps/10);
         if (Double.isNaN(sim.refPref) || sim.refPref == 0 || Double.isInfinite(sim.refPref)) {
@@ -379,12 +391,13 @@ public class SimOverlapLJ extends Simulation {
         }
         
         System.out.println("equilibration finished");
+        System.out.flush();
 
         sim.integratorOverlap.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().run();
 
-        System.out.println("final reference step frequency "+sim.integratorOverlap.getStepFreq0());
+        System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
         
         double[][] omega2 = sim.normalModes.getOmegaSquared(sim.phaseTarget);
         double[] coeffs = sim.normalModes.getWaveVectorFactory().getCoefficients();
@@ -392,10 +405,11 @@ public class SimOverlapLJ extends Simulation {
         for(int i=0; i<omega2.length; i++) {
             for(int j=0; j<omega2[0].length; j++) {
                 if (!Double.isInfinite(omega2[i][j])) {
-                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));//temperature should be here
+                    AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
                 }
             }
         }
+
         int totalCells = 1;
         for (int i=0; i<D; i++) {
             totalCells *= sim.nCells[i];
