@@ -1,19 +1,20 @@
 package etomica.modules.crystalviewer;
-import java.awt.GridLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
-import javax.swing.JComponent;
 
-import etomica.action.Action;
 import etomica.data.types.DataDouble;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceCheckBox;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayPhaseCanvasG3DSys;
 import etomica.lattice.LatticePlane;
+import etomica.math.geometry.Plane;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.space3d.Vector3D;
@@ -97,13 +98,14 @@ public class ClipPlaneEditor {
         });
         
         //box to toggle visibility of plane
-        display.addDrawable(latticePlane);
+        ((DisplayPhaseCanvasG3DSys)display.canvas).addPlane(latticePlane.getPlane());
         DeviceCheckBox showplaneToggle = new DeviceCheckBox("Show plane", new ModifierBoolean() {
             public boolean getBoolean() {return showPlane;}
             public void setBoolean(boolean b) {
                 showPlane = b;
-                if(b) display.addDrawable(latticePlane);
-                else  display.removeDrawable(latticePlane);
+                if(b) ((DisplayPhaseCanvasG3DSys)display.canvas).addPlane(latticePlane.getPlane());
+                else  ((DisplayPhaseCanvasG3DSys)display.canvas).removePlane(latticePlane.getPlane());
+                display.canvas.repaint();
             }
         });
 
