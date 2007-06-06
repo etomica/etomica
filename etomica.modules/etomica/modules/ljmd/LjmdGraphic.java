@@ -226,7 +226,7 @@ public class LjmdGraphic {
         sim.register(densityMeter,densityPump);
 	    densityBox.setLabel("Number density");
 	    
-		MeterEnergy eMeter = new MeterEnergy(sim.getPotentialMaster());
+		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential());
         eMeter.setPhase(sim.phase);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
@@ -237,7 +237,7 @@ public class LjmdGraphic {
         sim.integrator.addListener(energyAdapter);
         sim.register(eMeter,energyPump);
 		
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
+		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotential());
         peMeter.setPhase(sim.phase);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
@@ -388,7 +388,6 @@ public class LjmdGraphic {
 
         DefaultToolbar tb = new DefaultToolbar(panel, "Lennard-Jones Molecular Dynamics");
         panel.add(tb.graphic(), BorderLayout.NORTH);
-        JPanel subPanel = new JPanel();
         panel.add(bigPanel, BorderLayout.SOUTH);
         panel.add(controlPanel, BorderLayout.WEST);
         panel.add(displayPhase.graphic());

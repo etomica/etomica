@@ -69,7 +69,8 @@ public class DCVGCMD extends Simulation {
 
     private DCVGCMD(Space space) {
         //Instantiate classes
-        super(space, true, new PotentialMasterHybrid(space,5.2),new int[] {9,12,11},new Default());
+        super(space, true, new int[] {9,12,11},new Default());
+        PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2);
         defaults.atomMass = 40.;
         defaults.atomSize = 3.0;
         defaults.potentialWell = 119.8;
@@ -87,10 +88,9 @@ public class DCVGCMD extends Simulation {
         AtomType speciestype = species.moleculeFactory().getType();
         AtomType speciestype1 = species1.moleculeFactory().getType();
         
-        PotentialMasterHybrid potentialMasterHybrid = (PotentialMasterHybrid) potentialMaster;
         double neighborRangeFac = 1.4;
-        potentialMasterHybrid.setCellRange(1);
-        potentialMasterHybrid.setRange(neighborRangeFac * defaults.atomSize);
+        potentialMaster.setCellRange(1);
+        potentialMaster.setRange(neighborRangeFac * defaults.atomSize);
 
         //0-0 intraspecies interaction
         potential = new P2WCA(this);
@@ -118,7 +118,7 @@ public class DCVGCMD extends Simulation {
         criterionWall.setNeighborRange(neighborRangeFacHalf*potentialwall.getRange());
         criterionWall.setWallDim(2);
         potentialMaster.addPotential(potentialwall, new Species[] { species });
-        potentialMasterHybrid.getPotentialMasterList().setCriterion(potentialwall, new CriterionType(criterionWall, speciestype));
+        potentialMaster.getPotentialMasterList().setCriterion(potentialwall, new CriterionType(criterionWall, speciestype));
         
         potentialwall1 = new P1WCAWall(this);
         CriterionPositionWall criterionWall1 = new CriterionPositionWall(this);
@@ -126,7 +126,7 @@ public class DCVGCMD extends Simulation {
         criterionWall1.setNeighborRange(neighborRangeFacHalf*potentialwall1.getRange());
         criterionWall1.setWallDim(2);
         potentialMaster.addPotential(potentialwall1, new Species[] { species1 });
-        potentialMasterHybrid.getPotentialMasterList().setCriterion(potentialwall1, new CriterionType(criterionWall1, speciestype1));
+        potentialMaster.getPotentialMasterList().setCriterion(potentialwall1, new CriterionType(criterionWall1, speciestype1));
 
         potentialwallPorousA = new P1WCAPorousWall(this);
         CriterionPositionWall criterionWallA = new CriterionPositionWall(this);
@@ -134,7 +134,7 @@ public class DCVGCMD extends Simulation {
         criterionWallA.setNeighborRange(neighborRangeFacHalf*potentialwallPorousA.getRange());
         criterionWallA.setWallDim(2);
         potentialMaster.addPotential(potentialwallPorousA, new Species[] { species });
-        potentialMasterHybrid.getPotentialMasterList().setCriterion(potentialwallPorousA, new CriterionType(criterionWallA, speciestype));
+        potentialMaster.getPotentialMasterList().setCriterion(potentialwallPorousA, new CriterionType(criterionWallA, speciestype));
         
         potentialwallPorousA1 = new P1WCAPorousWall(this);
         CriterionPositionWall criterionWallA1 = new CriterionPositionWall(this);
@@ -142,7 +142,7 @@ public class DCVGCMD extends Simulation {
         criterionWallA1.setNeighborRange(neighborRangeFacHalf*potentialwallPorousA1.getRange());
         criterionWallA1.setWallDim(2);
         potentialMaster.addPotential(potentialwallPorousA1, new Species[] { species1 });
-        potentialMasterHybrid.getPotentialMasterList().setCriterion(potentialwallPorousA1, new CriterionType(criterionWallA1, speciestype1));
+        potentialMaster.getPotentialMasterList().setCriterion(potentialwallPorousA1, new CriterionType(criterionWallA1, speciestype1));
         
         potentialwallPorousB = new P1WCAPorousWall(this);
         CriterionPositionWall criterionWallB = new CriterionPositionWall(this);
@@ -150,7 +150,7 @@ public class DCVGCMD extends Simulation {
         criterionWallB.setNeighborRange(neighborRangeFacHalf*potentialwallPorousB.getRange());
         criterionWallB.setWallDim(2);
         potentialMaster.addPotential(potentialwallPorousB, new Species[] { species });
-        potentialMasterHybrid.getPotentialMasterList().setCriterion(potentialwallPorousB, new CriterionType(criterionWallB, speciestype));
+        potentialMaster.getPotentialMasterList().setCriterion(potentialwallPorousB, new CriterionType(criterionWallB, speciestype));
         
         potentialwallPorousB1 = new P1WCAPorousWall(this);
         CriterionPositionWall criterionWallB1 = new CriterionPositionWall(this);
@@ -158,7 +158,7 @@ public class DCVGCMD extends Simulation {
         criterionWallB1.setNeighborRange(neighborRangeFacHalf*potentialwallPorousB.getRange());
         criterionWallB1.setWallDim(2);
         potentialMaster.addPotential(potentialwallPorousB1, new Species[] { species1 });
-        potentialMasterHybrid.getPotentialMasterList().setCriterion(potentialwallPorousB1, new CriterionType(criterionWallB1, speciestype1));
+        potentialMaster.getPotentialMasterList().setCriterion(potentialwallPorousB1, new CriterionType(criterionWallB1, speciestype1));
 
 
         phase = new Phase(this);
@@ -170,13 +170,13 @@ public class DCVGCMD extends Simulation {
         double temperature = Kelvin.UNIT.toSim(500.);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature, species,
                 species1);
-        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this);
-        final IntegratorMC integratorMC = new IntegratorMC(this);
+        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster);
+        final IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
         integratorDCV.setPhase(phase);
 
         /***/
-        ((PotentialMasterHybrid)potentialMaster).setRange(potential.getRange() * neighborRangeFac);
-        integratorMC.getMoveEventManager().addListener(potentialMasterHybrid.getNbrCellManager(phase).makeMCMoveListener());
+        potentialMaster.setRange(potential.getRange() * neighborRangeFac);
+        integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(phase).makeMCMoveListener());
 
 
         activityIntegrate = new ActivityIntegrate(this,integratorDCV);
@@ -188,7 +188,7 @@ public class DCVGCMD extends Simulation {
         //integrator.setSleepPeriod(1);
         integratorMD.setTimeStep(0.007);
         //integrator.setInterval(10);
-        final NeighborListManager nbrManager = potentialMasterHybrid.getNeighborManager(phase);
+        final NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
         integratorMD.addListener(nbrManager);
         activityIntegrate.setDoSleep(true);
         phase.setBoundary(new BoundaryRectangularSlit(this, 2));
@@ -277,6 +277,6 @@ public class DCVGCMD extends Simulation {
         new IntervalActionAdapter(profile2pump, integratorDCV);
         register(profile2,profile2pump);
 
-        ((PotentialMasterHybrid)potentialMaster).getNbrCellManager(phase).assignCellAll();
+        potentialMaster.getNbrCellManager(phase).assignCellAll();
     }
 }

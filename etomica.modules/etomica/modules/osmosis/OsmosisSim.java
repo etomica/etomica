@@ -12,6 +12,7 @@ import etomica.lattice.LatticeCubicSimple;
 import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space2d.Space2D;
@@ -40,6 +41,7 @@ public class OsmosisSim extends Simulation {
     public OsmosisSim() {
 
         super(Space2D.getInstance());
+        PotentialMaster potentialMaster = new PotentialMaster(this);
 
         defaults.ignoreOverlap = true;
         final double sigma = defaults.atomSize;
@@ -94,7 +96,7 @@ public class OsmosisSim extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
         config.initializeCoordinates(phase);
 
-        integrator = new IntegratorHard(this);
+        integrator = new IntegratorHard(this, potentialMaster);
         integrator.setPhase(phase);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         

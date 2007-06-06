@@ -6,10 +6,10 @@ import javax.swing.JPanel;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -19,6 +19,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
@@ -46,6 +47,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         defaults.ignoreOverlap = true;
         controller1 = getController();
 
@@ -53,7 +55,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         defaults.atomSize = diameter;
 
         //controller and integrator
-        integratorHard1 = new IntegratorHard(this);
+        integratorHard1 = new IntegratorHard(this, potentialMaster);
         integratorHard1.setIsothermal(true);
 //        integratorHard1.setThermostat(IntegratorMD.ANDERSEN_SINGLE);
 

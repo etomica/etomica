@@ -37,8 +37,9 @@ import etomica.species.SpeciesSpheresMono;
 public class SimCalcSLJ extends Simulation {
 
     public SimCalcSLJ(Space space, int numAtoms, double density, double temperature) {
-        super(space, true, new PotentialMaster(space));
+        super(space, true);
 
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
 

@@ -9,6 +9,7 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -26,13 +27,14 @@ public class Ljmd extends Simulation {
     
     public Ljmd(Space space) {
         super(space);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         defaults.makeLJDefaults();
         defaults.boxSize = 14.0;
         
         int N = 182;  //number of atoms
         
         //controller and integrator
-	    integrator = new IntegratorVelocityVerlet(this);
+	    integrator = new IntegratorVelocityVerlet(this, potentialMaster);
 	    integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);

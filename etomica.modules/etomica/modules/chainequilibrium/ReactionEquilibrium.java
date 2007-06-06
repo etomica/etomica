@@ -15,6 +15,7 @@ import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
@@ -40,13 +41,14 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         controller1 = getController();
 
         double diameter = 1.0;
 
         getDefaults().atomSize = diameter;
 
-        integratorHard1 = new IntegratorHard(this);
+        integratorHard1 = new IntegratorHard(this, potentialMaster);
         integratorHard1.setIsothermal(true);
         integratorHard1.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard1.setThermostatInterval(10);

@@ -19,9 +19,11 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLattice;
+import etomica.lattice.crystal.Basis;
+import etomica.lattice.crystal.BasisCubicFcc;
+import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -29,10 +31,8 @@ import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
@@ -51,7 +51,7 @@ import etomica.virial.overlap.IntegratorOverlap;
 public class SimOverlap extends Simulation {
 
     public SimOverlap(Space space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
-        super(space, true, (space.D() == 1 ? new PotentialMasterList(space) : new PotentialMaster(space)));
+        super(space, true);
 
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
@@ -65,12 +65,12 @@ public class SimOverlap extends Simulation {
         getSpeciesManager().addSpecies(species);
 
         // TARGET
-        
+        PotentialMasterList potentialMasterTarget = new PotentialMasterList(this);
         phaseTarget = new Phase(this);
         addPhase(phaseTarget);
         phaseTarget.getAgent(species).setNMolecules(numAtoms);
 
-        IntegratorHard integratorTarget = new IntegratorHard(potentialMaster, getRandom(), 4, 1.0);
+        IntegratorHard integratorTarget = new IntegratorHard(potentialMasterTarget, getRandom(), 4, 1.0);
 
         integratorTarget.setIsothermal(false);
         integrators[1] = integratorTarget;
@@ -79,27 +79,29 @@ public class SimOverlap extends Simulation {
         if (space.D() == 1) {
             p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
         }
-        potentialMaster.addPotential(p2, new AtomType[]{species.getMoleculeType(),species.getMoleculeType()});
+        potentialMasterTarget.addPotential(p2, new AtomType[]{species.getMoleculeType(),species.getMoleculeType()});
 
-        int nCells;
+        int[] nCells;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundaryTarget = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
             integratorTarget.setNullPotential(new P1HardPeriodic(space));
-            nCells = numAtoms;
+            nCells = new int[]{numAtoms};
+            basis = new BasisMonatomic(space);
         } else {
-            primitive = new PrimitiveFcc(space, 1);
-            double v = primitive.unitCell().getVolume();
-            primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            nCells = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            boundaryTarget = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
+            double L = Math.pow(4.0/density, 1.0/3.0);
+            primitive = new PrimitiveCubic(space, L);
+            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            nCells = new int[]{n,n,n};
+            boundaryTarget = new BoundaryRectangularPeriodic(space, random, n * L);
+            basis = new BasisCubicFcc();
         }
         phaseTarget.setBoundary(boundaryTarget);
 
-        CoordinateDefinitionLeaf coordinateDefinition = new CoordinateDefinitionLeaf(phaseTarget, primitive);
-        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(phaseTarget, primitive, basis);
+        coordinateDefinitionTarget.initializeCoordinates(nCells);
 
-        if (potentialMaster instanceof PotentialMasterList) {
+        if (potentialMasterTarget instanceof PotentialMasterList) {
             double neighborRange;
             if (space.D() == 1) {
                 neighborRange = 1.01 / density;
@@ -109,36 +111,34 @@ public class SimOverlap extends Simulation {
                 double L = Math.pow(4.01/density, 1.0/3.0);
                 neighborRange = L / Math.sqrt(2.0);
             }
-            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
+            ((PotentialMasterList)potentialMasterTarget).setRange(neighborRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(phaseTarget).reset();
+            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(phaseTarget).reset();
         }
 
         integratorTarget.setPhase(phaseTarget);
-
     
         // HARMONIC
-        boundaryHarmonic = new BoundaryRectangularPeriodic(this);
+        if (space.D() == 1) {
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
+        } else {
+            double L = Math.pow(4.0/density, 1.0/3.0);
+            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            boundaryHarmonic = new BoundaryRectangularPeriodic(space, random, n * L);
+        }
         phaseHarmonic = new Phase(boundaryHarmonic);
         addPhase(phaseHarmonic);
         phaseHarmonic.getAgent(species).setNMolecules(numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMaster, random, 1.0);
+        IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0);
+        integratorHarmonic.setPhase(phaseHarmonic);
 
-        MCMoveHarmonic move = new MCMoveHarmonic(null, getRandom());
+        MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
         
-        if (space.D() == 1) {
-            boundaryHarmonic = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
-        } else {
-            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            boundaryHarmonic = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{n,n,n});
-        }
-        phaseHarmonic.setBoundary(boundaryHarmonic);
-
-        coordinateDefinition = new CoordinateDefinitionLeaf(phaseHarmonic, primitive);
-        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
+        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(phaseHarmonic, primitive, basis);
+        coordinateDefinitionHarmonic.initializeCoordinates(nCells);
 
         if(space.D() == 1) {
             normalModes = new NormalModes1DHR();
@@ -160,9 +160,9 @@ public class SimOverlap extends Simulation {
         
         integratorHarmonic.setPhase(phaseHarmonic);
         
-        if (potentialMaster instanceof PotentialMasterList) {
+        if (potentialMasterTarget instanceof PotentialMasterList) {
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(phaseHarmonic).reset();
+            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(phaseHarmonic).reset();
         }
 
         
@@ -174,14 +174,16 @@ public class SimOverlap extends Simulation {
         meters[1] = meterTarget;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
 
-        MeterBoltzmannHarmonic meterHarmonic = new MeterBoltzmannHarmonic(move, potentialMaster);
+        // MeterBoltzmannHarmonic wants to use a potentailMaster to calculate
+        // the target potential in the harmonic phase
+        MeterBoltzmannHarmonic meterHarmonic = new MeterBoltzmannHarmonic(move, potentialMasterTarget);
         meterHarmonic.setTemperature(1.0);
         meters[0] = meterHarmonic;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, true), 0);
         
         setRefPref(1.0, 30);
         
-        integratorOverlap = new IntegratorOverlap(null, random, new IntegratorPhase[]{integratorHarmonic, integratorTarget});
+        integratorOverlap = new IntegratorOverlap(random, new IntegratorPhase[]{integratorHarmonic, integratorTarget});
         // sadly, we have to ignore overlap in both phases since we expect "overlaps" in the harmonic phase.
         activityIntegrate = new ActivityIntegrate(integratorOverlap, false, true);
         
@@ -424,6 +426,8 @@ public class SimOverlap extends Simulation {
     }
 
     private static final long serialVersionUID = 1L;
+    public Basis basis;
+    public CoordinateDefinition coordinateDefinition;
     public IntegratorOverlap integratorOverlap;
     public DataSourceVirialOverlap dsvo;
     public IntegratorPhase[] integrators;

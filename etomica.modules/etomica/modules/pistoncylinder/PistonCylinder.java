@@ -44,7 +44,8 @@ public class PistonCylinder extends Simulation {
     }
     
     public PistonCylinder(int D, Default defaults) {
-        super(Space.getInstance(D), true, new PotentialMaster(Space.getInstance(D)), Default.BIT_LENGTH, defaults);
+        super(Space.getInstance(D), true, Default.BIT_LENGTH, defaults);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         lambda = 1.5;
         controller = getController();
         defaults.atomMass = 16;
@@ -97,7 +98,7 @@ public class PistonCylinder extends Simulation {
         potentialMaster.addPotential(pistonPotential,new Species[]{species});
         ((BoundaryPistonCylinder)phase.getBoundary()).setPistonPotential(pistonPotential);
         
-        integrator = new IntegratorHardPiston(this,pistonPotential);
+        integrator = new IntegratorHardPiston(this,potentialMaster,pistonPotential);
         integrator.setPhase(phase);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);

@@ -452,8 +452,8 @@ public class JouleThomson extends SimulationGraphic {
                 Configuration config = new ConfigurationLattice(lattice);
                 config.initializeCoordinates(sim.phase);
             }
-            if(speciesName.equals("Ideal gas")) sim.getPotentialMaster().setEnabled(sim.potential,false);
-            else sim.getPotentialMaster().setEnabled(sim.potential,true);
+            if(speciesName.equals("Ideal gas")) sim.integrator.getPotential().setEnabled(sim.potential,false);
+            else sim.integrator.getPotential().setEnabled(sim.potential,true);
             simRestart.actionPerformed();
         }
     }

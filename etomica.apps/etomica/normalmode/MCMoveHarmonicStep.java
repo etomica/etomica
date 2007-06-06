@@ -7,7 +7,6 @@ import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.util.IRandom;
 
 /**
@@ -20,10 +19,6 @@ import etomica.util.IRandom;
  */
 public class MCMoveHarmonicStep extends MCMovePhaseStep {
 
-    public MCMoveHarmonicStep(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getRandom());
-    }
-    
     public MCMoveHarmonicStep(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
         

@@ -37,7 +37,7 @@ import etomica.units.Pixel;
 public class SimHarmonic extends Simulation {
 
     public SimHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
-        super(space, true, (space.D() == 1 ? new PotentialMasterList(space) : new PotentialMaster(space)));
+        super(space, true);
 
         int D = space.D();
         
@@ -51,12 +51,12 @@ public class SimHarmonic extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
 
-        integrator = new IntegratorMC(this);
+        integrator = new IntegratorMC(this, null);
 
         activityIntegrate = new ActivityIntegrate(this, integrator);
         getController().addAction(activityIntegrate);
 
-        MCMoveHarmonic move = new MCMoveHarmonic(potentialMaster, getRandom());
+        MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integrator.getMoveManager().addMCMove(move);
         
         int nCells;
@@ -141,9 +141,10 @@ public class SimHarmonic extends Simulation {
         if (D == 1) {
             p2 = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)p2);
         }
-        sim.getPotentialMaster().addPotential(p2, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
+        PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim) : new PotentialMaster(sim));
+        potentialMaster.addPotential(p2, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
 
-        if (sim.potentialMaster instanceof PotentialMasterList) {
+        if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange;
             if (D == 1) {
                 neighborRange = 1.01 / density;
@@ -153,13 +154,13 @@ public class SimHarmonic extends Simulation {
                 double L = Math.pow(0.26*density, 1.0/3.0);
                 neighborRange = L / Math.sqrt(2.0);
             }
-            ((PotentialMasterList)sim.potentialMaster).setRange(neighborRange);
+            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)sim.potentialMaster).getNeighborManager(sim.phase).reset();
+            ((PotentialMasterList)potentialMaster).getNeighborManager(sim.phase).reset();
         }
 
         //meters for FEP calculations
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.getPotentialMaster());
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
         meterPE.setPhase(sim.phase);
         BoltzmannProcessor bp = new BoltzmannProcessor();
         bp.setTemperature(1);

@@ -6,19 +6,13 @@ import etomica.integrator.mcmove.MCMovePhase;
 import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.util.IRandom;
 
 public class MCMoveHarmonic extends MCMovePhase {
 
-    public MCMoveHarmonic(Simulation sim) {
-        this(sim.getPotentialMaster(), sim.getRandom());
-    }
-    
-    public MCMoveHarmonic(PotentialMaster potentialMaster, IRandom random) {
-        super(potentialMaster, new MCMoveTracker());
+    public MCMoveHarmonic(IRandom random) {
+        super(null, new MCMoveTracker());
         this.random = random;
         iterator = new AtomIteratorAllMolecules();
     }

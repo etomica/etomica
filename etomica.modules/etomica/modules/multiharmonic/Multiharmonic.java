@@ -14,6 +14,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
 import etomica.potential.P1Harmonic;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
@@ -33,6 +34,7 @@ public class Multiharmonic extends Simulation {
 
     public Multiharmonic() {
         super(Space1D.getInstance());
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         defaults.makeLJDefaults();
         defaults.atomSize = 0.02;
         double x0 = 1;
@@ -42,7 +44,7 @@ public class Multiharmonic extends Simulation {
         addPhase(phase);
         phase.getBoundary().setDimensions(new Vector1D(3.0));
         controller = getController();
-        integrator = new IntegratorVelocityVerlet(this);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setPhase(phase);
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);

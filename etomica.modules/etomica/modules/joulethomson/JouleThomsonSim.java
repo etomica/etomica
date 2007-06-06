@@ -16,6 +16,7 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -43,13 +44,14 @@ public class JouleThomsonSim extends Simulation {
     public JouleThomsonSim() {this(Space2D.getInstance());}
     public JouleThomsonSim(Space space) {
         super(space);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         int nAtoms = (space.D() < 3) ? 50 : 64;
         
 		defaults.historyPeriod = 1000;
  
         //integrator
-        integratorNVE = new IntegratorVelocityVerlet(this);
-        integrator = new IntegratorGear4NPH(this);
+        integratorNVE = new IntegratorVelocityVerlet(this, potentialMaster);
+        integrator = new IntegratorGear4NPH(this, potentialMaster);
         integrator.setRelaxationRateP(500.);
         integrator.setRelaxationRateH(300.);
         final Unit pUnit;

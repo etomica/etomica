@@ -52,7 +52,7 @@ public class SimOverlapLJ extends Simulation {
     public SimOverlapLJ(Space space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
         super(space, true);
 
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMasterTarget = new PotentialMaster(this);
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         integrators = new IntegratorPhase[2];
@@ -70,8 +70,8 @@ public class SimOverlapLJ extends Simulation {
         addPhase(phaseTarget);
         phaseTarget.getAgent(species).setNMolecules(numAtoms);
 
-        IntegratorMC integratorTarget = new IntegratorMC(potentialMaster, getRandom(), temperature);
-        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMaster, getRandom());
+        IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
+        MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, getRandom());
         atomMove.setStepSize(0.1);
         atomMove.setStepSizeMax(0.5);
         integratorTarget.getMoveManager().addMCMove(atomMove);
@@ -101,17 +101,17 @@ public class SimOverlapLJ extends Simulation {
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
         AtomType sphereType = ((AtomFactoryMono)species.moleculeFactory()).getType();
-        potentialMaster.addPotential(pTruncated, new AtomType[] { sphereType, sphereType });
+        potentialMasterTarget.addPotential(pTruncated, new AtomType[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
         
-        if (potentialMaster instanceof PotentialMasterList) {
+        if (potentialMasterTarget instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
             int cellRange = 7;
-            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
-            ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
+            ((PotentialMasterList)potentialMasterTarget).setRange(neighborRange);
+            ((PotentialMasterList)potentialMasterTarget).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(phaseTarget).reset();
-            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(phaseTarget).getLattice().getSize()[0];
+            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(phaseTarget).reset();
+            int potentialCells = ((PotentialMasterList)potentialMasterTarget).getNbrCellManager(phaseTarget).getLattice().getSize()[0];
             if (potentialCells < cellRange*2+1) {
                 throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
             }
@@ -123,8 +123,8 @@ public class SimOverlapLJ extends Simulation {
 
         integratorTarget.setPhase(phaseTarget);
 
-        potentialMaster.lrcMaster().setEnabled(false);
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
+        potentialMasterTarget.lrcMaster().setEnabled(false);
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMasterTarget);
         meterPE.setPhase(phaseTarget);
         double latticeEnergy = meterPE.getDataAsScalar();
         
@@ -135,9 +135,9 @@ public class SimOverlapLJ extends Simulation {
         addPhase(phaseHarmonic);
         phaseHarmonic.getAgent(species).setNMolecules(numAtoms);
 
-        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMaster, random, 1.0);
+        IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0);
 
-        MCMoveHarmonic move = new MCMoveHarmonic(null, getRandom());
+        MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
         
@@ -170,13 +170,13 @@ public class SimOverlapLJ extends Simulation {
         
         integratorHarmonic.setPhase(phaseHarmonic);
         
-        if (potentialMaster instanceof PotentialMasterList) {
+        if (potentialMasterTarget instanceof PotentialMasterList) {
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(phaseHarmonic).reset();
+            ((PotentialMasterList)potentialMasterTarget).getNeighborManager(phaseHarmonic).reset();
         }
 
         // OVERLAP
-        integratorOverlap = new IntegratorOverlap(null, random, new IntegratorPhase[]{integratorHarmonic, integratorTarget});
+        integratorOverlap = new IntegratorOverlap(random, new IntegratorPhase[]{integratorHarmonic, integratorTarget});
         MeterHarmonicEnergy meterHarmonicEnergy = new MeterHarmonicEnergy(coordinateDefinitionTarget, normalModes);
         meterHarmonicEnergy.setPhase(phaseTarget);
         MeterBoltzmannTarget meterTarget = new MeterBoltzmannTarget(integratorTarget, meterHarmonicEnergy);
@@ -184,7 +184,7 @@ public class SimOverlapLJ extends Simulation {
         meters[1] = meterTarget;
         setAccumulator(new AccumulatorVirialOverlapSingleAverage(10, 11, false), 1);
 
-        MeterBoltzmannHarmonic meterHarmonic = new MeterBoltzmannHarmonic(move, potentialMaster);
+        MeterBoltzmannHarmonic meterHarmonic = new MeterBoltzmannHarmonic(move, potentialMasterTarget);
         meterHarmonic.setTemperature(temperature);
         meterHarmonic.setLatticeEnergy(latticeEnergy);
         meters[0] = meterHarmonic;
