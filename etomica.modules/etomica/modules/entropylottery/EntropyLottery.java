@@ -2,6 +2,7 @@ package etomica.modules.entropylottery;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.IVector;
@@ -19,12 +20,13 @@ public class EntropyLottery extends Simulation {
     
     public EntropyLottery(Space space) {
         super(space);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         defaults.makeLJDefaults();
         
         final int N = 30;  //number of atoms
         
         //controller and integrator
-	    integrator = new IntegratorMC(this);
+	    integrator = new IntegratorMC(this, potentialMaster);
         MCMoveAtomAdjacent move = new MCMoveAtomAdjacent(getRandom());
         integrator.getMoveManager().addMCMove(move);
         activityIntegrate = new ActivityIntegrate(this, integrator);
