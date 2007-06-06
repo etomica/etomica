@@ -77,7 +77,6 @@ public class MCParacetamolMonoclinic extends Simulation {
     	//8.944, 12.119, 7.277, 1.74533
     	basis = new BasisMonoclinicParacetamol();
     	lattice = new BravaisLatticeCrystal (primitive, basis);
-    	//configMonoLattice = new ConfigurationMonoclinicLattice(lattice);
         
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setIsothermal(false);
@@ -309,11 +308,10 @@ public class MCParacetamolMonoclinic extends Simulation {
         bdry =  new BoundaryDeformableLattice( primitive, getRandom(), new int []{2, 3, 4});
         //bdry.setDimensions(Space.makeVector(new double []{2*12.119, 3*8.944, 4*7.278}));
         phase.setBoundary(bdry);
-        //configMonoLattice.initializeCoordinates(phase);
         CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
-        coordDef.initializeCoordinates(new int []{2, 3, 4});
         coordDef.setBasisMonoclinic();
-       	
+        coordDef.initializeCoordinates(new int []{2, 3, 4});
+        
         integrator.setPhase(phase);
         
     } //end of constructor
@@ -351,8 +349,8 @@ public class MCParacetamolMonoclinic extends Simulation {
         
         simGraphic.panel().setBackground(java.awt.Color.yellow);
         
-        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBackgroundColor(Color.WHITE);
-        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBoundaryFrameColor(Color.BLACK);
+        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBackgroundColor(Color.BLACK);
+        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBoundaryFrameColor(Color.WHITE);
 
         simGraphic.getDisplayPhase(sim.phase).repaint();
         
@@ -362,7 +360,6 @@ public class MCParacetamolMonoclinic extends Simulation {
     public BravaisLattice lattice;
     public BoundaryDeformableLattice bdry;
     public CoordinateDefinitionParacetamol coordinateDefinition;
-    public ConfigurationMonoclinicLattice configMonoLattice;
     public ActivityIntegrate actionIntegrate;
     public Primitive primitive;
     public Basis basis;

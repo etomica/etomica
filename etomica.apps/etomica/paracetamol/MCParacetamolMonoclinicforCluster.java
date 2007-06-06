@@ -2,6 +2,7 @@
 package etomica.paracetamol;
 
 import etomica.action.PDBWriter;
+import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
@@ -40,6 +41,9 @@ public class MCParacetamolMonoclinicforCluster {
         	
         }
         
+        ConfigurationFile configFile = new ConfigurationFile("abc");
+        configFile.initializeCoordinates(sim.phase);
+        
         sim.actionIntegrate.setMaxSteps(maxSteps/10);
         sim.getController().actionPerformed();
         
@@ -52,7 +56,7 @@ public class MCParacetamolMonoclinicforCluster {
              
              DataLogger dataLoggerPE = new DataLogger();
              dataLoggerPE.setWriteInterval(1);
-             dataLoggerPE.setFileName("Paracetamol_Form_I_@_" + Kelvin.UNIT.fromSim(temperature));
+             dataLoggerPE.setFileName("Paracetamol_Form_I_@_" + temperature);
              dataLoggerPE.setAppending(true);
              dataLoggerPE.setDataSink(new DataTableWriter());
              
@@ -65,11 +69,12 @@ public class MCParacetamolMonoclinicforCluster {
              
              sim.getController().reset();
              sim.actionIntegrate.setMaxSteps(maxSteps);
+             
              sim.getController().actionPerformed();
       /**********************************************************************/
              
              PDBWriter pdbWriter = new PDBWriter(sim.phase);
-             pdbWriter.setFileName("Paracetamol_FormI_T_"+ Kelvin.UNIT.fromSim(temperature) +"K.pdb");
+             pdbWriter.setFileName("Paracetamol_FormI_T_"+ temperature +"K.pdb");
              pdbWriter.actionPerformed();
              
              double Energy = ((DataDouble)((DataGroup)accumulatorAveragePE.getData()).

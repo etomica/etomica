@@ -72,9 +72,7 @@ public class MCParacetamolOrthorhombic extends Simulation {
         PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space, 17.248, 12.086, 7.382);
         // 17.248, 12.086, 7.382
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
-        lattice = new BravaisLatticeCrystal(primitive, basis); //lattice and config can be gone!!
-        configOrthoLattice = new ConfigurationOrthorhombicLattice(lattice);
-    	
+        lattice = new BravaisLatticeCrystal(primitive, basis); 
         
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setIsothermal(false);
@@ -305,12 +303,11 @@ public class MCParacetamolOrthorhombic extends Simulation {
         bdry =  new BoundaryRectangularPeriodic(space, getRandom(), 1); //unit cell
         bdry.setDimensions(Space.makeVector(new double []{2*17.248, 3*12.086, 4*7.382}));
         phase.setBoundary(bdry);
-       	configOrthoLattice.initializeCoordinates(phase);
 
-        //CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
-        //coordDef.initializeCoordinates(new int []{2, 3, 4});
-       	//coordDef.setBasisMonoclinic(conformation);
-        
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
+        coordDef.setBasisOrthorhombic();
+        coordDef.initializeCoordinates(new int []{2, 3, 4});
+       	
         integrator.setPhase(phase);
         //PhaseImposePbc pbc = new PhaseImposePbc(phase);
         //pbc.actionPerformed();
@@ -359,6 +356,5 @@ public class MCParacetamolOrthorhombic extends Simulation {
     public BravaisLattice lattice;
     public BoundaryRectangularPeriodic bdry;
     public CoordinateDefinitionParacetamol coordinateDefinition;
-    public ConfigurationOrthorhombicLattice configOrthoLattice;
     public ActivityIntegrate actionIntegrate;
 }//end of class
