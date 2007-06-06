@@ -60,6 +60,8 @@ public class MDParacetamolOrthorhombic extends Simulation {
 	//the following fields are made accessible for convenience to permit simple
     //mutation of the default behavior
 
+    public final PotentialMasterList potentialMaster;
+    
     /**
      * The Phase holding the atoms. 
      */
@@ -98,8 +100,9 @@ public class MDParacetamolOrthorhombic extends Simulation {
          *	"true" is indicating to the superclass that this is a dynamic simulation
          * the PotentialMaster is selected such as to implement neighbor listing
          */
-    	super(space, true, new PotentialMasterList(space, 1.6), Default.BIT_LENGTH, defaults);
+    	super(space, true, Default.BIT_LENGTH, defaults);
     	
+        potentialMaster = new PotentialMasterList(this, 1.6);
     	
     	/*
     	 * Orthorhombic Crystal
@@ -112,9 +115,9 @@ public class MDParacetamolOrthorhombic extends Simulation {
         configOrthoLattice = new ConfigurationOrthorhombicLattice(lattice);
     	
         double neighborRangeFac = 1.6;
-        ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
+        potentialMaster.setRange(neighborRangeFac*defaults.atomSize);
         
-        integrator = new IntegratorVelocityVerlet(this);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
         integrator.setTimeStep(0.001); //1 = pico sec
@@ -328,57 +331,57 @@ public class MDParacetamolOrthorhombic extends Simulation {
         if(truncationRadiusCC > 0.5*phase.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
             }
-        ((PotentialMasterList)potentialMaster).setCellRange(2);
-        ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusCC);
+        potentialMaster.setCellRange(2);
+        potentialMaster.setRange(1.2*truncationRadiusCC);
         P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3832.14700*11604.45728, 0.277778, 25.286949*11604.45728), truncationRadiusCC); 
         potentialMaster.addPotential(interpotentialCC, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).cType} );
         
         if(truncationRadiusCO > 0.5*phase.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
             }
-        ((PotentialMasterList)potentialMaster).setCellRange(2);
-        ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusCO);
+        potentialMaster.setCellRange(2);
+        potentialMaster.setRange(1.2*truncationRadiusCO);
         P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3022.850200*11604.45728, 0.264550, 17.160239*11604.45728), truncationRadiusCO); 
         potentialMaster.addPotential(interpotentialCO, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).oType} );
         
         if(truncationRadiusCN > 0.5*phase.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
             }
-        ((PotentialMasterList)potentialMaster).setCellRange(2);
-        ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusCN);
+        potentialMaster.setCellRange(2);
+        potentialMaster.setRange(1.2*truncationRadiusCN);
         P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3179.514600*11604.45728, 0.271003, 19.006710*11604.45728), truncationRadiusCN); 
         potentialMaster.addPotential(interpotentialCN, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
         
         if(truncationRadiusON > 0.5*phase.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
             }
-        ((PotentialMasterList)potentialMaster).setCellRange(2);
-        ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusON);
+        potentialMaster.setCellRange(2);
+        potentialMaster.setRange(1.2*truncationRadiusON);
         P2SoftSphericalTruncated interpotentialON = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2508.044800*11604.45728, 0.258398, 12.898341*11604.45728), truncationRadiusON); 
         potentialMaster.addPotential(interpotentialON, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).oType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
         
         if(truncationRadiusOO > 0.5*phase.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
             }
-        ((PotentialMasterList)potentialMaster).setCellRange(2);
-        ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusOO);
+        potentialMaster.setCellRange(2);
+        potentialMaster.setRange(1.2*truncationRadiusOO);
         P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2384.465800*11604.45728, 0.252525, 11.645288*11604.45728), truncationRadiusOO); 
         potentialMaster.addPotential(interpotentialOO, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).oType, ((AtomFactoryParacetamol)species.getFactory()).oType} );
         
         if(truncationRadiusNN > 0.5*phase.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
             }
-        ((PotentialMasterList)potentialMaster).setCellRange(2);
-        ((PotentialMasterList)potentialMaster).setRange(1.2*truncationRadiusNN);
+        potentialMaster.setCellRange(2);
+        potentialMaster.setRange(1.2*truncationRadiusNN);
         P2SoftSphericalTruncated interpotentialNN = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2638.028500*11604.45728, 0.264550, 14.286224*11604.45728), truncationRadiusNN); 
         potentialMaster.addPotential(interpotentialNN, new AtomType[]{((AtomFactoryParacetamol)species.getFactory()).nType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
         
-        ((CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(interpotentialCC)).setIntraMolecularCriterion(new CriterionNone());
-        ((CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(interpotentialCO)).setIntraMolecularCriterion(new CriterionNone());
-        ((CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(interpotentialCN)).setIntraMolecularCriterion(new CriterionNone());
-        ((CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(interpotentialON)).setIntraMolecularCriterion(new CriterionNone());
-        ((CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(interpotentialOO)).setIntraMolecularCriterion(new CriterionNone());
-        ((CriterionInterMolecular)((PotentialMasterList)potentialMaster).getCriterion(interpotentialNN)).setIntraMolecularCriterion(new CriterionNone());
+        ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialCC)).setIntraMolecularCriterion(new CriterionNone());
+        ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialCO)).setIntraMolecularCriterion(new CriterionNone());
+        ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialCN)).setIntraMolecularCriterion(new CriterionNone());
+        ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialON)).setIntraMolecularCriterion(new CriterionNone());
+        ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialOO)).setIntraMolecularCriterion(new CriterionNone());
+        ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialNN)).setIntraMolecularCriterion(new CriterionNone());
         
         bdry =  new BoundaryRectangularPeriodic(space, getRandom(), 1); //unit cell
         bdry.setDimensions(Space.makeVector(new double []{2*17.248, 2*12.086, 4*7.382}));
@@ -408,13 +411,13 @@ public class MDParacetamolOrthorhombic extends Simulation {
         DataPump KEpump = new DataPump(meterKE, KEbox);
         new IntervalActionAdapter(KEpump, sim.integrator);
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.getPotentialMaster());
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setPhase(sim.phase);
         DisplayBox PEbox = new DisplayBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
         new IntervalActionAdapter(PEpump, sim.integrator);
         
-        MeterEnergy meterTotal = new MeterEnergy(sim.getPotentialMaster());
+        MeterEnergy meterTotal = new MeterEnergy(sim.potentialMaster);
         meterTotal.setPhase(sim.phase);   
         DisplayBox meterTotalbox = new DisplayBox();
         DataPump meterTotalpump = new DataPump(meterTotal, meterTotalbox);

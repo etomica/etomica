@@ -66,8 +66,8 @@ public class MCParacetamolMonoclinic extends Simulation {
     
     private MCParacetamolMonoclinic(int numMolecules) {
 
-    	super(Space3D.getInstance(), false, new PotentialMaster(Space3D.getInstance()));
-    	
+    	super(Space3D.getInstance(), false);
+    	potentialMaster = new PotentialMaster(this);
     	
     	/*
     	 * Monoclinic Crystal
@@ -79,18 +79,18 @@ public class MCParacetamolMonoclinic extends Simulation {
     	lattice = new BravaisLatticeCrystal (primitive, basis);
     	//configMonoLattice = new ConfigurationMonoclinicLattice(lattice);
         
-        integrator = new IntegratorMC(this);
+        integrator = new IntegratorMC(this, potentialMaster);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
         this.register(integrator);
         integrator.setTemperature(Kelvin.UNIT.toSim(20));
         
-        mcMoveMolecule = new MCMoveMolecule(this);
+        mcMoveMolecule = new MCMoveMolecule(this, potentialMaster);
         mcMoveMolecule.setStepSize(0.1747);  //Step size to input
         ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setTunable(true);
         ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);
         
-        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(this);
+        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random);
         mcMoveRotateMolecule.setStepSize(0.068);
         ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
       
@@ -327,7 +327,7 @@ public class MCParacetamolMonoclinic extends Simulation {
         
    /*****************************************************************************/    
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.getPotentialMaster());
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setPhase(sim.phase);
         DisplayBox PEbox = new DisplayBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
@@ -357,7 +357,8 @@ public class MCParacetamolMonoclinic extends Simulation {
         simGraphic.getDisplayPhase(sim.phase).repaint();
         
     }//end of main
-    
+
+    public PotentialMaster potentialMaster;
     public BravaisLattice lattice;
     public BoundaryDeformableLattice bdry;
     public CoordinateDefinitionParacetamol coordinateDefinition;

@@ -45,7 +45,7 @@ public class MCParacetamolMonoclinicforCluster {
         
         /*****************************************************************************/    
         
-             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.getPotentialMaster());
+             MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
              meterPE.setPhase(sim.phase);
              AccumulatorAverage accumulatorAveragePE = new AccumulatorAverage(1); //Average over 1
              DataPump PEpump = new DataPump(meterPE, accumulatorAveragePE);

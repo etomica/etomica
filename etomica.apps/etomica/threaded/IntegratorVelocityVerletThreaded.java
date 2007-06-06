@@ -8,10 +8,11 @@ import etomica.util.IRandom;
 
 public class IntegratorVelocityVerletThreaded extends IntegratorVelocityVerlet {
 
-    public IntegratorVelocityVerletThreaded(Simulation sim, int numThreads) {
-        this(sim.getPotentialMaster(),sim.getRandom(),
-                sim.getDefaults().timeStep,sim.getDefaults().temperature, numThreads);
-        // TODO Auto-generated constructor stub
+    private static final long serialVersionUID = 1L;
+
+    public IntegratorVelocityVerletThreaded(Simulation sim, PotentialMaster potentialMaster, int numThreads) {
+        this(potentialMaster,sim.getRandom(),sim.getDefaults().timeStep,
+                sim.getDefaults().temperature, numThreads);
     }
 
     public IntegratorVelocityVerletThreaded(PotentialMaster potentialMaster,
@@ -24,7 +25,6 @@ public class IntegratorVelocityVerletThreaded extends IntegratorVelocityVerlet {
         }
         
         forceSum = new PotentialCalculationForceSumThreaded(pcfs);
-        // TODO Auto-generated constructor stub
     }
 
 }

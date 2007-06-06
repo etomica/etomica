@@ -41,13 +41,14 @@ public class LJMD3DThreaded extends Simulation {
     }
 
     public LJMD3DThreaded(int numAtoms, int numThreads) {
-        super(Space3D.getInstance(), true, new PotentialMasterListThreaded(Space3D.getInstance()));
+        super(Space3D.getInstance(), true);
+        PotentialMasterListThreaded potentialMaster = new PotentialMasterListThreaded(this);
         defaults.makeLJDefaults();
         // need optimization of fac and time step
         double neighborFac = 1.35;
 
         
-        integrator = new IntegratorVelocityVerletThreaded(this, numThreads);
+        integrator = new IntegratorVelocityVerletThreaded(this, potentialMaster, numThreads);
         integrator.setTemperature(1.0);
         integrator.setIsothermal(true);
         integrator.setTimeStep(0.001);
@@ -82,9 +83,9 @@ public class LJMD3DThreaded extends Simulation {
         
         potentialThreaded = new PotentialThreaded(space, potential);
         
-        ((PotentialMasterListThreaded)potentialMaster).setCellRange(1);
-        ((PotentialMasterListThreaded)potentialMaster).setRange(neighborFac * truncationRadius);
-        ((PotentialMasterListThreaded)potentialMaster).getNeighborManager(phase).setQuiet(true);
+        potentialMaster.setCellRange(1);
+        potentialMaster.setRange(neighborFac * truncationRadius);
+        potentialMaster.getNeighborManager(phase).setQuiet(true);
         potentialMaster.addPotential(potentialThreaded, new Species[] {species, species});
        
         //--------------------------------------\\
@@ -94,8 +95,8 @@ public class LJMD3DThreaded extends Simulation {
         integrator.setPhase(phase);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
 //        integrator.addListener(writeConfig);
-        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
-        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, phase);
+        integrator.addListener(potentialMaster.getNeighborManager(phase));
+        potentialMaster.setNumThreads(numThreads, phase);
     }
 
        

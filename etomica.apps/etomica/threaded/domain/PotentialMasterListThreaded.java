@@ -17,52 +17,45 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.threaded.PotentialCalculationThreaded;
 import etomica.util.Debug;
 
 public class PotentialMasterListThreaded extends PotentialMasterList {
 
-	PotentialMasterListWorker[] threads;
+    private static final long serialVersionUID = 1L;
+    PotentialMasterListWorker[] threads;
 	PhaseAgentManager agentManagerThreaded;
 	
 	
-	public PotentialMasterListThreaded(Space space) {
-		this(space, 0);
+	public PotentialMasterListThreaded(Simulation sim) {
+		this(sim, 0);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Space space, double range) {
-        this(space, range, (AtomPositionDefinition)null);
+	public PotentialMasterListThreaded(Simulation sim, double range) {
+        this(sim, range, (AtomPositionDefinition)null);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Space space, double range,
+	public PotentialMasterListThreaded(Simulation sim, double range,
 			AtomPositionDefinition positionDefinition) {
-        this(space, range, new PhaseAgentSourceCellManager(positionDefinition));
+        this(sim, range, new PhaseAgentSourceCellManager(positionDefinition));
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Space space, double range,
+	public PotentialMasterListThreaded(Simulation sim, double range,
 			PhaseAgentSourceCellManager phaseAgentSource) {
-		this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
+		this(sim, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Space space, double range,
+	public PotentialMasterListThreaded(Simulation sim, double range,
 			PhaseAgentSourceCellManager phaseAgentSource,
 			PhaseAgentManager agentManager) {
-		super(space, range, phaseAgentSource, agentManager, new NeighborListAgentSourceThreaded(range));
-        agentManagerThreaded = new PhaseAgentManager(new PhaseAgentSourceCellManagerThreaded(null));
-        
-	
+		super(sim, range, phaseAgentSource, agentManager, new NeighborListAgentSourceThreaded(range));
+        agentManagerThreaded = new PhaseAgentManager(new PhaseAgentSourceCellManagerThreaded(null), sim, true);
 	}
 	
-    public void setSimulation(Simulation sim){
-        super.setSimulation(sim);
-        agentManagerThreaded.setSimulation(sim);
-    }
-    
     public NeighborCellManagerThreaded getNbrCellManagerThreaded(Phase phase) {
         return (NeighborCellManagerThreaded)agentManagerThreaded.getAgent(phase);
     }

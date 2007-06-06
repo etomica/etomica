@@ -61,8 +61,9 @@ public class MCParacetamolOrthorhombic extends Simulation {
     
     private MCParacetamolOrthorhombic(int numMolecules) {
 
-    	super(Space3D.getInstance(), false, new PotentialMaster(Space3D.getInstance()));
+    	super(Space3D.getInstance(), false);
     	
+        potentialMaster = new PotentialMaster(this);
     	
     	/*
     	 * Orthorhombic Crystal
@@ -75,18 +76,18 @@ public class MCParacetamolOrthorhombic extends Simulation {
         configOrthoLattice = new ConfigurationOrthorhombicLattice(lattice);
     	
         
-        integrator = new IntegratorMC(this);
+        integrator = new IntegratorMC(this, potentialMaster);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
         this.register(integrator);
         integrator.setTemperature(Kelvin.UNIT.toSim(123));
         
-        mcMoveMolecule = new MCMoveMolecule(this);
+        mcMoveMolecule = new MCMoveMolecule(this, potentialMaster);
         mcMoveMolecule.setStepSize(0.2077);  //Step size to input
         ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setTunable(true);
         ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);
         
-        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(this);
+        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random);
         mcMoveRotateMolecule.setStepSize(0.0922);
         ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
       
@@ -327,7 +328,7 @@ public class MCParacetamolOrthorhombic extends Simulation {
         
    /*****************************************************************************/    
         
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.getPotentialMaster());
+        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setPhase(sim.phase);
         DisplayBox PEbox = new DisplayBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
@@ -353,7 +354,8 @@ public class MCParacetamolOrthorhombic extends Simulation {
         simGraphic.getDisplayPhase(sim.phase).repaint();
         
     }//end of main
-    
+
+    public PotentialMaster potentialMaster;
     public BravaisLattice lattice;
     public BoundaryRectangularPeriodic bdry;
     public CoordinateDefinitionParacetamol coordinateDefinition;

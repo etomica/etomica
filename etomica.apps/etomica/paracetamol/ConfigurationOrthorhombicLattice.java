@@ -8,7 +8,6 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
-import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -307,8 +306,6 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
         sim.getSpeciesManager().addSpecies(species);
         int k = 4;
         phase.getAgent(species).setNMolecules(4 * k * k * k);
-        IntegratorHard integrator = new IntegratorHard(sim);
-        integrator.setPhase(phase);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new LatticeCubicFcc();

@@ -14,43 +14,44 @@ import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.space.Space;
+import etomica.simulation.Simulation;
 import etomica.threaded.PotentialCalculationThreaded;
 import etomica.util.Debug;
 
 public class PotentialMasterListThreaded extends PotentialMasterList {
 
-	PotentialMasterListWorker[] threads;
+    private static final long serialVersionUID = 1L;
+    PotentialMasterListWorker[] threads;
 	int ready1;
 	int ready2;
 	
 	
-	public PotentialMasterListThreaded(Space space) {
-		super(space);
+	public PotentialMasterListThreaded(Simulation sim) {
+		super(sim);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Space space, double range) {
-		super(space, range);
+	public PotentialMasterListThreaded(Simulation sim, double range) {
+		super(sim, range);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Space space, double range,
+	public PotentialMasterListThreaded(Simulation sim, double range,
 			AtomPositionDefinition positionDefinition) {
-		super(space, range, positionDefinition);
+		super(sim, range, positionDefinition);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Space space, double range,
+	public PotentialMasterListThreaded(Simulation sim, double range,
 			PhaseAgentSourceCellManager phaseAgentSource) {
-		super(space, range, phaseAgentSource);
+		super(sim, range, phaseAgentSource);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Space space, double range,
+	public PotentialMasterListThreaded(Simulation sim, double range,
 			PhaseAgentSourceCellManager phaseAgentSource,
 			PhaseAgentManager agentManager) {
-		super(space, range, phaseAgentSource, agentManager);
+		super(sim, range, phaseAgentSource, agentManager);
 		// TODO Auto-generated constructor stub
 	}
 	

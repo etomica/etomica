@@ -41,8 +41,8 @@ public class Heisenberg extends Simulation {
      * 
      */
     public Heisenberg(Space space, int nCells) {
-        super(space, false, new PotentialMasterSite(space, nCells));
-        ((PotentialMasterSite)potentialMaster).setSimulation(this);
+        super(space, false);
+        potentialMaster = new PotentialMasterSite(this, nCells);
         defaults.makeLJDefaults();
         phase = new Phase(this);
         addPhase(phase);
@@ -54,7 +54,7 @@ public class Heisenberg extends Simulation {
         
         potential = new P2Spin(space);
         field = new P1MagneticField(space);
-        integrator = new IntegratorMC(this);
+        integrator = new IntegratorMC(this, potentialMaster);
         mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
         
@@ -78,7 +78,8 @@ public class Heisenberg extends Simulation {
 
     }
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
+    public PotentialMasterSite potentialMaster;
     public Phase phase;
     public Species spins;
     public P2Spin potential;
@@ -96,7 +97,7 @@ public class Heisenberg extends Simulation {
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
         simGraphic.remove(displayPhase);
-        PhaseAgentManager phaseAgentManager = ((PotentialMasterSite)sim.getPotentialMaster()).getCellAgentManager();
+        PhaseAgentManager phaseAgentManager = sim.potentialMaster.getCellAgentManager();
         NeighborSiteManager neighborSiteManager = (NeighborSiteManager)phaseAgentManager.getAgent(sim.phase);
         displayPhase.setPhaseCanvas(new DisplayPhaseSpin2D(displayPhase,neighborSiteManager));
         simGraphic.add(displayPhase);

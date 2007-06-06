@@ -68,6 +68,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class MEAMMd3DThreaded extends Simulation {
     
     private static final long serialVersionUID = 1L;
+    public PotentialMasterListThreaded potentialMaster;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono sn;
     public SpeciesSpheresMono ag;
@@ -87,7 +88,7 @@ public class MEAMMd3DThreaded extends Simulation {
         int numThreads = 1;
     	MEAMMd3DThreaded sim = new MEAMMd3DThreaded(numAtoms, numThreads);
     	
-    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.getPotentialMaster());
+    	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	
     	energyMeter.setPhase(sim.phase);
@@ -167,8 +168,9 @@ public class MEAMMd3DThreaded extends Simulation {
     }
     
     public MEAMMd3DThreaded(int numAtoms, int numThreads) {
-        super(Space3D.getInstance(), true, new PotentialMasterListThreaded(Space3D.getInstance())); //INSTANCE); kmb change 8/3/05
-        integrator = new IntegratorVelocityVerletThreaded(this, numThreads);
+        super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
+        potentialMaster = new PotentialMasterListThreaded(this);
+        integrator = new IntegratorVelocityVerletThreaded(this, potentialMaster, numThreads);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
