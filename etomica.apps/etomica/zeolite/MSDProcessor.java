@@ -23,7 +23,7 @@ public class MSDProcessor {
 		
         try {
             buffReader = new BufferedReader(fileReader);
-            numAtoms = Integer.parseInt(buffReader.readLine())+1;
+            numAtoms = Integer.parseInt(buffReader.readLine());
         } catch(IOException e) {
             throw new RuntimeException("Problem reading "+inputFile+", caught IOException: " + e.getMessage());
         }
@@ -40,15 +40,14 @@ public class MSDProcessor {
             
             numBlocks = numLines/numAtoms;
             deltaTmax = numBlocks/3;
-            System.out.println("deltaTmax= "+deltaTmax);            
         } catch(IOException e) {
             throw new RuntimeException("Problem reading "+inputFile+", caught IOException: " + e.getMessage());
         }
         try {
-        	buffReader.close();
-        	fileReader.close();
+            buffReader.close();
+            fileReader.close();
         } catch(IOException e){
-        	throw new RuntimeException("Couldn't shut down readers, caught IOException: " +e.getMessage());
+            throw new RuntimeException("Couldn't shut down readers, caught IOException: " +e.getMessage());
         }
         
         coordBlock1 = new IVector[numAtoms];
@@ -71,31 +70,10 @@ public class MSDProcessor {
     }
 
     public void fillArrays(){
-    	//Total RMS displacement
+        //Total RMS displacement
         double[] totalRsquared = new double[deltaTmax];  
         //XYZ Components
         double[][] RsquaredXYZ = new double[deltaTmax][3];
-        double[] RsquaredComp = new double[3];
-        double[] Temperature = new double[numBlocks];
-        //Pull out the temperatures first
-        try{
-        	fileReader = new FileReader(msdInput);
-        	buffReader = new BufferedReader(fileReader);
-        	//Get's rid of numAtoms
-        	buffReader.readLine();
-        	//Get temperatures
-        	int counter = 0;
-        	for(int i=0;i<numBlocks*numAtoms;i++){
-        		String positionLine = buffReader.readLine();
-                String[] coordString = positionLine.split("\t");
-                if(coordString.length==1){
-                	Temperature[counter]=Double.valueOf(coordString[0]).doubleValue();
-                	counter++;
-                }
-        	}
-        }catch(IOException e) {
-        	
-        }
         
         //Fills Block1 and 2, subtracts, and fills totalRsquared.  Repeat.
         for (int i=1; i<deltaTmax+1; i++){
@@ -103,43 +81,39 @@ public class MSDProcessor {
         	try{
             	fileReader = new FileReader(msdInput);
             	buffReader = new BufferedReader(fileReader);
-            //Gets buffReader to start of block 1 in question
-            for (int j=0; j<(i-1)*(numAtoms)+1; j++){
-                buffReader.readLine();
-            }
-            
-            //Get temperature
-            //Block 1 Loop - Adds XYZ lines from block 1
-            for (int k=0; k<numAtoms-1; k++){
-                String positionLine = buffReader.readLine();
-                String[] coordString = positionLine.split("\t");
-                for (int l=0; l<coordString.length; l++) {
-                    double coord = Double.valueOf(coordString[l]).doubleValue();
-                    coordBlock1[k].setX(l,coord);
+                //Gets buffReader to start of block 1 in question
+                for (int j=0; j<(i-1)*numAtoms+1; j++){
+                    buffReader.readLine();
                 }
-            }
-            //Block 2 Loop - Restricts number of block pairs subtracted
-            for (int deltaT=1; deltaT<deltaTmax+1; deltaT++){
-                //Get rid of temperature in this block
-            	buffReader.readLine();
-                //Block 2 Loop - Adds XYZ lines from block 2
-                for (int iatom=0; iatom<numAtoms-1; iatom++){
+                
+                //Block 1 Loop - Adds XYZ lines from block 1
+                for (int k=0; k<numAtoms; k++){
                     String positionLine = buffReader.readLine();
-                    String [] coordString = positionLine.split("\t");
-               
-                    for (int icoord=0; icoord<coordString.length; icoord++) {
-                        double coord = Double.valueOf(coordString[icoord]).doubleValue();
-                        coordVector2.setX(icoord,coord);
-                    }
-                    
-                    coordVector2.ME(coordBlock1[iatom]);
-                    totalRsquared[deltaT-1] += coordVector2.squared();
-                    for(int j=0;j<RsquaredComp.length;j++){
-                    	RsquaredComp[j] +=Math.pow(coordVector2.x(j),2.0);
-                    	RsquaredXYZ[deltaT-1][j] += Math.pow(coordVector2.x(j),2.0);
+                    String[] coordString = positionLine.split("\t");
+                    for (int l=0; l<coordString.length; l++) {
+                        double coord = Double.valueOf(coordString[l]).doubleValue();
+                        coordBlock1[k].setX(l,coord);
                     }
                 }
-            }
+                //Block 2 Loop - Restricts number of block pairs subtracted
+                for (int deltaT=1; deltaT<deltaTmax+1; deltaT++){
+                    //Block 2 Loop - Adds XYZ lines from block 2
+                    for (int iatom=0; iatom<numAtoms; iatom++){
+                        String positionLine = buffReader.readLine();
+                        String [] coordString = positionLine.split("\t");
+                   
+                        for (int icoord=0; icoord<coordString.length; icoord++) {
+                            double coord = Double.valueOf(coordString[icoord]).doubleValue();
+                            coordVector2.setX(icoord,coord);
+                        }
+                        
+                        coordVector2.ME(coordBlock1[iatom]);
+                        totalRsquared[deltaT-1] += coordVector2.squared();
+                        for(int j=0;j<RsquaredXYZ[deltaT-1].length;j++){
+                        	RsquaredXYZ[deltaT-1][j] += Math.pow(coordVector2.x(j),2.0);
+                        }
+                    }
+                }
             
             } catch(IOException e) {
                 throw new RuntimeException("Problem creating array of positions, caught IOException: " + e.getMessage());
@@ -156,38 +130,20 @@ public class MSDProcessor {
          * deltaT
          */
         for (int ideltaT=0; ideltaT<deltaTmax; ideltaT++){
-            totalRsquared[ideltaT] /= ((numAtoms-1)*(numBlocks-ideltaT+1));
+            totalRsquared[ideltaT] /= (numAtoms*(numBlocks-ideltaT+1));
             for(int j=0;j<3;j++){
-            	RsquaredXYZ[ideltaT][j] /= ((numAtoms-1)*(numBlocks-ideltaT+1));
+            	RsquaredXYZ[ideltaT][j] /= (numAtoms*(numBlocks-ideltaT+1));
             }
         }
         
         //Writes totalRsquared to file
         try{
-        	System.out.println("Created new output file");
             fileWriter = new FileWriter(msdOutput, false);
-            fileWriter.write((numAtoms-1)+"\n");
+            fileWriter.write(numAtoms+"\n");
             fileWriter.write(numBlocks+"\n");
-            
-            int temp = 0;
-            for(int i=0;i<Temperature.length;i++){
-            	temp+=Temperature[i];
-            }
-            temp /=Temperature.length;
-            
-            fileWriter.write(temp+"\n");
-            
-            /*
-            for(int i=0;i<Temperature.length;i++){
-            	fileWriter.write(Temperature[i]+"\n");
-            }*/
             
             for (int irow=0; irow<deltaTmax; irow++){
                 fileWriter.write(irow+"\t"+totalRsquared[irow]+"\n");
-                //fileWriter.write(irow+"\t"+RsquaredTotal[irow][0]+"\n");
-                //fileWriter.write(irow+"\t"+RsquaredTotal[irow][1]+"\n");
-                //fileWriter.write(irow+"\t"+RsquaredTotal[irow][2]+"\n");
-                //fileWriter.write("\n"); 
             }
             
             fileWriter.write("Time dependent data for X,Y,Z\n");
