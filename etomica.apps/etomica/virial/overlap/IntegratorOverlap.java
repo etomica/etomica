@@ -6,7 +6,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorPhase;
-import etomica.potential.PotentialMaster;
 import etomica.util.Debug;
 import etomica.util.IRandom;
 
@@ -16,9 +15,8 @@ import etomica.util.IRandom;
  */
 public class IntegratorOverlap extends IntegratorManagerMC {
 
-    public IntegratorOverlap(PotentialMaster potentialMaster, IRandom random,
-            IntegratorPhase[] aIntegrators) {
-        super(potentialMaster, random);
+    public IntegratorOverlap(IRandom random, IntegratorPhase[] aIntegrators) {
+        super(null, random);
         setNumSubSteps(1000);
         for (int i=0; i<aIntegrators.length; i++) {
             addIntegrator(aIntegrators[i]);
