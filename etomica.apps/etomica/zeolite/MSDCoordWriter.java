@@ -6,15 +6,13 @@ import java.io.IOException;
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
 import etomica.atom.IAtomPositioned;
-import etomica.atom.iterator.AtomIteratorMolecule;
-import etomica.data.meter.MeterTemperature;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.species.Species;
-import etomica.units.Kelvin;
 
 /* =====SUMMARY======
  * At each 'writeInterval', which corresponds to a certain number of simulation steps,
@@ -49,36 +47,26 @@ import etomica.units.Kelvin;
 public class MSDCoordWriter implements IntegratorIntervalListener,
                                        ControllerListener {
 	
-	private int nAtomsMeth;
-	private int totalAtoms;
-	private MeterTemperature meter;
-	private double offset;
-	
-	public MSDCoordWriter(Space space, String fileName,Species[] species){
+	public MSDCoordWriter(Space space, String fileName){
 		// Creates an instance of subclass AfterPBC
-		afterPBCinstance = new AfterPBC(space,species);
-		iterator = new AtomIteratorMolecule(species);
+		iterator = new AtomIteratorLeafAtoms();
+        afterPBCinstance = new AfterPBC(space,iterator);
 		this.fileName = fileName;
 		setWriteInterval(1);
-		nAtomsMeth = 0;
-		counter = 0;
 	}
 	
-	public void setPhase(Phase phase){
+	public void setPhase(Phase newPhase){
 		
-		this.phase = phase;
+		phase = newPhase;
 		iterator.setPhase(phase);
 		afterPBCinstance.setPhase(phase);
-		totalAtoms = phase.atomCount();
-		meter = new MeterTemperature();
-		meter.setPhase(phase);
 	}
+    
+    public void setIterator(AtomIteratorPhaseDependent newIterator) {
+        iterator = newIterator;
+        afterPBCinstance.setIterator(iterator);
+    }
 	
-	public void setNatoms(int natoms){
-		nAtomsMeth = natoms;
-		offset = totalAtoms/nAtomsMeth;
-		//offset = 1;
-	}
 	public void setIntegrator(Integrator integrator){
 		integrator.addListener(this);
 		integrator.addListener(afterPBCinstance);
@@ -115,19 +103,13 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 	}
 	
 	public void intervalAction() {
-		//System.out.println(counter);
-		//counter++;
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
-			counter++;
-			System.out.println((counter*200*writeInterval/3270000.0)+"%");
 			IVector phasedim = phase.getBoundary().getDimensions();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
-			double temp = Kelvin.UNIT.fromSim(meter.getDataAsScalar()*offset);
-			//System.out.println(temp);
+
 			try {
-				fileWriter.write(temp+"\n");
 				iterator.reset();
 				int i=0;
 				for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom();
@@ -171,13 +153,11 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 
 	private AfterPBC afterPBCinstance;
 	private Phase phase;
-	//private AtomIteratorLeafAtoms iterator;
-	private AtomIteratorMolecule iterator;
+	private AtomIteratorPhaseDependent iterator;
 	private int writeInterval;
 	private int intervalCount;
 	private String fileName;
 	private FileWriter fileWriter;
-	private int counter;
 	
 	/*
 	 * -------------------------SUBCLASS AfterPBC----------------------------------
@@ -185,9 +165,9 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 	
 	private static class AfterPBC implements IntegratorIntervalListener{
 		
-		public AfterPBC(Space space,Species[] species){
+		public AfterPBC(Space space, AtomIteratorPhaseDependent iterator){
 			workVector = space.makeVector();
-			iterator = new AtomIteratorMolecule(species);
+			this.iterator = iterator;
 		}
 		
 		// Method called in main class (see above)
@@ -206,6 +186,10 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			phaseDim = phase.getBoundary().getDimensions();
 			updateAtomOldCoord();
 		}
+        
+        public void setIterator(AtomIteratorPhaseDependent newIterator) {
+            iterator = newIterator;
+        }
 		
 		// Method called in main and sub class (see directly above and above)
 		public void updateAtomOldCoord(){
@@ -250,8 +234,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		private int [][] atomPBIarray;
 		private IVector workVector;
 		private IVector [] atomOldCoord;
-		//private AtomIteratorLeafAtoms iterator;
-		private AtomIteratorMolecule iterator;
+		private AtomIteratorPhaseDependent iterator;
 	}
 	
 }

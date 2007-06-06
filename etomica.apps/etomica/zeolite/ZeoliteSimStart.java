@@ -1,11 +1,13 @@
 package etomica.zeolite;
 
 import etomica.action.IntegratorActionAdapter;
+import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.species.Species;
 import etomica.util.HistoryCollapsing;
@@ -36,7 +38,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sim.activityIntegrate.setDoSleep(false);
         	((IntegratorMD)integrator).setThermostatInterval(327000);
         	//Keeping another graphic of the total energy drift
-        	MeterEnergy eMeter = new MeterEnergy(integrator.getPotential());
+        	MeterEnergy eMeter = new MeterEnergy(((IntegratorPhase)integrator).getPotential());
         	eMeter.setPhase(sim.phase);
         	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsing());
         	energyHistory.getHistory().setHistoryLength(sim.getInterval()*500);
@@ -63,9 +65,9 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sp = sim.getSpeciesRMS();
         	System.out.println(filename);
         	//sim.integrator.setTimeStep(0.00);
-        	MSDCoordWriter coordWriter = new MSDCoordWriter(sim.getSpace(), filename,sp);
+        	MSDCoordWriter coordWriter = new MSDCoordWriter(sim.getSpace(), filename);
         	coordWriter.setPhase(sim.phase);
-            coordWriter.setNatoms(sim.getMethane());
+            coordWriter.setIterator(new AtomIteratorMolecule(sp));
             coordWriter.setIntegrator(sim.integrator);
             coordWriter.setWriteInterval(interval);
             coordWriter.openFile();
