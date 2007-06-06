@@ -1,6 +1,5 @@
 package etomica.virial.overlap;
 
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -41,9 +40,12 @@ public class IntegratorOverlap extends IntegratorManagerMC {
             throw new IllegalArgumentException("Must have the same number of integrators as accumulators\n");
         }
         for (int i=0; i<nIntegrators; i++) {
-            stepFreq[i] = 1.0/nIntegrators;
+            if (doAdjustStepFreq) {
+                stepFreq[i] = 1.0/nIntegrators;
+            }
             totNumSubSteps[i] = 0;
         }
+        minDiffLoc = -1;
     }
 
     /**
@@ -62,6 +64,14 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         doAdjustStepFreq = b;
     }
 
+    /**
+     * Sets whether to adjust the number of relative number of steps for each
+     * sub-integrator.  Default is true.
+     */
+    public boolean isAdjustStepFreq() {
+        return doAdjustStepFreq;
+    }
+
     // Override superclass so we can run the integrators for different lenghts
     // of time.  There are no global moves.
     public void doStepInternal() {
@@ -77,12 +87,21 @@ public class IntegratorOverlap extends IntegratorManagerMC {
             int nBennetPoints = accumulators[0].getNBennetPoints();
             if (nBennetPoints>1) System.out.println("target minDiffLoc = "+newMinDiffLoc+" refPref "+accumulators[0].getBennetBias(newMinDiffLoc)
                     +" ("+(accumulators[0].getBennetAverage(newMinDiffLoc)/accumulators[1].getBennetAverage(newMinDiffLoc))+")");
+            System.out.print("Bennet bias ");
+            for (int j=0; j<accumulators[0].getNBennetPoints(); j++) {
+                System.out.print(accumulators[0].getBennetBias(j)+" ");
+            }
+            System.out.print("\n");
             for (int i=0; i<nIntegrators; i++) {
-                System.out.print("Bennet "+i+" ");
+//                System.out.print("rel. uncertainty "+i+" ");
+//                for (int j=0; j<accumulators[i].getNBennetPoints(); j++) {
+//                    DataGroup data = (DataGroup)accumulators[i].getData(j);
+//                    System.out.print(((DataDoubleArray)data.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]
+//                                           /((DataDoubleArray)data.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]+" ");
+//                }
+                System.out.print("Bennet avg "+i+" ");
                 for (int j=0; j<accumulators[i].getNBennetPoints(); j++) {
-                    DataGroup data = (DataGroup)accumulators[i].getData(j);
-                    System.out.print(((DataDoubleArray)data.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]
-                                           /((DataDoubleArray)data.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]+" ");
+                    System.out.print(accumulators[i].getBennetAverage(j)+" ");
                 }
                 System.out.print("\n");
             }
@@ -156,11 +175,15 @@ public class IntegratorOverlap extends IntegratorManagerMC {
         return stepFreq[0];
     }
     
+    public double getActualStepFreq0() {
+        return totNumSubSteps[0]/(double)(totNumSubSteps[0]+totNumSubSteps[1]);
+    }
+    
     private static final long serialVersionUID = 1L;
     private final double[] stepFreq;
     private int numSubSteps;
     private int[] totNumSubSteps;
-    private int minDiffLoc=-1;
+    private int minDiffLoc;
     private AccumulatorVirialOverlapSingleAverage[] accumulators;
     private DataSourceVirialOverlap dsvo;
     private boolean doAdjustStepFreq;
