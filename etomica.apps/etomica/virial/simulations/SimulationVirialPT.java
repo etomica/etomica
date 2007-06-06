@@ -45,8 +45,8 @@ public class SimulationVirialPT extends Simulation {
 	public SimulationVirialPT(Space space, Default defaults, SpeciesFactory speciesFactory, 
 			double[] temperature, ClusterWeight.Factory sampleClusterFactory, 
 			ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-		super(space,false,new PotentialMaster(space),Default.BIT_LENGTH,defaults);
-        
+		super(space,false,Default.BIT_LENGTH,defaults);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
 		int nMolecules = refCluster.pointCount();
 		species = speciesFactory.makeSpecies(this);//SpheresMono(this,AtomLinker.FACTORY);
         getSpeciesManager().addSpecies(species);
@@ -88,7 +88,7 @@ public class SimulationVirialPT extends Simulation {
             phase[iTemp] = new PhaseCluster(this,sampleCluster[iTemp]);
             phase[iTemp].getAgent(species).setNMolecules(nMolecules);
             
-            integrator[iTemp] = new IntegratorMC(this);
+            integrator[iTemp] = new IntegratorMC(this, potentialMaster);
             integrator[iTemp].setTemperature(temperature[iTemp]);
             integrator[iTemp].setPhase(phase[iTemp]);
             integrator[iTemp].getMoveManager().setEquilibrating(false);
@@ -97,11 +97,11 @@ public class SimulationVirialPT extends Simulation {
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
             if (!(phase[iTemp].molecule(0) instanceof IAtomGroup)) {
-                mcMoveAtom1[iTemp] = new MCMoveClusterAtom(this);
+                mcMoveAtom1[iTemp] = new MCMoveClusterAtom(this, potentialMaster);
                 mcMoveAtom1[iTemp].setStepSize(1.15);
                 moveManager.addMCMove(mcMoveAtom1[iTemp]);
                 if (nMolecules>2) {
-                    mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, nMolecules-1);
+                    mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
                     mcMoveMulti[iTemp].setStepSize(0.41);
                     moveManager.addMCMove(mcMoveMulti[iTemp]);
                 }

@@ -4,22 +4,18 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
 
 /**
  *  Overrides MCMoveAtom to prevent index-0 molecule from being displaced
  */
-
-/*
- * Created on Sep 10, 2004
- */
-
 public class MCMoveClusterAtom extends MCMoveAtom {
 
-    public MCMoveClusterAtom(Simulation sim) {
-        super(sim);
-        weightMeter = new MeterClusterWeight(sim.getPotentialMaster());
+    public MCMoveClusterAtom(Simulation sim, PotentialMaster potentialMaster) {
+        super(sim, potentialMaster);
+        weightMeter = new MeterClusterWeight(potentialMaster);
 	}
 	
     public void setPhase(Phase p) {

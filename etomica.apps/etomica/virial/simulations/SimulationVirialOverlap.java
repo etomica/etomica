@@ -67,8 +67,8 @@ public class SimulationVirialOverlap extends Simulation {
 	
 	public SimulationVirialOverlap(Space aSpace, Default defaults, SpeciesFactory speciesFactory, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters) {
-		super(aSpace,false,new PotentialMaster(aSpace),Default.BIT_LENGTH,defaults);
-
+		super(aSpace,false,Default.BIT_LENGTH,defaults);
+		PotentialMaster potentialMaster = new PotentialMaster(this);
         sampleClusters = aSampleClusters;
         int nMolecules = sampleClusters[0].pointCount();
         species = speciesFactory.makeSpecies(this);
@@ -95,7 +95,7 @@ public class SimulationVirialOverlap extends Simulation {
             phase[iPhase] = new PhaseCluster(this,sampleClusters[iPhase]);
             phase[iPhase].getAgent(species).setNMolecules(nMolecules);
             
-            integrators[iPhase] = new IntegratorMC(this);
+            integrators[iPhase] = new IntegratorMC(this, potentialMaster);
             integrators[iPhase].setTemperature(temperature);
             integrators[iPhase].setPhase(phase[iPhase]);
             integrators[iPhase].getMoveManager().setEquilibrating(false);
@@ -103,7 +103,7 @@ public class SimulationVirialOverlap extends Simulation {
             MCMoveManager moveManager = integrators[iPhase].getMoveManager();
             
             if (species.getFactory().getType() instanceof AtomTypeLeaf) {
-                mcMoveTranslate[iPhase] = new MCMoveClusterAtomMulti(this, nMolecules-1);
+                mcMoveTranslate[iPhase] = new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
                 mcMoveTranslate[iPhase].setStepSize(0.41);
                 moveManager.addMCMove(mcMoveTranslate[iPhase]);
             }
@@ -115,7 +115,7 @@ public class SimulationVirialOverlap extends Simulation {
                 moveManager.addMCMove(mcMoveTranslate[iPhase]);
                 if (species instanceof SpeciesSpheres) {
                     if (((SpeciesSpheres)species).getFactory().getNumChildAtoms() > 2) {
-                        mcMoveWiggle[iPhase] = new MCMoveClusterWiggleMulti(this,nMolecules);
+                        mcMoveWiggle[iPhase] = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules);
                         moveManager.addMCMove(mcMoveWiggle[iPhase]);
                     }
                 }

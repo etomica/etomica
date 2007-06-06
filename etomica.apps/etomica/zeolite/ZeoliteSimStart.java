@@ -9,11 +9,10 @@ import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.species.Species;
 import etomica.util.HistoryCollapsing;
-import etomica.util.HistoryCollapsingAverage;
 
 public class ZeoliteSimStart extends IntegratorActionAdapter{
 
-	public ZeoliteSimStart(ZeoliteSimulation sim,zeoliteSimGraphic graphic) {
+    public ZeoliteSimStart(ZeoliteSimulation sim,zeoliteSimGraphic graphic) {
         this(sim.integrator,sim.getDefaults().ignoreOverlap,sim.getInterval());
         this.sim = sim;
         this.graphic = graphic;
@@ -37,7 +36,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sim.activityIntegrate.setDoSleep(false);
         	((IntegratorMD)integrator).setThermostatInterval(327000);
         	//Keeping another graphic of the total energy drift
-        	MeterEnergy eMeter = new MeterEnergy(sim.getPotentialMaster());
+        	MeterEnergy eMeter = new MeterEnergy(integrator.getPotential());
         	eMeter.setPhase(sim.phase);
         	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsing());
         	energyHistory.getHistory().setHistoryLength(sim.getInterval()*500);
@@ -89,6 +88,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         this.ignoreOverlap = ignoreOverlap;
     }
 
+    private static final long serialVersionUID = 1L;
     private boolean ignoreOverlap;
     private int interval;
     private ZeoliteSimulation sim;

@@ -33,8 +33,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     private final MeterClusterWeight weightMeter;
     private final MeterPotentialEnergy energyMeter;
 
-    public MCMoveClusterWiggleMulti(Simulation sim, int nAtoms) {
-    	this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().atomSize, nAtoms);
+    public MCMoveClusterWiggleMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms) {
+    	this(potentialMaster,sim.getRandom(),sim.getDefaults().atomSize, nAtoms);
         setBondLength(1.0);
     }
     

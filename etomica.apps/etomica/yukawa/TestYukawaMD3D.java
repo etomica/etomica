@@ -32,7 +32,9 @@ import etomica.util.Default;
  */
 
 public class TestYukawaMD3D extends Simulation{
-	public final Phase phase;
+
+    private static final long serialVersionUID = 1L;
+    public final Phase phase;
 	public final IntegratorVelocityVerlet integrator;
 	public final SpeciesSpheresMono species;
 	public final P2Yukawa potential;
@@ -46,7 +48,8 @@ public class TestYukawaMD3D extends Simulation{
 	}
 	
 	private TestYukawaMD3D(Space space, Default defaults){
-		super(space, true, new PotentialMasterList(space, 1.6), Default.BIT_LENGTH, defaults);
+		super(space, true, Default.BIT_LENGTH, defaults);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6);
 		
 		int numAtoms = 256;
 		double neighborRangeFac = 1.6;
@@ -55,9 +58,9 @@ public class TestYukawaMD3D extends Simulation{
 		defaults.atomSize = 1.0;
 		defaults.boxSize = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
 		
-		((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
+		potentialMaster.setRange(neighborRangeFac*defaults.atomSize);
 		
-		integrator = new IntegratorVelocityVerlet(this);
+		integrator = new IntegratorVelocityVerlet(this, potentialMaster);
 		integrator.setIsothermal(false);
 		integrator.setTimeStep(0.01);
 		this.register(integrator);
@@ -73,7 +76,7 @@ public class TestYukawaMD3D extends Simulation{
 		phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
-        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+        NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
         integrator.addListener(nbrManager);
 		potential = new P2Yukawa(this);
 		
@@ -82,8 +85,8 @@ public class TestYukawaMD3D extends Simulation{
 			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*phase.getBoundary().getDimensions().x(0));
 		}
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
-		((PotentialMasterList)potentialMaster).setCellRange(3);
-		((PotentialMasterList)potentialMaster).setRange(potentialTruncated.getRange()*1.3);
+		potentialMaster.setCellRange(3);
+		potentialMaster.setRange(potentialTruncated.getRange()*1.3);
 		potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
 		
 		new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);

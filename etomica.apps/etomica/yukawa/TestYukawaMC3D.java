@@ -30,7 +30,8 @@ import etomica.species.SpeciesSpheresMono;
 
 public class TestYukawaMC3D extends Simulation{
 	
-	public IntegratorMC integrator;
+    private static final long serialVersionUID = 1L;
+    public IntegratorMC integrator;
 	public MCMoveAtom mcMoveAtom;
 	public SpeciesSpheresMono species;
 	public Phase phase;
@@ -42,13 +43,14 @@ public class TestYukawaMC3D extends Simulation{
 	}
 	
 	public TestYukawaMC3D(int numAtoms){
-		super(Space3D.getInstance(), false, new PotentialMasterCell(Space3D.getInstance()));
+		super(Space3D.getInstance(), false);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
 		
 		defaults.makeLJDefaults();
 		
 		
-		integrator = new IntegratorMC(this);
-		mcMoveAtom = new MCMoveAtom(this);
+		integrator = new IntegratorMC(this, potentialMaster);
+		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
 		mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
 		mcMoveAtom.setStepSize(0.2*defaults.atomSize);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
@@ -67,16 +69,16 @@ public class TestYukawaMC3D extends Simulation{
 			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*phase.getBoundary().getDimensions().x(0));
 		}
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
-		((PotentialMasterCell)potentialMaster).setCellRange(3);
-		((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
+		potentialMaster.setCellRange(3);
+		potentialMaster.setRange(potentialTruncated.getRange());
 		potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
 			
-		integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
+		integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(phase).makeMCMoveListener());
 		
 		new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
 		integrator.setPhase(phase);
 		
-		((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
+		potentialMaster.getNbrCellManager(phase).assignCellAll();
 		
 	}
 	

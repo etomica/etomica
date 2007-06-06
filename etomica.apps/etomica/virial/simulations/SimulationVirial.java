@@ -40,7 +40,8 @@ public class SimulationVirial extends Simulation {
 	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
 	 */
 	public SimulationVirial(Space space, Default defaults, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-		super(space,false,new PotentialMaster(space),Default.BIT_LENGTH,defaults);
+		super(space,false,Default.BIT_LENGTH,defaults);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		phase = new PhaseCluster(this,sampleCluster);
@@ -56,7 +57,7 @@ public class SimulationVirial extends Simulation {
             ((ClusterCoupled)targetClusters[0]).setPhase(phase);
         }
 
-        integrator = new IntegratorMC(this);
+        integrator = new IntegratorMC(this, potentialMaster);
         // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
         integrator.setPhase(phase);
@@ -66,7 +67,7 @@ public class SimulationVirial extends Simulation {
 		getController().addAction(ai);
 		
         if (species.getFactory().getType() instanceof AtomTypeLeaf) {
-            mcMoveTranslate= new MCMoveClusterAtomMulti(this, nMolecules-1);
+            mcMoveTranslate= new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
         }
         else {
             mcMoveTranslate = new MCMoveClusterMoleculeMulti(potentialMaster,getRandom(),0.41,nMolecules-1);
@@ -74,9 +75,9 @@ public class SimulationVirial extends Simulation {
             mcMoveRotate.setStepSize(Math.PI);
             if (species instanceof SpeciesSpheres) {
                 if (((SpeciesSpheres)species).getFactory().getNumChildAtoms() > 2) {
-                    mcMoveWiggle = new MCMoveClusterWiggleMulti(this,nMolecules);
+                    mcMoveWiggle = new MCMoveClusterWiggleMulti(this,potentialMaster, nMolecules);
                     integrator.getMoveManager().addMCMove(mcMoveWiggle);
-                    mcMoveReptate = new MCMoveClusterReptateMulti(this,nMolecules-1);
+                    mcMoveReptate = new MCMoveClusterReptateMulti(this,potentialMaster, nMolecules-1);
                     integrator.getMoveManager().addMCMove(mcMoveReptate);
                 }
             }

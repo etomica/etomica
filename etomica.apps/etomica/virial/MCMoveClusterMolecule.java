@@ -18,8 +18,8 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
 
-    public MCMoveClusterMolecule(Simulation sim) {
-    	this(sim.getPotentialMaster(),sim.getRandom(),sim.getDefaults().atomSize);
+    public MCMoveClusterMolecule(Simulation sim, PotentialMaster potentialMaster) {
+    	this(potentialMaster,sim.getRandom(),sim.getDefaults().atomSize);
     }
     
     public MCMoveClusterMolecule(PotentialMaster potentialMaster, IRandom random, double stepSize) {

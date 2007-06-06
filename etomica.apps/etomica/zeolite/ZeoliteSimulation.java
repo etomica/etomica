@@ -47,6 +47,8 @@ public class ZeoliteSimulation extends Simulation {
     //the following fields are made accessible for convenience to permit simple
     //mutation of the default behavior
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * The Phase holding the atoms. 
      */
@@ -88,8 +90,9 @@ public class ZeoliteSimulation extends Simulation {
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
-        super(space, true, new PotentialMasterList(space, 1.6), Default.BIT_LENGTH, defaults);
+        super(space, true, Default.BIT_LENGTH, defaults);
 
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6);
         //Additions for Zeolite Calculations
         //Start by reading the first line, which is number of Atoms
         String fileName = "2unitcell";
@@ -112,10 +115,10 @@ public class ZeoliteSimulation extends Simulation {
         atomicSize[2] = 2.088;
         
         double range = 8.035;
-        ((PotentialMasterList)potentialMaster).setRange(3.214*neighborRangeFac*2.5);
+        potentialMaster.setRange(3.214*neighborRangeFac*2.5);
         
         
-        integrator = new IntegratorVelocityVerlet(this);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);
@@ -133,7 +136,7 @@ public class ZeoliteSimulation extends Simulation {
         
         phase = new Phase(this);
         addPhase(phase);
-        NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+        NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
         integrator.addListener(nbrManager);
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){
@@ -242,7 +245,7 @@ public class ZeoliteSimulation extends Simulation {
         int history = sim.getInterval()*10;
         //Settings
         
-        MeterEnergy eMeter = new MeterEnergy(sim.getPotentialMaster());
+        MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential());
         eMeter.setPhase(sim.phase);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.getHistory().setHistoryLength(history);

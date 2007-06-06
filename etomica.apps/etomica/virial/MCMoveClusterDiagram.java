@@ -19,6 +19,7 @@ import etomica.potential.PotentialMaster;
  */
 public class MCMoveClusterDiagram extends MCMovePhase {
 
+    private static final long serialVersionUID = 1L;
     private MeterClusterWeight weightMeter;
     public MCMoveClusterDiagram(PotentialMaster potentialMaster) {
         super(potentialMaster);
