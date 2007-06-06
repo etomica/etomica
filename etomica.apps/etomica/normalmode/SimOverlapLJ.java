@@ -52,7 +52,7 @@ public class SimOverlapLJ extends Simulation {
     public SimOverlapLJ(Space space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
         super(space, true);
 
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         integrators = new IntegratorPhase[2];

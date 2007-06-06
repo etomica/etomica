@@ -168,7 +168,7 @@ public class MEAM_3DMDwithGB extends Simulation {
     
     public MEAM_3DMDwithGB() {
         super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMasterList(space);
+        potentialMaster = new PotentialMasterList(this);
         integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));

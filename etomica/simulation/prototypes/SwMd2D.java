@@ -35,7 +35,7 @@ public class SwMd2D extends Simulation {
     }
     public SwMd2D(Space space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         defaults.makeLJDefaults();
         defaults.atomSize = 0.8;
         integrator = new IntegratorHard(this, potentialMaster);

@@ -37,7 +37,7 @@ public class ChainHSMD3D extends Simulation {
     }
     private ChainHSMD3D(Space space) {
         super(space, true);
-        PotentialMasterList potentialMaster = new PotentialMasterList(space);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this);
         defaults.ignoreOverlap = true;
         int numAtoms = 704;
         int chainLength = 4;

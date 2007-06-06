@@ -67,7 +67,7 @@ public class TestHexaneHarmonic extends Simulation {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(space, false);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         primitive = new PrimitiveHexane(space);

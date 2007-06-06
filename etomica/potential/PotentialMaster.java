@@ -29,27 +29,15 @@ import etomica.species.Species;
  */
 public class PotentialMaster implements java.io.Serializable {
     
-    public PotentialMaster(Space space) {
-        this(space,IteratorFactory.INSTANCE);
+    public PotentialMaster(Simulation sim) {
+        this(sim,IteratorFactory.INSTANCE);
     } 
     
-    public PotentialMaster(Space space, IteratorFactory iteratorFactory) {
-        this.space = space;
+    public PotentialMaster(Simulation sim, IteratorFactory iteratorFactory) {
+        simulation = sim;
         this.iteratorFactory = iteratorFactory;
     }
     
-    /**
-     * Sets the simulation that holds this PotentialMaster.  This method is 
-     * called by the Simulation constructor and should not be called at any
-     * other time.
-     */
-    public void setSimulation(Simulation sim) {
-        if (simulation != null) {
-            throw new IllegalStateException("The simulation should only be set once, by the Simulation constructor");
-        }
-        simulation = sim;
-    }
-
     /**
      * Returns the simulation associated with this PotentialMaster
      */
@@ -62,7 +50,7 @@ public class PotentialMaster implements java.io.Serializable {
 	 * correction zero-body potentials.
 	 */
 	 public PotentialMasterLrc lrcMaster() {
-		if(lrcMaster == null) lrcMaster = new PotentialMasterLrc(space);
+		if(lrcMaster == null) lrcMaster = new PotentialMasterLrc(simulation);
 		return lrcMaster;
 	 }
 
@@ -71,7 +59,7 @@ public class PotentialMaster implements java.io.Serializable {
       * PotentialMaster.
       */
      public PotentialGroup makePotentialGroup(int nBody) {
-         return new PotentialGroup(nBody,space);
+         return new PotentialGroup(nBody,simulation.getSpace());
      }
 
      /**
@@ -359,7 +347,7 @@ public class PotentialMaster implements java.io.Serializable {
      * @return Returns the space.
      */
     public Space getSpace() {
-        return space;
+        return simulation.getSpace();
     }
     
     /**
@@ -385,8 +373,7 @@ public class PotentialMaster implements java.io.Serializable {
 
     protected PotentialLinker first, last;
     protected boolean enabled = true;
-    protected final Space space;
-    private Simulation simulation;
+    protected final Simulation simulation;
     
     static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
         private static final long serialVersionUID = 1L;

@@ -11,32 +11,19 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SpeciesManager;
-import etomica.space.Space;
 import etomica.species.Species;
 import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
 
-    protected PotentialMasterNbr(Space space, PhaseAgentSource phaseAgentSource, 
+    protected PotentialMasterNbr(Simulation sim, PhaseAgentSource phaseAgentSource, 
             PhaseAgentManager phaseAgentManager) {
-        super(space);
+        super(sim);
         this.phaseAgentSource = phaseAgentSource;
         this.phaseAgentManager = phaseAgentManager;
         rangedAgentManager = new AtomTypeAgentManager(this);
         intraAgentManager = new AtomTypeAgentManager(this);
-    }
-    
-    public PotentialGroup makePotentialGroup(int nBody) {
-        return new PotentialGroupNbr(nBody, space);
-    }
-    
-    /**
-     * Initializes the AtomType-based potential arrays and adds us as a 
-     * SimulationListener so we'll know when AtomTypes are added or removed
-     * (which only happens when Species are added or removed).
-     */
-    public void setSimulation(Simulation sim) {
-        super.setSimulation(sim);
+
         SpeciesManager speciesManager = sim.getSpeciesManager();
         SimulationEventManager simEventManager = sim.getEventManager();
         rangedAgentManager.init(speciesManager, simEventManager);
@@ -44,6 +31,10 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         rangedPotentialIterator = rangedAgentManager.makeIterator();
         intraPotentialIterator = intraAgentManager.makeIterator();
         phaseAgentManager.setSimulation(sim);
+    }
+    
+    public PotentialGroup makePotentialGroup(int nBody) {
+        return new PotentialGroupNbr(nBody, simulation.getSpace());
     }
     
     public void addPotential(Potential potential, Species[] species) {

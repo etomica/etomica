@@ -47,7 +47,7 @@ public class TestSWChain extends Simulation {
     
     public TestSWChain(int numMolecules) {
         super(Space3D.getInstance(), true);
-        PotentialMasterList potentialMaster = new PotentialMasterList(space);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this);
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
         double sqwLambda = 1.5;

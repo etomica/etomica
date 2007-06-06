@@ -35,7 +35,7 @@ public class HsMc2d extends Simulation {
 
     public HsMc2d() {
         super(Space2D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
 	    integrator = new IntegratorMC(this, potentialMaster);
 	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(this, integrator);

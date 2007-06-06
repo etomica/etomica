@@ -57,7 +57,7 @@ public class TestHexaneHighMedium extends Simulation {
     
     public TestHexaneHighMedium(Space space, int numMolecules) {
         super(space, false);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         primitive = new PrimitiveHexane(space);

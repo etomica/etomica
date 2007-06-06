@@ -25,7 +25,7 @@ import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.space.Space;
+import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -37,21 +37,21 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * position definition to null, so that atom type's definition is used
      * to assign cells. 
 	 */
-	public PotentialMasterSite(Space space, int nCells) {
-        this(space, new PhaseAgentSiteManager(nCells));
+	public PotentialMasterSite(Simulation sim, int nCells) {
+        this(sim, new PhaseAgentSiteManager(nCells));
     }
     
-    public PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource) {
-        this(space, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
+    public PotentialMasterSite(Simulation sim, PhaseAgentSource phaseAgentSource) {
+        this(sim, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
-    public PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource, PhaseAgentManager agentManager) {
-        this(space, phaseAgentSource, agentManager, new Api1ASite(space.D(),agentManager));
+    public PotentialMasterSite(Simulation sim, PhaseAgentSource phaseAgentSource, PhaseAgentManager agentManager) {
+        this(sim, phaseAgentSource, agentManager, new Api1ASite(sim.getSpace().D(),agentManager));
     }
     
-    protected PotentialMasterSite(Space space, PhaseAgentSource phaseAgentSource, 
+    protected PotentialMasterSite(Simulation sim, PhaseAgentSource phaseAgentSource, 
             PhaseAgentManager agentManager, AtomsetIteratorPDT neighborIterator) {
-        super(space, phaseAgentSource, agentManager);
+        super(sim, phaseAgentSource, agentManager);
         singletAtomIterator = new AtomIteratorSinglet();
 		singletPairIterator = new AtomsetIteratorSinglet(2);
         this.neighborIterator = neighborIterator;

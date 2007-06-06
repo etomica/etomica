@@ -29,7 +29,7 @@ public class TestHSMD3D extends Simulation {
 
     public TestHSMD3D(Space space, int numAtoms) {
         super(space, true);
-        PotentialMasterList potentialMaster = new PotentialMasterList(space);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this);
         
         double neighborRangeFac = 1.6;
         defaults.makeLJDefaults();

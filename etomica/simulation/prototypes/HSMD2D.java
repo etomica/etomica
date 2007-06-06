@@ -40,7 +40,7 @@ public class HSMD2D extends Simulation {
     
     private HSMD2D(Space2D space, Default defaults) {
         super(space, true, Default.BIT_LENGTH, defaults);
-        PotentialMasterList potentialMaster = new PotentialMasterList(space);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this);
 //        super(space, new PotentialMaster(space));//,IteratorFactoryCell.instance));
         defaults.makeLJDefaults();
         defaults.atomSize = 0.38;

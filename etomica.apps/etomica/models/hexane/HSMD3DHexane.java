@@ -28,7 +28,7 @@ public class HSMD3DHexane extends Simulation {
         // use custom bit lengths to allow for more "molecules"        
         super(space, true, new int[]{1,4,4,21,1,1}, new Default());
         
-        PotentialMasterList potentialMaster = new PotentialMasterList(space);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this);
         
         double neighborRangeFac = 1.6;
         defaults.makeLJDefaults();

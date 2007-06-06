@@ -7,7 +7,7 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
-import etomica.space.Space;
+import etomica.simulation.Simulation;
 
 /**
  * A PotentialMaster for use with a Simulation where cell-listing of atoms and
@@ -21,8 +21,8 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * Creates PotentialMasterCell with default (1.0) range.  Range
      * should be set manually via setRange method.
      */
-    public PotentialMasterCell(Space space) {
-        this(space,1.0);
+    public PotentialMasterCell(Simulation sim) {
+        this(sim,1.0);
     }
     
     /**
@@ -32,22 +32,22 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * @param space the governing Space
      * @param range the neighbor distance.  May be changed after construction.
      */
-    public PotentialMasterCell(Space space, double range) {
-        this(space, range, (AtomPositionDefinition)null);
+    public PotentialMasterCell(Simulation sim, double range) {
+        this(sim, range, (AtomPositionDefinition)null);
     }
 
-    public PotentialMasterCell(Space space, double range,
+    public PotentialMasterCell(Simulation sim, double range,
             AtomPositionDefinition positionDefinition) {
-        this(space, range, new PhaseAgentSourceCellManager(positionDefinition));
+        this(sim, range, new PhaseAgentSourceCellManager(positionDefinition));
     }
     
-    public PotentialMasterCell(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource) {
-        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
+    public PotentialMasterCell(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
+        this(sim, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
-    public PotentialMasterCell(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource,
+    public PotentialMasterCell(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource,
             PhaseAgentManager agentManager) {
-        super(space, phaseAgentSource, agentManager, new Api1ACell(space.D(),range,agentManager));
+        super(sim, phaseAgentSource, agentManager, new Api1ACell(sim.getSpace().D(),range,agentManager));
     }
     
     public double getRange() {

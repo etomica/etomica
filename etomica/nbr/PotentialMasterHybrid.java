@@ -18,7 +18,6 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.species.Species;
 
 /**
@@ -36,37 +35,31 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * and position definition to null, causing cell assignment to be
      * based on atom type's position definition. 
 	 */
-	public PotentialMasterHybrid(Space space, double range) {
-        this(space, null, range);
+	public PotentialMasterHybrid(Simulation sim, double range) {
+        this(sim, null, range);
     }
     
     /**
      * Constructs class using given position definition for all atom cell assignments.
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-    public PotentialMasterHybrid(Space space, AtomPositionDefinition positionDefinition, double range) {
-        this(space, range, new PhaseAgentSourceCellManager(positionDefinition));
+    public PotentialMasterHybrid(Simulation sim, AtomPositionDefinition positionDefinition, double range) {
+        this(sim, range, new PhaseAgentSourceCellManager(positionDefinition));
     }
     
-    private PotentialMasterHybrid(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource) {
-        this(space, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
+    private PotentialMasterHybrid(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
+        this(sim, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
-    private PotentialMasterHybrid(Space space, double range, PhaseAgentSourceCellManager phaseAgentSource,
+    private PotentialMasterHybrid(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource,
             PhaseAgentManager agentManager) {
-        super(space, phaseAgentSource, agentManager);
-        potentialMasterList = new PotentialMasterList(space, range, phaseAgentSource, agentManager);
-        potentialMasterCell = new PotentialMasterCell(space, range, phaseAgentSource, agentManager);
+        super(sim, phaseAgentSource, agentManager);
+        potentialMasterList = new PotentialMasterList(sim, range, phaseAgentSource, agentManager);
+        potentialMasterCell = new PotentialMasterCell(sim, range, phaseAgentSource, agentManager);
 	}
     
     public PotentialGroup makePotentialGroup(int nBody) {
-        return new PotentialGroupHybrid(nBody,space);
-    }
-    
-    public void setSimulation(Simulation sim) {
-        super.setSimulation(sim);
-        potentialMasterList.setSimulation(sim);
-        potentialMasterCell.setSimulation(sim);
+        return new PotentialGroupHybrid(nBody,simulation.getSpace());
     }
     
     public PotentialMasterList getPotentialMasterList() {

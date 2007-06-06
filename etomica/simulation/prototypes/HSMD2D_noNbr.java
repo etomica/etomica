@@ -51,7 +51,7 @@ public class HSMD2D_noNbr extends Simulation {
     
     public HSMD2D_noNbr(Space2D space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMaster potentialMaster = new PotentialMaster(this);
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(this,integrator);

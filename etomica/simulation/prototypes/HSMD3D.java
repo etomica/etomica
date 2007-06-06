@@ -79,8 +79,7 @@ public class HSMD3D extends Simulation {
         // the PotentialMaster is selected such as to implement neighbor listing
         super(space, true);
 
-        potentialMaster = params.useNeighborLists ? new PotentialMasterList(space, 1.6) : new PotentialMaster(space);
-        potentialMaster.setSimulation(this);
+        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, 1.6) : new PotentialMaster(this);
 
         int numAtoms = params.nAtoms;
         double neighborRangeFac = 1.6;
