@@ -289,10 +289,16 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 //        //Dur, this is a bond.
 //        double skewlength = length;
         
-        //Deal with u[3]; the rotation around axes[2]
-        double sinA = Math.sqrt(1 - u[3]*u[3]);     //use a trig identity.
-        double cosA = u[3];
-        vex.E(axes[2]);
+        /*
+         * Deal with u[5].  We do this first, and we can do this at all,
+         * because the initial molecule we are manipulating is in the same 
+         * position as the initial molecule that was used to calculate
+         * the axes[], so rotating around axes[0] is the same as rotating
+         * around axis0prime, and u[5] is that angle.
+         */
+        double sinA = Math.sin(u[5]);
+        double cosA = Math.cos(u[5]);
+        vex.E(axes[0]);
         rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
                 (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
                 (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
@@ -311,41 +317,55 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             rotor.transform(temp);
         }
         
-        //Deal with u[4]; the rotation around axes[1]
-        sinA = Math.sqrt(1 - u[4]*u[4]);     //use a trig identity.
-        cosA = u[4];
-        vex.E(axes[1]);
-        rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
-                (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
-                (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
-                (1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
-                cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
-                (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0), // yz
-                (1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
-                (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
-                cosA + (1 - cosA) * vex.x(2) * vex.x(2) // zz
-        });
         
-        //now we rotate everything about the axis.
-        for(int i = 1; i < 6; i++){
-            temp.E(((AtomLeaf)childlist.getAtom(i)).getPosition());
-            temp.ME(((AtomLeaf)childlist.getAtom(i-1)).getPosition());
-            rotor.transform(temp);
-        }
+//        //Deal with u[3]; the rotation around axes[2]
+//        sinA = Math.sqrt(1 - u[3]*u[3]);     //use a trig identity.
+//        cosA = u[3];
+//        vex.E(axes[2]);
+//        rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
+//                (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
+//                (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
+//                (1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
+//                cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
+//                (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0), // yz
+//                (1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
+//                (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
+//                cosA + (1 - cosA) * vex.x(2) * vex.x(2) // zz
+//        });
+//        
+//        //now we rotate everything about the axis.
+//        for(int i = 1; i < 6; i++){
+//            temp.E(((AtomLeaf)childlist.getAtom(i)).getPosition());
+//            temp.ME(((AtomLeaf)childlist.getAtom(i-1)).getPosition());
+//            rotor.transform(temp);
+//        }
+//        
+//        //Deal with u[4]; the rotation around axes[1]
+//        sinA = Math.sqrt(1 - u[4]*u[4]);     //use a trig identity.
+//        cosA = u[4];
+//        vex.E(axes[1]);
+//        rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
+//                (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
+//                (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
+//                (1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
+//                cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
+//                (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0), // yz
+//                (1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
+//                (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
+//                cosA + (1 - cosA) * vex.x(2) * vex.x(2) // zz
+//        });
+//        
+//        //now we rotate everything about the axis.
+//        for(int i = 1; i < 6; i++){
+//            temp.E(((AtomLeaf)childlist.getAtom(i)).getPosition());
+//            temp.ME(((AtomLeaf)childlist.getAtom(i-1)).getPosition());
+//            rotor.transform(temp);
+//        }
         
         
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        //Apply the torsional angles
+        //Apply the TORSIONAL angles
         for(int i = 0; i < 6-3; i++){
             cosA = Math.cos(u[6+i]);
             sinA = Math.sin(u[6+i]);
