@@ -45,7 +45,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             for (int k = 0; k < pos.getD(); k++) {
                 u[j+k] = work1.x(k);
             }
-            j += pos.getD();
+            j += coordinateDim/molecules.getAtomCount();
         }
         return u;
     }
