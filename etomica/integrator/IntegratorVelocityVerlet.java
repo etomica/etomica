@@ -71,6 +71,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
     // assumes one phase
     public void doStepInternal() {
+        super.doStepInternal();
         AtomSet leafList = phase.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
