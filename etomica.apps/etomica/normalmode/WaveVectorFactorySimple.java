@@ -54,36 +54,55 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         // positive.  If we have an even number of cells, we do so, but ignore any
         // component equal to the max.  And, for even number of cells, if we flip,
         // we re-flip any component that flips to -max. 
-        boolean flip2 = numCells[0] % 2 == 0;
+        
+        boolean [] flip2 = new boolean [3];
+        
+        for (int i=0; i<3; i++){
+        	flip2[i] = numCells[i] %2 == 0;
+        }
+        
         // this will find N-1 vectors.  Some of them have negatives 
         // within the set others do not.  If its negative is within the set, 
         // exclude the negative, but remember it was there -- they will have 
         // coefficients of '1' while the ones without a negative in the set 
         // will have coefficients of '0.5'.
-        for (int kx = kMin[0]; kx < kMax[0]+1; kx++) {
-            for (int ky = kMin[1]; ky < kMax[1]+1; ky++) {
-                for (int kz = kMin[2]; kz < kMax[2]+1; kz++) {
+        int [] k = new int [3];
+        
+        for ( k[0] = kMin[0]; k[0] < kMax[0]+1; k[0]++) {
+            for ( k[1] = kMin[1]; k[1] < kMax[1]+1; k[1]++) {
+                for (k[2] = kMin[2]; k[2] < kMax[2]+1; k[2]++) {
 //                    if (kx == 0 && ky == 0 && kz == 0) continue;
                     for (int i=0; i<3; i++) {
                         idx[i] = kMax[i];
                     }
-                    boolean flip = kx < 0 || (kx == 0 && ky < 0) || (kx == 0 && ky == 0 && kz < 0);
-                    if (flip2) {
-                        flip = kx < 0 || ((kx == 0 || kx == kMax[0]) && ky < 0) || ((kx == 0 || kx == kMax[0]) && (ky == 0 || ky == kMax[1]) && kz < 0);
+                    
+                    boolean flip = false;
+outer:              for (int i=0; i<3; i++){
+                    	for (int j=0; i<i-1; j++){
+                    		if (k[j] > 0 && (!flip2[j] || k[j] < kMax[j] )){
+                    			break outer;
+                    		}
+                    	}
+                    	if (k[i] < 0){
+                    		flip = true;
+                    		break;
+                    	}
                     }
+                    
                     if (flip) {
-                        idx[0] -= kx;
-                        idx[1] -= ky;
-                        idx[2] -= kz;
+                        idx[0] -= k[0];
+                        idx[1] -= k[1];
+                        idx[2] -= k[2];
                     }
                     else {
-                        idx[0] += kx;
-                        idx[1] += ky;
-                        idx[2] += kz;
+                        idx[0] += k[0];
+                        idx[1] += k[1];
+                        idx[2] += k[2];
                     }
-                    if (flip2 && flip) {
+                    
+                    if (flip) {
                         for (int i=0; i<3; i++) {
-                            if (idx[i] == 0) {
+                            if (idx[i] == 0 && flip2[i]) {
                                 idx[i] = 2*kMax[i];
                             }
                         }
@@ -125,14 +144,14 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
     }
     
     public static void main(String[] args) {
-        int nCells = 2;
+        int [] nCells = new int []{2,3,4};
         Simulation sim = new Simulation(Space3D.getInstance());
         Phase phase = new Phase(sim);
         sim.addPhase(phase);
-        phase.setDimensions(new Vector3D(nCells, nCells, nCells));
+        phase.setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
         Species species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
-        phase.getAgent(species).setNMolecules(nCells*nCells*nCells);
+        phase.getAgent(species).setNMolecules(nCells[0]*nCells[1]*nCells[2]);
         Primitive primitive = new PrimitiveCubic(sim.getSpace(), 1);
         
         WaveVectorFactorySimple foo = new WaveVectorFactorySimple(primitive);
