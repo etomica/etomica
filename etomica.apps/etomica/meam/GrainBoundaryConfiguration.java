@@ -16,8 +16,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
-import etomica.atom.iterator.AtomIteratorArrayList;
-import etomica.atom.iterator.IteratorDirective;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -70,13 +69,11 @@ public class GrainBoundaryConfiguration extends Configuration {
         atomActionTranslateTo = new AtomActionTranslateTo(latticeA.getSpace());
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionDefinitionSimple());
         //There may be more than one species in the lattice with mobile atoms.
-        atomIteratorMobileA = new AtomIteratorArrayList(IteratorDirective.Direction.UP);
-        atomIteratorMobileB = new AtomIteratorArrayList(IteratorDirective.Direction.UP);
+        atomIteratorMobileA = new AtomIteratorArrayListSimple();
+        atomIteratorMobileB = new AtomIteratorArrayListSimple();
         //Probably only one type of atom will exit in the lattice with fixed atoms.
-        atomIteratorFixedA = new AtomIteratorArrayList(
-        		IteratorDirective.Direction.UP);
-        atomIteratorFixedB = new AtomIteratorArrayList(
-        		IteratorDirective.Direction.UP);
+        atomIteratorFixedA = new AtomIteratorArrayListSimple();
+        atomIteratorFixedB = new AtomIteratorArrayListSimple();
     }
 
     public void setDimensions (int nCellsAx, int nCellsAy, int nCellsAz, 
@@ -273,8 +270,8 @@ public class GrainBoundaryConfiguration extends Configuration {
     private final BravaisLatticeCrystal latticeA, latticeB;
     private final IndexIteratorSizable indexIteratorA, indexIteratorB;
     private final AtomActionTranslateTo atomActionTranslateTo;
-    private final AtomIteratorArrayList atomIteratorFixedA, atomIteratorFixedB;
-    private final AtomIteratorArrayList atomIteratorMobileA, atomIteratorMobileB;
+    private final AtomIteratorArrayListSimple atomIteratorFixedA, atomIteratorFixedB;
+    private final AtomIteratorArrayListSimple atomIteratorMobileA, atomIteratorMobileB;
     int[] iteratorDimensionsA = new int[4];
     int[] iteratorDimensionsB = new int[4];
     //int[] indexIteratorA = new int[4];
