@@ -3,8 +3,6 @@ package etomica.meam;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeSphere;
-import etomica.chem.elements.Copper;
-import etomica.chem.elements.Silver;
 import etomica.chem.elements.Tin;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
@@ -69,12 +67,12 @@ public class MEAM_3DMDwithGB extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono snFixedA;
     public SpeciesSpheresMono snA;
-    public SpeciesSpheresMono agA;
-    public SpeciesSpheresMono cuA;
+//    public SpeciesSpheresMono agA;
+//    public SpeciesSpheresMono cuA;
     public SpeciesSpheresMono snFixedB;
     public SpeciesSpheresMono snB;
-    public SpeciesSpheresMono agB;
-    public SpeciesSpheresMono cuB;
+//    public SpeciesSpheresMono agB;
+//    public SpeciesSpheresMono cuB;
     public Phase phase;
     public PotentialMEAM potentialN;
     public Controller controller;
@@ -152,12 +150,12 @@ public class MEAM_3DMDwithGB extends Simulation {
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.snFixedA.getMoleculeType(),java.awt.Color.blue);
     	colorScheme.setColor(sim.snA.getMoleculeType(),java.awt.Color.red);
-    	colorScheme.setColor(sim.agA.getMoleculeType(),java.awt.Color.gray);
-    	colorScheme.setColor(sim.cuA.getMoleculeType(),java.awt.Color.orange);
+//    	colorScheme.setColor(sim.agA.getMoleculeType(),java.awt.Color.gray);
+//    	colorScheme.setColor(sim.cuA.getMoleculeType(),java.awt.Color.orange);
     	colorScheme.setColor(sim.snFixedB.getMoleculeType(),java.awt.Color.yellow);
     	colorScheme.setColor(sim.snB.getMoleculeType(),java.awt.Color.green);
-    	colorScheme.setColor(sim.agB.getMoleculeType(),java.awt.Color.gray);
-    	colorScheme.setColor(sim.cuB.getMoleculeType(),java.awt.Color.orange);
+//    	colorScheme.setColor(sim.agB.getMoleculeType(),java.awt.Color.gray);
+//    	colorScheme.setColor(sim.cuB.getMoleculeType(),java.awt.Color.orange);
 
     	simgraphic.makeAndDisplayFrame(APP_NAME);
 
@@ -184,12 +182,12 @@ public class MEAM_3DMDwithGB extends Simulation {
         Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);
         snFixedA = new SpeciesSpheresMono(this, SnF);
         snA = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        agA = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        cuA = new SpeciesSpheresMono(this, Copper.INSTANCE);
+//        agA = new SpeciesSpheresMono(this, Silver.INSTANCE);
+//        cuA = new SpeciesSpheresMono(this, Copper.INSTANCE);
         snFixedB = new SpeciesSpheresMono(this, SnF);
         snB = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
+//        agB = new SpeciesSpheresMono(this, Silver.INSTANCE);
+//        cuB = new SpeciesSpheresMono(this, Copper.INSTANCE);
         
         
         double aA, bA, cA, aB, bB, cB;
@@ -291,18 +289,18 @@ public class MEAM_3DMDwithGB extends Simulation {
 	    
 	    ((AtomTypeSphere)snA.getFactory().getType()).setDiameter(3.022); 
 	        
-	    ((AtomTypeSphere)agA.getFactory().getType()).setDiameter(2.8895); 
-	        
-	    ((AtomTypeSphere)cuA.getFactory().getType()).setDiameter(2.5561); 
-	    
+//	    ((AtomTypeSphere)agA.getFactory().getType()).setDiameter(2.8895); 
+//	        
+//	    ((AtomTypeSphere)cuA.getFactory().getType()).setDiameter(2.5561); 
+//	    
 	    ((AtomTypeSphere)snFixedB.getFactory().getType()).setDiameter(3.022); 
 	    
 	    ((AtomTypeSphere)snB.getFactory().getType()).setDiameter(3.022); 
 	        
-	    ((AtomTypeSphere)agB.getFactory().getType()).setDiameter(2.8895); 
-	        
-	    ((AtomTypeSphere)cuB.getFactory().getType()).setDiameter(2.5561); 
-	     
+//	    ((AtomTypeSphere)agB.getFactory().getType()).setDiameter(2.8895); 
+//	        
+//	    ((AtomTypeSphere)cuB.getFactory().getType()).setDiameter(2.5561); 
+//	     
 	    GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB);
 	    config.setDimensions(nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy, 
 	    		nCellsBz, aA, bA, cA, aB, bB, cB);
@@ -311,17 +309,18 @@ public class MEAM_3DMDwithGB extends Simulation {
 		potentialN = new PotentialMEAM(space);
 		potentialN.setParameters(snFixedA, ParameterSetMEAM.Sn);
 		potentialN.setParameters(snA, ParameterSetMEAM.Sn);
-		potentialN.setParameters(agA, ParameterSetMEAM.Ag);
-		potentialN.setParameters(cuA, ParameterSetMEAM.Cu);
+//		potentialN.setParameters(agA, ParameterSetMEAM.Ag);
+//		potentialN.setParameters(cuA, ParameterSetMEAM.Cu);
 		potentialN.setParameters(snFixedB, ParameterSetMEAM.Sn);
 		potentialN.setParameters(snB, ParameterSetMEAM.Sn);
-		potentialN.setParameters(agB, ParameterSetMEAM.Ag);
-		potentialN.setParameters(cuB, ParameterSetMEAM.Cu);
-		potentialN.setParametersIMC(cuA, ParameterSetMEAM.Cu3Sn);
-		potentialN.setParametersIMC(agA, ParameterSetMEAM.Ag3Sn);
-		potentialN.setParametersIMC(cuB, ParameterSetMEAM.Cu3Sn);
-		potentialN.setParametersIMC(agB, ParameterSetMEAM.Ag3Sn);
-        this.potentialMaster.addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, snFixedB, snB, agB, cuB});    
+//		potentialN.setParameters(agB, ParameterSetMEAM.Ag);
+//		potentialN.setParameters(cuB, ParameterSetMEAM.Cu);
+//		potentialN.setParametersIMC(cuA, ParameterSetMEAM.Cu3Sn);
+//		potentialN.setParametersIMC(agA, ParameterSetMEAM.Ag3Sn);
+//		potentialN.setParametersIMC(cuB, ParameterSetMEAM.Cu3Sn);
+//		potentialN.setParametersIMC(agB, ParameterSetMEAM.Ag3Sn);
+//        this.potentialMaster.addPotential(potentialN, new Species[]{snFixedA, snA, agA, cuA, snFixedB, snB, agB, cuB});    
+        this.potentialMaster.addPotential(potentialN, new Species[]{snFixedA, snA, snFixedB, snB});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
         integrator.addListener(potentialMaster.getNeighborManager(phase));
