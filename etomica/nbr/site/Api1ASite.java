@@ -39,7 +39,6 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         
         neighborIterator.setDirection(null);
         phaseAgentManager = agentManager;
-        setPhase(null);
 	}
 
 	public void setPhase(Phase phase) {
