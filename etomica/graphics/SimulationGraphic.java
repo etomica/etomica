@@ -220,7 +220,7 @@ public class SimulationGraphic implements SimulationContainer {
             }
         }
         else {
-            getPanel().controlPanel.add(component,simulationPanel.getVertGBC());
+            getPanel().controlPanel.add(component,SimulationPanel.getVertGBC());
         }
         deviceList.add(device);
     }
@@ -241,25 +241,6 @@ public class SimulationGraphic implements SimulationContainer {
         	getPanel().toolbarPanel.remove(component);
         }
         deviceList.remove(device);
-    }
-
-    public void initiateRedraw(final int time) {
-        Thread repainter = new Thread() {
-            public void run() {
-                while (true) {
-                	if(graphicType == GRAPHIC_ONLY) {
-                        getPanel().graphicsPanel.repaint();
-                	}
-                	else {
-                		getPanel().tabbedPane.repaint();
-                	}
-                    try{Thread.sleep(time);}
-                    catch(InterruptedException e){}
-                }
-            }
-        };
-        repainter.start();
-    	
     }
 
     public DeviceTrioControllerButton getController() { return dcb; }
