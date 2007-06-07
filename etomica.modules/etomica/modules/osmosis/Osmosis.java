@@ -1,10 +1,15 @@
 package etomica.modules.osmosis;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -18,17 +23,16 @@ import etomica.data.meter.MeterLocalMoleFraction;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxesCAE;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntervalActionAdapter;
@@ -52,22 +56,21 @@ import etomica.util.Constants.CompassDirection;
  * @author Andrew Schultz
  */
 
-public class Osmosis {
+public class Osmosis extends SimulationGraphic {
 
-    public DisplayPhase displayPhase;
+	private final static String APP_NAME = "Osmosis";
+
     public DataSourceCountTime cycles;
     public DisplayBox displayCycles;
     public MeterOsmoticPressure osmosisPMeter;
     public MeterLocalMoleFraction moleFraction;
     public OsmosisSim sim;
-    public JPanel panel;
 
-    public Osmosis() {
+    public Osmosis(OsmosisSim simulation) {
 
-        sim = new OsmosisSim();
-        sim.activityIntegrate.setDoSleep(true);
-        sim.activityIntegrate.setSleepPeriod(1);
-        sim.register(sim.integrator);
+    	super(simulation, GRAPHIC_ONLY, APP_NAME);
+
+    	sim = simulation;
 
         final int thickness = 4;
 
@@ -75,15 +78,13 @@ public class Osmosis {
 
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
 
-        DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim);
-        SimulationRestart simRestart = new SimulationRestart(sim);
+        SimulationRestart simRestart = getController().getSimRestart();
         
         simRestart.setConfiguration(config);
-        button.getReinitButton().setAction(simRestart);
-        button.setShape("VERTICAL"); //three choices "HORIZONTAL","AUTOMATIC"           
+        getController().setShape("VERTICAL"); //three choices "HORIZONTAL","AUTOMATIC"           
 
 	    //display of phase
-	    displayPhase = new DisplayPhase(sim.phase);
+        final DisplayPhase displayPhase = getDisplayPhase(sim.phase);
         ColorSchemeByType colorScheme = new ColorSchemeByType();
 
         colorScheme.setColor(sim.speciesA.getMoleculeType(), Color.blue);
@@ -113,22 +114,10 @@ public class Osmosis {
         dBox.setAccumulator(osmosisPMeterAvg);
         dBox.setPrecision(6);
 
-        moleFraction = new MeterLocalMoleFraction();
-//        moleFraction = new MeterMoleFraction();
-        moleFraction.setPhase(sim.phase);
-        IVector dimensions = sim.phase.getBoundary().getDimensions();
-        moleFraction.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
-        moleFraction.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
-        moleFraction.setSpecies(sim.speciesB);
-        AccumulatorAverage moleFractionAvg = new AccumulatorAverage(sim);
-        pump = new DataPump(moleFraction, moleFractionAvg);
-        sim.register(moleFraction, pump);
-        adapter = new IntervalActionAdapter(pump);
-        sim.integrator.addListener(adapter);
-        DisplayBoxesCAE mfBox = new DisplayBoxesCAE();
-        mfBox.setAccumulator(moleFractionAvg);
-        mfBox.setPrecision(8);
-	    
+        //
+        // temperature panel
+        //
+
 	    DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integrator);
 	    tSelect.setTemperatures(new double[] {50.,100.,300.,600.,1000.});
 	    tSelect.setUnit(tUnit);
@@ -144,12 +133,33 @@ public class Osmosis {
 		tBox.setLabelPosition(CompassDirection.NORTH);
 	    tSelect.getLabel().setText("Set value");
 
+        JPanel temperaturePanel = new JPanel(new GridBagLayout());
+        temperaturePanel.setBorder(new TitledBorder("Temperature (K)"));
+        temperaturePanel.add(tSelect.graphic(null),SimulationPanel.getHorizGBC());
+        temperaturePanel.add(tBox.graphic(null),SimulationPanel.getHorizGBC());
+
+        moleFraction = new MeterLocalMoleFraction();
+        moleFraction.setPhase(sim.phase);
+        IVector dimensions = sim.phase.getBoundary().getDimensions();
+        moleFraction.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
+        moleFraction.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
+        moleFraction.setSpecies(sim.speciesB);
+        AccumulatorAverage moleFractionAvg = new AccumulatorAverage(sim);
+        pump = new DataPump(moleFraction, moleFractionAvg);
+        sim.register(moleFraction, pump);
+        adapter = new IntervalActionAdapter(pump);
+        sim.integrator.addListener(adapter);
+        DisplayBoxesCAE mfBox = new DisplayBoxesCAE();
+        mfBox.setAccumulator(moleFractionAvg);
+        mfBox.setPrecision(8);
+	    
+
         DeviceNSelector nASelector = new DeviceNSelector(sim.getController());
         nASelector.setResetAction(simRestart);
         nASelector.setSpeciesAgent(sim.phase.getAgent(sim.speciesA));
         nASelector.getSlider().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
-                displayPhase.repaint();
+            	displayPhase.repaint();
             }
         });
         nASelector.setMaximum(30);
@@ -159,137 +169,70 @@ public class Osmosis {
         nBSelector.setSpeciesAgent(sim.phase.getAgent(sim.speciesB));
         nBSelector.getSlider().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
-                displayPhase.repaint();
+            	displayPhase.repaint();
             }
         });
         nBSelector.setMaximum(10);
 	    
-	    //DevicePotentialSelector potentialmeter = new DevicePotentialSelector(this);
-        
         DiameterModifier diameterModifier = new DiameterModifier(sim.potentialAA,sim.potentialBB,sim.potentialAB,
                                                             sim.boundarySemiB,
                                                             sim.boundaryHardTopBottomA,sim.boundaryHardLeftA,sim.boundaryHardRightA,
                                                             sim.boundaryHardB,
                                                             sim.speciesA,sim.speciesB);
-        diameterModifier.setDisplay(displayPhase);
+        diameterModifier.setDisplay(getDisplayPhase(sim.phase));
         DeviceSlider sliderDiameter = new DeviceSlider(sim.getController());
         sliderDiameter.setModifier(diameterModifier);
-//        sliderDiameter.getSlider().setMaximum(4);
-//        sliderDiameter.getSlider().setMinimum(0);
-//        sliderDiameter.getSlider().setValue(3);
-//        sliderDiameter.getSlider().setPaintTicks(true);
-//        sliderDiameter.setPrecision(2);
-//        sliderDiameter.setNMajor(1);
-//	    sliderDiameter.getSlider().setMajorTickSpacing(1);
-//	    sliderDiameter.getSlider().setLabelTable(sliderDiameter.getSlider().createStandardLabels(1));
 
 		sliderDiameter.setPrecision(2);
 		sliderDiameter.setMaximum(4);
 		sliderDiameter.setMinimum(0);
 		sliderDiameter.setValue(3);
-//		sliderDiameter.setPaintTicks(true);
 		sliderDiameter.setNMajor(4);
-//		sliderDiameter.setMajorTickSpacing(1);
-//		sliderDiameter.getSlider().setLabelTable(sliderDiameter.getSlider().createStandardLabels(1));
-        
-        //************* Lay out components ****************//
-
-        
-
-        //tabbed pane for the big displays
-
-    	final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
-
-    	javax.swing.JPanel displayPhasePanel = new javax.swing.JPanel(new java.awt.BorderLayout());
-
-    	displayPhasePanel.add(displayPhase.graphic(),java.awt.BorderLayout.WEST);
-
-//    	displayPhasePanel.add(scaleSliderPanel,java.awt.BorderLayout.EAST);
-
-    	displayPanel.add(displayPhase.getLabel(), displayPhasePanel);
-
-
-        displayPanel.addChangeListener(
-
-            new javax.swing.event.ChangeListener() {
-
-                public void stateChanged(javax.swing.event.ChangeEvent event) {
-
-                    displayPanel.invalidate();
-
-                    displayPanel.validate();
-
-                }
-
-        });
-
-        JPanel startPanel = new JPanel(new java.awt.GridBagLayout());
-
-        java.awt.GridBagConstraints gbc0 = new java.awt.GridBagConstraints();
-
-      //  startPanel.setBorder(new javax.swing.border.TitledBorder("Control"));
-
-        gbc0.gridx = 0; gbc0.gridy = 0;
-
-        startPanel.add(button.graphic(), gbc0);
-
-        
 
         //panel for the temperature control/display
-
-        JPanel cyclesPanel = new JPanel(new java.awt.FlowLayout());
-
-        cyclesPanel.setBorder(new javax.swing.border.TitledBorder("Cycles"));
-
+        JPanel cyclesPanel = new JPanel(new FlowLayout());
+        cyclesPanel.setBorder(new TitledBorder("Cycles"));
         cyclesPanel.add(displayCycles.graphic(null));
 
-        JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
-        temperaturePanel.setBorder(new javax.swing.border.TitledBorder("Temperature (K)"));
-        java.awt.GridBagConstraints gbc1 = new java.awt.GridBagConstraints();
-        gbc1.gridx = 0;  gbc1.gridy = 1;
-        gbc1.gridwidth = 1;
-        temperaturePanel.add(tSelect.graphic(null),gbc1);
-        gbc1.gridx = 1;  gbc1.gridy = 1;
-        temperaturePanel.add(tBox.graphic(null),gbc1);
         
 
         //panel for the meter displays
 
-        JPanel osmoticPanel = new JPanel(new java.awt.FlowLayout());
-        osmoticPanel.setBorder(new javax.swing.border.TitledBorder("Osmotic Pressure (PV/Nk)"));
+        JPanel osmoticPanel = new JPanel(new FlowLayout());
+        osmoticPanel.setBorder(new TitledBorder("Osmotic Pressure (PV/Nk)"));
         osmoticPanel.add(dBox.graphic(null));
 
-        JPanel moleFractionPanel = new JPanel(new java.awt.FlowLayout());
-        javax.swing.border.TitledBorder titleBorder = new javax.swing.border.TitledBorder("Mole Fraction (nSolute/nSolution)");
+        JPanel moleFractionPanel = new JPanel(new FlowLayout());
+        TitledBorder titleBorder = new TitledBorder("Mole Fraction (nSolute/nSolution)");
         moleFractionPanel.setBorder(titleBorder);
         moleFractionPanel.add(mfBox.graphic(null));
         
-        javax.swing.JTabbedPane tabPaneMeter = new javax.swing.JTabbedPane();
+        JTabbedPane tabPaneMeter = new JTabbedPane();
         tabPaneMeter.addTab("Osmotic Pressure", osmoticPanel);
         tabPaneMeter.addTab("Mole Fraction", moleFractionPanel);
         tabPaneMeter.addTab("Cycles", cyclesPanel);
 
         //panel for sliders
 
-        JPanel sliderPanelA = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel sliderPanelA = new JPanel(new GridLayout(0,1));
         nASelector.setShowBorder(false);
         sliderPanelA.add(nASelector.graphic(null));
-        sliderPanelA.setBorder(new javax.swing.border.TitledBorder("Set "+nASelector.getLabel()));
+        sliderPanelA.setBorder(new TitledBorder("Set "+nASelector.getLabel()));
 
         
-        JPanel sliderPanelB = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel sliderPanelB = new JPanel(new GridLayout(0,1));
         nBSelector.setShowBorder(false);
         sliderPanelB.add(nBSelector.graphic(null));
-        sliderPanelB.setBorder(new javax.swing.border.TitledBorder("Set "+nBSelector.getLabel()));
+        sliderPanelB.setBorder(new TitledBorder("Set "+nBSelector.getLabel()));
 
 
-        JPanel sliderDiaPanel = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel sliderDiaPanel = new JPanel(new GridLayout(0,1));
         sliderDiameter.setShowBorder(false);
         sliderDiaPanel.add(sliderDiameter.graphic(null));
-        sliderDiaPanel.setBorder(new javax.swing.border.TitledBorder("Set Diameter"));
+        sliderDiaPanel.setBorder(new TitledBorder("Set Diameter"));
 
         
-        javax.swing.JTabbedPane tabPaneSliders = new javax.swing.JTabbedPane();
+        JTabbedPane tabPaneSliders = new JTabbedPane();
         tabPaneSliders.addTab(nASelector.getLabel(), sliderPanelA);
         tabPaneSliders.addTab(nBSelector.getLabel(), sliderPanelB);
         tabPaneSliders.addTab("Diameter", sliderDiaPanel);
@@ -297,57 +240,18 @@ public class Osmosis {
         
         //panel for all the controls
 
-//        JPanel controlPanel = new JPanel(new java.awt.GridLayout(0,1));
+        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-        JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
-
-        java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
-
-        gbc2.gridx = 0;
-
-        gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
-
-        controlPanel.add(startPanel,gbc2);
-
-        /*controlPanel.add(cyclesPanel, gbc2);
-        controlPanel.add(osmoticPanel, gbc2);
-        controlPanel.add(moleFractionPanel, gbc2);
-
-        controlPanel.add(sliderPanelA, gbc2);
-        controlPanel.add(sliderPanelB, gbc2);
-        controlPanel.add(sliderDiaPanel, gbc2);*/
-        
-        javax.swing.JTabbedPane tabPane = new javax.swing.JTabbedPane();
+        JTabbedPane tabPane = new JTabbedPane();
         tabPane.addTab("Meters", tabPaneMeter);
         tabPane.addTab("Sliders", tabPaneSliders);
         
-        controlPanel.add(temperaturePanel, gbc2);
-        controlPanel.add(tabPane,gbc2);
-        
-   /*     JPanel potentialPanel = new JPanel();
-        potentialPanel.add(potentialmeter.graphic(null));
-	    potentialPanel.setBorder(new javax.swing.border.TitledBorder("Potential selection"));
-        controlPanel.add(potentialPanel,gbc2);*/
+        getPanel().controlPanel.add(temperaturePanel, vertGBC);
+        getPanel().controlPanel.add(tabPane, vertGBC);
 
-        
-        panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.add(controlPanel, BorderLayout.WEST);
-        panel.add(displayPanel, BorderLayout.EAST);
-        DefaultToolbar tb = new DefaultToolbar(panel, "Osmosis");
-        panel.add(tb.graphic(), BorderLayout.NORTH);
+        // redraw graphic every 10 milliseconds
+        initiateRedraw(10);
 
-        Thread repainter = new Thread() {
-            public void run() {
-                while (true) {
-                    panel.repaint();
-                    try{Thread.sleep(10);}
-                    catch(InterruptedException e){}
-                }
-            }
-        };
-        repainter.start();
-    
     }
 
 	//drawable that puts a line down the middle of the box, where the
@@ -358,7 +262,7 @@ public class Osmosis {
     		int y1 = origin[1];
 			int h = (int)(scale*sim.phase.getBoundary().getDimensions().x(1));
 			int w = 4;
-			g.setColor(java.awt.Color.green);
+			g.setColor(Color.green);
     		g.fillRect(x1-w, y1, w, h);
     	}
     }
@@ -366,8 +270,14 @@ public class Osmosis {
     
 
     public static void main(String[] args) {
-        Osmosis osmosis = new Osmosis();
-        SimulationGraphic.makeAndDisplayFrame(osmosis.panel, "Osmosis");
+
+    	OsmosisSim sim = new OsmosisSim();
+        sim.activityIntegrate.setDoSleep(true);
+        sim.activityIntegrate.setSleepPeriod(1);
+        sim.register(sim.integrator);
+
+        Osmosis osmosis = new Osmosis(sim);
+        SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
     }
 
     
@@ -445,7 +355,12 @@ public class Osmosis {
 
     public static class Applet extends javax.swing.JApplet {
 	    public void init() {
-		    getContentPane().add(new Osmosis().panel);
+	    	OsmosisSim sim = new OsmosisSim();
+	        sim.activityIntegrate.setDoSleep(true);
+	        sim.activityIntegrate.setSleepPeriod(1);
+	        sim.register(sim.integrator);
+
+		    getContentPane().add(new Osmosis(sim).getPanel());
 	    }
 
         private static final long serialVersionUID = 1L;

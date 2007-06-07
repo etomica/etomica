@@ -108,8 +108,10 @@ public class DeviceToggleButton extends DeviceButton {
      */
     public static void main(String[] args) {
 
+    	final String APP_NAME = "Device Toggle Button";
+
         final etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-        SimulationGraphic graphic = new SimulationGraphic(sim);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
 
         //here's the part unique to this class
         //sets up button to toggle atoms between red and blue
@@ -134,9 +136,15 @@ public class DeviceToggleButton extends DeviceButton {
                 modifier);
         button.setTrueLabel("Red");
         button.setFalseLabel("Blue");
+        button.setPostAction(new Action() {
+        	public void actionPerformed() {
+        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        });
+
         //end of unique part
         graphic.add(button);
-        graphic.makeAndDisplayFrame();
+        graphic.makeAndDisplayFrame(APP_NAME);
     }
 
 }

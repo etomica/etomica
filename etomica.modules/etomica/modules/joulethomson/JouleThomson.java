@@ -2,14 +2,15 @@ package etomica.modules.joulethomson;
 
 import java.awt.Color;
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
 
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
-import etomica.action.ResetAccumulators;
-import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
@@ -27,16 +28,15 @@ import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterDensity;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ColorSchemeTemperature;
-import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceControllerButton;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceToggleRadioButtons;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorGear4NPH;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.IntegratorGear4NPH.MeterTPH;
@@ -71,19 +71,24 @@ import etomica.units.systems.MKS;
  * is the basis of many common refrigeration processes.
  */
 public class JouleThomson extends SimulationGraphic {
-    
+
     DeviceButton restart;
-    DisplayPhase displayPhase1;
     DeviceBox timeBox;
     JouleThomsonSim sim;
-    
-    public JouleThomson() {this(Space2D.getInstance());}
-    public JouleThomson(Space space) {
-        super(new JouleThomsonSim(space));
-        sim = (JouleThomsonSim)getSimulation();
-        
+    final static String APP_NAME = "Joule Thomson Experiment";
+
+    public JouleThomson() {
+        this((Space)Space2D.getInstance(), new JouleThomsonSim(Space2D.getInstance()));
+    }
+
+    public JouleThomson(Space space, JouleThomsonSim simulation) {
+        super(simulation, TABBED_PANE, APP_NAME);
+        sim = simulation;
+
         sim.register(sim.integratorJT);
-        
+
+        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
+
         final Unit pUnit, dUnit, dadUnit;
         if (space.D() == 2) {
             Unit areaUnit = new MKS().area();
@@ -103,36 +108,38 @@ public class JouleThomson extends SimulationGraphic {
         }
 
         final Unit tUnit = Kelvin.UNIT;
-        Unit hUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
- 
-	    displayPhase1 = new DisplayPhase(sim.phase);
+
+        // Repaints the display phase so the motion looks smooth instead
+        // of choppy
         sim.integratorJT.addListener(new IntervalActionAdapter(new Action() {
             public void actionPerformed() {
-                displayPhase1.repaint();
+                getDisplayPhase(sim.phase).repaint();
             }
         }));
 	    
 	    //colorscheme to color atoms blue to red according to their velocity
 	    DeviceSlider scaleSlider = null;
         if(space.D() == 2) 
-            displayPhase1.setColorScheme(new ColorSchemeTemperature(100, 500));
+            getDisplayPhase(sim.phase).setColorScheme(new ColorSchemeTemperature(100, 500));
         else {
             ColorSchemeByType colorScheme = new ColorSchemeByType();
             colorScheme.setColor(sim.species.getMoleculeType(), Color.blue);
-            displayPhase1.setColorScheme(colorScheme);
+            getDisplayPhase(sim.phase).setColorScheme(colorScheme);
         }
-        ModifierFunctionWrapper scaleModifier = new ModifierFunctionWrapper(displayPhase1, "scale");
+        ModifierFunctionWrapper scaleModifier = new ModifierFunctionWrapper(getDisplayPhase(sim.phase), "scale");
         scaleModifier.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
         scaleSlider = new DeviceSlider(sim.getController());
         scaleSlider.setModifier(scaleModifier);
+
+        // For 2D displays, if the graphic size slider is adjusted, repaint
+        // the display
         scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                displayPhase1.graphic().repaint();
+            	getDisplayPhase(sim.phase).graphic().repaint();
             }
         });
         scaleSlider.setMinimum(10);
         scaleSlider.setMaximum(100);
-//	    scaleSlider.getSlider().setSnapToTicks(true);
         scaleSlider.getSlider().setValue(100);
         scaleSlider.getSlider().setMajorTickSpacing(10);
         scaleSlider.getSlider().setMinorTickSpacing(5);
@@ -141,24 +148,9 @@ public class JouleThomson extends SimulationGraphic {
         scaleSlider.setLabel("Scale (%)");
         scaleSlider.setShowBorder(true);
 	    //slider for scale of display
-	    
-//		panel().setBackground(java.awt.Color.blue);
-		
-
-//		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
-  
+	      
         DeviceToggleRadioButtons isothermalToggleButton = new DeviceToggleRadioButtons(new IntegratorGear4NPH.EnsembleToggler(sim.integrator), "Ensemble", "NPT", "NPH");
 
-/*        DeviceToggleButton sleepToggleButton = new DeviceToggleButton(
-            this, new ModulatorBoolean() {
-                    public void setBoolean(boolean b) {integrator.setDoSleep(b);}
-                    public boolean getBoolean() {return integrator.isDoSleep();}
-                    },
-                    "Slow", "Fast");
-*/		
-		//pressure and temperature sliders
-//		if(space.D() == 3) integrator.setDoSleep(false);
-		
 		final DeviceSlider pSlider = new DeviceSlider(sim.getController());
 		pSlider.setUnit(pUnit);
         pSlider.setModifier(new ModifierGeneral(sim.integrator,"targetP"));
@@ -174,19 +166,6 @@ public class JouleThomson extends SimulationGraphic {
 		tSlider.setLabel("Setpoint Temperature ("+tUnit.symbol()+")");
 		tSlider.setNMajor(4);
 		tSlider.setShowBorder(true);
-		
-        //restart action and button
-        etomica.action.SimulationRestart restartAction = new etomica.action.SimulationRestart(sim);
-///        restart = new DeviceButton(restartAction);
-        restart = new DeviceButton(sim.getController());
-        restart.setAction(restartAction);
-        restart.setLabel("Restart");
-        
-        //reset-averages action and button
-        SimulationDataAction resetAveragesAction = new SimulationDataAction(sim, new ResetAccumulators());
-        DeviceButton resetAverages = new DeviceButton(sim.getController());
-        resetAverages.setAction(resetAveragesAction);
-        resetAverages.setLabel("Reset averages");
 
         //temperature, pressure, enthalpy meters
         //XXX we have no way of using this Meter's output  :(
@@ -221,7 +200,6 @@ public class JouleThomson extends SimulationGraphic {
 
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(1);
-        System.out.println("Time step: "+sim.integrator.getTimeStep());
 
         //set-pressure history
         DataSource targetPressureDataSource = new DataSourceScalar("Set-Pressure",Pressure.DIMENSION) {
@@ -280,88 +258,66 @@ public class JouleThomson extends SimulationGraphic {
         // add temp meter, pressure meter, enthalpy meter to display table
         displayTable.setUnit(new DataTag[]{densityAverage.getTag()}, dUnit);
         // set units for temp meter, pressure meter, enthalpy meter to display table
-        
-                //*************************************************//
-                //************* Lay out components ****************//
-                //*************************************************//
-        
-        //tabbed pane for the big displays
-    	final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
-	    javax.swing.JPanel displayPhasePanel = new javax.swing.JPanel(new BorderLayout());
-	    displayPhasePanel.add(displayPhase1.graphic(),BorderLayout.CENTER);
-	    if(space.D() < 3) displayPhasePanel.add(scaleSlider.getSlider(),BorderLayout.EAST);
-//   	displayPanel.add(displayPhase1.getLabel(), displayPhase1.graphic());
-    	displayPanel.add(displayPhase1.getLabel(), displayPhasePanel);
-    	displayPanel.add(displayTable.getLabel(), displayTable.graphic());
-        displayPanel.add(plot.getLabel(), plot.graphic());
-        displayPanel.add(plotH.getLabel(), plotH.graphic());
-        
-        displayPanel.addChangeListener(
-            new javax.swing.event.ChangeListener() {
-                public void stateChanged(javax.swing.event.ChangeEvent event) {
-                    displayPanel.invalidate();
-                    displayPanel.validate();
-                }
-        });
-        
+
         timeBox = new DeviceBox();
+        timeBox.setLabel("Time Step");
         timeBox.setModifier(new ModifierGeneral(sim.integrator, "timeStep"));
-        
+
         //panel for the start buttons
-//        JPanel startPanel = new JPanel(new java.awt.FlowLayout());
+
         DeviceControllerButton startButton = new DeviceControllerButton(sim.getController());
-///        etomica.Controller.Button startButton = controller1.getButton();
-        JPanel startPanel = new JPanel(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gbc0 = new java.awt.GridBagConstraints();
-        startPanel.setBorder(new javax.swing.border.TitledBorder("Control"));
-        gbc0.gridx = 0; gbc0.gridy = 0;
- //       startPanel.add(controller1.getButton().graphic(null), gbc0);
-        startPanel.add(startButton.graphic(null), gbc0);
-        gbc0.gridx = 1; gbc0.gridy = 0;
-        startPanel.add(restart.graphic(null), gbc0);
-        gbc0.gridx = 0; gbc0.gridy = 1; gbc0.gridwidth = 2;
-        startPanel.add(resetAverages.graphic(null), gbc0);
-        gbc0.gridx = 0; gbc0.gridy = 2; gbc0.gridwidth = 2;
-        startPanel.add(isothermalToggleButton.graphic(null), gbc0);
-        gbc0.gridx = 0; gbc0.gridy = 3; gbc0.gridwidth = 2;
-        startPanel.add(timeBox.graphic(), gbc0);
-//        startPanel.add(sleepToggleButton.graphic(null), gbc0);
-        
+
         //panel for sliders
         JPanel sliderPanel = new JPanel(new java.awt.GridLayout(0,1));
         sliderPanel.add(pSlider.graphic(null));
         sliderPanel.add(tSlider.graphic(null));
 
-        //panel for all the controls
-//        JPanel controlPanel = new JPanel(new java.awt.GridLayout(0,1));
-        JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
-        gbc2.gridx = 0;
-        gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
-        
         //species selector
         JPanel potentialPanel = new JPanel();
         potentialPanel.add(speciesChooser);
-	    potentialPanel.setBorder(new javax.swing.border.TitledBorder("Species selection"));
+	    potentialPanel.setBorder(new TitledBorder("Species Selection"));
 
-        controlPanel.add(startPanel,gbc2);
-        controlPanel.add(potentialPanel, gbc2);
-        controlPanel.add(sliderPanel, gbc2);
-        
-        panel().removeAll();
-        panel().setLayout(new BorderLayout());
-        panel().add(controlPanel, BorderLayout.WEST);
-        panel().add(displayPanel, BorderLayout.EAST);
-        DefaultToolbar tb = new DefaultToolbar(panel(), "Joule Thomson Experiment");
-        tb.addContributor("Colin Tedlock");
-        panel().add(tb.graphic(), BorderLayout.NORTH);
+	    // Add objects to control panel
+	    add(isothermalToggleButton);
+	    add(timeBox);
+        getPanel().controlPanel.add(potentialPanel, vertGBC);
+        getPanel().controlPanel.add(sliderPanel, vertGBC);
 
+        // Panel that graphic sits on configuration tab
+	    JPanel displayPhasePanel = new JPanel(new BorderLayout());
+	    displayPhasePanel.add(getDisplayPhase(sim.phase).graphic(),BorderLayout.CENTER);
+
+	    // Add widgets specific to 2D application
+	    if(space.D() < 3) {
+	    	displayPhasePanel.add(scaleSlider.getSlider(),BorderLayout.EAST);
+	    }
+
+        // Add objects to tabbed pane (display area)
+	    getPanel().tabbedPane.add(getDisplayPhase(sim.phase).getLabel(), displayPhasePanel);
+	    getPanel().tabbedPane.add(displayTable.getLabel(), displayTable.graphic());
+	    getPanel().tabbedPane.add(plot.getLabel(), plot.graphic());
+	    getPanel().tabbedPane.add(plotH.getLabel(), plotH.graphic());
+
+	    // Default for Simulation panel is to use a single
+	    // graphic.  Remove the single graphic and add the
+	    // tabbed pane.
+	    getPanel().remove(getPanel().graphicsPanel);
+	    getPanel().add(getPanel().tabbedPane);
+	    getPanel().toolbar.addContributor("Colin Tedlock");
+
+	    Action repaintAction = new Action() {
+	        public void actionPerformed() {
+                getDisplayPhase(sim.phase).repaint();
+	        }
+	    };
+ 
+	    getController().getReinitButton().setPostAction(repaintAction);
     }
 
     //inner class the defines a drop-down menu to select LJ parameters to mimic
     //several real substances
     //the field "names" must be static to pass to super, and that requires this inner class to be static
-    public static class SpeciesChooser extends javax.swing.JComboBox implements java.awt.event.ItemListener {
+    public static class SpeciesChooser extends JComboBox implements java.awt.event.ItemListener {
         
         public static final String[] names = new String[] 
             {"Methane", "Argon", "Krypton", "Nitrogen", "Ideal gas"};
@@ -399,7 +355,7 @@ public class JouleThomson extends SimulationGraphic {
             setPreferredSize(new java.awt.Dimension(150,30));
             setOpaque(false);
             addItemListener(this);
-            sim = (JouleThomsonSim)simGraphic.getSimulation();
+            sim = (JouleThomsonSim)simGraphic.sim;
             currentEps = sim.potential.getEpsilon();
             currentSig = sim.potential.getSigma();
             sigma[0] = currentSig;
@@ -412,18 +368,17 @@ public class JouleThomson extends SimulationGraphic {
             if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return;
             String speciesName = (String)evt.getItemSelectable().getSelectedObjects()[0];
             setSpecies(speciesName);
-//			simGraphic.timeBox.doUpdate();
-            simGraphic.displayPhase1.repaint();
+
+            // Display the new phase
+            simGraphic.getDisplayPhase(sim.phase).repaint();
         }
-        
+
         public void setSpecies(String speciesName) {
             for(int i=0; i<names.length; i++) {
                 if(speciesName.equals(names[i])) {
                     double tStep = sim.integrator.getTimeStep();
-                    System.out.println("old "+tStep);
 //                    tStep *= sigma[i]/currentSig*Math.sqrt(mass[i]*currentEps/(currentMass*epsilon[i]));
                     tStep *= sigma[i]/currentSig*Math.sqrt(mass[i]/(currentMass));
-                    System.out.println("new "+tStep);
                     sim.integrator.setTimeStep(tStep);
                     sim.integratorNVE.setTimeStep(tStep);
                     currentMass = mass[i];
@@ -457,16 +412,17 @@ public class JouleThomson extends SimulationGraphic {
             simRestart.actionPerformed();
         }
     }
-    
+
+
     public static class Applet extends javax.swing.JApplet {
 
 	    public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-		    getContentPane().add(new JouleThomson().panel());
+		    getContentPane().add(new JouleThomson().getPanel());
 	    }
     }//end of Applet
-    
+
     
     
     public static void main(String[] args) {
@@ -478,9 +434,10 @@ public class JouleThomson extends SimulationGraphic {
                 throw new NumberFormatException(args[0]+" is not a number!");
             }
         }
-        
-        SimulationGraphic simGraphic = new JouleThomson(Space.getInstance(dim));
-		simGraphic.makeAndDisplayFrame("Joule Thomson Experiment");
-    }//end of main
-        
+
+        Space space = Space.getInstance(dim);
+        SimulationGraphic simPanel = new JouleThomson(space, new JouleThomsonSim(space));
+        SimulationGraphic.makeAndDisplayFrame(simPanel.getPanel(), APP_NAME);
+    } //end of main
+
 }

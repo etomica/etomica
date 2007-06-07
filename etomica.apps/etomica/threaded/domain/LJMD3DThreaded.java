@@ -1,4 +1,5 @@
 package etomica.threaded.domain;
+import etomica.action.Action;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.config.ConfigurationLattice;
@@ -25,6 +26,7 @@ import etomica.threaded.PotentialThreaded;
 public class LJMD3DThreaded extends Simulation {
     
     private static final long serialVersionUID = 1L;
+    private static final String APP_NAME = "LJMD 3D Threaded";
     public IntegratorVelocityVerlet integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
@@ -34,8 +36,8 @@ public class LJMD3DThreaded extends Simulation {
     public PotentialThreaded potentialThreaded;
     public Controller controller;
     public ActivityIntegrate activityIntegrate;
-   
-    
+
+
     public LJMD3DThreaded() {
         this(500, 1);
     }
@@ -107,9 +109,20 @@ public class LJMD3DThreaded extends Simulation {
         if (args.length > 0) {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
-        LJMD3DThreaded sim = new LJMD3DThreaded(numAtoms, numThreads);
-        SimulationGraphic simgraphic = new SimulationGraphic(sim);
-        simgraphic.makeAndDisplayFrame();
+
+        final LJMD3DThreaded sim = new LJMD3DThreaded(numAtoms, numThreads);
+        final SimulationGraphic simgraphic = new SimulationGraphic(sim, APP_NAME);
+
+	    Action repaintAction = new Action() {
+	        public void actionPerformed() {
+                simgraphic.getDisplayPhase(sim.phase).repaint();
+	        }
+	    };
+ 
+	    simgraphic.getController().getReinitButton().setPostAction(repaintAction);
+
+        simgraphic.makeAndDisplayFrame(APP_NAME);
+
         /**
         sim.getDefaults().blockSize = 10;
         MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator();

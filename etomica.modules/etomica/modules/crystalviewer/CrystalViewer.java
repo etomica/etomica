@@ -5,9 +5,9 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.LatticeCubicBcc;
@@ -31,10 +31,10 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
 
 
-public class CrystalViewer {
+public class CrystalViewer extends SimulationPanel {
     
+	final static String APP_NAME = "Crystal Viewer";
     protected final Simulation sim;
-    protected final JPanel panel;
     private JPanel mainPanel;
 
     protected SpeciesSpheresMono species;
@@ -47,14 +47,13 @@ public class CrystalViewer {
 
 
     public CrystalViewer() {
+        super(APP_NAME);
         sim = new Simulation(Space3D.getInstance());
         sim.getDefaults().makeLJDefaults();
         center = sim.getSpace().makeVector();
 
         species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
-
-        panel = new JPanel(new BorderLayout());
 
         BasisMonatomic basisMonatomic = new BasisMonatomic(sim.getSpace());
         
@@ -94,19 +93,13 @@ public class CrystalViewer {
         
         latticeEditor = new LatticeEditor(this, lattices, latticeNames);
         
-        JTabbedPane controlTabs = new javax.swing.JTabbedPane();
+        JTabbedPane controlTabs = new JTabbedPane();
         controlTabs.add("Crystal", latticeEditor.getPanel());
         controlTabs.add("Plane", clipPlaneEditor.getPanel());
-        JPanel controlPanel = new JPanel();
-        controlPanel.add(controlTabs);
 
-        mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.add(controlPanel, BorderLayout.WEST);
-        mainPanel.add(displayPhase.graphic());
-        DefaultToolbar tb = new DefaultToolbar(panel, "Crystal Viewer");
-        tb.addContributor("Colin Tedlock");
-        panel.add(tb.graphic(), BorderLayout.NORTH);
-        panel.add(mainPanel);
+        controlPanel.add(controlTabs);
+        graphicsPanel.add(displayPhase.graphic());
+        toolbar.addContributor("Colin Tedlock");
     }
 
     public void update(BravaisLattice currentLattice) {
@@ -120,15 +113,15 @@ public class CrystalViewer {
 
 	    public void init() {
             CrystalViewer viewer = new CrystalViewer();
-		    getContentPane().add(viewer.panel);
+		    getContentPane().add(viewer);
 	    }
     }
     
  
     public static void main(String[] args) {
         
-        CrystalViewer viewer = new CrystalViewer();
-        SimulationGraphic.makeAndDisplayFrame(viewer.panel, "Crystal Viewer");
+        SimulationPanel viewer = new CrystalViewer();
+        SimulationGraphic.makeAndDisplayFrame(viewer, APP_NAME);
     }
     
 }

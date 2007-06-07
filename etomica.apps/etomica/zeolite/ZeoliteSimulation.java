@@ -49,6 +49,8 @@ public class ZeoliteSimulation extends Simulation {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String APP_NAME = "Zeolite Simulation";
+
     /**
      * The Phase holding the atoms. 
      */
@@ -234,7 +236,7 @@ public class ZeoliteSimulation extends Simulation {
         defaults.ignoreOverlap = true;
         //defaults.temperature = Kelvin.UNIT.toSim(298.0);
         ZeoliteSimulation sim = new ZeoliteSimulation(defaults);
-        zeoliteSimGraphic simGraphic = new zeoliteSimGraphic(sim);
+        zeoliteSimGraphic simGraphic = new zeoliteSimGraphic(sim, APP_NAME);
         int num = sim.species.length;
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
@@ -308,17 +310,10 @@ public class ZeoliteSimulation extends Simulation {
 		//tHistory.setDataSink(ePlot.getDataSet().makeDataSink());
 		ePlot.setDoLegend(true);
 		simGraphic.add(ePlot);
-		
-		
-		
-		/*
-		DisplayBoxesCAE energy = new DisplayBoxesCAE();
-		energy.setAccumulator(enAcc);
-		simGraphic.add(energy);
-		*/
-		
-		
-        simGraphic.makeAndDisplayFrame();
+
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         for(int i=0;i<sim.species.length;i++){
         	switch(i){
@@ -333,7 +328,7 @@ public class ZeoliteSimulation extends Simulation {
         	}
         	
         }
-        simGraphic.panel().setBackground(java.awt.Color.yellow);
+
     }//end of main
 
 }//end of class

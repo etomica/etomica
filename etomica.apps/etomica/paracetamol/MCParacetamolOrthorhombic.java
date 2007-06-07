@@ -1,4 +1,3 @@
-
 package etomica.paracetamol;
 
 import etomica.action.activity.ActivityIntegrate;
@@ -42,6 +41,7 @@ import etomica.units.Pixel;
 public class MCParacetamolOrthorhombic extends Simulation {
 
 	private static final long serialVersionUID = 1L;
+	private final static String APP_NAME = "MC Paracetamol Orthorhombic";
     public Phase phase;
     public IntegratorMC integrator;
     public MCMoveMolecule mcMoveMolecule;
@@ -320,7 +320,7 @@ public class MCParacetamolOrthorhombic extends Simulation {
     public static void main(String[] args) {
     	int numMolecules = 192;
         etomica.paracetamol.MCParacetamolOrthorhombic sim = new etomica.paracetamol.MCParacetamolOrthorhombic(numMolecules);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         //sim.getController().actionPerformed();
         
    /*****************************************************************************/    
@@ -336,7 +336,7 @@ public class MCParacetamolOrthorhombic extends Simulation {
  /**********************************************************************/   
         simGraphic.add(PEbox);
         
-        simGraphic.makeAndDisplayFrame();
+        simGraphic.makeAndDisplayFrame(APP_NAME);
         simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.
         		displayList().getFirst()).getColorScheme());
@@ -347,7 +347,6 @@ public class MCParacetamolOrthorhombic extends Simulation {
         colorScheme.setColor(atomType.getChildTypes()[3], java.awt.Color.white);
         colorScheme.setColor(atomType.getChildTypes()[4], java.awt.Color.white);
         
-        simGraphic.panel().setBackground(java.awt.Color.yellow);
         simGraphic.getDisplayPhase(sim.phase).repaint();
         
     }//end of main

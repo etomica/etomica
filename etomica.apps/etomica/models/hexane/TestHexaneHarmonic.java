@@ -63,6 +63,8 @@ import etomica.util.HistogramSimple;
 
 public class TestHexaneHarmonic extends Simulation {
 
+	private static final String APP_NAME = "Test Hexane Harmonic";
+
     public TestHexaneHarmonic(Space space, int numMolecules) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
@@ -259,7 +261,7 @@ public class TestHexaneHarmonic extends Simulation {
         sim.register(harmonicSingleEnergy, pump);
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
             // don't spend all of our time repainting
 //            ((DisplayPhaseCanvas3DOpenGL)simGraphic.getDisplayPhase(sim.phase).canvas).setAnimateFps(1);
             DisplayBoxesCAE harmonicBoxes = new DisplayBoxesCAE();
@@ -283,7 +285,7 @@ public class TestHexaneHarmonic extends Simulation {
             fooer.setDataSink(diffA);
             simGraphic.add(diffA);
             
-            simGraphic.makeAndDisplayFrame();
+            simGraphic.makeAndDisplayFrame(APP_NAME);
         }
         else {
             long nSteps = 10000;

@@ -40,7 +40,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 	public MySpeciesEditor(final ReactionEquilibriumGraphic simGraphic, SpeciesAgent s, String label) {
 		super();
 		species = s;
-        sim = simGraphic.simulation;
+        sim = simGraphic.sim;
 		nSlider = new MyNSelector(simGraphic, species);
 		
 		//nSlider.setDisplayPhase(DisplayPhase1);
@@ -86,14 +86,14 @@ class MySpeciesEditor extends javax.swing.JPanel {
     
     class MyNSelector extends DeviceNSelector {
         MyNSelector(final ReactionEquilibriumGraphic simGraphic, SpeciesAgent species) {
-            super(simGraphic.simulation.getController());
-            setResetAction(new SimulationRestart(simGraphic.simulation));
+            super(simGraphic.sim.getController());
+            setResetAction(new SimulationRestart(simGraphic.sim));
             setSpeciesAgent(species);
             
             Action anotherAction = new Action() {
                 public void actionPerformed() {
                     AtomAgentManager agentManager = sim.getAgentManager();
-                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
+                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase);
                     iter.reset();
                     for (IAtom atom = iter.nextAtom(); atom != null;
                          atom = iter.nextAtom()) {
@@ -106,7 +106,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
                         sim.integratorHard1.reset();
                     } catch (ConfigurationOverlapException e) {
                     }
-                    simGraphic.displayPhase1.repaint();
+                    simGraphic.getDisplayPhase(sim.phase).repaint();
                     
                 }
                 

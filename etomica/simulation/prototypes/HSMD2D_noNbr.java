@@ -107,8 +107,10 @@ public class HSMD2D_noNbr extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        HSMD2D_noNbr sim = new HSMD2D_noNbr();
-        final SimulationGraphic graphic = new SimulationGraphic(sim);
+    	final String APP_NAME = "HSMD2D no Nbr";
+
+        final HSMD2D_noNbr sim = new HSMD2D_noNbr();
+        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         sim.activityIntegrate.setDoSleep(true);
 //        DisplayBoxesCAE pressureDisplay = new DisplayBoxesCAE();
 //        pressureDisplay.setAccumulator(sim.pressureAverage);
@@ -117,10 +119,19 @@ public class HSMD2D_noNbr extends Simulation {
         DisplayBoxesCAE temperatureDisplay = new DisplayBoxesCAE();
         temperatureDisplay.setAccumulator(sim.temperatureAverage);
         DisplayPlot temperaturePlot = new DisplayPlot();
+        temperaturePlot.setLabel("Temp");
         sim.temperatureHistory.setDataSink(temperaturePlot.getDataSet().makeDataSink());
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
+        etomica.action.Action repaintAction = new etomica.action.Action () {
+        	public void actionPerformed() {
+        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        };
+        nSelector.setPostAction(repaintAction);
+        graphic.getController().getReinitButton().setPostAction(repaintAction);
+
         DeviceThermoSelector thermo = new DeviceThermoSelector(sim, sim.integrator);
         graphic.add(nSelector);
         graphic.add(thermo);
@@ -128,7 +139,7 @@ public class HSMD2D_noNbr extends Simulation {
 //        graphic.add(pressurePlot);
         graphic.add(temperatureDisplay);
         graphic.add(temperaturePlot);
-		graphic.makeAndDisplayFrame();
+		graphic.makeAndDisplayFrame(APP_NAME);
     }//end of main
     
 }

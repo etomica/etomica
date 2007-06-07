@@ -27,7 +27,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 	public Controller controller1;
 	public IntegratorHard integratorHard1;
 	public java.awt.Component display;
-	public Phase phase1;
+	public Phase phase;
 	public etomica.action.SimulationRestart restartAction;
 	public boolean initializing = true;
 	public MeterTemperature thermometer;
@@ -53,22 +53,22 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         integratorHard1.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard1.setThermostatInterval(10);
 
-        phase1 = new Phase(this);
-        addPhase(phase1);
-        integratorHard1.setPhase(phase1);	
+        phase = new Phase(this);
+        addPhase(phase);
+        integratorHard1.setPhase(phase);	
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(speciesA);
         getSpeciesManager().addSpecies(speciesB);
         ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
-        phase1.getAgent(speciesA).setNMolecules(10);
-        phase1.getAgent(speciesB).setNMolecules(40);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase1);
+        phase.getAgent(speciesA).setNMolecules(10);
+        phase.getAgent(speciesB).setNMolecules(40);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
 
-        agentManager = new AtomLeafAgentManager(this,phase1);
+        agentManager = new AtomLeafAgentManager(this,phase);
 
         molecularCount = new MeterChainLength(agentManager);
-        molecularCount.setPhase(phase1);
+        molecularCount.setPhase(phase);
 
 		//potentials
         AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * getDefaults().atomSize, 
@@ -89,13 +89,13 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 		// **** Setting Up the thermometer Meter *****
 		
 		thermometer = new MeterTemperature();
-		thermometer.setPhase(phase1);
+		thermometer.setPhase(phase);
         
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integratorHard1,true,true);
 		activityIntegrate.setDoSleep(true);
 		activityIntegrate.setSleepPeriod(1);
 		getController().addAction(activityIntegrate);
-		integratorHard1.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase1)));
+		integratorHard1.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
 
 	}
     

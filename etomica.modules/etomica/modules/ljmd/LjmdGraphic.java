@@ -1,7 +1,11 @@
 package etomica.modules.ljmd;
-import java.awt.BorderLayout;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -37,16 +41,14 @@ import etomica.data.types.DataTensor;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxesCAE;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -63,50 +65,34 @@ import etomica.util.DoubleRange;
 import etomica.util.HistogramSimple;
 import etomica.util.Constants.CompassDirection;
 
-public class LjmdGraphic {
-    
-    private boolean doConfigButton;
-    
-    public void setDoConfigButton(boolean newDoConfigButton) {
-        doConfigButton = newDoConfigButton;
-    }
+public class LjmdGraphic extends SimulationGraphic {
 
-    public void init(final Ljmd sim) {
+    private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
+    private Ljmd sim;
+
+    public LjmdGraphic(final Ljmd simulation) {
+
+    	super(simulation, GRAPHIC_ONLY, APP_NAME);
+
+    	this.sim = simulation;
+
         LJ unitSystem = new LJ();
         Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
 
         sim.getDefaults().blockSize = 100;
         sim.getDefaults().doSleep = true;
         sim.activityIntegrate.setDoSleep(true);
-        
+
         sim.register(sim.integrator);
-        
-        panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        
-        DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
-        
-        //temperature selector
-	    DeviceThermoSelector tSelect = new DeviceThermoSelector(sim,sim.integrator);
-//	    tSelect.setTemperatures(new double[] {50.,100.,300.,600.,1000.});
-	    tSelect.setTemperatures(new double[] {0.3,0.5,0.7,1.0,1.3,2.0,3.0});
-	    tSelect.setUnit(tUnit);
-	    tSelect.setSelected(0); //sets adiabatic as selected temperature
-	    tSelect.getLabel().setText("Set value");
-	    
+       
 	    //display of phase, timer
-	    final DisplayPhase displayPhase = new DisplayPhase(sim.phase,sim.getDefaults().pixelUnit);
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
-        displayPhase.setColorScheme(new ColorSchemeByType());
+        getDisplayPhase(sim.phase).setColorScheme(new ColorSchemeByType());
         sim.integrator.addListener(new IntervalActionAdapter(new Action() {
-            public void actionPerformed() {displayPhase.repaint();}
+            public void actionPerformed() {getDisplayPhase(sim.phase).repaint();}
         }));
-        
-   /*     DisplayTimer timer = new DisplayTimer(integrator);
-        timer.setLabelType(DisplayBox.BORDER);
-        timer.setUnit(new Unit(LennardJones.Time.UNIT));
-	*/    
+
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
         IntervalActionAdapter rdfIAA = new IntervalActionAdapter(new Action() {
@@ -129,7 +115,6 @@ public class LjmdGraphic {
 		//add meter and display for current kinetic temperature
 		sim.getDefaults().historyPeriod = 1000;
 
-		
 		//velocity distribution
         double vMin = 0;
         double vMax = 4;
@@ -146,7 +131,6 @@ public class LjmdGraphic {
         final DisplayPlot vPlot = new DisplayPlot();
         rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
         vPlot.setDoLegend(false);
-//      vPlot.getPlot().setYRange(0.0,0.8);
         vPlot.getPlot().setTitle("Velocity distribution");
         vPlot.setDoLegend(true);
 		
@@ -164,42 +148,22 @@ public class LjmdGraphic {
         IntervalActionAdapter mbAdapter = new IntervalActionAdapter(mbPump);
         mbAdapter.setActionInterval(100);
         sim.integrator.addListener(mbAdapter);
-
-		//listner to update Maxwell-Boltzmann plot when temperature is changed
-        tSelect.getSelector().addItemListener(new java.awt.event.ItemListener() {
-		    public void itemStateChanged(java.awt.event.ItemEvent event) {
-		        Object item = event.getItem();
-		        if(item instanceof Double) {
-		            mbDistribution.setTemperature(((Double)item).doubleValue());
-		            mbSource.update();
-		            vPlot.doUpdate();
-		            vPlot.repaint();
-		        }
-		    }
-		});//end of addItemListener
 		
-        control.getReinitButton().setPostAction(new Action() {
+        getController().getReinitButton().setPostAction(new Action() {
             public void actionPerformed() {
-                displayPhase.repaint();
+                getDisplayPhase(sim.phase).repaint();
                 rdfMeter.reset();
             }
         });
 
-        control.getResetAveragesButton().setPostAction(new Action() {
+        getController().getResetAveragesButton().setPostAction(new Action() {
             public void actionPerformed() {
                 rdfMeter.reset();
             }
         });
 
-        
-/*		double[] xHist = vHistogram.xValues();
-		double[] xMB = mbSource.xValues();
-		for(int i=0; i<xHist.length; i++) {
-		    System.out.println(xHist[i]+"  "+xMB[i]);
-		}
-*/		
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
-		
+
 		MeterTemperature thermometer = new MeterTemperature();
         thermometer.setPhase(sim.phase);
         DataFork temperatureFork = new DataFork();
@@ -215,7 +179,8 @@ public class LjmdGraphic {
 		tBox.setUnit(tUnit);
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(CompassDirection.NORTH);
-		
+
+		// Number density box
 	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setPhase(sim.phase);
 	    DisplayBox densityBox = new DisplayBox();
@@ -302,25 +267,25 @@ public class LjmdGraphic {
             public void stateChanged(ChangeEvent evt) {
                 int n = (int)nSlider.getValue();
                 sim.integrator.setThermostatInterval(400/n);
-                displayPhase.repaint();
+                getDisplayPhase(sim.phase).repaint();
             }
         });
 
         //************* Lay out components ****************//
-        
+
+        GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
+        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
+
         //tabbed pane for the big displays
         javax.swing.JPanel bigPanel = new javax.swing.JPanel();
         
     	final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
     	try {
-        	((javax.swing.JComponent)displayPhase.graphic()).setPreferredSize(new java.awt.Dimension(300,300));
+        	((javax.swing.JComponent)getDisplayPhase(sim.phase).graphic()).setPreferredSize(new java.awt.Dimension(300,300));
         } catch(ClassCastException e) {}
-        displayPhase.setScale(0.7);
+        getDisplayPhase(sim.phase).setScale(0.7);
         bigPanel.add(displayPanel);
         
-//    	javax.swing.JPanel displayPhasePanel = new javax.swing.JPanel();//3d
-//    	displayPhasePanel.add(displayPhase.graphic());//3d
-//    	displayPanel.add(displayPhase.getLabel(), displayPhasePanel);//3d
         javax.swing.JPanel thermoPanel = new javax.swing.JPanel();
         thermoPanel.add(pDisplay.graphic());
         thermoPanel.add(peDisplay.graphic());
@@ -329,20 +294,10 @@ public class LjmdGraphic {
     	displayPanel.add("RDF", rdfPlot.graphic());
     	displayPanel.add("Velocity",vPlot.graphic());
     	
-    	javax.swing.JPanel energyPanel = new javax.swing.JPanel(new java.awt.GridLayout(0,1));
- /*   	pePlot.getPlot().setSize(300,200);
-    	kePlot.getPlot().setSize(300,200);
-    	pePlot.getPlot().setTopPadding(0);
-    	kePlot.getPlot().setTopPadding(0);
-    	pePlot.getPlot().setTitle("Potential");
-    	kePlot.getPlot().setTitle("Kinetic");
- */   //	energyPanel.add(pePlot.graphic());
-    //	energyPanel.add(kePlot.graphic());
+    	javax.swing.JPanel energyPanel = new javax.swing.JPanel(new GridLayout(0,1));
         ePlot.getPlot().setTitle("Energy History");
         energyPanel.add(ePlot.graphic());
-    	displayPanel.add("Energy",energyPanel);
-//        displayPanel.add(plot.getLabel(), plot.graphic());
-        
+    	displayPanel.add("Energy",energyPanel);        
         
         displayPanel.addChangeListener(
             new javax.swing.event.ChangeListener() {
@@ -351,46 +306,43 @@ public class LjmdGraphic {
                     displayPanel.validate();
                 }
         });
-        
-        //panel for the start buttons
-        JPanel startPanel = (JPanel)control.graphic();
-        
-        //panel for the temperature control/display
-        JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
-//        temperaturePanel.setBorder(new javax.swing.border.TitledBorder("Temperature (K)"));
-        temperaturePanel.setBorder(new javax.swing.border.TitledBorder("Temperature (\u03B5)"));
-        java.awt.GridBagConstraints gbc1 = new java.awt.GridBagConstraints();
-        gbc1.gridx = 0;  gbc1.gridy = 1;
-        gbc1.gridwidth = 1;
-        temperaturePanel.add(tSelect.graphic(null),gbc1);
-        gbc1.gridx = 1;  gbc1.gridy = 1;
-        temperaturePanel.add(tBox.graphic(null),gbc1);
-        
-        JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
-        gbc2.gridx = 0;
-        gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
-        controlPanel.add(startPanel,gbc2);
-        controlPanel.add(temperaturePanel, gbc2);
-        controlPanel.add(nSlider.graphic(), gbc2);
-        JPanel anotherPanel = new JPanel(new java.awt.GridBagLayout());
-        controlPanel.add(anotherPanel, gbc2);
-        gbc2.gridx = 0;
-        gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
-        anotherPanel.add(densityBox.graphic(), gbc2);
-        
-        if (doConfigButton) {
-            DeviceButton configButton = new DeviceButton(sim.getController());
-            configButton.setLabel("Show Config");
-            configButton.setAction(new ActionConfigWindow(sim.phase));
-            anotherPanel.add(configButton.graphic(), gbc2);
-        }
 
-        DefaultToolbar tb = new DefaultToolbar(panel, "Lennard-Jones Molecular Dynamics");
-        panel.add(tb.graphic(), BorderLayout.NORTH);
-        panel.add(bigPanel, BorderLayout.SOUTH);
-        panel.add(controlPanel, BorderLayout.WEST);
-        panel.add(displayPhase.graphic());
+        //temperature selector
+	    DeviceThermoSelector tSelect = new DeviceThermoSelector(sim,sim.integrator);
+	    tSelect.setTemperatures(new double[] {0.3,0.5,0.7,1.0,1.3,2.0,3.0});
+	    tSelect.setUnit(tUnit);
+	    tSelect.setSelected(0); //sets adiabatic as selected temperature
+	    tSelect.getLabel().setText("Set value");
+		//listner to update Maxwell-Boltzmann plot when temperature is changed
+        tSelect.getSelector().addItemListener(new java.awt.event.ItemListener() {
+		    public void itemStateChanged(java.awt.event.ItemEvent event) {
+		        Object item = event.getItem();
+		        if(item instanceof Double) {
+		            mbDistribution.setTemperature(((Double)item).doubleValue());
+		            mbSource.update();
+		            vPlot.doUpdate();
+		            vPlot.repaint();
+		        }
+		    }
+		});//end of addItemListener
+
+        JPanel temperaturePanel = new JPanel(new GridBagLayout());
+        temperaturePanel.setBorder(new TitledBorder("Temperature (\u03B5)"));
+
+        temperaturePanel.add(tSelect.graphic(null), horizGBC);
+        temperaturePanel.add(tBox.graphic(null), horizGBC);
+
+        // show config button
+        DeviceButton configButton = new DeviceButton(sim.getController());
+        configButton.setLabel("Show Config");
+        configButton.setAction(new ActionConfigWindow(sim.phase));
+
+        getPanel().controlPanel.add(temperaturePanel, vertGBC);
+        add(nSlider);
+        add(densityBox);
+        add(configButton);
+        getPanel().footerPanel.add(bigPanel, horizGBC);
+
     }
 
     public static void main(String[] args) {
@@ -403,12 +355,10 @@ public class LjmdGraphic {
                 }
             } catch(NumberFormatException e) {}
         }
-            
-        LjmdGraphic ljmdGraphic = new LjmdGraphic();
-        ljmdGraphic.setDoConfigButton(true);
-        ljmdGraphic.init(new Ljmd(space));
+
+        LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(space));
 		SimulationGraphic.makeAndDisplayFrame
-		        (ljmdGraphic.panel, "Lennard-Jones Molecular Dynamics");
+		        (ljmdGraphic.getPanel(), APP_NAME);
     }
     
     public static class Applet extends javax.swing.JApplet {
@@ -416,19 +366,13 @@ public class LjmdGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            LjmdGraphic ljmdGraphic = new LjmdGraphic();
-            String doConfigButtonStr = getParameter("doConfigButton");
-            if (doConfigButtonStr != null) {
-                ljmdGraphic.setDoConfigButton(Boolean.valueOf(doConfigButtonStr).booleanValue());
-            }
-            ljmdGraphic.init(new Ljmd(Space2D.getInstance()));
-		    getContentPane().add(ljmdGraphic.panel);
+            LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(Space2D.getInstance()));
+
+		    getContentPane().add(ljmdGraphic.getPanel());
 	    }
 
         private static final long serialVersionUID = 1L;
     }
-    
-    protected JPanel panel;
     
     /**
      * Inner class to find the total pressure of the system from the pressure

@@ -1,4 +1,5 @@
 package etomica.yukawa;
+import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -31,6 +32,7 @@ import etomica.species.SpeciesSpheresMono;
 public class TestYukawaMC3D extends Simulation{
 	
     private static final long serialVersionUID = 1L;
+    private static final String APP_NAME = "Test Yukawa MC3D";
     public IntegratorMC integrator;
 	public MCMoveAtom mcMoveAtom;
 	public SpeciesSpheresMono species;
@@ -48,7 +50,6 @@ public class TestYukawaMC3D extends Simulation{
 		
 		defaults.makeLJDefaults();
 		
-		
 		integrator = new IntegratorMC(this, potentialMaster);
 		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
 		mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
@@ -59,9 +60,9 @@ public class TestYukawaMC3D extends Simulation{
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-		phase.getAgent(species).setNMolecules(numAtoms);
 		phase = new Phase(this);
         addPhase(phase);
+		phase.getAgent(species).setNMolecules(numAtoms);
 		phase.setDensity(0.65);
 		potential = new P2Yukawa(this);
 		double truncationRadius = 3.0*potential.getKappa();
@@ -103,12 +104,17 @@ public class TestYukawaMC3D extends Simulation{
 		energyAccumulator.setBlockSize(50);
 		new IntervalActionAdapter(energyManager, sim.integrator);
 
-		SimulationGraphic simGraphic = new SimulationGraphic(sim);
+		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setPostAction(new Action() {
+        	public void actionPerformed() {
+        		simGraphic.getPanel().repaint();
+        	}
+        });
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
-        simGraphic.makeAndDisplayFrame();
+        simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
 		

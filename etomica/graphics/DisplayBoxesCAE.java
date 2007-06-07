@@ -5,6 +5,7 @@ import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import etomica.action.Action;
 import etomica.data.AccumulatorAverage;
 import etomica.data.Data;
 import etomica.data.DataPipe;
@@ -172,8 +173,10 @@ public class DisplayBoxesCAE extends Display implements DataSink {
     }
     
     public static void main(String[] args) {
-        HSMD2D sim = new HSMD2D();
-        SimulationGraphic graphic = new SimulationGraphic(sim);
+    	final String APP_NAME = "Display Boxes CAE";
+
+        final HSMD2D sim = new HSMD2D();
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         sim.integrator.setIsothermal(true);
         MeterPressureHard pressureMeter = new MeterPressureHard(sim.getSpace());
         pressureMeter.setIntegrator(sim.integrator);
@@ -183,7 +186,13 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         DisplayBoxesCAE boxes = new DisplayBoxesCAE(pressureMeter.getDataInfo());
         boxes.setAccumulator(accumulator);
         graphic.add(boxes);
-        graphic.makeAndDisplayFrame();
+        graphic.getController().getReinitButton().setPostAction(new Action() {
+        	public void actionPerformed() {
+        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        });
+
+        graphic.makeAndDisplayFrame(APP_NAME);
     }
 
 }

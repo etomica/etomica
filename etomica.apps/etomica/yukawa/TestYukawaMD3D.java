@@ -2,6 +2,7 @@ package etomica.yukawa;
 
 import java.awt.Color;
 
+import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
@@ -34,6 +35,7 @@ import etomica.util.Default;
 public class TestYukawaMD3D extends Simulation{
 
     private static final long serialVersionUID = 1L;
+    private static final String APP_NAME = "Test Yukawa MD3D";
     public final Phase phase;
 	public final IntegratorVelocityVerlet integrator;
 	public final SpeciesSpheresMono species;
@@ -99,12 +101,17 @@ public class TestYukawaMD3D extends Simulation{
 		defaults.ignoreOverlap = true;
 		
 		TestYukawaMD3D sim = new TestYukawaMD3D(defaults);
-		SimulationGraphic simGraphic = new SimulationGraphic(sim);
+		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
+        nSelector.setPostAction(new Action() {
+        	public void actionPerformed() {
+        		simGraphic.getPanel().repaint();
+        	}
+        });
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
 		simGraphic.add(nSelector);
-		simGraphic.makeAndDisplayFrame();
+		simGraphic.makeAndDisplayFrame(APP_NAME);
 		ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
 		colorScheme.setColor(sim.species.getMoleculeType(), Color.red);
 	}

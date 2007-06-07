@@ -24,7 +24,6 @@ public class DefaultToolbar {
     public DefaultToolbar(final JPanel parent, String appName) {
     	mBar = new JMenuBar();
 
-    	
     	// File menu
     	JMenu fileMenu = new JMenu("File");
 

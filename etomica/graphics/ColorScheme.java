@@ -46,16 +46,29 @@ public abstract class ColorScheme implements java.io.Serializable {
     
     //for color scheme demo
     public static void main(String args[]) {
+      final String APP_NAME = "Color Scheme";
+
       Default defaults = new Default();
       defaults.doSleep = false;
       defaults.ignoreOverlap = true;
       final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
-      final SimulationGraphic simGraphic = new SimulationGraphic(sim);
+      final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+
+      Action repaintAction = new Action () {
+    	  public void actionPerformed() {
+    		  simGraphic.getDisplayPhase(sim.phase).graphic().repaint();
+    	  }
+      };
+
       DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
       nSelector.setResetAction(new SimulationRestart(sim));
       nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
+      nSelector.setPostAction(repaintAction);
       simGraphic.add(nSelector);
-      
+
+
+      simGraphic.getController().getReinitButton().setPostAction(repaintAction);
+
       final ColorSchemeByType ct = new ColorSchemeByType();
       final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(0,5);
       final ColorSchemeColliders ccld =
@@ -117,16 +130,20 @@ public abstract class ColorScheme implements java.io.Serializable {
 
       DeviceButton colorer = new DeviceButton(sim.getController(),act);
       colorer.setLabel("Global Random");
+      colorer.setPostAction(repaintAction);
       DeviceButton tempcolorer = new DeviceButton(sim.getController(),act2);
       tempcolorer.setLabel("By Temperature (0-5)");
       DeviceButton colliders = new DeviceButton(sim.getController(),act3);
       colliders.setLabel("Colliders");
       DeviceButton neighbors = new DeviceButton(sim.getController(),act4);
       neighbors.setLabel("Neighbors");
+      neighbors.setPostAction(repaintAction);
       DeviceButton randomcol = new DeviceButton(sim.getController(),act5);
       randomcol.setLabel("Unique Random");
+      randomcol.setPostAction(repaintAction);
       DeviceButton def = new DeviceButton(sim.getController(),act6);
       def.setLabel("Default Red");
+      def.setPostAction(repaintAction);
       DeviceButton cellbtn = new DeviceButton(sim.getController(),act7);
       cellbtn.setLabel("Cell");
       
@@ -164,7 +181,7 @@ public abstract class ColorScheme implements java.io.Serializable {
 //        }
 //      };
       
-      simGraphic.makeAndDisplayFrame();
+      simGraphic.makeAndDisplayFrame(APP_NAME);
       
       //ColorSchemeTemperature colorScheme = new ColorSchemeTemperature(0.0f,5.0f);
 
@@ -173,6 +190,5 @@ public abstract class ColorScheme implements java.io.Serializable {
 
       DisplayPhase dp = (DisplayPhase)simGraphic.displayList().getFirst();
       dp.setColorScheme(colorScheme);
-      simGraphic.panel().setBackground(java.awt.Color.yellow);        
     }
 }

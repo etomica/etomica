@@ -40,7 +40,8 @@ public class JouleThomsonSim extends Simulation {
     Phase phase;
     IntegratorJT integratorJT;
     ActivityIntegrate activityIntegrate;
-    
+    Configuration config;
+
     public JouleThomsonSim() {this(Space2D.getInstance());}
     public JouleThomsonSim(Space space) {
         super(space);
@@ -81,7 +82,7 @@ public class JouleThomsonSim extends Simulation {
         else {
             lattice = new LatticeCubicFcc();
         }
-        Configuration config = new ConfigurationLattice(lattice);
+        config = new ConfigurationLattice(lattice);
         config.initializeCoordinates(phase);
         
         integratorJT = new IntegratorJT(potentialMaster, getRandom(), integrator, integratorNVE);

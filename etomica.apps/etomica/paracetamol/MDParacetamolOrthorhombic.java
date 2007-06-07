@@ -53,6 +53,9 @@ import etomica.util.Default;
  */
 public class MDParacetamolOrthorhombic extends Simulation {
 
+	private static final String APP_NAME = "MD Paracetamol Orthorhombic";
+	private static final int PIXEL_SIZE = 15;
+
     /**
 	 * 
 	 */
@@ -402,7 +405,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         defaults.doSleep = false;
         defaults.ignoreOverlap = true;
         etomica.paracetamol.MDParacetamolOrthorhombic sim = new etomica.paracetamol.MDParacetamolOrthorhombic(defaults);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         
    /*****************************************************************************/    
         MeterKineticEnergy meterKE = new MeterKineticEnergy();
@@ -436,11 +439,9 @@ public class MDParacetamolOrthorhombic extends Simulation {
         simGraphic.add(PEbox);
         simGraphic.add(meterTotalbox);
         simGraphic.add(tempBox);
-        
-        
-        
-        simGraphic.makeAndDisplayFrame();
-        simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(30));
+
+
+        simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(PIXEL_SIZE));
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         AtomTypeGroup atomType = (AtomTypeGroup)sim.species.getMoleculeType();
         colorScheme.setColor(atomType.getChildTypes()[0], java.awt.Color.red);
@@ -448,11 +449,11 @@ public class MDParacetamolOrthorhombic extends Simulation {
         colorScheme.setColor(atomType.getChildTypes()[2], java.awt.Color.blue);
         colorScheme.setColor(atomType.getChildTypes()[3], java.awt.Color.white);
         colorScheme.setColor(atomType.getChildTypes()[4], java.awt.Color.white);
-        simGraphic.panel().setBackground(java.awt.Color.yellow);
-        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBackgroundColor(Color.WHITE);
-        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBoundaryFrameColor(Color.BLACK);
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
         simGraphic.getDisplayPhase(sim.phase).repaint();
-        
+
     }//end of main
     
     public BravaisLattice lattice;

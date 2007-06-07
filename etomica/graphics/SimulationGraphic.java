@@ -2,6 +2,9 @@ package etomica.graphics;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -38,22 +41,55 @@ public class SimulationGraphic implements SimulationContainer {
     
     static {
         try {
-//            javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new EtomicaTheme());
-//            javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new BlueRoseTheme());
             javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-//            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
         } catch(Exception e) {}
     }
-    
+
+    public static final int GRAPHIC_ONLY = 0;
+    public static final int TABBED_PANE = 1;
+
     private SimulationPanel simulationPanel;
-    
+    private final DeviceTrioControllerButton dcb;
+    protected final Simulation simulation;
+    private final LinkedList displayList = new LinkedList();
+    private final LinkedList deviceList = new LinkedList();
+
+    private int graphicType = GRAPHIC_ONLY;
+
+
     public SimulationGraphic(Simulation simulation) {
+    	this(simulation, GRAPHIC_ONLY, "");
+    }
+
+    public SimulationGraphic(Simulation simulation, int graphicType) {
+    	this(simulation, graphicType, "");
+    }
+
+    public SimulationGraphic(Simulation simulation, String appName) {
+    	this(simulation, GRAPHIC_ONLY, appName);
+    }
+
+    public SimulationGraphic(Simulation simulation, int graphicType, String appName) {
         this.simulation = simulation;
-        DeviceTrioControllerButton controlPanel = new DeviceTrioControllerButton(simulation);
-        add(controlPanel);
+        simulationPanel = new SimulationPanel(appName);
+        if(graphicType == GRAPHIC_ONLY || graphicType == TABBED_PANE) {
+            this.graphicType = graphicType;
+        }
+        switch(this.graphicType) {
+        case GRAPHIC_ONLY:
+        	getPanel().graphicsPanel.remove(getPanel().tabbedPane);
+        	break;
+        case TABBED_PANE:
+        	getPanel().graphicsPanel.add(getPanel().tabbedPane);
+        	break;
+        default:
+        	break;
+        }
+        dcb = new DeviceTrioControllerButton(simulation);
+        add(dcb);
         setupDisplayPhase();
     }
-    
+
     public Simulation getSimulation() {return simulation;}
     
     public final LinkedList displayList() { return displayList;}
@@ -66,133 +102,174 @@ public class SimulationGraphic implements SimulationContainer {
     /**
      * A visual display of the simulation via a JPanel.
      */
-     public SimulationPanel panel() {
-        if(simulationPanel == null) simulationPanel = new SimulationPanel();
-        return simulationPanel;
-     }
+	public SimulationPanel getPanel() {
+	   if(simulationPanel == null) simulationPanel = new SimulationPanel();
+	   return simulationPanel;
+	}
      
-     private void setupDisplayPhase() {
-         Controller controller = simulation.getController();
-         Action[] activities = controller.getPendingActions();
-         LinkedList phaseList = new LinkedList();
-         for (int i=0; i<activities.length; i++) {
-             if (activities[i] instanceof ActivityIntegrate) {
-                 Integrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
-                 setupDisplayPhase(integrator, phaseList);
-             }
-         }
-     }
-     
-     /**
-      * Creates a DisplayPhase for each Phase handled by the given Integrator 
-      * and/or its sub-integrators.  Phases found are added to phaseList.  If 
-      * a phase handled by an Integrator is in PhaseList, a new DisplayPhase is
-      * not created.
-      */
-     private void setupDisplayPhase(Integrator integrator, LinkedList phaseList) {
-         if (integrator instanceof IntegratorPhase) {
-             Phase phase = ((IntegratorPhase)integrator).getPhase();
-             if (phaseList.contains(phase)) return;
-             phaseList.add(phase);
-             final DisplayPhase display = new DisplayPhase(phase,simulation.getDefaults().pixelUnit);
-             add(display);
-             
-             /* For G3DSys: panel is invisible until set visible here.
-              * This kind of looks like it could possibly have solved
-              * the 'random gray panel on startup' bug. Have been
-              * unable to reproduce after adding this, anyway.
-              */
-             if(display.canvas instanceof JComponent) {
-               /* setting to false and then true just in case that's enough
-                * to fix it, since switching tabs on a gray startup will
-                * always make the panel draw properly again
-                */
-               ((JComponent)display.canvas).setVisible(false);
-               ((JComponent)display.canvas).setVisible(true);
-             }
-             
-             IntervalActionAdapter iaa = new IntervalActionAdapter(new Action() {
-            	 public void actionPerformed() {display.repaint();}
-             });
-             integrator.addListener(iaa);
-             iaa.setActionInterval(100);
-         }
-         else if (integrator instanceof IntegratorManagerMC) {
-             Integrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
-             for (int i=0; i<subIntegrators.length; i++) {
-                 setupDisplayPhase(subIntegrators[i], phaseList);
-             }
-         }
-     }
+	private void setupDisplayPhase() {
+	    Controller controller = simulation.getController();
+	    Action[] activities = controller.getPendingActions();
+	    LinkedList phaseList = new LinkedList();
+	    for (int i=0; i<activities.length; i++) {
+	        if (activities[i] instanceof ActivityIntegrate) {
+	            Integrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
+	            setupDisplayPhase(integrator, phaseList);
+	        }
+	    }
+	}
+	 
+	/**
+	  * Creates a DisplayPhase for each Phase handled by the given Integrator 
+	  * and/or its sub-integrators.  Phases found are added to phaseList.  If 
+	  * a phase handled by an Integrator is in PhaseList, a new DisplayPhase is
+	  * not created.
+	  */
+	private void setupDisplayPhase(Integrator integrator, LinkedList phaseList) {
+	    if (integrator instanceof IntegratorPhase) {
+	        Phase phase = ((IntegratorPhase)integrator).getPhase();
+	        if (phaseList.contains(phase)) return;
+	        phaseList.add(phase);
+	        final DisplayPhase display = new DisplayPhase(phase,simulation.getDefaults().pixelUnit);
+	        add(display);
+	         
+	        /* For G3DSys: panel is invisible until set visible here.
+	         * This kind of looks like it could possibly have solved
+	         * the 'random gray panel on startup' bug. Have been
+	         * unable to reproduce after adding this, anyway.
+	         */
+	        if(display.canvas instanceof JComponent) {
+	          /* setting to false and then true just in case that's enough
+	           * to fix it, since switching tabs on a gray startup will
+	           * always make the panel draw properly again
+	           */
+	          ((JComponent)display.canvas).setVisible(false);
+	          ((JComponent)display.canvas).setVisible(true);
+	        }
+	         
+	        IntervalActionAdapter iaa = new IntervalActionAdapter(new Action() {
+	        	public void actionPerformed() {display.repaint();}
+	        });
+	        integrator.addListener(iaa);
+	        iaa.setActionInterval(100);
+	    }
+	    else if (integrator instanceof IntegratorManagerMC) {
+	        Integrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
+	        for (int i=0; i<subIntegrators.length; i++) {
+	            setupDisplayPhase(subIntegrators[i], phaseList);
+	        }
+	    }
+	
+	}
 
-     public void add(Display display) {
-         final java.awt.Component component = display.graphic(null);
-         if(component == null) return; //display is not graphic
-         if(display instanceof DisplayBox || display instanceof DisplayBoxesCAE) {
-             final java.awt.GridBagConstraints gbcBox = new java.awt.GridBagConstraints();
-             gbcBox.gridx = 0;
-             panel().displayBoxPanel.add(component, gbcBox);
-         }
-         else {
-             panel().displayPanel.add(display.getLabel(),component);
-             //add a listener to update the tab label if the name of the display changes
-             display.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-                 public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                     if(evt.getPropertyName().equals("label")) {
-                         int idx = panel().displayPanel.indexOfComponent(component);
-                         panel().displayPanel.setTitleAt(idx,evt.getNewValue().toString());
-                     }
-                 }
-             });
-         }
-         displayList.add(display);
-     }
+    public void add(Display display) {
+        final Component component = display.graphic(null);
+        if(component == null) return; //display is not graphic
 
-     public void remove(Device device) {
-         final java.awt.Component component = device.graphic(null);
-         if(component == null) return; //display is not graphic
-         if(device instanceof DeviceTable) {
-             panel().displayPanel.remove(component);
-         }
-         else {
-             panel().devicePanel.remove(component);
-         }
-         deviceList.remove(device);
-     }
-     
-     public void remove(Display display) {
-         final java.awt.Component component = display.graphic(null);
-         if(component == null) return; //display is not graphic
-         if(display instanceof DisplayBox || display instanceof DisplayBoxesCAE) {
-             panel().displayBoxPanel.remove(component);
-         }
-         else {
-             panel().displayPanel.remove(component);
-         }
-         displayList.remove(display);
-     }
-     /**
+        if(display instanceof DisplayBox || display instanceof DisplayBoxesCAE) {
+            getPanel().controlPanel.add(component, getPanel().getVertGBC());
+        }
+        else {
+            if(this.graphicType == GRAPHIC_ONLY) {
+        	    getPanel().graphicsPanel.add(component);
+            }
+            else {
+            	getPanel().tabbedPane.add(display.getLabel(), component);
+            }
+            //add a listener to update the tab label if the name of the display changes
+            display.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+                public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                	if(evt.getPropertyName().equals("label")) {
+                        int idx = getPanel().tabbedPane.indexOfComponent(component);
+                        getPanel().tabbedPane.setTitleAt(idx,evt.getNewValue().toString());
+                    }
+                }
+            });
+        }
+        displayList.add(display);
+    }
+
+    public void remove(Display display) {
+        final Component component = display.graphic(null);
+    	if(component == null) return; //display is not graphic
+    	if(display instanceof DisplayBox || display instanceof DisplayBoxesCAE) {
+    	    getPanel().controlPanel.remove(component);
+    	}
+    	else {
+    	    if(this.graphicType == GRAPHIC_ONLY) {
+    	        getPanel().graphicsPanel.remove(component);
+    	    }
+    	    else {
+    	        getPanel().tabbedPane.remove(component);
+    	    }
+    	}
+    	displayList.remove(display);
+    }
+
+    /**
       * Adds displays graphic to the simulation display pane
       */
-     public void add(Device device) {
-         java.awt.Component component = device.graphic(null);
-         if(device instanceof DeviceTable) {
-             panel().displayPanel.add(component);
-         }
-         else {
-             final java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-             gbc.gridx = 0;
-             panel().devicePanel.add(component,gbc);
-         }
-         deviceList.add(device);
-     }
-     
+    public void add(Device device) {
+        Component component = device.graphic(null);
+        if(device instanceof DeviceTable) {
+            if(this.graphicType == GRAPHIC_ONLY) {
+        	    getPanel().graphicsPanel.add(component);
+            }
+            else {
+            	getPanel().tabbedPane.add(component);
+            }
+        }
+        else {
+            getPanel().controlPanel.add(component,simulationPanel.getVertGBC());
+        }
+        deviceList.add(device);
+    }
+
+    public void remove(Device device) {
+        final Component component = device.graphic(null);
+        if(component == null) return; //display is not graphic
+        if(device instanceof DeviceTable) {
+            if(this.graphicType == GRAPHIC_ONLY) {
+                getPanel().graphicsPanel.remove(component);           	 
+            }
+            else {
+            	getPanel().tabbedPane.remove(component);
+            }
+
+        }
+        else {
+        	getPanel().toolbarPanel.remove(component);
+        }
+        deviceList.remove(device);
+    }
+
+    public void initiateRedraw(final int time) {
+        Thread repainter = new Thread() {
+            public void run() {
+                while (true) {
+                	if(graphicType == GRAPHIC_ONLY) {
+                        getPanel().graphicsPanel.repaint();
+                	}
+                	else {
+                		getPanel().tabbedPane.repaint();
+                	}
+                    try{Thread.sleep(time);}
+                    catch(InterruptedException e){}
+                }
+            }
+        };
+        repainter.start();
+    	
+    }
+
+    public DeviceTrioControllerButton getController() { return dcb; }
+
     public final JFrame makeAndDisplayFrame() {
-        return makeAndDisplayFrame(panel());
+        return makeAndDisplayFrame(getPanel());
     }
     
     public final JFrame makeAndDisplayFrame(String title) {
-    	return makeAndDisplayFrame(panel(), title);
+    	return makeAndDisplayFrame(getPanel(), title);
     }
 
     public static JFrame makeAndDisplayFrame(JPanel panel, String title) {
@@ -233,9 +310,6 @@ public class SimulationGraphic implements SimulationContainer {
         }
         return null;
     }
-    protected final Simulation simulation;
-    private final LinkedList displayList = new LinkedList();
-    private final LinkedList deviceList = new LinkedList();
 
     /**
      * Demonstrates how this class is implemented.
@@ -254,7 +328,7 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
       sim.getDefaults().doSleep = false;
       sim.getDefaults().ignoreOverlap = true;
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
@@ -293,7 +367,7 @@ public class SimulationGraphic implements SimulationContainer {
             }
         }
 //        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
-        simGraphic.panel().setBackground(java.awt.Color.yellow);
+        simGraphic.getPanel().setBackground(java.awt.Color.yellow);
         Plane plane = new Plane(sim.getSpace());
         plane.setThreePoints(new Vector3D(1,1,1), new Vector3D(2,2,2), new Vector3D(4,5,1));
         

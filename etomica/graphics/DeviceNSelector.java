@@ -62,17 +62,23 @@ public class DeviceNSelector extends DeviceSlider {
     
     //main method to demonstrate and test class
     public static void main(String[] args) {
-        
-        HSMD2D sim = new HSMD2D();
-        SimulationGraphic graphic = new SimulationGraphic(sim);
+        final String APP_NAME = "Devine n Selector";
+
+        final HSMD2D sim = new HSMD2D();
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         sim.register(sim.integrator);
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
-
-        graphic.makeAndDisplayFrame();
+        nSelector.setPostAction(new Action() {
+        	public void actionPerformed() {
+        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        });
         graphic.add(nSelector);
+        graphic.makeAndDisplayFrame(APP_NAME);
+
     }
     
 

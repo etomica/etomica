@@ -8,6 +8,7 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
+import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
@@ -42,6 +43,8 @@ import etomica.species.SpeciesSpheresMono;
  * is desired to associate each molecule with a lattice site.
  */
 public class ConfigurationOrthorhombicLattice extends Configuration implements AgentSource{
+
+	private final static String APP_NAME = "Configuration Orthorhombic Lattice";
 
     /**
      * Constructs class using instance of IndexIteratorRectangular as the default
@@ -316,12 +319,11 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
         // etomica.graphics.DisplayPhase display = new
         // etomica.graphics.DisplayPhase(phase);
 
-        etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
-                sim);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 //        ((ColorSchemeByType) ((DisplayPhase) simGraphic.displayList()
 //                .getFirst()).getColorScheme()).setColor(species
 //                .getMoleculeType(), java.awt.Color.red);
-        simGraphic.makeAndDisplayFrame();
+        simGraphic.makeAndDisplayFrame(APP_NAME);
     }
 
     /**

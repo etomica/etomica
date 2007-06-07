@@ -36,6 +36,8 @@ import etomica.units.Pixel;
  */
 public class SimHarmonic extends Simulation {
 
+	private static final String APP_NAME = "Sim Harmonic";
+
     public SimHarmonic(Space space, int numAtoms, double density, String filename, double harmonicFudge) {
         super(space, true);
 
@@ -220,7 +222,7 @@ public class SimHarmonic extends Simulation {
 
             //graphic simulation -- set up window
 //            sim.getDefaults().pixelUnit = new Pixel(0.05);
-            SimulationGraphic simG = new SimulationGraphic(sim);
+            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME);
             DisplayBoxesCAE boxesPE = new DisplayBoxesCAE();
             boxesPE.setAccumulator(avgBoltzmann);
             boxesPE.setPrecision(6);
@@ -236,7 +238,7 @@ public class SimHarmonic extends Simulation {
 //            simG.add(harmonicPlot);
 
             simG.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
-            simG.makeAndDisplayFrame();
+            simG.makeAndDisplayFrame(APP_NAME);
         } else {
             //not graphic, so run simulation batch
             //S data is written to file

@@ -1,4 +1,5 @@
 package etomica.meam;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeSphere;
@@ -18,6 +19,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -64,6 +66,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class MEAM_3DMDwithSnAgGB extends Simulation {
     
     private static final long serialVersionUID = 1L;
+    private static final String APP_NAME = "MEAM 3DMD w/SnAgGB";
     public final PotentialMasterList potentialMaster;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono snFixedA;
@@ -133,7 +136,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         IntervalActionAdapter kineticAdapter = new IntervalActionAdapter(kineticManager, sim.integrator);
         kineticAdapter.setActionInterval(1);    
 
-        SimulationGraphic simgraphic = new SimulationGraphic(sim);
+        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME);
         
     	DisplayBox cvBoxPE = new DisplayBox();
     	dataProcessorPE.setDataSink(cvBoxPE);
@@ -144,11 +147,10 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     	cvBoxKE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
     	cvBoxKE.setLabel("KE Cv contrib.");
     	
-    	simgraphic.makeAndDisplayFrame();
-    	simgraphic.panel().add(plot.graphic());
+    	simgraphic.getPanel().plotPanel.add(plot.graphic(), SimulationPanel.getVertGBC());
     	//simgraphic.panel().add(plotKE.graphic());
-    	simgraphic.panel().add(cvBoxPE.graphic());
-    	simgraphic.panel().add(cvBoxKE.graphic());
+    	simgraphic.getPanel().plotPanel.add(cvBoxPE.graphic(), SimulationPanel.getVertGBC());
+    	simgraphic.getPanel().plotPanel.add(cvBoxKE.graphic(), SimulationPanel.getVertGBC());
     	
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.snFixedA.getMoleculeType(),java.awt.Color.white);
@@ -159,6 +161,9 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     	colorScheme.setColor(sim.snB.getMoleculeType(),java.awt.Color.white);
     	colorScheme.setColor(sim.agB.getMoleculeType(),java.awt.Color.gray);
     	colorScheme.setColor(sim.cuB.getMoleculeType(),java.awt.Color.orange);
+
+    	simgraphic.makeAndDisplayFrame(APP_NAME);
+
     	//sim.activityIntegrate.setMaxSteps(1000);
     	//sim.getController().run();
     	//DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]

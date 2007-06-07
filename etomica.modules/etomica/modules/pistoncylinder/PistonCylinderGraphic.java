@@ -1,6 +1,7 @@
 package etomica.modules.pistoncylinder;
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
@@ -10,8 +11,10 @@ import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -36,7 +39,6 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ActionVelocityWindow;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
@@ -49,6 +51,7 @@ import etomica.graphics.DisplayCanvasInterface;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
@@ -83,14 +86,10 @@ import etomica.units.systems.MKS;
 import etomica.util.Default;
 
 
-public class PistonCylinderGraphic {
+public class PistonCylinderGraphic extends SimulationPanel {
     
     static {
         try {
-//            javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new EtomicaTheme());
-//            javax.swing.plaf.metal.MetalLookAndFeel.setCurrentTheme(new etomica.graphics.BlueRoseTheme());
-//            javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-//            UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
             System.out.println(javax.swing.UIManager.getSystemLookAndFeelClassName());
             javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
             UIManager.put("TitledBorder.font", new Font("SansSerif", Font.BOLD, 12));
@@ -98,7 +97,7 @@ public class PistonCylinderGraphic {
     }
 
     
-    public JPanel panel, displayPhasePanel;
+    public JPanel displayPhasePanel;
     public PistonCylinder pc;
     public Potential2HardSphericalWrapper potentialWrapper;
     public P2HardSphere potentialHS;
@@ -121,7 +120,6 @@ public class PistonCylinderGraphic {
     public DisplayPlot plotT, plotD, plotP;
     public DisplayPlot plotRDF;
     public Unit tUnit, dUnit, pUnit;
-    public javax.swing.JTabbedPane displayPanel;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
 	private DisplayBoxesCAE densityDisplayBox, temperatureDisplayBox, pressureDisplayBox;
     public JRadioButton buttonAdiabatic, buttonIsothermal;
@@ -190,10 +188,71 @@ public class PistonCylinderGraphic {
         lambda = 2.0;
         epsilon = eUnit.toSim(1500.0);
         mass = defaults.atomMass;
-        
-        //restart action and button
+
+        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
+        GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
+
+        // Dimension Selection
+        JPanel dimensionPanel = new JPanel(new GridLayout(1,0));
+        ButtonGroup dimensionGroup = new ButtonGroup();
+        final JRadioButton button2D = new JRadioButton("2D");
+        JRadioButton button3D = new JRadioButton("3D");
+        button2D.setSelected(true);
+        dimensionGroup.add(button2D);
+        dimensionGroup.add(button3D);
+        dimensionPanel.add(button2D);
+        dimensionPanel.add(button3D);
+        button2D.addItemListener(new ItemListener() {
+           public void itemStateChanged(ItemEvent evt) {
+               if(button2D.isSelected()) {
+                   setSimulation(new PistonCylinder(2, defaults));
+               } else {
+                   setSimulation(new PistonCylinder(3, defaults));
+               }
+           }
+        });
+
+        // Control buttons
         controlButtons = new DeviceTrioControllerButton();
-        
+        fixPistonButton = new DeviceToggleButton(null);
+
+        JPanel startPanel = (JPanel)controlButtons.graphic();
+        GridBagConstraints gbc0 = new GridBagConstraints();
+        startPanel.setBorder(new TitledBorder("Control"));
+        gbc0.gridx = 0; gbc0.gridy = 0;
+        gbc0.gridx = 0; gbc0.gridy = 2; gbc0.gridwidth = 2;
+        startPanel.add(fixPistonButton.graphic(null), gbc0);
+        startPanel.setLayout(new GridLayout(2,2));
+
+        // Simulation Time
+        displayCycles = new DisplayBox();
+
+        // Add dimension buttons panel, controls panel,
+        // simulation timebox and config buttons, if requested,
+        // onto a panel
+        JPanel controlsPanel = new JPanel(new GridBagLayout());
+        controlsPanel.add(dimensionPanel);
+        controlsPanel.add(startPanel,vertGBC);
+        controlsPanel.add(displayCycles.graphic(),vertGBC);
+
+        // Show buttons (added to panel 
+        if (doConfigButton) {
+            JPanel configPanel = new JPanel(new GridBagLayout());
+            controlsPanel.add(configPanel,vertGBC);
+
+            configButton = new DeviceButton(null);
+            configButton.setLabel("Show Config");
+            configPanel.add(configButton.graphic(),horizGBC);
+
+            velocityButton = new DeviceButton(null);
+            velocityButton.setLabel("Show Velocities");
+            configPanel.add(velocityButton.graphic(),horizGBC);
+        }
+
+        //
+        // State tabbed pane page
+        //
+
         //adiabatic/isothermal radio button
         ButtonGroup thermalGroup = new ButtonGroup();
         buttonAdiabatic = new JRadioButton("Adiabatic");
@@ -221,69 +280,24 @@ public class PistonCylinderGraphic {
         temperatureSlider.setNMajor(4);
         temperatureSlider.setValue(300);
 
-	    //combo box to select potentials
-//	    final AtomPairIterator iterator = potentialDisks.iterator();
-	    potentialChooser = new javax.swing.JComboBox(new String[] {
-	        "Ideal gas", "Repulsion only", "Repulsion and attraction"});
-	    potentialChooser.setSelectedIndex(0);
+        //
+        // panel for the temperature control/display
+        //
 
-        sigBox = new DeviceBox();
-        epsBox = new DeviceBox();
-        lamBox = new DeviceBox();
-        massBox = new DeviceBox();
-        
-//        displayPhase.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
-//        displayPhase.getOriginShift()[0] = thickness;
-//        displayPhase.getOriginShift()[1] = -thickness;
-	    
-	    //slider for scale of display
-	    ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayPhase, "scale");
-	    scaleModulator.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
-	    scaleSlider = new DeviceSlider(null, scaleModulator);
-	    JPanel scaleSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
-	    scaleSliderPanel.add(scaleSlider.graphic());	    
-//        scaleSliderPanel.setBorder(new javax.swing.border.TitledBorder("Scale (%)"));
-	    scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
-	        public void stateChanged(javax.swing.event.ChangeEvent evt) {
-	            displayPhase.repaint();
-	        }
-	    });
-	    scaleSlider.setMinimum(10);
-	    scaleSlider.setMaximum(100);
-//	    scaleSlider.getSlider().setSnapToTicks(true);
-	    scaleSlider.getSlider().setValue(100);
-	    scaleSlider.getSlider().setMajorTickSpacing(10);
-	    scaleSlider.getSlider().setMinorTickSpacing(5);
-	    scaleSlider.getSlider().setOrientation(1);
-	    scaleSlider.getSlider().setLabelTable(scaleSlider.getSlider().createStandardLabels(10));
-		
-		//add meter and display for current kinetic temperature
-		defaults.historyPeriod = 1000;
+        JPanel temperaturePanel = new JPanel(new GridBagLayout());
+        temperaturePanel.setBorder(new TitledBorder("Set Temperature (K)"));
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        gbc1.gridx = 0;  gbc1.gridy = 1;
+        gbc1.gridwidth = 1;
+        temperaturePanel.add(buttonAdiabatic, gbc1);
+        gbc1.gridx = 1;  gbc1.gridy = 1;
+        gbc1.gridwidth = 1;
+        temperaturePanel.add(buttonIsothermal,gbc1);
+        gbc1.gridx = 0;  gbc1.gridy = 2;
+        gbc1.gridwidth = 2;
+        temperaturePanel.add(temperatureSlider.graphic(),gbc1);
 
-		thermometer = new MeterTemperature();
-
-        //plot of temperature and density histories
-/*		DisplayPlot plotD = new DisplayPlot(this);
-		DisplayPlot plotT = new DisplayPlot(this);
-		plotD.setDataSources(densityHistory);
-        plotD.setUnit(dUnit);
-		plotT.setDataSources(temperatureHistory);
-		plotT.setUnit(tUnit);
-		plotD.setLabel("Density");
-		plotT.setLabel("Temperature");
-		plotT.getPlot().setYRange(0.0,1500.);
-*/		
-		//display of averages
-/*		DisplayTable table = new DisplayTable(this);
-		table.setUpdateInterval(20);
-		table.setWhichValues(new MeterAbstract.ValueType[] {
-		                MeterAbstract.CURRENT, MeterAbstract.AVERAGE, MeterAbstract.ERROR});
-        this.mediator().addMediatorPair(new Mediator.DisplayMeter.NoAction(this.mediator()));
-*/				
-		
 		//pressure device
-//        sliderModulator.setFunction(pressureRescale);
-//        pressureSlider = new DeviceSelectPressure(controller,integrator);
         pressureSlider = new DeviceSlider(null);
         pressureSlider.setShowValues(true);
         pressureSlider.setEditValues(true);
@@ -291,7 +305,14 @@ public class PistonCylinderGraphic {
         pressureSlider.setMaximum(1000);
         pressureSlider.setNMajor(4);
 	    pressureSlider.setValue(p0);
-        
+
+        // panel for pressure control / display
+        pressureSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+        pressureSlider.setShowBorder(false);
+        pressureSliderPanel.add(pressureSlider.graphic());
+
+        JPanel nSliderPanel = null;
+
 	    if (doNSelector) {
             nSlider = new DeviceNSelector();
             nSlider.setLabel("Number of atoms");
@@ -305,8 +326,54 @@ public class PistonCylinderGraphic {
                     pc.integrator.setThermostatInterval(200/n);
                 }
             });
+
+            nSliderPanel = new JPanel(new GridLayout(0,1));
+            nSliderPanel.setBorder(new TitledBorder("Number of Molecules"));
+            nSlider.setShowBorder(false);
+            nSliderPanel.add(nSlider.graphic());
         }
 
+        // Add all state page sub panels onto a single panel
+        JPanel statePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 0;  gbc2.gridy = 0;
+        statePanel.add(temperaturePanel, gbc2);
+        gbc2.gridx = 0;  gbc2.gridy = 1;
+        statePanel.add(pressureSliderPanel, gbc2);
+        if (doNSelector) {
+            gbc2.gridx = 0;  gbc2.gridy = 2;
+            statePanel.add(nSliderPanel, gbc2);
+        }
+
+        //
+        // Potential tabbed pane page
+        //
+        
+	    //combo box to select potentials
+	    potentialChooser = new javax.swing.JComboBox(new String[] {
+	        "Ideal gas", "Repulsion only", "Repulsion and attraction"});
+	    potentialChooser.setSelectedIndex(0);
+
+        sigBox = new DeviceBox();
+        epsBox = new DeviceBox();
+        lamBox = new DeviceBox();
+        massBox = new DeviceBox();
+
+        JPanel potentialPanel = new JPanel(new GridBagLayout());
+        potentialPanel.add(potentialChooser,vertGBC);
+	    potentialPanel.setBorder(new TitledBorder("Potential selection"));
+	    JPanel parameterPanel = new JPanel(new GridLayout(0,1));
+        parameterPanel.add(sigBox.graphic());
+        parameterPanel.add(epsBox.graphic());
+        parameterPanel.add(lamBox.graphic());
+        parameterPanel.add(massBox.graphic());
+        potentialPanel.add(parameterPanel,vertGBC);
+        
+        //
+        // Controls tabbed pane page
+        //
+
+        // Repaint delay slider
         DeviceSlider repaintSlider = new DeviceSlider(null);
         //XXX ugh, see bug 49
         repaintSlider.setUnit(Time.SIM_UNIT);
@@ -324,7 +391,12 @@ public class PistonCylinderGraphic {
             }
             public double getValue() {return repaintSleep;}
         });
+        JPanel repaintSliderPanel = new JPanel(new GridLayout(0,1));
+        repaintSlider.setShowBorder(false);
+        repaintSliderPanel.setBorder(new TitledBorder("Repaint delay (ms)"));
+        repaintSliderPanel.add(repaintSlider.graphic());
         
+        // Integrator step delay slider
         doSleepSlider = new DeviceSlider(null);
         //XXX ugh, see bug 49
         doSleepSlider.setUnit(Time.SIM_UNIT);
@@ -333,7 +405,12 @@ public class PistonCylinderGraphic {
         doSleepSlider.setMinimum(0);
         doSleepSlider.setMaximum(100);
         doSleepSlider.setNMajor(5);
+        JPanel doSleepSliderPanel = new JPanel(new GridLayout(0,1));
+        doSleepSlider.setShowBorder(false);
+        doSleepSliderPanel.setBorder(new TitledBorder("Integrator step delay (ms)"));
+        doSleepSliderPanel.add(doSleepSlider.graphic());
         
+        // Integrator time step slider
         integratorTimeStepSlider = new DeviceSlider(null);
         integratorTimeStepSlider.setShowValues(false);
         integratorTimeStepSlider.setEditValues(true);
@@ -342,203 +419,107 @@ public class PistonCylinderGraphic {
         integratorTimeStepSlider.setMaximum(5);
         integratorTimeStepSlider.setNMajor(5);
         integratorTimeStepSlider.setValue(0.5);
+        JPanel integratorTimeStepSliderPanel = new JPanel(new GridLayout(0,1));
+        repaintSlider.setShowBorder(false);
+        integratorTimeStepSliderPanel.setBorder(new TitledBorder("Integrator time step (ps)"));
+        integratorTimeStepSliderPanel.add(integratorTimeStepSlider.graphic());
 
-        //set-pressure history
-//        etomica.MeterScalar pressureSetting = new MeterDatumSourceWrapper(pressureSlider.getModulator());
-//        pressureSetting.setHistorying(true);
-//        History pHistory = pressureSetting.getHistory();
-//        pHistory.setLabel("Set Pressure");
-/*        DisplayPlot plotP = new DisplayPlot(this);
-        plotP.setDataSources(pHistory);
-        plotP.setUnit(pUnit);
-        plotP.setLabel("Pressure"); 
-        plotP.getPlot().setYRange(0.0, 1500.);
-*/        
-        //measured pressure on piston
-        //wrap it in a MeterDatumSource wrapper because we want to average pressure
-        //over a longer interval than is used by other meters.  By wrapping it
-        //we can still have history synchronized with others
-//        Atom piston = ((SpeciesAgent)pistonCylinder.getAgent(phase)).node.firstLeafAtom();
-//        piston.coord.setMass(pistonMass);
-//        etomica.MeterScalar pressureMeter = ((AtomType.Wall)piston.type).new MeterPressure(this);
-//        pressureMeter.setUpdateInterval(10);
-//        pressureMeter.setFunction(pressureScale);
-//        etomica.MeterDatumSourceWrapper pressureMeterWrapper = new MeterDatumSourceWrapper(pressureMeter);
-////        pressureMeterWrapper.setFunction(pressureRescale);
-//        pressureMeterWrapper.setWhichValue(MeterAbstract.MOST_RECENT);
-//        pressureMeterWrapper.setHistorying(true);
-//        History pMeterHistory = pressureMeterWrapper.getHistory();
-//        pMeterHistory.setLabel("Pressure ("+pUnit.symbol()+")");
-        
-//        DisplayPlot plot = new DisplayPlot(this);
-//        plot.setDataSources(new DataSource[] {
-//                densityHistory, temperatureHistory, pMeterHistory, pHistory});
-//        plot.setLabel("History");
-//        plot.getPlot().setYLabel("");
-//        plot.getPlot().setYRange(0.0, 1500.);
-//        plot.setYUnit(new Unit[] {dadUnit, tUnit, pUnit, pUnit});
-        
-        fixPistonButton = new DeviceToggleButton(null);
+        JPanel guiPanel = new JPanel(new GridBagLayout());
+        guiPanel.add(repaintSliderPanel, vertGBC);
+        guiPanel.add(doSleepSliderPanel, vertGBC);
+        guiPanel.add(integratorTimeStepSliderPanel, vertGBC);
+
+
+        //
+        // Tabbed pane for state, potential, controls pages
+        //
+        JTabbedPane setupPanel = new JTabbedPane();
+        setupPanel.add(statePanel, "State");
+        setupPanel.add(potentialPanel, "Potential");
+        setupPanel.add(guiPanel, "Controls");
+
+        // Density value display
+        densityDisplayBox = new DisplayBoxesCAE();
+        densityDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
+
+        // Temperature value display
+        temperatureDisplayBox = new DisplayBoxesCAE();
+        temperatureDisplayBox.setLabel("Temperature (K)");
+        temperatureDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
+
+        // Pressure value display
+        pressureDisplayBox = new DisplayBoxesCAE();
+        pressureDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
+
+        //panel for the density, temperature, and pressure displays
+        JPanel dataPanel = new JPanel(new GridBagLayout());
+        dataPanel.add(densityDisplayBox.graphic(),vertGBC);
+        dataPanel.add(temperatureDisplayBox.graphic(),vertGBC);
+        dataPanel.add(pressureDisplayBox.graphic(),vertGBC);
+
+        // Add panels to the control panel
+        controlPanel.add(controlsPanel, vertGBC);
+        controlPanel.add(setupPanel, vertGBC);
+        controlPanel.add(dataPanel, vertGBC);
+
+        //
+	    // Configuration tabbed page
+        //
+
+	    //slider for scale of display
+	    ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayPhase, "scale");
+	    scaleModulator.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
+	    scaleSlider = new DeviceSlider(null, scaleModulator);
+	    JPanel scaleSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
+	    scaleSliderPanel.add(scaleSlider.graphic());	    
+	    scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
+	        public void stateChanged(javax.swing.event.ChangeEvent evt) {
+	            displayPhase.repaint();
+	        }
+	    });
+	    scaleSlider.setMinimum(10);
+	    scaleSlider.setMaximum(100);
+	    scaleSlider.getSlider().setValue(100);
+	    scaleSlider.getSlider().setMajorTickSpacing(10);
+	    scaleSlider.getSlider().setMinorTickSpacing(5);
+	    scaleSlider.getSlider().setOrientation(1);
+	    scaleSlider.getSlider().setLabelTable(scaleSlider.getSlider().createStandardLabels(10));
+		
+    	displayPhasePanel = new JPanel(new BorderLayout());
+    	displayPhasePanel.add(scaleSliderPanel,BorderLayout.EAST);
+
+        //
+	    // Plots tabbed page
+        //
 
         plotD = new DisplayPlot();
         plotT = new DisplayPlot();
         plotP = new DisplayPlot();
 
-
-        //************* Lay out components ****************//
-        
-        panel = new JPanel();
-        panel.setLayout(new java.awt.BorderLayout());      
-
-        //tabbed pane for the big displays
-    	displayPanel = new javax.swing.JTabbedPane();
-    	displayPhasePanel = new javax.swing.JPanel(new java.awt.BorderLayout());
-    	displayPhasePanel.add(scaleSliderPanel,java.awt.BorderLayout.EAST);
-        
-        JPanel plotPanel = new JPanel(new java.awt.GridLayout(0,1));
+        JPanel plotPanel = new JPanel(new GridLayout(0,1));
         plotPanel.add(plotD.graphic());
         plotPanel.add(plotT.graphic());
         plotPanel.add(plotP.graphic());
-        displayPanel.add("Plots",new javax.swing.JScrollPane(plotPanel));
 
-        JPanel startPanel = (JPanel)controlButtons.graphic();
-        java.awt.GridBagConstraints gbc0 = new java.awt.GridBagConstraints();
-        startPanel.setBorder(new javax.swing.border.TitledBorder("Control"));
-        gbc0.gridx = 0; gbc0.gridy = 0;
-        gbc0.gridx = 0; gbc0.gridy = 2; gbc0.gridwidth = 2;
-        startPanel.add(fixPistonButton.graphic(null), gbc0);
-        startPanel.setLayout(new GridLayout(2,2));
+        // Add plots page to tabbed pane
+        tabbedPane.add("Plots",new JScrollPane(plotPanel));
+        
+        // Default behaviour of a SimulationPanel is to
+        // show a single graphic.  Switch to show the
+        // tabbed page.
+        remove(graphicsPanel);
+        add(tabbedPane);
 
-        //panel for the temperature control/display
-        JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
-        temperaturePanel.setBorder(new javax.swing.border.TitledBorder("Set Temperature (K)"));
-        java.awt.GridBagConstraints gbc1 = new java.awt.GridBagConstraints();
-        gbc1.gridx = 0;  gbc1.gridy = 1;
-        gbc1.gridwidth = 1;
-        temperaturePanel.add(buttonAdiabatic,gbc1);
-        gbc1.gridx = 1;  gbc1.gridy = 1;
-        gbc1.gridwidth = 1;
-        temperaturePanel.add(buttonIsothermal,gbc1);
-        gbc1.gridx = 0;  gbc1.gridy = 2;
-        gbc1.gridwidth = 2;
-        temperaturePanel.add(temperatureSlider.graphic(),gbc1);
-        
-        //panel for pressure slider
-        pressureSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
-        pressureSlider.setShowBorder(false);
-        pressureSliderPanel.add(pressureSlider.graphic());
-        
-        JPanel nSliderPanel = null;
-        if (doNSelector) {
-            nSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
-            nSliderPanel.setBorder(new javax.swing.border.TitledBorder("Number of Molecules"));
-            nSlider.setShowBorder(false);
-            nSliderPanel.add(nSlider.graphic());
-        }
-        
-        //panel for all the controls
-        JPanel dimensionPanel = new JPanel(new GridLayout(1,0));
-        ButtonGroup dimensionGroup = new ButtonGroup();
-        final JRadioButton button2D = new JRadioButton("2D");
-        JRadioButton button3D = new JRadioButton("3D");
-        button2D.setSelected(true);
-        dimensionGroup.add(button2D);
-        dimensionGroup.add(button3D);
-        dimensionPanel.add(button2D);
-        dimensionPanel.add(button3D);
-        button2D.addItemListener(new ItemListener() {
-           public void itemStateChanged(ItemEvent evt) {
-               if(button2D.isSelected()) {
-                   setSimulation(new PistonCylinder(2, defaults));
-               } else {
-                   setSimulation(new PistonCylinder(3, defaults));
-               }
-           }
-        });
 
-        JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
-        gbc2.gridx = 0;
-        gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
-        gbc2.insets = new java.awt.Insets(3, 1, 3, 1);
-        controlPanel.add(dimensionPanel);
-        controlPanel.add(startPanel,gbc2);
-        displayCycles = new DisplayBox();
-        controlPanel.add(displayCycles.graphic(),gbc2);
+		//add meter and display for current kinetic temperature
+		defaults.historyPeriod = 1000;
 
-        JPanel repaintSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
-        repaintSlider.setShowBorder(false);
-        repaintSliderPanel.setBorder(new javax.swing.border.TitledBorder("Repaint delay (ms)"));
-        repaintSliderPanel.add(repaintSlider.graphic());
-
-        JPanel doSleepSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
-        doSleepSlider.setShowBorder(false);
-        doSleepSliderPanel.setBorder(new javax.swing.border.TitledBorder("Integrator step delay (ms)"));
-        doSleepSliderPanel.add(doSleepSlider.graphic());
-        
-        JPanel integratorTimeStepSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
-        repaintSlider.setShowBorder(false);
-        integratorTimeStepSliderPanel.setBorder(new javax.swing.border.TitledBorder("Integrator time step (ps)"));
-        integratorTimeStepSliderPanel.add(integratorTimeStepSlider.graphic());
-        
-        JPanel statePanel = new JPanel(new GridBagLayout());
-        statePanel.add(temperaturePanel, gbc2);
-        statePanel.add(pressureSliderPanel, gbc2);
-        if (doNSelector) {
-            statePanel.add(nSliderPanel, gbc2);
-        }
-
-        JPanel potentialPanel = new JPanel(new GridBagLayout());
-        potentialPanel.add(potentialChooser,gbc2);
-	    potentialPanel.setBorder(new javax.swing.border.TitledBorder("Potential selection"));
-	    JPanel parameterPanel = new JPanel(new GridLayout(0,1));
-        parameterPanel.add(sigBox.graphic());
-        parameterPanel.add(epsBox.graphic());
-        parameterPanel.add(lamBox.graphic());
-        parameterPanel.add(massBox.graphic());
-        potentialPanel.add(parameterPanel,gbc2);
-        
-        JPanel guiPanel = new JPanel(new GridBagLayout());
-        guiPanel.add(repaintSliderPanel, gbc2);
-        guiPanel.add(doSleepSliderPanel, gbc2);
-        guiPanel.add(integratorTimeStepSliderPanel, gbc2);
-        
-        JTabbedPane setupPanel = new JTabbedPane();
-        setupPanel.add(statePanel, "State");
-        setupPanel.add(potentialPanel, "Potential");
-        setupPanel.add(guiPanel, "Controls");
-        
-        //panel for the density, temperature, and pressure displays
-        JPanel dataPanel = new JPanel(new GridBagLayout());
-        
-        densityDisplayBox = new DisplayBoxesCAE();
-        densityDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
-        dataPanel.add(densityDisplayBox.graphic(),gbc2);
-        
-        temperatureDisplayBox = new DisplayBoxesCAE();
-        temperatureDisplayBox.setLabel("Temperature (K)");
-        temperatureDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
-        dataPanel.add(temperatureDisplayBox.graphic(),gbc2);
-        
-        pressureDisplayBox = new DisplayBoxesCAE();
-        pressureDisplayBox.setLabelType(DisplayBox.LabelType.BORDER);
-        dataPanel.add(pressureDisplayBox.graphic(),gbc2);
-        
-        JPanel leftPanel = new JPanel(new GridBagLayout());
-        
-        leftPanel.add(controlPanel, gbc2);
-        leftPanel.add(setupPanel, gbc2);
-        leftPanel.add(dataPanel, gbc2);
-        
-        panel.add(leftPanel, BorderLayout.WEST);
-        panel.add(displayPanel/*, BorderLayout.EAST*/);
-        DefaultToolbar tb = new DefaultToolbar(panel, "Piston Cylinder");
-        panel.add(tb.graphic(), BorderLayout.NORTH);
+		thermometer = new MeterTemperature();
 
         Thread repainter = new Thread() {
             public void run() {
                 while (true) {
-                    panel.repaint();
+                    repaint();
                     try{Thread.sleep(repaintSleep);}
                     catch(InterruptedException e){}
                 }
@@ -546,25 +527,10 @@ public class PistonCylinderGraphic {
         };
         repainter.start();
 
-        if (doConfigButton) {
-            JPanel configPanel = new JPanel(new java.awt.GridBagLayout());
-            controlPanel.add(configPanel,gbc2);
-            gbc2.gridx = java.awt.GridBagConstraints.RELATIVE;
-            gbc2.gridy = 0;
-            
-            configButton = new DeviceButton(null);
-            configButton.setLabel("Show Config");
-            configPanel.add(configButton.graphic(),gbc2);
-
-            velocityButton = new DeviceButton(null);
-            velocityButton.setLabel("Show Velocities");
-            configPanel.add(velocityButton.graphic(),gbc2);
-        }
-
         if (doRDF) {
             plotRDF = new DisplayPlot();
             JPanel rdfPanel = new JPanel();
-            displayPanel.add("RDF", rdfPanel);
+            tabbedPane.add("RDF", rdfPanel);
             plotRDF.setDoLegend(false);
             
             rdfPanel.add(plotRDF.graphic());
@@ -622,20 +588,20 @@ public class PistonCylinderGraphic {
         
         if (displayPhase.graphic() != null) {
             displayPhasePanel.remove(displayPhase.graphic());
-            displayPanel.remove(displayPhasePanel);
-            displayPanel.remove(blankPanel);
+            tabbedPane.remove(displayPhasePanel);
+            tabbedPane.remove(blankPanel);
         }
         if (D == 2) {
-            displayPanel.insertTab(displayPhase.getLabel(), null, displayPhasePanel, "", 0);
+            tabbedPane.insertTab(displayPhase.getLabel(), null, displayPhasePanel, "", 0);
             displayPhase.setPhase(pc.phase);
             displayPhase.setAlign(1,DisplayPhase.BOTTOM);
             displayPhase.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
             displayPhase.getDrawables().clear();
             displayPhase.addDrawable(pc.pistonPotential);
             displayPhase.addDrawable(pc.wallPotential);
-            displayPhasePanel.add(displayPhase.graphic(),java.awt.BorderLayout.WEST);
+            displayPhasePanel.add(displayPhase.graphic(),BorderLayout.WEST);
         } else {
-            displayPanel.add("Run Faster", blankPanel);
+            tabbedPane.add("Run Faster", blankPanel);
         }
         scaleSlider.setController(pc.controller);
 
@@ -701,7 +667,7 @@ public class PistonCylinderGraphic {
         massBox.setController(pc.getController());
         
         pressureSlider.setUnit(pUnit);
-        pressureSliderPanel.setBorder(new javax.swing.border.TitledBorder("Set Pressure ("+pUnit.symbol()+")"));
+        pressureSliderPanel.setBorder(new TitledBorder("Set Pressure ("+pUnit.symbol()+")"));
         Dimension pDim = Pressure.dimension(D);
         pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
@@ -947,7 +913,7 @@ public class PistonCylinderGraphic {
         pcg.setDoRDF(true);
         pcg.setDoNSelector(true);
         pcg.init();
-		SimulationGraphic.makeAndDisplayFrame(pcg.panel, "Piston Cylinder");
+		SimulationGraphic.makeAndDisplayFrame(pcg, "Piston Cylinder");
     }
 
     public static class Applet extends javax.swing.JApplet {
@@ -967,7 +933,7 @@ public class PistonCylinderGraphic {
                 pcg.setDoNSelector(Boolean.valueOf(doRDFStr).booleanValue());
             }
             pcg.init();
-            getContentPane().add(pcg.panel);
+            getContentPane().add(this);
         }
 
         private static final long serialVersionUID = 1L;

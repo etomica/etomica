@@ -9,6 +9,7 @@ import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
+import etomica.config.Configuration;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
 
@@ -30,6 +31,7 @@ public class DeviceTrioControllerButton extends Device {
 	private double width;
 	private boolean firstResized = true;
 	private String shape;
+	private SimulationRestart simRestart;
 
     /**
      * Contructs device with buttons that affect the given simulation.
@@ -48,16 +50,6 @@ public class DeviceTrioControllerButton extends Device {
         jp = new JPanel(new java.awt.GridLayout(1,0)); //default shape of panel
         jp.setBorder(new javax.swing.border.TitledBorder("Control"));
         jp.setOpaque(false);
-//        jp.setBackground(DefaultGraphic.BORDER_COLOR);
-/*        jp.setBorder(new javax.swing.border.TitledBorder(
-                         new javax.swing.border.EtchedBorder(
-                             javax.swing.border.EtchedBorder.RAISED, java.awt.Color.red, java.awt.Color.blue) 
-                             ,"Control"
-                             ,javax.swing.border.TitledBorder.LEFT
-                             ,javax.swing.border.TitledBorder.TOP
-                             ,new java.awt.Font(null,java.awt.Font.BOLD,15)
-                             ,java.awt.Color.black));
-                             */
 
         startButton = new DeviceControllerButton(null);
         reinitButton = new DeviceButton(null);
@@ -77,6 +69,7 @@ public class DeviceTrioControllerButton extends Device {
      */
     public void setSimulation(Simulation sim) {
         simulation = sim;
+        simRestart = new SimulationRestart(sim);
         final Controller c = sim.getController();
         setController(c);
         startButton.setController(c);
@@ -90,7 +83,7 @@ public class DeviceTrioControllerButton extends Device {
             }
         });
         resetButton.setController(c);
-        reinitButton.setAction(new SimulationRestart(sim));
+        reinitButton.setAction(simRestart);
         resetButton.setAction(new SimulationDataAction(sim,new ResetAccumulators()));
     }
     
@@ -111,7 +104,7 @@ public class DeviceTrioControllerButton extends Device {
     public DeviceControllerButton getControllerButton() {return startButton;}
     public DeviceButton getReinitButton() {return reinitButton;}
     public DeviceButton getResetAveragesButton() {return resetButton;}
- 
+    
     /**
      * Sets controller toggle button to read "Start"
      */
@@ -133,7 +126,11 @@ public class DeviceTrioControllerButton extends Device {
         if(s=="AUTOMATIC"){jp.getParent().addComponentListener(new ComponentEventControllerButton());}
     }
     public String getShape() {return shape;}
-    
+
+    public SimulationRestart getSimRestart() {
+    	return(simRestart);
+    }
+
     /**
      * Inner class that catches action of simulation panel 
      */        
@@ -158,17 +155,27 @@ public class DeviceTrioControllerButton extends Device {
      * main method to show how to work with this class 
      */        
      public static void main(String[] args) {
-        
-        HSMD2D sim = new HSMD2D(); 
+        final String APP_NAME = "Device Trio Controller Button";
+
+        final HSMD2D sim = new HSMD2D(); 
 
         DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim);
             button.setShape("HORIZONTAL"); //three choices "HORIZONTAL", "AUTOMATIC"          
 //        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
 //          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"
         
-        SimulationGraphic graphic = new SimulationGraphic(sim);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
+
+        // Simulation Graphic will display it's own Trio button group by
+        // default.  Just remove them and put ours on for this test.
+        graphic.getPanel().controlPanel.removeAll();
         graphic.add(button);
-        graphic.makeAndDisplayFrame();
+        button.getReinitButton().setPostAction(new Action() {
+        	public void actionPerformed() {
+        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        });
+        graphic.makeAndDisplayFrame(APP_NAME);
     }
     
        

@@ -1,5 +1,7 @@
 package etomica.modules.entropylottery;
-import java.awt.BorderLayout;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 
@@ -12,53 +14,60 @@ import etomica.data.DataSourceCountSteps;
 import etomica.data.DataTag;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceTrioControllerButton;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.space1d.Space1D;
 import etomica.units.Pixel;
 import etomica.util.HistoryCollapsing;
 
-public class EntropyLotteryGraphic {
-    
-    public void init(final EntropyLottery sim) {
+public class EntropyLotteryGraphic extends SimulationGraphic {
+
+    private static final String APP_NAME = "Entropy Lottery";
+
+	private final EntropyLottery sim;
+
+	public EntropyLotteryGraphic(final EntropyLottery simulation) {
+
+		super(simulation, GRAPHIC_ONLY, APP_NAME);
+        this.sim = simulation;
+
+        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         sim.getDefaults().blockSize = 100;
         sim.getDefaults().doSleep = true;
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(10);
-        
+
         sim.register(sim.integrator);
-        
-        panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        
-        DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
-        SimulationRestart restartAction = (SimulationRestart)control.getReinitButton().getAction();
-        restartAction.setConfiguration(new ConfigurationZero());
-        
+
+        this.getController().getSimRestart().setConfiguration(new ConfigurationZero());
+
+        this.getController().getReinitButton().setPostAction(new Action() {
+        	public void actionPerformed() {
+        	    getDisplayPhase(sim.phase).repaint();
+        	}
+        });
+
+        this.getController().getControllerButton().setPostAction(new Action() {
+        	public void actionPerformed() {
+        	    getDisplayPhase(sim.phase).repaint();
+        	}
+        });
+
 	    //display of phase, timer
-	    final DisplayPhase displayPhase = new DisplayPhase(sim.phase,sim.getDefaults().pixelUnit);
-        displayPhase.setPixelUnit(new Pixel(300/sim.phase.getBoundary().getDimensions().x(0)));
-        displayPhase.setDrawingHeight(300);
-        DisplayPhaseCanvas1DBins canvas = new DisplayPhaseCanvas1DBins(displayPhase);
-        displayPhase.setPhaseCanvas(canvas);
+        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(300/sim.phase.getBoundary().getDimensions().x(0)));
+        getDisplayPhase(sim.phase).setDrawingHeight(300);
+        DisplayPhaseCanvas1DBins canvas = new DisplayPhaseCanvas1DBins(getDisplayPhase(sim.phase));
+        getDisplayPhase(sim.phase).setPhaseCanvas(canvas);
 
         sim.integrator.addListener(new IntervalActionAdapter(new Action() {
-            public void actionPerformed() {displayPhase.repaint();}
+            public void actionPerformed() {getDisplayPhase(sim.phase).repaint();}
         }));
-        
-   /*     DisplayTimer timer = new DisplayTimer(integrator);
-        timer.setLabelType(DisplayBox.BORDER);
-        timer.setUnit(new Unit(LennardJones.Time.UNIT));
-	*/    
-		
+
         //tabbed pane for the big displays
-        javax.swing.JPanel bigPanel = new javax.swing.JPanel();
-        
-    	JPanel displayPanel = new JPanel();
+        JPanel bigPanel = new JPanel(new GridLayout(2,0));
         
         MeterEntropy meterEntropy = new MeterEntropy();
         meterEntropy.setPhase(sim.phase);
@@ -90,7 +99,6 @@ public class EntropyLotteryGraphic {
         entropyPlot.setLegend(new DataTag[]{meterEntropy.getTag()}, "measured");
         probabilityEntropyHistory.setDataSink(entropyPlot.getDataSet().makeDataSink());
         entropyPlot.setLegend(new DataTag[]{probabilityDensity.getTag()}, "predicted");
-        displayPanel.add(entropyPlot.getPlot());
         entropyPlot.getPlot().setTitle("Entropy");
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
@@ -107,57 +115,59 @@ public class EntropyLotteryGraphic {
             public void actionPerformed() {
                 double nUrn = nUrnSelector.getValue();
                 double a2p = 300.0/nUrn;
-                displayPhase.setPixelUnit(new Pixel(a2p));
+                getDisplayPhase(sim.phase).setPixelUnit(new Pixel(a2p));
                 double yScale = nUrn*nUrn/(6*sim.phase.getAgent(sim.species).getNMolecules());
                 if (yScale > 6) {
                     yScale = 6;
                 }
-                ((DisplayPhaseCanvas1DBins)displayPhase.canvas).setYScale(yScale);
-                displayPhase.repaint();
+                ((DisplayPhaseCanvas1DBins)getDisplayPhase(sim.phase).canvas).setYScale(yScale);
+                getDisplayPhase(sim.phase).repaint();
             }
         };
-        nUrnSelector.setPostAction(new ActionGroupSeries(new Action[]{resetDisplay, restartAction}));
+
+        SimulationRestart restartAction =
+        	(SimulationRestart)getController().getReinitButton().getAction();
+
+        nUrnSelector.setPostAction(new ActionGroupSeries(new Action[]
+                                   {resetDisplay, restartAction}));
         nUrnSelector.doUpdate();
 
-        nSelector.setResetAction(new ActionGroupSeries(new Action[]{resetDisplay, restartAction}));
+        nSelector.setResetAction(new ActionGroupSeries(new Action[]
+                                  {resetDisplay, restartAction}));
         nSelector.doUpdate();
 
         resetDisplay.actionPerformed();
-        
-        bigPanel.add(displayPhase.graphic());
-        bigPanel.add(displayPanel);
-        
-        JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
-        gbc2.gridy = 0;
-        gbc2.gridx = java.awt.GridBagConstraints.RELATIVE;
-        controlPanel.add(control.graphic(),gbc2);
-        controlPanel.add(nSelector.graphic(),gbc2);
-        controlPanel.add(nUrnSelector.graphic(),gbc2);
-        panel.add(controlPanel, java.awt.BorderLayout.NORTH);
-        panel.add(bigPanel, java.awt.BorderLayout.EAST);
+
+        // SimulationGraphic has already added the phase graphic.
+        // Remove it from the graphicsPanel and add it to this
+        // classes' bigPanel.
+        getPanel().graphicsPanel.removeAll();
+        bigPanel.add(entropyPlot.getPlot());
+        bigPanel.add(getDisplayPhase(sim.phase).graphic());
+
+        add(nSelector);
+        add(nUrnSelector);
+        getPanel().graphicsPanel.add(bigPanel);
 
     }    
-    
+
     public static void main(String[] args) {
-            
-        EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic();
-        entropyLotteryGraphic.init(new EntropyLottery(Space1D.getInstance()));
-		SimulationGraphic.makeAndDisplayFrame(entropyLotteryGraphic.panel);
+    	EntropyLottery sim = new EntropyLottery(Space1D.getInstance());
+        EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic(sim);
+		SimulationGraphic.makeAndDisplayFrame(entropyLotteryGraphic.getPanel(), APP_NAME);
     }
     
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic();
-            entropyLotteryGraphic.init(new EntropyLottery(Space1D.getInstance()));
-		    getContentPane().add(entropyLotteryGraphic.panel);
+        	EntropyLottery sim = new EntropyLottery(Space1D.getInstance());
+            EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic(sim);
+		    getContentPane().add(entropyLotteryGraphic.getPanel());
 	    }
 
         private static final long serialVersionUID = 1L;
     }
-    
-    protected JPanel panel;
+
 }
 
 

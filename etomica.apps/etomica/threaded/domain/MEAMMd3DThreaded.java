@@ -68,6 +68,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class MEAMMd3DThreaded extends Simulation {
     
     private static final long serialVersionUID = 1L;
+    private static final String APP_NAME = "MEAM Md3D Threaded";
     public PotentialMasterListThreaded potentialMaster;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono sn;
@@ -107,8 +108,10 @@ public class MEAMMd3DThreaded extends Simulation {
     	accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{StatType.MOST_RECENT});
     	
     	DisplayPlot plotPE = new DisplayPlot();
+    	plotPE.setLabel("PE Plot");
         DisplayPlot plotKE = new DisplayPlot();
-    	
+        plotKE.setLabel("KE Plot");
+
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         kineticAccumulator.setDataSink(plotKE.getDataSet().makeDataSink());
         //energyAccumulator.setBlockSize(50);
@@ -135,9 +138,8 @@ public class MEAMMd3DThreaded extends Simulation {
         IntervalActionAdapter kineticAdapter = new IntervalActionAdapter(kineticManager, sim.integrator);
         kineticAdapter.setActionInterval(1);    
 
-       
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
+
     	DisplayBox cvBoxPE = new DisplayBox();
     	dataProcessorPE.setDataSink(cvBoxPE);
     	cvBoxPE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
@@ -146,18 +148,20 @@ public class MEAMMd3DThreaded extends Simulation {
     	dataProcessorKE.setDataSink(cvBoxKE);
     	cvBoxKE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
     	cvBoxKE.setLabel("KE Cv contrib.");
-    	
-    	simGraphic.makeAndDisplayFrame();
-    	simGraphic.panel().displayPanel.add("PE Plot",plotPE.graphic());
-    	simGraphic.panel().displayPanel.add("KE Plot",plotKE.graphic());
-    	
+
+    	simGraphic.add(plotPE);
+    	simGraphic.add(plotKE);
+
     	simGraphic.add(cvBoxKE);
     	simGraphic.add(cvBoxPE);
-    	
+
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
     	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);
     	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.orange);
+
+    	simGraphic.makeAndDisplayFrame(APP_NAME);
+
     	//sim.activityIntegrate.setMaxSteps(1000);
     	//sim.getController().run();
     	//DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]

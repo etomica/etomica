@@ -169,9 +169,10 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     
     //main method to demonstrate and test class
     public static void main(String[] args) {
-        
-        HSMD3D sim = new HSMD3D();
-        SimulationGraphic graphic = new SimulationGraphic(sim);
+        final String APP_NAME = "Device Thermo Selector";
+
+        final HSMD3D sim = new HSMD3D();
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
         
         DeviceThermoSelector device = new DeviceThermoSelector(sim, sim.integrator);
         device.setTemperatures(new double[] {0.5, 1.0, 2.0, 5.0});
@@ -183,7 +184,13 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
                 ((DisplayPhase)next).setColorScheme(new ColorSchemeTemperature(0.5, 5.0));
             }
         }
-        graphic.makeAndDisplayFrame();
+        graphic.getController().getReinitButton().setPostAction(new Action() {
+        	public void actionPerformed() {
+        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        });
+
+        graphic.makeAndDisplayFrame(APP_NAME);
     }//end of main
 
 }

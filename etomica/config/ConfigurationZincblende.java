@@ -96,9 +96,11 @@ public class ConfigurationZincblende extends ConfigurationLattice {
      * Displays configuration without setting up full simulation.
      */
     public static void main(String[] args) {
+    	final String APP_NAME = "Configuration Zinc Blende";
+
         Simulation sim = new Simulation(Space3D.getInstance());
         sim.getDefaults().atomSize = 5.0;
-        Phase phase = new Phase(sim);
+        final Phase phase = new Phase(sim);
         sim.addPhase(phase);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
@@ -109,13 +111,18 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         ConfigurationZincblende config = new ConfigurationZincblende(15);
         config.initializeCoordinates(phase);
 
-        etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
-        DisplayPhase display = new DisplayPhase(phase);
-        simGraphic.add(display);
-        ColorSchemeByType colorScheme = (ColorSchemeByType)display.getColorScheme();
+        final etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME);
+        simGraphic.add(new DisplayPhase(phase));
+        ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayPhase(phase).getColorScheme();
         colorScheme.setColor(speciesSpheres0.getMoleculeType(),new java.awt.Color(0,255,0));
         colorScheme.setColor(speciesSpheres1.getMoleculeType(), java.awt.Color.red);
-        simGraphic.makeAndDisplayFrame();
+        simGraphic.getController().getReinitButton().setPostAction(new etomica.action.Action() {
+        	public void actionPerformed() {
+        		simGraphic.getDisplayPhase(phase).graphic().repaint();
+        	}
+        });
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+        simGraphic.getDisplayPhase(phase).graphic().repaint();
     }
     
 }

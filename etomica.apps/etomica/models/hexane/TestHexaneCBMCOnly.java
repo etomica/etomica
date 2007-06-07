@@ -37,6 +37,8 @@ import etomica.space3d.Space3D;
 
 public class TestHexaneCBMCOnly extends Simulation {
 
+	private static final String APP_NAME = "Test Hexane CBMC Only";
+
     public TestHexaneCBMCOnly(Space space, int numMolecules) {
         // super(space, false, new PotentialMasterNbr(space, 12.0));
         // super(space, true, new PotentialMasterList(space, 12.0));
@@ -186,11 +188,9 @@ public class TestHexaneCBMCOnly extends Simulation {
         TestHexaneCBMCOnly sim = new TestHexaneCBMCOnly(Space3D.getInstance(),
                 numMolecules);
 
-        System.out.println("Happy Goodness!!");
-
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim);
-            simGraphic.makeAndDisplayFrame();
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+            simGraphic.makeAndDisplayFrame(APP_NAME);
         } else {
             // PDBWriter write = new PDBWriter(sim.phase);
             // write.setFileName("HexaneCBMCOnly");
@@ -282,7 +282,6 @@ public class TestHexaneCBMCOnly extends Simulation {
             // }
             // }
 
-            System.out.println("Go look at the data, silly!");
         }
 
     }
@@ -295,9 +294,4 @@ public class TestHexaneCBMCOnly extends Simulation {
     public BravaisLattice lattice;
 
 
-    /*
-     * Bad code! Did I tell you that you could sit around and not work? I didn't
-     * think so. Now shape up and do what you should!
-     * 
-     */
 }

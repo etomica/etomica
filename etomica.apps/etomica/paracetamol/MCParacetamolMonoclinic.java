@@ -1,8 +1,6 @@
 
 package etomica.paracetamol;
 
-import java.awt.Color;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
@@ -12,7 +10,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
-import etomica.graphics.DisplayPhaseCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
@@ -47,6 +44,7 @@ import etomica.units.Pixel;
 public class MCParacetamolMonoclinic extends Simulation {
 
 	private static final long serialVersionUID = 1L;
+	private final static String APP_NAME = "MC Paracetamol Monoclinic";
     public Phase phase;
     public IntegratorMC integrator;
     public MCMoveMolecule mcMoveMolecule;
@@ -320,7 +318,7 @@ public class MCParacetamolMonoclinic extends Simulation {
     public static void main(String[] args) {
     	int numMolecules = 96;
         etomica.paracetamol.MCParacetamolMonoclinic sim = new etomica.paracetamol.MCParacetamolMonoclinic(numMolecules);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         //sim.getController().actionPerformed();
         
    /*****************************************************************************/    
@@ -337,7 +335,7 @@ public class MCParacetamolMonoclinic extends Simulation {
         simGraphic.add(PEbox);
         
         
-        simGraphic.makeAndDisplayFrame();
+        simGraphic.makeAndDisplayFrame(APP_NAME);
         simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         AtomTypeGroup atomType = (AtomTypeGroup)sim.species.getMoleculeType();
@@ -347,11 +345,6 @@ public class MCParacetamolMonoclinic extends Simulation {
         colorScheme.setColor(atomType.getChildTypes()[3], java.awt.Color.white);
         colorScheme.setColor(atomType.getChildTypes()[4], java.awt.Color.white);
         
-        simGraphic.panel().setBackground(java.awt.Color.yellow);
-        
-        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBackgroundColor(Color.BLACK);
-        ((DisplayPhaseCanvasG3DSys)(simGraphic.getDisplayPhase(sim.phase).canvas)).setBoundaryFrameColor(Color.WHITE);
-
         simGraphic.getDisplayPhase(sim.phase).repaint();
         
     }//end of main

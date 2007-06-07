@@ -50,6 +50,9 @@ import etomica.util.Default;
  */
 public class MDParacetamolMonoclinic extends Simulation {
 
+	private static final String APP_NAME = "MD Paracetamol Monoclinic";
+	private static final int PIXEL_SIZE = 15;
+
     /**
 	 * 
 	 */
@@ -402,7 +405,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         defaults.doSleep = false;
         defaults.ignoreOverlap = true;
         etomica.paracetamol.MDParacetamolMonoclinic sim = new etomica.paracetamol.MDParacetamolMonoclinic(defaults);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         
    /*****************************************************************************/    
         MeterKineticEnergy meterKE = new MeterKineticEnergy();
@@ -438,8 +441,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         simGraphic.add(tempBox);
         
         
-        simGraphic.makeAndDisplayFrame();
-        simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(30));
+        simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(PIXEL_SIZE));
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         AtomTypeGroup atomType = (AtomTypeGroup)sim.species.getMoleculeType();
         colorScheme.setColor(atomType.getChildTypes()[0], java.awt.Color.red);
@@ -447,9 +449,11 @@ public class MDParacetamolMonoclinic extends Simulation {
         colorScheme.setColor(atomType.getChildTypes()[2], java.awt.Color.blue);
         colorScheme.setColor(atomType.getChildTypes()[3], java.awt.Color.white);
         colorScheme.setColor(atomType.getChildTypes()[4], java.awt.Color.white);
-        simGraphic.panel().setBackground(java.awt.Color.yellow);
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+
         simGraphic.getDisplayPhase(sim.phase).repaint();
-        
+
     }//end of main
     
     public BravaisLattice lattice;

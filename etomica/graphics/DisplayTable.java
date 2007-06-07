@@ -15,6 +15,7 @@ import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
+import etomica.action.Action;
 import etomica.data.DataSet;
 import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
@@ -449,8 +450,10 @@ public class DisplayTable extends Display implements DataTableListener,
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-        SimulationGraphic graphic = new SimulationGraphic(sim);
+    	final String APP_NAME = "Display Table";
+
+        final etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
+        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         sim.integrator.setIsothermal(true);
 
         MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
@@ -467,8 +470,14 @@ public class DisplayTable extends Display implements DataTableListener,
         table.setShowingRowLabels(true);
         table.setPrecision(7);
 
+        graphic.getController().getReinitButton().setPostAction(new Action() {
+        	public void actionPerformed() {
+        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        });
+
         graphic.add(table);
-        graphic.makeAndDisplayFrame();
+        graphic.makeAndDisplayFrame(APP_NAME);
     }//end of main
 
 }

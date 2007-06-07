@@ -17,6 +17,7 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
@@ -42,6 +43,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class MEAM_MC extends Simulation {
 	
     private static final long serialVersionUID = 1L;
+    private static final String APP_NAME = "MEAM MC";
     public final PotentialMaster potentialMaster;
 	public IntegratorMC integrator;
 	public SpeciesSpheresMono sn;
@@ -50,7 +52,6 @@ public class MEAM_MC extends Simulation {
 	public Phase phase;
 	public PotentialMEAM potentialN;
 	public Controller controller;
-	public DisplayPhase display;
 	public DisplayPlot plot;
 	public MeterEnergy energy;
 	public ActivityIntegrate activityIntegrate;
@@ -61,7 +62,7 @@ public class MEAM_MC extends Simulation {
 	    MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
 	    energyMeter.setPhase(sim.phase);
 	    AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
-	    DisplayPlot plot = new DisplayPlot();
+	    final DisplayPlot plot = new DisplayPlot();
 	    energyAccumulator.setDataSink(plot.getDataSet().makeDataSink());
 	    DataPump energyManager = new DataPump(energyMeter,energyAccumulator);
 	    //MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
@@ -75,15 +76,20 @@ public class MEAM_MC extends Simulation {
 	    adapter.setActionInterval(1);
 	    //IntervalActionAdapter kineticAdapter = new IntervalActionAdapter(kineticManager, sim.integrator);
 	    //kineticAdapter.setActionInterval(1);
-	    SimulationGraphic simgraphic = new SimulationGraphic(sim);
-	    simgraphic.makeAndDisplayFrame();
-	    simgraphic.panel().add(plot.graphic());
+
+	    SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME);
+
+	    simgraphic.getPanel().plotPanel.add(plot.graphic(), SimulationPanel.getVertGBC());
 	    //simgraphic.panel().add(plotKE.graphic());
+
 	    ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
 	    colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
     	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);
     	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.orange);
-	    //sim.activityIntegrate.setMaxSteps(1000);
+
+	    simgraphic.makeAndDisplayFrame(APP_NAME);
+
+    	//sim.activityIntegrate.setMaxSteps(1000);
 	    //sim.getController().run();
 	    //DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
 	    //double PE = ((DataDouble)data.getData(AccumulatorAverage.StatType.AVERAGE.index)).x

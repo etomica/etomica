@@ -139,18 +139,27 @@ public class HSMD3D extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
+    	final String APP_NAME = "HSMD3D";
+
         HSMD3DParam params = new HSMD3DParam();
         params.ignoreOverlap = true;
-        etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(params);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
+        final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(params);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
+        etomica.action.Action repaintAction = new etomica.action.Action () {
+        	public void actionPerformed() {
+        		simGraphic.getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        };
+
+        nSelector.setPostAction(repaintAction);
+        simGraphic.getController().getReinitButton().setPostAction(repaintAction);
         simGraphic.add(nSelector);
-        simGraphic.makeAndDisplayFrame();
+        simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
-        simGraphic.panel().setBackground(java.awt.Color.yellow);
     }
 
     public static HSMD3DParam getParameters() {

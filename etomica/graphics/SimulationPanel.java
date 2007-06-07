@@ -1,5 +1,13 @@
 package etomica.graphics;
+
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 /**
  * Main panel used to display the graphical elements of a simulation.  
@@ -18,45 +26,50 @@ import javax.swing.JPanel;
  
 public class SimulationPanel extends JPanel {
     
-	public final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
-	public final javax.swing.JPanel displayBoxPanel = new JPanel(new java.awt.GridBagLayout());
-//    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridLayout(0,1),false);
-    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.GridBagLayout());
-//    public final javax.swing.JPanel devicePanel = new JPanel(new java.awt.FlowLayout());
+	private static final GridBagConstraints vertGBC = new GridBagConstraints();
+	private static final GridBagConstraints horizGBC = new GridBagConstraints();
 
-    
+	public final JPanel toolbarPanel = new JPanel();
+	public final JPanel controlPanel = new JPanel();
+    public final JPanel graphicsPanel = new JPanel();
+    public final JPanel footerPanel = new JPanel();
+    public final JPanel plotPanel = new JPanel();
+    public final JTabbedPane tabbedPane = new JTabbedPane();
+    public final DefaultToolbar toolbar;
+
     public SimulationPanel() {
-        add(devicePanel);
-        add(displayBoxPanel);
-        add(displayPanel);
-        setSize(800,550);
-        setLayout(new java.awt.FlowLayout());
-//        setBackground(DefaultGraphic.BACKGROUND_COLOR);
-/*        setLayout(new java.awt.BorderLayout());
-        add(devicePanel, java.awt.BorderLayout.NORTH);
-        add(displayPanel, java.awt.BorderLayout.EAST);
-        add(displayBoxPanel, java.awt.BorderLayout.WEST);*/
-/*        setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-        gbc.gridx = 0;
-        add(devicePanel, gbc);
-        add(displayBoxPanel, gbc);
-        gbc.gridx = 1;
-        add(displayPanel, gbc);*/
-        //workaround for JTabbedPane bug in JDK 1.2
-        displayPanel.addChangeListener(
-            new javax.swing.event.ChangeListener() {
-                public void stateChanged(javax.swing.event.ChangeEvent event) {
-                    displayPanel.invalidate();
-                    displayPanel.validate();
-                }
-        });
-        
- /*       displayPanel.addMouseListener( 
-            new java.awt.event.MouseAdapter() {
-                public void mouseClicked(java.awt.event.MouseEvent evt) {
-                    System.out.println("Click");
-                }
-            });*/
+    	this("");
     }
+
+    public SimulationPanel(String appName) {
+        toolbarPanel.setLayout(new GridLayout());
+        controlPanel.setLayout(new GridBagLayout());
+        footerPanel.setLayout(new GridBagLayout());
+        graphicsPanel.setLayout(new BorderLayout());
+        plotPanel.setLayout(new GridBagLayout());
+        setLayout(new BorderLayout(10, 10));
+        toolbar = new DefaultToolbar(this, appName);
+        toolbarPanel.add(toolbar.graphic());
+        add(toolbarPanel, BorderLayout.NORTH);
+        add(controlPanel, BorderLayout.WEST);
+        add(graphicsPanel);
+        add(footerPanel, BorderLayout.SOUTH);
+        add(plotPanel, BorderLayout.EAST);
+    }
+
+
+    public static GridBagConstraints getVertGBC() {
+    	vertGBC.gridx = 0;
+    	vertGBC.gridy = GridBagConstraints.RELATIVE;
+        vertGBC.insets = new java.awt.Insets(3,1,3,1);
+    	return vertGBC;
+    }
+    
+    public static GridBagConstraints getHorizGBC() {
+    	horizGBC.gridx = GridBagConstraints.RELATIVE;
+    	horizGBC.gridy = 0;
+        horizGBC.insets = new java.awt.Insets(3,1,3,1);
+    	return horizGBC;
+    }
+
 }//end of SimulationPanel

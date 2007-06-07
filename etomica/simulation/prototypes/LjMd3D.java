@@ -33,9 +33,17 @@ public class LjMd3D extends Simulation {
     public MeterEnergy energy;
 
     public static void main(String[] args) {
-    	LjMd3D sim = new LjMd3D();
-    	SimulationGraphic simgraphic = new SimulationGraphic(sim);
-    	simgraphic.makeAndDisplayFrame();
+    	final String APP_NAME = "LjMd3D";
+    	final LjMd3D sim = new LjMd3D();
+    	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+        etomica.action.Action repaintAction = new etomica.action.Action () {
+        	public void actionPerformed() {
+        		simGraphic.getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        };
+
+        simGraphic.getController().getReinitButton().setPostAction(repaintAction);
+    	simGraphic.makeAndDisplayFrame(APP_NAME);
     }
     
     public LjMd3D() {
@@ -49,9 +57,9 @@ public class LjMd3D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        phase.getAgent(species).setNMolecules(50);
         phase = new Phase(this);
         addPhase(phase);
+        phase.getAgent(species).setNMolecules(50);
         potential = new P2LennardJones(this);
         potentialMaster.addPotential(potential,new Species[]{species,species});
         

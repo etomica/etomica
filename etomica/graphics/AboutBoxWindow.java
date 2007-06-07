@@ -60,6 +60,12 @@ public class AboutBoxWindow extends JDialog {
 		createGUI();
 	}
 
+	public AboutBoxWindow(Component owner) {
+
+		this.owner = owner;
+		createGUI();
+	}
+
 	public AboutBoxWindow(Component owner, String appName,
 			              String[] created, String[] software) {
 
@@ -208,6 +214,11 @@ public class AboutBoxWindow extends JDialog {
         this.setLocation(owner.getLocationOnScreen().x + 10,
         		         owner.getLocationOnScreen().y + 10);
 		super.setVisible(b);
+	}
+
+	public void setTitle(String name) {
+		appName = name;
+		super.setTitle(appName);
 	}
 
 	private class CloseButtonListener implements ActionListener {

@@ -156,6 +156,8 @@ public class ConfigurationLatticeSimple extends Configuration {
     private static final long serialVersionUID = 2L;
 
     public static void main(String[] args) {
+    	final String APP_NAME = "Configuration Lattice Simple";
+
         Simulation sim = new Simulation(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(sim);
         sim.getDefaults().atomSize = 5.0;
@@ -178,10 +180,10 @@ public class ConfigurationLatticeSimple extends Configuration {
         // etomica.graphics.DisplayPhase(phase);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
-                sim);
+                sim, APP_NAME);
 //        ((ColorSchemeByType) ((DisplayPhase) simGraphic.displayList()
 //                .getFirst()).getColorScheme()).setColor(species
 //                .getMoleculeType(), java.awt.Color.red);
-        simGraphic.makeAndDisplayFrame();
+        simGraphic.makeAndDisplayFrame(APP_NAME);
     }
 }

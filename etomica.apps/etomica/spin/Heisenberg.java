@@ -33,6 +33,8 @@ import etomica.units.systems.LJ;
  */
 public class Heisenberg extends Simulation {
 
+	private static final String APP_NAME = "Heisenberg";
+
     public Heisenberg() {
         this(Space2D.getInstance(),60);
     }
@@ -94,7 +96,7 @@ public class Heisenberg extends Simulation {
     public static void main(String[] args) {
         Heisenberg sim = new Heisenberg(Space2D.getInstance(), 60);
         sim.register(sim.integrator);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
         simGraphic.remove(displayPhase);
         PhaseAgentManager phaseAgentManager = sim.potentialMaster.getCellAgentManager();
@@ -124,6 +126,6 @@ public class Heisenberg extends Simulation {
         boxes.setLabelType(DisplayBox.LabelType.BORDER);
         simGraphic.add(boxes);
 
-        simGraphic.makeAndDisplayFrame();
+        simGraphic.makeAndDisplayFrame(APP_NAME);
     }
 }

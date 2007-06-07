@@ -41,7 +41,6 @@ public final class SimulationRestart extends SimulationActionAdapter {
      * Resets phases, integrators, and accumulators.
      */
     public void actionPerformed() {
-
         Phase[] phases = simulation.getPhases();
         for(int i=0; i<phases.length; i++) {
             if (configuration != null) {
