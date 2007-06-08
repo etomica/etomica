@@ -4,7 +4,6 @@ import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomSourceRandomLeaf;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -51,7 +50,6 @@ public class TestHC2YukawaMC3D extends Simulation{
 		
 		integrator = new IntegratorMC(this, potentialMaster);
 		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
-		mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
 		mcMoveAtom.setStepSize(0.2*defaults.atomSize);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
 		integrator.getMoveManager().setEquilibrating(false);
@@ -92,7 +90,6 @@ public class TestHC2YukawaMC3D extends Simulation{
 		TestHC2YukawaMC3D sim = new TestHC2YukawaMC3D(numAtoms);
 		
 		sim.getDefaults().blockSize = 10;
-		AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
 		MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
 		AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
 		DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
@@ -107,6 +104,12 @@ public class TestHC2YukawaMC3D extends Simulation{
         		simGraphic.getPanel().repaint();
         	}
         });
+        simGraphic.getController().getReinitButton().setPostAction(new Action() {
+        	public void actionPerformed() {
+        		simGraphic.getPanel().repaint();
+        	}
+        });
+
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame(APP_NAME);

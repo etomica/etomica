@@ -52,7 +52,6 @@ public class TestYukawaMC3D extends Simulation{
 		
 		integrator = new IntegratorMC(this, potentialMaster);
 		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
-		mcMoveAtom.setAtomSource(new AtomSourceRandomLeaf());
 		mcMoveAtom.setStepSize(0.2*defaults.atomSize);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
 		integrator.getMoveManager().setEquilibrating(false);
@@ -112,6 +111,13 @@ public class TestYukawaMC3D extends Simulation{
         		simGraphic.getPanel().repaint();
         	}
         });
+
+        simGraphic.getController().getReinitButton().setPostAction(new Action() {
+        	public void actionPerformed() {
+        		simGraphic.getPanel().repaint();
+        	}
+        });
+
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame(APP_NAME);
