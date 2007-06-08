@@ -3,7 +3,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import java.awt.Component;
-import java.awt.GridBagConstraints;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -167,7 +166,7 @@ public class SimulationGraphic implements SimulationContainer {
         if(component == null) return; //display is not graphic
 
         if(display instanceof DisplayBox || display instanceof DisplayBoxesCAE) {
-            getPanel().controlPanel.add(component, getPanel().getVertGBC());
+            getPanel().controlPanel.add(component, SimulationPanel.getVertGBC());
         }
         else {
             if(this.graphicType == GRAPHIC_ONLY) {
