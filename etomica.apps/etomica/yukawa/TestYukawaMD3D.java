@@ -88,7 +88,7 @@ public class TestYukawaMD3D extends Simulation{
 		}
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
 		potentialMaster.setCellRange(3);
-		potentialMaster.setRange(potentialTruncated.getRange()*1.3);
+		potentialMaster.setRange(potentialTruncated.getRange()*1.2);
 		potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
 		
 		new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
