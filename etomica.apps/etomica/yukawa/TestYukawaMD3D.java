@@ -102,15 +102,14 @@ public class TestYukawaMD3D extends Simulation{
 		
 		TestYukawaMD3D sim = new TestYukawaMD3D(defaults);
 		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
+
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setPostAction(new Action() {
-        	public void actionPerformed() {
-        		simGraphic.getPanel().repaint();
-        	}
-        });
+        nSelector.setPostAction(repaintAction);
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
 		simGraphic.add(nSelector);
+		simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 		simGraphic.makeAndDisplayFrame(APP_NAME);
 		ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
 		colorScheme.setColor(sim.species.getMoleculeType(), Color.red);

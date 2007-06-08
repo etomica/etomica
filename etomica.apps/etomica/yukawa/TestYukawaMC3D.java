@@ -3,7 +3,6 @@ import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomSourceRandomLeaf;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -104,22 +103,14 @@ public class TestYukawaMC3D extends Simulation{
 		new IntervalActionAdapter(energyManager, sim.integrator);
 
 		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
+
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setPostAction(new Action() {
-        	public void actionPerformed() {
-        		simGraphic.getPanel().repaint();
-        	}
-        });
-
-        simGraphic.getController().getReinitButton().setPostAction(new Action() {
-        	public void actionPerformed() {
-        		simGraphic.getPanel().repaint();
-        	}
-        });
-
+        nSelector.setPostAction(repaintAction);
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
+        simGraphic.getController().getReinitButton().setPostAction(repaintAction);
         simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);

@@ -244,6 +244,23 @@ public class SimulationGraphic implements SimulationContainer {
 
     public DeviceTrioControllerButton getController() { return dcb; }
 
+    public Action getDisplayPhasePaintAction(Phase phase) {
+    	Action repaintAction = null;
+
+    	final DisplayPhase display = getDisplayPhase(phase);
+    	if(display != null) {
+
+    		repaintAction = new Action() {
+    			public void actionPerformed() {
+    			    display.graphic().repaint();
+    			}
+    		};
+
+    	}
+
+    	return repaintAction;
+    }
+
     public final JFrame makeAndDisplayFrame() {
         return makeAndDisplayFrame(getPanel());
     }
@@ -306,13 +323,17 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulation.prototypes.HSMD2D_atomNbr sim = new etomica.simulation.prototypes.HSMD2D_atomNbr();
 //        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
-      sim.getDefaults().doSleep = false;
-      sim.getDefaults().ignoreOverlap = true;
+        sim.getDefaults().doSleep = false;
+        sim.getDefaults().ignoreOverlap = true;
         SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY);
+		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
+
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
+        nSelector.setPostAction(repaintAction);
         simGraphic.add(nSelector);
+        simGraphic.getController().getReinitButton().setPostAction(repaintAction);
         
 //        AtomFilterInPolytope filter = new AtomFilterInPolytope(sim.phase.boundary().getShape());
 //        MyFilter filter = new MyFilter((Polyhedron)sim.phase.boundary().getShape());
@@ -347,7 +368,6 @@ public class SimulationGraphic implements SimulationContainer {
             }
         }
 //        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
-        simGraphic.getPanel().setBackground(java.awt.Color.yellow);
         Plane plane = new Plane(sim.getSpace());
         plane.setThreePoints(new Vector3D(1,1,1), new Vector3D(2,2,2), new Vector3D(4,5,1));
         

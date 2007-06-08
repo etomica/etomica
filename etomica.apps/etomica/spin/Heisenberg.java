@@ -1,5 +1,6 @@
 package etomica.spin;
 
+import etomica.action.Action;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.data.AccumulatorAverage;
@@ -97,7 +98,9 @@ public class Heisenberg extends Simulation {
         Heisenberg sim = new Heisenberg(Space2D.getInstance(), 60);
         sim.register(sim.integrator);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
         DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
+
         simGraphic.remove(displayPhase);
         PhaseAgentManager phaseAgentManager = sim.potentialMaster.getCellAgentManager();
         NeighborSiteManager neighborSiteManager = (NeighborSiteManager)phaseAgentManager.getAgent(sim.phase);
@@ -126,6 +129,7 @@ public class Heisenberg extends Simulation {
         boxes.setLabelType(DisplayBox.LabelType.BORDER);
         simGraphic.add(boxes);
 
+        simGraphic.getController().getReinitButton().setPostAction(repaintAction);
         simGraphic.makeAndDisplayFrame(APP_NAME);
     }
 }

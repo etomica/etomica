@@ -97,18 +97,12 @@ public class TestHC2YukawaMC3D extends Simulation{
 		new IntervalActionAdapter(energyManager, sim.integrator);
 		
 		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
+
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setPostAction(new Action() {
-        	public void actionPerformed() {
-        		simGraphic.getPanel().repaint();
-        	}
-        });
-        simGraphic.getController().getReinitButton().setPostAction(new Action() {
-        	public void actionPerformed() {
-        		simGraphic.getPanel().repaint();
-        	}
-        });
+        nSelector.setPostAction(repaintAction);
+        simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
         simGraphic.add(nSelector);
