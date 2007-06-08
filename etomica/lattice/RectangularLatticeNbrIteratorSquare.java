@@ -10,7 +10,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
 import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.util.Debug;
 
 
 /**
@@ -58,13 +57,12 @@ public class RectangularLatticeNbrIteratorSquare extends
     /* (non-Javadoc)
      * @see etomica.lattice.SiteIterator#setLattice(etomica.lattice.AbstractLattice)
      */
-    public void setLattice(FiniteLattice lattice) {
-        super.setLattice(lattice);
+    public void setLattice(FiniteLattice newLattice) {
+        super.setLattice(newLattice);
         for(int i=0; i<D; i++) {
-            if(2*range[i]+1 > ((RectangularLattice)lattice).getSize()[i]) 
+            if(2*range[i]+1 > lattice.getSize()[i])
                  throw new IllegalArgumentException("Neighbor range exceeds lattice size");
-         }
-
+        }
     }
     /**
      * Identifies and adds to neighbor list all downlist neighbors
@@ -172,14 +170,12 @@ public class RectangularLatticeNbrIteratorSquare extends
      * calling this method.
      */
     public void setRange(int[] newRange) {
-        if(Debug.ON) {
-            if(newRange.length != D) throw new IllegalArgumentException("Incorrect length of array passed to setRange");
-            for(int i=0; i<D; i++) {
-                if(newRange[i] < 0) 
-                    throw new IllegalArgumentException("Neighbor range cannot be negative");
-                if(2*newRange[i]+1 > lattice.size[i]) 
-                    throw new IllegalArgumentException("Neighbor range exceeds lattice site");
-            }
+        if(newRange.length != D) throw new IllegalArgumentException("Incorrect length of array passed to setRange");
+        for(int i=0; i<D; i++) {
+            if(newRange[i] < 0) 
+                throw new IllegalArgumentException("Neighbor range cannot be negative");
+            if(lattice != null && 2*newRange[i]+1 > lattice.size[i]) 
+                throw new IllegalArgumentException("Neighbor range exceeds lattice site");
         }
         halfNeighborCount = 1;
         for(int i=0; i<D; i++) {

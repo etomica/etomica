@@ -83,13 +83,20 @@ public class CellLattice extends RectangularLattice {
      * specify the neighbor range in terms of a distance, rather than an index range. 
      */
     public static class NeighborIterator extends RectangularLatticeNbrIteratorSquare {
+
         public NeighborIterator(int D, double range) {
             super(D);
             idx = new int[D];
             previousDimensions = Space.makeVector(D);
             setNeighborDistance(range);
         }
-        
+
+        public void setLattice(FiniteLattice lattice) {
+            super.setLattice(lattice);
+            // we got a lattice.  Perhaps setNeighborDistance was called before when we didn't
+            setNeighborDistance(neighborDistance);
+        }
+
         /**
          * Defines neighbors to be all cells that are within the given distance
          * from a central cell.  Specifically, the integer range in direction
