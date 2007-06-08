@@ -69,7 +69,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             }
             atomActionTranslateTo.setDestination(work1);
             atomActionTranslateTo.actionPerformed(molecule);
-            j += site.getD();
+            j += coordinateDim/molecules.getAtomCount();
         }
 
     }
