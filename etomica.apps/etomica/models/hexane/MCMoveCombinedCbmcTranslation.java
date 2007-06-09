@@ -2,7 +2,6 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
@@ -13,8 +12,6 @@ import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
-import etomica.space.IVectorRandom;
-import etomica.util.Debug;
 import etomica.util.IRandom;
 
 
@@ -47,10 +44,8 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
         setPhase(pm.getSimulation().getPhases()[0]);
         
         moleculeSource = new AtomSourceRandomMolecule();
-        moleculeSource.setPhase(pm.getSimulation().getPhases()[0]);
         ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
         energyMeter = new MeterPotentialEnergy(pm);
-        energyMeter.setPhase(pm.getSimulation().getPhases()[0]);
         
         affectedAtomIterator = new AtomIteratorSinglet();
         
@@ -68,6 +63,12 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
             IRandom nRandom, Phase ph){
         this(pm, mv, nRandom);
         setPhase(ph);
+    }
+    
+    public void setPhase(Phase newPhase) {
+        super.setPhase(newPhase);
+        moleculeSource.setPhase(newPhase);
+        energyMeter.setPhase(newPhase);
     }
     
     public AtomIterator affectedAtoms() { return affectedAtomIterator; }
