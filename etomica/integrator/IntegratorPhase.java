@@ -24,13 +24,23 @@ public abstract class IntegratorPhase extends Integrator {
     protected boolean isothermal = false;
     protected MeterPotentialEnergy meterPE;
     protected double currentPotentialEnergy;
+    protected final PotentialMaster potential;
 
     public IntegratorPhase(PotentialMaster potentialMaster, double temperature) {
-        super(potentialMaster);
-        meterPE = new MeterPotentialEnergy(potentialMaster);
+        super();
+        potential = potentialMaster;
+        if (potentialMaster != null) {
+            meterPE = new MeterPotentialEnergy(potentialMaster);
+        }
         setTemperature(temperature);
     }
 
+    /**
+     * @return Returns the PotentialMaster.
+     */
+    public PotentialMaster getPotential() {
+        return potential;
+    }
 
     /**
      * Defines the actions taken by the integrator to reset itself, such as
@@ -41,11 +51,13 @@ public abstract class IntegratorPhase extends Integrator {
      */
     public void reset() throws ConfigurationOverlapException {
         super.reset();
-        meterPE.setPhase(phase);
-        currentPotentialEnergy = meterPE.getDataAsScalar();
-        if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
-            System.err.println("overlap in configuration for "+phase+" when resetting integrator");
-            throw new ConfigurationOverlapException(phase);
+        if (meterPE != null) {
+            meterPE.setPhase(phase);
+            currentPotentialEnergy = meterPE.getDataAsScalar();
+            if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
+                System.err.println("overlap in configuration for "+phase+" when resetting integrator");
+                throw new ConfigurationOverlapException(phase);
+            }
         }
     }
 

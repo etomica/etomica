@@ -10,7 +10,6 @@ import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.mcmove.MCMove;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.virial.PhaseCluster;
 
@@ -30,10 +29,9 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     private double weightNew1, weightNew2;
     private final Phase[] swappedPhases = new Phase[2];
 
-    public MCMoveSwapCluster(PotentialMaster potentialMaster, 
-                             IntegratorMC integrator1, IntegratorMC integrator2) {
-        super(potentialMaster);
-        r = potentialMaster.getSpace().makeVector();
+    public MCMoveSwapCluster(IntegratorMC integrator1, IntegratorMC integrator2) {
+        super(null);
+        r = integrator1.getPhase().getSpace().makeVector();
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;		
     }
@@ -139,10 +137,8 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     public final static SwapFactory FACTORY = new SwapFactory();
     
     protected static class SwapFactory implements IntegratorPT.MCMoveSwapFactory, java.io.Serializable {
-        public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
-                                     IntegratorPhase integrator1, IntegratorPhase integrator2) {
-            return new MCMoveSwapCluster(potentialMaster, 
-                                         (IntegratorMC)integrator1, (IntegratorMC)integrator2);
+        public MCMove makeMCMoveSwap(IntegratorPhase integrator1, IntegratorPhase integrator2) {
+            return new MCMoveSwapCluster((IntegratorMC)integrator1, (IntegratorMC)integrator2);
         }
         private static final long serialVersionUID = 1L;
     } 

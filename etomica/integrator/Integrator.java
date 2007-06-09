@@ -19,7 +19,6 @@ import etomica.space.IVector;
  */
 public abstract class Integrator implements java.io.Serializable {
 
-    protected final PotentialMaster potential;
     protected boolean equilibrating = false;
     protected boolean initialized = false;
     private final LinkedList intervalListeners = new LinkedList();
@@ -29,8 +28,7 @@ public abstract class Integrator implements java.io.Serializable {
     private int iieCount;
     protected int stepCount;
 
-    public Integrator(PotentialMaster potentialMaster) {
-        this.potential = potentialMaster;
+    public Integrator() {
         setEventInterval(1);
         stepCount = 0;
     }
@@ -113,13 +111,6 @@ public abstract class Integrator implements java.io.Serializable {
     }
 
     protected void setup() throws ConfigurationOverlapException {}
-
-    /**
-     * @return Returns the potential.
-     */
-    public PotentialMaster getPotential() {
-        return potential;
-    }
 
     /**
      * Arranges interval listeners registered with this iterator in order such that

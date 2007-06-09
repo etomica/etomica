@@ -4,7 +4,6 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorPhase;
 import etomica.modifier.ModifierBoolean;
-import etomica.potential.PotentialMaster;
 import etomica.util.IRandom;
 
 public class IntegratorJT extends IntegratorManagerMC {
@@ -15,8 +14,8 @@ public class IntegratorJT extends IntegratorManagerMC {
     boolean doNVE = true;
     boolean wasReset = false;
     
-    public IntegratorJT(PotentialMaster potentialMaster, IRandom random, IntegratorPhase nph, IntegratorPhase nve) {
-        super(potentialMaster, random);
+    public IntegratorJT(IRandom random, IntegratorPhase nph, IntegratorPhase nve) {
+        super(random);
         integratorNPH = nph;
         integratorNVE = nve;
         addIntegrator(nph);

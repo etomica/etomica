@@ -3,7 +3,6 @@ package etomica.integrator;
 import etomica.EtomicaInfo;
 import etomica.integrator.mcmove.MCMoveMoleculeExchange;
 import etomica.integrator.mcmove.MCMoveVolumeExchange;
-import etomica.potential.PotentialMaster;
 import etomica.util.IRandom;
 
 /**
@@ -14,8 +13,8 @@ import etomica.util.IRandom;
  */
 public class IntegratorGEMC extends IntegratorManagerMC {
 
-    public IntegratorGEMC(PotentialMaster potentialMaster, IRandom random) {
-        super(potentialMaster, random);
+    public IntegratorGEMC(IRandom random) {
+        super(random);
     }
 
     public static EtomicaInfo getEtomicaInfo() {
@@ -33,9 +32,9 @@ public class IntegratorGEMC extends IntegratorManagerMC {
         }
         super.addIntegrator(newIntegrator);
         if (nIntegrators == 2) {
-            volumeExchange = new MCMoveVolumeExchange(potential, random,
+            volumeExchange = new MCMoveVolumeExchange(((IntegratorPhase)newIntegrator).getPotential(), random,
                     (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
-            moleculeExchange = new MCMoveMoleculeExchange(potential, random,
+            moleculeExchange = new MCMoveMoleculeExchange(((IntegratorPhase)newIntegrator).getPotential(), random,
                     (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
             moveManager.addMCMove(volumeExchange);
             moveManager.addMCMove(moleculeExchange);

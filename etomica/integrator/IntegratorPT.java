@@ -14,7 +14,6 @@ import etomica.integrator.mcmove.MCMoveSwapConfiguration;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
 import etomica.units.Null;
 import etomica.util.IRandom;
 
@@ -38,12 +37,12 @@ import etomica.util.IRandom;
  */
 public class IntegratorPT extends IntegratorManagerMC {
     
-    public IntegratorPT(PotentialMaster potentialMaster, IRandom random) {
-        this(potentialMaster, random, MCMoveSwapConfiguration.FACTORY);
+    public IntegratorPT(IRandom random) {
+        this(random, MCMoveSwapConfiguration.FACTORY);
     }
     
-    public IntegratorPT(PotentialMaster potentialMaster, IRandom random, MCMoveSwapFactory swapFactory) {
-        super(potentialMaster, random);
+    public IntegratorPT(IRandom random, MCMoveSwapFactory swapFactory) {
+        super(random);
         setGlobalMoveInterval(100);
         mcMoveSwapFactory = swapFactory;
     }
@@ -64,7 +63,7 @@ public class IntegratorPT extends IntegratorManagerMC {
 	    super.addIntegrator(integrator);
         
 		if (nIntegrators > 1) {
-            MCMove newMCMove = mcMoveSwapFactory.makeMCMoveSwap(potential, (IntegratorPhase)integrators[nIntegrators-2], 
+            MCMove newMCMove = mcMoveSwapFactory.makeMCMoveSwap((IntegratorPhase)integrators[nIntegrators-2], 
                     (IntegratorPhase)integrators[nIntegrators-1]);
             moveManager.addMCMove(newMCMove);
 		}
@@ -86,7 +85,7 @@ public class IntegratorPT extends IntegratorManagerMC {
 	     * @param integrator1 integrator for one of the phases being swapped
 	     * @param integrator2 integrator for the other phase
 	     */
-	    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, IntegratorPhase integrator1, IntegratorPhase integrator2);
+	    public MCMove makeMCMoveSwap(IntegratorPhase integrator1, IntegratorPhase integrator2);
 	}
 
     /**

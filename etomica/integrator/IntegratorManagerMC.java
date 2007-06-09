@@ -6,7 +6,6 @@ import etomica.integrator.mcmove.MCMoveEventManager;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
-import etomica.potential.PotentialMaster;
 import etomica.util.Arrays;
 import etomica.util.IRandom;
 
@@ -20,8 +19,8 @@ import etomica.util.IRandom;
 
 public class IntegratorManagerMC extends Integrator {
 
-    public IntegratorManagerMC(PotentialMaster potentialMaster, IRandom random) {
-        super(potentialMaster);
+    public IntegratorManagerMC(IRandom random) {
+        super();
         this.random = random;
         integrators = new Integrator[0];
         setGlobalMoveInterval(2);

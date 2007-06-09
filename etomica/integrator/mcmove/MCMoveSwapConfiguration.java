@@ -10,7 +10,6 @@ import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntegratorPT.MCMoveSwap;
 import etomica.integrator.IntegratorPT.MCMoveSwapFactory;
 import etomica.phase.Phase;
-import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 
 
@@ -27,10 +26,9 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	private double u1, u2, temp1, temp2, deltaU1;
 	private final Phase[] swappedPhases = new Phase[2];
 
-	public MCMoveSwapConfiguration(PotentialMaster potentialMaster, 
-	                                IntegratorPhase integrator1, IntegratorPhase integrator2) {
-  		super(potentialMaster);
-		r = potentialMaster.getSpace().makeVector();
+	public MCMoveSwapConfiguration(IntegratorPhase integrator1, IntegratorPhase integrator2) {
+  		super(null);
+		r = integrator1.getPhase().getSpace().makeVector();
 		this.integrator1 = integrator1;
 		this.integrator2 = integrator2;
 	}
@@ -123,9 +121,8 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
     public final static SwapFactory FACTORY = new SwapFactory();
     
 	protected static class SwapFactory implements MCMoveSwapFactory, java.io.Serializable {
-	    public MCMove makeMCMoveSwap(PotentialMaster potentialMaster, 
-                                     IntegratorPhase integrator1, IntegratorPhase integrator2) {
-	        return new MCMoveSwapConfiguration(potentialMaster, integrator1, integrator2);
+	    public MCMove makeMCMoveSwap(IntegratorPhase integrator1, IntegratorPhase integrator2) {
+	        return new MCMoveSwapConfiguration(integrator1, integrator2);
 	    }
         private static final long serialVersionUID = 1L;
 	} 

@@ -69,7 +69,7 @@ public class SimulationVirialPT extends Simulation {
         // values
         sampleCluster = new ClusterWeight[temperature.length];
         allValueClusters = new ClusterAbstract[temperature.length][targetClusters.length+1];
-        integratorPT = new IntegratorPT(potentialMaster,getRandom(),MCMoveSwapCluster.FACTORY);
+        integratorPT = new IntegratorPT(getRandom(),MCMoveSwapCluster.FACTORY);
 //        integratorPT.setSwapInterval(2);
         integratorPT.setEventInterval(1);
         ai = new ActivityIntegrate(this,integratorPT);
