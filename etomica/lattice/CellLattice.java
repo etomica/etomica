@@ -106,7 +106,11 @@ public class CellLattice extends RectangularLattice {
             neighborDistance = newNeighborDistance;
             if(lattice == null) return;
             for(int i=0; i<D; i++) {
-                idx[i] = 1+(int)(lattice.getSize()[i]*neighborDistance/((CellLattice)lattice).getDimensions().x(i));
+                double boundaryLength = ((CellLattice)lattice).getDimensions().x(i);
+                if (boundaryLength == 0) {
+                    return ;
+                }
+                idx[i] = 1+(int)(lattice.getSize()[i]*neighborDistance/boundaryLength);
             }
             super.setRange(idx);
         }
