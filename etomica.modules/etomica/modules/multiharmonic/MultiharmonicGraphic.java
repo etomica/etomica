@@ -1,6 +1,5 @@
 package etomica.modules.multiharmonic;
 
-import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -33,18 +32,18 @@ import etomica.util.HistoryCollapsing;
 public class MultiharmonicGraphic extends SimulationGraphic {
 
 	private final static String APP_NAME = "Multiharmonic";
+	private final static int REPAINT_INTERVAL = 30;
+
     private final Multiharmonic sim;;
 
     /**
      * 
      */
     public MultiharmonicGraphic(Multiharmonic simulation) {
-        super(simulation, GRAPHIC_ONLY, APP_NAME);
+        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
 
         sim.register(sim.integrator);
-
-        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayPhasePaintAction(sim.phase)));
 
         getDisplayPhase(sim.phase).setPixelUnit(new Pixel(400/sim.phase.getBoundary().getDimensions().x(0)));
 
@@ -189,11 +188,9 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         omegaASlider.setPostAction(uUpdate);
         omegaBSlider.setPostAction(uUpdate);
         x0Slider.setPostAction(uUpdate);
-        
+
         uPlot.getDataSet().setUpdatingOnAnyChange(true);
 
-        //main panel
-        JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         //controls -- start/pause and sliders

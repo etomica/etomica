@@ -68,11 +68,13 @@ import etomica.util.Constants.CompassDirection;
 public class LjmdGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
+    private final static int REPAINT_INTERVAL = 50;
+
     private Ljmd sim;
 
     public LjmdGraphic(final Ljmd simulation) {
 
-    	super(simulation, GRAPHIC_ONLY, APP_NAME);
+    	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
 
     	this.sim = simulation;
 
@@ -89,7 +91,7 @@ public class LjmdGraphic extends SimulationGraphic {
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
         getDisplayPhase(sim.phase).setColorScheme(new ColorSchemeByType());
-        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayPhasePaintAction(sim.phase)));
+//        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayPhasePaintAction(sim.phase)));
 
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());

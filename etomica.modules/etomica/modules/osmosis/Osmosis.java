@@ -59,7 +59,7 @@ import etomica.util.Constants.CompassDirection;
 public class Osmosis extends SimulationGraphic {
 
 	private final static String APP_NAME = "Osmosis";
-	private final int REPAINT_INTERVAL = 40;
+	private final static int REPAINT_INTERVAL = 40;
 
     public DataSourceCountTime cycles;
     public DisplayBox displayCycles;
@@ -69,7 +69,7 @@ public class Osmosis extends SimulationGraphic {
 
     public Osmosis(OsmosisSim simulation) {
 
-    	super(simulation, GRAPHIC_ONLY, APP_NAME);
+    	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
 
     	sim = simulation;
 
@@ -110,13 +110,11 @@ public class Osmosis extends SimulationGraphic {
         DataPump pump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
         sim.register(osmosisPMeter, pump);
         IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
+        adapter.setActionInterval(40);
         sim.integrator.addListener(adapter);
         DisplayBoxesCAE dBox = new DisplayBoxesCAE();
         dBox.setAccumulator(osmosisPMeterAvg);
         dBox.setPrecision(6);
-
-        sim.integrator.setEventInterval(REPAINT_INTERVAL);
-        sim.integrator.addListener(new IntervalActionAdapter(getDisplayPhasePaintAction(sim.phase)));
 
         //
         // temperature panel
@@ -281,6 +279,7 @@ public class Osmosis extends SimulationGraphic {
 
         Osmosis osmosis = new Osmosis(sim);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
+        System.out.println("Event intreval : " + sim.integrator.getEventInterval());
     }
 
     
