@@ -23,12 +23,13 @@ import etomica.util.HistoryCollapsing;
 public class EntropyLotteryGraphic extends SimulationGraphic {
 
     private static final String APP_NAME = "Entropy Lottery";
+    private static final int REPAINT_ACTION = 5;
 
 	private final EntropyLottery sim;
 
 	public EntropyLotteryGraphic(final EntropyLottery simulation) {
 
-		super(simulation, GRAPHIC_ONLY, APP_NAME);
+		super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_ACTION);
         this.sim = simulation;
 
         sim.getDefaults().blockSize = 100;
@@ -49,8 +50,6 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         getDisplayPhase(sim.phase).setDrawingHeight(300);
         DisplayPhaseCanvas1DBins canvas = new DisplayPhaseCanvas1DBins(getDisplayPhase(sim.phase));
         getDisplayPhase(sim.phase).setPhaseCanvas(canvas);
-
-        sim.integrator.addListener(new IntervalActionAdapter(getDisplayPhasePaintAction(sim.phase)));
 
         //tabbed pane for the big displays
         JPanel bigPanel = new JPanel(new GridLayout(2,0));

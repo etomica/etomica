@@ -37,9 +37,11 @@ import etomica.units.Kelvin;
 public class DCVGCMDGraphic extends SimulationGraphic{
 
 	final static String APP_NAME = "Dual Control-volume GCMD";
+	final static int REPAINT_INTERVAL = 70;
+
 	public DCVGCMDGraphic(final DCVGCMD sim){
 
-		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME);	
+		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL);	
 
 	    Color colorA = Color.blue;
 	    Color colorB = Color.white;
