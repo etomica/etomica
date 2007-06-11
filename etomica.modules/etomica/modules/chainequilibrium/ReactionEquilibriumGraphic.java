@@ -32,12 +32,13 @@ import etomica.util.Constants.CompassDirection;
 public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 	private static final String APP_NAME = "Chain Reaction Equilibrium";
+	private static final int REPAINT_INTERVAL = 35;
 
     protected ReactionEquilibrium sim;
 
     public ReactionEquilibriumGraphic(ReactionEquilibrium simulation) {
 
-		super(simulation, TABBED_PANE, APP_NAME);
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
 
         GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
@@ -67,15 +68,10 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         // the Atom Diameter Modifer
         DiameterModifier sizeModifier = new DiameterModifier(sim.AAbonded,sim.ABbonded, sim.BBbonded, sim.speciesA, sim.speciesB);
 
-// Hmmm, sim.getController
         DeviceSlider sizeSlider = new DeviceSlider(sim.getController(), sizeModifier);
 		
         DisplayBox tBox = new DisplayBox();
 
-
-        // DISPLAYPANEL is all the stuff you see to the Left, the controls, the temperature box
-        // the FINAL line makes the Pairent and everything below is attached
-// some of these panels are going to be removed 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
@@ -102,20 +98,10 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         compositionPlot.setDoLegend(false);
 
-        /*
-        Action repaintAction =  new Action() {
-            public void actionPerformed() {
-               	getDisplayPhase(sim.phase).repaint();
-            }
-            public String getLabel() {return "";}
-        };
-*/
         getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
 
         // Things to Do while simulation is on (It is adding the DataPumps, which run off the meters)
-        IntervalActionAdapter tAdapter = new IntervalActionAdapter (tPump, sim.integratorHard1);
-        sim.integratorHard1.addListener(new IntervalActionAdapter(getDisplayPhasePaintAction(sim.phase)));
-        
+        IntervalActionAdapter tAdapter = new IntervalActionAdapter (tPump, sim.integratorHard1);        
         // Setting up how often it operates. 
 		tAdapter.setActionInterval(100);
 
