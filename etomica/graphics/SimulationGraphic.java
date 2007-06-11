@@ -46,10 +46,12 @@ public class SimulationGraphic implements SimulationContainer {
 
     public static final int GRAPHIC_ONLY = 0;
     public static final int TABBED_PANE = 1;
+    private static int DEFAULT_UPDATE_INTERVAL = 100;
 
     private SimulationPanel simulationPanel;
     private final DeviceTrioControllerButton dcb;
     protected final Simulation simulation;
+    private int updateInterval = DEFAULT_UPDATE_INTERVAL;
     private final LinkedList displayList = new LinkedList();
     private final LinkedList deviceList = new LinkedList();
 
@@ -57,19 +59,28 @@ public class SimulationGraphic implements SimulationContainer {
 
 
     public SimulationGraphic(Simulation simulation) {
-    	this(simulation, GRAPHIC_ONLY, "");
+    	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL);
     }
 
     public SimulationGraphic(Simulation simulation, int graphicType) {
-    	this(simulation, graphicType, "");
+    	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL);
     }
 
     public SimulationGraphic(Simulation simulation, String appName) {
-    	this(simulation, GRAPHIC_ONLY, appName);
+    	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL);
     }
 
     public SimulationGraphic(Simulation simulation, int graphicType, String appName) {
+    	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL);
+    }
+
+    public SimulationGraphic(Simulation simulation, String appName, int updateInterval) {
+    	this(simulation, GRAPHIC_ONLY, appName, updateInterval);
+    }
+
+    public SimulationGraphic(Simulation simulation, int graphicType, String appName, int updateInterval) {
         this.simulation = simulation;
+        this.updateInterval = updateInterval;
         simulationPanel = new SimulationPanel(appName);
         if(graphicType == GRAPHIC_ONLY || graphicType == TABBED_PANE) {
             this.graphicType = graphicType;
@@ -150,7 +161,7 @@ public class SimulationGraphic implements SimulationContainer {
 	        	public void actionPerformed() {display.repaint();}
 	        });
 	        integrator.addListener(iaa);
-	        iaa.setActionInterval(100);
+	        iaa.setActionInterval(updateInterval);
 	    }
 	    else if (integrator instanceof IntegratorManagerMC) {
 	        Integrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();

@@ -72,17 +72,19 @@ import etomica.units.systems.MKS;
  */
 public class JouleThomson extends SimulationGraphic {
 
+    final static String APP_NAME = "Joule Thomson Experiment";
+    final static int REPAINT_INTERVAL = 25;
+
     DeviceButton restart;
     DeviceBox timeBox;
     JouleThomsonSim sim;
-    final static String APP_NAME = "Joule Thomson Experiment";
 
     public JouleThomson() {
         this((Space)Space2D.getInstance(), new JouleThomsonSim(Space2D.getInstance()));
     }
 
     public JouleThomson(Space space, JouleThomsonSim simulation) {
-        super(simulation, TABBED_PANE, APP_NAME);
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         sim = simulation;
 
         sim.register(sim.integratorJT);
@@ -109,10 +111,6 @@ public class JouleThomson extends SimulationGraphic {
 
         final Unit tUnit = Kelvin.UNIT;
 
-        // Repaints the display phase so the motion looks smooth instead
-        // of choppy
-        sim.integratorJT.addListener(new IntervalActionAdapter(this.getDisplayPhasePaintAction(sim.phase)));
-	    
 	    //colorscheme to color atoms blue to red according to their velocity
 	    DeviceSlider scaleSlider = null;
         if(space.D() == 2) 
@@ -165,7 +163,7 @@ public class JouleThomson extends SimulationGraphic {
 
         //temperature, pressure, enthalpy meters
         //XXX we have no way of using this Meter's output  :(
-        MeterTPH properties = new MeterTPH(sim.integrator);
+//        MeterTPH properties = new MeterTPH(sim.integrator);
 //        etomica.MeterScalar tMeter = properties.allMeters()[0];
 //        etomica.MeterScalar pMeter = properties.allMeters()[1];
 //        etomica.MeterScalar hMeter = properties.allMeters()[2];
