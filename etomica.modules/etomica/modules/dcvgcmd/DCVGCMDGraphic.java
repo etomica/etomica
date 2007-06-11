@@ -46,18 +46,12 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
 	    GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-	    Action repaintAction = new Action() {
-	        public void actionPerformed() {
-	        	getDisplayPhase(sim.phase).repaint();
-	        }
-	    };
-
 	    //Button for cutaway view
 	    CutAway cutawayFilter = new CutAway();
 	    getDisplayPhase(sim.phase).setAtomFilter(cutawayFilter);
 	    DeviceToggleButton cutawayButton = new DeviceToggleButton(sim.getController());
 	    cutawayButton.setModifier(cutawayFilter, "Restore", "Cut tube");
-	    cutawayButton.setPostAction(repaintAction);
+	    cutawayButton.setPostAction(getDisplayPhasePaintAction(sim.phase));
 
 	    //Number of each type of atom
 	    MeterNMolecules meterA = new MeterNMolecules();
@@ -186,7 +180,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    reinitActions.addAction(simRestart);
 
 	    getController().getReinitButton().setAction(reinitActions);
-	    getController().getReinitButton().setPostAction(repaintAction);
+	    getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
 
 		getPanel().toolbar.addContributor("Colin Tedlock");
 

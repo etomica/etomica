@@ -71,12 +71,11 @@ public class DeviceNSelector extends DeviceSlider {
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
-        nSelector.setPostAction(new Action() {
-        	public void actionPerformed() {
-        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
-        	}
-        });
+        nSelector.setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
         graphic.add(nSelector);
+
+        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
+
         graphic.makeAndDisplayFrame(APP_NAME);
 
     }

@@ -54,11 +54,7 @@ public abstract class ColorScheme implements java.io.Serializable {
       final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
       final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 
-      Action repaintAction = new Action () {
-    	  public void actionPerformed() {
-    		  simGraphic.getDisplayPhase(sim.phase).graphic().repaint();
-    	  }
-      };
+      Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
 
       DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
       nSelector.setResetAction(new SimulationRestart(sim));

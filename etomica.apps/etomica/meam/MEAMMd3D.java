@@ -148,7 +148,9 @@ public class MEAMMd3D extends Simulation {
     	
     	simGraphic.getPanel().controlPanel.add(cvBoxKE.graphic(), SimulationPanel.getVertGBC());
     	simGraphic.getPanel().controlPanel.add(cvBoxPE.graphic(), SimulationPanel.getVertGBC());
-    	
+
+    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
     	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);

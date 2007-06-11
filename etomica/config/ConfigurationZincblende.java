@@ -116,11 +116,9 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayPhase(phase).getColorScheme();
         colorScheme.setColor(speciesSpheres0.getMoleculeType(),new java.awt.Color(0,255,0));
         colorScheme.setColor(speciesSpheres1.getMoleculeType(), java.awt.Color.red);
-        simGraphic.getController().getReinitButton().setPostAction(new etomica.action.Action() {
-        	public void actionPerformed() {
-        		simGraphic.getDisplayPhase(phase).graphic().repaint();
-        	}
-        });
+
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(phase));
+
         simGraphic.makeAndDisplayFrame(APP_NAME);
         simGraphic.getDisplayPhase(phase).graphic().repaint();
     }

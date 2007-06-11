@@ -439,8 +439,9 @@ public class MDParacetamolMonoclinic extends Simulation {
         simGraphic.add(PEbox);
         simGraphic.add(meterTotalbox);
         simGraphic.add(tempBox);
-        
-        
+
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+
         simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(PIXEL_SIZE));
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         AtomTypeGroup atomType = (AtomTypeGroup)sim.species.getMoleculeType();

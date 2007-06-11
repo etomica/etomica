@@ -36,14 +36,10 @@ public class LjMd3D extends Simulation {
     	final String APP_NAME = "LjMd3D";
     	final LjMd3D sim = new LjMd3D();
     	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
-        etomica.action.Action repaintAction = new etomica.action.Action () {
-        	public void actionPerformed() {
-        		simGraphic.getDisplayPhase(sim.phase).graphic().repaint();
-        	}
-        };
 
-        simGraphic.getController().getReinitButton().setPostAction(repaintAction);
-    	simGraphic.makeAndDisplayFrame(APP_NAME);
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+
+        simGraphic.makeAndDisplayFrame(APP_NAME);
     }
     
     public LjMd3D() {

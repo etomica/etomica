@@ -9,7 +9,6 @@ import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.config.Configuration;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
 
@@ -170,11 +169,9 @@ public class DeviceTrioControllerButton extends Device {
         // default.  Just remove them and put ours on for this test.
         graphic.getPanel().controlPanel.removeAll();
         graphic.add(button);
-        button.getReinitButton().setPostAction(new Action() {
-        	public void actionPerformed() {
-        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
-        	}
-        });
+
+        button.getReinitButton().setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
+
         graphic.makeAndDisplayFrame(APP_NAME);
     }
     

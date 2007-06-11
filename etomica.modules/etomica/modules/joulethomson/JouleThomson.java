@@ -111,11 +111,7 @@ public class JouleThomson extends SimulationGraphic {
 
         // Repaints the display phase so the motion looks smooth instead
         // of choppy
-        sim.integratorJT.addListener(new IntervalActionAdapter(new Action() {
-            public void actionPerformed() {
-                getDisplayPhase(sim.phase).repaint();
-            }
-        }));
+        sim.integratorJT.addListener(new IntervalActionAdapter(this.getDisplayPhasePaintAction(sim.phase)));
 	    
 	    //colorscheme to color atoms blue to red according to their velocity
 	    DeviceSlider scaleSlider = null;
@@ -305,13 +301,7 @@ public class JouleThomson extends SimulationGraphic {
 	    getPanel().add(getPanel().tabbedPane);
 	    getPanel().toolbar.addContributor("Colin Tedlock");
 
-	    Action repaintAction = new Action() {
-	        public void actionPerformed() {
-                getDisplayPhase(sim.phase).repaint();
-	        }
-	    };
- 
-	    getController().getReinitButton().setPostAction(repaintAction);
+	    getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
     }
 
     //inner class the defines a drop-down menu to select LJ parameters to mimic

@@ -89,9 +89,7 @@ public class LjmdGraphic extends SimulationGraphic {
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
         getDisplayPhase(sim.phase).setColorScheme(new ColorSchemeByType());
-        sim.integrator.addListener(new IntervalActionAdapter(new Action() {
-            public void actionPerformed() {getDisplayPhase(sim.phase).repaint();}
-        }));
+        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayPhasePaintAction(sim.phase)));
 
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());

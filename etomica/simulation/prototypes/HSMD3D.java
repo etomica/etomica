@@ -148,15 +148,12 @@ public class HSMD3D extends Simulation {
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
-        etomica.action.Action repaintAction = new etomica.action.Action () {
-        	public void actionPerformed() {
-        		simGraphic.getDisplayPhase(sim.phase).graphic().repaint();
-        	}
-        };
 
-        nSelector.setPostAction(repaintAction);
-        simGraphic.getController().getReinitButton().setPostAction(repaintAction);
+        nSelector.setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
         simGraphic.add(nSelector);
+
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+
         simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);

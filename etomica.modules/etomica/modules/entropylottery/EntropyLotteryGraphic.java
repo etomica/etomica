@@ -1,6 +1,5 @@
 package etomica.modules.entropylottery;
 
-import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 
 import javax.swing.JPanel;
@@ -16,7 +15,6 @@ import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.space1d.Space1D;
 import etomica.units.Pixel;
@@ -33,8 +31,6 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
 		super(simulation, GRAPHIC_ONLY, APP_NAME);
         this.sim = simulation;
 
-        GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
-
         sim.getDefaults().blockSize = 100;
         sim.getDefaults().doSleep = true;
         sim.activityIntegrate.setDoSleep(true);
@@ -44,17 +40,9 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
 
         this.getController().getSimRestart().setConfiguration(new ConfigurationZero());
 
-        this.getController().getReinitButton().setPostAction(new Action() {
-        	public void actionPerformed() {
-        	    getDisplayPhase(sim.phase).repaint();
-        	}
-        });
+        this.getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
 
-        this.getController().getControllerButton().setPostAction(new Action() {
-        	public void actionPerformed() {
-        	    getDisplayPhase(sim.phase).repaint();
-        	}
-        });
+        this.getController().getControllerButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
 
 	    //display of phase, timer
         getDisplayPhase(sim.phase).setPixelUnit(new Pixel(300/sim.phase.getBoundary().getDimensions().x(0)));
@@ -62,9 +50,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         DisplayPhaseCanvas1DBins canvas = new DisplayPhaseCanvas1DBins(getDisplayPhase(sim.phase));
         getDisplayPhase(sim.phase).setPhaseCanvas(canvas);
 
-        sim.integrator.addListener(new IntervalActionAdapter(new Action() {
-            public void actionPerformed() {getDisplayPhase(sim.phase).repaint();}
-        }));
+        sim.integrator.addListener(new IntervalActionAdapter(getDisplayPhasePaintAction(sim.phase)));
 
         //tabbed pane for the big displays
         JPanel bigPanel = new JPanel(new GridLayout(2,0));

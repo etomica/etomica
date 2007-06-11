@@ -155,6 +155,7 @@ public class MEAMMd3DThreaded extends Simulation {
     	simGraphic.add(cvBoxKE);
     	simGraphic.add(cvBoxPE);
 
+    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
     	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);

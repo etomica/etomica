@@ -146,7 +146,9 @@ public class MEAM_3DMDwithGB extends Simulation {
     	//simgraphic.panel().add(plotKE.graphic());
     	simgraphic.getPanel().plotPanel.add(cvBoxPE.graphic(), SimulationPanel.getVertGBC());
     	simgraphic.getPanel().plotPanel.add(cvBoxKE.graphic(), SimulationPanel.getVertGBC());
-    	
+
+    	simgraphic.getController().getReinitButton().setPostAction(simgraphic.getDisplayPhasePaintAction(sim.phase));
+
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.snFixedA.getMoleculeType(),java.awt.Color.blue);
     	colorScheme.setColor(sim.snA.getMoleculeType(),java.awt.Color.red);

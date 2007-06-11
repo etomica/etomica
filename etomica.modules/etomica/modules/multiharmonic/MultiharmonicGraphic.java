@@ -14,10 +14,7 @@ import etomica.data.DataProcessorFunction;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourceScalar;
-import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceTrioControllerButton;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -47,12 +44,8 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 
         sim.register(sim.integrator);
 
-        sim.integrator.addListener(new IntervalActionAdapter(
-                new Action() {
-                    public void actionPerformed() {
-                        getDisplayPhase(sim.phase).repaint();
-                    }
-                }));
+        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayPhasePaintAction(sim.phase)));
+
         getDisplayPhase(sim.phase).setPixelUnit(new Pixel(400/sim.phase.getBoundary().getDimensions().x(0)));
 
         final DisplayPlot plot = new DisplayPlot();

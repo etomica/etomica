@@ -184,11 +184,8 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
                 ((DisplayPhase)next).setColorScheme(new ColorSchemeTemperature(0.5, 5.0));
             }
         }
-        graphic.getController().getReinitButton().setPostAction(new Action() {
-        	public void actionPerformed() {
-        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
-        	}
-        });
+
+        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
 
         graphic.makeAndDisplayFrame(APP_NAME);
     }//end of main

@@ -442,6 +442,8 @@ public class MDParacetamolOrthorhombic extends Simulation {
 
 
         simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(PIXEL_SIZE));
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
         AtomTypeGroup atomType = (AtomTypeGroup)sim.species.getMoleculeType();
         colorScheme.setColor(atomType.getChildTypes()[0], java.awt.Color.red);

@@ -470,11 +470,7 @@ public class DisplayTable extends Display implements DataTableListener,
         table.setShowingRowLabels(true);
         table.setPrecision(7);
 
-        graphic.getController().getReinitButton().setPostAction(new Action() {
-        	public void actionPerformed() {
-        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
-        	}
-        });
+        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
 
         graphic.add(table);
         graphic.makeAndDisplayFrame(APP_NAME);

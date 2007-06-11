@@ -1,6 +1,5 @@
 package etomica.modules.chainequilibrium;
 
-import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 
 import javax.swing.JPanel;
@@ -8,16 +7,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
-import etomica.action.Action;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
@@ -105,19 +101,20 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         DisplayPlot compositionPlot = new DisplayPlot();
         accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         compositionPlot.setDoLegend(false);
-		
+
+        /*
         Action repaintAction =  new Action() {
             public void actionPerformed() {
                	getDisplayPhase(sim.phase).repaint();
             }
             public String getLabel() {return "";}
         };
-
-        getController().getReinitButton().setPostAction(repaintAction);
+*/
+        getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
 
         // Things to Do while simulation is on (It is adding the DataPumps, which run off the meters)
         IntervalActionAdapter tAdapter = new IntervalActionAdapter (tPump, sim.integratorHard1);
-        sim.integratorHard1.addListener(new IntervalActionAdapter(repaintAction));
+        sim.integratorHard1.addListener(new IntervalActionAdapter(getDisplayPhasePaintAction(sim.phase)));
         
         // Setting up how often it operates. 
 		tAdapter.setActionInterval(100);

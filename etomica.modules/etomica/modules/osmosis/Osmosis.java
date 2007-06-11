@@ -13,7 +13,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
@@ -117,12 +116,7 @@ public class Osmosis extends SimulationGraphic {
         dBox.setPrecision(6);
 
         sim.integrator.setEventInterval(REPAINT_INTERVAL);
-        sim.integrator.addListener(new IntervalActionAdapter(
-                new Action() {
-                    public void actionPerformed() {
-                        displayPhase.repaint();
-                    }
-                }));
+        sim.integrator.addListener(new IntervalActionAdapter(getDisplayPhasePaintAction(sim.phase)));
 
         //
         // temperature panel
@@ -258,6 +252,8 @@ public class Osmosis extends SimulationGraphic {
         
         getPanel().controlPanel.add(temperaturePanel, vertGBC);
         getPanel().controlPanel.add(tabPane, vertGBC);
+
+        getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
 
     }
 

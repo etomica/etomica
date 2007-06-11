@@ -1,4 +1,5 @@
 package etomica.simulation.prototypes;
+
 import etomica.action.Action;
 import etomica.action.PhaseImposePbc;
 import etomica.action.SimulationRestart;
@@ -125,20 +126,12 @@ public class HSMD2D_noNbr extends Simulation {
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
-        etomica.action.Action repaintAction = new etomica.action.Action () {
-        	public void actionPerformed() {
-        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
-        	}
-        };
+        Action repaintAction = graphic.getDisplayPhasePaintAction(sim.phase);
+
         nSelector.setPostAction(repaintAction);
         graphic.getController().getReinitButton().setPostAction(repaintAction);
 
-        sim.integrator.addListener(new IntervalActionAdapter(
-                new Action() {
-                    public void actionPerformed() {
-                        graphic.getDisplayPhase(sim.phase).repaint();
-                    }
-                }));
+        sim.integrator.addListener(new IntervalActionAdapter(repaintAction));
 
         DeviceThermoSelector thermo = new DeviceThermoSelector(sim, sim.integrator);
         graphic.add(nSelector);

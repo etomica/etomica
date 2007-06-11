@@ -1,5 +1,5 @@
 package etomica.threaded.domain;
-import etomica.action.Action;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.config.ConfigurationLattice;
@@ -113,13 +113,7 @@ public class LJMD3DThreaded extends Simulation {
         final LJMD3DThreaded sim = new LJMD3DThreaded(numAtoms, numThreads);
         final SimulationGraphic simgraphic = new SimulationGraphic(sim, APP_NAME);
 
-	    Action repaintAction = new Action() {
-	        public void actionPerformed() {
-                simgraphic.getDisplayPhase(sim.phase).repaint();
-	        }
-	    };
- 
-	    simgraphic.getController().getReinitButton().setPostAction(repaintAction);
+	    simgraphic.getController().getReinitButton().setPostAction(simgraphic.getDisplayPhasePaintAction(sim.phase));
 
         simgraphic.makeAndDisplayFrame(APP_NAME);
 

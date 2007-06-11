@@ -186,11 +186,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         DisplayBoxesCAE boxes = new DisplayBoxesCAE(pressureMeter.getDataInfo());
         boxes.setAccumulator(accumulator);
         graphic.add(boxes);
-        graphic.getController().getReinitButton().setPostAction(new Action() {
-        	public void actionPerformed() {
-        		graphic.getDisplayPhase(sim.phase).graphic().repaint();
-        	}
-        });
+        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
 
         graphic.makeAndDisplayFrame(APP_NAME);
     }

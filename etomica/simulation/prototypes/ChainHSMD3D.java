@@ -88,6 +88,9 @@ public class ChainHSMD3D extends Simulation {
       final SimulationGraphic simGraphic = new SimulationGraphic(sim);
       BondListener bl = new BondListener(sim.phase,(DisplayPhaseCanvasG3DSys)simGraphic.getDisplayPhase(sim.phase).canvas);
       bl.addModel(sim.model);
+
+      simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+
       simGraphic.makeAndDisplayFrame();
     }
 }//end of class
