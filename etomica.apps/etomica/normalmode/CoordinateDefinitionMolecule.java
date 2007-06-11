@@ -46,6 +46,7 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
                 u[j+k] = work1.x(k);
             }
             j += coordinateDim/molecules.getAtomCount();
+
         }
         return u;
     }
@@ -67,9 +68,13 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
             for (int k = 0; k < site.getD(); k++) {
                 work1.setX(k, site.x(k) + newU[j+k]);
             }
+            
             atomActionTranslateTo.setDestination(work1);
+            atomActionTranslateTo.setAtomPositionDefinition(molecule.getType().getPositionDefinition());
             atomActionTranslateTo.actionPerformed(molecule);
+            
             j += coordinateDim/molecules.getAtomCount();
+
         }
 
     }
