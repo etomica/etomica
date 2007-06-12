@@ -91,8 +91,8 @@ public class Osmosis extends SimulationGraphic {
         colorScheme.setColor(sim.speciesB.getMoleculeType(), Color.red);
         displayPhase.setColorScheme(colorScheme);
         displayPhase.setAlign(1,DisplayPhase.CENTER);
-//        displayPhase.setOriginShift(0, thickness);
-//        displayPhase.setOriginShift(1, -thickness);
+        displayPhase.setOriginShift(0, thickness);
+        displayPhase.setOriginShift(1, -thickness);
         displayPhase.addDrawable(new MyWall());
 
         cycles = new DataSourceCountTime();

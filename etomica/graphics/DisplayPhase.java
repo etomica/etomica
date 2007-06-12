@@ -131,11 +131,13 @@ public class DisplayPhase extends Display implements EtomicaElement {
 
     /**
      * Amount (in pixels) of a simple shift (translation) applied in determing origin.
-     * Usually zero, but can be set to any value by setting elements in returned array.
+     * Usually zero, but can be set to any value by passing in dimension and the number
+     * of pixels to shift in the specified dimension.
+     * Dimension : 
+     *  0  => X direction
+     *  1  => Y direction
+     *  2  => Z direction (not used)
      */
-    public int[] getOriginShift() {return originShift;}
-
-/*
     public void setOriginShift(int dimension, int shift) {
         if(dimension <= D) {
         	originShift[dimension] = shift;
@@ -152,7 +154,6 @@ public class DisplayPhase extends Display implements EtomicaElement {
         	}
         }
     }
-*/
 
     public int[] getOrigin() {
         computeImageParameters();
@@ -381,8 +382,8 @@ public class DisplayPhase extends Display implements EtomicaElement {
     public void setUseRepaint(boolean b) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setUseRepaint(b);}
 */
     protected void computeImageParameters() {
-        int w = canvas.getSize().width;
-        int h = canvas.getSize().height;
+        int w = canvas.getSize().width - 2 * originShift[0];
+        int h = canvas.getSize().height - 2 * originShift[1];
         computeImageParameters2(w, h);
     }
     public void computeImageParameters2(int w, int h) {
