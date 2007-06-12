@@ -5,7 +5,6 @@ import etomica.action.activity.Controller;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.P2SquareWell;
@@ -56,6 +55,6 @@ public class SwMd2D extends Simulation {
         potentialMaster.addPotential(potential,new Species[]{species,species});
         
         integrator.setPhase(phase);
-        integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
+        integrator.addIntervalAction(new PhaseImposePbc(phase));
     } 
 }

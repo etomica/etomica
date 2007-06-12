@@ -10,7 +10,6 @@ import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfile;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.CriterionType;
@@ -189,7 +188,8 @@ public class DCVGCMD extends Simulation {
         integratorMD.setTimeStep(0.007);
         //integrator.setInterval(10);
         final NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
-        integratorMD.addListener(nbrManager);
+        integratorMD.addIntervalAction(nbrManager);
+        integratorMD.addNonintervalListener(nbrManager);
         activityIntegrate.setDoSleep(true);
         phase.setBoundary(new BoundaryRectangularSlit(this, 2));
 //        phase.setBoundary(new BoundaryRectangularPeriodic(space));
@@ -269,12 +269,12 @@ public class DCVGCMD extends Simulation {
 
         accumulator1 = new AccumulatorAverage(this);
         DataPump profile1pump = new DataPump(profile1, accumulator1);
-        new IntervalActionAdapter(profile1pump, integratorDCV);
+        integratorDCV.addIntervalAction(profile1pump);
         register(profile1,profile1pump);
 
         accumulator2 = new AccumulatorAverage(this);
         DataPump profile2pump = new DataPump(profile2, accumulator2);
-        new IntervalActionAdapter(profile2pump, integratorDCV);
+        integratorDCV.addIntervalAction(profile2pump);
         register(profile2,profile2pump);
 
         potentialMaster.getNbrCellManager(phase).assignCellAll();

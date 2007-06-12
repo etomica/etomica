@@ -11,7 +11,6 @@ import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.units.Kelvin;
 
 /**
@@ -64,8 +63,8 @@ public class MCParacetamolMonoclinicforCluster {
              accumulatorAveragePE.addDataSink(dataLoggerPE, new StatType[]{StatType.MOST_RECENT});
              accumulatorAveragePE.setPushInterval(1);
 
-             IntervalActionAdapter IAA = new IntervalActionAdapter(PEpump, sim.integrator);
-             IAA.setActionInterval(200);
+             sim.integrator.addIntervalAction(PEpump);
+             sim.integrator.setActionInterval(PEpump, 200);
              
              sim.getController().reset();
              sim.actionIntegrate.setMaxSteps(maxSteps);

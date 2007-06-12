@@ -17,7 +17,6 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -56,7 +55,6 @@ public class SimOverlap extends Simulation {
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         integrators = new IntegratorPhase[2];
-        accumulatorAAs = new IntervalActionAdapter[2];
         accumulatorPumps = new DataPump[2];
         meters = new DataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
@@ -200,13 +198,11 @@ public class SimOverlap extends Simulation {
         accumulators[iPhase] = newAccumulator;
         if (accumulatorPumps[iPhase] == null) {
             accumulatorPumps[iPhase] = new DataPump(meters[iPhase],newAccumulator);
-            accumulatorAAs[iPhase] = new IntervalActionAdapter(accumulatorPumps[iPhase]);
-            integrators[iPhase].addListener(accumulatorAAs[iPhase]);
+            integrators[iPhase].addIntervalAction(accumulatorPumps[iPhase]);
         }
         else {
             accumulatorPumps[iPhase].setDataSink(newAccumulator);
         }
-        accumulatorAAs[iPhase].setActionInterval(1);
         if (integratorOverlap != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
             integratorOverlap.setDSVO(dsvo);
@@ -440,7 +436,6 @@ public class SimOverlap extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IntervalActionAdapter[] accumulatorAAs;
     public DataSource[] meters;
 
     /**

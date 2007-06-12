@@ -1,6 +1,5 @@
 package etomica.modules.joulethomson;
 
-import etomica.action.Action;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.Configuration;
@@ -10,7 +9,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorGear4NPH;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
@@ -86,7 +84,7 @@ public class JouleThomsonSim extends Simulation {
         config.initializeCoordinates(phase);
         
         integratorJT = new IntegratorJT(getRandom(), integrator, integratorNVE);
-        integratorJT.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
+        integratorJT.addIntervalAction(new PhaseImposePbc(phase));
         integrator.setPhase(phase);
         integratorNVE.setPhase(phase);
 
@@ -105,11 +103,7 @@ public class JouleThomsonSim extends Simulation {
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(10);
 
-        sim.integratorJT.addListener(new IntervalActionAdapter(new Action() {
-            public void actionPerformed() {
-                displayPhase.repaint();
-            }
-        }));
+        sim.integratorJT.addIntervalAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
 
     }
 }

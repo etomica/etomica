@@ -21,7 +21,6 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -132,11 +131,9 @@ public class MEAMMd3DThreaded extends Simulation {
     	
     	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{StatType.STANDARD_DEVIATION});
     	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{StatType.STANDARD_DEVIATION});
-    	  	
-        IntervalActionAdapter adapter = new IntervalActionAdapter(energyManager, sim.integrator);
-        adapter.setActionInterval(1);
-        IntervalActionAdapter kineticAdapter = new IntervalActionAdapter(kineticManager, sim.integrator);
-        kineticAdapter.setActionInterval(1);    
+
+        sim.integrator.addIntervalAction(energyManager);
+    	sim.integrator.addIntervalAction(kineticManager);
 
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
 
@@ -262,7 +259,8 @@ public class MEAMMd3DThreaded extends Simulation {
         
         ((PotentialMasterListThreaded)potentialMaster).setRange(potentialThreaded.getRange()*1.1);
         ((PotentialMasterListThreaded)potentialMaster).setCriterion(potentialThreaded, new CriterionSimple(this, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
-        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
+        integrator.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
+        integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
         
         
         integrator.setPhase(phase);

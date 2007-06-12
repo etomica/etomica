@@ -19,7 +19,6 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
@@ -65,17 +64,8 @@ public class MEAM_MC extends Simulation {
 	    final DisplayPlot plot = new DisplayPlot();
 	    energyAccumulator.setDataSink(plot.getDataSet().makeDataSink());
 	    DataPump energyManager = new DataPump(energyMeter,energyAccumulator);
-	    //MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
-	    //kineticMeter.setPhase(sim.phase);
-	    //AccumulatorHistory kineticAccumulator = new AccumulatorHistory(HistoryCollapsingAverage.FACTORY);
-	    //DisplayPlot plotKE = new DisplayPlot();
-	    //kineticAccumulator.setDataSink(plotKE.getDataSet().makeDataSink());
-	    //DataPump kineticManager = new DataPump(kineticMeter, kineticAccumulator);
 	    //energyAccumulator.setBlockSize(50);
-	    IntervalActionAdapter adapter = new IntervalActionAdapter(energyManager, sim.integrator);
-	    adapter.setActionInterval(1);
-	    //IntervalActionAdapter kineticAdapter = new IntervalActionAdapter(kineticManager, sim.integrator);
-	    //kineticAdapter.setActionInterval(1);
+        sim.integrator.addIntervalAction(energyManager);
 
 	    SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME);
 
@@ -177,7 +167,7 @@ public class MEAM_MC extends Simulation {
 	    integrator.setPhase(phase);
 	    PhaseImposePbc imposepbc = new PhaseImposePbc();
 	    imposepbc.setPhase(phase);
-	    integrator.addListener(new IntervalActionAdapter(imposepbc));
+	    integrator.addIntervalAction(imposepbc);
 			
 	    // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
 	    //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");

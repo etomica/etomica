@@ -52,7 +52,6 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
@@ -624,7 +623,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         meterCycles = new DataSourceCountTime(pc.integrator);
         displayCycles.setPrecision(6);
         DataPump pump= new DataPump(meterCycles,displayCycles);
-        new IntervalActionAdapter(pump,pc.integrator);
+        pc.integrator.addIntervalAction(pump);
         displayCycles.setLabel("Simulation time");
         
         //  state panel
@@ -726,8 +725,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         temperatureAvg.setPushInterval(10);
         pump = new DataPump(thermometer,new DataFork(new DataSink[]{temperatureHistory,temperatureAvg}));
         pc.register(thermometer,pump);
-        IntervalActionAdapter adapter = new IntervalActionAdapter(pump,pc.integrator);
-        adapter.setActionInterval(dataInterval);
+        pc.integrator.addIntervalAction(pump);
+        pc.integrator.setActionInterval(pump, dataInterval);
         temperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
         plotT.setLegend(new DataTag[]{thermometer.getTag()}, "measured");
         temperatureDisplayBox.setAccumulator(temperatureAvg);
@@ -742,8 +741,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         targetTemperatureHistory.setTimeDataSource(meterCycles);
         targetTemperatureHistory.getHistory().setHistoryLength(historyLength);
         DataPump targetTemperatureDataPump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
-        adapter = new IntervalActionAdapter(targetTemperatureDataPump,pc.integrator);
-        adapter.setActionInterval(dataInterval);
+        pc.integrator.addIntervalAction(targetTemperatureDataPump);
+        pc.integrator.setActionInterval(targetTemperatureDataPump, dataInterval);
         targetTemperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
         plotT.setLegend(new DataTag[]{targetTemperatureDataSource.getTag()}, "target");
         pc.register(targetTemperatureDataSource, targetTemperatureDataPump);
@@ -757,8 +756,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pressureAvg.setPushInterval(10);
         pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
         pc.register(pressureMeter,pump);
-        adapter = new IntervalActionAdapter(pump,pc.integrator);
-        adapter.setActionInterval(dataInterval);
+        pc.integrator.addIntervalAction(pump);
+        pc.integrator.setActionInterval(pump, dataInterval);
         pressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
         plotP.setLegend(new DataTag[]{pressureMeter.getTag()}, "measured");
         pressureDisplayBox.setAccumulator(pressureAvg);
@@ -773,8 +772,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         targetPressureHistory.setTimeDataSource(meterCycles);
         targetPressureHistory.getHistory().setHistoryLength(historyLength);
         pump = new DataPump(targetPressureDataSource, targetPressureHistory);
-        adapter = new IntervalActionAdapter(pump,pc.integrator);
-        adapter.setActionInterval(dataInterval);
+        pc.integrator.addIntervalAction(pump);
+        pc.integrator.setActionInterval(pump, dataInterval);
         targetPressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
         plotP.setLegend(new DataTag[]{targetPressureDataSource.getTag()}, "target");
         pc.register(targetPressureDataSource, pump);
@@ -788,8 +787,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         densityAvg.setPushInterval(10);
         pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
         pc.register(densityMeter,pump);
-        adapter = new IntervalActionAdapter(pump,pc.integrator);
-        adapter.setActionInterval(dataInterval);
+        pc.integrator.addIntervalAction(pump);
+        pc.integrator.setActionInterval(pump, dataInterval);
         densityHistory.addDataSink(plotD.getDataSet().makeDataSink());
         densityDisplayBox.setAccumulator(densityAvg);
         densityDisplayBox.setUnit(dUnit);
@@ -823,12 +822,9 @@ public class PistonCylinderGraphic extends SimulationPanel {
             meterRDF.getXDataSource().setXMax(rdfCutoff);
             meterRDF.setPotential(pc.pistonPotential);
             pump = new DataPump(meterRDF, plotRDF.getDataSet().makeDataSink());
-            pc.integrator.addListener(new IntervalActionAdapter(new Action() {
-                public void actionPerformed() {meterRDF.actionPerformed();}
-            }));
+            pc.integrator.addIntervalAction(meterRDF);
             pc.register(meterRDF, pump);
-            adapter = new IntervalActionAdapter(pump);
-            pc.integrator.addListener(adapter);
+            pc.integrator.addIntervalAction(pump);
             
             controlButtons.getResetAveragesButton().setPostAction(new Action() {
                 public void actionPerformed() {

@@ -12,7 +12,6 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPhaseSpin2D;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
@@ -76,9 +75,8 @@ public class Heisenberg extends Simulation {
         meter.setPhase(phase);
         dAcc = new AccumulatorAverage(this);
         pump = new DataPump(meter, dAcc);
-        adapter = new IntervalActionAdapter(pump,integrator);
-        adapter.setActionInterval(10);
-
+        integrator.addIntervalAction(pump);
+        integrator.setActionInterval(pump, 10);
     }
 
     private static final long serialVersionUID = 2L;
@@ -91,7 +89,6 @@ public class Heisenberg extends Simulation {
     public MCMoveSpinFlip mcmove;
     public MeterSpin meter;
     public DataPump pump;
-    public IntervalActionAdapter adapter;
     public AccumulatorAverage dAcc;
     
     public static void main(String[] args) {

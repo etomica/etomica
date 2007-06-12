@@ -32,7 +32,6 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
 import etomica.species.SpeciesSpheresMono;
@@ -57,12 +56,11 @@ public class ReactionEquilibriumGraphic {
 		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
 		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
 		displayPhase1 = new DisplayPhase(sim.phase1,sim.getDefaults().pixelUnit);
-        sim.integratorHard1.addListener(new IntervalActionAdapter(
-                new Action() {
+        sim.integratorHard1.addIntervalAction(new Action() {
                     public void actionPerformed() {
                         displayPhase1.repaint();
                     }
-                }));
+                });
         
 		tSelect.setTemperatures(new double[] { 50., 100., 300., 600., 1000.,
 				1200., 1600., 2000., 2500. });
@@ -188,8 +186,8 @@ public class ReactionEquilibriumGraphic {
         
 		DisplayBox tBox = new DisplayBox(sim.thermometer.getDataInfo());
 		DataPump tPump = new DataPump (sim.thermometer, tBox);
-		IntervalActionAdapter tAdapter = new IntervalActionAdapter (tPump, sim.integratorHard1);
-		tAdapter.setActionInterval(100);
+        sim.integratorHard1.addIntervalAction(tPump);
+        sim.integratorHard1.setActionInterval(tPump, 100);
         tBox.setUnit(Kelvin.UNIT);
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(CompassDirection.NORTH);
@@ -197,8 +195,8 @@ public class ReactionEquilibriumGraphic {
 		//display of averages
         DataFork dimerFork = new DataFork();
 		DataPump dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
-        IntervalActionAdapter dAdapter = new IntervalActionAdapter (dimerPump, sim.integratorHard1);
-        dAdapter.setActionInterval(100);
+        sim.integratorHard1.addIntervalAction(dimerPump);
+        sim.integratorHard1.setActionInterval(dimerPump, 100);
         AccumulatorAverage dimerfractionaccum = new AccumulatorAverage(sim);
         dimerfractionaccum.setPushInterval(10);
         dimerFork.addDataSink(dimerfractionaccum);

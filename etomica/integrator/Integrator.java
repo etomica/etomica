@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.action.Action;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 
 /**
@@ -126,24 +126,6 @@ public abstract class Integrator implements java.io.Serializable {
         listenerWrapperArray = (ListenerWrapper[])intervalListeners.toArray(new ListenerWrapper[0]);
     }
     
-    public synchronized void addListener(IntegratorListener listener) {
-        if(listener instanceof IntegratorIntervalListener) {
-            addIntervalListener((IntegratorIntervalListener)listener);
-        }
-        if(listener instanceof IntegratorNonintervalListener) {
-            addNonintervalListener((IntegratorNonintervalListener)listener);
-        }
-    }
-
-    public synchronized void removeListener(IntegratorListener listener) {
-        if(listener instanceof IntegratorIntervalListener) {
-            removeIntervalListener((IntegratorIntervalListener)listener);
-        }
-        if(listener instanceof IntegratorNonintervalListener) {
-            removeNonintervalListener((IntegratorNonintervalListener)listener);
-        }
-    }
-
     /**
      * Removes all interval and noninterval listeners.
      */
@@ -160,7 +142,10 @@ public abstract class Integrator implements java.io.Serializable {
      */
     protected void fireIntervalEvent() {
         for(int i=0; i<listenerWrapperArray.length; i++) {
-            listenerWrapperArray[i].listener.intervalAction();
+            if (--listenerWrapperArray[i].intervalCount == 0) {
+                listenerWrapperArray[i].intervalAction.actionPerformed();
+                listenerWrapperArray[i].intervalCount = listenerWrapperArray[i].interval;
+            }
         }
     }
 
@@ -175,47 +160,52 @@ public abstract class Integrator implements java.io.Serializable {
     }
 
     /**
-     * Registers with the given integrator all listeners currently registered
-     * with this integrator. Removes all listeners from this integrator.
-     */
-    public synchronized void transferListenersTo(Integrator anotherIntegrator) {
-        if (anotherIntegrator == this) return;
-        synchronized(anotherIntegrator) {
-            for(int i=0; i<listenerWrapperArray.length; i++) {
-                anotherIntegrator.addListener(listenerWrapperArray[i].listener);
-            }
-            Iterator iter = listeners.iterator();
-            while(iter.hasNext()) {//don't use addAll, to avoid duplicating listeners already in anotherIntegrator
-                anotherIntegrator.addListener((IntegratorNonintervalListener)iter.next());
-            }
-            anotherIntegrator.sortListeners();
-        }
-        removeAllListeners();
-    }
-
-    /**
      * Adds the given interval listener to those that receive interval events fired by
      * this integrator.  If listener has already been added to integrator, it is
      * not added again.  If listener is null, NullPointerException is thrown.
      */
-    private synchronized void addIntervalListener(IntegratorIntervalListener iil) {
-        if(iil == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
-        ListenerWrapper wrapper = findWrapper(iil);
-        if(wrapper == null) { //listener not already in list, so OK to add it now
-            intervalListeners.add(new ListenerWrapper(iil));
-            sortListeners();
+    public synchronized void addIntervalAction(Action newIntervalAction) {
+        if(newIntervalAction == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
+        intervalListeners.add(new ListenerWrapper(newIntervalAction, 100));
+        sortListeners();
+    }
+        
+    /**
+     * Adds the given interval listener to those that receive interval events fired by
+     * this integrator.  If listener has already been added to integrator, it is
+     * not added again.  If listener is not held by this Integrator,
+     * NullPointerException is thrown.
+     */
+    public synchronized void setIntervalActionPriority(Action intervalAction, int newPriority) {
+        if (newPriority < 0 || newPriority > 200) {
+            throw new RuntimeException("Priority may not be negative or greater than 200");
         }
+        findWrapper(intervalAction).priority = newPriority;
+        sortListeners();
+    }
+        
+    /**
+     * Adds the given interval listener to those that receive interval events fired by
+     * this integrator.  If listener has already been added to integrator, it is
+     * not added again.  If listener is not held by this Integrator, 
+     * NullPointerException is thrown.
+     */
+    public synchronized void setActionInterval(Action intervalAction, int newInterval) {
+        if (newInterval < 1) {
+            throw new RuntimeException("Action interval must be positive");
+        }
+        findWrapper(intervalAction).setInterval(newInterval);
     }
         
     /**
      * Finds and returns the ListenerWrapper used to put the given listener in the list.
      * Returns null if listener is not in list.
      */
-    private ListenerWrapper findWrapper(IntegratorIntervalListener iil) {
+    private ListenerWrapper findWrapper(Action intervalAction) {
         Iterator iterator = intervalListeners.iterator();
         while(iterator.hasNext()) {
             ListenerWrapper wrapper = (ListenerWrapper)iterator.next();
-            if(wrapper.listener == iil) return wrapper;//found it
+            if(wrapper.intervalAction == intervalAction) return wrapper;//found it
         }
         return null;//didn't find it in list      
     }
@@ -225,9 +215,8 @@ public abstract class Integrator implements java.io.Serializable {
      * by this integrator.  No action results if given listener is null or is not registered
      * with this integrator.
      */
-    private synchronized void removeIntervalListener(IntegratorIntervalListener iil) {
-        ListenerWrapper wrapper = findWrapper(iil);
-        intervalListeners.remove(wrapper);
+    public synchronized void removeIntervalListener(Action intervalAction) {
+        intervalListeners.remove(findWrapper(intervalAction));
         sortListeners();
     }
 
@@ -236,7 +225,7 @@ public abstract class Integrator implements java.io.Serializable {
      * this integrator.  If listener has already been added to integrator, it is
      * not added again.  If listener is null, NullPointerException is thrown.
      */
-    private synchronized void addNonintervalListener(IntegratorNonintervalListener iil) {
+    public synchronized void addNonintervalListener(IntegratorNonintervalListener iil) {
         if(iil == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
         if(!listeners.contains(iil)) {
             listeners.add(iil);
@@ -248,24 +237,16 @@ public abstract class Integrator implements java.io.Serializable {
      * by this integrator.  No action results if given listener is null or is not registered
      * with this integrator.
      */
-    private synchronized void removeNonintervalListener(IntegratorNonintervalListener iil) {
+    public synchronized void removeNonintervalListener(IntegratorNonintervalListener iil) {
         listeners.remove(iil);
     }
 
-    /**
-     * Integrator agent that holds a force vector. Used to indicate that an atom
-     * could be under the influence of a force.
-     */
-    public interface Forcible {
-        public IVector force();
-    }
-    
-    public synchronized IntegratorIntervalListener[] getIntervalListeners() {
-        IntegratorIntervalListener[] listenerArray = new IntegratorIntervalListener[listenerWrapperArray.length];
-        for (int i=0; i<listenerArray.length; i++) {
-            listenerArray[i] = listenerWrapperArray[i].listener;
+    public synchronized Action[] getIntervalActions() {
+        Action[] intervalListenerArray = new Action[listenerWrapperArray.length];
+        for (int i=0; i<intervalListenerArray.length; i++) {
+            intervalListenerArray[i] = listenerWrapperArray[i].intervalAction;
         }
-        return listenerArray;
+        return intervalListenerArray;
     }
 
     public synchronized IntegratorNonintervalListener[] getNonintervalListeners() {
@@ -284,18 +265,39 @@ public abstract class Integrator implements java.io.Serializable {
      * This class has a natural ordering that is inconsistent with equals.
      */
     private static class ListenerWrapper implements Comparable, java.io.Serializable {
-        private final IntegratorIntervalListener listener;
-        private ListenerWrapper(IntegratorIntervalListener listener) {
-            this.listener = listener;
+        private static final long serialVersionUID = 1L;
+        protected final Action intervalAction;
+        protected int priority;
+        protected int interval;
+        protected int intervalCount;
+        
+        protected ListenerWrapper(Action intervalAction, int priority) {
+            this.intervalAction = intervalAction;
+            this.priority = priority;
+            interval = 1;
+            intervalCount = 1;
         }
+        
+        public void setInterval(int newInterval) {
+            interval = newInterval;
+            intervalCount = interval;
+        }
+        
         public int compareTo(Object obj) {
-            int priority = listener.getPriority();
-            int objPriority = ((ListenerWrapper)obj).listener.getPriority();
+            int objPriority = ((ListenerWrapper)obj).priority;
             //we do explicit comparison of values (rather than returning
             //their difference) to avoid potential problems with large integers.
             if(priority < objPriority) return -1;
             if(priority == objPriority) return 0;
             return +1;
          }
+    }
+
+    /**
+     * Integrator agent that holds a force vector. Used to indicate that an atom
+     * could be under the influence of a force.
+     */
+    public interface Forcible {
+        public IVector force();
     }
 }

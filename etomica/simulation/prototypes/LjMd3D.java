@@ -7,7 +7,6 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
@@ -64,7 +63,7 @@ public class LjMd3D extends Simulation {
         integrator.setPhase(phase);
         PhaseImposePbc imposepbc = new PhaseImposePbc();
         imposepbc.setPhase(phase);
-        integrator.addListener(new IntervalActionAdapter(imposepbc));
+        integrator.addIntervalAction(imposepbc);
 		
 		energy = new MeterEnergy(potentialMaster);
 //		energy.setHistorying(true);

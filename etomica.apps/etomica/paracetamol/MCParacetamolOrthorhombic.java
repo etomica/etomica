@@ -11,7 +11,6 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -330,8 +329,8 @@ public class MCParacetamolOrthorhombic extends Simulation {
         DisplayBox PEbox = new DisplayBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
         
-        IntervalActionAdapter IAA = new IntervalActionAdapter(PEpump, sim.integrator);
-        IAA.setActionInterval(500);
+        sim.integrator.addIntervalAction(PEpump);
+        sim.integrator.setActionInterval(PEpump, 500);
         
  /**********************************************************************/   
         simGraphic.add(PEbox);

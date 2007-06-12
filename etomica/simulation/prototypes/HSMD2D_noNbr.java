@@ -1,5 +1,4 @@
 package etomica.simulation.prototypes;
-
 import etomica.action.Action;
 import etomica.action.PhaseImposePbc;
 import etomica.action.SimulationRestart;
@@ -17,7 +16,6 @@ import etomica.graphics.DisplayBoxesCAE;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
@@ -73,7 +71,7 @@ public class HSMD2D_noNbr extends Simulation {
 //        potentialBoundary.setActive(0,false,true);
 //        potentialBoundary.setActive(1,false,true);
         
-        integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
+        integrator.addIntervalAction(new PhaseImposePbc(phase));
         integrator.setPhase(phase);
         integrator.setNullPotential(new P1HardPeriodic(space));
 //        integrator.setIsothermal(true);
@@ -93,7 +91,7 @@ public class HSMD2D_noNbr extends Simulation {
         meterTemperature.setPhase(phase);
         temperatureAverage = new AccumulatorAverage(this);
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
-        new IntervalActionAdapter(temperaturePump, integrator);
+        integrator.addIntervalAction(temperaturePump);
 
 //        pressureHistory = new AccumulatorHistory();
 //        pressureAverage.makeDataPusher(
@@ -131,7 +129,7 @@ public class HSMD2D_noNbr extends Simulation {
         nSelector.setPostAction(repaintAction);
         graphic.getController().getReinitButton().setPostAction(repaintAction);
 
-        sim.integrator.addListener(new IntervalActionAdapter(repaintAction));
+        sim.integrator.addIntervalAction(repaintAction);
 
         DeviceThermoSelector thermo = new DeviceThermoSelector(sim, sim.integrator);
         graphic.add(nSelector);

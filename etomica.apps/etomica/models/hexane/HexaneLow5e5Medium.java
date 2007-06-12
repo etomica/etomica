@@ -1,6 +1,5 @@
 package etomica.models.hexane;
 
-import etomica.integrator.IntervalActionAdapter;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WaveVectorFactorySimple;
@@ -54,10 +53,8 @@ public class HexaneLow5e5Medium extends Simulation {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setPhase(sim.phase);
 
-        IntervalActionAdapter fooAdapter = new IntervalActionAdapter(
-                meterNormalMode);
-        fooAdapter.setActionInterval(numMolecules);
-        sim.integrator.addListener(fooAdapter);
+        sim.integrator.addIntervalAction(meterNormalMode);
+        sim.integrator.setActionInterval(meterNormalMode, numMolecules);
         
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.getController().actionPerformed();

@@ -6,7 +6,6 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
@@ -138,10 +137,8 @@ public class SimCalcS extends Simulation {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setPhase(sim.phase);
 
-        IntervalActionAdapter fooAdapter = new IntervalActionAdapter(
-                meterNormalMode);
-        fooAdapter.setActionInterval(2);
-        sim.integrator.addListener(fooAdapter);
+        sim.integrator.addIntervalAction(meterNormalMode);
+        sim.integrator.setActionInterval(meterNormalMode, 2);
         
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
         // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);

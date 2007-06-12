@@ -5,7 +5,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.config.ConfigurationFile;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
@@ -318,10 +317,8 @@ public class SimCalcSParacetamol extends Simulation {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setPhase(sim.phase);
 
-        IntervalActionAdapter fooAdapter = new IntervalActionAdapter(
-                meterNormalMode);
-        fooAdapter.setActionInterval(400);
-        sim.integrator.addListener(fooAdapter);
+        sim.integrator.addIntervalAction(meterNormalMode);
+        sim.integrator.setActionInterval(meterNormalMode, 400);
 
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
         // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
@@ -363,10 +360,9 @@ public class SimCalcSParacetamol extends Simulation {
         sWriter.setWaveVectorFactory(waveVectorFactory);
         sWriter.setTemperature(temperature);
         sWriter.setOverwrite(true);
-        
-        IntervalActionAdapter iaa = new IntervalActionAdapter(sWriter);
-        iaa.setActionInterval(10000);
-        sim.integrator.addListener(iaa);
+
+        sim.integrator.addIntervalAction(sWriter);
+        sim.integrator.setActionInterval(sWriter, 10000);
         
         //sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();

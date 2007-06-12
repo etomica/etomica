@@ -14,7 +14,6 @@ import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -139,7 +138,8 @@ public class ZeoliteSimulation extends Simulation {
         phase = new Phase(this);
         addPhase(phase);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
-        integrator.addListener(nbrManager);
+        integrator.addNonintervalListener(nbrManager);
+        integrator.addIntervalAction(nbrManager);
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){
         	species[i] = new SpeciesSpheresMono(this);
@@ -255,10 +255,9 @@ public class ZeoliteSimulation extends Simulation {
         enAcc.setPushInterval(20);
         DataFork enFork = new DataFork(new DataSink[]{energyHistory, enAcc});
         DataPump energyPump = new DataPump(eMeter, enFork);
-        IntervalActionAdapter energyAdapter = new IntervalActionAdapter(energyPump);
-        energyAdapter.setActionInterval(10);
+        sim.integrator.addIntervalAction(energyPump);
+        sim.integrator.setActionInterval(energyPump, 10);
         energyHistory.setPushInterval(10);
-        sim.integrator.addListener(energyAdapter);
         sim.register(eMeter,energyPump);
 		
         /*

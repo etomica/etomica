@@ -1,8 +1,7 @@
 package etomica.graphics;
+import java.awt.Component;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import java.awt.Component;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -17,7 +16,6 @@ import etomica.atom.AtomTypeGroup;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.math.geometry.Plane;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
@@ -157,11 +155,9 @@ public class SimulationGraphic implements SimulationContainer {
 	          ((JComponent)display.canvas).setVisible(true);
 	        }
 	         
-	        IntervalActionAdapter iaa = new IntervalActionAdapter(new Action() {
-	        	public void actionPerformed() {display.repaint();}
-	        });
-	        integrator.addListener(iaa);
-	        iaa.setActionInterval(updateInterval);
+            Action repaintAction = getDisplayPhasePaintAction(phase);
+	        integrator.addIntervalAction(repaintAction);
+	        integrator.setActionInterval(repaintAction, updateInterval);
 	    }
 	    else if (integrator instanceof IntegratorManagerMC) {
 	        Integrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();

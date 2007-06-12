@@ -1,11 +1,11 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.action.Action;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -34,8 +34,12 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         this.space = space;
         this.integrator = integrator;
         setIterator(iter);
-        integrator.addListener(new BeforePbc(this));
-        integrator.addListener(new AfterPbc(this));
+        BeforePbc beforePbc = new BeforePbc(this);
+        integrator.addIntervalAction(beforePbc);
+        integrator.setActionInterval(beforePbc, 50);
+        AfterPbc afterPbc = new AfterPbc(this);
+        integrator.addIntervalAction(afterPbc);
+        integrator.setActionInterval(afterPbc, 200);
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -84,12 +88,11 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         return sum/nAtoms;
     }
     
-    private static class BeforePbc implements IntegratorIntervalListener, java.io.Serializable {
+    private static class BeforePbc implements Action, java.io.Serializable {
         BeforePbc(MeterMeanSquareDisplacement meter) {
             this.meter = meter;
         }
-        public int getPriority() {return 50;}//PBC is 100-199
-        public void intervalAction() {
+        public void actionPerformed() {
 //            meter.iterator.setPhase(meter.integrator.getPhase()[0]);
             AtomIterator it = meter.iterator;
             it.reset();
@@ -108,12 +111,11 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         final MeterMeanSquareDisplacement meter;
     }
     
-    private static class AfterPbc implements IntegratorIntervalListener, java.io.Serializable {
+    private static class AfterPbc implements Action, java.io.Serializable {
         AfterPbc(MeterMeanSquareDisplacement meter) {
             this.meter = meter;
         }
-        public int getPriority() {return 200;}//PBC is 100-199
-        public void intervalAction() {
+        public void actionPerformed() {
             AtomIterator it = meter.iterator;
             it.reset();
             int i = 0;

@@ -97,7 +97,8 @@ public class LJMD3DThreaded extends Simulation {
         integrator.setPhase(phase);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
 //        integrator.addListener(writeConfig);
-        integrator.addListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
+        integrator.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
+        integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
         ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, phase);
     }
 

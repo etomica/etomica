@@ -12,7 +12,6 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.DisplayBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
@@ -170,8 +169,7 @@ public class SimHarmonic extends Simulation {
         AccumulatorAverage avgBoltzmann = new AccumulatorAverage(1);
         bp.setDataSink(avgBoltzmann);
         avgBoltzmann.setPushInterval(5);
-        IntervalActionAdapter iaa = new IntervalActionAdapter(pump);
-        sim.integrator.addListener(iaa);
+        sim.integrator.addIntervalAction(pump);
 
 //         MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
 //         MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
@@ -194,9 +192,7 @@ public class SimHarmonic extends Simulation {
             AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
             pump = new DataPump(harmonicEnergy, harmonicFork);
             harmonicFork.addDataSink(harmonicAvg);
-            IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
-            adapter.setActionInterval(1);
-            sim.integrator.addListener(adapter);
+            sim.integrator.addIntervalAction(pump);
 
             //histogram energy of individual modes
 //            MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionLeaf, sim.normalModes);

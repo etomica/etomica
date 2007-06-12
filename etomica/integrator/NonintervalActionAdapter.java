@@ -8,20 +8,7 @@ import etomica.integrator.IntegratorNonintervalEvent.NonintervalEventType;
  * non-interval event. Types of events that trigger action can be set using the
  * setEventTypes method; default is to respond to all events.
  */
-
-/*
- * History Created on Feb 19, 2005 by kofke
- */
 public class NonintervalActionAdapter implements IntegratorNonintervalListener, java.io.Serializable {
-
-    /**
-     * Creates adapter such that given action is performed in response to
-     * interval events from the given integrator.
-     */
-    public NonintervalActionAdapter(Action action, Integrator integrator) {
-        this(action);
-        integrator.addListener(this);
-    }
 
     /**
      * Creates adapter with integrator to be set later.
@@ -82,8 +69,8 @@ public class NonintervalActionAdapter implements IntegratorNonintervalListener, 
         eventTypes = (NonintervalEventType[])types.clone();
     }
 
+    private static final long serialVersionUID = 1L;
     private final Action action;
     private NonintervalEventType[] eventTypes;
     private boolean active;//set true in constructor
-
 }

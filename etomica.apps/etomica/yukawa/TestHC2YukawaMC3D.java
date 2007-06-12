@@ -13,7 +13,6 @@ import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
@@ -94,7 +93,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
 		DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
 		energyAccumulator.setBlockSize(50);
-		new IntervalActionAdapter(energyManager, sim.integrator);
+        sim.integrator.addIntervalAction(energyManager);
 		
 		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);

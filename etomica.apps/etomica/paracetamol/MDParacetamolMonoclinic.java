@@ -14,7 +14,6 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
@@ -139,7 +138,8 @@ public class MDParacetamolMonoclinic extends Simulation {
         
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
         nbrManager.setRange(defaults.atomSize*1.6);
-        integrator.addListener(nbrManager);
+        integrator.addNonintervalListener(nbrManager);
+        integrator.addIntervalAction(nbrManager);
                
         PotentialGroup intramolecularpotential = potentialMaster.makePotentialGroup(1);
         potentialMaster.addPotential(intramolecularpotential, new Species[]{species});
@@ -412,26 +412,26 @@ public class MDParacetamolMonoclinic extends Simulation {
         meterKE.setPhase(sim.phase);
         DisplayBox KEbox = new DisplayBox();
         DataPump KEpump = new DataPump(meterKE, KEbox);
-        new IntervalActionAdapter(KEpump, sim.integrator);
+        sim.integrator.addIntervalAction(KEpump);
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setPhase(sim.phase);
         DisplayBox PEbox = new DisplayBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
-        new IntervalActionAdapter(PEpump, sim.integrator);
+        sim.integrator.addIntervalAction(PEpump);
         
         MeterEnergy meterTotal = new MeterEnergy(sim.potentialMaster);
         meterTotal.setPhase(sim.phase);   
         DisplayBox meterTotalbox = new DisplayBox();
         DataPump meterTotalpump = new DataPump(meterTotal, meterTotalbox);
-        new IntervalActionAdapter(meterTotalpump, sim.integrator);
+        sim.integrator.addIntervalAction(meterTotalpump);
            
         MeterTemperature meterTemp = new MeterTemperature();
         meterTemp.setPhase(sim.phase);
         DisplayBox tempBox = new DisplayBox();
         tempBox.setUnit(Kelvin.UNIT);
         DataPump tempPump = new DataPump(meterTemp, tempBox);
-        new IntervalActionAdapter(tempPump, sim.integrator);
+        sim.integrator.addIntervalAction(tempPump);
   
         
  /**********************************************************************/   

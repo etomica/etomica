@@ -3,7 +3,6 @@ package etomica.data;
 import etomica.action.ActionGroupSeries;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.simulation.Simulation;
 
 /**
@@ -40,8 +39,9 @@ public class DataTableAverages extends DataSinkTable {
             DataSource[] sources) {
         super();
         this.types = (StatType[]) types.clone();
+        this.integrator = integrator;
         actionGroup = new ActionGroupSeries();
-        intervalAction = new IntervalActionAdapter(actionGroup, integrator);
+        integrator.addIntervalAction(actionGroup);
         this.blockSize = blockSize;
         if (sources != null) {
             for (int i = 0; i < sources.length; i++) {
@@ -95,7 +95,7 @@ public class DataTableAverages extends DataSinkTable {
      */
     public void setAccumulatorUpdateInterval(int accumulatorUpdateInterval) {
         this.accumulatorUpdateInterval = accumulatorUpdateInterval;
-        intervalAction.setActionInterval(accumulatorUpdateInterval);
+        integrator.setActionInterval(actionGroup, accumulatorUpdateInterval);
     }
 
     /**
@@ -111,8 +111,8 @@ public class DataTableAverages extends DataSinkTable {
     private AccumulatorAverage[] accumulators = new AccumulatorAverage[0];
     private final StatType[] types;
     private final ActionGroupSeries actionGroup;
-    private final IntervalActionAdapter intervalAction;
     private int tableUpdateInterval = 100;
     private int accumulatorUpdateInterval = 1;
     private int blockSize;
+    private Integrator integrator;
 }

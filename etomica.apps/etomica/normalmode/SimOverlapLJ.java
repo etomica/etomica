@@ -17,7 +17,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -56,7 +55,6 @@ public class SimOverlapLJ extends Simulation {
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
         integrators = new IntegratorPhase[2];
-        accumulatorAAs = new IntervalActionAdapter[2];
         accumulatorPumps = new DataPump[2];
         meters = new DataSource[2];
         accumulators = new AccumulatorVirialOverlapSingleAverage[2];
@@ -209,17 +207,13 @@ public class SimOverlapLJ extends Simulation {
         newAccumulator.setBlockSize(100);
         if (accumulatorPumps[iPhase] == null) {
             accumulatorPumps[iPhase] = new DataPump(meters[iPhase],newAccumulator);
-            accumulatorAAs[iPhase] = new IntervalActionAdapter(accumulatorPumps[iPhase]);
-            integrators[iPhase].addListener(accumulatorAAs[iPhase]);
+            integrators[iPhase].addIntervalAction(accumulatorPumps[iPhase]);
+            if (iPhase == 1) {
+                integrators[iPhase].setActionInterval(accumulatorPumps[iPhase], phaseTarget.moleculeCount());
+            }
         }
         else {
             accumulatorPumps[iPhase].setDataSink(newAccumulator);
-        }
-        if (iPhase == 1) {
-            accumulatorAAs[iPhase].setActionInterval(phaseTarget.moleculeCount());
-        }
-        else {
-            accumulatorAAs[iPhase].setActionInterval(1);
         }
         if (integratorOverlap != null && accumulators[0] != null && accumulators[1] != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
@@ -257,15 +251,10 @@ public class SimOverlapLJ extends Simulation {
         
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
-            // we only need to equilibrate the target system, and we don't need to take data
-            integrators[0].removeListener(accumulatorAAs[0]);
-            integrators[1].removeListener(accumulatorAAs[1]);
             activityIntegrate.setMaxSteps(initSteps/2);
             getController().run();
             getController().reset();
             System.out.println("target equilibration finished");
-            integrators[0].addListener(accumulatorAAs[0]);
-            integrators[1].addListener(accumulatorAAs[1]);
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,false),1);
@@ -453,7 +442,6 @@ public class SimOverlapLJ extends Simulation {
     public double refPref;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     public DataPump[] accumulatorPumps;
-    public IntervalActionAdapter[] accumulatorAAs;
     public DataSource[] meters;
 
     /**

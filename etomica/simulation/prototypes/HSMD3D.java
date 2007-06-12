@@ -9,7 +9,6 @@ import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
@@ -128,10 +127,11 @@ public class HSMD3D extends Simulation {
         if (params.useNeighborLists) { 
             NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
             ((PotentialMasterList)potentialMaster).setRange(defaults.atomSize*1.6);
-            integrator.addListener(nbrManager);
+            integrator.addIntervalAction(nbrManager);
+            integrator.addNonintervalListener(nbrManager);
         }
         else {
-            integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
+            integrator.addIntervalAction(new PhaseImposePbc(phase));
         }
     }
 

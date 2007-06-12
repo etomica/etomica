@@ -25,7 +25,6 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.units.Kelvin;
@@ -72,8 +71,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    boxB.setLabel(" White  ");
 	    final DataPump meterAPump = new DataPump(meterA,boxA);
 	    final DataPump meterBPump = new DataPump(meterB,boxB);
-	    new IntervalActionAdapter(meterAPump, sim.integratorDCV);
-	    new IntervalActionAdapter(meterBPump, sim.integratorDCV);
+        sim.integratorDCV.addIntervalAction(meterAPump);
+        sim.integratorDCV.addIntervalAction(meterBPump);
 	    JPanel nMoleculePanel = new JPanel();
 	    nMoleculePanel.add(boxA.graphic());
 	    nMoleculePanel.add(boxB.graphic());
@@ -108,8 +107,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    //Display to see adjusted temperature
 		DisplayBox box1 = new DisplayBox(sim.thermometer.getDataInfo());
 	    final DataPump tpump = new DataPump(sim.thermometer, box1);
-		IntervalActionAdapter interval1 = new IntervalActionAdapter (tpump, sim.integratorDCV);
-		interval1.setActionInterval(100);
+        sim.integratorDCV.addIntervalAction(tpump);
+		sim.integratorDCV.setActionInterval(tpump, 100);
 	    box1.setUnit((Kelvin.UNIT));
 		temperatureSlider.setPostAction(new Action() {
 			public void actionPerformed() {

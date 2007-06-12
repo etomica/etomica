@@ -1,5 +1,6 @@
 package etomica.nbr.list;
 
+import etomica.action.Action;
 import etomica.action.AtomActionAdapter;
 import etomica.action.PhaseImposePbc;
 import etomica.atom.AtomAddressManager;
@@ -9,7 +10,6 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorTreePhase;
-import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.nbr.NeighborCriterion;
@@ -33,7 +33,7 @@ import etomica.util.Debug;
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
 public class NeighborListManager implements IntegratorNonintervalListener,
-        IntegratorIntervalListener, AgentSource, java.io.Serializable {
+        Action, AgentSource, java.io.Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.
@@ -91,7 +91,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * Reacts to an interval event, with every updateInterval calls causing
      * this to invoke updateNbrsIfNeeded.
      */
-    public void intervalAction() {
+    public void actionPerformed() {
         if (--iieCount == 0) {
             updateNbrsIfNeeded();
             iieCount = updateInterval;

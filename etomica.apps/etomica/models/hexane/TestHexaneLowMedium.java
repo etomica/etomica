@@ -5,7 +5,6 @@ import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
@@ -179,10 +178,8 @@ public class TestHexaneLowMedium extends Simulation {
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setPhase(sim.phase);
 
-        IntervalActionAdapter fooAdapter = new IntervalActionAdapter(
-                meterNormalMode);
-        fooAdapter.setActionInterval(numMolecules);
-        sim.integrator.addListener(fooAdapter);
+        sim.integrator.addIntervalAction(meterNormalMode);
+        sim.integrator.setActionInterval(meterNormalMode, numMolecules);
         
         sim.activityIntegrate.setMaxSteps(nSteps/10);
         sim.getController().actionPerformed();

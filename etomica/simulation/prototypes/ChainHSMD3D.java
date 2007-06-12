@@ -12,7 +12,6 @@ import etomica.graphics.BondListener;
 import etomica.graphics.DisplayPhaseCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -70,10 +69,11 @@ public class ChainHSMD3D extends Simulation {
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc());
         species.getAgent(phase).setNMolecules(numAtoms);
         config.initializeCoordinates(phase);
-        integrator.addListener(potentialMaster.getNeighborManager(phase));
+        integrator.addIntervalAction(potentialMaster.getNeighborManager(phase));
+        integrator.addNonintervalListener(potentialMaster.getNeighborManager(phase));
 
         PhaseImposePbc pbc = new PhaseImposePbc(phase);
-        integrator.addListener(new IntervalActionAdapter(pbc));
+        integrator.addIntervalAction(pbc);
         pbc.setApplyToMolecules(true);
         
         potential = new P2HardSphere(this);

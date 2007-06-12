@@ -77,7 +77,8 @@ public class HSMD2D extends Simulation {
         phase.getAgent(species).setNMolecules(512);
         phase.getAgent(species2).setNMolecules(5);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
-        integrator.addListener(nbrManager);
+        integrator.addIntervalAction(nbrManager);
+        integrator.addNonintervalListener(nbrManager);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         integrator.setPhase(phase);
     }

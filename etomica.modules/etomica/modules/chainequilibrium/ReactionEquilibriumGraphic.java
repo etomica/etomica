@@ -18,7 +18,6 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
 import etomica.util.Constants.CompassDirection;
@@ -85,7 +84,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         AccumulatorAverage accumulator = new AccumulatorAverage(sim);
         DataPump pump = new DataPump(sim.molecularCount,accumulator);
         sim.register(sim.molecularCount,pump);
-        new IntervalActionAdapter(pump,sim.integratorHard1);
+        sim.integratorHard1.addIntervalAction(pump);
 
         DataSinkTable dataTable = new DataSinkTable();
         accumulator.addDataSink(dataTable.makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
@@ -101,9 +100,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
 
         // Things to Do while simulation is on (It is adding the DataPumps, which run off the meters)
-        IntervalActionAdapter tAdapter = new IntervalActionAdapter (tPump, sim.integratorHard1);        
+        sim.integratorHard1.addIntervalAction(tPump);
         // Setting up how often it operates. 
-		tAdapter.setActionInterval(100);
+        sim.integratorHard1.setActionInterval(tPump, 100);
 
 		DeviceThermoSelector tSelect = setup(sim);
         tSelect.setIntegrator(sim.integratorHard1);

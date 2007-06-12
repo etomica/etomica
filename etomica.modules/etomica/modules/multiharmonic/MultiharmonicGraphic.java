@@ -17,7 +17,6 @@ import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.space1d.Vector1D;
@@ -121,18 +120,16 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         AccumulatorHistory deltaHistory = new AccumulatorHistory(new HistoryCollapsing(sim.historyEnergy.getHistory().getHistoryLength()));
         DataPump exactPump = new DataPump(delta, deltaHistory);
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
-        IntervalActionAdapter adapter = new IntervalActionAdapter(exactPump);
-        adapter.setActionInterval(sim.accumulator.getBlockSize());
-        sim.integrator.addListener(adapter);
+        sim.integrator.addIntervalAction(exactPump);
+        sim.integrator.setActionInterval(exactPump, sim.accumulator.getBlockSize());
         sim.register(delta, exactPump);
         deltaHistory.setTimeDataSource(sim.timeCounter);
         
         AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsing(sim.historyEnergy.getHistory().getHistoryLength()));
         DataPump uPump = new DataPump(uAvg, uAvgHistory);
         uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
-        adapter = new IntervalActionAdapter(uPump);
-        adapter.setActionInterval(sim.accumulatorEnergy.getBlockSize());
-        sim.integrator.addListener(adapter);
+        sim.integrator.addIntervalAction(uPump);
+        sim.integrator.setActionInterval(uPump, sim.accumulatorEnergy.getBlockSize());
         sim.register(uAvg, uPump);
         uAvgHistory.setTimeDataSource(sim.timeCounter);
         

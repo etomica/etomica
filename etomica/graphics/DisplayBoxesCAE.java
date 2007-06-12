@@ -17,7 +17,6 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayBox.LabelType;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Null;
 import etomica.units.Unit;
@@ -182,7 +181,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         pressureMeter.setIntegrator(sim.integrator);
         AccumulatorAverage accumulator = new AccumulatorAverage(sim);
         DataPump dataPump = new DataPump(pressureMeter, accumulator);
-        new IntervalActionAdapter(dataPump, sim.integrator);
+        sim.integrator.addIntervalAction(dataPump);
         DisplayBoxesCAE boxes = new DisplayBoxesCAE(pressureMeter.getDataInfo());
         boxes.setAccumulator(accumulator);
         graphic.add(boxes);

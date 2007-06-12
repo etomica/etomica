@@ -5,7 +5,6 @@ import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -64,8 +63,8 @@ public class SimCalcSParacetamolEquilibration extends Simulation {
         DataPump PEpump = new DataPump(meterPE, dataLoggerPE);
         sim.getController().getEventManager().addListener(dataLoggerPE);
 
-        IntervalActionAdapter IAA = new IntervalActionAdapter(PEpump, sim.integrator);
-        IAA.setActionInterval(1000);
+        sim.integrator.addIntervalAction(PEpump);
+        sim.integrator.setActionInterval(PEpump, 1000);
         
         
         sim.getController().actionPerformed();

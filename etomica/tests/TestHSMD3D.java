@@ -62,7 +62,8 @@ public class TestHSMD3D extends Simulation {
         phase.getAgent(species).setNMolecules(numAtoms);
         phase.getAgent(species2).setNMolecules(numAtoms/100);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
-        integrator.addListener(nbrManager);
+        integrator.addIntervalAction(nbrManager);
+        integrator.addNonintervalListener(nbrManager);
         integrator.setPhase(phase);
         ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
         config.initializeCoordinates(phase);

@@ -3,7 +3,6 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
@@ -63,7 +62,7 @@ public class Ljmd extends Simulation {
         integrator.setPhase(phase);
 		
         PhaseImposePbc imposePBC = new PhaseImposePbc(phase);
-        integrator.addListener(new IntervalActionAdapter(imposePBC));
+        integrator.addIntervalAction(imposePBC);
         
     }//end of constructor    
     

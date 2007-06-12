@@ -3,13 +3,13 @@ package etomica.zeolite;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.action.Action;
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorPhaseDependent;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorIntervalListener;
 import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -44,7 +44,7 @@ import etomica.space.Space;
  */
 
 
-public class MSDCoordWriter implements IntegratorIntervalListener,
+public class MSDCoordWriter implements Action,
                                        ControllerListener {
 	
 	public MSDCoordWriter(Space space, String fileName){
@@ -68,8 +68,10 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
     }
 	
 	public void setIntegrator(Integrator integrator){
-		integrator.addListener(this);
-		integrator.addListener(afterPBCinstance);
+		integrator.addIntervalAction(this);
+        integrator.setIntervalActionPriority(this, 50);
+		integrator.addIntervalAction(afterPBCinstance);
+        integrator.setIntervalActionPriority(afterPBCinstance, 200);
 	}
 	
 	// Methods involved with file creation/closing
@@ -102,7 +104,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 		intervalCount = writeInterval;
 	}
 	
-	public void intervalAction() {
+	public void actionPerformed() {
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
 			IVector phasedim = phase.getBoundary().getDimensions();
@@ -163,7 +165,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 	 * -------------------------SUBCLASS AfterPBC----------------------------------
 	 */
 	
-	private static class AfterPBC implements IntegratorIntervalListener{
+	private static class AfterPBC implements Action {
 		
 		public AfterPBC(Space space, AtomIteratorPhaseDependent iterator){
 			workVector = space.makeVector();
@@ -202,7 +204,7 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 			}
 		}
 		
-		public void intervalAction() {
+		public void actionPerformed() {
 			iterator.reset();
 			int i=0;
 			
@@ -223,11 +225,6 @@ public class MSDCoordWriter implements IntegratorIntervalListener,
 				}
 				i++;
 			}
-		}
-		
-		// **
-		public int getPriority() {
-			return 200;
 		}
 		
 		private IVector phaseDim;

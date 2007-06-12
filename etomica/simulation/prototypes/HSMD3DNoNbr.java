@@ -12,7 +12,6 @@ import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
@@ -66,7 +65,7 @@ public class HSMD3DNoNbr extends Simulation {
         phase.getAgent(species).setNMolecules(numAtoms);
 //        phase.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.setPhase(phase);
-        integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase)));
+        integrator.addIntervalAction(new PhaseImposePbc(phase));
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);

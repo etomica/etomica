@@ -15,7 +15,6 @@ import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -173,9 +172,8 @@ public class SimTarget extends Simulation {
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
         harmonicSingleEnergy.setPhase(sim.phase);
         DataPump pump = new DataPump(harmonicSingleEnergy, null);
-        IntervalActionAdapter adapter = new IntervalActionAdapter(pump);
-        adapter.setActionInterval(50);
-        sim.integrator.addListener(adapter);
+        sim.integrator.addIntervalAction(pump);
+        sim.integrator.setActionInterval(pump, 50);
 
         DataFork harmonicSingleFork = new DataFork();
         pump.setDataSink(harmonicSingleFork);

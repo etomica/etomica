@@ -1,5 +1,6 @@
 package etomica.modules.entropylottery;
 
+import etomica.action.Action;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
@@ -8,7 +9,6 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorPhase;
@@ -17,7 +17,7 @@ import etomica.space.BoundaryPeriodic;
 import etomica.space.IVector;
 import etomica.units.Quantity;
 
-public class DataSourceProbabilityDensity implements DataSource, IntegratorIntervalListener, IntegratorNonintervalListener {
+public class DataSourceProbabilityDensity implements DataSource, Action, IntegratorNonintervalListener {
 
     public DataSourceProbabilityDensity() {
         dataInfo = new DataInfoDoubleArray("probability density", Quantity.DIMENSION, new int[]{0});
@@ -40,11 +40,7 @@ public class DataSourceProbabilityDensity implements DataSource, IntegratorInter
         return tag;
     }
 
-    public int getPriority() {
-        return 0;
-    }
-
-    public void intervalAction() {
+    public void actionPerformed() {
         data.assignTo(newData);
         double[] oldData = data.getData();
         int nBin = oldData.length;

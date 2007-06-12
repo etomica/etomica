@@ -5,7 +5,6 @@ import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorGEMC;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveRotate;
@@ -52,25 +51,25 @@ public class GEMCWithRotation extends Simulation {
         addPhase(phase1);
         phase1.getAgent(species).setNMolecules(200);
         
-	    IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
-        integratorMC.setPhase(phase1);
-        MCMoveManager moveManager = integratorMC.getMoveManager();
+	    IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster);
+        integratorMC1.setPhase(phase1);
+        MCMoveManager moveManager = integratorMC1.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom()));
         moveManager.addMCMove(new MCMoveAtom(this, potentialMaster));
-        integrator.addIntegrator(integratorMC);
+        integrator.addIntegrator(integratorMC1);
         
 
 	    phase2 = new Phase(this);
         addPhase(phase2);
         phase2.getAgent(species).setNMolecules(200);
-        integratorMC = new IntegratorMC(this, potentialMaster);
-        integratorMC.setPhase(phase2);
-        moveManager = integratorMC.getMoveManager();
+        IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster);
+        integratorMC2.setPhase(phase2);
+        moveManager = integratorMC2.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom()));
         moveManager.addMCMove(new MCMoveAtom(this, potentialMaster));
         // GEMC integrator adds volume and molecule exchange moves once
         // it has 2 integrators
-        integrator.addIntegrator(integratorMC);
+        integrator.addIntegrator(integratorMC2);
         
         SpaceLattice lattice;
         if (space.D() == 2) {
@@ -88,8 +87,8 @@ public class GEMCWithRotation extends Simulation {
 
         potentialMaster.addPotential(potential,new Species[] {species, species});
 
-        integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase1)));
-        integrator.addListener(new IntervalActionAdapter(new PhaseImposePbc(phase2)));
+        integratorMC1.addIntervalAction(new PhaseImposePbc(phase1));
+        integratorMC2.addIntervalAction(new PhaseImposePbc(phase2));
 
 	    phase2.setDensity(0.1);
     }//end of constructor        

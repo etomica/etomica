@@ -11,7 +11,6 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
@@ -77,14 +76,14 @@ public class Multiharmonic extends Simulation {
         accumulator = new AccumulatorAverage(this);
         accumulator.setBlockSize(100);
         dataPump = new DataPump(meter, accumulator);
-        new IntervalActionAdapter(dataPump, integrator);
+        integrator.addIntervalAction(dataPump);
         
         meterEnergy = new MeterEnergy(potentialMaster);
         meterEnergy.setPhase(phase);
         accumulatorEnergy = new AccumulatorAverage(this);
         accumulatorEnergy.setBlockSize(100);
         DataPump dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
-        new IntervalActionAdapter(dataPumpEnergy, integrator);
+        integrator.addIntervalAction(dataPumpEnergy);
         
         register(meter,dataPump);
         register(meterEnergy,dataPumpEnergy);

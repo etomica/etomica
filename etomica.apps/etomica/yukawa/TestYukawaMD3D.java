@@ -79,7 +79,8 @@ public class TestYukawaMD3D extends Simulation{
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
-        integrator.addListener(nbrManager);
+        integrator.addNonintervalListener(nbrManager);
+        integrator.addIntervalAction(nbrManager);
 		potential = new P2Yukawa(this);
 		
 		double truncationRadius = 2.5*potential.getKappa();
