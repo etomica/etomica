@@ -8,7 +8,6 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import etomica.action.Action;
 import etomica.action.AtomAction;
 import etomica.action.AtomActionAdapter;
 import etomica.action.SimulationRestart;
@@ -30,7 +29,6 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ColorSchemeTemperature;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceControllerButton;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceToggleRadioButtons;
 import etomica.graphics.DisplayPlot;
@@ -39,7 +37,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorGear4NPH;
 import etomica.integrator.IntervalActionAdapter;
-import etomica.integrator.IntegratorGear4NPH.MeterTPH;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
@@ -50,7 +47,6 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
-import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Meter;
@@ -180,8 +176,8 @@ public class JouleThomson extends SimulationGraphic {
         DataPump densityPump = new DataPump(densityMeter, densityHistoryAcc);
         IntervalActionAdapter adapter = new IntervalActionAdapter(densityPump);
         sim.integratorJT.addListener(adapter);
-        sim.integratorJT.setEventInterval(20);
-        
+        adapter.setActionInterval(20);
+
         //plot of temperature and density histories
 //		History tMeterHistory = tMeter.getHistory();
 //		History pMeterHistory = pMeter.getHistory();
@@ -204,6 +200,7 @@ public class JouleThomson extends SimulationGraphic {
         AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
         DataPump pump = new DataPump(targetPressureDataSource, targetPressureHistory);
         adapter = new IntervalActionAdapter(pump,sim.integratorJT);
+        adapter.setActionInterval(20);
 
         //set-pressure history
         DataSource targetTemperatureDataSource = new DataSourceScalar("Set-Temperature",Temperature.DIMENSION) {
@@ -215,6 +212,7 @@ public class JouleThomson extends SimulationGraphic {
         AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
         pump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
         adapter = new IntervalActionAdapter(pump,sim.integratorJT);
+        adapter.setActionInterval(20);
 
         //plot of pressure-density-temperature setpoints and averages
         DisplayPlot plot = new DisplayPlot();
@@ -248,6 +246,8 @@ public class JouleThomson extends SimulationGraphic {
         pump = new DataPump(densityMeter, densityAverage);
         adapter = new IntervalActionAdapter(pump);
         sim.integratorJT.addListener(adapter);
+        adapter.setActionInterval(20);
+
         densityAverage.addDataSink(displayTable.getDataTable().makeDataSink(), new StatType[]{StatType.MOST_RECENT, StatType.AVERAGE});
         // add temp meter, pressure meter, enthalpy meter to display table
         displayTable.setUnit(new DataTag[]{densityAverage.getTag()}, dUnit);
@@ -256,10 +256,6 @@ public class JouleThomson extends SimulationGraphic {
         timeBox = new DeviceBox();
         timeBox.setLabel("Time Step");
         timeBox.setModifier(new ModifierGeneral(sim.integrator, "timeStep"));
-
-        //panel for the start buttons
-
-        DeviceControllerButton startButton = new DeviceControllerButton(sim.getController());
 
         //panel for sliders
         JPanel sliderPanel = new JPanel(new java.awt.GridLayout(0,1));
