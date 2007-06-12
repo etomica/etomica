@@ -112,13 +112,25 @@ public class DisplayPhase extends Display implements EtomicaElement {
 
         setPhase(phase);
     }
-    
+
+    /**
+     * Returns a very brief description of Etomica.
+     * 
+     * @return static EtomicaInfo
+     */
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a phase as the simulation proceeds");
         return info;
     }
 
-    protected void setSize(int width, int height) {
+    /**
+     * Sets the size of the phase graphic.
+     * 
+     * @param width  : width of the phase graphic
+     * @param height : height of the phase graphic
+     * @return void
+     */
+    private void setSize(int width, int height) {
     	if(width <= 0 || height <= 0) return;
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
         canvas.setSize(width, height);
@@ -130,13 +142,25 @@ public class DisplayPhase extends Display implements EtomicaElement {
     }
 
     /**
+     * Gets the size of the phase graphic.
+     * 
+     * @return java.awt.Dimension  : Dimension object containing phase graphic size
+     */
+    public java.awt.Dimension getSize() {
+    	return canvas.getSize();
+    }
+
+    /**
      * Amount (in pixels) of a simple shift (translation) applied in determing origin.
      * Usually zero, but can be set to any value by passing in dimension and the number
      * of pixels to shift in the specified dimension.
-     * Dimension : 
+     * <p>
+     * Dimension :
      *  0  => X direction
      *  1  => Y direction
      *  2  => Z direction (not used)
+     *  
+     *  @return void
      */
     public void setOriginShift(int dimension, int shift) {
         if(dimension <= D) {
@@ -155,53 +179,109 @@ public class DisplayPhase extends Display implements EtomicaElement {
         }
     }
 
+    /**
+     *  
+     *  @return int[] : 
+     */
     public int[] getOrigin() {
         computeImageParameters();
         return centralOrigin;
     }
-    
+ 
+    /**
+     *  
+     *  @return int[] : 
+     */
     public int[] getDrawSize() {
         computeImageParameters();
         return drawSize;
     }
 
+    /**
+     *  
+     *  @return void 
+     */
     public void setAlign(int i, int value) {
         align[i] = value;
     }
+
+    /**
+     *  
+     *  @return int : 
+     */
     public int getAlign(int i) {return align[i];}
 
+    /**
+     *  
+     *  @return final boolean : 
+     */
     public final boolean getDrawOverflow() {return drawOverflow;}
+
+    /**
+     *  
+     *  @return void 
+     */
     public final void setDrawOverflow(boolean b) {drawOverflow = b;}
 
+    /**
+     *  
+     *  @return double 
+     */
     public double getToPixels() {return(toPixels);}
 
-    public double getScale() {return scale;}
+    /**
+     *  
+     *  @return void 
+     */
     public void setScale(double s) {
         if(s>0) {
             scale = s;
         }
     }
-    
+
+    /**
+     *  
+     *  @return double 
+     */
+    public double getScale() {return scale;}
+
+    /**
+     *  
+     *  @return void
+     */
     public void addDrawable(Drawable obj) {
         drawables.add(obj);
     }
+    /**
+     *  
+     *  @return void
+     */
     public void removeDrawable(Drawable obj) {
         drawables.remove(obj);
     }
+    /**
+     *  
+     *  @return void
+     */
     public void addDrawable(Object obj) {
         if(phase.getSpace().D() == 3) drawables.add(obj);
     }
+    /**
+     *  
+     *  @return void
+     */
     public void removeDrawable(Object obj) {
         drawables.remove(obj);
     }
     
     /**
-     * @return the phase associated with this display
+     * @return Phase : the phase associated with this display
      */
     public final Phase getPhase() {return phase;}
 
     /**
      * Specifies the phase for this display.  Updates atomIterator appropriately.
+     * @return void
      */
     public void setPhase(Phase p) {
 
@@ -268,6 +348,10 @@ public class DisplayPhase extends Display implements EtomicaElement {
         });
     }
 
+    /**
+     * 
+     * @return void
+     */
     public void setPhaseCanvas(DisplayCanvas phaseCanvas) {
         canvas = phaseCanvas;
         if (phaseCanvas == null) return;
@@ -314,12 +398,14 @@ public class DisplayPhase extends Display implements EtomicaElement {
     
     /**
      * Accessor method for the color scheme used for this display
+     * @return void
      */
     public void setColorScheme(ColorScheme colorScheme) {
         this.colorScheme = colorScheme;
     }
     /**
      * Accessor method for the color scheme used for this display
+     * @return ColorScheme
      */
     public ColorScheme getColorScheme() {return colorScheme;}
     
@@ -327,17 +413,24 @@ public class DisplayPhase extends Display implements EtomicaElement {
      * Mutator method for the atom filter that determines which atoms 
      * are displayed.  Atoms for which the filter returns false are not displayed.
      * Default is AtomFilter.ALL, according to which all atoms are displayed.
+     * @return void
      */
     public void setAtomFilter(AtomFilter filter) {
         atomFilter = (filter == null) ? AtomFilterStatic.ACCEPT_ALL : filter;
     }
+
     /**
      * Accessor method for the atom filter that determines which atoms 
      * are displayed.  Atoms for which the filter returns false are not displayed.
      * Default is AtomFilter.ALL, according to which all atoms are displayed.
+     * @return Atomfilter
      */
     public AtomFilter getAtomFilter() {return atomFilter;}
-    
+
+    /**
+     *
+     * @return LinkedList
+     */
     public LinkedList getDrawables() {return(drawables);}
     
 
@@ -346,13 +439,14 @@ public class DisplayPhase extends Display implements EtomicaElement {
      * to return the DisplayPhase.Canvas as the display object.
      *
      * @param obj ignored by this method.
+     * @return Component
      */
     public Component graphic(Object obj) {
         return (Component)canvas;
     }
 
     /**
-    * @return the current value of imageShells.
+    * @return int : the current value of imageShells.
     */
     public int getImageShells() {return imageShells;}
      
@@ -360,6 +454,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
     * Changes the value of image shells, and increases/decreases scale accordingly.
     *
     * @param n the new value of imageShells
+    * @return void
     */
     public void setImageShells(int n) {
         if(n>=0) {
@@ -386,6 +481,12 @@ public class DisplayPhase extends Display implements EtomicaElement {
         int h = canvas.getSize().height - 2 * originShift[1];
         computeImageParameters2(w, h);
     }
+
+    /**
+     * @param int w :
+     * @param int h :
+     * @return void
+     */
     public void computeImageParameters2(int w, int h) {
         //Compute factor converting simulation units to pixels for this display
         toPixels = scale*pixel.toPixels();
@@ -406,6 +507,10 @@ public class DisplayPhase extends Display implements EtomicaElement {
         }
     }
 
+    /**
+     * Repaint the graphic associated with the display phase.
+     * @return void
+     */
     public void repaint() {
         if (canvas != null) {
             canvas.repaint();
@@ -415,7 +520,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
     //Methods for handling DisplayPhaseEvents
     
     /**
-     * Returns unit for conversion between simulation units and display pixels.
+     * @return Pixel : unit for conversion between simulation units and display pixels.
      */
     public Pixel getPixelUnit() {
         return pixel;
@@ -423,6 +528,8 @@ public class DisplayPhase extends Display implements EtomicaElement {
 
     /**
      * Sets unit for conversion between simulation units and display pixels.
+     * @param Pixel : 
+     * @return void
      */
     public void setPixelUnit(Pixel pixel) {
         this.pixel = pixel;
@@ -455,13 +562,15 @@ public class DisplayPhase extends Display implements EtomicaElement {
     
     /**
      * Set the height of the drawing area (only relevant for 1D)
+     * @param int newDrawingHeight :
+     * @return void
      */
     public void setDrawingHeight(int newDrawingHeight) {
         drawingHeight = newDrawingHeight;
     }
 
     /**
-     * Returns the height of the drawing area (only relevant for 1D)
+     * return int : height of the drawing area (only relevant for 1D)
      */
     public int getDrawingHeight() {
         return drawingHeight;
@@ -469,7 +578,8 @@ public class DisplayPhase extends Display implements EtomicaElement {
 
     /**
      * Set the flag indicating if the boundary should be drawn.
-     * @return
+     * @param boolean b : draw boundary flag
+     * @return void
      */
     public void setShowBoundary(boolean b) {
     	displayBoundary = b;
@@ -477,6 +587,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
 
     /**
      * Get the flag indicating if the boundary should be drawn.
+     * @return boolean
      */
     public boolean getShowBoundary() {
     	return displayBoundary;
@@ -485,6 +596,8 @@ public class DisplayPhase extends Display implements EtomicaElement {
     /**
      * Set the flag indicating whether the graphic should resize from its
      * currently displayed size when a new phase is set.
+     * @param boolean b
+     * @return void
      */
     public void setResizeOnNewPhase(boolean b) {
     	graphicResizable = b;
@@ -493,6 +606,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
     /**
      * Get the flag indicating whether the graphic should resize from its
      * currently displayed size when a new phase is set.
+     * @return boolean
      */
     public boolean getResizeOnNewPhase() {
     	return graphicResizable;
