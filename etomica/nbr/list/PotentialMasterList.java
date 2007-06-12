@@ -263,6 +263,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 if (rangedCriterion != null) {
                     double newRange = maxDisplacement/safetyFactor + potentials[j].getRange();
                     rangedCriterion.setNeighborRange(newRange);
+                    rangedCriterion.setInteractionRange(potentials[j].getRange());
                     rangedCriterion.setSafetyFactor(safetyFactor);
                 }                    
             }
