@@ -121,6 +121,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         pbcEnforcer.setPhase(phase);
         pbcEnforcer.actionPerformed();
         neighborSetup();
+        iieCount = updateInterval;
     }
 
     /**
@@ -171,6 +172,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      */
     public void setUpdateInterval(int updateInterval) {
         this.updateInterval = updateInterval;
+        iieCount = updateInterval;
     }
 
     public NeighborCriterion[] getCriterion(AtomType atomType) {
