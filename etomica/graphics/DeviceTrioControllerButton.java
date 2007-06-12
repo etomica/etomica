@@ -3,6 +3,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
 import etomica.action.ResetAccumulators;
@@ -47,7 +48,7 @@ public class DeviceTrioControllerButton extends Device {
     public DeviceTrioControllerButton() {
         super();
         jp = new JPanel(new java.awt.GridLayout(1,0)); //default shape of panel
-        jp.setBorder(new javax.swing.border.TitledBorder("Control"));
+        jp.setBorder(new TitledBorder(null, "Control", TitledBorder.CENTER, TitledBorder.TOP));
         jp.setOpaque(false);
 
         startButton = new DeviceControllerButton(null);

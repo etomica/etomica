@@ -136,7 +136,8 @@ public class Osmosis extends SimulationGraphic {
 	    tSelect.getLabel().setText("Set value");
 
         JPanel temperaturePanel = new JPanel(new GridBagLayout());
-        temperaturePanel.setBorder(new TitledBorder("Temperature (K)"));
+
+        temperaturePanel.setBorder(new TitledBorder(null, "Temperature (K)", TitledBorder.CENTER, TitledBorder.TOP));
         temperaturePanel.add(tSelect.graphic(null),SimulationPanel.getHorizGBC());
         temperaturePanel.add(tBox.graphic(null),SimulationPanel.getHorizGBC());
 
@@ -193,7 +194,7 @@ public class Osmosis extends SimulationGraphic {
 
         //panel for the temperature control/display
         JPanel cyclesPanel = new JPanel(new FlowLayout());
-        cyclesPanel.setBorder(new TitledBorder("Cycles"));
+        cyclesPanel.setBorder(new TitledBorder(null, "Cycles", TitledBorder.CENTER, TitledBorder.TOP));
         cyclesPanel.add(displayCycles.graphic(null));
 
         
@@ -201,11 +202,11 @@ public class Osmosis extends SimulationGraphic {
         //panel for the meter displays
 
         JPanel osmoticPanel = new JPanel(new FlowLayout());
-        osmoticPanel.setBorder(new TitledBorder("Osmotic Pressure (PV/Nk)"));
+        osmoticPanel.setBorder(new TitledBorder(null, "Osmotic Pressure (PV/Nk)", TitledBorder.CENTER, TitledBorder.TOP));
         osmoticPanel.add(dBox.graphic(null));
 
         JPanel moleFractionPanel = new JPanel(new FlowLayout());
-        TitledBorder titleBorder = new TitledBorder("Mole Fraction (nSolute/nSolution)");
+        TitledBorder titleBorder = new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP);
         moleFractionPanel.setBorder(titleBorder);
         moleFractionPanel.add(mfBox.graphic(null));
         
@@ -219,27 +220,27 @@ public class Osmosis extends SimulationGraphic {
         JPanel sliderPanelA = new JPanel(new GridLayout(0,1));
         nASelector.setShowBorder(false);
         sliderPanelA.add(nASelector.graphic(null));
-        sliderPanelA.setBorder(new TitledBorder("Set "+nASelector.getLabel()));
-
+        sliderPanelA.setBorder(new TitledBorder
+           (null, "Set "+nASelector.getLabel(), TitledBorder.CENTER, TitledBorder.TOP));
         
         JPanel sliderPanelB = new JPanel(new GridLayout(0,1));
         nBSelector.setShowBorder(false);
         sliderPanelB.add(nBSelector.graphic(null));
-        sliderPanelB.setBorder(new TitledBorder("Set "+nBSelector.getLabel()));
-
+        sliderPanelB.setBorder(new TitledBorder
+           (null, "Set "+nBSelector.getLabel(), TitledBorder.CENTER, TitledBorder.TOP));
 
         JPanel sliderDiaPanel = new JPanel(new GridLayout(0,1));
         sliderDiameter.setShowBorder(false);
         sliderDiaPanel.add(sliderDiameter.graphic(null));
-        sliderDiaPanel.setBorder(new TitledBorder("Set Diameter"));
+        sliderDiaPanel.setBorder(new TitledBorder
+           (null, "Set Diameter", TitledBorder.CENTER, TitledBorder.TOP));
 
-        
         JTabbedPane tabPaneSliders = new JTabbedPane();
         tabPaneSliders.addTab(nASelector.getLabel(), sliderPanelA);
         tabPaneSliders.addTab(nBSelector.getLabel(), sliderPanelB);
         tabPaneSliders.addTab("Diameter", sliderDiaPanel);
-        
-        
+
+
         //panel for all the controls
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
