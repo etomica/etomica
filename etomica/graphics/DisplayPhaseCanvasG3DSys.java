@@ -7,6 +7,8 @@ import java.awt.TextField;
 
 import javax.vecmath.Point3f;
 
+import org.jmol.g3d.Graphics3D;
+
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSet;
@@ -426,7 +428,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
         }
         while (intersectionCount > planeTriangles[iPlane].length+2) {
             planeTriangles[iPlane] = (Triangle[])Arrays.addObject(planeTriangles[iPlane], new Triangle(
-                    gsys, G3DSys.getColix(Color.YELLOW), new Point3f(), new Point3f(), new Point3f()));
+                    gsys, Graphics3D.getColixTranslucent(G3DSys.getColix(Color.YELLOW), true), new Point3f(), new Point3f(), new Point3f()));
             gsys.addFig(planeTriangles[iPlane][planeTriangles[iPlane].length-1]);
         }
 
