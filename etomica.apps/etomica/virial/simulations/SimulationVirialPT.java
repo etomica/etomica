@@ -10,7 +10,6 @@ import etomica.data.DataSourceAcceptanceProbability;
 import etomica.data.DataSourceAcceptanceRatio;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveManager;
@@ -46,7 +45,7 @@ public class SimulationVirialPT extends Simulation {
 			double[] temperature, ClusterWeight.Factory sampleClusterFactory, 
 			ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
 		super(space,false,Default.BIT_LENGTH,defaults);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
 		int nMolecules = refCluster.pointCount();
 		species = speciesFactory.makeSpecies(this);//SpheresMono(this,AtomLinker.FACTORY);
         getSpeciesManager().addSpecies(species);
@@ -56,7 +55,6 @@ public class SimulationVirialPT extends Simulation {
         meter = new MeterVirial[temperature.length];
         accumulator = new DataAccumulator[temperature.length];
         accumulatorPump = new DataPump[temperature.length];
-        dumb = new IntervalActionAdapter[temperature.length];
         mcMoveAtom1 = new MCMoveAtom[temperature.length];
         mcMoveMulti = new MCMovePhaseStep[temperature.length];
         mcMoveRotate = new MCMovePhaseStep[temperature.length];
@@ -141,7 +139,6 @@ public class SimulationVirialPT extends Simulation {
     public DataSource[] meterAcceptP;
 	public DataAccumulator[] accumulator;
 	public DataPump[] accumulatorPump;
-    public IntervalActionAdapter[] dumb;
 	public Species species;
 	public ActivityIntegrate ai;
 	public IntegratorMC[] integrator;
@@ -156,9 +153,8 @@ public class SimulationVirialPT extends Simulation {
 	public void setMeter(int i, MeterVirial newMeter) {
 		if (accumulator[i] != null) { 
 			if (accumulatorPump[i] != null) {
-                integrator[i].removeListener(dumb[i]);
+                integrator[i].removeIntervalListener(accumulatorPump[i]);
 				accumulatorPump[i] = null;
-                dumb[i] = null;
 			}
 			accumulator[i] = null;
 		}
@@ -176,8 +172,7 @@ public class SimulationVirialPT extends Simulation {
 		else {
 			accumulatorPump[i].setDataSink(accumulator[i]);
 		}
-        dumb[i] = new IntervalActionAdapter(accumulatorPump[i]);
-		integrator[i].addListener(dumb[i]);
+		integrator[i].addIntervalAction(accumulatorPump[i]);
 	}
 }
 

@@ -7,7 +7,6 @@ import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMovePhase;
 import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.potential.PotentialMaster;
@@ -41,7 +40,7 @@ public class SimulationVirial extends Simulation {
 	 */
 	public SimulationVirial(Space space, Default defaults, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
 		super(space,false,Default.BIT_LENGTH,defaults);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		phase = new PhaseCluster(this,sampleCluster);
@@ -100,7 +99,6 @@ public class SimulationVirial extends Simulation {
 	}
 	
     private static final long serialVersionUID = 1L;
-    public IntervalActionAdapter accumulatorAA;
 	public DataSource meter;
 	public DataAccumulator accumulator;
 	public DataPump accumulatorPump;
@@ -119,7 +117,7 @@ public class SimulationVirial extends Simulation {
 		meter = newMeter;
         if (accumulator != null) { 
             if (accumulatorPump != null) {
-                integrator.removeListener(accumulatorAA);
+                integrator.removeIntervalListener(accumulatorPump);
                 accumulatorPump = null;
             }
             setAccumulator(accumulator);
@@ -130,8 +128,7 @@ public class SimulationVirial extends Simulation {
 		accumulator = newAccumulator;
 		if (accumulatorPump == null) {
 			accumulatorPump = new DataPump(meter,accumulator);
-            accumulatorAA = new IntervalActionAdapter(accumulatorPump);
-            integrator.addListener(accumulatorAA);
+            integrator.addIntervalAction(accumulatorPump);
 		}
 		else {
 			accumulatorPump.setDataSink(accumulator);

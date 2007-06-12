@@ -17,7 +17,6 @@ import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.potential.P2LennardJones;
@@ -68,14 +67,13 @@ public class SimulationVirialOverlap extends Simulation {
 	public SimulationVirialOverlap(Space aSpace, Default defaults, SpeciesFactory speciesFactory, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters) {
 		super(aSpace,false,Default.BIT_LENGTH,defaults);
-		PotentialMaster potentialMaster = new PotentialMaster(this);
+		PotentialMaster potentialMaster = new PotentialMaster(space);
         sampleClusters = aSampleClusters;
         int nMolecules = sampleClusters[0].pointCount();
         species = speciesFactory.makeSpecies(this);
         getSpeciesManager().addSpecies(species);
         accumulators = new AccumulatorVirialOverlapSingleAverage[sampleClusters.length];
         accumulatorPumps = new DataPump[sampleClusters.length];
-        accumulatorAAs = new IntervalActionAdapter[sampleClusters.length];
         phase = new PhaseCluster[sampleClusters.length];
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
@@ -151,7 +149,7 @@ public class SimulationVirialOverlap extends Simulation {
         if (accumulators[iPhase] != null) {
             // we need a new accumulator so nuke the old one now.
             if (accumulatorPumps[iPhase] != null) {
-                integrators[iPhase].removeListener(accumulatorAAs[iPhase]);
+                integrators[iPhase].removeIntervalListener(accumulatorPumps[iPhase]);
                 accumulatorPumps[iPhase] = null;
             }
             accumulators[iPhase] = null;
@@ -164,13 +162,11 @@ public class SimulationVirialOverlap extends Simulation {
         accumulators[iPhase] = newAccumulator;
         if (accumulatorPumps[iPhase] == null) {
             accumulatorPumps[iPhase] = new DataPump(meters[iPhase],newAccumulator);
-            accumulatorAAs[iPhase] = new IntervalActionAdapter(accumulatorPumps[iPhase]);
-            integrators[iPhase].addListener(accumulatorAAs[iPhase]);
+            integrators[iPhase].addIntervalAction(accumulatorPumps[iPhase]);
         }
         else {
             accumulatorPumps[iPhase].setDataSink(newAccumulator);
         }
-        accumulatorAAs[iPhase].setActionInterval(1);
         if (integratorOS != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
             integratorOS.setDSVO(dsvo);
@@ -278,7 +274,6 @@ public class SimulationVirialOverlap extends Simulation {
 	protected DisplayPlot plot;
 	public DataSourceVirialOverlap dsvo;
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
-    protected IntervalActionAdapter[] accumulatorAAs;
     protected DataPump[] accumulatorPumps;
 	protected final ClusterWeight[] sampleClusters;
     public PhaseCluster[] phase;
