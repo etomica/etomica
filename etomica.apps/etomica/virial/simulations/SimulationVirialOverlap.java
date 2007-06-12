@@ -67,7 +67,7 @@ public class SimulationVirialOverlap extends Simulation {
 	public SimulationVirialOverlap(Space aSpace, Default defaults, SpeciesFactory speciesFactory, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters) {
 		super(aSpace,false,Default.BIT_LENGTH,defaults);
-		PotentialMaster potentialMaster = new PotentialMaster(space);
+		PotentialMaster potentialMaster = new PotentialMaster(this);
         sampleClusters = aSampleClusters;
         int nMolecules = sampleClusters[0].pointCount();
         species = speciesFactory.makeSpecies(this);
