@@ -8,7 +8,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -91,16 +90,15 @@ public class Osmosis extends SimulationGraphic {
         colorScheme.setColor(sim.speciesA.getMoleculeType(), Color.blue);
         colorScheme.setColor(sim.speciesB.getMoleculeType(), Color.red);
         displayPhase.setColorScheme(colorScheme);
-        displayPhase.setAlign(1,DisplayPhase.BOTTOM);
-        displayPhase.getOriginShift()[0] = thickness;
-        displayPhase.getOriginShift()[1] = -thickness;
+        displayPhase.setAlign(1,DisplayPhase.CENTER);
+//        displayPhase.setOriginShift(0, thickness);
+//        displayPhase.setOriginShift(1, -thickness);
         displayPhase.addDrawable(new MyWall());
-
 
         cycles = new DataSourceCountTime();
         displayCycles = new DisplayTimer(sim.integrator);
         displayCycles.setLabelType(LabelType.BORDER);
-        displayCycles.setLabel("Time");
+        displayCycles.setLabel("Cycle Time");
 	    displayCycles.setPrecision(6);	
 
         osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardLeftA}, 
@@ -155,7 +153,6 @@ public class Osmosis extends SimulationGraphic {
         DisplayBoxesCAE mfBox = new DisplayBoxesCAE();
         mfBox.setAccumulator(moleFractionAvg);
         mfBox.setPrecision(8);
-	    
 
         DeviceNSelector nASelector = new DeviceNSelector(sim.getController());
         nASelector.setResetAction(simRestart);
@@ -182,6 +179,18 @@ public class Osmosis extends SimulationGraphic {
                                                             sim.boundaryHardTopBottomA,sim.boundaryHardLeftA,sim.boundaryHardRightA,
                                                             sim.boundaryHardB,
                                                             sim.speciesA,sim.speciesB);
+        // panel for osmotic pressure
+        JPanel osmoticPanel = new JPanel(new FlowLayout());
+        osmoticPanel.setBorder(new TitledBorder(null, "Osmotic Pressure (PV/Nk)", TitledBorder.CENTER, TitledBorder.TOP));
+        osmoticPanel.add(dBox.graphic(null));
+
+        // panel for mole fraction
+        JPanel moleFractionPanel = new JPanel(new FlowLayout());
+        TitledBorder titleBorder = new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP);
+        moleFractionPanel.setBorder(titleBorder);
+        moleFractionPanel.add(mfBox.graphic(null));
+
+        // Diameter slider
         diameterModifier.setDisplay(getDisplayPhase(sim.phase));
         DeviceSlider sliderDiameter = new DeviceSlider(sim.getController());
         sliderDiameter.setModifier(diameterModifier);
@@ -192,65 +201,37 @@ public class Osmosis extends SimulationGraphic {
 		sliderDiameter.setValue(3);
 		sliderDiameter.setNMajor(4);
 
-        //panel for the temperature control/display
-        JPanel cyclesPanel = new JPanel(new FlowLayout());
-        cyclesPanel.setBorder(new TitledBorder(null, "Cycles", TitledBorder.CENTER, TitledBorder.TOP));
-        cyclesPanel.add(displayCycles.graphic(null));
-
-        
-
-        //panel for the meter displays
-
-        JPanel osmoticPanel = new JPanel(new FlowLayout());
-        osmoticPanel.setBorder(new TitledBorder(null, "Osmotic Pressure (PV/Nk)", TitledBorder.CENTER, TitledBorder.TOP));
-        osmoticPanel.add(dBox.graphic(null));
-
-        JPanel moleFractionPanel = new JPanel(new FlowLayout());
-        TitledBorder titleBorder = new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP);
-        moleFractionPanel.setBorder(titleBorder);
-        moleFractionPanel.add(mfBox.graphic(null));
-        
-        JTabbedPane tabPaneMeter = new JTabbedPane();
-        tabPaneMeter.addTab("Osmotic Pressure", osmoticPanel);
-        tabPaneMeter.addTab("Mole Fraction", moleFractionPanel);
-        tabPaneMeter.addTab("Cycles", cyclesPanel);
-
-        //panel for sliders
-
-        JPanel sliderPanelA = new JPanel(new GridLayout(0,1));
-        nASelector.setShowBorder(false);
-        sliderPanelA.add(nASelector.graphic(null));
-        sliderPanelA.setBorder(new TitledBorder
-           (null, "Set "+nASelector.getLabel(), TitledBorder.CENTER, TitledBorder.TOP));
-        
-        JPanel sliderPanelB = new JPanel(new GridLayout(0,1));
-        nBSelector.setShowBorder(false);
-        sliderPanelB.add(nBSelector.graphic(null));
-        sliderPanelB.setBorder(new TitledBorder
-           (null, "Set "+nBSelector.getLabel(), TitledBorder.CENTER, TitledBorder.TOP));
-
         JPanel sliderDiaPanel = new JPanel(new GridLayout(0,1));
         sliderDiameter.setShowBorder(false);
         sliderDiaPanel.add(sliderDiameter.graphic(null));
         sliderDiaPanel.setBorder(new TitledBorder
            (null, "Set Diameter", TitledBorder.CENTER, TitledBorder.TOP));
 
-        JTabbedPane tabPaneSliders = new JTabbedPane();
-        tabPaneSliders.addTab(nASelector.getLabel(), sliderPanelA);
-        tabPaneSliders.addTab(nBSelector.getLabel(), sliderPanelB);
-        tabPaneSliders.addTab("Diameter", sliderDiaPanel);
+		// Solvent molecules slider
+        JPanel sliderPanelA = new JPanel(new GridLayout(0,1));
+        nASelector.setShowBorder(false);
+        sliderPanelA.add(nASelector.graphic(null));
+        sliderPanelA.setBorder(new TitledBorder
+           (null, "Set "+nASelector.getLabel(), TitledBorder.CENTER, TitledBorder.TOP));
 
+        // Solute molecules slider
+        JPanel sliderPanelB = new JPanel(new GridLayout(0,1));
+        nBSelector.setShowBorder(false);
+        sliderPanelB.add(nBSelector.graphic(null));
+        sliderPanelB.setBorder(new TitledBorder
+           (null, "Set "+nBSelector.getLabel(), TitledBorder.CENTER, TitledBorder.TOP));
 
         //panel for all the controls
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-        JTabbedPane tabPane = new JTabbedPane();
-        tabPane.addTab("Meters", tabPaneMeter);
-        tabPane.addTab("Sliders", tabPaneSliders);
-        
         getPanel().controlPanel.add(temperaturePanel, vertGBC);
-        getPanel().controlPanel.add(tabPane, vertGBC);
+        getPanel().controlPanel.add(sliderPanelA, vertGBC);
+        getPanel().controlPanel.add(sliderPanelB, vertGBC);
+        getPanel().controlPanel.add(sliderDiaPanel, vertGBC);
+        getPanel().plotPanel.add(osmoticPanel, vertGBC);
+        getPanel().plotPanel.add(moleFractionPanel, vertGBC);
+        getPanel().plotPanel.add(displayCycles.graphic(), vertGBC);
 
         getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
 
@@ -280,7 +261,6 @@ public class Osmosis extends SimulationGraphic {
 
         Osmosis osmosis = new Osmosis(sim);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
-        System.out.println("Event intreval : " + sim.integrator.getEventInterval());
     }
 
     

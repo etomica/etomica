@@ -1,4 +1,5 @@
 package etomica.graphics;
+
 import java.awt.Component;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -116,7 +117,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
         EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a phase as the simulation proceeds");
         return info;
     }
-    
+
     protected void setSize(int width, int height) {
     	if(width <= 0 || height <= 0) return;
         java.awt.Dimension temp = new java.awt.Dimension(width, height);
@@ -127,13 +128,31 @@ public class DisplayPhase extends Display implements EtomicaElement {
         canvas.reshape(width, height);
 
     }
-    
+
     /**
      * Amount (in pixels) of a simple shift (translation) applied in determing origin.
      * Usually zero, but can be set to any value by setting elements in returned array.
      */
     public int[] getOriginShift() {return originShift;}
-        
+
+/*
+    public void setOriginShift(int dimension, int shift) {
+        if(dimension <= D) {
+        	originShift[dimension] = shift;
+        	java.awt.Dimension dim = canvas.getSize();
+        	switch(dimension) {
+        	case 0:
+        		setSize(dim.width + 2*Math.abs(shift), dim.height);
+        		break;
+        	case 1:
+        		setSize(dim.width, dim.height + 2*Math.abs(shift));
+        		break;
+        	default:
+        		break;
+        	}
+        }
+    }
+*/
 
     public int[] getOrigin() {
         computeImageParameters();
@@ -192,7 +211,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
             return;
         }
 
-        int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
+        int boxX = (int)(phase.getBoundary().getBoundingBox().x(0) * pixel.toPixels() + 1);
         int boxY = 1;
 
         switch(phase.getSpace().D()) {
@@ -212,7 +231,7 @@ public class DisplayPhase extends Display implements EtomicaElement {
                 }
                 break;
             case 2:
-                boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                boxY = (int)(phase.getBoundary().getBoundingBox().x(1) * pixel.toPixels() + 1);
                 canvas = new DisplayPhaseCanvas2D(this);
                 setSize(boxX, boxY);
                 break;
