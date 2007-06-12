@@ -401,7 +401,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         }
         upList.setTargetAtom(null);
         collisionHandlerUp.reset();
-        collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
+        collisionHandlerUp.collisionTimeStep = 0;
         potential.calculate(phase, upList, collisionHandlerUp); //assumes only one phase
         eventList.reset();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
