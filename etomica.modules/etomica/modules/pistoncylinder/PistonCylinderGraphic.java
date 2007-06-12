@@ -825,7 +825,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
             pump = new DataPump(meterRDF, plotRDF.getDataSet().makeDataSink());
             pc.integrator.addListener(new IntervalActionAdapter(new Action() {
                 public void actionPerformed() {meterRDF.actionPerformed();}
-                public String getLabel() {return "an even worse label";}
             }));
             pc.register(meterRDF, pump);
             adapter = new IntervalActionAdapter(pump);
@@ -834,9 +833,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
             controlButtons.getResetAveragesButton().setPostAction(new Action() {
                 public void actionPerformed() {
                     meterRDF.reset();
-                }
-                public String getLabel() {
-                    return "";
                 }
             });
         }
@@ -873,7 +869,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
                     }
                 } catch(ConfigurationOverlapException e) {}
             }
-            public String getLabel() {return "";}
         });
     }
 
