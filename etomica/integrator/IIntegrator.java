@@ -23,16 +23,11 @@ public interface IIntegrator {
      * addition or deletion of a molecule). Also invoked when the
      * integrator is started or initialized.
      */
-    //This should be called by subclasses /after/ they have performed their own
-    //reset
     public void reset() throws ConfigurationOverlapException;
 
     /**
-     * Initializes the integrator, performing the following steps: (1) deploys
-     * agents in all atoms; (2) call reset method; (3) fires an event
-     * indicating to registered listeners indicating that initialization has
-     * been performed (i.e. fires IntervalEvent of type field set to
-     * INITIALIZE).
+     * Initializes the integrator.  This method should be called before calling
+     * doStep.  This method resets the step counter.
      */
     public void initialize() throws ConfigurationOverlapException;
 
