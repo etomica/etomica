@@ -6,12 +6,7 @@ package etomica.integrator;
  * Non-interval events are thrown special points in the simulation, such as when it
  * begins and ends.
  */
-
-/*
- * History
- * Created on Apr 26, 2005 by kofke
- */
-public interface IntegratorNonintervalListener extends IntegratorListener {
+public interface IntegratorNonintervalListener {
 
     /**
      * Action performed by the listener when integrator fires its event.
