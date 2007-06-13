@@ -63,13 +63,14 @@ public class TestHexane extends Simulation {
 //    public PairIndexerMolecule pri;
 
     
-    public TestHexane(Space space, int numMolecules, double dens) {
+    public TestHexane(Space space, double dens, int xCells, int yCells, int zCells) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(space, false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
-        int numAtoms = numMolecules * chainLength;
+        //One molecule per cell
+        int numAtoms = xCells * yCells * zCells * chainLength;
         primitive = new PrimitiveHexane(space);
         // close packed density is 0.4165783882178116
         // Monson reports data for 0.373773507616 and 0.389566754417
@@ -89,11 +90,11 @@ public class TestHexane extends Simulation {
 
         SpeciesHexane species = new SpeciesHexane(this);
         getSpeciesManager().addSpecies(species);
-        int[] nCells = new int[]{4,6,6};
+        int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
         phase = new Phase(bdry);
         addPhase(phase);
-        phase.getAgent(species).setNMolecules(numMolecules);
+        phase.getAgent(species).setNMolecules(xCells * yCells * zCells);
 //        config.initializeCoordinates(phase);
         integrator = new IntegratorMC(potentialMaster, getRandom(),
                 defaults.temperature);
@@ -280,29 +281,37 @@ public class TestHexane extends Simulation {
     }
 
     public static void main(String[] args) {
-        int numMolecules = 144; //144
+//        int numMolecules = 144; //144
+
+        int xLng = 4;
+        int yLng = 4;
+        int zLng = 6;
+        
         long nSteps = 10000;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
 
-        boolean graphic = true;
+        boolean graphic = false;
 
         //parse arguments
+        //filename is element 0
         if(args.length > 1){
             nSteps = Long.parseLong(args[1]);
         }
         if(args.length > 2){
-            numMolecules = Integer.parseInt(args[2]);
-        }
-        if(args.length > 3){
-            density = Double.parseDouble(args[3]);
+            density = Double.parseDouble(args[2]);
             if(density == 0.37) {density = 0.373773507616;}
             if(density == 0.40) {density = 0.389566754417;}
+        }
+        if(args.length > 5){
+            xLng = Integer.parseInt(args[3]);
+            yLng = Integer.parseInt(args[4]);
+            zLng = Integer.parseInt(args[5]);
         }
         
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
-        TestHexane sim = new TestHexane(Space3D.getInstance(), numMolecules, density);
+        TestHexane sim = new TestHexane(Space3D.getInstance(), density, xLng, yLng, zLng);
 
         System.out.println("Happy Goodness!!");
 
