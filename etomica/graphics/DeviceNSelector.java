@@ -4,7 +4,7 @@ import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
 
@@ -38,7 +38,7 @@ public class DeviceNSelector extends DeviceSlider {
         return resetAction;
     }
     
-    public void setSpeciesAgent(SpeciesAgent agent) {
+    public void setSpeciesAgent(ISpeciesAgent agent) {
 	    setMinimum(0);
         int max = 60;
         if (agent.getNMolecules() > max) max = agent.getNMolecules();

@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorArrayListAdjacent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
@@ -34,7 +34,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         int nAtoms = 11;
         Simulation sim = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {nAtoms},2,new int[] {nAtoms},null,null);
-        SpeciesAgent agent = sim.getPhases()[0].getAgent(sim.getSpeciesManager().getSpecies()[0]);
+        ISpeciesAgent agent = sim.getPhases()[0].getAgent(sim.getSpeciesManager().getSpecies()[0]);
         AtomArrayList atomList = new AtomArrayList();
         atomList.addAll(agent.getChildList());
 

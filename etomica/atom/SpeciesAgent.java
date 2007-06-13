@@ -10,14 +10,14 @@ import etomica.units.Quantity;
  * @author David Kofke
  */
  
-public final class SpeciesAgent extends AtomGroup {
+public final class SpeciesAgent extends AtomGroup implements ISpeciesAgent {
 
     public SpeciesAgent(AtomType type, AtomManager atomManager) {
         super(type);
         this.atomManager = atomManager;
     }
 
-    public AtomManager getSpeciesMaster() {
+    public AtomManager getAtomManager() {
         return atomManager;
     }
     
@@ -51,11 +51,9 @@ public final class SpeciesAgent extends AtomGroup {
     }
 
     /**
-     * Sets the number of molecules for this species.  Makes the given number
-     * of new molecules, linked-list orders and initializes them.
-     * Any previously existing molecules for this species in this phase are abandoned
-     * Any links to molecules of next or previous species are maintained.
-     * Takes no action at all if the new number of molecules equals the existing number
+     * Sets the number of molecules for this species.  Molecules are either
+     * added or removed until the given number is obtained.  Takes no action
+     * at all if the new number of molecules equals the existing number.
      *
      * @param n  the new number of molecules for this species
      */

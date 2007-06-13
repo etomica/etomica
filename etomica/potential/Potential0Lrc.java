@@ -4,7 +4,7 @@ import etomica.action.AtomsetCount;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.phase.Phase;
 import etomica.space.Space;
@@ -65,7 +65,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     protected final boolean interType;
     protected final Potential truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
-    protected final SpeciesAgent[] agents = new SpeciesAgent[2];
+    protected final ISpeciesAgent[] agents = new ISpeciesAgent[2];
     
     public Potential0Lrc(Space space, AtomType[] types, Potential truncatedPotential) {
         super(space);

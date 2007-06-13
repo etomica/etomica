@@ -5,6 +5,7 @@ import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.AtomManager;
 import etomica.phase.Phase;
@@ -44,10 +45,10 @@ public class AtomIndexManagerTest extends TestCase {
         int i = 0;
 //        atoms[i++] = master0 = phase0.getSpeciesMaster();//0
 //        atoms[i++] = master1 = phase1.getSpeciesMaster();//1
-        atoms[i++] = agent00 = phase0.getAgent(species0);//2
-        atoms[i++] = agent01 = phase0.getAgent(species1);//3
-        atoms[i++] = agent10 = phase1.getAgent(species0);//4
-        atoms[i++] = agent11 = phase1.getAgent(species1);//5
+        atoms[i++] = agent00 = (SpeciesAgent)phase0.getAgent(species0);//2
+        atoms[i++] = agent01 = (SpeciesAgent)phase0.getAgent(species1);//3
+        atoms[i++] = agent10 = (SpeciesAgent)phase1.getAgent(species0);//4
+        atoms[i++] = agent11 = (SpeciesAgent)phase1.getAgent(species1);//5
         AtomGroup[][] node = new AtomGroup[2][2];
         node[0][0] = agent00;
         node[0][1] = agent01;
@@ -79,10 +80,10 @@ public class AtomIndexManagerTest extends TestCase {
 
     private static AtomManager getSpeciesMaster(IAtom atom) {
         IAtom speciesAgent = atom;
-        while (!(speciesAgent instanceof SpeciesAgent)) {
+        while (!(speciesAgent instanceof ISpeciesAgent)) {
             speciesAgent = speciesAgent.getParentGroup();
         }
-        return ((SpeciesAgent)speciesAgent).getSpeciesMaster();
+        return ((ISpeciesAgent)speciesAgent).getAtomManager();
     }
         
     
@@ -161,7 +162,7 @@ public class AtomIndexManagerTest extends TestCase {
             assertFalse(atoms[i].inSameMolecule(atom));
             assertFalse(atom.inSameMolecule(atoms[i]));
             IAtom moleculeA = atoms[i];
-            while (!(moleculeA.getParentGroup() instanceof SpeciesAgent)) {
+            while (!(moleculeA.getParentGroup() instanceof ISpeciesAgent)) {
                 moleculeA = moleculeA.getParentGroup();
             }
             AtomManager iSpeciesMaster = getSpeciesMaster(atoms[i]);
@@ -174,7 +175,7 @@ public class AtomIndexManagerTest extends TestCase {
                     continue;
                 }
                 IAtom moleculeB = atoms[j];
-                while (!(moleculeB.getParentGroup() instanceof SpeciesAgent)) {
+                while (!(moleculeB.getParentGroup() instanceof ISpeciesAgent)) {
                     moleculeB = moleculeB.getParentGroup();
                 }
                 boolean inSameMolecule = atoms[i].inSameMolecule(atoms[j]);

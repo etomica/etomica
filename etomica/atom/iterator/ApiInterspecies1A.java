@@ -5,7 +5,7 @@ import java.io.Serializable;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -89,7 +89,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
             Species tempSpecies = species0;
             species0 = species1;
             species1 = tempSpecies;
-            SpeciesAgent tempAgent = agent0;
+            ISpeciesAgent tempAgent = agent0;
             agent0 = agent1;
             agent1 = tempAgent;
         }
@@ -203,7 +203,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
     private final ApiInnerFixed apiUp, apiDown;
     private ApiInnerFixed iterator;
     private IteratorDirective.Direction direction, allowedDirection;
-    private SpeciesAgent agent0, agent1;
+    private ISpeciesAgent agent0, agent1;
     private Phase phase;
     private IAtom targetAtom, targetMolecule;
 }

@@ -12,7 +12,7 @@ import etomica.action.SimulationRestart;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
 import etomica.exception.ConfigurationOverlapException;
@@ -31,13 +31,13 @@ class MySpeciesEditor extends javax.swing.JPanel {
 
 	//	public DeviceSlider nSlider;
 	public DeviceNSelector nSlider;
-	public SpeciesAgent species;
+	public ISpeciesAgent species;
 	boolean initializing;
     ReactionEquilibrium sim;
 	public final javax.swing.JTextField mass = new javax.swing.JTextField("40");
 
 	
-	public MySpeciesEditor(final ReactionEquilibriumGraphic simGraphic, SpeciesAgent s, String label) {
+	public MySpeciesEditor(final ReactionEquilibriumGraphic simGraphic, ISpeciesAgent s, String label) {
 		super();
 		species = s;
         sim = simGraphic.sim;
@@ -85,7 +85,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 	}
     
     class MyNSelector extends DeviceNSelector {
-        MyNSelector(final ReactionEquilibriumGraphic simGraphic, SpeciesAgent species) {
+        MyNSelector(final ReactionEquilibriumGraphic simGraphic, ISpeciesAgent species) {
             super(simGraphic.sim.getController());
             setResetAction(new SimulationRestart(simGraphic.sim));
             setSpeciesAgent(species);

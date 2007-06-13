@@ -10,7 +10,7 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
@@ -433,14 +433,14 @@ public class ReactionEquilibriumGraphic {
 		//	public DeviceSlider nSlider;
 		public DeviceNSelector nSlider;
 
-		public SpeciesAgent species;
+		public ISpeciesAgent species;
 
 		public final javax.swing.JTextField mass = new javax.swing.JTextField(
 				"40");
 
 		//    public java.awt.TextField mass = new java.awt.TextField("40");
 
-        public MySpeciesEditor(final ReactionEquilibrium sim, SpeciesAgent s, String label) {
+        public MySpeciesEditor(final ReactionEquilibrium sim, ISpeciesAgent s, String label) {
             super();
             species = s;
             nSlider = new DeviceNSelector(sim.getController());

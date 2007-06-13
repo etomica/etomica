@@ -2,7 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.phase.Phase;
 import etomica.species.Species;
@@ -85,6 +85,6 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     private final AtomIteratorArrayListSimple listIterator;
     private final Species species;
     private final AtomArrayList littleList = new AtomArrayList();
-    private SpeciesAgent speciesAgent;
+    private ISpeciesAgent speciesAgent;
     private IAtom targetAtom;
 }

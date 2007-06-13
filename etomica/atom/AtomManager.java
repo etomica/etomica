@@ -44,7 +44,7 @@ public final class AtomManager implements java.io.Serializable {
      * Adds the given SpeciesAgent to the SpeciesMaster's list of
      * SpeciesAgents.  This method should be called by Species.
      */
-    public void addSpeciesAgent(SpeciesAgent newSpeciesAgent) {
+    public void addSpeciesAgent(ISpeciesAgent newSpeciesAgent) {
         newSpeciesAgent.setIndex(agentList.getAtomCount());
         agentList.add(newSpeciesAgent);
         addAtomNotify(newSpeciesAgent);
@@ -216,10 +216,10 @@ public final class AtomManager implements java.io.Serializable {
     }
 
     public void addAtomNotify(IAtom newAtom) {
-        if (newAtom.getParentGroup() instanceof SpeciesAgent) {
+        if (newAtom.getParentGroup() instanceof ISpeciesAgent) {
             moleculeCount++;
-        } else if (newAtom instanceof SpeciesAgent) {
-            moleculeCount += ((SpeciesAgent) newAtom)
+        } else if (newAtom instanceof ISpeciesAgent) {
+            moleculeCount += ((ISpeciesAgent) newAtom)
                     .getNMolecules();
         }
 
@@ -253,10 +253,10 @@ public final class AtomManager implements java.io.Serializable {
     //updating of leaf atomList may not be efficient enough for repeated
     // use, but is probably ok
     public void removeAtomNotify(IAtom oldAtom) {
-        if (oldAtom.getParentGroup() instanceof SpeciesAgent) {
+        if (oldAtom.getParentGroup() instanceof ISpeciesAgent) {
             moleculeCount--;
-        } else if (oldAtom instanceof SpeciesAgent) {
-            moleculeCount -= ((SpeciesAgent)oldAtom).getNMolecules();
+        } else if (oldAtom instanceof ISpeciesAgent) {
+            moleculeCount -= ((ISpeciesAgent)oldAtom).getNMolecules();
 //            ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
         }
         

@@ -3,7 +3,7 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.phase.Phase;
 import etomica.species.Species;
 
@@ -95,7 +95,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     private static final long serialVersionUID = 2L;
     private final Species species;
 
-    private SpeciesAgent agent;
+    private ISpeciesAgent agent;
     private Phase phase;
     private IAtom targetAtom, targetMolecule;
 

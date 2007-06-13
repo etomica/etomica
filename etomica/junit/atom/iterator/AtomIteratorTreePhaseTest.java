@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
@@ -133,7 +133,7 @@ public class AtomIteratorTreePhaseTest extends IteratorTestAbstract {
     }
     
     private Phase phase;
-    private SpeciesAgent speciesAgent0, speciesAgent1, speciesAgent2;
+    private ISpeciesAgent speciesAgent0, speciesAgent1, speciesAgent2;
     private AtomIteratorTreePhase treeIterator;
     int n0a, nAtoms, n1a, n2a;
     int[] nTree;

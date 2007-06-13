@@ -5,7 +5,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -30,7 +30,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
     //directive must specify "BOTH" to get energy with all atom pairs
     protected final MeterPotentialEnergy energyMeter;
 	protected Species species;
-    protected SpeciesAgent speciesAgent;
+    protected ISpeciesAgent speciesAgent;
 	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
 	protected IAtom testMolecule;
 	protected double uOld;

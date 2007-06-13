@@ -8,7 +8,7 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorMolecule;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
@@ -130,7 +130,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     }
     
     public Object makeAgent(IAtom newAtom) {
-        if (!(newAtom.getParentGroup() instanceof SpeciesAgent) && !(newAtom instanceof IAtomGroup)) {
+        if (!(newAtom.getParentGroup() instanceof ISpeciesAgent) && !(newAtom instanceof IAtomGroup)) {
             // we got a leaf atom in a mult-atom molecule
             ArrayList bondList = new ArrayList(); 
             Model.PotentialAndIterator[] bondIterators = 
@@ -139,7 +139,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
             
             if (bondIterators != null) {
                 IAtomGroup molecule = newAtom.getParentGroup();
-                while (!(molecule.getParentGroup() instanceof SpeciesAgent)) {
+                while (!(molecule.getParentGroup() instanceof ISpeciesAgent)) {
                     molecule = molecule.getParentGroup();
                 }
                 

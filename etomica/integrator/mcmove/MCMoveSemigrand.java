@@ -6,6 +6,7 @@ import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -29,7 +30,7 @@ public class MCMoveSemigrand extends MCMovePhase {
     
     private static final long serialVersionUID = 2L;
     private Species[] speciesSet;
-    private SpeciesAgent[] agentSet;
+    private ISpeciesAgent[] agentSet;
     private AtomArrayList[] reservoirs;
     private double[] fugacityFraction;
     private int nSpecies;
@@ -43,7 +44,7 @@ public class MCMoveSemigrand extends MCMovePhase {
     private transient IAtom deleteMolecule, insertMolecule;
     private transient double uOld;
     private transient double uNew = Double.NaN;
-    private transient SpeciesAgent deleteAgent, insertAgent;
+    private transient ISpeciesAgent deleteAgent, insertAgent;
     private transient int iInsert, iDelete;
 
     public MCMoveSemigrand(PotentialMaster potentialMaster, IRandom random) {
@@ -79,7 +80,7 @@ public class MCMoveSemigrand extends MCMovePhase {
         nSpecies = species.length;
         if(nSpecies < 2) throw new IllegalArgumentException("Wrong size of species array in MCMoveSemigrand");
         speciesSet = new Species[nSpecies];
-        agentSet = new SpeciesAgent[nSpecies];
+        agentSet = new ISpeciesAgent[nSpecies];
         fugacityFraction = new double[nSpecies];
         reservoirs = new AtomArrayList[nSpecies];
         for(int i=0; i<nSpecies; i++) {

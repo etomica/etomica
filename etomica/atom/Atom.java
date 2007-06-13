@@ -87,8 +87,8 @@ public abstract class Atom implements IAtom, java.io.Serializable {
      */
     public final String toString() {
 //        return Integer.toBinaryString(node.index());
-    	if(this instanceof SpeciesAgent) return "Agent(" + signature() + ")";
-    	if(parent instanceof SpeciesAgent) return "Molecule(" + signature() + ")";
+    	if(this instanceof ISpeciesAgent) return "Agent(" + signature() + ")";
+    	if(parent instanceof ISpeciesAgent) return "Molecule(" + signature() + ")";
     	else if(!(this instanceof IAtomGroup)) return "Atom(" + signature() + ")";
     	else return "Group(" + signature() + ")";
     }    

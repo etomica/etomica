@@ -4,7 +4,7 @@ import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.phase.Phase;
 
@@ -96,7 +96,7 @@ public final class Debug {
 			if ((ATOM1_INDEX > -1 && globalIndex == ATOM1_INDEX) || (ATOM2_INDEX > -1 && globalIndex == ATOM2_INDEX)) return true;
             if (atoms.getAtom(i).getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
                 IAtom molecule = atoms.getAtom(i);
-                while (!(molecule.getParentGroup() instanceof SpeciesAgent)) {
+                while (!(molecule.getParentGroup() instanceof ISpeciesAgent)) {
                     molecule = molecule.getParentGroup();
                 }
                 globalIndex = molecule.getGlobalIndex();
@@ -118,7 +118,7 @@ public final class Debug {
 			if (globalIndex != ATOM1_INDEX && globalIndex != ATOM2_INDEX) return false;  
             if (atoms.getAtom(i).getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
                 IAtom molecule = atoms.getAtom(i);
-                while (!(molecule.getParentGroup() instanceof SpeciesAgent)) {
+                while (!(molecule.getParentGroup() instanceof ISpeciesAgent)) {
                     molecule = molecule.getParentGroup();
                 }
                 globalIndex = molecule.getGlobalIndex();

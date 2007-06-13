@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
@@ -147,7 +147,7 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         return list;
     }
     
-    private SpeciesAgent speciesAgent2;
+    private ISpeciesAgent speciesAgent2;
     private AtomIteratorTreeRoot treeIterator;
     int n0a, nAtoms, n1a, n2a;
     int[] nTree;

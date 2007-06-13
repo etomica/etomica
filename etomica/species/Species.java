@@ -2,6 +2,7 @@ package etomica.species;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.AtomManager;
 import etomica.phase.Phase;
@@ -93,7 +94,7 @@ public class Species implements java.io.Serializable {
      * @param atomManager The SpeciesMaster that will hold this SpeciesAgent
      * @return The new agent.
      */
-    public SpeciesAgent makeAgent(AtomManager atomManager) {
+    public ISpeciesAgent makeAgent(AtomManager atomManager) {
         SpeciesAgent agent = new SpeciesAgent(agentType, atomManager);
         atomManager.addSpeciesAgent(agent);
         return agent;
@@ -106,7 +107,7 @@ public class Species implements java.io.Serializable {
      * @param p The phase for which this species' agent is requested
      * @return The agent of this species in the phase
      */
-    public final SpeciesAgent getAgent(Phase p) {return p.getAgent(this);}
+    public final ISpeciesAgent getAgent(Phase p) {return p.getAgent(this);}
 
     public final AtomType getMoleculeType() {
         return factory.getType();

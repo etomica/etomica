@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomManager;
 import etomica.atom.AtomSet;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.IndexIteratorRectangular;
@@ -142,7 +142,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         test.simGraphic = makeDisplay(test);
         test.sim = test.simGraphic.getSimulation();
         AtomManager atomManager = test.sim.getPhases()[0].getSpeciesMaster();
-        AtomSet list = ((SpeciesAgent)atomManager.getAgentList().getAtom(0)).getChildList();
+        AtomSet list = ((ISpeciesAgent)atomManager.getAgentList().getAtom(0)).getChildList();
         test.atom0 = (AtomLeaf)list.getAtom(0);
         test.atom1 = (AtomLeaf)list.getAtom(1);
         test.atom2 = (AtomLeaf)list.getAtom(2);

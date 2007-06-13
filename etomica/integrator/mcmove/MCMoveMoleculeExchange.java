@@ -7,7 +7,7 @@ import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -44,7 +44,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     
     private transient IAtom molecule;
     private transient Phase iPhase, dPhase;
-    private transient SpeciesAgent iSpecies, dSpecies;
+    private transient ISpeciesAgent iSpecies, dSpecies;
     private transient double uOld;
     private transient double uNew = Double.NaN;
     

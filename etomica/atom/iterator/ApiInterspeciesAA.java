@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.phase.Phase;
 import etomica.species.Species;
 
@@ -52,14 +52,14 @@ public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
      * @throws a NullPointerException if the Phase is null
      */
     public void setPhase(Phase phase) {
-        SpeciesAgent agent0 = phase.getAgent(species0);
-        SpeciesAgent agent1 = phase.getAgent(species1);
+        ISpeciesAgent agent0 = phase.getAgent(species0);
+        ISpeciesAgent agent1 = phase.getAgent(species1);
         if (agent0.getIndex() > agent1.getIndex()) {
             // species were out of order.  swap them
             Species tempSpecies = species0;
             species0 = species1;
             species1 = tempSpecies;
-            SpeciesAgent tempAgent = agent0;
+            ISpeciesAgent tempAgent = agent0;
             agent0 = agent1;
             agent1 = tempAgent;
         }
