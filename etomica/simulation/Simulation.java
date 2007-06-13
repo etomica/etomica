@@ -20,7 +20,7 @@ import etomica.util.RandomNumberGenerator;
  * many places to obtain spatial elements such as vectors and boundaries.
  */
 
-public class Simulation implements java.io.Serializable  {
+public class Simulation implements java.io.Serializable, ISimulation  {
 
     /**
      * Constructs a default 2D, dynamic simulation.
