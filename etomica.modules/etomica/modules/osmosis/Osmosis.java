@@ -24,7 +24,6 @@ import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxesCAE;
@@ -187,22 +186,7 @@ public class Osmosis extends SimulationGraphic {
         moleFractionPanel.setBorder(titleBorder);
         moleFractionPanel.add(mfBox.graphic(null));
 
-        // Diameter slider
-        diameterModifier.setDisplay(getDisplayPhase(sim.phase));
-        DeviceSlider sliderDiameter = new DeviceSlider(sim.getController());
-        sliderDiameter.setModifier(diameterModifier);
-
-		sliderDiameter.setPrecision(2);
-		sliderDiameter.setMaximum(4);
-		sliderDiameter.setMinimum(0);
-		sliderDiameter.setValue(3);
-		sliderDiameter.setNMajor(4);
-
-        JPanel sliderDiaPanel = new JPanel(new GridLayout(0,1));
-        sliderDiameter.setShowBorder(false);
-        sliderDiaPanel.add(sliderDiameter.graphic(null));
-        sliderDiaPanel.setBorder(new TitledBorder
-           (null, "Set Diameter", TitledBorder.CENTER, TitledBorder.TOP));
+        diameterModifier.setValue(1.0);
 
 		// Solvent molecules slider
         JPanel sliderPanelA = new JPanel(new GridLayout(0,1));
@@ -225,14 +209,11 @@ public class Osmosis extends SimulationGraphic {
         getPanel().controlPanel.add(temperaturePanel, vertGBC);
         getPanel().controlPanel.add(sliderPanelA, vertGBC);
         getPanel().controlPanel.add(sliderPanelB, vertGBC);
-        getPanel().controlPanel.add(sliderDiaPanel, vertGBC);
         getPanel().plotPanel.add(displayCycles.graphic(), vertGBC);
         getPanel().plotPanel.add(osmoticPanel, vertGBC);
         getPanel().plotPanel.add(moleFractionPanel, vertGBC);
 
-        getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
-
-        Action refreshDisplayAction = new Action() {
+        Action reinitDisplayAction = new Action() {
         	public void actionPerformed() {
         		mfBox.putData(moleFractionAvg.getData());
         		mfBox.repaint();
@@ -242,8 +223,17 @@ public class Osmosis extends SimulationGraphic {
         	}
         };
 
-        getController().getReinitButton().setPostAction(refreshDisplayAction);
-        getController().getResetAveragesButton().setPostAction(refreshDisplayAction);
+        Action resetDisplayAction = new Action() {
+        	public void actionPerformed() {
+        		mfBox.putData(moleFractionAvg.getData());
+        		mfBox.repaint();
+        		dBox.putData(osmosisPMeterAvg.getData());
+        		dBox.repaint();
+        	}
+        };
+
+        getController().getReinitButton().setPostAction(reinitDisplayAction);
+        getController().getResetAveragesButton().setPostAction(resetDisplayAction);
 
     }
 
