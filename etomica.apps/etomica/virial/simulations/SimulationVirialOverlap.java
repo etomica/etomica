@@ -149,7 +149,7 @@ public class SimulationVirialOverlap extends Simulation {
         if (accumulators[iPhase] != null) {
             // we need a new accumulator so nuke the old one now.
             if (accumulatorPumps[iPhase] != null) {
-                integrators[iPhase].removeIntervalListener(accumulatorPumps[iPhase]);
+                integrators[iPhase].removeIntervalAction(accumulatorPumps[iPhase]);
                 accumulatorPumps[iPhase] = null;
             }
             accumulators[iPhase] = null;

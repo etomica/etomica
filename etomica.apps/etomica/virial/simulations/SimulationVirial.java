@@ -117,7 +117,7 @@ public class SimulationVirial extends Simulation {
 		meter = newMeter;
         if (accumulator != null) { 
             if (accumulatorPump != null) {
-                integrator.removeIntervalListener(accumulatorPump);
+                integrator.removeIntervalAction(accumulatorPump);
                 accumulatorPump = null;
             }
             setAccumulator(accumulator);

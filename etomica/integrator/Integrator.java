@@ -118,7 +118,7 @@ public abstract class Integrator implements java.io.Serializable {
      * whenever a listener is added or removed.  It should be invoked explicitly if
      * the priority setting of a registered interval listener is changed.
      */
-    public synchronized void sortListeners() {
+    protected synchronized void sortListeners() {
         //sort using linked list, but put into array afterwards
         //for rapid looping (avoid repeated construction of iterator)
         Collections.sort(intervalListeners);
@@ -214,7 +214,7 @@ public abstract class Integrator implements java.io.Serializable {
      * by this integrator.  No action results if given listener is null or is not registered
      * with this integrator.
      */
-    public synchronized void removeIntervalListener(Action intervalAction) {
+    public synchronized void removeIntervalAction(Action intervalAction) {
         intervalListeners.remove(findWrapper(intervalAction));
         sortListeners();
     }

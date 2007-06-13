@@ -43,7 +43,7 @@ public class DisplayTimer extends DisplayBox {
      * Unhooks the DisplayTimer from the integrator
      */
     public void dispose() {
-        integrator.removeIntervalListener(dataPump);
+        integrator.removeIntervalAction(dataPump);
     }
     
     /**

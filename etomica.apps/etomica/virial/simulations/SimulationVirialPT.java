@@ -153,7 +153,7 @@ public class SimulationVirialPT extends Simulation {
 	public void setMeter(int i, MeterVirial newMeter) {
 		if (accumulator[i] != null) { 
 			if (accumulatorPump[i] != null) {
-                integrator[i].removeIntervalListener(accumulatorPump[i]);
+                integrator[i].removeIntervalAction(accumulatorPump[i]);
 				accumulatorPump[i] = null;
 			}
 			accumulator[i] = null;
