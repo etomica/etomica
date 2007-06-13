@@ -38,7 +38,7 @@ public class SimCalcSLJ extends Simulation {
     public SimCalcSLJ(Space space, int numAtoms, double density, double temperature) {
         super(space, true);
 
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
 

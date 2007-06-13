@@ -44,7 +44,7 @@ public class SimTarget extends Simulation {
     public SimTarget(Space space, int numAtoms, double density) {
         super(space, true);
 
-        PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this) : new PotentialMaster(this));
+        PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this) : new PotentialMaster(space));
         defaults.makeLJDefaults();
         defaults.atomSize = 1.0;
 

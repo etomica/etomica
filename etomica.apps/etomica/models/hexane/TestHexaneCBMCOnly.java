@@ -43,7 +43,7 @@ public class TestHexaneCBMCOnly extends Simulation {
         // super(space, false, new PotentialMasterNbr(space, 12.0));
         // super(space, true, new PotentialMasterList(space, 12.0));
         super(space, false);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         int chainLength = 6;
         int numAtoms = numMolecules * chainLength;
         PrimitiveHexane primitive = new PrimitiveHexane(space);

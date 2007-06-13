@@ -57,7 +57,7 @@ public class SWMD3D extends Simulation {
 	
   public SWMD3D() {
 	super(Space3D.getInstance());
-	PotentialMaster potentialMaster = new PotentialMaster(this);
+	PotentialMaster potentialMaster = new PotentialMaster(space);
 	
     integrator = new IntegratorHard(this, potentialMaster);
     integrator.setTimeStep(0.01);

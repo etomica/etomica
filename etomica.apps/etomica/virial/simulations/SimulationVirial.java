@@ -40,7 +40,7 @@ public class SimulationVirial extends Simulation {
 	 */
 	public SimulationVirial(Space space, Default defaults, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
 		super(space,false,Default.BIT_LENGTH,defaults);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
 		phase = new PhaseCluster(this,sampleCluster);

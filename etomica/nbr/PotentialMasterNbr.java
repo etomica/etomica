@@ -18,7 +18,8 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
 
     protected PotentialMasterNbr(Simulation sim, PhaseAgentSource phaseAgentSource, 
             PhaseAgentManager phaseAgentManager) {
-        super(sim);
+        super(sim.getSpace());
+        simulation = sim;
         this.phaseAgentSource = phaseAgentSource;
         this.phaseAgentManager = phaseAgentManager;
         rangedAgentManager = new AtomTypeAgentManager(this);
@@ -146,11 +147,19 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     public void releaseAgent(Object agent, AtomType type) {
     }
 
+    /**
+     * Returns the simulation associated with this PotentialMaster
+     */
+    public Simulation getSimulation() {
+        return simulation;
+    }
+
     protected AtomTypeAgentManager.AgentIterator rangedPotentialIterator;
     protected AtomTypeAgentManager.AgentIterator intraPotentialIterator;
     protected final AtomTypeAgentManager rangedAgentManager;
     protected final AtomTypeAgentManager intraAgentManager;
     protected Potential[] allPotentials = new Potential[0];
     protected PhaseAgentSource phaseAgentSource;
+    protected final Simulation simulation;
     protected PhaseAgentManager phaseAgentManager;
 }

@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.space.Space;
 
 /**
  * Collects potentials used for long-range correction.
@@ -17,8 +17,8 @@ import etomica.simulation.Simulation;
  
 public class PotentialMasterLrc extends PotentialMaster {
 
-    protected PotentialMasterLrc(Simulation sim) {
-        super(sim);
+    protected PotentialMasterLrc(Space space) {
+        super(space);
     }
     
     /**

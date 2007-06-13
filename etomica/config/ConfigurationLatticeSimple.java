@@ -159,7 +159,7 @@ public class ConfigurationLatticeSimple extends Configuration {
     	final String APP_NAME = "Configuration Lattice Simple";
 
         Simulation sim = new Simulation(Space3D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMaster(sim);
+        PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
         sim.getDefaults().atomSize = 5.0;
         Phase phase = new Phase(sim);
         sim.addPhase(phase);

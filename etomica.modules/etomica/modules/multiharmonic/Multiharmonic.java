@@ -33,7 +33,7 @@ public class Multiharmonic extends Simulation {
 
     public Multiharmonic() {
         super(Space1D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.makeLJDefaults();
         defaults.atomSize = 0.02;
         double x0 = 1;

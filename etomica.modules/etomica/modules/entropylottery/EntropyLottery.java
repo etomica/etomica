@@ -20,7 +20,7 @@ public class EntropyLottery extends Simulation {
     
     public EntropyLottery(Space space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.makeLJDefaults();
         
         final int N = 30;  //number of atoms

@@ -33,7 +33,7 @@ public class GEMCWithRotation extends Simulation {
     
     public GEMCWithRotation(Space space) {
         super(space, false);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.atomSize = 1.2;
         defaults.makeLJDefaults();
         defaults.temperature = defaults.unitSystem.temperature().toSim(0.420);

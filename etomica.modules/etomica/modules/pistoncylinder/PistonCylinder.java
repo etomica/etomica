@@ -45,7 +45,7 @@ public class PistonCylinder extends Simulation {
     
     public PistonCylinder(int D, Default defaults) {
         super(Space.getInstance(D), true, Default.BIT_LENGTH, defaults);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         lambda = 1.5;
         controller = getController();
         defaults.atomMass = 16;

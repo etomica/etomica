@@ -30,7 +30,7 @@ public class SimCalcSParacetamol extends Simulation {
 
     public SimCalcSParacetamol(Space space, int numAtoms, double temperature) {
         super(space, true);
-        potentialMaster = new PotentialMaster(this);
+        potentialMaster = new PotentialMaster(space);
         
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();;
         primitive = new PrimitiveOrthorhombic(space, 17.248, 12.086, 7.382);

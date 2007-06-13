@@ -45,7 +45,7 @@ public class OsmosisSim extends Simulation {
 
         super(space);
 
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
 
         defaults.ignoreOverlap = true;
         final double sigma = defaults.atomSize;

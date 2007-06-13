@@ -26,7 +26,7 @@ public class Ljmd extends Simulation {
     
     public Ljmd(Space space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.makeLJDefaults();
         defaults.boxSize = 14.0;
         

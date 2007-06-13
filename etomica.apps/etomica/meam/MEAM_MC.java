@@ -92,7 +92,7 @@ public class MEAM_MC extends Simulation {
 	    
 	public MEAM_MC() {
 	    super(Space3D.getInstance()); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMaster(this);
+        potentialMaster = new PotentialMaster(space);
 	    integrator = new IntegratorMC(this, potentialMaster);
 	    integrator.getMoveManager().addMCMove(new MCMoveAtom(potentialMaster, getRandom(), 0.1, 0.2, false));
 	    integrator.setTemperature(Kelvin.UNIT.toSim(298));

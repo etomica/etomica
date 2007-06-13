@@ -40,7 +40,7 @@ public class HSMD3DNoNbr extends Simulation {
     }
     private HSMD3DNoNbr(Space space, Default defaults) {
         super(space, true, Default.BIT_LENGTH, defaults);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
 
         int numAtoms = 256;
         defaults.makeLJDefaults();

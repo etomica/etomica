@@ -38,7 +38,7 @@ public class LjMd2D extends Simulation {
     
     public LjMd2D(Default defaults) {
         super(Space2D.getInstance(), false, Default.BIT_LENGTH, defaults);
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.makeLJDefaults();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setTimeStep(0.01);

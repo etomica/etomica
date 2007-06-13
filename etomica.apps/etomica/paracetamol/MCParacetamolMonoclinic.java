@@ -64,7 +64,7 @@ public class MCParacetamolMonoclinic extends Simulation {
     private MCParacetamolMonoclinic(int numMolecules) {
 
     	super(Space3D.getInstance(), false);
-    	potentialMaster = new PotentialMaster(this);
+    	potentialMaster = new PotentialMaster(space);
     	
     	/*
     	 * Monoclinic Crystal

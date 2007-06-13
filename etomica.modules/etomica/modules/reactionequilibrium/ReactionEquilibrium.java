@@ -46,7 +46,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
-        PotentialMaster potentialMaster = new PotentialMaster(this);
+        PotentialMaster potentialMaster = new PotentialMaster(space);
         defaults.ignoreOverlap = true;
         controller1 = getController();
 

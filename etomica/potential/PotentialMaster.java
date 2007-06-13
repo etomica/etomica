@@ -14,7 +14,6 @@ import etomica.atom.iterator.IteratorFactory;
 import etomica.chem.models.Model;
 import etomica.chem.models.Model.PotentialAndIterator;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -29,28 +28,21 @@ import etomica.species.Species;
  */
 public class PotentialMaster implements java.io.Serializable {
     
-    public PotentialMaster(Simulation sim) {
-        this(sim,IteratorFactory.INSTANCE);
+    public PotentialMaster(Space space) {
+        this(space,IteratorFactory.INSTANCE);
     } 
     
-    public PotentialMaster(Simulation sim, IteratorFactory iteratorFactory) {
-        simulation = sim;
+    public PotentialMaster(Space space, IteratorFactory iteratorFactory) {
+        this.space = space;
         this.iteratorFactory = iteratorFactory;
     }
     
     /**
-     * Returns the simulation associated with this PotentialMaster
-     */
-    public Simulation getSimulation() {
-        return simulation;
-    }
-    
-	/**
 	 * Returns the object that oversees the long-range
 	 * correction zero-body potentials.
 	 */
 	 public PotentialMasterLrc lrcMaster() {
-		if(lrcMaster == null) lrcMaster = new PotentialMasterLrc(simulation);
+		if(lrcMaster == null) lrcMaster = new PotentialMasterLrc(space);
 		return lrcMaster;
 	 }
 
@@ -59,7 +51,7 @@ public class PotentialMaster implements java.io.Serializable {
       * PotentialMaster.
       */
      public PotentialGroup makePotentialGroup(int nBody) {
-         return new PotentialGroup(nBody,simulation.getSpace());
+         return new PotentialGroup(nBody,space);
      }
 
      /**
@@ -347,7 +339,7 @@ public class PotentialMaster implements java.io.Serializable {
      * @return Returns the space.
      */
     public Space getSpace() {
-        return simulation.getSpace();
+        return space;
     }
     
     /**
@@ -373,8 +365,8 @@ public class PotentialMaster implements java.io.Serializable {
 
     protected PotentialLinker first, last;
     protected boolean enabled = true;
-    protected final Simulation simulation;
-    
+    protected final Space space;
+
     static class AtomIterator0 extends AtomsetIteratorSinglet implements AtomsetIteratorPDT {
         private static final long serialVersionUID = 1L;
         AtomIterator0() {

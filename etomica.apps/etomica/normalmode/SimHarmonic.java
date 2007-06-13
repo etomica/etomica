@@ -142,7 +142,7 @@ public class SimHarmonic extends Simulation {
         if (D == 1) {
             p2 = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)p2);
         }
-        PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim) : new PotentialMaster(sim));
+        PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim) : new PotentialMaster(sim.getSpace()));
         potentialMaster.addPotential(p2, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
 
         if (potentialMaster instanceof PotentialMasterList) {
