@@ -4,7 +4,7 @@
  */
 package etomica.action;
 
-import etomica.integrator.Integrator;
+import etomica.integrator.IIntegrator;
 
 /**
  * Convenience class used to define a IntegratorAction. Implements all methods
@@ -17,14 +17,14 @@ public abstract class IntegratorActionAdapter implements IntegratorAction, java.
     /**
 	 * Constructs the Action with the given descriptive label.
 	 */
-	public IntegratorActionAdapter(Integrator integrator) {
+	public IntegratorActionAdapter(IIntegrator integrator) {
 	    setIntegrator(integrator);
 	}
 
 	/**
 	 * @return Returns the integrator on which this action will be performed.
 	 */
-	public Integrator getIntegrator() {
+	public IIntegrator getIntegrator() {
 		return integrator;
 	}
 
@@ -32,9 +32,9 @@ public abstract class IntegratorActionAdapter implements IntegratorAction, java.
 	 * @param integrator
 	 *            The integrator on which this action will be performed.
 	 */
-	public void setIntegrator(Integrator integrator) {
+	public void setIntegrator(IIntegrator integrator) {
 		this.integrator = integrator;
 	}
 
-	protected Integrator integrator;
+	protected IIntegrator integrator;
 }

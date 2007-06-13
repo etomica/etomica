@@ -1,7 +1,7 @@
 package etomica.action;
 
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
+import etomica.integrator.IIntegrator;
 
 
 /**
@@ -13,7 +13,7 @@ public class IntegratorReset extends IntegratorActionAdapter {
         super();
     }
     
-    public IntegratorReset(Integrator integrator, boolean ignoreOverlap) {
+    public IntegratorReset(IIntegrator integrator, boolean ignoreOverlap) {
         super(integrator);
         this.ignoreOverlap = ignoreOverlap;
     }

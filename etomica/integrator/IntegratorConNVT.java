@@ -80,7 +80,9 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 // steps all particles across time interval tStep
 
   	public void doStepInternal() {
-  	    double dim = phase.getSpace().D();  //get the dimension
+        super.doStepInternal();
+
+        double dim = phase.getSpace().D();  //get the dimension
 
   	    //Compute forces on each atom
   	    forceSum.reset();

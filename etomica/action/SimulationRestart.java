@@ -5,7 +5,7 @@ import java.util.Iterator;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
+import etomica.integrator.IIntegrator;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
@@ -49,7 +49,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
         }
         
         for(Iterator iter=simulation.getIntegratorList().iterator(); iter.hasNext(); ) {
-            Integrator integrator = (Integrator)iter.next();
+            IIntegrator integrator = (IIntegrator)iter.next();
             if(integrator.isInitialized()) {
                 try {
                     integrator.initialize();

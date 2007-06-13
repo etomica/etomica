@@ -13,7 +13,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
-import etomica.integrator.Integrator;
+import etomica.integrator.IIntegrator;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorPhase;
 import etomica.math.geometry.Plane;
@@ -121,7 +121,7 @@ public class SimulationGraphic implements SimulationContainer {
 	    LinkedList phaseList = new LinkedList();
 	    for (int i=0; i<activities.length; i++) {
 	        if (activities[i] instanceof ActivityIntegrate) {
-	            Integrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
+	            IIntegrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
 	            setupDisplayPhase(integrator, phaseList);
 	        }
 	    }
@@ -133,7 +133,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  * a phase handled by an Integrator is in PhaseList, a new DisplayPhase is
 	  * not created.
 	  */
-	private void setupDisplayPhase(Integrator integrator, LinkedList phaseList) {
+	private void setupDisplayPhase(IIntegrator integrator, LinkedList phaseList) {
 	    if (integrator instanceof IntegratorPhase) {
 	        Phase phase = ((IntegratorPhase)integrator).getPhase();
 	        if (phaseList.contains(phase)) return;
@@ -160,7 +160,7 @@ public class SimulationGraphic implements SimulationContainer {
 	        integrator.setActionInterval(repaintAction, updateInterval);
 	    }
 	    else if (integrator instanceof IntegratorManagerMC) {
-	        Integrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
+	        IIntegrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
 	        for (int i=0; i<subIntegrators.length; i++) {
 	            setupDisplayPhase(subIntegrators[i], phaseList);
 	        }

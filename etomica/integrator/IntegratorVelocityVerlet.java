@@ -107,7 +107,6 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         if(isothermal) {
             doThermostat();
         }
-        return;
     }
 
     /**

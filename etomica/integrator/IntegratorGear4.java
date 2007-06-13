@@ -89,6 +89,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         
     
     public void doStepInternal() {
+        super.doStepInternal();
         
         predictor();
         calculateForces();

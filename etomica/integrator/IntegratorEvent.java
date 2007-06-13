@@ -17,12 +17,12 @@ public class IntegratorEvent implements java.io.Serializable {
     
     private static final long serialVersionUID = 1L;
     private final Type type;
-    private Integrator source;
+    private IIntegrator source;
 
     /**
      * 
      */
-    IntegratorEvent(Integrator source, Type type) {
+    IntegratorEvent(IIntegrator source, Type type) {
         this.source = source;
         this.type = type;
     }
@@ -31,7 +31,7 @@ public class IntegratorEvent implements java.io.Serializable {
         return type;
     }
     
-    public Integrator getSource() {
+    public IIntegrator getSource() {
         return source;
     }
 

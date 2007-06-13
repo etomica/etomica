@@ -23,7 +23,7 @@ public class IntegratorGEMC extends IntegratorManagerMC {
         return info;
     }
 
-    public void addIntegrator(Integrator newIntegrator) {
+    public void addIntegrator(IIntegrator newIntegrator) {
         if (!(newIntegrator instanceof IntegratorPhase)) {
             throw new IllegalArgumentException("Sub integrators must be able to handle a phase");
         }

@@ -2,7 +2,7 @@ package etomica.action.activity;
 
 import etomica.action.Activity;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
+import etomica.integrator.IIntegrator;
 import etomica.simulation.Simulation;
 import etomica.util.Debug;
 
@@ -16,11 +16,11 @@ public class ActivityIntegrate extends Activity {
 	 * the given integrator (which is final).  Defaults include
 	 * interval = 1, doSleep given by Default class, and sleepPeriod = 10.
 	 */
-	public ActivityIntegrate(Simulation sim, Integrator integrator) {
+	public ActivityIntegrate(Simulation sim, IIntegrator integrator) {
         this(integrator,sim.getDefaults().doSleep,sim.getDefaults().ignoreOverlap);
     }
     
-    public ActivityIntegrate(Integrator integrator, boolean doSleep, boolean ignoreOverlap) {
+    public ActivityIntegrate(IIntegrator integrator, boolean doSleep, boolean ignoreOverlap) {
         super();
         this.integrator = integrator;
         this.doSleep = doSleep;
@@ -124,12 +124,12 @@ public class ActivityIntegrate extends Activity {
 	/**
 	 * @return Returns the integrator.
 	 */
-	public Integrator getIntegrator() {
+	public IIntegrator getIntegrator() {
 		return integrator;
 	}
     
     private static final long serialVersionUID = 1L;
-	private final Integrator integrator;
+	private final IIntegrator integrator;
 	private boolean doSleep;
     private boolean ignoreOverlap;
 	private int sleepPeriod;

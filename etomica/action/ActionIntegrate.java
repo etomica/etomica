@@ -1,7 +1,7 @@
 package etomica.action;
 
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
+import etomica.integrator.IIntegrator;
 import etomica.simulation.Simulation;
 import etomica.util.Debug;
 
@@ -14,11 +14,11 @@ public class ActionIntegrate implements Action {
 	 * Constructs activity to generate configurations with
 	 * the given integrator.
 	 */
-	public ActionIntegrate(Simulation sim, Integrator integrator) {
+	public ActionIntegrate(Simulation sim, IIntegrator integrator) {
         this(integrator,sim.getDefaults().ignoreOverlap);
     }
     
-    public ActionIntegrate(Integrator integrator, boolean ignoreOverlap) {
+    public ActionIntegrate(IIntegrator integrator, boolean ignoreOverlap) {
         super();
         this.integrator = integrator;
         this.ignoreOverlap = ignoreOverlap;
@@ -75,12 +75,12 @@ public class ActionIntegrate implements Action {
 	/**
 	 * @return Returns the integrator.
 	 */
-	public Integrator getIntegrator() {
+	public IIntegrator getIntegrator() {
 		return integrator;
 	}
     
     private static final long serialVersionUID = 1L;
-	private final Integrator integrator;
+	private final IIntegrator integrator;
     private boolean ignoreOverlap;
 	protected long maxSteps, stepCount;
 }

@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 import etomica.action.activity.Controller;
 import etomica.data.DataSource;
-import etomica.integrator.Integrator;
+import etomica.integrator.IIntegrator;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -132,7 +132,7 @@ public class Simulation implements java.io.Serializable  {
      * individual Integrator may be removed from the list via the unregister 
      * method.
      */
-    public void register(Integrator integrator) {
+    public void register(IIntegrator integrator) {
         integratorList.add(integrator);
     }
 
@@ -159,7 +159,7 @@ public class Simulation implements java.io.Serializable  {
      * If the given Integrator is not in the list already, the method returns 
      * without taking any action.
      */
-    public void unregister(Integrator integrator) {
+    public void unregister(IIntegrator integrator) {
         integratorList.remove(integrator);
     }
     

@@ -12,7 +12,7 @@ public class IntegratorNonintervalEvent extends IntegratorEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public IntegratorNonintervalEvent(Integrator source, NonintervalEventType type) {
+    public IntegratorNonintervalEvent(IIntegrator source, NonintervalEventType type) {
         super(source, type);
     }
 

@@ -22,7 +22,7 @@ public class IntegratorManagerMC extends Integrator {
     public IntegratorManagerMC(IRandom random) {
         super();
         this.random = random;
-        integrators = new Integrator[0];
+        integrators = new IIntegrator[0];
         setGlobalMoveInterval(2);
         moveManager = new MCMoveManager(random);
         eventManager = new MCMoveEventManager();
@@ -73,8 +73,8 @@ public class IntegratorManagerMC extends Integrator {
         super.reset();
     }
 
-    public void addIntegrator(Integrator integrator){
-        integrators = (Integrator[])Arrays.addObject(integrators,integrator);
+    public void addIntegrator(IIntegrator integrator){
+        integrators = (IIntegrator[])Arrays.addObject(integrators,integrator);
         nIntegrators++;
     }
 
@@ -82,8 +82,8 @@ public class IntegratorManagerMC extends Integrator {
      * Removes the given integrator from the list of integrators.  Returns
      * false if the given integrator was not handled by this integrator.
      */
-    public boolean removeIntegrator(Integrator integrator) {
-        integrators = (Integrator[])Arrays.removeObject(integrators,integrator);
+    public boolean removeIntegrator(IIntegrator integrator) {
+        integrators = (IIntegrator[])Arrays.removeObject(integrators,integrator);
         if (nIntegrators == integrators.length) {
             return false;
         }
@@ -91,8 +91,8 @@ public class IntegratorManagerMC extends Integrator {
         return true;
     }
     
-    public Integrator[] getIntegrators() {
-        return (Integrator[])integrators.clone();
+    public IIntegrator[] getIntegrators() {
+        return (IIntegrator[])integrators.clone();
     }
 
     /**
@@ -119,7 +119,7 @@ public class IntegratorManagerMC extends Integrator {
             doGlobalMoves();
         } else {
             for(int i=0; i<nIntegrators; i++) {
-                integrators[i].doStepInternal();
+                integrators[i].doStep();
             }
         }
     }
@@ -197,7 +197,7 @@ public class IntegratorManagerMC extends Integrator {
     protected double globalMoveProbability;
     protected MCMoveManager moveManager;
     protected final MCMoveEventManager eventManager;
-    protected Integrator[] integrators;
+    protected IIntegrator[] integrators;
     protected int nIntegrators;
     private final MCMoveTrialInitiatedEvent trialEvent;
     private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;

@@ -17,7 +17,7 @@ import etomica.space.IVector;
  * 
  * @author David Kofke and Andrew Schultz
  */
-public abstract class Integrator implements java.io.Serializable {
+public abstract class Integrator implements java.io.Serializable, IIntegrator {
 
     protected boolean initialized = false;
     private final LinkedList intervalListeners = new LinkedList();
@@ -64,7 +64,7 @@ public abstract class Integrator implements java.io.Serializable {
      * Performs the elementary integration step, such as a molecular dynamics
      * time step, or a Monte Carlo trial.
      */
-    public abstract void doStepInternal();
+    protected abstract void doStepInternal();
 
     /**
      * Returns the number of steps performed by the integrator since it was
@@ -160,11 +160,15 @@ public abstract class Integrator implements java.io.Serializable {
 
     /**
      * Adds the given interval listener to those that receive interval events fired by
-     * this integrator.  If listener has already been added to integrator, it is
-     * not added again.  If listener is null, NullPointerException is thrown.
+     * fired by this integrator.  If the action has already been added to
+     * integrator, an exception is thrown.  If listener is null,
+     * NullPointerException is thrown.
      */
     public synchronized void addIntervalAction(Action newIntervalAction) {
         if(newIntervalAction == null) throw new NullPointerException("Cannot add null as a listener to Integrator");
+        if (intervalListeners.contains(newIntervalAction)) {
+            throw new RuntimeException(newIntervalAction+" is already an interval action");
+        }
         intervalListeners.add(new ListenerWrapper(newIntervalAction, 100));
         sortListeners();
     }

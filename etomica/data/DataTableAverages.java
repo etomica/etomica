@@ -2,7 +2,7 @@ package etomica.data;
 
 import etomica.action.ActionGroupSeries;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.integrator.Integrator;
+import etomica.integrator.IIntegrator;
 import etomica.simulation.Simulation;
 
 /**
@@ -22,11 +22,11 @@ public class DataTableAverages extends DataSinkTable {
      * Sets up table with default types that give the current value, the
      * average, and the error bars.
      */
-    public DataTableAverages(Simulation sim, Integrator integrator) {
+    public DataTableAverages(Simulation sim, IIntegrator integrator) {
         this(integrator,sim.getDefaults().blockSize);
     }
     
-    public DataTableAverages(Integrator integrator, int blockSize) {
+    public DataTableAverages(IIntegrator integrator, int blockSize) {
         this(integrator, new StatType[] { StatType.MOST_RECENT,
                 StatType.AVERAGE, StatType.ERROR }, 
                 blockSize, null);
@@ -35,7 +35,7 @@ public class DataTableAverages extends DataSinkTable {
     /**
      * Sets up table with no sources.
      */
-    public DataTableAverages(Integrator integrator, StatType[] types, int blockSize, 
+    public DataTableAverages(IIntegrator integrator, StatType[] types, int blockSize, 
             DataSource[] sources) {
         super();
         this.types = (StatType[]) types.clone();
@@ -114,5 +114,5 @@ public class DataTableAverages extends DataSinkTable {
     private int tableUpdateInterval = 100;
     private int accumulatorUpdateInterval = 1;
     private int blockSize;
-    private Integrator integrator;
+    private IIntegrator integrator;
 }

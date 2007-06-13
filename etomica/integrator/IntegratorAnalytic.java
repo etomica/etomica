@@ -30,6 +30,7 @@ public class IntegratorAnalytic extends IntegratorMD {
     }
     
     public void doStepInternal() {
+        super.doStepInternal();
         if(action == null) return;
         elapsedTime += getTimeStep();
         action.setTime(elapsedTime);
