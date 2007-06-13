@@ -59,11 +59,11 @@ public class TestHexane extends Simulation {
     public MCMoveRotateMolecule3D rot;
     public MCMoveMoleculeCoupled coupledMove;
     public MCMoveCombinedCbmcTranslation cctMove;
-      
+
 //    public PairIndexerMolecule pri;
 
     
-    public TestHexane(Space space, int numMolecules) {
+    public TestHexane(Space space, int numMolecules, double dens) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(space, false);
@@ -73,7 +73,7 @@ public class TestHexane extends Simulation {
         primitive = new PrimitiveHexane(space);
         // close packed density is 0.4165783882178116
         // Monson reports data for 0.373773507616 and 0.389566754417
-        primitive.scaleSize(Math.pow(0.4165783882178116/0.373773507616,1.0/3.0));
+        primitive.scaleSize(Math.pow(0.4165783882178116/dens,1.0/3.0));
         lattice = new BravaisLattice(primitive);
 
         //This is the factor that multiples by the range of the potential in
@@ -131,6 +131,7 @@ public class TestHexane extends Simulation {
         integrator.getMoveManager().addMCMove(coupledMove);
         
         cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, growMolecule, getRandom());
+        cctMove.setPhase(phase);
         integrator.getMoveManager().addMCMove(cctMove);
         
         // nan we're going to need some stuff in there to set the step sizes and
@@ -280,11 +281,28 @@ public class TestHexane extends Simulation {
 
     public static void main(String[] args) {
         int numMolecules = 144; //144
-        boolean graphic = false;
+        long nSteps = 10000;
+        // Monson reports data for 0.373773507616 and 0.389566754417
+        double density = 0.373773507616;
 
+        boolean graphic = true;
+
+        //parse arguments
+        if(args.length > 1){
+            nSteps = Long.parseLong(args[1]);
+        }
+        if(args.length > 2){
+            numMolecules = Integer.parseInt(args[2]);
+        }
+        if(args.length > 3){
+            density = Double.parseDouble(args[3]);
+            if(density == 0.37) {density = 0.373773507616;}
+            if(density == 0.40) {density = 0.389566754417;}
+        }
+        
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
-        TestHexane sim = new TestHexane(Space3D.getInstance(), numMolecules);
+        TestHexane sim = new TestHexane(Space3D.getInstance(), numMolecules, density);
 
         System.out.println("Happy Goodness!!");
 
@@ -313,9 +331,7 @@ public class TestHexane extends Simulation {
 //            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
 //            pressureAccumulator.setBlockSize(50);
 //            new IntervalActionAdapter(pressureManager, sim.integrator);
-          
-            
-            long nSteps = 100;
+
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
             System.out.println("equilibration finished");
