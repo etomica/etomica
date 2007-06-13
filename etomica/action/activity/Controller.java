@@ -36,7 +36,7 @@ import etomica.util.EnumeratedType;
  * @see Action
  * @see Activity
  */
-public class Controller extends ActivityGroupSeries implements java.io.Serializable {
+public class Controller extends ActivityGroupSeries implements java.io.Serializable, IController {
     
     public Controller() {
         actionStatusMap = new HashMap();
@@ -94,7 +94,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
      * Should not be executed directly, but instead it is executed by a thread
      * made upon invoking the start method.
      */
-    public void run() {
+    protected void run() {
         Thread.currentThread().setName("Controller thread");
         eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.START));
         while(numActions > 0) {

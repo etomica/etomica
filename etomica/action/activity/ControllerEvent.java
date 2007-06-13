@@ -5,14 +5,15 @@ import etomica.util.EnumeratedType;
 
 public class ControllerEvent implements java.io.Serializable {
     
-    protected final Controller controller;
+    private static final long serialVersionUID = 1L;
+    protected final IController controller;
     protected final Type type;
     protected final Action action;
     
-    public ControllerEvent(Controller source, Type type) {
+    public ControllerEvent(IController source, Type type) {
         this(source, type, null);
     }
-    public ControllerEvent(Controller source, Type type, Action action) {
+    public ControllerEvent(IController source, Type type, Action action) {
         this.controller = source;
         this.type = type;
         this.action = action;
@@ -20,7 +21,7 @@ public class ControllerEvent implements java.io.Serializable {
     
     public Action getAction() {return action;} 
     public Type getType() {return type;}
-    public Controller getController() {return controller;}
+    public IController getController() {return controller;}
     
     public static final Type START = new Type("Start",1);
     public static final Type START_ACTION = new Type("Start action",2);

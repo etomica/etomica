@@ -252,7 +252,7 @@ public class SimOverlapLJ extends Simulation {
         if (refPref == -1) {
             // equilibrate off the lattice to avoid anomolous contributions
             activityIntegrate.setMaxSteps(initSteps/2);
-            getController().run();
+            getController().actionPerformed();
             getController().reset();
             System.out.println("target equilibration finished");
 
@@ -260,7 +260,7 @@ public class SimOverlapLJ extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,false),1);
             setRefPref(1,60);
             activityIntegrate.setMaxSteps(initSteps);
-            getController().run();
+            getController().actionPerformed();
             getController().reset();
 
             int newMinDiffLoc = dsvo.minDiffLocation();
@@ -291,7 +291,7 @@ public class SimOverlapLJ extends Simulation {
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().run();
+        getController().actionPerformed();
         getController().reset();
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(false);
@@ -385,7 +385,7 @@ public class SimOverlapLJ extends Simulation {
 
         sim.integratorOverlap.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().run();
+        sim.getController().actionPerformed();
 
         System.out.println("final reference optimal step frequency "+sim.integratorOverlap.getStepFreq0()+" (actual: "+sim.integratorOverlap.getActualStepFreq0()+")");
         

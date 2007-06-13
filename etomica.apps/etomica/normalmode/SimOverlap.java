@@ -242,7 +242,7 @@ public class SimOverlap extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,false),1);
             setRefPref(1e20,100);
             activityIntegrate.setMaxSteps(initSteps);
-            getController().run();
+            getController().actionPerformed();
             getController().reset();
 
             int newMinDiffLoc = dsvo.minDiffLocation();
@@ -256,7 +256,7 @@ public class SimOverlap extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,false),1);
             setRefPref(refPref,10);
             activityIntegrate.setMaxSteps(initSteps);
-            getController().run();
+            getController().actionPerformed();
 
             newMinDiffLoc = dsvo.minDiffLocation();
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
@@ -284,7 +284,7 @@ public class SimOverlap extends Simulation {
         for (int i=0; i<2; i++) {
             if (integrators[i] instanceof IntegratorMC) ((IntegratorMC)integrators[i]).getMoveManager().setEquilibrating(true);
         }
-        getController().run();
+        getController().actionPerformed();
         getController().reset();
 
         if (refPref == -1) {
@@ -368,7 +368,7 @@ public class SimOverlap extends Simulation {
 
         sim.integratorOverlap.getMoveManager().setEquilibrating(false);
         sim.activityIntegrate.setMaxSteps(numSteps);
-        sim.getController().run();
+        sim.getController().actionPerformed();
 
         System.out.println("final reference step frequency "+sim.integratorOverlap.getStepFreq0());
         

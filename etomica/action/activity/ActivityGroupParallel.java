@@ -29,7 +29,7 @@ public class ActivityGroupParallel extends Activity implements ActivityGroup {
 	 * 
 	 * @see etomica.Activity#run()
 	 */
-	public void run() {
+	protected void run() {
 		if (numActions == 0)
 			return;
 		synchronized (this) {

@@ -31,7 +31,7 @@ public abstract class Activity implements Action, java.io.Serializable {
      * or halt to be put in effect. If doContinue() returns false, run method
      * should end activity.
      */
-    public abstract void run();
+    protected abstract void run();
 
     /**
      * Sets integrator to begin isActive on its own thread. This is the normal

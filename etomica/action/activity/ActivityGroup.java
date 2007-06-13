@@ -5,7 +5,18 @@ import etomica.action.ActionGroup;
 
 public interface ActivityGroup extends ActionGroup {
 
-	public Action[] getCompletedActions();
-	public Action[] getCurrentActions();
-	public Action[] getPendingActions();
+    /**
+     * Returns all actions from this group that have been completed.
+     */
+    public Action[] getCompletedActions();
+    
+    /**
+     * Returns all actions from this group that are currently being performed.
+     */
+    public Action[] getCurrentActions();
+    
+    /**
+     * Returns all actions from this group that have not yet started.
+     */
+    public Action[] getPendingActions();
 }
