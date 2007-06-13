@@ -8,6 +8,8 @@ import etomica.atom.IAtom;
 * @author Henrique
 */
 public class ColorSchemeSimple implements ColorScheme, java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
     public ColorSchemeSimple(Color color) { setBaseColor(color); }
     public int atomColor(IAtom a) {return 0;}
     

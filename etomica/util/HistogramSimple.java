@@ -89,7 +89,7 @@ public class HistogramSimple implements Histogram, java.io.Serializable {
     
     public double[] getHistogram() {
         //returns an array representing the present histogram
-        if(sum != 0) {
+        if (sum != 0) {
 		    for(int i=0; i<nBins; i++) {
 		        histogram[i] = (double)counts[i]/((double)sum*deltaX);
 		    }

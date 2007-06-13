@@ -21,6 +21,7 @@ import etomica.units.Null;
 
 public class ModifierGeneral implements Modifier, java.io.Serializable {
 
+    private static final long serialVersionUID = 1L;
     protected Object[] object;
     protected String property;
     protected transient Method[] readMethod;

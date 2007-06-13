@@ -27,6 +27,7 @@ public class PotentialGroupHybrid extends PotentialGroupNbr {
         }
     }
     
+    private static final long serialVersionUID = 1L;
     protected PotentialMasterCell potentialMasterCell;
     protected PotentialMasterList potentialMasterList;
 }

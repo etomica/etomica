@@ -17,7 +17,7 @@ public final class ColorSchemeByType
 implements ColorScheme, java.io.Serializable 
 {
     
-	public ColorSchemeByType() 	{}
+    public ColorSchemeByType() 	{}
 
  /**
   * Initialize atom color to the color of its type
@@ -66,6 +66,7 @@ implements ColorScheme, java.io.Serializable
 		return (Color)colorindex.get( index );
 	}
 	
+    private static final long serialVersionUID = 1L;
 	static private final Color[] DEFAULTCOLORLIST = new Color[]{ Color.RED, Color.GREEN, Color.BLUE, Color.WHITE, Color.BLACK, Color.GRAY25, Color.GRAY50, Color.GRAY75 };
 	int position_in_list =0;
 	static private final Color DEFAULTCOLOR = new Color( 0.5f, 0.5f, 0.5f );
