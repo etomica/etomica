@@ -41,8 +41,6 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
         this.cbmcMove = mv;
         this.random = nRandom;
         
-        setPhase(pm.getSimulation().getPhases()[0]);
-        
         moleculeSource = new AtomSourceRandomMolecule();
         ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
         energyMeter = new MeterPotentialEnergy(pm);
