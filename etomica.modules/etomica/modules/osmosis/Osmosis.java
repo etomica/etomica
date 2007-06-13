@@ -12,6 +12,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
@@ -103,12 +104,12 @@ public class Osmosis extends SimulationGraphic {
         osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardLeftA}, 
                 new P1HardBoundary[]{sim.boundaryHardRightA, sim.boundaryHardB});
         osmosisPMeter.setIntegrator(sim.integrator);
-        AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverage(sim);
+        final AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverage(sim);
         DataPump pump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
         sim.register(osmosisPMeter, pump);
         sim.integrator.addIntervalAction(pump);
         sim.integrator.setActionInterval(pump, 40);
-        DisplayBoxesCAE dBox = new DisplayBoxesCAE();
+        final DisplayBoxesCAE dBox = new DisplayBoxesCAE();
         dBox.setAccumulator(osmosisPMeterAvg);
         dBox.setPrecision(6);
 
@@ -142,11 +143,11 @@ public class Osmosis extends SimulationGraphic {
         moleFraction.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
         moleFraction.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
         moleFraction.setSpecies(sim.speciesB);
-        AccumulatorAverage moleFractionAvg = new AccumulatorAverage(sim);
+        final AccumulatorAverage moleFractionAvg = new AccumulatorAverage(sim);
         pump = new DataPump(moleFraction, moleFractionAvg);
         sim.register(moleFraction, pump);
         sim.integrator.addIntervalAction(pump);
-        DisplayBoxesCAE mfBox = new DisplayBoxesCAE();
+        final DisplayBoxesCAE mfBox = new DisplayBoxesCAE();
         mfBox.setAccumulator(moleFractionAvg);
         mfBox.setPrecision(8);
 
@@ -225,11 +226,24 @@ public class Osmosis extends SimulationGraphic {
         getPanel().controlPanel.add(sliderPanelA, vertGBC);
         getPanel().controlPanel.add(sliderPanelB, vertGBC);
         getPanel().controlPanel.add(sliderDiaPanel, vertGBC);
+        getPanel().plotPanel.add(displayCycles.graphic(), vertGBC);
         getPanel().plotPanel.add(osmoticPanel, vertGBC);
         getPanel().plotPanel.add(moleFractionPanel, vertGBC);
-        getPanel().plotPanel.add(displayCycles.graphic(), vertGBC);
 
         getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
+
+        Action refreshDisplayAction = new Action() {
+        	public void actionPerformed() {
+        		mfBox.putData(moleFractionAvg.getData());
+        		mfBox.repaint();
+        		dBox.putData(osmosisPMeterAvg.getData());
+        		dBox.repaint();
+        		getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        };
+
+        getController().getReinitButton().setPostAction(refreshDisplayAction);
+        getController().getResetAveragesButton().setPostAction(refreshDisplayAction);
 
     }
 
