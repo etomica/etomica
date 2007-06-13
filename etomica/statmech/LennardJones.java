@@ -271,6 +271,7 @@ public final class LennardJones {
         double[] rhoSat = liquidFccCoexDensities(T);
         System.out.println("Input T, rho: "+ T + "  "+rho);
         System.out.println("Residual Helmholtz: " + aResidualFcc(T, rho));
+        System.out.println("Helmholtz: "+(aResidualFcc(T,rho) + T*Math.log(rho) - 1.0*T));
         double betaA = (aResidualFcc(T, rho) + (-1 + Math.log(rho)));
         System.out.println("betaA: " + betaA);
         System.out.println("betaA anharmonic: " + Uah(T, rho));
