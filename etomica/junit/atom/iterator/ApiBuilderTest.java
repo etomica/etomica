@@ -16,7 +16,7 @@ import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * Tests the iterators made by the various static methods in ApiBuilder.
@@ -490,7 +490,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         testNoIterates(api);
     }
 
-    private Simulation sim;
+    private ISimulation sim;
     int n0a, nAtoms, n1a, n2a, n3a;
     int[] nTree;
     private static final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;

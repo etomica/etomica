@@ -9,7 +9,7 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 
 /**
@@ -187,7 +187,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
     }
     
     private AtomIteratorBasis basisIterator;
-    private Simulation sim;
+    private ISimulation sim;
     int n0a, nAtoms, n1a, n2a;
     int[] nTree;
 

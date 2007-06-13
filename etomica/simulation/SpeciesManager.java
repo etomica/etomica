@@ -21,7 +21,7 @@ import etomica.util.Arrays;
  */
 public class SpeciesManager implements java.io.Serializable {
 
-    public SpeciesManager(Simulation sim, int[] bitLength) {
+    public SpeciesManager(ISimulation sim, int[] bitLength) {
         this.sim = sim;
         speciesList = new Species[0];
         numAtomTypes = 0;
@@ -278,7 +278,7 @@ public class SpeciesManager implements java.io.Serializable {
     private int numAtomTypes;
     private int[] typeIndexReservoir;
     private int typeReservoirCount;
-    private final Simulation sim;
+    private final ISimulation sim;
     private final int[] bitLength;
     private AtomTypeSpeciesAgent[] speciesAgentTypes;
 }

@@ -10,6 +10,6 @@ package etomica.simulation;
  */
 public interface SimulationContainer {
 
-    public Simulation getSimulation();
+    public ISimulation getSimulation();
 
 }

@@ -1,6 +1,7 @@
 package etomica.chem.models;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.potential.Potential;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 
@@ -43,7 +44,7 @@ public abstract class Model implements java.io.Serializable {
      * an opportunity to create the potentials after the species.  This method
      * will only be called after the species has been created.
      */
-    protected abstract void initPotentials(Simulation sim);
+    protected abstract void initPotentials(ISimulation sim);
     
     /**
      * Returns an array of objects wrapping bonding Potentials and the 

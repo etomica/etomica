@@ -3,7 +3,7 @@ package etomica.junit.atom.iterator;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 
 /**
@@ -21,7 +21,7 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         int[] n1 = new int[] {5, 0, 6};
         int[] n2 = new int[] {1, 7, 2};
         int[] n2Tree = new int[] {3,4};
-        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
+        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
         
         ApiLeafAtoms api = new ApiLeafAtoms();
         

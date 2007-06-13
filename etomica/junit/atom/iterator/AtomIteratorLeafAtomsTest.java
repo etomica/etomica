@@ -6,7 +6,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * Unit test for AtomIteratorLeafAtoms
@@ -23,7 +23,7 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         int[] n1 = new int[] { 5, 0, 6 };
         int[] n2 = new int[] { 1, 7, 2 };
         int[] n2Tree = new int[] { 3, 4 };
-        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
+        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
                 n2Tree);
 
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();

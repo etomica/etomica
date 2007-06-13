@@ -9,6 +9,7 @@ import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.phase.Phase;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.IVector;
@@ -157,7 +158,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     int iMax;
     IVector dr, dr1, dr2, drStep;
     IVector[] edgeVectors;
-    Simulation sim;
+    ISimulation sim;
     SimulationGraphic simGraphic;
     DisplayPhase display;
     AtomLeaf atom0, atom1, atom2;

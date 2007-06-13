@@ -18,6 +18,7 @@ import etomica.integrator.IntegratorManagerMC;
 import etomica.integrator.IntegratorPhase;
 import etomica.math.geometry.Plane;
 import etomica.phase.Phase;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.space3d.Vector3D;
@@ -98,7 +99,7 @@ public class SimulationGraphic implements SimulationContainer {
         setupDisplayPhase();
     }
 
-    public Simulation getSimulation() {return simulation;}
+    public ISimulation getSimulation() {return simulation;}
     
     public final LinkedList displayList() { return displayList;}
     public final LinkedList deviceList() { return deviceList; }

@@ -8,7 +8,7 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentSourceAtomManager;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.util.Debug;
@@ -21,7 +21,7 @@ import etomica.util.Debug;
  */
 public class CriterionPositionWall implements NeighborCriterion, AgentSource, java.io.Serializable {
 
-	public CriterionPositionWall(Simulation sim) {
+	public CriterionPositionWall(ISimulation sim) {
 		super();
 		this.interactionRange = Double.NaN;
         this.neighborRange = Double.NaN;

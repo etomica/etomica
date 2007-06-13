@@ -10,6 +10,7 @@ import etomica.action.ResetAccumulators;
 import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD2D;
 
@@ -25,7 +26,7 @@ public class DeviceTrioControllerButton extends Device {
     
     private JPanel jp;
     private DeviceControllerButton startButton;
-    private Simulation simulation;
+    private ISimulation simulation;
     private DeviceButton reinitButton;
     private DeviceButton resetButton;
 	private double width;
@@ -90,7 +91,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Returns the simulation affected by the buttons.
      */
-    public Simulation getSimulation() {
+    public ISimulation getSimulation() {
         return simulation;
     }
 

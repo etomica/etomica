@@ -14,6 +14,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.ISpeciesAgent;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -85,7 +86,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
      *             notifies the Phase that it was removed from the Simulation
      *             (the index is set to 0).
      */
-    public void resetIndex(Simulation sim) {
+    public void resetIndex(ISimulation sim) {
         if (sim == null) {
             // sim is notifying us that we got removed.
             index = 0;

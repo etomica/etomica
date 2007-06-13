@@ -8,7 +8,7 @@ import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorArrayListAdjacent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 
 /**
@@ -32,7 +32,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
     
     public void testIteration() {
         int nAtoms = 11;
-        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(
+        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {nAtoms},2,new int[] {nAtoms},null,null);
         ISpeciesAgent agent = sim.getPhases()[0].getAgent(sim.getSpeciesManager().getSpecies()[0]);
         AtomArrayList atomList = new AtomArrayList();

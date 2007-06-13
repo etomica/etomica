@@ -5,6 +5,7 @@ import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
 import etomica.potential.Potential2;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
@@ -106,7 +107,7 @@ public class ModelChain extends Model {
         return element;
     }
     
-    protected void initPotentials(Simulation sim) {
+    protected void initPotentials(ISimulation sim) {
         // we already have our bonding potential, so do nothing
     }
 

@@ -2,6 +2,7 @@ package etomica.simulation;
 
 import etomica.action.activity.Controller;
 import etomica.phase.Phase;
+import etomica.space.Space;
 import etomica.util.IRandom;
 
 public interface ISimulation {
@@ -50,4 +51,9 @@ public interface ISimulation {
      * Returns the SpeciesManager, which tracks the Species in the Simulation.
      */
     public SpeciesManager getSpeciesManager();
+
+    /**
+     * @return the space
+     */
+    public Space getSpace();
 }

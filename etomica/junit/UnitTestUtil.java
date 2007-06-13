@@ -9,6 +9,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorTreePhase;
 import etomica.phase.Phase;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -36,7 +37,7 @@ public class UnitTestUtil {
         super();
     }
 
-    public static Simulation makeStandardSpeciesTree() {
+    public static ISimulation makeStandardSpeciesTree() {
         return makeStandardSpeciesTree(new int[] { 5, 7 }, 3, new int[] { 10,
                 10 }, new int[] { 3, 3 }, new int[] { 5, 4, 3 });
     }
@@ -62,7 +63,7 @@ public class UnitTestUtil {
      * @return root of species hierarchy
      */
 
-    public static Simulation makeStandardSpeciesTree(int[] n0, int nA0,
+    public static ISimulation makeStandardSpeciesTree(int[] n0, int nA0,
             int[] n1, int[] n2, int[] n2Tree) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new int[] { 5, 4, 11, 6, 3, 3 }, new Default());
@@ -122,7 +123,7 @@ public class UnitTestUtil {
      *            type used to form a molecule.
      * @return root of the species hierarchy
      */
-    public static Simulation makeMultitypeSpeciesTree(int[] nMolecules,
+    public static ISimulation makeMultitypeSpeciesTree(int[] nMolecules,
             int[][] nAtoms) {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false, new int[] { 9, 11, 6, 3, 3 }, new Default());
@@ -147,7 +148,7 @@ public class UnitTestUtil {
     }
     
     public static void main(String[] arg) {
-        Simulation sim = makeStandardSpeciesTree();
+        ISimulation sim = makeStandardSpeciesTree();
         Phase[] phases = sim.getPhases();
         for (int i=0; i<phases.length; i++) {
             AtomIteratorTreePhase iterator = new AtomIteratorTreePhase();

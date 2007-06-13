@@ -14,7 +14,7 @@ import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.species.Species;
 
 /**
@@ -32,7 +32,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         int[] n1 = new int[] { 5, 1, 6 };
         int[] n2 = new int[] { 1, 7, 2 };
         int[] n2Tree = new int[] { 3, 4 };
-        Simulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
+        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
                 n2Tree);
 
         Species[] species = sim.getSpeciesManager().getSpecies();

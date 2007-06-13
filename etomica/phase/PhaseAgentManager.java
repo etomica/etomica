@@ -2,7 +2,7 @@ package etomica.phase;
 
 import java.lang.reflect.Array;
 
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SimulationListener;
@@ -27,7 +27,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
         isBackend = true;
     }
 
-    public PhaseAgentManager(PhaseAgentSource source, Simulation sim,
+    public PhaseAgentManager(PhaseAgentSource source, ISimulation sim,
             boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
@@ -52,7 +52,7 @@ public class PhaseAgentManager implements SimulationListener, java.io.Serializab
      * Sets the Simulation containing Phases to be tracked.  This method should
      * not be called if setSimulationEventManager is called.
      */
-    public void setSimulation(Simulation sim) {
+    public void setSimulation(ISimulation sim) {
         simEventManager = sim.getEventManager();
         // this will crash if the given sim is in the middle of its constructor
         simEventManager.addListener(this, isBackend);
