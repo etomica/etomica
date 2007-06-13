@@ -35,12 +35,16 @@ import etomica.graphics.SimulationPanel;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.integrator.Integrator;
 import etomica.lattice.LatticeCubicSimple;
+import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Rectangle;
 import etomica.modifier.Modifier;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.space.IVector;
+import etomica.space2d.Space2D;
+import etomica.space3d.Space3D;
 import etomica.space2d.Vector2D;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
@@ -92,7 +96,13 @@ public class Osmosis extends SimulationGraphic {
         displayPhase.setAlign(1,DisplayPhase.CENTER);
         displayPhase.setOriginShift(0, thickness);
         displayPhase.setOriginShift(1, -thickness);
-        displayPhase.addDrawable(new MyWall());
+        if (sim.getSpace() instanceof Space2D) {
+            displayPhase.addDrawable(new MyWall());
+        }
+        else if (sim.getSpace() instanceof Space3D) {
+        	etomica.math.geometry.Plane plane = new etomica.math.geometry.Plane(sim.getSpace());
+        	((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).addPlane(plane);
+        }
 
         cycles = new DataSourceCountTime();
         displayCycles = new DisplayTimer(sim.integrator);
@@ -139,8 +149,16 @@ public class Osmosis extends SimulationGraphic {
         moleFraction = new MeterLocalMoleFraction();
         moleFraction.setPhase(sim.phase);
         IVector dimensions = sim.phase.getBoundary().getDimensions();
-        moleFraction.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
-        moleFraction.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
+
+        if (sim.getSpace() instanceof Space2D) { // 2D
+            moleFraction.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
+            moleFraction.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
+        }
+        else if (sim.getSpace() instanceof Space3D) { // 3D
+            moleFraction.setShape(new Cuboid(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1), dimensions.x(2)));
+            moleFraction.setShapeOrigin(new Vector3D(dimensions.x(0)*0.25, 0, 0));
+        }
+
         moleFraction.setSpecies(sim.speciesB);
         final AccumulatorAverage moleFractionAvg = new AccumulatorAverage(sim);
         pump = new DataPump(moleFraction, moleFractionAvg);
@@ -235,26 +253,40 @@ public class Osmosis extends SimulationGraphic {
         getController().getReinitButton().setPostAction(reinitDisplayAction);
         getController().getResetAveragesButton().setPostAction(resetDisplayAction);
 
+        if (sim.getSpace() instanceof Space3D) { // 3D
+            ((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).setBackgroundColor(Color.WHITE);
+            ((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).setBoundaryFrameColor(Color.BLACK);
+            ((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).setPlaneColor(Color.GREEN);
+        }
+
     }
 
 	//drawable that puts a line down the middle of the box, where the
 	//semipermeable membrane potential acts
     protected class MyWall implements Drawable {
     	public void draw(Graphics g, int[] origin, double scale) {
-    		int x1 = origin[0]+(int)(0.5*scale*sim.phase.getBoundary().getDimensions().x(0));
-    		int y1 = origin[1];
-			int h = (int)(scale*sim.phase.getBoundary().getDimensions().x(1));
-			int w = 4;
-			g.setColor(Color.green);
-    		g.fillRect(x1-w, y1, w, h);
+    		if(sim.getSpace() instanceof Space2D) {
+    		    int x1 = origin[0]+(int)(0.5*scale*sim.phase.getBoundary().getDimensions().x(0));
+    		    int y1 = origin[1];
+			    int h = (int)(scale*sim.phase.getBoundary().getDimensions().x(1));
+			    int w = 4;
+			    g.setColor(Color.green);
+    		    g.fillRect(x1-w, y1, w, h);
+    		}
     	}
     }
 
-    
-
     public static void main(String[] args) {
 
-    	OsmosisSim sim = new OsmosisSim();
+        OsmosisSim sim = null;
+
+        if(false) { // 3D Case
+    	    sim = new OsmosisSim(Space3D.getInstance());
+        }
+        else { // 2D case
+        	sim = new OsmosisSim(Space2D.getInstance());
+        }
+
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(1);
         sim.register(sim.integrator);
@@ -338,7 +370,16 @@ public class Osmosis extends SimulationGraphic {
 
     public static class Applet extends javax.swing.JApplet {
 	    public void init() {
-	    	OsmosisSim sim = new OsmosisSim();
+
+	    	OsmosisSim sim = null;
+
+	        if(true) { // 3D Case
+	    	    sim = new OsmosisSim(Space3D.getInstance());
+	        }
+	        else { // 2D case
+	        	sim = new OsmosisSim(Space2D.getInstance());
+	        }
+
 	        sim.activityIntegrate.setDoSleep(true);
 	        sim.activityIntegrate.setSleepPeriod(1);
 	        sim.register(sim.integrator);

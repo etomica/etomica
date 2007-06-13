@@ -46,6 +46,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 	private boolean boundaryDisplayed = false;
 	private Color backgroundColor;
 	private Color boundaryFrameColor;
+	private Color planeColor;
 	private Panel panel = null;
 	private boolean initialOrient = false;
     private Plane[] planes;
@@ -78,6 +79,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 		gsys = new G3DSys(panel);
 		setBackgroundColor(Color.BLACK);
 		setBoundaryFrameColor(Color.WHITE);
+		setPlaneColor(Color.YELLOW);
 		// init AtomAgentManager, to sync G3DSys and Etomica models
 		// this automatically adds the atoms
 		aam = new AtomLeafAgentManager(this, displayPhase.getPhase(), false);
@@ -120,23 +122,55 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 		createOffScreen(width, height);
 	}
 
+	/**
+	 * Sets the background color of the display phase canvas.
+	 * @param Color : color to set background to
+	 */
 	public void setBackgroundColor(Color color) {
 		backgroundColor = color;
 		gsys.setBGColor(color);
 		panel.setBackground(color);
 	}
 
+	/**
+	 * Gets the background color of the display phase canvas.
+	 * @return Color : Current color of background
+	 */
 	public Color getBackgroundColor() {
 		return backgroundColor;
 	}
 
+	/**
+	 * Sets the color of the phase boundary.
+	 * @param Color : color to set phase boundary
+	 */
 	public void setBoundaryFrameColor(Color color) {
 		boundaryFrameColor = color;
 		oldPolytope = null;
 	}
 
+	/**
+	 * Gets the color of phase boundary.
+	 * @return Color : Current color of phase boundary
+	 */
 	public Color getBoundaryFrameColor() {
 		return boundaryFrameColor;
+	}
+
+	/**
+	 * Sets the color of the plane.
+	 * @param Color : color to set plane
+	 */
+	public void setPlaneColor(Color color) {
+		planeColor = color;
+	}
+
+	/**
+	 * Gets the color of the plane.
+	 * @return Color : Current color of plane
+	 */
+	public Color getPlaneColor(Color color) {
+		return planeColor;
 	}
 
 	public void removeObjectByPhase(etomica.phase.Phase p) {
@@ -183,6 +217,16 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
 				gsys.addFig(f);
 			}
 		}
+
+/*
+ UNCOMMENT THIS CODE IF APPLICATIONS START ADDING THEIR OWN DRAWABLES
+
+        //do drawing of all drawing objects that have been added to the display
+        for(Iterator iter=displayPhase.getDrawables().iterator(); iter.hasNext(); ) {
+            Drawable obj = (Drawable)iter.next();
+            obj.draw(g, displayPhase.getOrigin(), displayPhase.getToPixels());
+        }
+*/
 
 		ColorScheme colorScheme = displayPhase.getColorScheme();
 		AtomFilter atomFilter = displayPhase.getAtomFilter();
@@ -428,7 +472,7 @@ public class DisplayPhaseCanvasG3DSys extends DisplayCanvas implements
         }
         while (intersectionCount > planeTriangles[iPlane].length+2) {
             planeTriangles[iPlane] = (Triangle[])Arrays.addObject(planeTriangles[iPlane], new Triangle(
-                    gsys, Graphics3D.getColixTranslucent(G3DSys.getColix(Color.YELLOW), true), new Point3f(), new Point3f(), new Point3f()));
+                    gsys, Graphics3D.getColixTranslucent(G3DSys.getColix(planeColor), true), new Point3f(), new Point3f(), new Point3f()));
             gsys.addFig(planeTriangles[iPlane][planeTriangles[iPlane].length-1]);
         }
 

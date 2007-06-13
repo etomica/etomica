@@ -15,8 +15,11 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
+import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
@@ -37,10 +40,11 @@ public class OsmosisSim extends Simulation {
     public P1HardBoundary boundaryHardB;
     public P1HardWall boundarySemiB;
     public ActivityIntegrate activityIntegrate;
-    
-    public OsmosisSim() {
 
-        super(Space2D.getInstance());
+    public OsmosisSim(Space space) {
+
+        super(space);
+
         PotentialMaster potentialMaster = new PotentialMaster(this);
 
         defaults.ignoreOverlap = true;
@@ -90,22 +94,30 @@ public class OsmosisSim extends Simulation {
 	    phase = new Phase(this);
         addPhase(phase);
         phase.setBoundary(new BoundaryRectangularNonperiodic(space, getRandom()));
-        phase.getBoundary().setDimensions(new Vector2D(30.0, 30.0));
+
+        ConfigurationLattice config = null;
+        if (space instanceof Space2D){ // 2D
+            phase.getBoundary().setDimensions(new Vector2D(30.0, 30.0));
+            config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
+        }
+        else if (space instanceof Space3D) { // 3D
+            phase.getBoundary().setDimensions(new Vector3D(30.0, 30.0, 30.0));
+        	config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));
+        }
         phase.getAgent(speciesA).setNMolecules(30);
         phase.getAgent(speciesB).setNMolecules(10);
-        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
         config.initializeCoordinates(phase);
 
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setPhase(phase);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
-        
+
         activityIntegrate = new ActivityIntegrate(integrator, false, false);
         getController().addAction(activityIntegrate);
     }
 
     public static void main(String[] args) {
-        OsmosisSim sim = new OsmosisSim();
+        OsmosisSim sim = new OsmosisSim(Space2D.getInstance());
         sim.register(sim.integrator);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
