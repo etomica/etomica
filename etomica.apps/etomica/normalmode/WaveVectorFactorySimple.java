@@ -78,7 +78,7 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
                     
                     boolean flip = false;
 outer:              for (int i=0; i<3; i++){
-                    	for (int j=0; j<i-1; j++){
+                    	for (int j=0; j<i; j++){
                     		if (k[j] > 0 && (!flip2[j] || k[j] < kMax[j] )){
                     			break outer;
                     		}
