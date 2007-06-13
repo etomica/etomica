@@ -47,11 +47,6 @@ public class P1HardWall extends Potential1 implements PotentialHard {
         IVector r = atom.getPosition();
         IVector v = atom.getVelocity();
         double vx = v.x(0);
-        // cheat!  We want to ignore collisions from the left.  The initial
-        // config sometimes plops atoms on the left.
-        if (vx > 0) {
-            return Double.POSITIVE_INFINITY;
-        }
         double rx = r.x(0) + vx * falseTime;
         double t = (vx > 0.0) ? - collisionRadius : collisionRadius;
         t = (t - rx) / vx;
