@@ -2,7 +2,7 @@ package etomica.paracetamol;
 
 import etomica.atom.AtomAgentManager;
 import etomica.atom.IAtom;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.phase.Phase;
@@ -151,7 +151,7 @@ public abstract class CoordinateDefinitionUpper {
         }
         public Object makeAgent(IAtom atom) {
             IVector vector = space.makeVector();
-            if(atom instanceof SpeciesAgent) return null;
+            if(atom instanceof ISpeciesAgent) return null;
             vector.E(atom.getType().getPositionDefinition().position(atom));
             return vector;
         }
