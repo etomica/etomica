@@ -119,7 +119,7 @@ public class HSMD3DNoNbr extends Simulation {
     	}
 		
 	    // go daddy
-	    simulation.getController().run();
+	    simulation.getController().actionPerformed();
 	    System.out.println( "Simulation run ok");
 		
     }
