@@ -206,7 +206,7 @@ public class SimulationVirialOverlap extends Simulation {
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,false),1);
             setRefPref(10000,15);
             ai.setMaxSteps(initSteps);
-            getController().run();
+            getController().actionPerformed();
 
             int newMinDiffLoc = dsvo.minDiffLocation();
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
@@ -237,7 +237,7 @@ public class SimulationVirialOverlap extends Simulation {
         for (int i=0; i<2; i++) {
             integrators[i].getMoveManager().setEquilibrating(true);
         }
-        getController().run();
+        getController().actionPerformed();
         getController().reset();
 
         if (refPref == -1) {

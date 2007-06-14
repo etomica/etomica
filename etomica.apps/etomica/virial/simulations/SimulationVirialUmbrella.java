@@ -83,7 +83,7 @@ public class SimulationVirialUmbrella extends SimulationVirial {
 			((ClusterWeightUmbrella)sim.sampleCluster).setWeightRatio(new double[] {1.0,weightRatio});
 			sim.ai.setMaxSteps(steps);
 //            sim.integrator.setEquilibrating(true);
-			sim.ai.run();
+			sim.ai.actionPerformed();
             AccumulatorRatioAverage acc = (AccumulatorRatioAverage)sim.accumulator;
             DataGroup allYourBase = (DataGroup)acc.getData();
             System.out.println("average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
