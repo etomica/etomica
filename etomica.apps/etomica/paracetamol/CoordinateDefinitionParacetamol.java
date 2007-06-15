@@ -70,6 +70,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         yTriplePrime = (IVector3D)phase.getSpace().makeVector();
         zTriplePrime = (IVector3D)phase.getSpace().makeVector();
         
+        rotationL = lattice.getSpace().makeTensor();
+        rotationM = lattice.getSpace().makeTensor();
+        rotationN = lattice.getSpace().makeTensor();
         
         orientationManager = new AtomAgentManager(new OrientationAgentSource(), phase);
         atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
@@ -222,7 +225,6 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         	IAtomGroup molecule = (IAtomGroup)molecules.getAtom(i);
         	IVector3D [] siteOrientation = (IVector3D [])orientationManager.getAgent(molecule);
         	
-        	
 	    	/*
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
@@ -235,26 +237,23 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 * Determine axis 1 by using Vector Projection
 	    	 */
 	    	axis0Prime.Ev1Mv2(leafPos5, leafPos0);
-	      	axis0Prime.normalize();
+	    	axis0Prime.normalize();
 	    	
 	    	axisNormPrime.Ev1Mv2(leafPos10, leafPos0);
-	      	axisNormPrime.normalize();
 	    	double dotProd = axisNormPrime.dot(axis0Prime);
-	    	proj.Ea1Tv1(dotProd,axis0Prime);
+	    	proj.Ea1Tv1(dotProd/axis0Prime.squared(),axis0Prime);
 	    	axisNormPrime.ME(proj);
-	      	
-	      	
-	      	siteOrientation[1].TE(1 /Math.sqrt(siteOrientation[1].squared()));
-	      	siteOrientation[2].TE(1 /Math.sqrt(siteOrientation[2].squared()));
-	    	u[j] = axis0Prime.dot(siteOrientation[1]);   //components of siteOrientation[1]
-	    	u[j+1] = axis0Prime.dot(siteOrientation[2]); //components of siteOrientation[2]
+	      	axisNormPrime.normalize();
+	    	
+	    	u[j] = axis0Prime.dot(siteOrientation[1]);  
+	    	u[j+1] = axis0Prime.dot(siteOrientation[2]); 
 	      	 
 	    	/*
 	    	 * Getting rotation angle at x-axis
 	    	 * 
 	    	 * axisNorm is perpendicular to siteOrientation[0]
 	    	 */
-	    	siteOrientation[0].TE(1 /Math.sqrt(siteOrientation[0].squared()));
+	    	//siteOrientation[0].normalize();
         	double cosAlpha = axis0Prime.dot(siteOrientation[0]);
 	    	if (cosAlpha > 0.99999999){
 	    		axisNorm.E(axisNormPrime); 
@@ -263,7 +262,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    		
 	    		bprime.Ea1Tv1( 1.0 /cosAlpha, siteOrientation[0]);
 	    		bprime.ME(axis0Prime);
-	    		bprime.TE(1.0 /Math.sqrt(bprime.squared()));
+	    		bprime.normalize();
 	    		
 	    		b.Ea1Tv1(cosAlpha, bprime);
 	    		b.PEa1Tv1(-Math.sqrt(1-cosAlpha*cosAlpha), axis0Prime);
@@ -333,16 +332,15 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     	    	 * Determine axis 1 by using Vector Projection
     	    	 */
     	    	axes[0].Ev1Mv2(leafPos5, leafPos0);
-     	    	axes[0].TE(1.0/Math.sqrt(axes[0].squared()));
-    	    	
     	    	axes[1].Ev1Mv2(leafPos10, leafPos0);
-     	    	axes[1].TE(1.0/Math.sqrt(axes[1].squared()));
     	    	
     	    	double dotProd = axes[0].dot(axes[1]);
     	    	proj.Ea1Tv1(dotProd/axes[0].squared(),axes[0]);
     	    	axes[1].ME(proj);
     	    	
-   
+    	    	axes[0].normalize();
+    	    	axes[1].normalize();
+    	    	
     	    	axes[2].E(axes[0]);
     	    	axes[2].XE(axes[1]);
     	    	
@@ -376,9 +374,6 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 * 
 	    	 * Determine the Orientation of Each Molecule
 	    	 */
-	      	siteOrientation[0].normalize();
-	      	siteOrientation[1].normalize();
-	      	siteOrientation[2].normalize();
             
 	    	IVector leafPos0 = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
 	    	IVector leafPos5 = ((IAtomPositioned)molecule.getChildList().getAtom(5)).getPosition();
@@ -390,7 +385,6 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	
 	    	xPrime.Ev1Mv2(leafPos5, leafPos0);
 	    	xPrime.normalize();
-	    	
 	      	/*
              * Getting the axes for vectorPrime (xPrime, y, zPrime) 
              * 
@@ -409,7 +403,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	/*
 	      	 * finding the tensor that brings the arbiVectorPrime to arbiVector
 	      	 */ 
-	      	/*
+	      	
 	      	double x1Prime = xPrime.x(0);
 	      	double x2Prime = xPrime.x(1);
 	      	double x3Prime = xPrime.x(2);
@@ -440,7 +434,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	double L32 = x2Prime*x3 + y2*y3 + z2Prime*z3;
 	      	double L33 = x3Prime*x3 + y3*y3 + z3Prime*z3;
 	      	
-	      	*/
+	      	/*
 	      	double L11 = x.dot(xPrime);
 	      	double L12 = x.dot(y);
 	      	double L13 = x.dot(zPrime);
@@ -452,10 +446,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	double L31 = z.dot(xPrime);
 	      	double L32 = z.dot(y);
 	      	double L33 = z.dot(zPrime);
-	      	
-	    	Tensor rotationL = lattice.getSpace().makeTensor();
+	      	*/
 	    	
-	    	rotationL.setComponent(0, 0, L11);
+	      	rotationL.setComponent(0, 0, L11);
 	    	rotationL.setComponent(0, 1, L12);
 	    	rotationL.setComponent(0, 2, L13);
 	    	rotationL.setComponent(1, 0, L21);
@@ -481,15 +474,16 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	 * Treat x as the new vector along the x-axis (vector formed from atom0 to atom10)
 	      	 * and yNorm is normal to x-axis
 	      	 */
-	        /*
+	        
 	    	xNorm.Ev1Mv2(leafPos5, leafPos0);
-	    	xNorm.TE(1 /Math.sqrt(xNorm.squared()));
 	    	
 	    	yNorm.Ev1Mv2(leafPos10, leafPos0);
-	    	yNorm.TE(1 /Math.sqrt(yNorm.squared()));
 	    	double dotProd1 = yNorm.dot(xNorm);
 	    	proj.Ea1Tv1(dotProd1/xNorm.squared(),xNorm);
 	    	yNorm.ME(proj);
+	    	
+	    	xNorm.normalize();
+	    	yNorm.normalize();
 	    	
 	        zNorm.E(xNorm);
 	        zNorm.XE(yNorm);
@@ -505,7 +499,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	        /*
 	      	 * finding the tensor that brings the arbiVector to arbiVectorDoublePrime
 	      	 */
-	    	/*
+	    	
 	      	double x1Norm = xNorm.x(0);
 	      	double x2Norm = xNorm.x(1);
 	      	double x3Norm = xNorm.x(2);
@@ -551,9 +545,8 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	double M32 = zDoublePrime.dot(yNorm);
 	      	double M33 = zDoublePrime.dot(zNorm);
 	        */
-	      /*
-	    	Tensor rotationM = lattice.getSpace().makeTensor();
-	    	
+	        
+	      
 	    	rotationM.setComponent(0, 0, M11);
 	    	rotationM.setComponent(0, 1, M12);
 	    	rotationM.setComponent(0, 2, M13);
@@ -569,7 +562,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    		System.out.println(rotationM);
 	    		throw new RuntimeException();
 	    	}
-	    	System.out.println("RotationM: "+rotationM);
+	    	//System.out.println("RotationM: "+rotationM);
 	    	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(rotationM);
 	        atomGroupAction.actionPerformed(molecule);
 	        
@@ -581,13 +574,15 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 *  First we find the component for xTriplePrime
 	    	 *  x = sqrt(1 - u[j]^2 - u[j+1]^2)
 	    	 */
-	    	/*
+	    	
 	    	double x = Math.sqrt(1 - newU[j]*newU[j] - newU[j+1]*newU[j+1]);
 	    	//System.out.println("newU[j]: "+newU[j]+" "+"newU[j+1]: "+newU[j+1]);
 	    	//System.out.println("x Squared: "+ (1 - newU[j]*newU[j] - newU[j+1]*newU[j+1]));
 	    	xTriplePrime.Ea1Tv1(x, siteOrientation[0]);
 	    	xTriplePrime.PEa1Tv1(newU[j], siteOrientation[1]);
 	    	xTriplePrime.PEa1Tv1(newU[j+1], siteOrientation[2]);
+	    	
+	    	xTriplePrime.normalize();
 	    	
 	    	yTriplePrime.E(xTriplePrime);
 	    	yTriplePrime.XE(xNorm);
@@ -598,7 +593,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	/*
 	      	 * finding the tensor that brings the arbiVectorDoublePrime to arbiVectorTriplePrime
 	      	 */
-	    	/*
+	    	
 	      	double x1TriplePrime = xTriplePrime.x(0);
 	      	double x2TriplePrime = xTriplePrime.x(1);
 	      	double x3TriplePrime = xTriplePrime.x(2);
@@ -622,7 +617,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	double N31 = x1Norm*x3TriplePrime + y1DoublePrime*y3TriplePrime + z1DoublePrime*z3TriplePrime;
 	      	double N32 = x2Norm*x3TriplePrime + y2DoublePrime*y3TriplePrime + z2DoublePrime*z3TriplePrime;
 	      	double N33 = x3Norm*x3TriplePrime + y3DoublePrime*y3TriplePrime + z3DoublePrime*z3TriplePrime;
-	      	*/
+	      	
 	    	/*
 	      	double N11 = xTriplePrime.dot(xNorm);
 	      	double N12 = xTriplePrime.dot(yDoublePrime);
@@ -635,8 +630,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	double N31 = zTriplePrime.dot(xNorm);
 	      	double N32 = zTriplePrime.dot(yDoublePrime);
 	      	double N33 = zTriplePrime.dot(zDoublePrime);
-	    	
-	    	Tensor rotationN = lattice.getSpace().makeTensor();
+	    	*/
 	    	
 	    	rotationN.setComponent(0, 0, N11);
 	    	rotationN.setComponent(0, 1, N12);
@@ -656,7 +650,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	//System.out.println("RotationN is: "+rotationN);
 	    	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(rotationN);
 	        atomGroupAction.actionPerformed(molecule);
-			*/
+			
 	        
 	    	j += coordinateDim/molecules.getAtomCount();
 	    	
@@ -674,6 +668,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     protected final IVector3D xNorm, yNorm, zNorm;
     protected final IVector3D yDoublePrime, zDoublePrime;
     protected final IVector3D xTriplePrime, yTriplePrime, zTriplePrime;
+    protected final Tensor rotationL, rotationM, rotationN;
     
     
     protected AtomAgentManager orientationManager; 
