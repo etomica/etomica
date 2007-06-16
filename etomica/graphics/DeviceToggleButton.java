@@ -122,14 +122,14 @@ public class DeviceToggleButton extends DeviceButton {
 
             public void setBoolean(boolean b) {
                 if (b)
-                    colorScheme.setColor(sim.species.getMoleculeType(), Color.RED);
+                    colorScheme.setColor(sim.species1.getMoleculeType(), Color.RED);
                 else
-                    colorScheme.setColor(sim.species.getMoleculeType(), Color.BLUE);
+                    colorScheme.setColor(sim.species1.getMoleculeType(), Color.BLUE);
                 //                sim.panel().repaint();
             }
 
             public boolean getBoolean() {
-                return colorScheme.getColor(sim.species.getMoleculeType()) == Color.RED;
+                return colorScheme.getColor(sim.species1.getMoleculeType()) == Color.RED;
             }
         };
         DeviceToggleButton button = new DeviceToggleButton(sim.getController(),

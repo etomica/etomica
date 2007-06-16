@@ -32,8 +32,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     protected AtomLeafAgentManager agentManager;
 
     public IntegratorVelocityVerlet(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), sim.getDefaults().timeStep,
-                sim.getDefaults().temperature);
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0);
     }
     
     public IntegratorVelocityVerlet(PotentialMaster potentialMaster, IRandom random,

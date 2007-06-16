@@ -2,7 +2,6 @@ package etomica.data;
 
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;
-import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 import etomica.util.Function;
 
@@ -12,8 +11,8 @@ import etomica.util.Function;
 public class AccumulatorRatioAverage extends AccumulatorAverage {
     
     private static final long serialVersionUID = 1L;
-    public AccumulatorRatioAverage(Simulation sim) {
-        this(sim.getDefaults().blockSize);
+    public AccumulatorRatioAverage() {
+        this(1000);
     }
     
     public AccumulatorRatioAverage(int blockSize) {

@@ -50,7 +50,7 @@ public class LjMd3D extends Simulation {
     public LjMd3D() {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        defaults.makeLJDefaults();
+        double sigma = 3.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, true, false);
@@ -61,7 +61,7 @@ public class LjMd3D extends Simulation {
         phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(50);
-        potential = new P2LennardJones(this);
+        potential = new P2LennardJones(space, sigma, 1.0);
         potentialMaster.addPotential(potential,new Species[]{species,species});
         
         integrator.setPhase(phase);

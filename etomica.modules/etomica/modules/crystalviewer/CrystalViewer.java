@@ -1,7 +1,5 @@
 package etomica.modules.crystalviewer;
 
-import java.awt.BorderLayout;
-
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -49,7 +47,6 @@ public class CrystalViewer extends SimulationPanel {
     public CrystalViewer() {
         super(APP_NAME);
         sim = new Simulation(Space3D.getInstance());
-        sim.getDefaults().makeLJDefaults();
         center = sim.getSpace().makeVector();
 
         species = new SpeciesSpheresMono(sim);
@@ -70,9 +67,7 @@ public class CrystalViewer extends SimulationPanel {
                 new LatticeCubicDiamond()
             };
 
-        double[]  boxSize = new double[] { sim.getDefaults().boxSize,
-        		                           sim.getDefaults().boxSize,
-        		                           sim.getDefaults().boxSize};
+        double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
         
         phase  = new Phase(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
         		                                         (etomica.util.IRandom)null,

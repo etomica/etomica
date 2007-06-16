@@ -45,8 +45,6 @@ public class SimTarget extends Simulation {
         super(space, true);
 
         PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this) : new PotentialMaster(space));
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
@@ -58,13 +56,12 @@ public class SimTarget extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster);
 
         integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(this,
-                integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         double timeStep = 0.4;
         integrator.setTimeStep(timeStep);
         getController().addAction(activityIntegrate);
 
-        Potential potential = new P2HardSphere(space, defaults.atomSize, false);
+        Potential potential = new P2HardSphere(space, 1.0, false);
         AtomTypeSphere sphereType = (AtomTypeSphere) ((AtomFactoryMono) species
                 .moleculeFactory()).getType();
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,

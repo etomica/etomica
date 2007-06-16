@@ -19,8 +19,8 @@ import etomica.space.Space;
 
 public final class P2Yukawa extends Potential2SoftSpherical implements EtomicaElement {
 	
-	public P2Yukawa(Simulation sim) {
-		this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+    public P2Yukawa(Simulation sim) {
+		this(sim.getSpace(), 1.0, 1.0);
 	}
 	
 	public P2Yukawa(Space space, double kappa, double vzero){
@@ -82,6 +82,7 @@ public final class P2Yukawa extends Potential2SoftSpherical implements EtomicaEl
 	public final void setVZero(double v) {vzero = v;}
 
 	
+    private static final long serialVersionUID = 1L;
 	private double kappa;
 	private double vzero;
 }

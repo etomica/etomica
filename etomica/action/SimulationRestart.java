@@ -33,10 +33,18 @@ public final class SimulationRestart extends SimulationActionAdapter {
         else {
             setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(1, 1.0)));
         }
-        ignoreOverlap = sim.getDefaults().ignoreOverlap;
+        ignoreOverlap = false;
         accumulatorAction = new SimulationDataAction(sim, new ResetAccumulators());
     }
-        
+
+    public void setIgnoreOverlap(boolean doIgnoreOverlap) {
+        ignoreOverlap = doIgnoreOverlap;
+    }
+    
+    public boolean isIgnoreOverlap() {
+        return ignoreOverlap;
+    }
+    
     /**
      * Resets phases, integrators, and accumulators.
      */

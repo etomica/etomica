@@ -21,7 +21,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * A Yukawa MD Simulation
@@ -42,25 +41,15 @@ public class TestYukawaMD3D extends Simulation{
 	public final P2Yukawa potential;
 	
 	public TestYukawaMD3D(){
-		this(new Default());
-	}
-	
-	public TestYukawaMD3D(Default defaults){
-		this(Space3D.getInstance(), defaults);
-	}
-	
-	private TestYukawaMD3D(Space space, Default defaults){
-		super(space, true, Default.BIT_LENGTH, defaults);
+		super(Space3D.getInstance(), true);
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6);
 		
 		int numAtoms = 256;
 		double neighborRangeFac = 1.6;
 		
-		defaults.makeLJDefaults();
-		defaults.atomSize = 1.0;
-		defaults.boxSize = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
+		double l = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
 		
-		potentialMaster.setRange(neighborRangeFac*defaults.atomSize);
+		potentialMaster.setRange(neighborRangeFac);
 		
 		integrator = new IntegratorVelocityVerlet(this, potentialMaster);
 		integrator.setIsothermal(false);
@@ -68,7 +57,7 @@ public class TestYukawaMD3D extends Simulation{
 		this.register(integrator);
 		
 		
-		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
 		activityIntegrate.setDoSleep(true);
 		activityIntegrate.setSleepPeriod(1);
 		getController().addAction(activityIntegrate);
@@ -76,6 +65,7 @@ public class TestYukawaMD3D extends Simulation{
 		species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 		phase = new Phase(this);
+        phase.setDimensions(Space.makeVector(new double[]{l,l,l}));
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
@@ -97,11 +87,7 @@ public class TestYukawaMD3D extends Simulation{
 	}
 	
 	public static void main(String[] args){
-		Default defaults = new Default();
-		defaults.doSleep = false;
-		defaults.ignoreOverlap = true;
-		
-		TestYukawaMD3D sim = new TestYukawaMD3D(defaults);
+		TestYukawaMD3D sim = new TestYukawaMD3D();
 		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
 

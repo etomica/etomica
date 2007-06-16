@@ -29,7 +29,7 @@ public class MCMoveVolume extends MCMovePhaseStep {
     private transient double uNew = Double.NaN;
 
     public MCMoveVolume(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), sim.getDefaults().pressure);
+        this(potentialMaster, sim.getRandom(), 1.0);
     }
     
     /**

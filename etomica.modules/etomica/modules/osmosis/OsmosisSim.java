@@ -3,6 +3,7 @@ package etomica.modules.osmosis;
 import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
@@ -47,8 +48,7 @@ public class OsmosisSim extends Simulation {
 
         PotentialMaster potentialMaster = new PotentialMaster(space);
 
-        defaults.ignoreOverlap = true;
-        final double sigma = defaults.atomSize;
+        final double sigma = 3.0;
 
 	    speciesA = new SpeciesSpheresMono(this);
 	    speciesA.setName("Solvent");
@@ -56,37 +56,39 @@ public class OsmosisSim extends Simulation {
 	    speciesB = new SpeciesSpheresMono(this);
 	    speciesB.setName("Solute");
         getSpeciesManager().addSpecies(speciesB);
+        ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(sigma);
+        ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(sigma);
 
-	    potentialAA = new P2HardSphere(this);
+	    potentialAA = new P2HardSphere(space, sigma, true);
         potentialMaster.addPotential(potentialAA, new Species[]{speciesA, speciesA});
-	    potentialBB = new P2HardSphere(this);
+	    potentialBB = new P2HardSphere(space, sigma, true);
         potentialMaster.addPotential(potentialBB, new Species[]{speciesB, speciesB});
-	    potentialAB = new P2HardSphere(this);
+	    potentialAB = new P2HardSphere(space, sigma, true);
         potentialMaster.addPotential(potentialAB, new Species[]{speciesA, speciesB});
         
-	    boundaryHardTopBottomA = new P1HardBoundary(this);
+	    boundaryHardTopBottomA = new P1HardBoundary(space, true);
         potentialMaster.addPotential(boundaryHardTopBottomA, new Species[]{speciesA});
         boundaryHardTopBottomA.setActive(0, true, false);
         boundaryHardTopBottomA.setActive(0, false, false);
 	    boundaryHardTopBottomA.setCollisionRadius(0.5*sigma);
-        boundaryHardLeftA = new P1HardBoundary(this);
+        boundaryHardLeftA = new P1HardBoundary(space, true);
         boundaryHardLeftA.setActive(0, false, false);
         boundaryHardLeftA.setActive(1, true, false);
         boundaryHardLeftA.setActive(1, false, false);
         potentialMaster.addPotential(boundaryHardLeftA, new Species[]{speciesA});
         boundaryHardLeftA.setCollisionRadius(0.5*sigma);
-        boundaryHardRightA = new P1HardBoundary(this);
+        boundaryHardRightA = new P1HardBoundary(space, true);
         boundaryHardLeftA.setActive(0, true, false);
         boundaryHardLeftA.setActive(1, true, false);
         boundaryHardLeftA.setActive(1, false, false);
         potentialMaster.addPotential(boundaryHardRightA, new Species[]{speciesA});
         boundaryHardRightA.setCollisionRadius(0.5*sigma);
         
-	    boundaryHardB = new P1HardBoundary(this);
+	    boundaryHardB = new P1HardBoundary(space, true);
         potentialMaster.addPotential(boundaryHardB, new Species[]{speciesB});
 	    boundaryHardB.setCollisionRadius(0.5*sigma);
         
-	    boundarySemiB = new P1HardWall(this);
+	    boundarySemiB = new P1HardWall(space, sigma);
         potentialMaster.addPotential(boundarySemiB, new Species[]{speciesB});
 	    boundarySemiB.setCollisionRadius(0.5*sigma);
         

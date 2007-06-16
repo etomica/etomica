@@ -98,7 +98,7 @@ public class MEAM_MC extends Simulation {
 	    integrator.setTemperature(Kelvin.UNIT.toSim(298));
 	    //integrator.setThermostatInterval(10);
 	    integrator.setIsothermal(true);
-	    activityIntegrate = new ActivityIntegrate(this,integrator);
+	    activityIntegrate = new ActivityIntegrate(integrator);
 	    activityIntegrate.setSleepPeriod(2);
 	    getController().addAction(activityIntegrate);
 	    sn = new SpeciesSpheresMono(this, Tin.INSTANCE);

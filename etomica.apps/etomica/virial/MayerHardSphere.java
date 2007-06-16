@@ -16,7 +16,7 @@ public class MayerHardSphere extends MayerFunctionSpherical {
 	 * Constructor for MayerHardSphere.
 	 */
 	public MayerHardSphere(Simulation sim) {
-		this(sim.getSpace(), sim.getDefaults().atomSize);
+		this(sim.getSpace(), 1.0);
 	}
 	public MayerHardSphere(Space space, double sigma) {
         super(space);

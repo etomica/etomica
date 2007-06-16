@@ -44,7 +44,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     protected AtomLeafAgentManager agentManager;
 
     public IntegratorGear4(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster,sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0);
     }
     
     public IntegratorGear4(PotentialMaster potentialMaster, IRandom random, 

@@ -24,15 +24,13 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
     private static final String APP_NAME = "Entropy Lottery";
     private static final int REPAINT_ACTION = 5;
 
-	private final EntropyLottery sim;
+	protected final EntropyLottery sim;
 
 	public EntropyLotteryGraphic(final EntropyLottery simulation) {
 
 		super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_ACTION);
         this.sim = simulation;
 
-        sim.getDefaults().blockSize = 100;
-        sim.getDefaults().doSleep = true;
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(10);
 

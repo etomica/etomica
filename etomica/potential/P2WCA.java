@@ -21,7 +21,7 @@ public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
      * Constructs potential using default sigma and epsilon given by Default class.
      */
     public P2WCA(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+        this(sim.getSpace(), 1.0, 1.0);
     }
     
     public P2WCA(Space space, double sigma, double epsilon) {

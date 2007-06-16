@@ -52,8 +52,6 @@ public class SimOverlapLJ extends Simulation {
         super(space, true);
 
         PotentialMaster potentialMasterTarget = new PotentialMaster(space);
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
         integrators = new IntegratorPhase[2];
         accumulatorPumps = new DataPump[2];
         meters = new DataSource[2];
@@ -223,8 +221,8 @@ public class SimOverlapLJ extends Simulation {
     
     public void setRefPref(double newRefPref) {
         System.out.println("setting ref pref (explicitly) to "+newRefPref);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
         setRefPref(newRefPref,1);
     }
     
@@ -240,8 +238,8 @@ public class SimOverlapLJ extends Simulation {
                 bufReader.close();
                 fileReader.close();
                 System.out.println("setting ref pref (from file) to "+refPref);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
                 setRefPref(refPref,1);
             }
             catch (IOException e) {
@@ -256,8 +254,8 @@ public class SimOverlapLJ extends Simulation {
             getController().reset();
             System.out.println("target equilibration finished");
 
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
             setRefPref(1,60);
             activityIntegrate.setMaxSteps(initSteps);
             getController().actionPerformed();
@@ -271,8 +269,8 @@ public class SimOverlapLJ extends Simulation {
             }
             System.out.println("setting ref pref to "+refPref);
             
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
             setRefPref(refPref,5);
 
             // set refPref back to -1 so that later on we know that we've been looking for
@@ -302,8 +300,8 @@ public class SimOverlapLJ extends Simulation {
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
             setRefPref(refPref,1);
             if (fileName != null) {
                 try {

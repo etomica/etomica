@@ -34,9 +34,8 @@ public class P2HardAssociationCone extends Potential2 implements EtomicaElement 
     private final IVector dr;
     private NearestImageTransformer nearestImageTransformer;
     
-    public P2HardAssociationCone(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell, 
-                sim.getDefaults().potentialCutoffFactor);
+    public P2HardAssociationCone(Space space) {
+        this(space, 1.0, 1.0, 2.0);
     }
     
     public P2HardAssociationCone(Space space, double sigma, double epsilon, double cutoffFactorLJ) {

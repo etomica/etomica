@@ -24,7 +24,7 @@ import etomica.space.Space;
 public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 implements EtomicaElement {
 	
 	public P2ElectrostaticDreiding(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().potentialWell, sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+        this(sim.getSpace(), 1.0, 1.0, 1.0);
        
     }
 	

@@ -31,7 +31,7 @@ public class BoundaryTruncatedOctahedron extends Boundary implements
         BoundaryPeriodic {
 
     public BoundaryTruncatedOctahedron(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().boxSize);
+        this(sim.getSpace(), 30.0);
     }
     public BoundaryTruncatedOctahedron(Space space, double boxSize) {
         super(space, new TruncatedOctahedron(space));

@@ -54,7 +54,7 @@ public class HSMD2D_noNbr extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster(space);
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
-        activityIntegrate = new ActivityIntegrate(this,integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
@@ -62,9 +62,9 @@ public class HSMD2D_noNbr extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
-	    P2HardSphere potential = new P2HardSphere(this);
+	    P2HardSphere potential = new P2HardSphere(space);
 	    potentialMaster.addPotential(potential,new Species[]{species,species});
-        P1HardBoundary potentialBoundary = new P1HardBoundary(this);
+        P1HardBoundary potentialBoundary = new P1HardBoundary(space);
         potentialMaster.addPotential(potentialBoundary, new Species[] {species});
 //        potentialBoundary.setActive(0,true,true);
 //        potentialBoundary.setActive(1,true,true);
@@ -89,7 +89,7 @@ public class HSMD2D_noNbr extends Simulation {
         
         MeterTemperature meterTemperature = new MeterTemperature();
         meterTemperature.setPhase(phase);
-        temperatureAverage = new AccumulatorAverage(this);
+        temperatureAverage = new AccumulatorAverage();
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
         integrator.addIntervalAction(temperaturePump);
 

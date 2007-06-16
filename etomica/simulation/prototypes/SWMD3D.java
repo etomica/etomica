@@ -63,13 +63,13 @@ public class SWMD3D extends Simulation {
     integrator.setTimeStep(0.01);
     integrator.setIsothermal(true);
     integrator.setTemperature(300);
-    ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+    ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
     getController().addAction(activityIntegrate);
 
 
     phase = new Phase(this);
     addPhase(phase);
-    potential  = new etomica.potential.P2SquareWell(this);
+    potential  = new etomica.potential.P2SquareWell(space);
     potential.setLambda(1.6);
 
     species  = new etomica.species.SpeciesSpheresMono(this);

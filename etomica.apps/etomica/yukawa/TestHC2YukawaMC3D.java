@@ -45,14 +45,13 @@ public class TestHC2YukawaMC3D extends Simulation{
 	public TestHC2YukawaMC3D(int numAtoms){
 		super(Space3D.getInstance(), false);
 		PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
-		defaults.makeLJDefaults();
 		
 		integrator = new IntegratorMC(this, potentialMaster);
 		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
-		mcMoveAtom.setStepSize(0.2*defaults.atomSize);
+		mcMoveAtom.setStepSize(0.2);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
 		integrator.getMoveManager().setEquilibrating(false);
-		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
@@ -88,9 +87,8 @@ public class TestHC2YukawaMC3D extends Simulation{
 		}
 		TestHC2YukawaMC3D sim = new TestHC2YukawaMC3D(numAtoms);
 		
-		sim.getDefaults().blockSize = 10;
 		MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-		AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
+		AccumulatorAverage energyAccumulator = new AccumulatorAverage(10);
 		DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
 		energyAccumulator.setBlockSize(50);
         sim.integrator.addIntervalAction(energyManager);

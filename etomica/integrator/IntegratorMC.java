@@ -27,7 +27,7 @@ import etomica.util.IRandom;
 public class IntegratorMC extends IntegratorPhase {
 
     public IntegratorMC(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), sim.getDefaults().temperature);
+        this(potentialMaster, sim.getRandom(), 1.0);
     }
     
 	/**

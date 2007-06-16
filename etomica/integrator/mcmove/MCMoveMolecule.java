@@ -20,8 +20,7 @@ public class MCMoveMolecule extends MCMoveAtom {
     protected final IVectorRandom groupTranslationVector;
 
     public MCMoveMolecule(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(),sim.getDefaults().atomSize,
-             sim.getDefaults().boxSize*0.5, sim.getDefaults().ignoreOverlap);
+        this(potentialMaster, sim.getRandom(), 1.0, 15.0, false);
     }
     
     public MCMoveMolecule(PotentialMaster potentialMaster, IRandom random, double stepSize,

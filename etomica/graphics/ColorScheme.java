@@ -7,7 +7,6 @@ import etomica.atom.IAtom;
 import etomica.integrator.IntegratorHard;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.util.Default;
 
 /**
  * Class that defines the algorithm used to determine atoms colors when drawn to DisplayPhase.
@@ -48,9 +47,6 @@ public abstract class ColorScheme implements java.io.Serializable {
     public static void main(String args[]) {
       final String APP_NAME = "Color Scheme";
 
-      Default defaults = new Default();
-      defaults.doSleep = false;
-      defaults.ignoreOverlap = true;
       final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
       final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
 

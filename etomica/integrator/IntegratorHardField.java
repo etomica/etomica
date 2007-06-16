@@ -1,7 +1,6 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -40,7 +39,7 @@ public final class IntegratorHardField extends IntegratorHard {
     };
 
     public IntegratorHardField(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster,sim.getRandom(),sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(potentialMaster, sim.getRandom(),0.05, 1.0);
     }
     
     public IntegratorHardField(PotentialMaster potentialMaster, IRandom random,

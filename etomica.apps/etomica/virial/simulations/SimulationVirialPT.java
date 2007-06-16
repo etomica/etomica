@@ -18,7 +18,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
-import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;
@@ -41,10 +40,10 @@ public class SimulationVirialPT extends Simulation {
 	/**
 	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
 	 */
-	public SimulationVirialPT(Space space, Default defaults, SpeciesFactory speciesFactory, 
+	public SimulationVirialPT(Space space, SpeciesFactory speciesFactory, 
 			double[] temperature, ClusterWeight.Factory sampleClusterFactory, 
 			ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-		super(space,false,Default.BIT_LENGTH,defaults);
+		super(space,false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
 		int nMolecules = refCluster.pointCount();
 		species = speciesFactory.makeSpecies(this);//SpheresMono(this,AtomLinker.FACTORY);
@@ -70,7 +69,7 @@ public class SimulationVirialPT extends Simulation {
         integratorPT = new IntegratorPT(getRandom(),MCMoveSwapCluster.FACTORY);
 //        integratorPT.setSwapInterval(2);
         integratorPT.setEventInterval(1);
-        ai = new ActivityIntegrate(this,integratorPT);
+        ai = new ActivityIntegrate(integratorPT);
         getController().addAction(ai);
         
         for (int iTemp=0; iTemp<temperature.length; iTemp++) {
@@ -121,7 +120,7 @@ public class SimulationVirialPT extends Simulation {
             
             setMeter(iTemp,new MeterVirial(allValueClusters[iTemp]));
 //            meter[iTemp].getDataInfo().setLabel("Target/Refernce Ratio "+iTemp);
-            setAccumulator(iTemp,new AccumulatorRatioAverage(getDefaults().blockSize));
+            setAccumulator(iTemp,new AccumulatorRatioAverage());
 
             if(iTemp>0) {
                 MCMove swapMove = integratorPT.getMoveManager().getMCMoves()[iTemp-1];

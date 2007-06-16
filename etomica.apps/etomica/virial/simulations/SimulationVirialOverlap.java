@@ -26,7 +26,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
-import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
@@ -58,15 +57,15 @@ import etomica.virial.overlap.IntegratorOverlap;
 public class SimulationVirialOverlap extends Simulation {
 
 
-    public SimulationVirialOverlap(Space aSpace, Default defaults, SpeciesFactory speciesFactory, 
+    public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, 
 			double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
-		this(aSpace,defaults,speciesFactory,temperature,new ClusterAbstract[]{refCluster,targetCluster},
+		this(aSpace,speciesFactory,temperature,new ClusterAbstract[]{refCluster,targetCluster},
                 new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster.makeCopy()),ClusterWeightAbs.makeWeightCluster(targetCluster.makeCopy())});
 	}
 	
-	public SimulationVirialOverlap(Space aSpace, Default defaults, SpeciesFactory speciesFactory, 
+	public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, 
             double temperature, final ClusterAbstract[] aValueClusters, final ClusterWeight[] aSampleClusters) {
-		super(aSpace,false,Default.BIT_LENGTH,defaults);
+		super(aSpace,false);
 		PotentialMaster potentialMaster = new PotentialMaster(space);
         sampleClusters = aSampleClusters;
         int nMolecules = sampleClusters[0].pointCount();
@@ -123,16 +122,16 @@ public class SimulationVirialOverlap extends Simulation {
             configuration.initializeCoordinates(phase[iPhase]);
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]});
             setMeter(meter,iPhase);
-            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(this, 11, iPhase==0);
+            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(11, iPhase==0);
             setAccumulator(acc,iPhase);
               
         }
         
         setRefPref(1,5);
         integratorOS = new IntegratorOverlap(getRandom(), integrators);
-        integratorOS.setNumSubSteps(getDefaults().blockSize);
+        integratorOS.setNumSubSteps(1000);
         integratorOS.setEventInterval(1);
-        ai = new ActivityIntegrate(this,integratorOS);
+        ai = new ActivityIntegrate(integratorOS);
         getController().addAction(ai);
 		
 		dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
@@ -175,8 +174,8 @@ public class SimulationVirialOverlap extends Simulation {
 
     public void setRefPref(double newRefPref) {
         System.out.println("setting ref pref (explicitly) to "+newRefPref);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
         setRefPref(newRefPref,1);
     }
     
@@ -192,8 +191,8 @@ public class SimulationVirialOverlap extends Simulation {
                 bufReader.close();
                 fileReader.close();
                 System.out.println("setting ref pref (from file) to "+refPref);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
                 setRefPref(refPref,1);
             }
             catch (IOException e) {
@@ -202,8 +201,8 @@ public class SimulationVirialOverlap extends Simulation {
         }
         
         if (refPref == -1) {
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,false),1);
             setRefPref(10000,15);
             ai.setMaxSteps(initSteps);
             getController().actionPerformed();
@@ -212,8 +211,8 @@ public class SimulationVirialOverlap extends Simulation {
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+refPref);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
             setRefPref(refPref,0.2);
             for (int i=0; i<2; i++) {
                 try {
@@ -249,8 +248,8 @@ public class SimulationVirialOverlap extends Simulation {
 //            for (int i=0; i<n; i++) {
 //                System.out.println(i+" "+sim.accumulators[0].getBennetBias(i)+" "+sim.accumulators[0].getBennetAverage(i)/sim.accumulators[1].getBennetAverage(i));
 //            }
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
             setRefPref(refPref,1);
             if (fileName != null) {
                 try {
@@ -288,8 +287,6 @@ public class SimulationVirialOverlap extends Simulation {
     public double refPref;
 
 	public static void main(String[] args) {
-		Default defaults = new Default();
-		defaults.makeLJDefaults();
 
 		int nPoints = 5;
 		double temperature = 1.3; //temperature governing sampling of configurations
@@ -297,7 +294,6 @@ public class SimulationVirialOverlap extends Simulation {
 		double sigmaHSRef = 1.6;
         double sigmaLJ = 1.0;
 		double b0 = 2*Math.PI/3. * Math.pow(sigmaHSRef,3);
-		defaults.atomSize = 1.0;
 		System.out.println("sigmaHSRef: "+sigmaHSRef);
 		System.out.println("B2HS: "+b0);
 		System.out.println("B3HS: "+(5./8.*b0*b0)+" = "+(5.0/8.0)+" B2HS^2");
@@ -318,9 +314,8 @@ public class SimulationVirialOverlap extends Simulation {
 
 		int maxSteps = 100000;
 		
-        defaults.blockSize = 1000;
 //		while (true) {
-			SimulationVirialOverlap sim = new SimulationVirialOverlap(space, defaults, new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
+			SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
 			sim.ai.setMaxSteps(maxSteps);
 //            sim.integratorOS.setEquilibrating(true);
 //            sim.integratorOS.setAdjustStepFreq(true);

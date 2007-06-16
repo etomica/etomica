@@ -9,8 +9,7 @@ import etomica.math.geometry.Parallelogram;
 import etomica.math.geometry.Parallelotope;
 import etomica.math.geometry.Polytope;
 import etomica.simulation.Simulation;
-import etomica.space2d.Vector2D;
-import etomica.space3d.Vector3D;
+import etomica.space3d.IVector3D;
 import etomica.util.IRandom;
 
 /**
@@ -25,7 +24,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * periodic in every direction.
      */
 	public BoundaryDeformablePeriodic(Simulation sim) {
-		this(sim.getSpace(), sim.getRandom(), sim.getDefaults().boxSize);
+		this(sim.getSpace(), sim.getRandom(), 30.0);
 	}
 
     /**
@@ -103,8 +102,8 @@ public class BoundaryDeformablePeriodic extends Boundary {
     //used only by constructor
     private static Polytope makeShape(Space space, IVector[] vex) {
         switch(space.D()) {
-            case 2: return new Parallelogram(space, (Vector2D)vex[0], (Vector2D)vex[1]);
-            case 3: return new Parallelepiped(space, (Vector3D)vex[0], (Vector3D)vex[1], (Vector3D)vex[2]);
+            case 2: return new Parallelogram(space, vex[0], vex[1]);
+            case 3: return new Parallelepiped(space, (IVector3D)vex[0], (IVector3D)vex[1], (IVector3D)vex[2]);
             default: throw new IllegalArgumentException("BoundaryDeformablePeriodic not appropriate to given space");
         }
     }

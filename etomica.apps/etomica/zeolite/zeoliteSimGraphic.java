@@ -1,6 +1,5 @@
 package etomica.zeolite;
 
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 
 public class zeoliteSimGraphic extends SimulationGraphic {

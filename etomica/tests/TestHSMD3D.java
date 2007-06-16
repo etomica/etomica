@@ -32,11 +32,11 @@ public class TestHSMD3D extends Simulation {
         PotentialMasterList potentialMaster = new PotentialMasterList(this);
         
         double neighborRangeFac = 1.6;
-        defaults.makeLJDefaults();
+        double sigma = 1.0;
         // makes eta = 0.35
-        defaults.boxSize = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
+        double l = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
         potentialMaster.setCellRange(1);
-        potentialMaster.setRange(neighborRangeFac*defaults.atomSize);
+        potentialMaster.setRange(neighborRangeFac*sigma);
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
@@ -51,16 +51,17 @@ public class TestHSMD3D extends Simulation {
         species2 = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species2);
 
-        potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species,species});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new Species[]{species,species});
 
-        potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species,species2});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new Species[]{species,species2});
 
-        potentialMaster.addPotential(new P2HardSphere(this),new Species[]{species2,species2});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new Species[]{species2,species2});
         
         phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
         phase.getAgent(species2).setNMolecules(numAtoms/100);
+        phase.setDimensions(Space.makeVector(new double[]{l,l,l}));
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
         integrator.addIntervalAction(nbrManager);
         integrator.addNonintervalListener(nbrManager);

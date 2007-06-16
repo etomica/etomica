@@ -29,7 +29,7 @@ public class SpeciesSpheresMono extends Species {
     }
     
     public SpeciesSpheresMono(Simulation sim, Element element) {
-        this(sim, new AtomTypeSphere(sim, element));
+        this(sim, new AtomTypeSphere(element));
     }
     
     private SpeciesSpheresMono(Simulation sim, AtomTypeSphere atomType) {

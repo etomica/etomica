@@ -16,7 +16,7 @@ public class ColorSchemeNeighbor extends ColorSchemeCollective {
         super(phase);
         typeColorScheme = new ColorSchemeByType();
         leafList = phase.getSpeciesMaster().getLeafList();
-        nbrIterator = new Api1ACell(sim.getSpace().D(), sim.getDefaults().atomSize,potentialMaster.getCellAgentManager());
+        nbrIterator = new Api1ACell(sim.getSpace().D(), 1.0, potentialMaster.getCellAgentManager());
         nbrIterator.setDirection(null);
         nbrIterator.setPhase(phase);
     }

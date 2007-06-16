@@ -70,7 +70,7 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
         if (leafElements.length > 0) {
             AtomFactoryMono[] childFactories = new AtomFactoryMono[leafElements.length];
             for (int i=0; i<leafElements.length; i++) {
-                AtomTypeSphere atomType = new AtomTypeSphere(sim, leafElements[i]);
+                AtomTypeSphere atomType = new AtomTypeSphere(leafElements[i]);
                 childFactories[i] = sim.isDynamic() ?
                             new AtomFactoryMonoDynamic(sim.getSpace(), atomType) :
                             new AtomFactoryMono(sim.getSpace(), atomType);

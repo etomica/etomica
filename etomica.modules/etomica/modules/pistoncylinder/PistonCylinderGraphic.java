@@ -82,7 +82,6 @@ import etomica.units.Undefined;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
-import etomica.util.Default;
 
 
 public class PistonCylinderGraphic extends SimulationPanel {
@@ -127,12 +126,11 @@ public class PistonCylinderGraphic extends SimulationPanel {
     public DataSourceWallPressure pressureMeter;
     public int dataInterval;
     public Unit eUnit;
-    public double lambda, epsilon, mass;
+    public double lambda, epsilon, mass, sigma;
     public DeviceSlider doSleepSlider, integratorTimeStepSlider;
     public int repaintSleep = 100;
     public int integratorSleep = 10;
     public int integratorSleep3D = 0;
-    Default defaults;
     private boolean initialized;
     private boolean doConfigButton;
     private boolean doRDF;
@@ -170,13 +168,9 @@ public class PistonCylinderGraphic extends SimulationPanel {
     
     public void init() {
         initialized = true;
-        defaults = new Default();
-        defaults.blockSize = 100;
         displayPhase = new DisplayPhase(null);
         displayPhase.setColorScheme(new ColorSchemeByType());
 
-        defaults.ignoreOverlap = true;
-        defaults.atomSize = 3.0;
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         historyLength = 100;
         
@@ -186,7 +180,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         
         lambda = 2.0;
         epsilon = eUnit.toSim(1500.0);
-        mass = defaults.atomMass;
+        mass = 40;
+        sigma = 4.0;
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
         GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
@@ -204,9 +199,9 @@ public class PistonCylinderGraphic extends SimulationPanel {
         button2D.addItemListener(new ItemListener() {
            public void itemStateChanged(ItemEvent evt) {
                if(button2D.isSelected()) {
-                   setSimulation(new PistonCylinder(2, defaults));
+                   setSimulation(new PistonCylinder(2));
                } else {
-                   setSimulation(new PistonCylinder(3, defaults));
+                   setSimulation(new PistonCylinder(3));
                }
            }
         });
@@ -265,7 +260,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
                     public void actionPerformed() {
                         pc.integrator.setIsothermal(buttonIsothermal.isSelected());
                     }
-                    public String getLabel() {return "";}
                 });
             }
         });
@@ -495,13 +489,13 @@ public class PistonCylinderGraphic extends SimulationPanel {
         plotT = new DisplayPlot();
         plotP = new DisplayPlot();
 
-        JPanel plotPanel = new JPanel(new GridLayout(0,1));
-        plotPanel.add(plotD.graphic());
-        plotPanel.add(plotT.graphic());
-        plotPanel.add(plotP.graphic());
+        JPanel myPlotPanel = new JPanel(new GridLayout(0,1));
+        myPlotPanel.add(plotD.graphic());
+        myPlotPanel.add(plotT.graphic());
+        myPlotPanel.add(plotP.graphic());
 
         // Add plots page to tabbed pane
-        tabbedPane.add("Plots",new JScrollPane(plotPanel));
+        tabbedPane.add("Plots",new JScrollPane(myPlotPanel));
         
         // Default behaviour of a SimulationPanel is to
         // show a single graphic.  Switch to show the
@@ -511,7 +505,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
 
 
 		//add meter and display for current kinetic temperature
-		defaults.historyPeriod = 1000;
 
 		thermometer = new MeterTemperature();
 
@@ -535,7 +528,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
             rdfPanel.add(plotRDF.graphic());
         }
 
-        setSimulation(new PistonCylinder(2, defaults));
+        setSimulation(new PistonCylinder(2));
     }
     
     public void setSimulation(PistonCylinder sim) {
@@ -634,15 +627,15 @@ public class PistonCylinderGraphic extends SimulationPanel {
         temperatureSlider.setController(pc.getController());
         temperatureSlider.setPostAction(new IntegratorReset(pc.integrator,true));
 
-        potentialSW = new P2SquareWell(pc.getSpace(),defaults.atomSize,lambda,epsilon,defaults.ignoreOverlap);
-        potentialHS = new P2HardSphere(pc.getSpace(),defaults.atomSize,defaults.ignoreOverlap);
+        potentialSW = new P2SquareWell(pc.getSpace(),sigma,lambda,epsilon,true);
+        potentialHS = new P2HardSphere(pc.getSpace(),sigma,true);
         potentialIdeal = new P2Ideal(pc.getSpace());
         
         if(potentialChooserListener != null) potentialChooser.removeItemListener(potentialChooserListener);
         
         potentialChooserListener = new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return;
+            if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
             }
         };
@@ -650,6 +643,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         setPotential((String)potentialChooser.getSelectedItem());
 
         ModifierAtomDiameter sigModifier = new ModifierAtomDiameter();
+        sigModifier.setValue(sigma);
         ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
         ModifierGeneral massModifier = new ModifierGeneral(((AtomTypeLeaf)pc.species.getMoleculeType()).getElement(),"mass");
@@ -721,7 +715,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(meterCycles);
         temperatureHistory.getHistory().setHistoryLength(historyLength);
-        AccumulatorAverage temperatureAvg = new AccumulatorAverage(sim);
+        AccumulatorAverage temperatureAvg = new AccumulatorAverage(100);
         temperatureAvg.setPushInterval(10);
         pump = new DataPump(thermometer,new DataFork(new DataSink[]{temperatureHistory,temperatureAvg}));
         pc.register(thermometer,pump);
@@ -752,7 +746,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
         pressureHistory.getHistory().setHistoryLength(historyLength);
-        AccumulatorAverage pressureAvg = new AccumulatorAverage(sim);
+        AccumulatorAverage pressureAvg = new AccumulatorAverage(100);
         pressureAvg.setPushInterval(10);
         pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
         pc.register(pressureMeter,pump);
@@ -783,7 +777,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setTimeDataSource(meterCycles);
         densityHistory.getHistory().setHistoryLength(historyLength);
-        AccumulatorAverage densityAvg = new AccumulatorAverage(sim);
+        AccumulatorAverage densityAvg = new AccumulatorAverage(100);
         densityAvg.setPushInterval(10);
         pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
         pc.register(densityMeter,pump);
@@ -877,12 +871,12 @@ public class PistonCylinderGraphic extends SimulationPanel {
             PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
             pc.pistonPotential.setCollisionRadius(0.5*d);
             pc.wallPotential.setCollisionRadius(0.5*d);
-            defaults.atomSize = d;
+            sigma = d;
             displayPhase.repaint();
         }
 
         public double getValue() {
-            return defaults.atomSize;
+            return sigma;
         }
 
         public Dimension getDimension() {

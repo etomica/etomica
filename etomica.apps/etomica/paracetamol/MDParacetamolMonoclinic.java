@@ -35,7 +35,6 @@ import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
-import etomica.util.Default;
 
 /**
  * 
@@ -78,28 +77,20 @@ public class MDParacetamolMonoclinic extends Simulation {
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
-    public MDParacetamolMonoclinic() {
-        this(new Default());
-    }
-    
-    public MDParacetamolMonoclinic(Default defaults) {
-        this(Space3D.getInstance(), defaults);
-    }
-    
     /* 
      * we use a second, private constructor to permit the space to
      * appear twice in the call to the superclass constructor; alternatively
      * we could have passed Space3D.getInstance() twice
      *
      */
-    private MDParacetamolMonoclinic(Space space, Default defaults) {
+    private MDParacetamolMonoclinic() {
 
         /*
          * invoke the superclass constructor
          *	"true" is indicating to the superclass that this is a dynamic simulation
          * the PotentialMaster is selected such as to implement neighbor listing
          */
-    	super(space, true, Default.BIT_LENGTH, defaults);
+    	super(Space3D.getInstance(), true);
         
         potentialMaster = new PotentialMasterList(this, 1.6);
 
@@ -114,7 +105,6 @@ public class MDParacetamolMonoclinic extends Simulation {
     	configMonoLattice = new ConfigurationMonoclinicLattice(lattice);
     	
         double neighborRangeFac = 1.6;
-        potentialMaster.setRange(neighborRangeFac*defaults.atomSize);
 
         integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setIsothermal(false);
@@ -123,7 +113,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         this.register(integrator);
         integrator.setTemperature(Kelvin.UNIT.toSim(20));
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         //activityIntegrate.setMaxSteps(100000);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
@@ -137,7 +127,6 @@ public class MDParacetamolMonoclinic extends Simulation {
         species.getAgent(phase).setNMolecules(96);
         
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
-        nbrManager.setRange(defaults.atomSize*1.6);
         integrator.addNonintervalListener(nbrManager);
         integrator.addIntervalAction(nbrManager);
                
@@ -401,10 +390,7 @@ public class MDParacetamolMonoclinic extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        Default defaults = new Default();
-        defaults.doSleep = false;
-        defaults.ignoreOverlap = true;
-        etomica.paracetamol.MDParacetamolMonoclinic sim = new etomica.paracetamol.MDParacetamolMonoclinic(defaults);
+        etomica.paracetamol.MDParacetamolMonoclinic sim = new etomica.paracetamol.MDParacetamolMonoclinic();
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         
    /*****************************************************************************/    

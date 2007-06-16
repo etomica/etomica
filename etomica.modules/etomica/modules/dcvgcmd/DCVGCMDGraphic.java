@@ -116,7 +116,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 			}
 		});
 
-	    DataTableAverages dataTable = new DataTableAverages(sim,sim.integratorDCV);
+	    DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV);
 	    dataTable.addDataSource(sim.meterFlux0);
 	    dataTable.addDataSource(sim.meterFlux1);
 	    dataTable.addDataSource(sim.meterFlux2);
@@ -173,9 +173,6 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	            meterAPump.actionPerformed();
 	            meterBPump.actionPerformed();
 	            tpump.actionPerformed();
-	        }
-	        public String getLabel() {
-	            return null;
 	        }
 	    });
 	    reinitActions.addAction(simRestart);

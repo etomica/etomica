@@ -16,8 +16,8 @@ public class ActivityIntegrate extends Activity {
 	 * the given integrator (which is final).  Defaults include
 	 * interval = 1, doSleep given by Default class, and sleepPeriod = 10.
 	 */
-	public ActivityIntegrate(Simulation sim, IIntegrator integrator) {
-        this(integrator,sim.getDefaults().doSleep,sim.getDefaults().ignoreOverlap);
+	public ActivityIntegrate(IIntegrator integrator) {
+        this(integrator,false,false);
     }
     
     public ActivityIntegrate(IIntegrator integrator, boolean doSleep, boolean ignoreOverlap) {

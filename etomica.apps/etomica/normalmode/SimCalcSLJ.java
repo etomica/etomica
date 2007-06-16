@@ -39,8 +39,6 @@ public class SimCalcSLJ extends Simulation {
         super(space, true);
 
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
@@ -56,7 +54,7 @@ public class SimCalcSLJ extends Simulation {
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
         
-        activityIntegrate = new ActivityIntegrate(this, integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
 

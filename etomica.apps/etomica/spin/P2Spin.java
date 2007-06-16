@@ -42,15 +42,13 @@ public class P2Spin extends Potential2 {
     }
 
     /**
-     * Throws an exception, becuase potential operates on a lattice and range
-     * should not be needed.
-     * 
-     * @throws RuntimeException
-     *             if invoked
+     * Returns 0, becuase potential operates on a lattice and range
+     * should not be needed.  The PotentialMasterSite expects all Potentials
+     * to have a range and uses the return value to determine whether or not
+     * to use site iteration.
      */
     public double getRange() {
-        throw new RuntimeException(
-                "Range not defined for P2Spin, which operates on a lattice");
+        return 0;
     }
 
     /**

@@ -3,6 +3,7 @@ package etomica.paracetamol;
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -323,11 +324,11 @@ public class ConfigurationMonoclinicLattice extends Configuration implements Age
 
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
-        sim.getDefaults().atomSize = 5.0;
         Phase phase = new Phase(sim);
         sim.addPhase(phase);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
+        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(5.0);
         int k = 4;
         phase.getAgent(species).setNMolecules(4 * k * k * k);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();

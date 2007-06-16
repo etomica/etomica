@@ -81,7 +81,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         DataPump tPump = new DataPump (sim.thermometer, tBox);
         sim.register(sim.thermometer,tPump);
 
-        AccumulatorAverage accumulator = new AccumulatorAverage(sim);
+        AccumulatorAverage accumulator = new AccumulatorAverage();
         DataPump pump = new DataPump(sim.molecularCount,accumulator);
         sim.register(sim.molecularCount,pump);
         sim.integratorHard1.addIntervalAction(pump);

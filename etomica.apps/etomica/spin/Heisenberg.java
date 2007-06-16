@@ -45,7 +45,6 @@ public class Heisenberg extends Simulation {
     public Heisenberg(Space space, int nCells) {
         super(space, false);
         potentialMaster = new PotentialMasterSite(this, nCells);
-        defaults.makeLJDefaults();
         phase = new Phase(this);
         addPhase(phase);
         int numAtoms = space.powerD(nCells);
@@ -60,7 +59,7 @@ public class Heisenberg extends Simulation {
         mcmove = new MCMoveSpinFlip(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(mcmove);
         
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setDoSleep(false);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
@@ -73,7 +72,7 @@ public class Heisenberg extends Simulation {
         
         meter = new MeterSpin(space);
         meter.setPhase(phase);
-        dAcc = new AccumulatorAverage(this);
+        dAcc = new AccumulatorAverage();
         pump = new DataPump(meter, dAcc);
         integrator.addIntervalAction(pump);
         integrator.setActionInterval(pump, 10);

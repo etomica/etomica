@@ -21,7 +21,6 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 public class HSMD3DNoNbr extends Simulation {
 
@@ -32,37 +31,30 @@ public class HSMD3DNoNbr extends Simulation {
     public P2HardSphere potential;
     
     public HSMD3DNoNbr() {
-        this(new Default());
-    }
-    
-    public HSMD3DNoNbr(Default defaults) {
-        this(Space3D.getInstance(), defaults);
-    }
-    private HSMD3DNoNbr(Space space, Default defaults) {
-        super(space, true, Default.BIT_LENGTH, defaults);
+        super(Space3D.getInstance(), true);
         PotentialMaster potentialMaster = new PotentialMaster(space);
 
         int numAtoms = 256;
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
-        defaults.boxSize = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
+        double sigma = 1.0;
+        double l = 14.4573*Math.pow((numAtoms/2020.0),1.0/3.0);
 
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        potential = new P2HardSphere(this);
+        potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
         phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
+        phase.setDimensions(Space.makeVector(new double[]{l,l,l}));
 //        phase.setBoundary(new BoundaryTruncatedOctahedron(space));
         integrator.setPhase(phase);
         integrator.addIntervalAction(new PhaseImposePbc(phase));

@@ -21,7 +21,7 @@ public class IntegratorAnalytic extends IntegratorMD {
     private AtomAction action;
     
     public IntegratorAnalytic(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster,sim.getRandom(),sim.getDefaults().timeStep);
+        this(potentialMaster, sim.getRandom(), 0.05);
     }
     
     public IntegratorAnalytic(PotentialMaster potentialMaster, IRandom random,

@@ -15,7 +15,7 @@ import etomica.util.IRandom;
 public class IntegratorTMMC extends IntegratorMC {
     
     public IntegratorTMMC(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), sim.getDefaults().temperature);
+        this(potentialMaster, sim.getRandom(), 1.0);
     }
     
     public IntegratorTMMC(PotentialMaster potentialMaster, IRandom random, double temperature) {

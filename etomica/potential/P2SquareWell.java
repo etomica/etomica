@@ -3,7 +3,6 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -33,9 +32,8 @@ public class P2SquareWell extends Potential2HardSpherical {
     protected IVector dv;
     protected final boolean ignoreOverlap;
 
-    public P2SquareWell(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialCutoffFactor, 
-                sim.getDefaults().potentialWell, sim.getDefaults().ignoreOverlap);
+    public P2SquareWell(Space space) {
+        this(space, 1.0, 2.0, 1.0, false);
     }
 
     public P2SquareWell(Space space, double coreDiameter, double lambda, double epsilon, boolean ignoreOverlap) {

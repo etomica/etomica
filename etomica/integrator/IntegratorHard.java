@@ -70,7 +70,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     protected AtomLeafAgentManager agentManager;
 
     public IntegratorHard(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster,sim.getRandom(), sim.getDefaults().timeStep,sim.getDefaults().temperature);
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0);
     }
     
     public IntegratorHard(PotentialMaster potentialMaster, IRandom random, 

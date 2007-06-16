@@ -5,7 +5,6 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -18,9 +17,8 @@ import etomica.space.Space;
 
 public class P2TriangleWell extends Potential2 implements EtomicaElement {
 
-    public P2TriangleWell(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().atomSize, 
-             sim.getDefaults().potentialCutoffFactor, sim.getDefaults().potentialWell);
+    public P2TriangleWell(Space space) {
+        this(space, 1.0, 2.0, 1.0);
     }
   
     public P2TriangleWell(Space space, double coreDiameter, double lambda, double epsilon) {

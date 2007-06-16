@@ -9,7 +9,6 @@ import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.util.Arrays;
-import etomica.util.Default;
 import etomica.util.IRandom;
 import etomica.util.NameMaker;
 import etomica.util.RandomNumberGenerator;
@@ -38,13 +37,12 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     }
     
     public Simulation(Space space, boolean isDynamic) {
-        this(space, isDynamic, Default.BIT_LENGTH, new Default());
+        this(space, isDynamic, new int[] {4, 19, 9});
     }
     
-    public Simulation(Space space, boolean isDynamic, int[] bitLength, Default defaults) {
+    public Simulation(Space space, boolean isDynamic, int[] bitLength) {
         this.space = space;
         this.dynamic = isDynamic;
-        this.defaults = defaults;
         phaseList = new Phase[0];
         setName(NameMaker.makeName(this.getClass()));
         setController(new Controller());
@@ -224,19 +222,6 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     public boolean isDynamic() {
         return dynamic;
     }
-
-    /**
-     * @return Returns the defaults.
-     */
-    public Default getDefaults() {
-        return defaults;
-    }
-    /**
-     * @param defaults The defaults to set.
-     */
-    public void setDefaults(Default defaults) {
-        this.defaults = defaults;
-    }
     
     /**
      * @return the space
@@ -268,5 +253,4 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     private final LinkedList integratorList = new LinkedList();
     private DataStreamHeader[] dataStreams = new DataStreamHeader[0];
     private String name;
-    protected Default defaults;
 }

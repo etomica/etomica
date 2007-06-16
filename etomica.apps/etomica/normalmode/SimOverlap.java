@@ -52,8 +52,6 @@ public class SimOverlap extends Simulation {
     public SimOverlap(Space space, int numAtoms, double density, double temperature, String filename, double harmonicFudge) {
         super(space, true);
 
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
         integrators = new IntegratorPhase[2];
         accumulatorPumps = new DataPump[2];
         meters = new DataSource[2];
@@ -211,8 +209,8 @@ public class SimOverlap extends Simulation {
     
     public void setRefPref(double newRefPref) {
         System.out.println("setting ref pref (explicitly) to "+newRefPref);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
-        setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+        setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
         setRefPref(newRefPref,1);
     }
     
@@ -228,8 +226,8 @@ public class SimOverlap extends Simulation {
                 bufReader.close();
                 fileReader.close();
                 System.out.println("setting ref pref (from file) to "+refPref);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
-                setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+                setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
                 setRefPref(refPref,1);
             }
             catch (IOException e) {
@@ -238,8 +236,8 @@ public class SimOverlap extends Simulation {
         }
         
         if (refPref == -1) {
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,41,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(41,false),1);
             setRefPref(1e20,100);
             activityIntegrate.setMaxSteps(initSteps);
             getController().actionPerformed();
@@ -252,8 +250,8 @@ public class SimOverlap extends Simulation {
                 throw new RuntimeException("Simulation failed to find a valid ref pref");
             }
             System.out.println("setting ref pref to "+refPref);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,21,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,false),1);
             setRefPref(refPref,10);
             activityIntegrate.setMaxSteps(initSteps);
             getController().actionPerformed();
@@ -265,8 +263,8 @@ public class SimOverlap extends Simulation {
                 throw new RuntimeException("Simulation failed to find a valid ref pref");
             }
             System.out.println("setting ref pref to "+refPref);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,11,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
             setRefPref(refPref,0.2);
             // set refPref back to -1 so that later on we know that we've been looking for
             // the appropriate value
@@ -292,8 +290,8 @@ public class SimOverlap extends Simulation {
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+refPref+" ("+newMinDiffLoc+")");
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(this,1,false),1);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(1,false),1);
             setRefPref(refPref,1);
             if (fileName != null) {
                 try {

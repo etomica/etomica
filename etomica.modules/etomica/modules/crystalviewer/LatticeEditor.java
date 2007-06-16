@@ -290,9 +290,7 @@ public class LatticeEditor {
     protected void changePhase() {
     	
     	Phase oldPhase = phase;
-        double[]  boxSize = new double[] { viewer.sim.getDefaults().boxSize,
-                                           viewer.sim.getDefaults().boxSize,
-                                           viewer.sim.getDefaults().boxSize};
+        double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
 
     	phase = new Phase(new etomica.space.BoundaryDeformableLattice
     			                             (currentLattice.getPrimitive(),

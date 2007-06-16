@@ -37,34 +37,32 @@ public class ChainHSMD3D extends Simulation {
     private ChainHSMD3D(Space space) {
         super(space, true);
         PotentialMasterList potentialMaster = new PotentialMasterList(this);
-        defaults.ignoreOverlap = true;
         int numAtoms = 704;
         int chainLength = 4;
         double neighborRangeFac = 1.6;
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
-        defaults.boxSize = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
-        potentialMaster.setRange(neighborRangeFac*defaults.atomSize);
+        potentialMaster.setRange(neighborRangeFac);
 
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
         
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, false, true);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         
         model = new ModelChain();
         model.setNumAtoms(chainLength);
-        model.setBondingPotential(new P2HardBond(this));
+        model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
         
         species = (SpeciesSpheres)model.makeSpecies(this);
         potentialMaster.addModel(model);
-        ((ConformationLinear)model.getConformation()).setBondLength(defaults.atomSize);
+        ((ConformationLinear)model.getConformation()).setBondLength(1.0);
         ((ConformationLinear)model.getConformation()).setAngle(1,0.5);
         
         phase = new Phase(this);
+        double l = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
+        phase.getBoundary().setDimensions(Space.makeVector(new double[]{l,l,l}));
         addPhase(phase);
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc());
         species.getAgent(phase).setNMolecules(numAtoms);
@@ -76,7 +74,7 @@ public class ChainHSMD3D extends Simulation {
         integrator.addIntervalAction(pbc);
         pbc.setApplyToMolecules(true);
         
-        potential = new P2HardSphere(this);
+        potential = new P2HardSphere(space, 1.0, true);
         AtomTypeLeaf leafType = (AtomTypeLeaf)((AtomTypeGroup)species.getMoleculeType()).getChildTypes()[0];
         potentialMaster.addPotential(potential, new AtomType[]{leafType,leafType});
 

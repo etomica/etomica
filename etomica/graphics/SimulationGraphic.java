@@ -22,6 +22,7 @@ import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.space3d.Vector3D;
+import etomica.units.Pixel;
 
 /**
  * General class for graphical presentation of the elements of a molecular simulation.
@@ -139,7 +140,7 @@ public class SimulationGraphic implements SimulationContainer {
 	        Phase phase = ((IntegratorPhase)integrator).getPhase();
 	        if (phaseList.contains(phase)) return;
 	        phaseList.add(phase);
-	        final DisplayPhase display = new DisplayPhase(phase,simulation.getDefaults().pixelUnit);
+	        final DisplayPhase display = new DisplayPhase(phase, new Pixel(30));
 	        add(display);
 	         
 	        /* For G3DSys: panel is invisible until set visible here.
@@ -331,8 +332,6 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulation.prototypes.HSMD2D_atomNbr sim = new etomica.simulation.prototypes.HSMD2D_atomNbr();
 //        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
-        sim.getDefaults().doSleep = false;
-        sim.getDefaults().ignoreOverlap = true;
         SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY);
 		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
 

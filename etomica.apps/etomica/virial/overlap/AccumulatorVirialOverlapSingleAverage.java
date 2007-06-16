@@ -12,8 +12,8 @@ import etomica.util.Debug;
  */
 public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAverage {
 
-    public AccumulatorVirialOverlapSingleAverage(Simulation sim, int aNBennetPoints, boolean aIsReference) {
-		this(sim.getDefaults().blockSize,aNBennetPoints, aIsReference);
+    public AccumulatorVirialOverlapSingleAverage(int aNBennetPoints, boolean aIsReference) {
+		this(1000,aNBennetPoints, aIsReference);
 	}
 	
     public AccumulatorVirialOverlapSingleAverage(int blockSize, int aNBennetPoints, boolean aIsReference) {

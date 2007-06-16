@@ -84,9 +84,6 @@ public class TestHexane extends Simulation {
         double neighborRangeFac = 1.2;
 
         double bondFactor = 0.4;
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
-        defaults.ignoreOverlap = false;
 
         SpeciesHexane species = new SpeciesHexane(this);
         getSpeciesManager().addSpecies(species);
@@ -96,8 +93,7 @@ public class TestHexane extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(xCells * yCells * zCells);
 //        config.initializeCoordinates(phase);
-        integrator = new IntegratorMC(potentialMaster, getRandom(),
-                defaults.temperature);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
         
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
                 0.1, 1, false);
@@ -139,7 +135,7 @@ public class TestHexane extends Simulation {
         // other stuff like that.
 
         integrator.setIsothermal(true);
-        activityIntegrate = new ActivityIntegrate(this, integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(2000000);
         getController().addAction(activityIntegrate);
             
@@ -155,8 +151,7 @@ public class TestHexane extends Simulation {
         //This potential is the intermolecular potential between atoms on
         // different molecules. We use the class "Potential" because we are
         // reusing the instance as we define each potential.
-        Potential potential = new P2HardSphere(space, defaults.atomSize, 
-                defaults.ignoreOverlap);
+        Potential potential = new P2HardSphere(space);
         
         //here, we add the species to the PotentialMaster, using types.
         //The PotentialMaster generates a group potential and automatically

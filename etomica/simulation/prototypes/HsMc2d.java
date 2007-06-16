@@ -37,7 +37,7 @@ public class HsMc2d extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster(space);
 	    integrator = new IntegratorMC(this, potentialMaster);
 	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this, integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         species2 = new SpeciesSpheresMono(this);
@@ -48,7 +48,7 @@ public class HsMc2d extends Simulation {
         phase.getAgent(species).setNMolecules(20);
         phase.getAgent(species2).setNMolecules(20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
-	    potential = new P2HardSphere(this);
+	    potential = new P2HardSphere(space);
         potentialMaster.addPotential(potential, new Species[] {species, species});
         potentialMaster.addPotential(potential, new Species[] {species, species2});
         potentialMaster.addPotential(potential, new Species[] {species2, species2});

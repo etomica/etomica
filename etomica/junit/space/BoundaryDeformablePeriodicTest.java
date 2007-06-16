@@ -120,7 +120,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         sim.getSpeciesManager().addSpecies(species);
         phase.getAgent(species).setNMolecules(3);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        DisplayPhase display = new DisplayPhase(phase, sim.getDefaults().pixelUnit);
+        DisplayPhase display = new DisplayPhase(phase, new Pixel());
         simGraphic.add(display);
         simGraphic.makeAndDisplayFrame();
         return simGraphic;

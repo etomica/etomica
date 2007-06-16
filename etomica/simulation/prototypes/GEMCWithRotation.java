@@ -33,19 +33,18 @@ public class GEMCWithRotation extends Simulation {
     
     public GEMCWithRotation(Space space) {
         super(space, false);
+        double sigma = 1.2;
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        defaults.atomSize = 1.2;
-        defaults.makeLJDefaults();
-        defaults.temperature = defaults.unitSystem.temperature().toSim(0.420);
         integrator = new IntegratorGEMC(getRandom());
         integrator.setEventInterval(400);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 	    activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
 	    
 	    species = new SpeciesSpheresRotating(this);
         getSpeciesManager().addSpecies(species);
+        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
 
 	    phase1 = new Phase(this);
         addPhase(phase1);
@@ -53,6 +52,7 @@ public class GEMCWithRotation extends Simulation {
         
 	    IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster);
         integratorMC1.setPhase(phase1);
+        integratorMC1.setTemperature(0.420);
         MCMoveManager moveManager = integratorMC1.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom()));
         moveManager.addMCMove(new MCMoveAtom(this, potentialMaster));
@@ -64,6 +64,7 @@ public class GEMCWithRotation extends Simulation {
         phase2.getAgent(species).setNMolecules(200);
         IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster);
         integratorMC2.setPhase(phase2);
+        integratorMC2.setTemperature(0.420);
         moveManager = integratorMC2.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom()));
         moveManager.addMCMove(new MCMoveAtom(this, potentialMaster));
@@ -82,8 +83,8 @@ public class GEMCWithRotation extends Simulation {
         config.initializeCoordinates(phase1);
         config.initializeCoordinates(phase2);
             
-	    potential = new P2LennardJones(this);
-	    potential.setSigma(((AtomTypeSphere)species.getMoleculeType()).getDiameter());
+	    potential = new P2LennardJones(space);
+	    potential.setSigma(sigma);
 
         potentialMaster.addPotential(potential,new Species[] {species, species});
 
@@ -91,7 +92,7 @@ public class GEMCWithRotation extends Simulation {
         integratorMC2.addIntervalAction(new PhaseImposePbc(phase2));
 
 	    phase2.setDensity(0.1);
-    }//end of constructor        
+    }
     
     public Phase phase1, phase2;
     public IntegratorGEMC integrator;

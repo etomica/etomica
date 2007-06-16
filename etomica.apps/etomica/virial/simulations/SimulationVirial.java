@@ -14,7 +14,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
-import etomica.util.Default;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupled;
 import etomica.virial.ClusterWeight;
@@ -38,8 +37,8 @@ public class SimulationVirial extends Simulation {
     /**
 	 * Constructor for simulation to determine the ratio bewteen reference and target Clusters
 	 */
-	public SimulationVirial(Space space, Default defaults, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
-		super(space,false,Default.BIT_LENGTH,defaults);
+	public SimulationVirial(Space space, SpeciesFactory speciesFactory, double temperature, ClusterWeight aSampleCluster, ClusterAbstract refCluster, ClusterAbstract[] targetClusters) {
+		super(space,false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
@@ -62,7 +61,7 @@ public class SimulationVirial extends Simulation {
         integrator.setPhase(phase);
         integrator.getMoveManager().setEquilibrating(false);
         integrator.setEventInterval(1);
-		ai = new ActivityIntegrate(this,integrator);
+		ai = new ActivityIntegrate(integrator);
 		getController().addAction(ai);
 		
         if (species.getFactory().getType() instanceof AtomTypeLeaf) {
@@ -95,7 +94,7 @@ public class SimulationVirial extends Simulation {
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
         setMeter(new MeterVirial(allValueClusters));
         ((MeterVirial)meter).setPhase(phase);
-        setAccumulator(new AccumulatorRatioAverage(this));
+        setAccumulator(new AccumulatorRatioAverage());
 	}
 	
     private static final long serialVersionUID = 1L;

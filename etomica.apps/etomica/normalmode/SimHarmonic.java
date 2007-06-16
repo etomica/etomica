@@ -41,9 +41,6 @@ public class SimHarmonic extends Simulation {
         super(space, true);
 
         int D = space.D();
-        
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
 
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
@@ -54,7 +51,7 @@ public class SimHarmonic extends Simulation {
 
         integrator = new IntegratorMC(this, null);
 
-        activityIntegrate = new ActivityIntegrate(this, integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());

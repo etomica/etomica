@@ -10,6 +10,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -27,8 +28,6 @@ public class Ljmd extends Simulation {
     public Ljmd(Space space) {
         super(space);
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        defaults.makeLJDefaults();
-        defaults.boxSize = 14.0;
         
         int N = 182;  //number of atoms
         
@@ -37,7 +36,7 @@ public class Ljmd extends Simulation {
 	    integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        activityIntegrate = new ActivityIntegrate(this, integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         integrator.setTimeStep(0.01);
@@ -50,13 +49,16 @@ public class Ljmd extends Simulation {
 	    species.setName("");
         
         //instantiate several potentials for selection in combo-box
-	    P2LennardJones potential = new P2LennardJones(this);
+	    P2LennardJones potential = new P2LennardJones(space);
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(potential,2.5);
 	    potentialMaster.addPotential(p2Truncated, new Species[]{species, species});
 	    
         //construct phase
 	    phase = new Phase(this);
         addPhase(phase);
+        IVector dim = space.makeVector();
+        dim.E(14);
+        phase.setDimensions(dim);
         phase.getAgent(species).setNMolecules(N);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
         integrator.setPhase(phase);

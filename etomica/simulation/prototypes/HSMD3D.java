@@ -82,12 +82,9 @@ public class HSMD3D extends Simulation {
 
         int numAtoms = params.nAtoms;
         double neighborRangeFac = 1.6;
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
-        double volume = params.nAtoms * Math.PI/6.0 / params.eta;
-        defaults.boxSize = Math.pow(volume, 1.0/3.0);
+        double sigma = 1.0;
         if (params.useNeighborLists) {
-            ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*defaults.atomSize);
+            ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sigma);
         }
 
         integrator = new IntegratorHard(this, potentialMaster);
@@ -95,20 +92,21 @@ public class HSMD3D extends Simulation {
         integrator.setTimeStep(0.01);
         this.register(integrator);
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        potential = new P2HardSphere(this);
+        potential = new P2HardSphere(space, sigma, false);
 
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
         phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
+        phase.setDensity(params.eta * 6 / Math.PI);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
         //deformed
 //        phase.setBoundary(
@@ -126,7 +124,7 @@ public class HSMD3D extends Simulation {
 
         if (params.useNeighborLists) { 
             NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
-            ((PotentialMasterList)potentialMaster).setRange(defaults.atomSize*1.6);
+            ((PotentialMasterList)potentialMaster).setRange(sigma*neighborRangeFac);
             integrator.addIntervalAction(nbrManager);
             integrator.addNonintervalListener(nbrManager);
         }

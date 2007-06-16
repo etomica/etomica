@@ -46,14 +46,12 @@ public class TestYukawaMC3D extends Simulation{
 		super(Space3D.getInstance(), false);
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
 		
-		defaults.makeLJDefaults();
-		
 		integrator = new IntegratorMC(this, potentialMaster);
 		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
-		mcMoveAtom.setStepSize(0.2*defaults.atomSize);
+		mcMoveAtom.setStepSize(0.2);
 		integrator.getMoveManager().addMCMove(mcMoveAtom);
 		integrator.getMoveManager().setEquilibrating(false);
-		ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
@@ -88,15 +86,14 @@ public class TestYukawaMC3D extends Simulation{
 		}
 		TestYukawaMC3D sim = new TestYukawaMC3D(numAtoms);
 		
-		sim.getDefaults().blockSize = 10;
 		MeterPressure pMeter = new MeterPressure(sim.getSpace());
 		pMeter.setIntegrator(sim.integrator);
-		AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
+		AccumulatorAverage pAccumulator = new AccumulatorAverage(10);
 		DataPump pPump = new DataPump(pMeter,pAccumulator);
         sim.integrator.addIntervalAction(pPump);
         sim.integrator.setActionInterval(pPump, 2*numAtoms);
 		MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-		AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
+		AccumulatorAverage energyAccumulator = new AccumulatorAverage(10);
 		DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
 		energyAccumulator.setBlockSize(50);
         sim.integrator.addIntervalAction(energyManager);

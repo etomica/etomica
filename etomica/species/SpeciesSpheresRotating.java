@@ -21,7 +21,7 @@ import etomica.simulation.Simulation;
 public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
     public SpeciesSpheresRotating(Simulation sim) {
-        super(makeAtomFactory(sim, new AtomTypeOrientedSphere(new ElementSimple(sim),sim.getDefaults().atomSize)));
+        super(makeAtomFactory(sim, new AtomTypeOrientedSphere(new ElementSimple(sim),1.0)));
     }
     
     private static AtomFactoryMono makeAtomFactory(Simulation sim, AtomTypeOrientedSphere atomType) {

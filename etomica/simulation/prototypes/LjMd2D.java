@@ -14,7 +14,6 @@ import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 2D
@@ -33,16 +32,11 @@ public class LjMd2D extends Simulation {
     public MeterEnergy energy;
 
     public LjMd2D() {
-        this(new Default());
-    }
-    
-    public LjMd2D(Default defaults) {
-        super(Space2D.getInstance(), false, Default.BIT_LENGTH, defaults);
+        super(Space2D.getInstance(), false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        defaults.makeLJDefaults();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setTimeStep(0.01);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
@@ -51,7 +45,7 @@ public class LjMd2D extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
-        potential = new P2LennardJones(this);
+        potential = new P2LennardJones(space);
         potentialMaster.addPotential(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();

@@ -3,6 +3,7 @@ package etomica.modules.multiharmonic;
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
@@ -34,11 +35,10 @@ public class Multiharmonic extends Simulation {
     public Multiharmonic() {
         super(Space1D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        defaults.makeLJDefaults();
-        defaults.atomSize = 0.02;
         double x0 = 1;
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
+        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(0.02);
         phase = new Phase(this);
         addPhase(phase);
         phase.getBoundary().setDimensions(new Vector1D(3.0));
@@ -63,7 +63,7 @@ public class Multiharmonic extends Simulation {
              a = (IAtomPositioned)iterator.nextAtom()) {
             a.getPosition().setX(0,x0);
         }
-        activityIntegrate = new ActivityIntegrate(this,integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
@@ -73,14 +73,14 @@ public class Multiharmonic extends Simulation {
         potentialB.setSpringConstant(10);
         meter = new MeterFreeEnergy(potentialA, potentialB);
         meter.setPhase(phase);
-        accumulator = new AccumulatorAverage(this);
+        accumulator = new AccumulatorAverage();
         accumulator.setBlockSize(100);
         dataPump = new DataPump(meter, accumulator);
         integrator.addIntervalAction(dataPump);
         
         meterEnergy = new MeterEnergy(potentialMaster);
         meterEnergy.setPhase(phase);
-        accumulatorEnergy = new AccumulatorAverage(this);
+        accumulatorEnergy = new AccumulatorAverage();
         accumulatorEnergy.setBlockSize(100);
         DataPump dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
         integrator.addIntervalAction(dataPumpEnergy);

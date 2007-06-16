@@ -45,7 +45,6 @@ public class LJMD3DThreaded extends Simulation {
     public LJMD3DThreaded(int numAtoms, int numThreads) {
         super(Space3D.getInstance(), true);
         PotentialMasterListThreaded potentialMaster = new PotentialMasterListThreaded(this);
-        defaults.makeLJDefaults();
         // need optimization of fac and time step
         double neighborFac = 1.35;
 
@@ -54,7 +53,7 @@ public class LJMD3DThreaded extends Simulation {
         integrator.setTemperature(1.0);
         integrator.setIsothermal(true);
         integrator.setTimeStep(0.001);
-        activityIntegrate = new ActivityIntegrate(this,integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         //activityIntegrate.setMaxSteps(500000);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
@@ -66,7 +65,7 @@ public class LJMD3DThreaded extends Simulation {
         
         
        
-        p2lj = new P2LennardJones(this);
+        p2lj = new P2LennardJones(space);
         
         double truncationRadius = 2.5*p2lj.getSigma();
         if(truncationRadius > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -80,7 +79,7 @@ public class LJMD3DThreaded extends Simulation {
         potential = new P2SoftSphericalTruncated[numThreads];
 
         for(int i=0; i<numThreads; i++){
-            potential[i] = new P2SoftSphericalTruncated(new P2LennardJones(this), truncationRadius);
+            potential[i] = new P2SoftSphericalTruncated(new P2LennardJones(space), truncationRadius);
         }
         
         potentialThreaded = new PotentialThreaded(space, potential);

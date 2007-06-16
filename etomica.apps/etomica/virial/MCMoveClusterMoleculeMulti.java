@@ -21,7 +21,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     private final MeterClusterWeight weightMeter;
 
     public MCMoveClusterMoleculeMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms) {
-    	this(potentialMaster,sim.getRandom(),sim.getDefaults().atomSize, nAtoms);
+    	this(potentialMaster,sim.getRandom(), 1.0, nAtoms);
     }
     
     /**

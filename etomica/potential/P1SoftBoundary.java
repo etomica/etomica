@@ -4,7 +4,6 @@ import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -24,8 +23,8 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft, Etomica
 	private final IVector[] gradient;
 	private double radius;
 	
-    public P1SoftBoundary(Simulation sim) {
-        this(sim.getSpace(), 0.5*sim.getDefaults().atomSize);
+    public P1SoftBoundary(Space space) {
+        this(space, 0.5);
     }
 	public P1SoftBoundary(Space space, double radius) {
 		super(space);

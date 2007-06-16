@@ -2,7 +2,6 @@ package etomica.atom;
 
 import etomica.species.Species;
 import etomica.util.Debug;
-import etomica.util.Default;
 
 /**
  * AtomType holds fields that are common to many atoms. It serves many
@@ -91,7 +90,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         parentType = newParentType;
         if (parentType == null) {
             addressManager = AtomAddressManager
-                    .makeSimpleIndexManager(Default.BIT_LENGTH);
+                    .makeSimpleIndexManager(new int[] {4, 19, 9});
             index = -1;
             setChildIndex(0,0);
         } else {

@@ -30,7 +30,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
      * Constructor that specifies Kelvin as temperature units.
      */
      public DeviceThermoSelector(Simulation sim, final IntegratorPhase integrator) {
-        this(sim.getController(), Kelvin.UNIT, sim.getDefaults().ignoreOverlap);
+        this(sim.getController(), Kelvin.UNIT, false);
         setController(controller);
         setIntegrator(integrator);
      }

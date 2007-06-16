@@ -15,7 +15,6 @@ import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.action.Action;
 import etomica.data.DataSet;
 import etomica.data.DataSinkTable;
 import etomica.data.DataTableAverages;
@@ -34,12 +33,6 @@ import etomica.units.systems.UnitSystem;
  * @author David Kofke
  * @see DisplayTableFunction
  */
-
-/*
- * History of changes 7/20/02 Added key listener to set precision of displayed
- * values
- */
-
 public class DisplayTable extends Display implements DataTableListener,
         EtomicaElement {
 
@@ -460,7 +453,7 @@ public class DisplayTable extends Display implements DataTableListener,
         pMeter.setIntegrator(sim.integrator);
         MeterNMolecules nMeter = new MeterNMolecules();
         nMeter.setPhase(sim.phase);
-        DataTableAverages dataTable = new DataTableAverages(sim,sim.integrator);
+        DataTableAverages dataTable = new DataTableAverages(sim.integrator);
         dataTable.addDataSource(pMeter);
         dataTable.addDataSource(nMeter);
         DisplayTable table = new DisplayTable(dataTable);

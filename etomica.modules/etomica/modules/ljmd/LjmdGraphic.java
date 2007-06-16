@@ -69,7 +69,7 @@ public class LjmdGraphic extends SimulationGraphic {
     private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 50;
 
-    private Ljmd sim;
+    protected Ljmd sim;
 
     public LjmdGraphic(final Ljmd simulation) {
 
@@ -80,8 +80,6 @@ public class LjmdGraphic extends SimulationGraphic {
         LJ unitSystem = new LJ();
         Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
 
-        sim.getDefaults().blockSize = 100;
-        sim.getDefaults().doSleep = true;
         sim.activityIntegrate.setDoSleep(true);
 
         sim.register(sim.integrator);
@@ -107,9 +105,6 @@ public class LjmdGraphic extends SimulationGraphic {
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
 		
-		//add meter and display for current kinetic temperature
-		sim.getDefaults().historyPeriod = 1000;
-
 		//velocity distribution
         double vMin = 0;
         double vMax = 4;
@@ -157,6 +152,8 @@ public class LjmdGraphic extends SimulationGraphic {
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
+        //add meter and display for current kinetic temperature
+
 		MeterTemperature thermometer = new MeterTemperature();
         thermometer.setPhase(sim.phase);
         DataFork temperatureFork = new DataFork();
@@ -196,7 +193,7 @@ public class LjmdGraphic extends SimulationGraphic {
         peMeter.setPhase(sim.phase);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
-        AccumulatorAverage peAccumulator = new AccumulatorAverage(sim);
+        AccumulatorAverage peAccumulator = new AccumulatorAverage(100);
         peAccumulator.setPushInterval(10);
         DataFork peFork = new DataFork(new DataSink[]{peHistory, peAccumulator});
         DataPump pePump = new DataPump(peMeter, peFork);
@@ -227,7 +224,7 @@ public class LjmdGraphic extends SimulationGraphic {
 		
         MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator();
         pMeter.setIntegrator(sim.integrator);
-        AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
+        AccumulatorAverage pAccumulator = new AccumulatorAverage(100);
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
         DataPump pPump = new DataPump(pMeter, tracer);
         tracer.setDataSink(pAccumulator);

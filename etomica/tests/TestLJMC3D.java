@@ -42,10 +42,10 @@ public class TestLJMC3D extends Simulation {
     public TestLJMC3D(int numAtoms) {
         super(Space3D.getInstance(), false);
         PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
-        defaults.makeLJDefaults();
+        double sigma = 1.0;
 	    integrator = new IntegratorMC(this, potentialMaster);
 	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
-        mcMoveAtom.setStepSize(0.2*defaults.atomSize);
+        mcMoveAtom.setStepSize(0.2*sigma);
         ((MCMoveStepTracker)mcMoveAtom.getTracker()).setTunable(false);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
         integrator.getMoveManager().setEquilibrating(false);
@@ -58,8 +58,8 @@ public class TestLJMC3D extends Simulation {
         addPhase(phase);
         phase.getAgent(species).setNMolecules(numAtoms);
         phase.setDensity(0.65);
-        potential = new P2LennardJones(this);
-        double truncationRadius = 3.0*potential.getSigma();
+        potential = new P2LennardJones(space, sigma, 1.0);
+        double truncationRadius = 3.0*sigma;
         if(truncationRadius > 0.5*phase.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
         }
@@ -84,15 +84,14 @@ public class TestLJMC3D extends Simulation {
         }
         TestLJMC3D sim = new TestLJMC3D(numAtoms);
 
-        sim.getDefaults().blockSize = 10;
         MeterPressure pMeter = new MeterPressure(sim.space);
         pMeter.setIntegrator(sim.integrator);
-        AccumulatorAverage pAccumulator = new AccumulatorAverage(sim);
+        AccumulatorAverage pAccumulator = new AccumulatorAverage(10);
         DataPump pPump = new DataPump(pMeter,pAccumulator);
         sim.integrator.addIntervalAction(pPump);
         sim.integrator.setActionInterval(pPump,2*numAtoms);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
+        AccumulatorAverage energyAccumulator = new AccumulatorAverage(10);
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         sim.integrator.addIntervalAction(energyManager);

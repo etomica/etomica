@@ -1,12 +1,10 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.EtomicaInfo;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -23,8 +21,8 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
     private double epsilon;
     private double cutoff;
 
-    public P1WCAWall(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
+    public P1WCAWall(Space space) {
+        this(space, 1.0, 1.0);
     }
 
     public P1WCAWall(Space space, double sigma, double epsilon) {

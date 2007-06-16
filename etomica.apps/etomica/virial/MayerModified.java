@@ -16,7 +16,7 @@ public class MayerModified extends MayerFunctionSpherical {
 	 * Constructor for MayerModified.
 	 */
 	public MayerModified(Simulation sim, Potential2Spherical potential) {
-		this(sim.getSpace(), potential, sim.getDefaults().atomSize);
+		this(sim.getSpace(), potential, 1.0);
 	}
 	public MayerModified(Space space, Potential2Spherical potential, double sigma) {
         super(space);

@@ -3,6 +3,7 @@ package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayPhase;
@@ -99,13 +100,14 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     	final String APP_NAME = "Configuration Zinc Blende";
 
         Simulation sim = new Simulation(Space3D.getInstance());
-        sim.getDefaults().atomSize = 5.0;
         final Phase phase = new Phase(sim);
         sim.addPhase(phase);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(speciesSpheres0);
         sim.getSpeciesManager().addSpecies(speciesSpheres1);
+        ((AtomTypeSphere)speciesSpheres0.getMoleculeType()).setDiameter(5.0);
+        ((AtomTypeSphere)speciesSpheres1.getMoleculeType()).setDiameter(5.0);
         phase.getAgent(speciesSpheres0).setNMolecules(32);
         phase.getAgent(speciesSpheres1).setNMolecules(32);
         ConfigurationZincblende config = new ConfigurationZincblende(15);

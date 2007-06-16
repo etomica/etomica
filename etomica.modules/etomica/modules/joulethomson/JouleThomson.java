@@ -75,10 +75,10 @@ public class JouleThomson extends SimulationGraphic {
     JouleThomsonSim sim;
 
     public JouleThomson() {
-        this((Space)Space2D.getInstance(), new JouleThomsonSim(Space2D.getInstance()));
+        this(new JouleThomsonSim(Space2D.getInstance()));
     }
 
-    public JouleThomson(Space space, JouleThomsonSim simulation) {
+    public JouleThomson(JouleThomsonSim simulation) {
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         sim = simulation;
 
@@ -87,7 +87,7 @@ public class JouleThomson extends SimulationGraphic {
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         final Unit pUnit, dUnit, dadUnit;
-        if (space.D() == 2) {
+        if (sim.getSpace().D() == 2) {
             Unit areaUnit = new MKS().area();
             dUnit = new UnitRatio(Mole.UNIT, 
                                     areaUnit);
@@ -108,7 +108,7 @@ public class JouleThomson extends SimulationGraphic {
 
 	    //colorscheme to color atoms blue to red according to their velocity
 	    DeviceSlider scaleSlider = null;
-        if(space.D() == 2) 
+        if(sim.getSpace().D() == 2) 
             getDisplayPhase(sim.phase).setColorScheme(new ColorSchemeTemperature(100, 500));
         else {
             ColorSchemeByType colorScheme = new ColorSchemeByType();
@@ -169,7 +169,7 @@ public class JouleThomson extends SimulationGraphic {
 //        hMeter.setHistorying(true);
         
         //meter and display for density
-        final MeterDensity densityMeter = new MeterDensity(space);
+        final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setPhase(sim.phase);
         AccumulatorHistory densityHistoryAcc = new AccumulatorHistory();
         DataPump densityPump = new DataPump(densityMeter, densityHistoryAcc);
@@ -240,7 +240,7 @@ public class JouleThomson extends SimulationGraphic {
 	    speciesChooser.setSpecies("Methane");
 	    
         DisplayTable displayTable = new DisplayTable();
-        AccumulatorAverage densityAverage = new AccumulatorAverage(sim);
+        AccumulatorAverage densityAverage = new AccumulatorAverage();
         pump = new DataPump(densityMeter, densityAverage);
         sim.integratorJT.addIntervalAction(pump);
         sim.integratorJT.setActionInterval(pump, 20);
@@ -275,7 +275,7 @@ public class JouleThomson extends SimulationGraphic {
 	    displayPhasePanel.add(getDisplayPhase(sim.phase).graphic(),BorderLayout.CENTER);
 
 	    // Add widgets specific to 2D application
-	    if(space.D() < 3) {
+	    if(sim.getSpace().D() < 3) {
 	    	displayPhasePanel.add(scaleSlider.getSlider(),BorderLayout.EAST);
 	    }
 
@@ -336,7 +336,7 @@ public class JouleThomson extends SimulationGraphic {
             setPreferredSize(new java.awt.Dimension(150,30));
             setOpaque(false);
             addItemListener(this);
-            sim = (JouleThomsonSim)simGraphic.sim;
+            sim = simGraphic.sim;
             currentEps = sim.potential.getEpsilon();
             currentSig = sim.potential.getSigma();
             sigma[0] = currentSig;
@@ -417,7 +417,7 @@ public class JouleThomson extends SimulationGraphic {
         }
 
         Space space = Space.getInstance(dim);
-        SimulationGraphic simPanel = new JouleThomson(space, new JouleThomsonSim(space));
+        SimulationGraphic simPanel = new JouleThomson(new JouleThomsonSim(space));
         SimulationGraphic.makeAndDisplayFrame(simPanel.getPanel(), APP_NAME);
     } //end of main
 

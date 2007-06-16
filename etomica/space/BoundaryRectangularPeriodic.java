@@ -12,7 +12,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
      * Constructs cubic boundary with the default box-size given by the Simulation.
      */
     public BoundaryRectangularPeriodic(Simulation sim) {
-        this(sim.getSpace(), sim.getRandom(), sim.getDefaults().boxSize);
+        this(sim.getSpace(), sim.getRandom(), 30.0);
     }
     
     /**

@@ -35,7 +35,6 @@ import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
-import etomica.util.Default;
 
 /**
  * 
@@ -78,28 +77,20 @@ public class MDParacetamolOrthorhombic extends Simulation {
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
-    public MDParacetamolOrthorhombic() {
-        this(new Default());
-    }
-    
-    public MDParacetamolOrthorhombic(Default defaults) {
-        this(Space3D.getInstance(), defaults);
-    }
-    
     /* 
      * we use a second, private constructor to permit the space to
      * appear twice in the call to the superclass constructor; alternatively
      * we could have passed Space3D.getInstance() twice
      *
      */
-    private MDParacetamolOrthorhombic(Space space, Default defaults) {
+    private MDParacetamolOrthorhombic() {
 
         /*
          * invoke the superclass constructor
          *	"true" is indicating to the superclass that this is a dynamic simulation
          * the PotentialMaster is selected such as to implement neighbor listing
          */
-    	super(space, true, Default.BIT_LENGTH, defaults);
+    	super(Space3D.getInstance());
     	
         potentialMaster = new PotentialMasterList(this, 1.6);
     	
@@ -114,7 +105,6 @@ public class MDParacetamolOrthorhombic extends Simulation {
         configOrthoLattice = new ConfigurationOrthorhombicLattice(lattice);
     	
         double neighborRangeFac = 1.6;
-        potentialMaster.setRange(neighborRangeFac*defaults.atomSize);
         
         integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setIsothermal(false);
@@ -123,7 +113,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         this.register(integrator);
         integrator.setTemperature(Kelvin.UNIT.toSim(123));
 
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         //activityIntegrate.setMaxSteps(100000);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
@@ -137,7 +127,6 @@ public class MDParacetamolOrthorhombic extends Simulation {
         species.getAgent(phase).setNMolecules(128);
 
         NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
-        nbrManager.setRange(defaults.atomSize*1.6);
         integrator.addNonintervalListener(nbrManager);
         integrator.addIntervalAction(nbrManager);
  
@@ -398,10 +387,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-        Default defaults = new Default();
-        defaults.doSleep = false;
-        defaults.ignoreOverlap = true;
-        etomica.paracetamol.MDParacetamolOrthorhombic sim = new etomica.paracetamol.MDParacetamolOrthorhombic(defaults);
+        etomica.paracetamol.MDParacetamolOrthorhombic sim = new etomica.paracetamol.MDParacetamolOrthorhombic();
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         
    /*****************************************************************************/    

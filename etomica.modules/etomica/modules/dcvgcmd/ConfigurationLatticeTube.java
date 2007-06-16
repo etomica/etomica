@@ -3,6 +3,8 @@ package etomica.modules.dcvgcmd;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.config.ConfigurationLattice;
@@ -19,7 +21,6 @@ import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
-import etomica.util.Default;
 
 /**
  * Creates a configuration using a CubicLattice to specify positions.  Has
@@ -160,17 +161,22 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
     private final double length;
 
 	public static void main(String[] args) {
-        Default.BIT_LENGTH = new int[]{1, 4, 4, 14, 9, 0};
         Simulation sim = new Simulation(Space3D.getInstance());
-		sim.getDefaults().atomSize = 3.0;
 		Phase phase = new Phase(sim);
         sim.addPhase(phase);
         SpeciesSpheresMono species1 = new SpeciesSpheresMono(sim);
 		SpeciesSpheresMono species2 = new SpeciesSpheresMono(sim);
+        sim.getSpeciesManager().addSpecies(species1);
+        sim.getSpeciesManager().addSpecies(species2);
+        ((AtomTypeSphere)species1.getMoleculeType()).setDiameter(3.0);
+        ((AtomTypeSphere)species2.getMoleculeType()).setDiameter(3.0);
 		int k = 4;
 		phase.getAgent(species1).setNMolecules(2*k*k*k);
         phase.getAgent(species2).setNMolecules(2*k*k*k);
         SpeciesTube speciesTube = new SpeciesTube(sim, 10, 10);
+        sim.getSpeciesManager().addSpecies(speciesTube);
+        ((AtomTypeSphere)((AtomTypeGroup)speciesTube.getMoleculeType()).getChildTypes()[0]).setDiameter(3.0);
+        
         phase.getAgent(speciesTube).setNMolecules(1);
 //        CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new LatticeCubicFcc();

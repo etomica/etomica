@@ -21,7 +21,6 @@ public class EntropyLottery extends Simulation {
     public EntropyLottery(Space space) {
         super(space);
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        defaults.makeLJDefaults();
         
         final int N = 30;  //number of atoms
         
@@ -29,7 +28,7 @@ public class EntropyLottery extends Simulation {
 	    integrator = new IntegratorMC(this, potentialMaster);
         MCMoveAtomAdjacent move = new MCMoveAtomAdjacent(getRandom());
         integrator.getMoveManager().addMCMove(move);
-        activityIntegrate = new ActivityIntegrate(this, integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
 	    species = new SpeciesSpheresMono(this);

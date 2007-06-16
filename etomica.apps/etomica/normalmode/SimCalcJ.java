@@ -25,9 +25,6 @@ public class SimCalcJ extends Simulation {
     public SimCalcJ(Space space, int numAtoms) {
         super(space, true);
 
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 

@@ -21,14 +21,10 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
-import etomica.units.Bar;
 import etomica.units.Kelvin;
-import etomica.units.Pixel;
-import etomica.util.Default;
 
 
 /**
@@ -75,23 +71,15 @@ public class ZeoliteSimulation extends Simulation {
     /**
      * Sole public constructor, makes a simulation using a 3D space.
      */
-    public ZeoliteSimulation() {
-        this(new Default());
-    }
-    
-    public ZeoliteSimulation(Default defaults) {
-        this(Space3D.getInstance(), defaults);
-    }
-    
     //we use a second, private constructor to permit the space to
     //appear twice in the call to the superclass constructor; alternatively
     //we could have passed Space3D.getInstance() twice
-    private ZeoliteSimulation(Space space, Default defaults) {
+    private ZeoliteSimulation() {
 
         // invoke the superclass constructor
         // "true" is indicating to the superclass that this is a dynamic simulation
         // the PotentialMaster is selected such as to implement neighbor listing
-        super(space, true, Default.BIT_LENGTH, defaults);
+        super(Space3D.getInstance(), true);
 
         PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6);
         //Additions for Zeolite Calculations
@@ -104,11 +92,6 @@ public class ZeoliteSimulation extends Simulation {
         nAtomsMeth = numAtoms[numAtoms.length - 1];
         double neighborRangeFac = 1.2;
         //defaults.makeLJDefaults();
-        defaults.timeStep = 0.01;
-        defaults.atomMass = 16;
-        defaults.pixelUnit = new Pixel(10);
-        defaults.temperature = Kelvin.UNIT.toSim(298.0);
-        defaults.pressure = Bar.UNIT.toSim(1.01325);
         //Setting sizes of molecules
         double[] atomicSize = new double[3];
         atomicSize[0] = 0.73;
@@ -123,14 +106,14 @@ public class ZeoliteSimulation extends Simulation {
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);
+        integrator.setTemperature(Kelvin.UNIT.toSim(298.0));
         this.register(integrator);
         
         
         
         
 
-        activityIntegrate = new ActivityIntegrate(this,integrator);
-        activityIntegrate.setDoSleep(true);
+        activityIntegrate = new ActivityIntegrate(integrator, true, true);
         activityIntegrate.setSleepPeriod(2);
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
@@ -147,17 +130,21 @@ public class ZeoliteSimulation extends Simulation {
         	phase.getAgent(species[i]).setNMolecules(numAtoms[i]);
         	((etomica.atom.AtomTypeSphere)species[i].getFactory().getType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){
+                // all elements except the last (methane) are fixed
         	    ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getFactory().getType()).getElement()).setMass(Double.POSITIVE_INFINITY);
         	}
+            else {
+                ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getFactory().getType()).getElement()).setMass(16);
+            }
         }
         //Setting up potential for Methane-Methane interactions
-        potentialMM = new P2LennardJones(this);
+        potentialMM = new P2LennardJones(space);
         //Setting sigma and epsilon (from J. Chem. Soc Faraday Trans 1991
         potentialMM.setEpsilon(Kelvin.UNIT.toSim(147.95));
         //potentialMM.setEpsilon(1);
         potentialMM.setSigma(3.0);
         //Setting up potential for Methane-Oxygen interactions
-        P2LennardJones potentialMO = new P2LennardJones(this);
+        P2LennardJones potentialMO = new P2LennardJones(space);
         //Setting sigma and epsilon 
         potentialMO.setEpsilon(Kelvin.UNIT.toSim(133.3));
         //potentialMO.setEpsilon(100);
@@ -231,11 +218,8 @@ public class ZeoliteSimulation extends Simulation {
      * Demonstrates how this class is implemented.
      */
     public static void main(String[] args) {
-    	Default defaults = new Default();
-        defaults.doSleep = true;
-        defaults.ignoreOverlap = true;
         //defaults.temperature = Kelvin.UNIT.toSim(298.0);
-        ZeoliteSimulation sim = new ZeoliteSimulation(defaults);
+        ZeoliteSimulation sim = new ZeoliteSimulation();
         zeoliteSimGraphic simGraphic = new zeoliteSimGraphic(sim, APP_NAME);
         int num = sim.species.length;
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
@@ -251,7 +235,7 @@ public class ZeoliteSimulation extends Simulation {
         eMeter.setPhase(sim.phase);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.getHistory().setHistoryLength(history);
-        AccumulatorAverage enAcc = new AccumulatorAverage(sim);
+        AccumulatorAverage enAcc = new AccumulatorAverage();
         enAcc.setPushInterval(20);
         DataFork enFork = new DataFork(new DataSink[]{energyHistory, enAcc});
         DataPump energyPump = new DataPump(eMeter, enFork);

@@ -1,6 +1,7 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -255,11 +256,11 @@ public class ConfigurationLattice extends Configuration {
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
-        sim.getDefaults().atomSize = 5.0;
         Phase phase = new Phase(sim);
         sim.addPhase(phase);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
+        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(5.0);
         int k = 4;
         phase.getAgent(species).setNMolecules(4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);

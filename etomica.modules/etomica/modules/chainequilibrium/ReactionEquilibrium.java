@@ -45,8 +45,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 
         double diameter = 1.0;
 
-        getDefaults().atomSize = diameter;
-
         integratorHard1 = new IntegratorHard(this, potentialMaster);
         integratorHard1.setIsothermal(true);
         integratorHard1.setThermostat(ThermostatType.ANDERSEN_SINGLE);
@@ -70,12 +68,9 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         molecularCount.setPhase(phase);
 
 		//potentials
-        AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * getDefaults().atomSize, 
-                2.0, getDefaults().potentialWell);
-		ABbonded = new P2SquareWellBonded(space, agentManager, 0.5 * getDefaults().atomSize,
-		        2.0, getDefaults().potentialWell);
-		BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * getDefaults().atomSize,
-		        2.0, getDefaults().potentialWell);
+        AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, 2.0, 1.0);
+		ABbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, 2.0, 1.0);
+		BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, 2.0, 1.0);
 
 		potentialMaster.addPotential(AAbonded,
 		        new Species[] { speciesA, speciesA });

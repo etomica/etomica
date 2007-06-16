@@ -178,7 +178,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
         integrator.setIsothermal(true);
-        activityIntegrate = new ActivityIntegrate(this,integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         Tin SnF = new Tin("SnF", Double.POSITIVE_INFINITY);

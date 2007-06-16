@@ -47,11 +47,9 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public ReactionEquilibrium() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        defaults.ignoreOverlap = true;
         controller1 = getController();
 
         double diameter = 1.0;
-        defaults.atomSize = diameter;
 
         //controller and integrator
         integratorHard1 = new IntegratorHard(this, potentialMaster);
@@ -75,15 +73,15 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         agentManager = new AtomLeafAgentManager(this,phase1);
 
         //potentials
-        AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * defaults.atomSize, //core
+        AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
                 2.0, //well multiplier
-                defaults.potentialWell, defaults.ignoreOverlap);
-        ABbonded = new P2SquareWellBonded(space, agentManager, 0.5 * defaults.atomSize, //core
+                1.0, true);
+        ABbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
                 2.0, //well multiplier
-                defaults.potentialWell, defaults.ignoreOverlap);
-        BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * defaults.atomSize, //core
+                1.0, true);
+        BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
                 2.0, //well multiplier
-                defaults.potentialWell, defaults.ignoreOverlap);
+                1.0, true);
 /*      P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
                 2.0, //well multiplier
                 Default.POTENTIAL_WELL);
@@ -106,7 +104,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         thermometer = new MeterTemperature();
         thermometer.setPhase(phase1);
         
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integratorHard1);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integratorHard1);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);

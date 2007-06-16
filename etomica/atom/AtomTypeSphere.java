@@ -16,14 +16,15 @@ import etomica.simulation.Simulation;
 
 public class AtomTypeSphere extends AtomTypeLeaf {
     
-    double diameter;
+    private static final long serialVersionUID = 1L;
+    protected double diameter;
     
     public AtomTypeSphere(Simulation sim) {
-        this(new ElementSimple(sim), sim.getDefaults().atomSize);
+        this(new ElementSimple(sim), 1.0);
     }
     
-    public AtomTypeSphere(Simulation sim, Element element) {
-        this(element, sim.getDefaults().atomSize);
+    public AtomTypeSphere(Element element) {
+        this(element, 1.0);
     }
     
     public AtomTypeSphere(Element element, double d) {

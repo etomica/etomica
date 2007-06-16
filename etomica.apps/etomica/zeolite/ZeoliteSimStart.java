@@ -14,7 +14,7 @@ import etomica.util.HistoryCollapsing;
 public class ZeoliteSimStart extends IntegratorActionAdapter{
 
     public ZeoliteSimStart(ZeoliteSimulation sim,zeoliteSimGraphic graphic) {
-        this(sim.integrator,sim.getDefaults().ignoreOverlap,sim.getInterval());
+        this(sim.integrator,false,sim.getInterval());
         this.sim = sim;
         this.graphic = graphic;
 	}

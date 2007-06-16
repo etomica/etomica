@@ -6,7 +6,6 @@ package etomica.data;
 
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.simulation.Simulation;
 import etomica.util.EnumeratedType;
 import etomica.util.Function;
 
@@ -39,8 +38,8 @@ public class AccumulatorAverage extends DataAccumulator {
      * Default constructor sets block size to Default value, and sets the
      * interval for pushing the output data (pushInterval) to 100.
      */
-    public AccumulatorAverage(Simulation sim) {
-        this(sim.getDefaults().blockSize);
+    public AccumulatorAverage() {
+        this(1000);
     }
     
     public AccumulatorAverage(int blockSize) {

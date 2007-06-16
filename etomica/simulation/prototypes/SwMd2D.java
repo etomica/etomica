@@ -2,6 +2,7 @@ package etomica.simulation.prototypes;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
@@ -35,23 +36,24 @@ public class SwMd2D extends Simulation {
     public SwMd2D(Space space) {
         super(space);
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        defaults.makeLJDefaults();
-        defaults.atomSize = 0.8;
+        double sigma = 0.8;
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setTimeStep(0.01);
         integrator.setEventInterval(5);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(this,integrator);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         integrator.setTimeStep(0.02);
         integrator.setTemperature(300.);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
+        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
         phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
-        potential = new P2SquareWell(this);
+        potential = new P2SquareWell(space);
+        potential.setCoreDiameter(sigma);
         potentialMaster.addPotential(potential,new Species[]{species,species});
         
         integrator.setPhase(phase);

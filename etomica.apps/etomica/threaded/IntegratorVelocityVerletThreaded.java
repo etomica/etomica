@@ -11,8 +11,7 @@ public class IntegratorVelocityVerletThreaded extends IntegratorVelocityVerlet {
     private static final long serialVersionUID = 1L;
 
     public IntegratorVelocityVerletThreaded(Simulation sim, PotentialMaster potentialMaster, int numThreads) {
-        this(potentialMaster,sim.getRandom(),sim.getDefaults().timeStep,
-                sim.getDefaults().temperature, numThreads);
+        this(potentialMaster,sim.getRandom(), 0.05, 1.0, numThreads);
     }
 
     public IntegratorVelocityVerletThreaded(PotentialMaster potentialMaster,

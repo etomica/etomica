@@ -4,7 +4,6 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -22,8 +21,8 @@ import etomica.util.Debug;
  */
 public class P2HardBond extends Potential2HardSpherical {
 
-    public P2HardBond(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().atomSize, 0.15, sim.getDefaults().ignoreOverlap);
+    public P2HardBond(Space space) {
+        this(space, 1.0, 0.15, false);
     }
 
     public P2HardBond(Space space, double bondLength, double bondDelta, boolean ignoreOverlap) {

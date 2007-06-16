@@ -104,9 +104,6 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         
         Simulation sim = new Simulation(Space1D.getInstance(), true);
 
-        sim.getDefaults().makeLJDefaults();
-        sim.getDefaults().atomSize = 1.0;
-
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
 

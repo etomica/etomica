@@ -3,7 +3,6 @@ package etomica.data;
 import etomica.action.ActionGroupSeries;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.integrator.IIntegrator;
-import etomica.simulation.Simulation;
 
 /**
  * Data table that collects the AccumulatorAverage statistics for a collection
@@ -22,8 +21,8 @@ public class DataTableAverages extends DataSinkTable {
      * Sets up table with default types that give the current value, the
      * average, and the error bars.
      */
-    public DataTableAverages(Simulation sim, IIntegrator integrator) {
-        this(integrator,sim.getDefaults().blockSize);
+    public DataTableAverages(IIntegrator integrator) {
+        this(integrator, 1000);
     }
     
     public DataTableAverages(IIntegrator integrator, int blockSize) {

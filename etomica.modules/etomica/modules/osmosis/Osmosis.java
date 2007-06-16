@@ -113,7 +113,7 @@ public class Osmosis extends SimulationGraphic {
         osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardLeftA}, 
                 new P1HardBoundary[]{sim.boundaryHardRightA, sim.boundaryHardB});
         osmosisPMeter.setIntegrator(sim.integrator);
-        final AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverage(sim);
+        final AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverage();
         DataPump pump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
         sim.register(osmosisPMeter, pump);
         sim.integrator.addIntervalAction(pump);
@@ -160,7 +160,7 @@ public class Osmosis extends SimulationGraphic {
         }
 
         moleFraction.setSpecies(sim.speciesB);
-        final AccumulatorAverage moleFractionAvg = new AccumulatorAverage(sim);
+        final AccumulatorAverage moleFractionAvg = new AccumulatorAverage();
         pump = new DataPump(moleFraction, moleFractionAvg);
         sim.register(moleFraction, pump);
         sim.integrator.addIntervalAction(pump);

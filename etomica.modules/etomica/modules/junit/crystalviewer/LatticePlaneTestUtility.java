@@ -44,7 +44,6 @@ public class LatticePlaneTestUtility {
 	public LatticePlaneTestUtility() {
     	// Create a simulation
     	sim = new Simulation(Space3D.getInstance());
-    	sim.getDefaults().makeLJDefaults();
     	sim.getSpace().makeVector();
 
     	// Create a species with one atom / molecule

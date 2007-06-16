@@ -32,8 +32,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     protected AtomLeafAgentManager agentManager;
 
     public IntegratorVerlet(Simulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(),sim.getDefaults().timeStep,
-                sim.getDefaults().temperature);
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0);
     }
     
     public IntegratorVerlet(PotentialMaster potentialMaster, IRandom random, 

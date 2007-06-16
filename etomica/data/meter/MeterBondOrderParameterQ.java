@@ -25,7 +25,7 @@ import etomica.units.Undefined;
 public class MeterBondOrderParameterQ  extends DataSourceScalar {
 	
     public MeterBondOrderParameterQ(Simulation sim) {
-        this(sim.getSpace(),5.0*sim.getDefaults().atomSize);
+        this(sim.getSpace(), 5.0);
     }
     
     public MeterBondOrderParameterQ(Space space, double rCut) {

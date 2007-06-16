@@ -2,6 +2,8 @@ package etomica.modules.joulethomson;
 
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomTypeSphere;
+import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DisplayPhase;
@@ -23,6 +25,7 @@ import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
+import etomica.units.Kelvin;
 import etomica.units.Meter;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
@@ -45,14 +48,15 @@ public class JouleThomsonSim extends Simulation {
         super(space);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         int nAtoms = (space.D() < 3) ? 50 : 64;
+        double sigma = 3.0;
         
-		defaults.historyPeriod = 1000;
- 
         //integrator
         integratorNVE = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator = new IntegratorGear4NPH(this, potentialMaster);
         integrator.setRelaxationRateP(500.);
         integrator.setRelaxationRateH(300.);
+        integratorNVE.setTemperature(Kelvin.UNIT.toSim(300));
+        integrator.setTemperature(Kelvin.UNIT.toSim(300));
         final Unit pUnit;
         if (space.D() == 2) {
             Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
@@ -66,8 +70,10 @@ public class JouleThomsonSim extends Simulation {
 	    
 	    //species and potential
 	    species = new SpeciesSpheresMono(this);
+        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
+        ((ElementSimple)((AtomTypeSphere)species.getMoleculeType()).getElement()).setMass(40);
         getSpeciesManager().addSpecies(species);
-	    potential = new P2LennardJones(this);
+	    potential = new P2LennardJones(space, sigma, Kelvin.UNIT.toSim(300));
         potentialMaster.addPotential(potential, new Species[]{species, species});
 	    phase = new Phase(this);
         addPhase(phase);
@@ -91,7 +97,7 @@ public class JouleThomsonSim extends Simulation {
         integrator.setTimeStep(0.001);
         integratorNVE.setTimeStep(0.005);
 
-        activityIntegrate = new ActivityIntegrate(this, integratorJT);
+        activityIntegrate = new ActivityIntegrate(integratorJT);
         getController().addAction(activityIntegrate);
     }
     

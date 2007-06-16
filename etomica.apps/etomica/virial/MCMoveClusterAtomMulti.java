@@ -24,7 +24,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
             translationVectors[i] = (IVectorRandom)potential.getSpace().makeVector();
         }
         weightMeter = new MeterClusterWeight(potential);
-        setStepSize(sim.getDefaults().atomSize*1.2);
+        setStepSize(1.2);
 	}
 	
     public void setPhase(Phase p) {

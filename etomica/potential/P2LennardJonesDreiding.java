@@ -2,7 +2,6 @@ package etomica.potential;
 
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -22,9 +21,8 @@ import etomica.units.Length;
 
 public class P2LennardJonesDreiding extends Potential2SoftSpherical implements EtomicaElement {
 	
-	public P2LennardJonesDreiding(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().atomSize, sim.getDefaults().potentialWell);
-       
+	public P2LennardJonesDreiding(Space space) {
+        this(space, 1.0, 1.0);
     }
 	
     public P2LennardJonesDreiding(Space space, double sigma, double epsilon) {

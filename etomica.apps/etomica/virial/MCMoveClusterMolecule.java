@@ -9,17 +9,13 @@ import etomica.util.IRandom;
 /**
  * Standard Monte Carlo molecule-displacement trial move for cluster integrals.
  */
- 
- /* History of changes
-  * 7/9/02 Added energyChange() method
-  */
 public class MCMoveClusterMolecule extends MCMoveMolecule {
     
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
 
     public MCMoveClusterMolecule(Simulation sim, PotentialMaster potentialMaster) {
-    	this(potentialMaster,sim.getRandom(),sim.getDefaults().atomSize);
+    	this(potentialMaster,sim.getRandom(), 1.0);
     }
     
     public MCMoveClusterMolecule(PotentialMaster potentialMaster, IRandom random, double stepSize) {

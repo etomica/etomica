@@ -4,7 +4,6 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtomKinetic;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialHard;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -18,8 +17,8 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     private static final long serialVersionUID = 1L;
     private double collisionRadius;
     
-    public P1HardWall(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().atomSize);
+    public P1HardWall(Space space) {
+        this(space, 1.0);
     }
     
     public P1HardWall(Space space, double sigma) {

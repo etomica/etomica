@@ -84,9 +84,6 @@ public class TestHexaneHarmonic extends Simulation {
         double neighborRangeFac = 1.2;
 
         double bondFactor = 0.4;
-        defaults.makeLJDefaults();
-        defaults.atomSize = 1.0;
-        defaults.ignoreOverlap = false;
 
         SpeciesHexane species = new SpeciesHexane(this);
         getSpeciesManager().addSpecies(species);
@@ -97,8 +94,8 @@ public class TestHexaneHarmonic extends Simulation {
         phase.getAgent(species).setNMolecules(numMolecules);
 //        config.initializeCoordinates(phase);
 
-        integrator = new IntegratorMC(potentialMaster, getRandom(), defaults.temperature);
-        moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(), defaults.atomSize, defaults.boxSize/2, false);
+        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
+        moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(), 1.0, 15.0, false);
 //        moveVolume = new MCMoveVolume(potentialMaster, phase.space(), sim.getDefaults().pressure);
 //        moveVolume.setPhase(phase);
 //        crank = new MCMoveCrankshaft();
@@ -121,7 +118,7 @@ public class TestHexaneHarmonic extends Simulation {
 //        integrator.getMoveManager().addMCMove(moveVolume);
         
         integrator.setIsothermal(true);
-        activityIntegrate = new ActivityIntegrate(this, integrator);
+        activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setMaxSteps(2000000);
         getController().addAction(activityIntegrate);
             
@@ -140,8 +137,7 @@ public class TestHexaneHarmonic extends Simulation {
         //This potential is the intermolecular potential between atoms on
         // different molecules. We use the class "Potential" because we are
         // reusing the instance as we define each potential.
-        Potential potential = new P2HardSphere(space, defaults.atomSize, 
-                defaults.ignoreOverlap);
+        Potential potential = new P2HardSphere(space);
         
         //here, we add the species to the PotentialMaster, using types.
         //The PotentialMaster generates a group potential and automatically
@@ -225,7 +221,7 @@ public class TestHexaneHarmonic extends Simulation {
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(sim.coordinateDefinition, normalModes);
         harmonicEnergy.setPhase(sim.phase);
         DataFork harmonicFork = new DataFork();
-        AccumulatorAverage harmonicAvg = new AccumulatorAverage(sim);
+        AccumulatorAverage harmonicAvg = new AccumulatorAverage();
         DataPump pump = new DataPump(harmonicEnergy, harmonicFork);
         harmonicFork.addDataSink(harmonicAvg);
         sim.integrator.addIntervalAction(pump);
@@ -246,7 +242,7 @@ public class TestHexaneHarmonic extends Simulation {
         boltz.setTemperature(1);
         pump = new DataPump(harmonicSingleEnergy, boltz);
         DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
-        AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(sim);
+        AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage();
         boltz.setDataSink(harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
 //        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);

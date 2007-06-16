@@ -37,6 +37,7 @@ import etomica.potential.P2SquareWell;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
+import etomica.units.Pixel;
 import etomica.units.PrefixedUnit;
 import etomica.util.Constants.CompassDirection;
 
@@ -55,7 +56,7 @@ public class ReactionEquilibriumGraphic {
 		initializing = true;
 		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
 		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
-		displayPhase1 = new DisplayPhase(sim.phase1,sim.getDefaults().pixelUnit);
+		displayPhase1 = new DisplayPhase(sim.phase1,new Pixel());
         sim.integratorHard1.addIntervalAction(new Action() {
                     public void actionPerformed() {
                         displayPhase1.repaint();
@@ -197,7 +198,7 @@ public class ReactionEquilibriumGraphic {
 		DataPump dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
         sim.integratorHard1.addIntervalAction(dimerPump);
         sim.integratorHard1.setActionInterval(dimerPump, 100);
-        AccumulatorAverage dimerfractionaccum = new AccumulatorAverage(sim);
+        AccumulatorAverage dimerfractionaccum = new AccumulatorAverage();
         dimerfractionaccum.setPushInterval(10);
         dimerFork.addDataSink(dimerfractionaccum);
 		DisplayTable table = new DisplayTable();

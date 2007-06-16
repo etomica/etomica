@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Nov 18, 2004 by kofke
- */
 package etomica.atom;
 
 import etomica.chem.elements.Element;
@@ -9,6 +5,7 @@ import etomica.chem.elements.Element;
 
 public final class AtomTypeWell extends AtomTypeSphere {  
     
+    private static final long serialVersionUID = 1L;
     private double lambda;                    //diameter of well, in units of core diameter
     private double wellDiameter, wellRadius;  //size of well, in simulation units
     

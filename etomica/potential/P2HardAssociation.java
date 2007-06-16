@@ -20,9 +20,10 @@ import etomica.units.Length;
  */
 public class P2HardAssociation extends Potential2HardSpherical {
 
-    public P2HardAssociation(Simulation sim) {
-        this(sim.getSpace(), sim.getDefaults().potentialCutoffFactor, sim.getDefaults().potentialWell);
+    public P2HardAssociation(Space space) {
+        this(space, 2.0, 1.0);
     }
+    
     public P2HardAssociation(Space space, double wellDiameter, double epsilon) {
         super(space);
         setEpsilon(epsilon);

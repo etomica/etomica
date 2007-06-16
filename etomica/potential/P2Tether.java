@@ -3,7 +3,6 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -19,8 +18,8 @@ import etomica.units.Length;
  */
 public class P2Tether extends Potential2HardSpherical {
 
-    public P2Tether(Simulation sim) {
-        this(sim.getSpace(), 0.75*sim.getDefaults().atomSize, sim.getDefaults().ignoreOverlap);
+    public P2Tether(Space space) {
+        this(space, 0.75, false);
     }
     
     public P2Tether(Space space, double tetherLength, boolean ignoreOverlap) {
