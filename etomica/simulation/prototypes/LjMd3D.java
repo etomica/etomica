@@ -2,6 +2,7 @@ package etomica.simulation.prototypes;
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -50,14 +51,15 @@ public class LjMd3D extends Simulation {
     public LjMd3D() {
         super(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        double sigma = 3.0;
+        double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMaster);
-        integrator.setTimeStep(0.01);
+        integrator.setTimeStep(0.02);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, true, false);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
+        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
         phase = new Phase(this);
         addPhase(phase);
         phase.getAgent(species).setNMolecules(50);
