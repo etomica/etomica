@@ -28,6 +28,7 @@ import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.units.Kelvin;
+import etomica.units.Pixel;
 
 /**
  * @author msellers and nsives
@@ -41,6 +42,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	public DCVGCMDGraphic(final DCVGCMD sim){
 
 		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL);	
+        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
 
 	    Color colorA = Color.blue;
 	    Color colorB = Color.white;

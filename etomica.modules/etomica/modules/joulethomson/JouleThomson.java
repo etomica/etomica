@@ -50,6 +50,7 @@ import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Meter;
 import etomica.units.Mole;
+import etomica.units.Pixel;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Pressure;
@@ -81,6 +82,7 @@ public class JouleThomson extends SimulationGraphic {
     public JouleThomson(JouleThomsonSim simulation) {
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         sim = simulation;
+        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
 
         sim.register(sim.integratorJT);
 

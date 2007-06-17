@@ -42,13 +42,14 @@ import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.space.IVector;
 import etomica.space2d.Space2D;
-import etomica.space3d.Space3D;
 import etomica.space2d.Vector2D;
+import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Length;
+import etomica.units.Pixel;
 import etomica.units.Unit;
 import etomica.util.Constants.CompassDirection;
 
@@ -74,7 +75,6 @@ public class Osmosis extends SimulationGraphic {
     	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
 
     	sim = simulation;
-
         final int thickness = 4;
 
         Unit tUnit = Kelvin.UNIT;

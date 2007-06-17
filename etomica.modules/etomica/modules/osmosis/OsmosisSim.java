@@ -45,10 +45,9 @@ public class OsmosisSim extends Simulation {
     public OsmosisSim(Space space) {
 
         super(space);
-
         PotentialMaster potentialMaster = new PotentialMaster(space);
 
-        final double sigma = 3.0;
+        final double sigma = 1.0;
 
 	    speciesA = new SpeciesSpheresMono(this);
 	    speciesA.setName("Solvent");
@@ -99,11 +98,11 @@ public class OsmosisSim extends Simulation {
 
         ConfigurationLattice config = null;
         if (space instanceof Space2D){ // 2D
-            phase.getBoundary().setDimensions(new Vector2D(30.0, 30.0));
+            phase.getBoundary().setDimensions(new Vector2D(10.0, 10.0));
             config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
         }
         else if (space instanceof Space3D) { // 3D
-            phase.getBoundary().setDimensions(new Vector3D(30.0, 30.0, 30.0));
+            phase.getBoundary().setDimensions(new Vector3D(10.0, 10.0, 10.0));
         	config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));
         }
         phase.getAgent(speciesA).setNMolecules(30);

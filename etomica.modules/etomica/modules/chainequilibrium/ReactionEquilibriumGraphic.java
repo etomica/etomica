@@ -19,6 +19,7 @@ import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.units.Kelvin;
+import etomica.units.Pixel;
 import etomica.units.PrefixedUnit;
 import etomica.util.Constants.CompassDirection;
 
@@ -39,6 +40,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
+        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
 
         GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();

@@ -20,6 +20,7 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
@@ -59,12 +60,14 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         //construct phase
         phase1 = new Phase(this);
         addPhase(phase1);
+        phase1.setBoundary(new BoundaryRectangularPeriodic(space, random, 30));
         integratorHard1.setPhase(phase1);
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(speciesA);
         getSpeciesManager().addSpecies(speciesB);
         ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
+        ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(diameter);
         phase1.getAgent(speciesA).setNMolecules(30);
         phase1.getAgent(speciesB).setNMolecules(30);
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
