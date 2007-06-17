@@ -68,7 +68,7 @@ public class P2SquareWellBonded extends P2SquareWell {
         if (ignoreOverlap) {
             
             IAtomKinetic atom0 = (IAtomKinetic)atoms.getAtom(0);
-            IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(0);
+            IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(1);
 
             // ** Makes 2 things, and atomPair pair, 
             IAtom a1Partner = (IAtom)agentManager.getAgent(atom0);
@@ -84,8 +84,9 @@ public class P2SquareWellBonded extends P2SquareWell {
 
             //inside well but not mutually bonded; collide now if approaching
             if ((a1Partner != atom1 && r2 < wellDiameterSquared)
-             || (a1Partner == atom1 && r2 < coreDiameterSquared))
+             || (a1Partner == atom1 && r2 < coreDiameterSquared)) {
                 return (bij < 0.0) ? falseTime : Double.POSITIVE_INFINITY;
+            }
         }
         //mutually bonded, or outside well; collide as SW
         double time = super.collisionTime(atoms, falseTime);
