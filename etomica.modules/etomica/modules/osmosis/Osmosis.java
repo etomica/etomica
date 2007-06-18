@@ -79,7 +79,14 @@ public class Osmosis extends SimulationGraphic {
 
         Unit tUnit = Kelvin.UNIT;
 
-        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
+        ConfigurationLattice config = null;
+
+        if (sim.getSpace() instanceof Space2D) { // 2D
+            config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
+        }
+        else if (sim.getSpace() instanceof Space3D) { // 3D
+            config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));        	
+        }
 
         SimulationRestart simRestart = getController().getSimRestart();
         
@@ -372,7 +379,7 @@ public class Osmosis extends SimulationGraphic {
 
 	    	OsmosisSim sim = null;
 
-	        if(true) { // 3D Case
+	        if(false) { // 3D Case
 	    	    sim = new OsmosisSim(Space3D.getInstance());
 	        }
 	        else { // 2D case
