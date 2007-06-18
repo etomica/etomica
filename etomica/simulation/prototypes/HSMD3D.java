@@ -90,7 +90,6 @@ public class HSMD3D extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
-        this.register(integrator);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setDoSleep(true);

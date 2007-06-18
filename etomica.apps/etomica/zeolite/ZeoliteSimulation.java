@@ -107,10 +107,6 @@ public class ZeoliteSimulation extends Simulation {
         integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);
         integrator.setTemperature(Kelvin.UNIT.toSim(298.0));
-        this.register(integrator);
-        
-        
-        
         
 
         activityIntegrate = new ActivityIntegrate(integrator, true, true);

@@ -81,8 +81,6 @@ public class LjmdGraphic extends SimulationGraphic {
         Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
 
         sim.activityIntegrate.setDoSleep(true);
-
-        sim.register(sim.integrator);
        
 	    //display of phase, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();

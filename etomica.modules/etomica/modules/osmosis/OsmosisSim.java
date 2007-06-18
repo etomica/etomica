@@ -119,7 +119,6 @@ public class OsmosisSim extends Simulation {
 
     public static void main(String[] args) {
         OsmosisSim sim = new OsmosisSim(Space2D.getInstance());
-        sim.register(sim.integrator);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType colorScheme = new ColorSchemeByType();

@@ -110,7 +110,6 @@ public class MDParacetamolMonoclinic extends Simulation {
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
         integrator.setTimeStep(0.001); //1 = pico sec
-        this.register(integrator);
         integrator.setTemperature(Kelvin.UNIT.toSim(20));
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

@@ -63,8 +63,7 @@ public abstract class ColorScheme implements java.io.Serializable {
 
       final ColorSchemeByType ct = new ColorSchemeByType();
       final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(0,5);
-      final ColorSchemeColliders ccld =
-        new ColorSchemeColliders((IntegratorHard)sim.getIntegratorList().getFirst());
+      final ColorSchemeColliders ccld = new ColorSchemeColliders(sim.integrator);
       final ColorSchemeNeighbor nghb = new ColorSchemeNeighbor(sim, (PotentialMasterList)sim.potentialMaster, sim.phase);
       nghb.setAtom(sim.phase.getSpeciesMaster().getLeafList().getAtom(0));
       final ColorSchemeRandom rand = new ColorSchemeRandom(sim.phase, sim.getRandom());

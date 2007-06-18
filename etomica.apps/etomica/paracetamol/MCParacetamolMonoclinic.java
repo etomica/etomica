@@ -78,7 +78,6 @@ public class MCParacetamolMonoclinic extends Simulation {
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
-        this.register(integrator);
         integrator.setTemperature(Kelvin.UNIT.toSim(20));
         
         mcMoveMolecule = new MCMoveMolecule(this, potentialMaster);

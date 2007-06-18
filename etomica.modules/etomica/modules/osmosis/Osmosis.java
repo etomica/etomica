@@ -289,7 +289,6 @@ public class Osmosis extends SimulationGraphic {
 
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(1);
-        sim.register(sim.integrator);
 
         Osmosis osmosis = new Osmosis(sim);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
@@ -382,7 +381,6 @@ public class Osmosis extends SimulationGraphic {
 
 	        sim.activityIntegrate.setDoSleep(true);
 	        sim.activityIntegrate.setSleepPeriod(1);
-	        sim.register(sim.integrator);
 
 		    getContentPane().add(new Osmosis(sim).getPanel());
 	    }

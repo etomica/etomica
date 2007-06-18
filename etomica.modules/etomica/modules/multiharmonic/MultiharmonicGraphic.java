@@ -42,8 +42,6 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
 
-        sim.register(sim.integrator);
-
         getDisplayPhase(sim.phase).setPixelUnit(new Pixel(400/sim.phase.getBoundary().getDimensions().x(0)));
 
         final DisplayPlot plot = new DisplayPlot();

@@ -543,7 +543,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pc = sim;
         ((ElementSimple)((AtomTypeLeaf)pc.species.getMoleculeType()).getElement()).setMass(mass);
         int D = pc.getSpace().D();
-        pc.register(pc.integrator);
 
 
         tUnit = Kelvin.UNIT;

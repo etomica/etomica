@@ -52,7 +52,6 @@ public class ReactionEquilibriumGraphic {
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium sim) {
         panel.setLayout(new BorderLayout());
-		sim.register(sim.integratorHard1);
 		initializing = true;
 		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
 		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);

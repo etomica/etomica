@@ -1,10 +1,7 @@
 package etomica.simulation;
 
-import java.util.LinkedList;
-
 import etomica.action.activity.Controller;
 import etomica.data.DataSource;
-import etomica.integrator.IIntegrator;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -95,11 +92,6 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     }
 
     /**
-     * Returns a list of Integrators that have been registered with the Simulation
-     */
-    public final LinkedList getIntegratorList() {return integratorList;}
-    
-    /**
      * Returns an array of DataStreamsHeaders for data streams that have been
      * registered with the simulation.
      */
@@ -116,25 +108,6 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     }
     
     /**
-     * Clears the list of Integrators that have been registered with the 
-     * Simulation.
-     */
-    public void clearIntegrators() {
-        integratorList.clear();
-    }
-    
-    /**
-     * Add the given Integrator to a list kept by the simulation.  No other 
-     * effect results from registering the Integrator. The list of registered 
-     * Integrators may be retrieved via the getIntegrators method.  An 
-     * individual Integrator may be removed from the list via the unregister 
-     * method.
-     */
-    public void register(IIntegrator integrator) {
-        integratorList.add(integrator);
-    }
-
-    /**
      * Add the given DataSource and client (the object which calls the 
      * DataSource's getData method) to a list of data streams kept by the 
      * simulation.  No other effect results from registering the data stream. 
@@ -149,16 +122,6 @@ public class Simulation implements java.io.Serializable, ISimulation  {
             }
         }
         dataStreams = (DataStreamHeader[])Arrays.addObject(dataStreams,new DataStreamHeader(dataSource,client));
-    }
-    
-    /**
-     * Removes the given Integrator from the list of Integrators kept by the 
-     * simulation.  No other action results upon removing it from this list.  
-     * If the given Integrator is not in the list already, the method returns 
-     * without taking any action.
-     */
-    public void unregister(IIntegrator integrator) {
-        integratorList.remove(integrator);
     }
     
     /**
@@ -242,15 +205,14 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         return speciesManager;
     }
 
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
     protected final Space space;
     protected final SimulationEventManager eventManager;
     private Phase[] phaseList;
     private final SpeciesManager speciesManager;
     protected final IRandom random;
     protected final boolean dynamic;
-    private Controller controller;     
-    private final LinkedList integratorList = new LinkedList();
+    private Controller controller;
     private DataStreamHeader[] dataStreams = new DataStreamHeader[0];
     private String name;
 }

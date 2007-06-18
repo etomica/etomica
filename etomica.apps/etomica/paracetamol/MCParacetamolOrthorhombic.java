@@ -76,7 +76,6 @@ public class MCParacetamolOrthorhombic extends Simulation {
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
-        this.register(integrator);
         integrator.setTemperature(Kelvin.UNIT.toSim(123));
         
         mcMoveMolecule = new MCMoveMolecule(this, potentialMaster);

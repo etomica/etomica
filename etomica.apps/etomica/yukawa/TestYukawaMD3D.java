@@ -54,7 +54,6 @@ public class TestYukawaMD3D extends Simulation{
 		integrator = new IntegratorVelocityVerlet(this, potentialMaster);
 		integrator.setIsothermal(false);
 		integrator.setTimeStep(0.01);
-		this.register(integrator);
 		
 		
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);

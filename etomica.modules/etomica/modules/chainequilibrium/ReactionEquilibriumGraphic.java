@@ -45,8 +45,6 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-        sim.register(sim.integratorHard1);
-
         // ********* Data Declaration Section *******	
         int eMin = 0, eMax = 1000,  majorSpacing = 15, minorSpacing = 5;
 

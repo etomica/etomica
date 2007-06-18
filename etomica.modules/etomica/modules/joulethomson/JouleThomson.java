@@ -84,8 +84,6 @@ public class JouleThomson extends SimulationGraphic {
         sim = simulation;
         getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
 
-        sim.register(sim.integratorJT);
-
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         final Unit pUnit, dUnit, dadUnit;

@@ -34,8 +34,6 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(10);
 
-        sim.register(sim.integrator);
-
         this.getController().getSimRestart().setConfiguration(new ConfigurationZero());
 
         this.getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));

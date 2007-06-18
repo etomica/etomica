@@ -1,7 +1,8 @@
 package etomica.action;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 
+import etomica.action.activity.ActivityIntegrate;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.exception.ConfigurationOverlapException;
@@ -20,8 +21,9 @@ public final class SimulationRestart extends SimulationActionAdapter {
     
     public SimulationRestart(Simulation sim) {
         setSimulation(sim);
+        integratorList = new ArrayList();
     }
-    
+
     public void setSimulation(Simulation sim) {
         super.setSimulation(sim);
         if (sim.getSpace().D() == 3) {
@@ -56,20 +58,23 @@ public final class SimulationRestart extends SimulationActionAdapter {
             }
         }
         
-        for(Iterator iter=simulation.getIntegratorList().iterator(); iter.hasNext(); ) {
-            IIntegrator integrator = (IIntegrator)iter.next();
-            if(integrator.isInitialized()) {
-                try {
-                    integrator.initialize();
-                }
-                catch (ConfigurationOverlapException e) {
-                    if (!ignoreOverlap) {
-                        throw new RuntimeException(e);
+        Action[] currentActions = simulation.getController().getCurrentActions();
+        if (currentActions.length == 1) {
+            Action currentAction = currentActions[0];
+            if (currentAction instanceof ActivityIntegrate) {
+                IIntegrator integrator = ((ActivityIntegrate)currentAction).getIntegrator();
+                if(integrator.isInitialized()) {
+                    try {
+                        integrator.initialize();
+                    }
+                    catch (ConfigurationOverlapException e) {
+                        if (!ignoreOverlap) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }
         }
-    
         accumulatorAction.actionPerformed();
     }
     
@@ -87,7 +92,8 @@ public final class SimulationRestart extends SimulationActionAdapter {
     }
 
     private static final long serialVersionUID = 1L;
-    private Configuration configuration;
-    private boolean ignoreOverlap;
-    private SimulationDataAction accumulatorAction;
+    protected Configuration configuration;
+    protected boolean ignoreOverlap;
+    protected SimulationDataAction accumulatorAction;
+    protected ArrayList integratorList;
 }

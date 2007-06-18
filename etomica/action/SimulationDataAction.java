@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Nov 4, 2004 by kofke
- */
 package etomica.action;
 
 import etomica.data.DataStreamAction;
