@@ -10,7 +10,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.IRandom;
@@ -37,7 +37,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorConNVT(Simulation sim, PotentialMaster potentialMaster) {
+    public IntegratorConNVT(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0);
     }
     

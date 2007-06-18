@@ -12,7 +12,7 @@ import etomica.phase.Phase;
 import etomica.potential.Potential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.IRandom;
@@ -38,7 +38,7 @@ public final class IntegratorHardField extends IntegratorHard {
 	    }
     };
 
-    public IntegratorHardField(Simulation sim, PotentialMaster potentialMaster) {
+    public IntegratorHardField(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(),0.05, 1.0);
     }
     

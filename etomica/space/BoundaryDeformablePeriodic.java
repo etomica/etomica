@@ -8,7 +8,7 @@ import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
 import etomica.math.geometry.Parallelotope;
 import etomica.math.geometry.Polytope;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space3d.IVector3D;
 import etomica.util.IRandom;
 
@@ -23,7 +23,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
      * Make a cubic boundary with edges of length equal to the default boxSize and
      * periodic in every direction.
      */
-	public BoundaryDeformablePeriodic(Simulation sim) {
+	public BoundaryDeformablePeriodic(ISimulation sim) {
 		this(sim.getSpace(), sim.getRandom(), 10.0);
 	}
 

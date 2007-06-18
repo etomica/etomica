@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.action.AtomActionAdapter;
 import etomica.action.AtomGroupAction;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -16,7 +16,7 @@ import etomica.space.Space;
  */
 public class AtomPositionGeometricCenter implements AtomPositionDefinition {
 
-    public AtomPositionGeometricCenter(Simulation sim) {
+    public AtomPositionGeometricCenter(ISimulation sim) {
         this(sim.getSpace());
     }
     

@@ -3,7 +3,7 @@ package etomica.integrator;
 import etomica.atom.AtomSet;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.util.IRandom;
 
 /**
@@ -20,7 +20,7 @@ public class IntegratorAnalytic extends IntegratorMD {
     private static final long serialVersionUID = 1L;
     private AtomAction action;
     
-    public IntegratorAnalytic(Simulation sim, PotentialMaster potentialMaster) {
+    public IntegratorAnalytic(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 0.05);
     }
     

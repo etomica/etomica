@@ -12,7 +12,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -31,7 +31,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorVerlet(Simulation sim, PotentialMaster potentialMaster) {
+    public IntegratorVerlet(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0);
     }
     

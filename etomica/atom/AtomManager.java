@@ -10,6 +10,7 @@ import etomica.phase.PhaseAtomRemovedEvent;
 import etomica.phase.PhaseEventManager;
 import etomica.phase.PhaseGlobalAtomIndexEvent;
 import etomica.phase.PhaseGlobalAtomLeafIndexEvent;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
@@ -332,7 +333,7 @@ public final class AtomManager implements java.io.Serializable {
      */
     public static void main(String args[]) {
 
-        Simulation sim = new Simulation();
+        ISimulation sim = new Simulation();
         Species species2 = new SpeciesSpheresMono(sim);
         Species species1 = new SpeciesSpheres(sim, 3);
         Species species0 = new SpeciesSpheres(sim, 2);

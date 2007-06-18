@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 
@@ -15,7 +15,7 @@ public class SpeciesFactoryTangentSpheres implements SpeciesFactory, java.io.Ser
         this.conformation = conformation;
     }
     
-    public Species makeSpecies(Simulation sim) {
+    public Species makeSpecies(ISimulation sim) {
         return new SpeciesSpheres(sim, nA, new ElementSimple(
                 (sim.getSpeciesManager()).makeUniqueElementSymbol("TS"), 
                 1.0), conformation);

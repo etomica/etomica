@@ -50,7 +50,7 @@ public class SimulationGraphic implements SimulationContainer {
 
     private SimulationPanel simulationPanel;
     private final DeviceTrioControllerButton dcb;
-    protected final Simulation simulation;
+    protected final ISimulation simulation;
     private int updateInterval = DEFAULT_UPDATE_INTERVAL;
     private final LinkedList displayList = new LinkedList();
     private final LinkedList deviceList = new LinkedList();

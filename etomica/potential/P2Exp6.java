@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.exception.MethodNotImplementedException;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;
@@ -21,7 +21,7 @@ import etomica.units.Length;
 
 public class P2Exp6 extends Potential2SoftSpherical implements EtomicaElement {
 
-    public P2Exp6(Simulation sim) {
+    public P2Exp6(ISimulation sim) {
         // these defaults probably aren't appropriate -- need to develop A,B,C
         // from default size, well depth, and well extent (which doesn't exist!
         // maybe potl cutoff?)

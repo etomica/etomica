@@ -16,6 +16,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
@@ -92,13 +93,13 @@ public class HSMD3DNoNbr extends Simulation {
     	}
     	
     	// Serialize back
-    	Simulation simulation = null;
+    	ISimulation simulation = null;
     	try
     	{
     	    FileInputStream fis = null;
     	    fis = new FileInputStream(filename);
     	    ObjectInputStream in = new ObjectInputStream(fis);
-    	    simulation = (etomica.simulation.Simulation) in.readObject();
+    	    simulation = (ISimulation) in.readObject();
     	    in.close();
     	    fis.close();
     	    

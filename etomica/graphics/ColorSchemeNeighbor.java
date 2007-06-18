@@ -8,11 +8,11 @@ import etomica.atom.IAtomPositioned;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 public class ColorSchemeNeighbor extends ColorSchemeCollective {
     
-    public ColorSchemeNeighbor(Simulation sim, PotentialMasterList potentialMaster, Phase phase) {
+    public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, Phase phase) {
         super(phase);
         typeColorScheme = new ColorSchemeByType();
         leafList = phase.getSpeciesMaster().getLeafList();

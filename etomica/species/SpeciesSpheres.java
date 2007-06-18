@@ -12,6 +12,7 @@ import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 
 /**
@@ -23,18 +24,18 @@ import etomica.simulation.Simulation;
 
 public class SpeciesSpheres extends Species implements EtomicaElement {
 
-    public SpeciesSpheres(Simulation sim) {
+    public SpeciesSpheres(ISimulation sim) {
         this(sim, 1);
     }
-    public SpeciesSpheres(Simulation sim, int nA) {
+    public SpeciesSpheres(ISimulation sim, int nA) {
         this(sim, nA, new ElementSimple(sim));
     }
     
-    public SpeciesSpheres(Simulation sim, int nA, Element leafElement) {
+    public SpeciesSpheres(ISimulation sim, int nA, Element leafElement) {
         this(sim, nA, leafElement, new ConformationLinear(sim));
     }
     
-    public SpeciesSpheres(Simulation sim, int nA, Element leafElement, Conformation conformation) {
+    public SpeciesSpheres(ISimulation sim, int nA, Element leafElement, Conformation conformation) {
         super(new AtomFactoryHomo(sim.getSpace(), nA, conformation));
         AtomTypeSphere atomType = new AtomTypeSphere(leafElement);
         atomType.setParentType((AtomTypeGroup)factory.getType());

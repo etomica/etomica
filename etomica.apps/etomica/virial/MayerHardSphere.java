@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.Space;
 
 /**
@@ -15,7 +15,7 @@ public class MayerHardSphere extends MayerFunctionSpherical {
 	/**
 	 * Constructor for MayerHardSphere.
 	 */
-	public MayerHardSphere(Simulation sim) {
+	public MayerHardSphere(ISimulation sim) {
 		this(sim.getSpace(), 1.0);
 	}
 	public MayerHardSphere(Space space, double sigma) {

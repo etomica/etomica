@@ -3,7 +3,7 @@ package etomica.virial;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 
 /**
@@ -17,7 +17,7 @@ public class PhaseCluster extends Phase {
 	/**
 	 * Constructor for PhaseCluster.
 	 */
-	public PhaseCluster(Simulation sim, ClusterWeight cluster) {
+	public PhaseCluster(ISimulation sim, ClusterWeight cluster) {
 		super(new BoundaryRectangularNonperiodic(sim.getSpace(), sim.getRandom()));
         sampleCluster = cluster;
 	}

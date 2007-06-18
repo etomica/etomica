@@ -24,7 +24,7 @@ import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.util.Debug;
 import etomica.util.IRandom;
@@ -69,7 +69,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorHard(Simulation sim, PotentialMaster potentialMaster) {
+    public IntegratorHard(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0);
     }
     

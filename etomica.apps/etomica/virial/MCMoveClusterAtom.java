@@ -5,7 +5,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 
 /**
@@ -13,7 +13,7 @@ import etomica.simulation.Simulation;
  */
 public class MCMoveClusterAtom extends MCMoveAtom {
 
-    public MCMoveClusterAtom(Simulation sim, PotentialMaster potentialMaster) {
+    public MCMoveClusterAtom(ISimulation sim, PotentialMaster potentialMaster) {
         super(sim, potentialMaster);
         weightMeter = new MeterClusterWeight(potentialMaster);
 	}

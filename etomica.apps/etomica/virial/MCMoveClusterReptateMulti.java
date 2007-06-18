@@ -10,7 +10,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMovePhase;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 import etomica.util.IRandom;
@@ -30,7 +30,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
     private final MeterPotentialEnergy energyMeter;
     protected final IRandom random;
 
-    public MCMoveClusterReptateMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterReptateMulti(ISimulation sim, PotentialMaster potentialMaster, int nAtoms) {
     	this(potentialMaster, sim.getRandom(), nAtoms);
         setBondLength(1.0);
     }

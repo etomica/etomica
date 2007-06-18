@@ -9,6 +9,7 @@ import etomica.atom.AtomFactoryMonoAngular;
 import etomica.atom.AtomFactoryMonoAngularDynamic;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.chem.elements.ElementSimple;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 
 /**
@@ -20,11 +21,11 @@ import etomica.simulation.Simulation;
  */
 public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     
-    public SpeciesSpheresRotating(Simulation sim) {
+    public SpeciesSpheresRotating(ISimulation sim) {
         super(makeAtomFactory(sim, new AtomTypeOrientedSphere(new ElementSimple(sim),1.0)));
     }
     
-    private static AtomFactoryMono makeAtomFactory(Simulation sim, AtomTypeOrientedSphere atomType) {
+    private static AtomFactoryMono makeAtomFactory(ISimulation sim, AtomTypeOrientedSphere atomType) {
         if (sim.isDynamic()) {
             new AtomFactoryMonoAngularDynamic(sim.getSpace(), atomType);
         }

@@ -3,13 +3,14 @@ package etomica.paracetamol;
 import java.lang.reflect.Constructor;
 
 import etomica.EtomicaElement;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;
 
 public class SpeciesParacetamol extends Species implements EtomicaElement {
 
-	public SpeciesParacetamol(Simulation sim) {
+	public SpeciesParacetamol(ISimulation sim) {
 		super(new AtomFactoryParacetamol(sim));
 	}
 	

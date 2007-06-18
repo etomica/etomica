@@ -21,6 +21,7 @@ import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.phase.Phase;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.IVector;
@@ -32,7 +33,7 @@ import etomica.units.Pixel;
 public class CrystalViewer extends SimulationPanel {
     
 	final static String APP_NAME = "Crystal Viewer";
-    protected final Simulation sim;
+    protected final ISimulation sim;
     private JPanel mainPanel;
 
     protected SpeciesSpheresMono species;

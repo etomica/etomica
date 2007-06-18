@@ -9,6 +9,7 @@ import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.AtomManager;
 import etomica.phase.Phase;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
@@ -28,7 +29,7 @@ public class AtomIndexManagerTest extends TestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-        Simulation sim = new Simulation(Space2D.getInstance());
+        ISimulation sim = new Simulation(Space2D.getInstance());
         SpeciesSpheresMono species0 = new SpeciesSpheresMono(sim);
         SpeciesSpheres species1 = new SpeciesSpheres(sim, 5);
         sim.getSpeciesManager().addSpecies(species0);

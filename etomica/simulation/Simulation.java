@@ -248,7 +248,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     private Phase[] phaseList;
     private final SpeciesManager speciesManager;
     protected final IRandom random;
-    private final boolean dynamic;
+    protected final boolean dynamic;
     private Controller controller;     
     private final LinkedList integratorList = new LinkedList();
     private DataStreamHeader[] dataStreams = new DataStreamHeader[0];

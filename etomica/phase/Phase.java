@@ -15,7 +15,6 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.ISpeciesAgent;
 import etomica.simulation.ISimulation;
-import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
@@ -61,7 +60,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     /**
      * Constructs phase with default rectangular periodic boundary.
      */
-    public Phase(Simulation sim) {
+    public Phase(ISimulation sim) {
         this(new BoundaryRectangularPeriodic(sim));
     }
     
@@ -282,7 +281,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         }
     }
     
-    public static Phase readPhase(ObjectInputStream in, Simulation sim, SpeciesResolver resolver) throws IOException, ClassNotFoundException {
+    public static Phase readPhase(ObjectInputStream in, ISimulation sim, SpeciesResolver resolver) throws IOException, ClassNotFoundException {
         Boundary newBoundary = (Boundary)in.readObject();
         Phase newPhase = new Phase(sim);
         sim.addPhase(newPhase);

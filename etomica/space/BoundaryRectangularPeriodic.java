@@ -1,6 +1,6 @@
 package etomica.space;
 
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.util.IRandom;
 
 /**
@@ -11,7 +11,7 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
     /**
      * Constructs cubic boundary with the default box-size given by the Simulation.
      */
-    public BoundaryRectangularPeriodic(Simulation sim) {
+    public BoundaryRectangularPeriodic(ISimulation sim) {
         this(sim.getSpace(), sim.getRandom(), 10.0);
     }
     

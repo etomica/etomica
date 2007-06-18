@@ -1,6 +1,6 @@
 package etomica.virial;
 
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 
@@ -10,7 +10,7 @@ import etomica.species.SpeciesSpheres;
  */
 public class SpeciesFactoryChains implements SpeciesFactory {
     
-    public Species makeSpecies(Simulation sim) {
+    public Species makeSpecies(ISimulation sim) {
         return new SpeciesSpheres(sim);
     }
     

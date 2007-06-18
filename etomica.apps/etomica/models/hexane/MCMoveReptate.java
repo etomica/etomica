@@ -11,14 +11,14 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMovePhaseStep;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
 
 public class MCMoveReptate extends MCMovePhaseStep {
     
-    public MCMoveReptate(Simulation sim, PotentialMaster potentialMaster){
+    public MCMoveReptate(ISimulation sim, PotentialMaster potentialMaster){
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false /*, con*/);
     }
     

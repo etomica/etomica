@@ -12,12 +12,12 @@ import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Nitrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.units.ElectronVolt;
 
 public class AtomFactoryParacetamol extends AtomFactory{
 
-	public AtomFactoryParacetamol(Simulation sim) {
+	public AtomFactoryParacetamol(ISimulation sim) {
 		super (new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
 		
 		AtomParacetamol.Echarge[ 0] = ElectronVolt.UNIT.toSim( 0.382743);

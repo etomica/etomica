@@ -8,7 +8,7 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SpeciesManager;
 import etomica.species.Species;
@@ -16,7 +16,7 @@ import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
 
-    protected PotentialMasterNbr(Simulation sim, PhaseAgentSource phaseAgentSource, 
+    protected PotentialMasterNbr(ISimulation sim, PhaseAgentSource phaseAgentSource, 
             PhaseAgentManager phaseAgentManager) {
         super(sim.getSpace());
         simulation = sim;
@@ -150,7 +150,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     /**
      * Returns the simulation associated with this PotentialMaster
      */
-    public Simulation getSimulation() {
+    public ISimulation getSimulation() {
         return simulation;
     }
 
@@ -160,6 +160,6 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     protected final AtomTypeAgentManager intraAgentManager;
     protected Potential[] allPotentials = new Potential[0];
     protected PhaseAgentSource phaseAgentSource;
-    protected final Simulation simulation;
+    protected final ISimulation simulation;
     protected PhaseAgentManager phaseAgentManager;
 }

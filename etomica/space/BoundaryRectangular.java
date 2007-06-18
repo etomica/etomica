@@ -7,7 +7,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Rectangle;
 import etomica.math.geometry.Rectangular;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.util.IRandom;
 
 /**
@@ -20,7 +20,7 @@ public abstract class BoundaryRectangular extends Boundary implements BoundaryPe
      * Constructs cubic boundary of the given periodicity, using the space and default box-size
      * given by the Simulation. 
      */
-    public BoundaryRectangular(Simulation sim, boolean[] periodicity) {
+    public BoundaryRectangular(ISimulation sim, boolean[] periodicity) {
         this(sim.getSpace(), sim.getRandom(), periodicity, 10.0);
     }
 

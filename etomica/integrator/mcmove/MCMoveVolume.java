@@ -6,7 +6,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.units.Dimension;
 import etomica.units.Pressure;
 import etomica.util.IRandom;
@@ -28,7 +28,7 @@ public class MCMoveVolume extends MCMovePhaseStep {
     private transient double uOld, hOld, vNew, vScale;
     private transient double uNew = Double.NaN;
 
-    public MCMoveVolume(Simulation sim, PotentialMaster potentialMaster) {
+    public MCMoveVolume(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0);
     }
     

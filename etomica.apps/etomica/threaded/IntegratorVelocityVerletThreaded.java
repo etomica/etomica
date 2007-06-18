@@ -3,14 +3,14 @@ package etomica.threaded;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.util.IRandom;
 
 public class IntegratorVelocityVerletThreaded extends IntegratorVelocityVerlet {
 
     private static final long serialVersionUID = 1L;
 
-    public IntegratorVelocityVerletThreaded(Simulation sim, PotentialMaster potentialMaster, int numThreads) {
+    public IntegratorVelocityVerletThreaded(ISimulation sim, PotentialMaster potentialMaster, int numThreads) {
         this(potentialMaster,sim.getRandom(), 0.05, 1.0, numThreads);
     }
 

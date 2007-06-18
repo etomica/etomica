@@ -29,7 +29,7 @@ import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -42,14 +42,14 @@ public class PotentialMasterList extends PotentialMasterNbr {
     /**
      * Default constructor uses range of 1.0.
      */
-    public PotentialMasterList(Simulation sim) {
+    public PotentialMasterList(ISimulation sim) {
         this(sim,1.0);
     }
     
     /**
      * Constructor specifying space and range for neighbor listing; uses null AtomPositionDefinition.
      */
-    public PotentialMasterList(Simulation sim, double range) {
+    public PotentialMasterList(ISimulation sim, double range) {
         this(sim, range, (AtomPositionDefinition)null);
     }
     
@@ -60,19 +60,19 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * @param positionDefinition
      *            if null, specifies use of atom type's position definition
      */
-    public PotentialMasterList(Simulation sim, double range, AtomPositionDefinition positionDefinition) {
+    public PotentialMasterList(ISimulation sim, double range, AtomPositionDefinition positionDefinition) {
         this(sim, range, new PhaseAgentSourceCellManager(positionDefinition));
     }
     
-    public PotentialMasterList(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
+    public PotentialMasterList(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
         this(sim, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
-    public PotentialMasterList(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager){
+    public PotentialMasterList(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager){
         this(sim, range, phaseAgentSource, agentManager, new NeighborListAgentSource(range));
     }
             
-    public PotentialMasterList(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager, NeighborListAgentSource neighborListAgentSource) {
+    public PotentialMasterList(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager, NeighborListAgentSource neighborListAgentSource) {
         super(sim, phaseAgentSource, agentManager);
         phaseAgentSource.setRange(range);
         this.neighborListAgentSource = neighborListAgentSource;

@@ -2,7 +2,6 @@ package etomica.chem.models;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.potential.Potential;
 import etomica.simulation.ISimulation;
-import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 /**
@@ -22,7 +21,7 @@ public abstract class Model implements java.io.Serializable {
     /**
      * Creates a species in the given simulation and returns it.
      */
-	public final Species makeSpecies(Simulation sim) {
+	public final Species makeSpecies(ISimulation sim) {
         if (species == null) {
             species = makeSpeciesInternal(sim);
             sim.getSpeciesManager().addSpecies(species);
@@ -35,7 +34,7 @@ public abstract class Model implements java.io.Serializable {
      * Internal method to be implemented by subclasses to create the actual
      * Species object for the given Simulation.
      */
-    protected abstract Species makeSpeciesInternal(Simulation sim);
+    protected abstract Species makeSpeciesInternal(ISimulation sim);
 	
     /**
      * Internal method to be implemented by subclasses to initialize the

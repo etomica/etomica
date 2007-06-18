@@ -9,7 +9,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.ElementSimple;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * Factory that constructs a 3-point water molecule, with three child atoms of 
@@ -24,7 +24,7 @@ public class AtomFactoryUAPropane extends AtomFactory {
 	 * @param sim
 	 * @param sequencerFactory
 	 */
-    public AtomFactoryUAPropane(Simulation sim) {
+    public AtomFactoryUAPropane(ISimulation sim) {
 		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
         AtomTypeSphere UAType = new AtomTypeSphere(new ElementSimple("UA", 15), 3.75);
         UAType.setParentType((AtomTypeGroup)atomType);

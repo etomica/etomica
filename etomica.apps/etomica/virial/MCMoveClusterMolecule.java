@@ -3,7 +3,7 @@ package etomica.virial;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.util.IRandom;
 
 /**
@@ -14,7 +14,7 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
 
-    public MCMoveClusterMolecule(Simulation sim, PotentialMaster potentialMaster) {
+    public MCMoveClusterMolecule(ISimulation sim, PotentialMaster potentialMaster) {
     	this(potentialMaster,sim.getRandom(), 1.0);
     }
     

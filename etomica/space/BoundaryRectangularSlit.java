@@ -1,6 +1,6 @@
 package etomica.space;
 
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.util.IRandom;
 
 /**
@@ -15,7 +15,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * not periodic.  Length of each box edge is given by default boxSize in
      * given Simulation.
      */
-    public BoundaryRectangularSlit(Simulation sim) {
+    public BoundaryRectangularSlit(ISimulation sim) {
         //consumer can set appropriate slit dim later
         this(sim,0);
     }
@@ -29,7 +29,7 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * 1 for y-dimension, etc.).
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
-    public BoundaryRectangularSlit(Simulation sim, int slitDim) {
+    public BoundaryRectangularSlit(ISimulation sim, int slitDim) {
         this(sim.getSpace(), sim.getRandom(), slitDim, 10.0);
     }
     

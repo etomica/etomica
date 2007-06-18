@@ -11,6 +11,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 
 /**
@@ -28,7 +29,7 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
      * (AtomFactoryHetero) before use.  The actual number of desired children 
      * can also be set in the factory.
      */
-    public SpeciesSpheresHetero(Simulation sim) {
+    public SpeciesSpheresHetero(ISimulation sim) {
         this(sim,0);
     }
     
@@ -38,11 +39,11 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
      * desired children can be set in the factory (AtomFactoryHetero) after
      * construction.
      */
-    public SpeciesSpheresHetero(Simulation sim, int nComponents) {
+    public SpeciesSpheresHetero(ISimulation sim, int nComponents) {
         this(sim,makeElements(sim,nComponents));
     }
     
-    private static Element[] makeElements(Simulation sim, int nComponents) {
+    private static Element[] makeElements(ISimulation sim, int nComponents) {
         ElementSimple[] elements = new ElementSimple[nComponents];
         for (int i=0; i<elements.length; i++) {
             elements[i] = new ElementSimple(sim);
@@ -56,7 +57,7 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
      * desired children can be set in the factory (AtomFactoryHetero) after
      * construction.
      */
-    public SpeciesSpheresHetero(Simulation sim, Element[] leafElements) {
+    public SpeciesSpheresHetero(ISimulation sim, Element[] leafElements) {
         this(sim, leafElements, 1);
     }
     
@@ -65,7 +66,7 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
      * total number of children and AtomSequencer.Factory.  The number of 
      * molecules taken from the simulation.
      */
-    public SpeciesSpheresHetero(Simulation sim, Element[] leafElements, int nA) {
+    public SpeciesSpheresHetero(ISimulation sim, Element[] leafElements, int nA) {
         super(new AtomFactoryHetero(sim));
         if (leafElements.length > 0) {
             AtomFactoryMono[] childFactories = new AtomFactoryMono[leafElements.length];

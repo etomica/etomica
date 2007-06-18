@@ -15,7 +15,7 @@ import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -31,7 +31,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorVelocityVerlet(Simulation sim, PotentialMaster potentialMaster) {
+    public IntegratorVelocityVerlet(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0);
     }
     

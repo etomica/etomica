@@ -16,6 +16,7 @@ import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveTriclinic;
 import etomica.phase.Phase;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
@@ -35,7 +36,7 @@ public class LatticePlaneTestUtility {
 	public final int HCP           = 8;
 	public final int CUBIC_DIAMOND = 9;
 
-	private Simulation sim = null;
+	private ISimulation sim = null;
 	private Species species = null;
 	private BravaisLattice lattice = null;
 	private Phase phase = null;
@@ -141,7 +142,7 @@ public class LatticePlaneTestUtility {
 		return latticePlane.getSpacePosition();
 	}
 
-	public Simulation getSimulation() {
+	public ISimulation getSimulation() {
 		return sim;
 	}
 	

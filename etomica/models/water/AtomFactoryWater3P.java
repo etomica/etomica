@@ -10,7 +10,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * Factory that constructs a 3-point water molecule, with three child atoms of 
@@ -25,7 +25,7 @@ public class AtomFactoryWater3P extends AtomFactory {
 	 * @param sim
 	 * @param sequencerFactory
 	 */
-    public AtomFactoryWater3P(Simulation sim) {
+    public AtomFactoryWater3P(ISimulation sim) {
 		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
 
         AtomTypeSphere hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);

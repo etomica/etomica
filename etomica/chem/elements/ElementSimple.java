@@ -1,10 +1,10 @@
 package etomica.chem.elements;
 
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 public class ElementSimple extends Element {
 
-    public ElementSimple(Simulation sim) {
+    public ElementSimple(ISimulation sim) {
         this(sim.getSpeciesManager().makeUniqueElementSymbol("E"), 1.0);
     }
     

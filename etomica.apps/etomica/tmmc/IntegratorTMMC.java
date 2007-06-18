@@ -4,7 +4,7 @@ import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.util.IRandom;
 
 /**
@@ -14,7 +14,7 @@ import etomica.util.IRandom;
  */
 public class IntegratorTMMC extends IntegratorMC {
     
-    public IntegratorTMMC(Simulation sim, PotentialMaster potentialMaster) {
+    public IntegratorTMMC(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0);
     }
     

@@ -16,7 +16,7 @@ import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.threaded.PotentialCalculationThreaded;
 import etomica.util.Debug;
 
@@ -27,29 +27,29 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	PhaseAgentManager agentManagerThreaded;
 	
 	
-	public PotentialMasterListThreaded(Simulation sim) {
+	public PotentialMasterListThreaded(ISimulation sim) {
 		this(sim, 0);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Simulation sim, double range) {
+	public PotentialMasterListThreaded(ISimulation sim, double range) {
         this(sim, range, (AtomPositionDefinition)null);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Simulation sim, double range,
+	public PotentialMasterListThreaded(ISimulation sim, double range,
 			AtomPositionDefinition positionDefinition) {
         this(sim, range, new PhaseAgentSourceCellManager(positionDefinition));
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Simulation sim, double range,
+	public PotentialMasterListThreaded(ISimulation sim, double range,
 			PhaseAgentSourceCellManager phaseAgentSource) {
 		this(sim, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(Simulation sim, double range,
+	public PotentialMasterListThreaded(ISimulation sim, double range,
 			PhaseAgentSourceCellManager phaseAgentSource,
 			PhaseAgentManager agentManager) {
 		super(sim, range, phaseAgentSource, agentManager, new NeighborListAgentSourceThreaded(range));

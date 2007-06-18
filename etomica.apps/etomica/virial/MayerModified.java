@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.potential.Potential2Spherical;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.Space;
 
 /**
@@ -15,7 +15,7 @@ public class MayerModified extends MayerFunctionSpherical {
 	/**
 	 * Constructor for MayerModified.
 	 */
-	public MayerModified(Simulation sim, Potential2Spherical potential) {
+	public MayerModified(ISimulation sim, Potential2Spherical potential) {
 		this(sim.getSpace(), potential, 1.0);
 	}
 	public MayerModified(Space space, Potential2Spherical potential, double sigma) {

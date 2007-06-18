@@ -9,7 +9,7 @@ import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.math.geometry.coordinate.CoordinateConverter;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -24,7 +24,7 @@ import etomica.units.Undefined;
 
 public class MeterBondOrderParameterQ  extends DataSourceScalar {
 	
-    public MeterBondOrderParameterQ(Simulation sim) {
+    public MeterBondOrderParameterQ(ISimulation sim) {
         this(sim.getSpace(), 5.0);
     }
     

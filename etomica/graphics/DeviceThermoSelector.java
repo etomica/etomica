@@ -10,7 +10,7 @@ import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorPhase;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.units.Kelvin;
 import etomica.units.PrefixedUnit;
@@ -29,7 +29,7 @@ public class DeviceThermoSelector extends Device implements EtomicaElement {
     /**
      * Constructor that specifies Kelvin as temperature units.
      */
-     public DeviceThermoSelector(Simulation sim, final IntegratorPhase integrator) {
+     public DeviceThermoSelector(ISimulation sim, final IntegratorPhase integrator) {
         this(sim.getController(), Kelvin.UNIT, false);
         setController(controller);
         setIntegrator(integrator);

@@ -5,7 +5,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -43,7 +43,7 @@ public final class P2HC2Yukawa extends Potential2SoftSpherical implements Etomic
 		throw new RuntimeException();
 	}
 
-	public P2HC2Yukawa(Simulation sim){
+	public P2HC2Yukawa(ISimulation sim){
 		this(sim.getSpace(), 1.0, 1.0);
 	}
 	

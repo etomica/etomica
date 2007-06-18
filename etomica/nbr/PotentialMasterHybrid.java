@@ -17,7 +17,7 @@ import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.species.Species;
 
 /**
@@ -35,7 +35,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * and position definition to null, causing cell assignment to be
      * based on atom type's position definition. 
 	 */
-	public PotentialMasterHybrid(Simulation sim, double range) {
+	public PotentialMasterHybrid(ISimulation sim, double range) {
         this(sim, null, range);
     }
     
@@ -43,15 +43,15 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * Constructs class using given position definition for all atom cell assignments.
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-    public PotentialMasterHybrid(Simulation sim, AtomPositionDefinition positionDefinition, double range) {
+    public PotentialMasterHybrid(ISimulation sim, AtomPositionDefinition positionDefinition, double range) {
         this(sim, range, new PhaseAgentSourceCellManager(positionDefinition));
     }
     
-    private PotentialMasterHybrid(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
+    private PotentialMasterHybrid(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
         this(sim, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
-    private PotentialMasterHybrid(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource,
+    private PotentialMasterHybrid(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource,
             PhaseAgentManager agentManager) {
         super(sim, phaseAgentSource, agentManager);
         potentialMasterList = new PotentialMasterList(sim, range, phaseAgentSource, agentManager);

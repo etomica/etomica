@@ -5,7 +5,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
 
 /**
@@ -16,7 +16,7 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
-    public MCMoveClusterAtomMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterAtomMulti(ISimulation sim, PotentialMaster potentialMaster, int nAtoms) {
         super(sim, potentialMaster);
         selectedAtoms = new IAtomPositioned[nAtoms];
         translationVectors = new IVectorRandom[nAtoms];

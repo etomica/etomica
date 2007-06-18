@@ -8,6 +8,7 @@ import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomFactoryTree;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 
 /**
@@ -23,7 +24,7 @@ public class SpeciesTree extends Species implements EtomicaElement {
      * containing just one atom (which is not the same as SpeciesSpheresMono,
      * for which each molecule is a single atom, not organized under a group).
      */
-    public SpeciesTree(Simulation sim) {
+    public SpeciesTree(ISimulation sim) {
         this(sim, new int[] {1});
     }
 
@@ -35,7 +36,7 @@ public class SpeciesTree extends Species implements EtomicaElement {
      * can be organized as CH3 + CH3)
      */
     //TODO extend to permit specification of Conformation[], perhaps AtomSequencerFactory[]
-    public SpeciesTree(Simulation sim, int[] nA) {
+    public SpeciesTree(ISimulation sim, int[] nA) {
         super(new AtomFactoryTree(sim.getSpace(), null, nA));
         AtomTypeSphere atomType = new AtomTypeSphere(sim);
         //getLeafType will return the an AtomTypeGroup because leaf factory is not yet set

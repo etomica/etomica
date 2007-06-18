@@ -1,7 +1,7 @@
 package etomica.potential;
 import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -20,7 +20,7 @@ public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
     /**
      * Constructs potential using default sigma and epsilon given by Default class.
      */
-    public P2WCA(Simulation sim) {
+    public P2WCA(ISimulation sim) {
         this(sim.getSpace(), 1.0, 1.0);
     }
     

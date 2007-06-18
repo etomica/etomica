@@ -21,7 +21,7 @@ import etomica.potential.Potential;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -56,7 +56,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected int D;
     protected final MeterTemperature meterTemperature = new MeterTemperature();
     
-    public IntegratorGear4NPH(Simulation sim, PotentialMaster potentialMaster) {
+    public IntegratorGear4NPH(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(),0.05, 1.0);
     }
     

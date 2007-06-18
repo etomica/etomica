@@ -5,7 +5,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
 
@@ -20,7 +20,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
 
-    public MCMoveClusterMoleculeMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterMoleculeMulti(ISimulation sim, PotentialMaster potentialMaster, int nAtoms) {
     	this(potentialMaster,sim.getRandom(), 1.0, nAtoms);
     }
     

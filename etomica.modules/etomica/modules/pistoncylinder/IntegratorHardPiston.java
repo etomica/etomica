@@ -6,7 +6,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.util.Debug;
 
 /**
@@ -18,7 +18,7 @@ public class IntegratorHardPiston extends IntegratorHard {
      * @param potentialMaster
      * @param potential Potential between piston and every atom in the phase
      */
-    public IntegratorHardPiston(Simulation sim, PotentialMaster potentialMaster, P1HardMovingBoundary potential) {
+    public IntegratorHardPiston(ISimulation sim, PotentialMaster potentialMaster, P1HardMovingBoundary potential) {
         super(sim, potentialMaster);
         pistonPotential = potential;
     }

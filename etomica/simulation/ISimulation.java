@@ -31,12 +31,6 @@ public interface ISimulation {
     public Controller getController();
 
     /**
-     * @return Returns a flag indicating whether the simulation involves
-     * molecular dynamics.
-     */
-    public boolean isDynamic();
-
-    /**
      * Returns the Simatulion's random number generator.
      */
     public IRandom getRandom();
@@ -56,4 +50,9 @@ public interface ISimulation {
      * @return the space
      */
     public Space getSpace();
+
+    /**
+     * @return Returns a flag indicating whether the simulation involves molecular dynamics.
+     */
+    public boolean isDynamic();
 }

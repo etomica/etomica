@@ -7,6 +7,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 
 /**
@@ -24,15 +25,15 @@ public class SpeciesSpheresMono extends Species {
     /**
      * Constructs instance with a default element
      */
-    public SpeciesSpheresMono(Simulation sim) {
+    public SpeciesSpheresMono(ISimulation sim) {
         this(sim, new ElementSimple(sim));
     }
     
-    public SpeciesSpheresMono(Simulation sim, Element element) {
+    public SpeciesSpheresMono(ISimulation sim, Element element) {
         this(sim, new AtomTypeSphere(element));
     }
     
-    private SpeciesSpheresMono(Simulation sim, AtomTypeSphere atomType) {
+    private SpeciesSpheresMono(ISimulation sim, AtomTypeSphere atomType) {
         super(sim.isDynamic() ?
                     new AtomFactoryMonoDynamic(sim.getSpace(), atomType) :
                     new AtomFactoryMono(sim.getSpace(), atomType));

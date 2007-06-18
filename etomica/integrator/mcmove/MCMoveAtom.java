@@ -10,7 +10,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
 
@@ -32,7 +32,7 @@ public class MCMoveAtom extends MCMovePhaseStep {
     protected boolean fixOverlap;
     protected final IRandom random;
 
-    public MCMoveAtom(Simulation sim, PotentialMaster potentialMaster) {
+    public MCMoveAtom(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false);
     }
     

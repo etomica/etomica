@@ -3,7 +3,7 @@ package etomica.paracetamol;
 import etomica.EtomicaElement;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -23,7 +23,7 @@ import etomica.space.Space;
 
 public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 implements EtomicaElement {
 	
-	public P2ElectrostaticDreiding(Simulation sim) {
+	public P2ElectrostaticDreiding(ISimulation sim) {
         this(sim.getSpace(), 1.0, 1.0, 1.0);
        
     }

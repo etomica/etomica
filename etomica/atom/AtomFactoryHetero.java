@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.util.Arrays;
 
@@ -16,7 +16,7 @@ import etomica.util.Arrays;
 
 public class AtomFactoryHetero extends AtomFactory {
 
-    public AtomFactoryHetero(Simulation sim) {
+    public AtomFactoryHetero(ISimulation sim) {
         this(sim.getSpace(), new ConformationLinear(sim));
     }
 

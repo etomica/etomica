@@ -9,7 +9,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
@@ -33,7 +33,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     private final MeterClusterWeight weightMeter;
     private final MeterPotentialEnergy energyMeter;
 
-    public MCMoveClusterWiggleMulti(Simulation sim, PotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterWiggleMulti(ISimulation sim, PotentialMaster potentialMaster, int nAtoms) {
     	this(potentialMaster,sim.getRandom(), 1.0, nAtoms);
         setBondLength(1.0);
     }

@@ -8,7 +8,7 @@ import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polygon;
 import etomica.math.geometry.Polyhedron;
 import etomica.math.geometry.TruncatedOctahedron;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.IVector;
@@ -30,7 +30,7 @@ import etomica.space.Space;
 public class BoundaryTruncatedOctahedron extends Boundary implements
         BoundaryPeriodic {
 
-    public BoundaryTruncatedOctahedron(Simulation sim) {
+    public BoundaryTruncatedOctahedron(ISimulation sim) {
         this(sim.getSpace(), 30.0);
     }
     public BoundaryTruncatedOctahedron(Space space, double boxSize) {

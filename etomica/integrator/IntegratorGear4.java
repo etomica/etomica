@@ -14,7 +14,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.IRandom;
@@ -43,7 +43,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorGear4(Simulation sim, PotentialMaster potentialMaster) {
+    public IntegratorGear4(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 0.05, 1.0);
     }
     

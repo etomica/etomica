@@ -2,6 +2,7 @@ package etomica.models.water;
 import java.lang.reflect.Constructor;
 
 import etomica.EtomicaElement;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;
@@ -13,7 +14,7 @@ public class SpeciesWater3P extends Species implements EtomicaElement {
     
     private static final long serialVersionUID = 1L;
 
-    public SpeciesWater3P(Simulation sim) {
+    public SpeciesWater3P(ISimulation sim) {
        super(new AtomFactoryWater3P(sim));
     }
     

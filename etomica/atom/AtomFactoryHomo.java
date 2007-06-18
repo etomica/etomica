@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.Space;
 
 /**
@@ -20,7 +20,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param parentType the type instance of the atoms that are parents of those made by this factory
      */
-    public AtomFactoryHomo(Simulation sim) {
+    public AtomFactoryHomo(ISimulation sim) {
         this(sim, 1);
     }
     /**
@@ -28,7 +28,7 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param parentType the type instance of the atoms that are parents of those made by this factory
      * @param atoms the number of identical children per group (default is 1).
      */
-    public AtomFactoryHomo(Simulation sim, int atoms) {
+    public AtomFactoryHomo(ISimulation sim, int atoms) {
         this(sim.getSpace(), atoms, new ConformationLinear(sim));
     }
     /**

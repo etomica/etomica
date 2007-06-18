@@ -5,7 +5,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -20,7 +20,7 @@ import etomica.units.Length;
 
 public class ConformationLinear extends Conformation {
     
-    public ConformationLinear(Simulation sim) {
+    public ConformationLinear(ISimulation sim) {
         this(sim.getSpace(), 0.55);
     }
     public ConformationLinear(Space space, double bondLength) {

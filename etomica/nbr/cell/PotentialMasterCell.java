@@ -7,7 +7,7 @@ import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.potential.Potential;
 import etomica.potential.PotentialArray;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * A PotentialMaster for use with a Simulation where cell-listing of atoms and
@@ -21,7 +21,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * Creates PotentialMasterCell with default (1.0) range.  Range
      * should be set manually via setRange method.
      */
-    public PotentialMasterCell(Simulation sim) {
+    public PotentialMasterCell(ISimulation sim) {
         this(sim,1.0);
     }
     
@@ -32,20 +32,20 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * @param space the governing Space
      * @param range the neighbor distance.  May be changed after construction.
      */
-    public PotentialMasterCell(Simulation sim, double range) {
+    public PotentialMasterCell(ISimulation sim, double range) {
         this(sim, range, (AtomPositionDefinition)null);
     }
 
-    public PotentialMasterCell(Simulation sim, double range,
+    public PotentialMasterCell(ISimulation sim, double range,
             AtomPositionDefinition positionDefinition) {
         this(sim, range, new PhaseAgentSourceCellManager(positionDefinition));
     }
     
-    public PotentialMasterCell(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
+    public PotentialMasterCell(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
         this(sim, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
     }
     
-    public PotentialMasterCell(Simulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource,
+    public PotentialMasterCell(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource,
             PhaseAgentManager agentManager) {
         super(sim, phaseAgentSource, agentManager, new Api1ACell(sim.getSpace().D(),range,agentManager));
     }
