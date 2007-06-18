@@ -230,7 +230,7 @@ public class LjmdGraphic extends SimulationGraphic {
         tracer.setDataSink(pAccumulator);
         sim.integrator.addIntervalAction(pPump);
         pAccumulator.setPushInterval(10);
-        dataStreamPumps.add(rdfPump);
+        dataStreamPumps.add(pPump);
 
         DisplayBoxesCAE pDisplay = new DisplayBoxesCAE();
         pDisplay.setAccumulator(pAccumulator);
