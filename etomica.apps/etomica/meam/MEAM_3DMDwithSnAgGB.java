@@ -1,5 +1,7 @@
 package etomica.meam;
 
+import java.util.ArrayList;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeSphere;
@@ -99,8 +101,8 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         AccumulatorAverage accumulatorAveragePE = new AccumulatorAverage(50);
     	AccumulatorAverage accumulatorAverageKE = new AccumulatorAverage(50);
     	
-    	DataPump energyManager = new DataPump(energyMeter,accumulatorAveragePE);   	
-    	DataPump kineticManager = new DataPump(kineticMeter, accumulatorAverageKE);
+    	DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);   	
+    	DataPump kineticPump = new DataPump(kineticMeter, accumulatorAverageKE);
     	
     	accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
     	accumulatorAverageKE.addDataSink(kineticAccumulator, new StatType[]{StatType.MOST_RECENT});
@@ -115,9 +117,6 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     	accumulatorAveragePE.setPushInterval(1);
     	accumulatorAverageKE.setPushInterval(1);
     	
-    	sim.register(energyMeter, energyManager);
-    	sim.register(kineticMeter, kineticManager);
-    	
     	//Heat Capacity (PE)
     	DataProcessorCvMD dataProcessorPE = new DataProcessorCvMD();
     	dataProcessorPE.setIntegrator(sim.integrator);
@@ -129,10 +128,13 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     	accumulatorAveragePE.addDataSink(dataProcessorPE, new StatType[]{StatType.STANDARD_DEVIATION});
     	accumulatorAverageKE.addDataSink(dataProcessorKE, new StatType[]{StatType.STANDARD_DEVIATION});
 
-        sim.integrator.addIntervalAction(energyManager);
-        sim.integrator.addIntervalAction(kineticManager);
+        sim.integrator.addIntervalAction(energyPump);
+        sim.integrator.addIntervalAction(kineticPump);
 
         SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME);
+        ArrayList dataStreamPumps = simgraphic.getController().getDataStreamPumps();
+        dataStreamPumps.add(energyPump);
+        dataStreamPumps.add(kineticPump);
         
     	DisplayBox cvBoxPE = new DisplayBox();
     	dataProcessorPE.setDataSink(cvBoxPE);

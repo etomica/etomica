@@ -238,7 +238,7 @@ public class ZeoliteSimulation extends Simulation {
         sim.integrator.addIntervalAction(energyPump);
         sim.integrator.setActionInterval(energyPump, 10);
         energyHistory.setPushInterval(10);
-        sim.register(eMeter,energyPump);
+        simGraphic.getController().getDataStreamPumps().add(energyPump);
 		
         /*
         MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.potentialMaster);

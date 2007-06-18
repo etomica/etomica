@@ -117,7 +117,7 @@ public class LJMD3DThreaded extends Simulation {
 
         simgraphic.makeAndDisplayFrame(APP_NAME);
 
-        /**
+        /*
         sim.getDefaults().blockSize = 10;
         MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator();
         pMeter.setIntegrator(sim.integrator);

@@ -1,6 +1,8 @@
 
 package etomica.paracetamol;
 
+import java.util.ArrayList;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
@@ -388,6 +390,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
     public static void main(String[] args) {
         etomica.paracetamol.MDParacetamolOrthorhombic sim = new etomica.paracetamol.MDParacetamolOrthorhombic();
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+        ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
         
    /*****************************************************************************/    
         MeterKineticEnergy meterKE = new MeterKineticEnergy();
@@ -395,18 +398,21 @@ public class MDParacetamolOrthorhombic extends Simulation {
         DisplayBox KEbox = new DisplayBox();
         DataPump KEpump = new DataPump(meterKE, KEbox);
         sim.integrator.addIntervalAction(KEpump);
+        dataStreamPumps.add(KEpump);
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setPhase(sim.phase);
         DisplayBox PEbox = new DisplayBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
         sim.integrator.addIntervalAction(PEpump);
+        dataStreamPumps.add(PEpump);
         
         MeterEnergy meterTotal = new MeterEnergy(sim.potentialMaster);
         meterTotal.setPhase(sim.phase);   
         DisplayBox meterTotalbox = new DisplayBox();
         DataPump meterTotalpump = new DataPump(meterTotal, meterTotalbox);
         sim.integrator.addIntervalAction(meterTotalpump);
+        dataStreamPumps.add(meterTotalpump);
            
         MeterTemperature meterTemp = new MeterTemperature();
         meterTemp.setPhase(sim.phase);
@@ -414,6 +420,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         tempBox.setUnit(Kelvin.UNIT);
         DataPump tempPump = new DataPump(meterTemp, tempBox);
         sim.integrator.addIntervalAction(tempPump);
+        dataStreamPumps.add(tempPump);
   
         
  /**********************************************************************/   

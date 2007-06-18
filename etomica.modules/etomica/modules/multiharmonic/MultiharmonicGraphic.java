@@ -3,6 +3,7 @@ package etomica.modules.multiharmonic;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -33,7 +34,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 	private final static String APP_NAME = "Multiharmonic";
 	private final static int REPAINT_INTERVAL = 30;
 
-    private final Multiharmonic sim;;
+    private final Multiharmonic sim;
 
     /**
      * 
@@ -41,6 +42,10 @@ public class MultiharmonicGraphic extends SimulationGraphic {
     public MultiharmonicGraphic(Multiharmonic simulation) {
         super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
+        
+        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        dataStreamPumps.add(simulation.dataPump);
+        dataStreamPumps.add(simulation.dataPumpEnergy);
 
         getDisplayPhase(sim.phase).setPixelUnit(new Pixel(400/sim.phase.getBoundary().getDimensions().x(0)));
 
@@ -120,7 +125,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         deltaHistory.setDataSink(plot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(exactPump);
         sim.integrator.setActionInterval(exactPump, sim.accumulator.getBlockSize());
-        sim.register(delta, exactPump);
+        dataStreamPumps.add(exactPump);
         deltaHistory.setTimeDataSource(sim.timeCounter);
         
         AccumulatorHistory uAvgHistory = new AccumulatorHistory(new HistoryCollapsing(sim.historyEnergy.getHistory().getHistoryLength()));
@@ -128,7 +133,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         uAvgHistory.setDataSink(energyPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(uPump);
         sim.integrator.setActionInterval(uPump, sim.accumulatorEnergy.getBlockSize());
-        sim.register(uAvg, uPump);
+        dataStreamPumps.add(uPump);
         uAvgHistory.setTimeDataSource(sim.timeCounter);
         
         plot.getDataSet().setUpdatingOnAnyChange(true);

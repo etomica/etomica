@@ -1,5 +1,7 @@
 package etomica.normalmode;
 
+import java.util.ArrayList;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.data.AccumulatorAverage;
@@ -57,22 +59,22 @@ public class SimHarmonic extends Simulation {
         MCMoveHarmonic move = new MCMoveHarmonic(getRandom());
         integrator.getMoveManager().addMCMove(move);
         
-        int nCells;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
-            nCells = numAtoms;
+            nCells = new int[]{numAtoms};
         } else {
             primitive = new PrimitiveFcc(space, 1);
             double v = primitive.unitCell().getVolume();
             primitive.scaleSize(Math.pow(v*density,-1.0/3.0));
-            nCells = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
-            boundary = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
+            int n = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
+            nCells = new int[]{n,n,n};
+            boundary = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
         }
         phase.setBoundary(boundary);
 
         coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive);
-        coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
+        coordinateDefinition.initializeCoordinates(nCells);
         
         if(D == 1) {
             normalModes = new NormalModes1DHR();
@@ -103,7 +105,7 @@ public class SimHarmonic extends Simulation {
         int D = 3;
         int nA = 27;
         double density = 1.3;
-        double harmonicFudge = .1;
+        double harmonicFudge = 1;
         long steps = 800000;
         if (D == 1) {
             nA = 3;
@@ -187,9 +189,9 @@ public class SimHarmonic extends Simulation {
             harmonicEnergy.setPhase(sim.phase);
             DataFork harmonicFork = new DataFork();
             AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
-            pump = new DataPump(harmonicEnergy, harmonicFork);
+            DataPump pumpHarmonic = new DataPump(harmonicEnergy, harmonicFork);
             harmonicFork.addDataSink(harmonicAvg);
-            sim.integrator.addIntervalAction(pump);
+            sim.integrator.addIntervalAction(pumpHarmonic);
 
             //histogram energy of individual modes
 //            MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionLeaf, sim.normalModes);
@@ -216,6 +218,10 @@ public class SimHarmonic extends Simulation {
             //graphic simulation -- set up window
 //            sim.getDefaults().pixelUnit = new Pixel(0.05);
             SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME);
+            ArrayList dataStreamPumps = simG.getController().getDataStreamPumps();
+            dataStreamPumps.add(pump);
+            dataStreamPumps.add(pumpHarmonic);
+            
             DisplayBoxesCAE boxesPE = new DisplayBoxesCAE();
             boxesPE.setAccumulator(avgBoltzmann);
             boxesPE.setPrecision(6);
@@ -258,6 +264,7 @@ public class SimHarmonic extends Simulation {
     public Boundary boundary;
     public Species species;
     public NormalModes normalModes;
+    public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
 }

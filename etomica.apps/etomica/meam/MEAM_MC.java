@@ -63,11 +63,12 @@ public class MEAM_MC extends Simulation {
 	    AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
 	    final DisplayPlot plot = new DisplayPlot();
 	    energyAccumulator.setDataSink(plot.getDataSet().makeDataSink());
-	    DataPump energyManager = new DataPump(energyMeter,energyAccumulator);
+	    DataPump energyPump = new DataPump(energyMeter,energyAccumulator);
 	    //energyAccumulator.setBlockSize(50);
-        sim.integrator.addIntervalAction(energyManager);
+        sim.integrator.addIntervalAction(energyPump);
 
 	    SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME);
+        simgraphic.getController().getDataStreamPumps().add(energyPump);
 
 	    simgraphic.getPanel().plotPanel.add(plot.graphic(), SimulationPanel.getVertGBC());
 	    //simgraphic.panel().add(plotKE.graphic());

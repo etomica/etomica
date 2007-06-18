@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
@@ -541,6 +542,9 @@ public class PistonCylinderGraphic extends SimulationPanel {
             pc.getController().halt();
         }
         pc = sim;
+        controlButtons.setSimulation(pc);
+        ArrayList dataStreamPumps = controlButtons.getDataStreamPumps();
+        
         ((ElementSimple)((AtomTypeLeaf)pc.species.getMoleculeType()).getElement()).setMass(mass);
         int D = pc.getSpace().D();
 
@@ -717,7 +721,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorAverage temperatureAvg = new AccumulatorAverage(100);
         temperatureAvg.setPushInterval(10);
         pump = new DataPump(thermometer,new DataFork(new DataSink[]{temperatureHistory,temperatureAvg}));
-        pc.register(thermometer,pump);
+        dataStreamPumps.add(pump);
         pc.integrator.addIntervalAction(pump);
         pc.integrator.setActionInterval(pump, dataInterval);
         temperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
@@ -738,7 +742,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pc.integrator.setActionInterval(targetTemperatureDataPump, dataInterval);
         targetTemperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
         plotT.setLegend(new DataTag[]{targetTemperatureDataSource.getTag()}, "target");
-        pc.register(targetTemperatureDataSource, targetTemperatureDataPump);
+        dataStreamPumps.add(targetTemperatureDataPump);
 
         pressureMeter = new DataSourceWallPressure(pc.getSpace(),pc.pistonPotential);
         pressureMeter.setIntegrator(pc.integrator);
@@ -748,7 +752,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorAverage pressureAvg = new AccumulatorAverage(100);
         pressureAvg.setPushInterval(10);
         pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
-        pc.register(pressureMeter,pump);
+        dataStreamPumps.add(pump);
         pc.integrator.addIntervalAction(pump);
         pc.integrator.setActionInterval(pump, dataInterval);
         pressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
@@ -769,7 +773,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pc.integrator.setActionInterval(pump, dataInterval);
         targetPressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
         plotP.setLegend(new DataTag[]{targetPressureDataSource.getTag()}, "target");
-        pc.register(targetPressureDataSource, pump);
+        dataStreamPumps.add(pump);
 
         densityMeter = new MeterDensity(pc.getSpace()); //pc.pistonPotential,1);
         densityMeter.setPhase(pc.phase);
@@ -779,7 +783,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorAverage densityAvg = new AccumulatorAverage(100);
         densityAvg.setPushInterval(10);
         pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
-        pc.register(densityMeter,pump);
+        dataStreamPumps.add(pump);
         pc.integrator.addIntervalAction(pump);
         pc.integrator.setActionInterval(pump, dataInterval);
         densityHistory.addDataSink(plotD.getDataSet().makeDataSink());
@@ -805,8 +809,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
         plotP.getPlot().setSize(d);
         plotD.getPlot().setSize(d);
 
-        controlButtons.setSimulation(pc);
-        
         if (doRDF) {
             plotRDF.getDataSet().reset();
             double rdfCutoff = 10;
@@ -816,7 +818,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
             meterRDF.setPotential(pc.pistonPotential);
             pump = new DataPump(meterRDF, plotRDF.getDataSet().makeDataSink());
             pc.integrator.addIntervalAction(meterRDF);
-            pc.register(meterRDF, pump);
+            dataStreamPumps.add(pump);
             pc.integrator.addIntervalAction(pump);
             
             controlButtons.getResetAveragesButton().setPostAction(new Action() {

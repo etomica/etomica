@@ -48,7 +48,8 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
             sim.integrator.addIntervalAction(energyPump);
             sim.integrator.setActionInterval(energyPump, 10);
         	energyHistory.setPushInterval(50);
-        	sim.register(eMeter,energyPump);
+            //XXX BORK!  This class needs to be rewritten
+        	//sim.register(eMeter,energyPump);
         	
         	DisplayPlot hisPlot = new DisplayPlot();
         	hisPlot.setLabel("Energy");

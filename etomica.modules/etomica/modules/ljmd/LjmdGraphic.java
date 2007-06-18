@@ -3,6 +3,7 @@ package etomica.modules.ljmd;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -75,6 +76,8 @@ public class LjmdGraphic extends SimulationGraphic {
 
     	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
 
+        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        
     	this.sim = simulation;
 
         LJ unitSystem = new LJ();
@@ -98,7 +101,7 @@ public class LjmdGraphic extends SimulationGraphic {
         DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(rdfPump);
         sim.integrator.setActionInterval(rdfPump, 10);
-        sim.register(rdfMeter,rdfPump);
+        dataStreamPumps.add(rdfPump);
         
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
@@ -113,7 +116,7 @@ public class LjmdGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(velocityPump);
         sim.integrator.setActionInterval(velocityPump, 10);
         rmsAverage.setPushInterval(10);
-        sim.register(meterVelocity,velocityPump);
+        dataStreamPumps.add(velocityPump);
         
         final DisplayPlot vPlot = new DisplayPlot();
         rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
@@ -158,7 +161,6 @@ public class LjmdGraphic extends SimulationGraphic {
         DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
         sim.integrator.addIntervalAction(temperaturePump);
         sim.integrator.setActionInterval(temperaturePump, 10);
-        sim.register(meterVelocity,velocityPump);
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(timeCounter);
 		DisplayBox tBox = new DisplayBox();
@@ -174,7 +176,7 @@ public class LjmdGraphic extends SimulationGraphic {
         DataPump densityPump = new DataPump(densityMeter, densityBox);
         sim.integrator.addIntervalAction(densityPump);
         sim.integrator.setActionInterval(densityPump, 10);
-        sim.register(densityMeter,densityPump);
+        dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Number density");
 	    
 		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential());
@@ -185,7 +187,7 @@ public class LjmdGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(energyPump);
         sim.integrator.setActionInterval(energyPump, 60);
         energyHistory.setPushInterval(5);
-        sim.register(eMeter,energyPump);
+        dataStreamPumps.add(energyPump);
 		
 		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotential());
         peMeter.setPhase(sim.phase);
@@ -198,7 +200,7 @@ public class LjmdGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(pePump);
         sim.integrator.setActionInterval(pePump, 60);
         peHistory.setPushInterval(5);
-        sim.register(peMeter,pePump);
+        dataStreamPumps.add(pePump);
 		
 		MeterKineticEnergy keMeter = new MeterKineticEnergy();
         keMeter.setPhase(sim.phase);
@@ -208,7 +210,7 @@ public class LjmdGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(kePump);
         sim.integrator.setActionInterval(kePump, 60);
         keHistory.setPushInterval(5);
-        sim.register(keMeter,kePump);
+        dataStreamPumps.add(kePump);
         
         DisplayPlot ePlot = new DisplayPlot();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -228,7 +230,7 @@ public class LjmdGraphic extends SimulationGraphic {
         tracer.setDataSink(pAccumulator);
         sim.integrator.addIntervalAction(pPump);
         pAccumulator.setPushInterval(10);
-        sim.register(pMeter,pPump);
+        dataStreamPumps.add(rdfPump);
 
         DisplayBoxesCAE pDisplay = new DisplayBoxesCAE();
         pDisplay.setAccumulator(pAccumulator);

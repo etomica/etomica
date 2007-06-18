@@ -1,6 +1,7 @@
 package etomica.modules.chainequilibrium;
 
 import java.awt.GridBagConstraints;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -40,6 +41,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
+        
+        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        
         getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
 
         GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
@@ -79,11 +83,11 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         temperaturePanel.setBorder(new javax.swing.border.TitledBorder("Temperature (K)"));
 
         DataPump tPump = new DataPump (sim.thermometer, tBox);
-        sim.register(sim.thermometer,tPump);
+        dataStreamPumps.add(tPump);
 
         AccumulatorAverage accumulator = new AccumulatorAverage();
         DataPump pump = new DataPump(sim.molecularCount,accumulator);
-        sim.register(sim.molecularCount,pump);
+        dataStreamPumps.add(pump);
         sim.integratorHard1.addIntervalAction(pump);
 
         DataSinkTable dataTable = new DataSinkTable();

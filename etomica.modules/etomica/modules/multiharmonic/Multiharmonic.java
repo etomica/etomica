@@ -82,11 +82,8 @@ public class Multiharmonic extends Simulation {
         meterEnergy.setPhase(phase);
         accumulatorEnergy = new AccumulatorAverage();
         accumulatorEnergy.setBlockSize(100);
-        DataPump dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
+        dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
         integrator.addIntervalAction(dataPumpEnergy);
-        
-        register(meter,dataPump);
-        register(meterEnergy,dataPumpEnergy);
         
         historyEnergy = new AccumulatorHistory(new HistoryCollapsing());
         accumulatorEnergy.addDataSink(historyEnergy, new AccumulatorAverage.StatType[] {AccumulatorAverage.StatType.AVERAGE});
@@ -108,7 +105,7 @@ public class Multiharmonic extends Simulation {
     ActivityIntegrate activityIntegrate;
     MeterFreeEnergy meter;
     AccumulatorAverage accumulator;
-    DataPump dataPump;
+    DataPump dataPump, dataPumpEnergy;
     SimulationDataAction resetAccumulators;
     DataSourceCountTime timeCounter;
 }

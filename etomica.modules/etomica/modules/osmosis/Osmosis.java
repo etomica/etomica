@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -49,7 +50,6 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Length;
-import etomica.units.Pixel;
 import etomica.units.Unit;
 import etomica.util.Constants.CompassDirection;
 
@@ -74,6 +74,8 @@ public class Osmosis extends SimulationGraphic {
 
     	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
 
+        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        
     	sim = simulation;
         final int thickness = 4;
 
@@ -122,7 +124,7 @@ public class Osmosis extends SimulationGraphic {
         osmosisPMeter.setIntegrator(sim.integrator);
         final AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverage();
         DataPump pump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
-        sim.register(osmosisPMeter, pump);
+        dataStreamPumps.add(pump);
         sim.integrator.addIntervalAction(pump);
         sim.integrator.setActionInterval(pump, 40);
         final DisplayBoxesCAE dBox = new DisplayBoxesCAE();
@@ -169,7 +171,7 @@ public class Osmosis extends SimulationGraphic {
         moleFraction.setSpecies(sim.speciesB);
         final AccumulatorAverage moleFractionAvg = new AccumulatorAverage();
         pump = new DataPump(moleFraction, moleFractionAvg);
-        sim.register(moleFraction, pump);
+        dataStreamPumps.add(pump);
         sim.integrator.addIntervalAction(pump);
         final DisplayBoxesCAE mfBox = new DisplayBoxesCAE();
         mfBox.setAccumulator(moleFractionAvg);

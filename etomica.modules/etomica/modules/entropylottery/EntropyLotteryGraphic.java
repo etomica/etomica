@@ -1,6 +1,7 @@
 package etomica.modules.entropylottery;
 
 import java.awt.GridLayout;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -34,6 +35,8 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(10);
 
+        ArrayList dataStreamPumps = getController().getDataStreamPumps();
+        
         this.getController().getSimRestart().setConfiguration(new ConfigurationZero());
 
         this.getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
@@ -57,7 +60,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         DataPump pump = new DataPump(meterEntropy, entropyHistory);
         sim.integrator.addIntervalAction(pump);
         sim.integrator.setActionInterval(pump, 20);
-        sim.register(meterEntropy, pump);
+        dataStreamPumps.add(pump);
         
         DataSourceProbabilityDensity probabilityDensity = new DataSourceProbabilityDensity();
         sim.integrator.addNonintervalListener(probabilityDensity);
@@ -71,7 +74,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         stepCounter = new DataSourceCountSteps(sim.integrator);
         probabilityEntropyHistory.setTimeDataSource(stepCounter);
         entropyProcessor.setDataSink(probabilityEntropyHistory);
-        sim.register(probabilityDensity, pump);
+        dataStreamPumps.add(pump);
         canvas.setExtraData(probabilityDensity);
         
         DisplayPlot entropyPlot = new DisplayPlot();

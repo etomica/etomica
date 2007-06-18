@@ -44,6 +44,9 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL);	
         getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
 
+        getController().getDataStreamPumps().add(sim.profile1pump);
+        getController().getDataStreamPumps().add(sim.profile2pump);
+        
 	    Color colorA = Color.blue;
 	    Color colorB = Color.white;
 

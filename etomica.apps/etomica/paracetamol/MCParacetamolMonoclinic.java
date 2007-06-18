@@ -1,6 +1,8 @@
 
 package etomica.paracetamol;
 
+import java.util.ArrayList;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
@@ -325,6 +327,8 @@ public class MCParacetamolMonoclinic extends Simulation {
         meterPE.setPhase(sim.phase);
         DisplayBox PEbox = new DisplayBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
+        ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
+        dataStreamPumps.add(PEpump);
         
         sim.integrator.addIntervalAction(PEpump);
         sim.integrator.setActionInterval(PEpump, 500);

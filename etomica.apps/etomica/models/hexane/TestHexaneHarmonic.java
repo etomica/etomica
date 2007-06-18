@@ -3,6 +3,8 @@
  */
 package etomica.models.hexane;
 
+import java.util.ArrayList;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
@@ -233,30 +235,30 @@ public class TestHexaneHarmonic extends Simulation {
         boltz.setDataSink(harmonicBoltzAvg);
         DataProcessorFoo fooer = new DataProcessorFoo();
         harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
-        sim.register(harmonicEnergy, pump);
         
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
         harmonicSingleEnergy.setPhase(sim.phase);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
         boltz = new BoltzmannProcessor();
         boltz.setTemperature(1);
-        pump = new DataPump(harmonicSingleEnergy, boltz);
+        DataPump pumpSingle = new DataPump(harmonicSingleEnergy, boltz);
         DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
         AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage();
         boltz.setDataSink(harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
 //        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);
         harmonicSingleAvg.addDataSink(harmonicSingleHistogram, new StatType[]{StatType.AVERAGE});
-        sim.integrator.addIntervalAction(pump);
-        sim.integrator.setActionInterval(pump, 100);
+        sim.integrator.addIntervalAction(pumpSingle);
+        sim.integrator.setActionInterval(pumpSingle, 100);
         DataProcessorFoo fooerSingle = new DataProcessorFoo();
         harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{StatType.AVERAGE});
-        sim.register(harmonicSingleEnergy, pump);
 
         if (graphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
-            // don't spend all of our time repainting
-//            ((DisplayPhaseCanvas3DOpenGL)simGraphic.getDisplayPhase(sim.phase).canvas).setAnimateFps(1);
+            ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
+            dataStreamPumps.add(pump);
+            dataStreamPumps.add(pumpSingle);
+            
             DisplayBoxesCAE harmonicBoxes = new DisplayBoxesCAE();
             harmonicBoxes.setAccumulator(harmonicAvg);
             simGraphic.add(harmonicBoxes);

@@ -59,6 +59,7 @@ public class DCVGCMD extends Simulation {
     public MeterProfile profile2;
     public AccumulatorAverage accumulator1;
     public AccumulatorAverage accumulator2;
+    public DataPump profile1pump, profile2pump;
     public AccumulatorAverage fluxAccumulator;
     public IVector poreCenter;
     public ActivityIntegrate activityIntegrate;
@@ -276,14 +277,12 @@ public class DCVGCMD extends Simulation {
         profile2.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
 
         accumulator1 = new AccumulatorAverage();
-        DataPump profile1pump = new DataPump(profile1, accumulator1);
+        profile1pump = new DataPump(profile1, accumulator1);
         integratorDCV.addIntervalAction(profile1pump);
-        register(profile1,profile1pump);
 
         accumulator2 = new AccumulatorAverage();
-        DataPump profile2pump = new DataPump(profile2, accumulator2);
+        profile2pump = new DataPump(profile2, accumulator2);
         integratorDCV.addIntervalAction(profile2pump);
-        register(profile2,profile2pump);
 
         potentialMaster.getNbrCellManager(phase).assignCellAll();
     }
