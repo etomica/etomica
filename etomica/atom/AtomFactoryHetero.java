@@ -20,9 +20,9 @@ public class AtomFactoryHetero extends AtomFactory {
         this(sim.getSpace(), new ConformationLinear(sim));
     }
 
-    public AtomFactoryHetero(Space space, Conformation config) {
+    public AtomFactoryHetero(Space space, Conformation conformation) {
         super(new AtomTypeGroup(new AtomPositionCOM(space)));
-        conformation = config;
+        ((AtomTypeGroup)atomType).setConformation(conformation);
         childFactory = new AtomFactory[0];
         numberFraction = new double[0];
         childCount = new int[0];

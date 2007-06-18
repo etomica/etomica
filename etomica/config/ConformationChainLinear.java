@@ -2,6 +2,7 @@ package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.simulation.Simulation;
@@ -77,7 +78,7 @@ public class ConformationChainLinear extends ConformationChain {
             IAtom a = atomList.getAtom(iLeaf);
             if (a instanceof IAtomGroup) {
                 //initialize coordinates of child atoms
-                Conformation config = a.getType().creator().getConformation();
+                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());
             }
             moveToOrigin.actionPerformed(a);

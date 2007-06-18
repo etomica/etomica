@@ -2,6 +2,7 @@ package etomica.virial;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomPositionFirstAtom;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -43,7 +44,7 @@ public class ConfigurationCluster extends Configuration {
              a = iterator.nextAtom()) {
             if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
-                Conformation config = a.getType().creator().getConformation();
+                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());
             }
         }

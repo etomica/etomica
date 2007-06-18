@@ -37,7 +37,7 @@ public class AtomFactoryWater3P extends AtomFactory {
 		oFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), oType) :
                                      new AtomFactoryMono(sim.getSpace(), oType);
 
-		conformation = new ConformationWater3P(sim.getSpace()); 
+		((AtomTypeGroup)atomType).setConformation(new ConformationWater3P(sim.getSpace())); 
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class AtomFactoryWater3P extends AtomFactory {
         water.addChildAtom(water.O);
         water.addChildAtom(water.H1);
         water.addChildAtom(water.H2);
-		conformation.initializePositions(water.getChildList());
+        ((AtomTypeGroup)atomType).getConformation().initializePositions(water.getChildList());
 		return water;
 	}
     

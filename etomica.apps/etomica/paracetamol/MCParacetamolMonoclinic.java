@@ -101,7 +101,7 @@ public class MCParacetamolMonoclinic extends Simulation {
         
         ConformationParacetamolMonoclinic conformation = new ConformationParacetamolMonoclinic(space);
         species = new SpeciesParacetamol(this);
-        species.getFactory().setConformation(conformation);
+        ((AtomTypeGroup)species.getMoleculeType()).setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
         phase = new Phase(this);

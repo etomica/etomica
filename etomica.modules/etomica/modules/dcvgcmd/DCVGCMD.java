@@ -3,6 +3,7 @@ package etomica.modules.dcvgcmd;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.ElementSimple;
@@ -217,7 +218,7 @@ public class DCVGCMD extends Simulation {
         potentialwallPorousB1.setPoreCenters(poreCentersVector);
 
         //radius of hole in porous-wall potential
-        double poreRadius = 1.05 * ((ConformationTube) speciesTube.getFactory()
+        double poreRadius = 1.05 * ((ConformationTube)((AtomTypeGroup)speciesTube.getMoleculeType())
                 .getConformation()).tubeRadius;
         potentialwallPorousA.setPoreRadius(poreRadius);
         potentialwallPorousA1.setPoreRadius(poreRadius);

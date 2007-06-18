@@ -1,6 +1,7 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
@@ -187,7 +188,7 @@ public class ConfigurationLattice extends Configuration {
              a = atomIterator.nextAtom()) {
             if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
-                Conformation config = a.getType().creator().getConformation();
+                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());
             }
 

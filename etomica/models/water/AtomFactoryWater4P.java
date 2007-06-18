@@ -43,7 +43,7 @@ public class AtomFactoryWater4P extends AtomFactory {
 		mFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), mType) :
 		                             new AtomFactoryMono(sim.getSpace(), mType);
 		
-		conformation = new ConformationWaterTIP4P(sim.getSpace()); 
+		((AtomTypeGroup)atomType).setConformation(new ConformationWaterTIP4P(sim.getSpace())); 
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class AtomFactoryWater4P extends AtomFactory {
         water.addChildAtom(water.H1);
         water.addChildAtom(water.H2);
         water.addChildAtom(water.M);
-		conformation.initializePositions(water.getChildList());
+        ((AtomTypeGroup)atomType).getConformation().initializePositions(water.getChildList());
 		return water;
 	}
     

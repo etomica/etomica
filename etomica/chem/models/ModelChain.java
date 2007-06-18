@@ -1,5 +1,6 @@
 package etomica.chem.models;
 
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
@@ -132,7 +133,7 @@ public class ModelChain extends Model {
         
         if (conformation == null) {
             Species species = new SpeciesSpheres(sim, numAtoms, element);
-            setConformation(species.getFactory().getConformation());
+            setConformation(((AtomTypeGroup)species.getMoleculeType()).getConformation());
         }
         
         speciesMade = true;

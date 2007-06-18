@@ -3,6 +3,7 @@ package etomica.paracetamol;
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.atom.AtomTypeGroup;
 import etomica.config.ConfigurationFile;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
@@ -37,7 +38,7 @@ public class SimCalcSParacetamol extends Simulation {
 
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
         SpeciesParacetamol species = new SpeciesParacetamol(this);
-        species.getFactory().setConformation(conformation);
+        ((AtomTypeGroup)species.getMoleculeType()).setConformation(conformation);
         getSpeciesManager().addSpecies(species);
 
         phase = new Phase(this);

@@ -98,7 +98,7 @@ public class MCParacetamolOrthorhombic extends Simulation {
         
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
         species = new SpeciesParacetamol(this);
-        species.getFactory().setConformation(conformation);
+        ((AtomTypeGroup)species.getMoleculeType()).setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
         phase = new Phase(this);

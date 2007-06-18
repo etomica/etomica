@@ -26,7 +26,6 @@ import etomica.util.Debug;
 
 public abstract class AtomType implements java.io.Serializable, Comparable {
 
-    AtomFactory creator;//set in constructor of AtomFactory
     protected Species species;
     protected int index;
     private int typeTreeAddress;
@@ -189,13 +188,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      */
     public boolean isDescendedFrom(AtomType type) {
         return type.getAddressManager().sameAncestry(type.getAddress(),typeTreeAddress);
-    }
-
-    /**
-     * Returns the AtomFactory that creates an atom of this type.
-     */
-    public AtomFactory creator() {
-        return creator;
     }
 
     /**

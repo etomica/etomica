@@ -148,7 +148,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         atomActionTranslateTo.setDestination(phase.getSpace().makeVector());
         for (int i=0; i<nTubes; i++) {
             IAtomGroup a = (IAtomGroup)lists[2].getAtom(i);
-        	Conformation config = a.getType().creator().getConformation();
+        	Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
             config.initializePositions(a.getChildList());
             atomActionTranslateTo.actionPerformed(a);
         }

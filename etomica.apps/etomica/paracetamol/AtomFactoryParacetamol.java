@@ -59,7 +59,7 @@ public class AtomFactoryParacetamol extends AtomFactory{
 		hpFactory = new AtomFactoryMonoDynamic(sim.getSpace(), hpType);
 		hyFactory = new AtomFactoryMonoDynamic(sim.getSpace(), hyType);
 		
-		conformation = new ConformationParacetamolOrthorhombic(sim.getSpace());
+		((AtomTypeGroup)atomType).setConformation(new ConformationParacetamolOrthorhombic(sim.getSpace()));
 	}
 	
 	
@@ -110,7 +110,7 @@ public class AtomFactoryParacetamol extends AtomFactory{
 		moleculeParacetamol.addChildAtom(moleculeParacetamol.H8);
 		moleculeParacetamol.addChildAtom(moleculeParacetamol.H9);
 		
-		conformation.initializePositions(moleculeParacetamol.getChildList());
+        ((AtomTypeGroup)atomType).getConformation().initializePositions(moleculeParacetamol.getChildList());
 		return moleculeParacetamol;	
 	}
 	

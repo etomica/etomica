@@ -1,6 +1,5 @@
 package etomica.atom;
 
-import etomica.config.Conformation;
 
 /**
  * Class responsible for building new instances of the atoms (or atom groups)
@@ -11,13 +10,11 @@ import etomica.config.Conformation;
  
 public abstract class AtomFactory implements java.io.Serializable {
     
-    protected Conformation conformation;
     protected final AtomType atomType;
     protected boolean isMutable;
     
     public AtomFactory(AtomType atomType) {
         this.atomType = atomType;
-        atomType.creator = this;
         isMutable = true;
     }
     
@@ -54,22 +51,7 @@ public abstract class AtomFactory implements java.io.Serializable {
         return atomType;
     }
     
-    /**
-     * Sets the conformation used to set the standard arrangement of
-     * the atoms/atom-groups produced by this factory.
-     */
-    public void setConformation(Conformation config) {
-        conformation = config;
-    }
-    
     public boolean isMutable() {
         return isMutable;
     }
-    
-    /**
-     * Returns the conformation used to set the standard arrangement of
-     * the atoms/atom-groups produced by this factory.
-     */
-    public Conformation getConformation() {return conformation;}
-    
-}//end of AtomFactory
+}

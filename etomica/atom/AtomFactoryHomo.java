@@ -37,10 +37,10 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      * @param config the conformation applied to each group that is built (default is Linear).
      */
-   public AtomFactoryHomo(Space space, int atoms, Conformation config) {
+   public AtomFactoryHomo(Space space, int atoms, Conformation conformation) {
         super(new AtomTypeGroup(new AtomPositionGeometricCenter(space)));
         atomsPerGroup = atoms;
-        setConformation(config);
+        ((AtomTypeGroup)atomType).setConformation(conformation);
     }
     
     /**

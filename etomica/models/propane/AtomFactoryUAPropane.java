@@ -31,7 +31,7 @@ public class AtomFactoryUAPropane extends AtomFactory {
         UAFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), UAType) : 
                                       new AtomFactoryMono(sim.getSpace(), UAType);
 
-		conformation = new ConformationUAPropane(sim.getSpace()); 
+        ((AtomTypeGroup)atomType).setConformation(new ConformationUAPropane(sim.getSpace())); 
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class AtomFactoryUAPropane extends AtomFactory {
         propane.UA2 = (IAtomPositioned)UAFactory.makeAtom();
         propane.addChildAtom(propane.UA1);
         propane.addChildAtom(propane.UA2);
-		conformation.initializePositions(propane.getChildList());
+		((AtomTypeGroup)atomType).getConformation().initializePositions(propane.getChildList());
 		return propane;
 	}
     

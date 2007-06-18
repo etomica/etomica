@@ -13,6 +13,7 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
@@ -171,7 +172,7 @@ public class GrainBoundaryConfiguration extends Configuration {
             }
             if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
-                Conformation config = a.getType().creator().getConformation();
+                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());
             }
             IVector site = (IVector) myLatA.site(ii);
@@ -199,7 +200,7 @@ public class GrainBoundaryConfiguration extends Configuration {
             }
             if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
-                Conformation config = a.getType().creator().getConformation();
+                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());
             }
             IVector site = (IVector) myLatB.site(ii);

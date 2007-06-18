@@ -6,6 +6,7 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
@@ -116,7 +117,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
              a = atomIterator.nextAtom()) {
             if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
-                Conformation config = a.getType().creator().getConformation();
+                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());
             }
             

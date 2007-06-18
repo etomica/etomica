@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import etomica.config.Conformation;
 import etomica.species.Species;
 import etomica.util.Arrays;
 
@@ -138,6 +139,21 @@ public class AtomTypeGroup extends AtomType {
         }
     }
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Sets the conformation used to set the standard arrangement of
+     * the atoms/atom-groups produced by this factory.
+     */
+    public void setConformation(Conformation config) {
+        conformation = config;
+    }
+    
+    /**
+     * Returns the conformation used to set the standard arrangement of
+     * the atoms/atom-groups produced by this factory.
+     */
+    public Conformation getConformation() {return conformation;}
+    
+    private static final long serialVersionUID = 2L;
+    protected Conformation conformation;
     protected AtomType[] childTypes = new AtomType[0];
 }
