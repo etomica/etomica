@@ -1,4 +1,5 @@
 package etomica.simulation.prototypes;
+
 import etomica.action.PhaseImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -33,6 +34,7 @@ public class LjMd3D extends Simulation {
     public Controller controller;
     public MeterPotentialEnergy energy;
     public AccumulatorAverage avgEnergy;
+    public DataPump pump;
 
     public static void main(String[] args) {
     	final String APP_NAME = "LjMd3D";
@@ -40,6 +42,7 @@ public class LjMd3D extends Simulation {
     	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+        simGraphic.getController().getDataStreamPumps().add(sim.pump);
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 
@@ -77,10 +80,25 @@ public class LjMd3D extends Simulation {
         energy.setPhase(phase);
         avgEnergy = new AccumulatorAverage(200);
         avgEnergy.setPushInterval(10);
-        DataPump pump = new DataPump(energy, avgEnergy);
+        pump = new DataPump(energy, avgEnergy);
         integrator.addIntervalAction(pump);
         integrator.setActionInterval(pump, 10);
-        register(energy, pump);
     }
     
+    public static class Applet extends javax.swing.JApplet {
+
+        public void init() {
+            final String APP_NAME = "LjMd3D";
+            LjMd3D sim= new LjMd3D();
+            final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3);
+
+            simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+            simGraphic.getController().getDataStreamPumps().add(sim.pump);
+
+            DisplayBoxesCAE display = new DisplayBoxesCAE();
+            display.setAccumulator(sim.avgEnergy);
+            simGraphic.add(display);
+            getContentPane().add(simGraphic.getPanel());
+        }
+    }
 }

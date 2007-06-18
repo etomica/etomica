@@ -181,6 +181,7 @@ public class DisplayBoxesCAE extends Display implements DataSink {
         AccumulatorAverage accumulator = new AccumulatorAverage();
         DataPump dataPump = new DataPump(pressureMeter, accumulator);
         sim.integrator.addIntervalAction(dataPump);
+        graphic.getController().getDataStreamPumps().add(dataPump);
         DisplayBoxesCAE boxes = new DisplayBoxesCAE(pressureMeter.getDataInfo());
         boxes.setAccumulator(accumulator);
         graphic.add(boxes);

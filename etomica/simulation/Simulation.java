@@ -1,7 +1,6 @@
 package etomica.simulation;
 
 import etomica.action.activity.Controller;
-import etomica.data.DataSource;
 import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -92,55 +91,6 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     }
 
     /**
-     * Returns an array of DataStreamsHeaders for data streams that have been
-     * registered with the simulation.
-     */
-    public DataStreamHeader[] getDataStreams() {
-        return (DataStreamHeader[])dataStreams.clone();
-    }
-    
-    /**
-     * Clears the list of data streams that have been registered with the 
-     * Simulation.
-     */
-    public void clearDataStreams() {
-        dataStreams = new DataStreamHeader[0];
-    }
-    
-    /**
-     * Add the given DataSource and client (the object which calls the 
-     * DataSource's getData method) to a list of data streams kept by the 
-     * simulation.  No other effect results from registering the data stream. 
-     * The list of registered data streams may be retrieved via the 
-     * getDataStreams method.  A single data stream may be removed from the 
-     * list via the unregister method.
-     */
-    public void register(DataSource dataSource, Object client) {
-        for (int i=0; i<dataStreams.length; i++) {
-            if (dataStreams[i].getDataSource() == dataSource && dataStreams[i].getClient() == client) {
-                return;
-            }
-        }
-        dataStreams = (DataStreamHeader[])Arrays.addObject(dataStreams,new DataStreamHeader(dataSource,client));
-    }
-    
-    /**
-     * Removes the given data stream that represents the given DataSource and 
-     * client from the list of data streams kept by the simulation.  No other 
-     * action results upon removing it from this list.  If the given data 
-     * stream has not been registered, the method returns without taking any 
-     * action.
-     */
-    public void unregister(DataSource dataSource, Object client) {
-        for (int i=0; i<dataStreams.length; i++) {
-            if (dataStreams[i].getDataSource() == dataSource && dataStreams[i].getClient() == client) {
-                dataStreams = (DataStreamHeader[])Arrays.removeObject(dataStreams,dataStreams[i]);
-                return;
-            }
-        }
-    }
-    
-    /**
      * Returns the Controller used to run the simulation's Actions and 
      * Activities.
      */
@@ -213,6 +163,5 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     protected final IRandom random;
     protected final boolean dynamic;
     private Controller controller;
-    private DataStreamHeader[] dataStreams = new DataStreamHeader[0];
     private String name;
 }

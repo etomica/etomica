@@ -1,13 +1,12 @@
 package etomica.graphics;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
-import etomica.action.ResetAccumulators;
-import etomica.action.SimulationDataAction;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
 import etomica.simulation.ISimulation;
@@ -85,7 +84,16 @@ public class DeviceTrioControllerButton extends Device {
         });
         resetButton.setController(c);
         reinitButton.setAction(simRestart);
-        resetButton.setAction(new SimulationDataAction(sim,new ResetAccumulators()));
+        resetButton.setAction(simRestart.getDataResetAction());
+    }
+
+    /**
+     * Returns an ArrayList of DataPumps that are headers for the data streams.
+     * This streams from this ArrayList are reset when the user presses the 
+     * reinitialize and reset averages buttons.
+     */
+    public ArrayList getDataStreamPumps() {
+        return simRestart.getDataResetAction().getDataStreamPumps();
     }
     
     /**

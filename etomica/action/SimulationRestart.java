@@ -1,7 +1,5 @@
 package etomica.action;
 
-import java.util.ArrayList;
-
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -21,7 +19,6 @@ public final class SimulationRestart extends SimulationActionAdapter {
     
     public SimulationRestart(Simulation sim) {
         setSimulation(sim);
-        integratorList = new ArrayList();
     }
 
     public void setSimulation(Simulation sim) {
@@ -36,9 +33,13 @@ public final class SimulationRestart extends SimulationActionAdapter {
             setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(1, 1.0)));
         }
         ignoreOverlap = false;
-        accumulatorAction = new SimulationDataAction(sim, new ResetAccumulators());
+        accumulatorAction = new SimulationDataAction(new ResetAccumulators());
     }
 
+    public SimulationDataAction getDataResetAction() {
+        return accumulatorAction;
+    }
+    
     public void setIgnoreOverlap(boolean doIgnoreOverlap) {
         ignoreOverlap = doIgnoreOverlap;
     }
@@ -95,5 +96,4 @@ public final class SimulationRestart extends SimulationActionAdapter {
     protected Configuration configuration;
     protected boolean ignoreOverlap;
     protected SimulationDataAction accumulatorAction;
-    protected ArrayList integratorList;
 }
