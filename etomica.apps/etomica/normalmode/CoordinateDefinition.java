@@ -6,10 +6,11 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Conformation;
@@ -46,9 +47,6 @@ public abstract class CoordinateDefinition {
         this.basis = basis;
         this.phase = phase;
         lattice = new BravaisLatticeCrystal(primitive, basis);
-        iterator = new AtomIteratorAllMolecules();
-        iterator.setPhase(phase);
-        iterator.reset();
 
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
 
@@ -91,7 +89,7 @@ public abstract class CoordinateDefinition {
              a = atomIterator.nextAtom()) {
             if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
-                Conformation config = a.getType().creator().getConformation();
+                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());
             }
 
@@ -179,7 +177,6 @@ public abstract class CoordinateDefinition {
             imaginaryT[i] = 0;
         }
 
-        iterator.reset();
         // sum T over atoms
         for (int iCell = 0; iCell<cells.length; iCell++) {
             BasisCell cell = cells[iCell];
@@ -217,7 +214,6 @@ public abstract class CoordinateDefinition {
 
     protected final int coordinateDim;
     protected final Phase phase;
-    private final AtomIteratorAllMolecules iterator;
     protected AtomAgentManager siteManager;
     protected final BravaisLatticeCrystal lattice;
     protected final Primitive primitive;
@@ -235,7 +231,7 @@ public abstract class CoordinateDefinition {
         }
         public Object makeAgent(IAtom atom) {
             IVector vector = space.makeVector();
-            if(atom instanceof SpeciesAgent) return null;
+            if(atom instanceof ISpeciesAgent) return null;
             vector.E(atom.getType().getPositionDefinition().position(atom));
             return vector;
         }
