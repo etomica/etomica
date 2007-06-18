@@ -36,7 +36,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Contructs device with buttons that affect the given simulation.
      */
-    public DeviceTrioControllerButton(Simulation simulation) {
+    public DeviceTrioControllerButton(ISimulation simulation) {
         this();
         setSimulation(simulation);
     }
@@ -67,7 +67,7 @@ public class DeviceTrioControllerButton extends Device {
     /**
      * Sets the controller that is toggled by this device.
      */
-    public void setSimulation(Simulation sim) {
+    public void setSimulation(ISimulation sim) {
         simulation = sim;
         simRestart = new SimulationRestart(sim);
         final Controller c = sim.getController();

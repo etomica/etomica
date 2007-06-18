@@ -42,7 +42,7 @@ public class SpeciesSpheresMono extends Species {
     public SpeciesSignature getSpeciesSignature() {
         Constructor constructor = null;
         try {
-            constructor = this.getClass().getConstructor(new Class[]{Simulation.class,Element.class});
+            constructor = this.getClass().getConstructor(new Class[]{ISimulation.class,Element.class});
         }
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");

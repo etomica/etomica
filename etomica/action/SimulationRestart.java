@@ -9,7 +9,7 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * Action that invokes reset method of all registered simulation elements,
@@ -17,11 +17,11 @@ import etomica.simulation.Simulation;
  */
 public final class SimulationRestart extends SimulationActionAdapter {
     
-    public SimulationRestart(Simulation sim) {
+    public SimulationRestart(ISimulation sim) {
         setSimulation(sim);
     }
 
-    public void setSimulation(Simulation sim) {
+    public void setSimulation(ISimulation sim) {
         super.setSimulation(sim);
         if (sim.getSpace().D() == 3) {
             setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));

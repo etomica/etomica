@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * Interface for classes that apply some elementary action (transformation) to a
@@ -9,7 +9,7 @@ import etomica.simulation.Simulation;
  */
 public interface SimulationAction extends Action {
 
-	public void setSimulation(Simulation sim);
+	public void setSimulation(ISimulation sim);
 
-	public Simulation getSimulation();
+	public ISimulation getSimulation();
 }

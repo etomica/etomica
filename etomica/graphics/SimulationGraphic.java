@@ -58,27 +58,27 @@ public class SimulationGraphic implements SimulationContainer {
     private int graphicType = GRAPHIC_ONLY;
 
 
-    public SimulationGraphic(Simulation simulation) {
+    public SimulationGraphic(ISimulation simulation) {
     	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL);
     }
 
-    public SimulationGraphic(Simulation simulation, int graphicType) {
+    public SimulationGraphic(ISimulation simulation, int graphicType) {
     	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL);
     }
 
-    public SimulationGraphic(Simulation simulation, String appName) {
+    public SimulationGraphic(ISimulation simulation, String appName) {
     	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL);
     }
 
-    public SimulationGraphic(Simulation simulation, int graphicType, String appName) {
+    public SimulationGraphic(ISimulation simulation, int graphicType, String appName) {
     	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL);
     }
 
-    public SimulationGraphic(Simulation simulation, String appName, int updateInterval) {
+    public SimulationGraphic(ISimulation simulation, String appName, int updateInterval) {
     	this(simulation, GRAPHIC_ONLY, appName, updateInterval);
     }
 
-    public SimulationGraphic(Simulation simulation, int graphicType, String appName, int updateInterval) {
+    public SimulationGraphic(ISimulation simulation, int graphicType, String appName, int updateInterval) {
         this.simulation = simulation;
         this.updateInterval = updateInterval;
         simulationPanel = new SimulationPanel(appName);

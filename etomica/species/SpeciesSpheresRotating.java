@@ -40,7 +40,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
     public SpeciesSignature getSpeciesSignature() {
         Constructor constructor = null;
         try {
-            constructor = this.getClass().getConstructor(new Class[]{Simulation.class});
+            constructor = this.getClass().getConstructor(new Class[]{ISimulation.class});
         }
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");

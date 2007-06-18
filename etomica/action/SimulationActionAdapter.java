@@ -1,6 +1,6 @@
 package etomica.action;
 
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * Convenience class used to define a SimulationAction. Implements all methods
@@ -11,7 +11,7 @@ public abstract class SimulationActionAdapter implements SimulationAction, java.
 	/**
 	 * @return Returns the simulation on which this action will be performed.
 	 */
-	public Simulation getSimulation() {
+	public ISimulation getSimulation() {
 		return simulation;
 	}
 
@@ -19,9 +19,9 @@ public abstract class SimulationActionAdapter implements SimulationAction, java.
 	 * @param simulation
 	 *            The simulation on which this action will be performed.
 	 */
-	public void setSimulation(Simulation simulation) {
+	public void setSimulation(ISimulation simulation) {
 		this.simulation = simulation;
 	}
 
-	protected Simulation simulation;
+	protected ISimulation simulation;
 }
