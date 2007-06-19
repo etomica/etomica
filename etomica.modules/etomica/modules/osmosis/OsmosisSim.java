@@ -82,6 +82,11 @@ public class OsmosisSim extends Simulation {
         //disable top and bottom
         boundaryHardLeftA.setActive(1, true, false);
         boundaryHardLeftA.setActive(1, false, false);
+        if (space.D() == 3) {
+            //disable front and back
+            boundaryHardLeftA.setActive(2, true, false);
+            boundaryHardLeftA.setActive(2, false, false);
+        }
         potentialMaster.addPotential(boundaryHardLeftA, new Species[]{speciesA});
         boundaryHardLeftA.setCollisionRadius(0.5*sigma);
         // right boundary
@@ -91,6 +96,11 @@ public class OsmosisSim extends Simulation {
         //disable top and bottom
         boundaryHardRightA.setActive(1, true, false);
         boundaryHardRightA.setActive(1, false, false);
+        if (space.D() == 3) {
+            //disable front and back
+            boundaryHardRightA.setActive(2, true, false);
+            boundaryHardRightA.setActive(2, false, false);
+        }
         potentialMaster.addPotential(boundaryHardRightA, new Species[]{speciesA});
         boundaryHardRightA.setCollisionRadius(0.5*sigma);
         
