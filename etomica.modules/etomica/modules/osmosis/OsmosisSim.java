@@ -105,7 +105,7 @@ public class OsmosisSim extends Simulation {
             phase.getBoundary().setDimensions(new Vector3D(10.0, 10.0, 10.0));
         	config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));
         }
-        phase.getAgent(speciesA).setNMolecules(30);
+        phase.getAgent(speciesA).setNMolecules(50);
         phase.getAgent(speciesB).setNMolecules(10);
         config.initializeCoordinates(phase);
 

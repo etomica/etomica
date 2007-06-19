@@ -16,6 +16,7 @@ import javax.swing.event.ChangeListener;
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomTypeSphere;
+import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -67,7 +68,7 @@ public class Osmosis extends SimulationGraphic {
     public DataSourceCountTime cycles;
     public DisplayBox displayCycles;
     public MeterOsmoticPressure osmosisPMeter;
-    public MeterLocalMoleFraction moleFraction;
+    public MeterLocalMoleFraction moleFractionRight, moleFractionLeft;
     public OsmosisSim sim;
 
     public Osmosis(OsmosisSim simulation) {
@@ -81,19 +82,7 @@ public class Osmosis extends SimulationGraphic {
 
         Unit tUnit = Kelvin.UNIT;
 
-        ConfigurationLattice config = null;
-
-        if (sim.getSpace() instanceof Space2D) { // 2D
-            config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
-        }
-        else if (sim.getSpace() instanceof Space3D) { // 3D
-            config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));        	
-        }
-
-        SimulationRestart simRestart = getController().getSimRestart();
-        
-        simRestart.setConfiguration(config);
-        getController().setShape("VERTICAL"); //three choices "HORIZONTAL","AUTOMATIC"           
+        Configuration config = null;
 
 	    //display of phase
         final DisplayPhase displayPhase = getDisplayPhase(sim.phase);
@@ -107,11 +96,20 @@ public class Osmosis extends SimulationGraphic {
         displayPhase.setOriginShift(1, -thickness);
         if (sim.getSpace() instanceof Space2D) {
             displayPhase.addDrawable(new MyWall());
+            config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
         }
         else if (sim.getSpace() instanceof Space3D) {
         	etomica.math.geometry.Plane plane = new etomica.math.geometry.Plane(sim.getSpace());
         	((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).addPlane(plane);
+            config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));        	
         }
+
+        config.initializeCoordinates(sim.phase);
+
+        SimulationRestart simRestart = getController().getSimRestart();
+        
+        simRestart.setConfiguration(config);
+        getController().setShape("VERTICAL"); //three choices "HORIZONTAL","AUTOMATIC"           
 
         cycles = new DataSourceCountTime();
         displayCycles = new DisplayTimer(sim.integrator);
@@ -119,17 +117,18 @@ public class Osmosis extends SimulationGraphic {
         displayCycles.setLabel("Cycle Time");
 	    displayCycles.setPrecision(6);	
 
+	    // Right side of membrane osmotic
         osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardLeftA}, 
                 new P1HardBoundary[]{sim.boundaryHardRightA, sim.boundaryHardB});
         osmosisPMeter.setIntegrator(sim.integrator);
         final AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverage();
-        DataPump pump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
-        dataStreamPumps.add(pump);
-        sim.integrator.addIntervalAction(pump);
-        sim.integrator.setActionInterval(pump, 40);
-        final DisplayBoxesCAE dBox = new DisplayBoxesCAE();
-        dBox.setAccumulator(osmosisPMeterAvg);
-        dBox.setPrecision(6);
+        final DataPump osmosisPump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
+        dataStreamPumps.add(osmosisPump);
+        sim.integrator.addIntervalAction(osmosisPump);
+        sim.integrator.setActionInterval(osmosisPump, 40);
+        final DisplayBoxesCAE osmoticBox = new DisplayBoxesCAE();
+        osmoticBox.setAccumulator(osmosisPMeterAvg);
+        osmoticBox.setPrecision(6);
 
         //
         // temperature panel
@@ -142,8 +141,8 @@ public class Osmosis extends SimulationGraphic {
 		MeterTemperature thermometer = new MeterTemperature();
 		thermometer.setPhase(sim.phase);
 		DisplayBox tBox = new DisplayBox();
-        pump = new DataPump(thermometer, tBox);
-        sim.integrator.addIntervalAction(pump);
+        DataPump tempPump = new DataPump(thermometer, tBox);
+        sim.integrator.addIntervalAction(tempPump);
 		tBox.setUnit(tUnit);
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(CompassDirection.NORTH);
@@ -155,63 +154,110 @@ public class Osmosis extends SimulationGraphic {
         temperaturePanel.add(tSelect.graphic(null),SimulationPanel.getHorizGBC());
         temperaturePanel.add(tBox.graphic(null),SimulationPanel.getHorizGBC());
 
-        moleFraction = new MeterLocalMoleFraction();
-        moleFraction.setPhase(sim.phase);
+        // Right side of membrane mole fraction
+        moleFractionRight = new MeterLocalMoleFraction();
+        moleFractionRight.setPhase(sim.phase);
         IVector dimensions = sim.phase.getBoundary().getDimensions();
 
         if (sim.getSpace() instanceof Space2D) { // 2D
-            moleFraction.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
-            moleFraction.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
+            moleFractionRight.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
+            moleFractionRight.setShapeOrigin(new Vector2D(dimensions.x(0)*0.25, 0));
         }
         else if (sim.getSpace() instanceof Space3D) { // 3D
-            moleFraction.setShape(new Cuboid(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1), dimensions.x(2)));
-            moleFraction.setShapeOrigin(new Vector3D(dimensions.x(0)*0.25, 0, 0));
+            moleFractionRight.setShape(new Cuboid(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1), dimensions.x(2)));
+            moleFractionRight.setShapeOrigin(new Vector3D(dimensions.x(0)*0.25, 0, 0));
         }
 
-        moleFraction.setSpecies(sim.speciesB);
-        final AccumulatorAverage moleFractionAvg = new AccumulatorAverage();
-        pump = new DataPump(moleFraction, moleFractionAvg);
-        dataStreamPumps.add(pump);
-        sim.integrator.addIntervalAction(pump);
-        final DisplayBoxesCAE mfBox = new DisplayBoxesCAE();
-        mfBox.setAccumulator(moleFractionAvg);
-        mfBox.setPrecision(8);
+        moleFractionRight.setSpecies(sim.speciesB);
+        final AccumulatorAverage moleFractionAvgRight = new AccumulatorAverage();
+        final DataPump molePumpRight = new DataPump(moleFractionRight, moleFractionAvgRight);
+        dataStreamPumps.add(molePumpRight);
+        sim.integrator.addIntervalAction(molePumpRight);
+        final DisplayBoxesCAE rightMFBox = new DisplayBoxesCAE();
+        rightMFBox.setAccumulator(moleFractionAvgRight);
+        rightMFBox.setPrecision(8);
+
+        // Left side of membrane mole fraction
+        moleFractionLeft = new MeterLocalMoleFraction();
+        moleFractionLeft.setPhase(sim.phase);
+
+        if (sim.getSpace() instanceof Space2D) { // 2D
+            moleFractionLeft.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
+            moleFractionLeft.setShapeOrigin(new Vector2D(-dimensions.x(0)*0.25, 0));
+        }
+        else if (sim.getSpace() instanceof Space3D) { // 3D
+            moleFractionLeft.setShape(new Cuboid(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1), dimensions.x(2)));
+
+            moleFractionLeft.setShapeOrigin(new Vector3D(-dimensions.x(0)*0.25, 0, 0));
+        }
+
+        moleFractionLeft.setSpecies(sim.speciesB);
+        final AccumulatorAverage moleFractionAvgLeft = new AccumulatorAverage();
+        final DataPump molePumpLeft = new DataPump(moleFractionLeft, moleFractionAvgLeft);
+        dataStreamPumps.add(molePumpLeft);
+        sim.integrator.addIntervalAction(molePumpLeft);
+        final DisplayBoxesCAE leftMFBox = new DisplayBoxesCAE();
+        leftMFBox.setAccumulator(moleFractionAvgLeft);
+        leftMFBox.setPrecision(8);
 
         DeviceNSelector nASelector = new DeviceNSelector(sim.getController());
         nASelector.setResetAction(simRestart);
         nASelector.setSpeciesAgent(sim.phase.getAgent(sim.speciesA));
-        nASelector.getSlider().addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent evt) {
-            	displayPhase.repaint();
-            }
-        });
-        nASelector.setMaximum(30);
         
+        ChangeListener cl = new ChangeListener() {
+        	public void stateChanged(ChangeEvent evt) {
+				molePumpLeft.actionPerformed();
+				leftMFBox.putData(moleFractionAvgLeft.getData());
+				leftMFBox.repaint();
+		
+				molePumpRight.actionPerformed();
+				rightMFBox.putData(moleFractionAvgRight.getData());
+				rightMFBox.repaint();
+				osmoticBox.putData(osmosisPMeterAvg.getData());
+				osmoticBox.repaint();
+				getDisplayPhase(sim.phase).graphic().repaint();
+        	}
+        };
+
+        nASelector.getSlider().addChangeListener(cl);
+        nASelector.setMaximum(50);
+
         DeviceNSelector nBSelector = new DeviceNSelector(sim.getController());
         nBSelector.setResetAction(simRestart);
         nBSelector.setSpeciesAgent(sim.phase.getAgent(sim.speciesB));
-        nBSelector.getSlider().addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent evt) {
-            	displayPhase.repaint();
-            }
-        });
+        nBSelector.getSlider().addChangeListener(cl);
         nBSelector.setMaximum(10);
-	    
+
         DiameterModifier diameterModifier = new DiameterModifier(sim.potentialAA,sim.potentialBB,sim.potentialAB,
                                                             sim.boundarySemiB,
                                                             sim.boundaryHardTopBottomA,sim.boundaryHardLeftA,sim.boundaryHardRightA,
                                                             sim.boundaryHardB,
                                                             sim.speciesA,sim.speciesB);
+
         // panel for osmotic pressure
         JPanel osmoticPanel = new JPanel(new FlowLayout());
         osmoticPanel.setBorder(new TitledBorder(null, "Osmotic Pressure (PV/Nk)", TitledBorder.CENTER, TitledBorder.TOP));
-        osmoticPanel.add(dBox.graphic(null));
+        osmoticPanel.add(osmoticBox.graphic(null));
 
-        // panel for mole fraction
-        JPanel moleFractionPanel = new JPanel(new FlowLayout());
-        TitledBorder titleBorder = new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP);
-        moleFractionPanel.setBorder(titleBorder);
-        moleFractionPanel.add(mfBox.graphic(null));
+        // left side panel for mole fraction
+        JPanel leftMoleFractionPanel = new JPanel(new FlowLayout());
+        leftMoleFractionPanel.setBorder(new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP));
+        leftMoleFractionPanel.add(leftMFBox.graphic(null));
+
+        // left side metrics panel
+        JPanel leftMetricsPanel = new JPanel(new GridLayout(0, 1));
+        leftMetricsPanel.setBorder(new TitledBorder(null, "Left of Membrane", TitledBorder.CENTER, TitledBorder.TOP));
+        leftMetricsPanel.add(leftMoleFractionPanel);
+
+        // right side panel for mole fraction
+        JPanel rightMoleFractionPanel = new JPanel(new FlowLayout());
+        rightMoleFractionPanel.setBorder(new TitledBorder(null, "Mole Fraction (nSolute/nSolution)", TitledBorder.CENTER, TitledBorder.TOP));
+        rightMoleFractionPanel.add(rightMFBox.graphic(null));
+
+        // right side metrics panel
+        JPanel rightMetricsPanel = new JPanel(new GridLayout(0, 1));
+        rightMetricsPanel.setBorder(new TitledBorder(null, "Right of Membrane", TitledBorder.CENTER, TitledBorder.TOP));
+        rightMetricsPanel.add(rightMoleFractionPanel);
 
         diameterModifier.setValue(1.0);
 
@@ -238,24 +284,35 @@ public class Osmosis extends SimulationGraphic {
         getPanel().controlPanel.add(sliderPanelB, vertGBC);
         getPanel().plotPanel.add(displayCycles.graphic(), vertGBC);
         getPanel().plotPanel.add(osmoticPanel, vertGBC);
-        getPanel().plotPanel.add(moleFractionPanel, vertGBC);
+        getPanel().plotPanel.add(leftMetricsPanel, vertGBC);
+        getPanel().plotPanel.add(rightMetricsPanel, vertGBC);
 
         Action reinitDisplayAction = new Action() {
         	public void actionPerformed() {
-        		mfBox.putData(moleFractionAvg.getData());
-        		mfBox.repaint();
-        		dBox.putData(osmosisPMeterAvg.getData());
-        		dBox.repaint();
+        		molePumpLeft.actionPerformed();
+        		leftMFBox.putData(moleFractionAvgLeft.getData());
+        		leftMFBox.repaint();
+
+        		molePumpRight.actionPerformed();
+        		rightMFBox.putData(moleFractionAvgRight.getData());
+        		rightMFBox.repaint();
+        		osmoticBox.putData(osmosisPMeterAvg.getData());
+        		osmoticBox.repaint();
         		getDisplayPhase(sim.phase).graphic().repaint();
         	}
         };
 
         Action resetDisplayAction = new Action() {
         	public void actionPerformed() {
-        		mfBox.putData(moleFractionAvg.getData());
-        		mfBox.repaint();
-        		dBox.putData(osmosisPMeterAvg.getData());
-        		dBox.repaint();
+        		molePumpLeft.actionPerformed();
+        		leftMFBox.putData(moleFractionAvgLeft.getData());
+        		leftMFBox.repaint();
+
+        		molePumpRight.actionPerformed();
+        		rightMFBox.putData(moleFractionAvgRight.getData());
+        		rightMFBox.repaint();
+        		osmoticBox.putData(osmosisPMeterAvg.getData());
+        		osmoticBox.repaint();
         	}
         };
 
@@ -289,7 +346,7 @@ public class Osmosis extends SimulationGraphic {
 
         OsmosisSim sim = null;
 
-        if(false) { // 3D Case
+        if(true) { // 3D Case
     	    sim = new OsmosisSim(Space3D.getInstance());
         }
         else { // 2D case
