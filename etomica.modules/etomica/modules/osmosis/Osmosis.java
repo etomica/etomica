@@ -15,7 +15,6 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomTypeSphere;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
@@ -23,7 +22,6 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterLocalMoleFraction;
 import etomica.data.meter.MeterTemperature;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
@@ -35,22 +33,16 @@ import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.graphics.DisplayBox.LabelType;
-import etomica.integrator.Integrator;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Rectangle;
-import etomica.modifier.Modifier;
 import etomica.potential.P1HardBoundary;
-import etomica.potential.P2HardSphere;
 import etomica.space.IVector;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.SpeciesSpheresMono;
-import etomica.units.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.Length;
 import etomica.units.Unit;
 import etomica.util.Constants.CompassDirection;
 
@@ -228,12 +220,6 @@ public class Osmosis extends SimulationGraphic {
         nBSelector.getSlider().addChangeListener(cl);
         nBSelector.setMaximum(10);
 
-        DiameterModifier diameterModifier = new DiameterModifier(sim.potentialAA,sim.potentialBB,sim.potentialAB,
-                                                            sim.boundarySemiB,
-                                                            sim.boundaryHardTopBottomA,sim.boundaryHardLeftA,sim.boundaryHardRightA,
-                                                            sim.boundaryHardB,
-                                                            sim.speciesA,sim.speciesB);
-
         // panel for osmotic pressure
         JPanel osmoticPanel = new JPanel(new FlowLayout());
         osmoticPanel.setBorder(new TitledBorder(null, "Osmotic Pressure (PV/Nk)", TitledBorder.CENTER, TitledBorder.TOP));
@@ -258,8 +244,6 @@ public class Osmosis extends SimulationGraphic {
         JPanel rightMetricsPanel = new JPanel(new GridLayout(0, 1));
         rightMetricsPanel.setBorder(new TitledBorder(null, "Right of Membrane", TitledBorder.CENTER, TitledBorder.TOP));
         rightMetricsPanel.add(rightMoleFractionPanel);
-
-        diameterModifier.setValue(1.0);
 
 		// Solvent molecules slider
         JPanel sliderPanelA = new JPanel(new GridLayout(0,1));
@@ -358,79 +342,6 @@ public class Osmosis extends SimulationGraphic {
 
         Osmosis osmosis = new Osmosis(sim);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
-    }
-
-    
-    public class DiameterModifier implements Modifier {
-        
-        P2HardSphere potentialAA,potentialBB,potentialAB;
-        P1HardWall membraneB;
-        P1HardBoundary boundaryHard1A,boundaryHard2A,boundaryHard3A;
-        P1HardBoundary boundaryHardB;
-        SpeciesSpheresMono speciesA,speciesB;
-        DisplayPhase display;
-        Integrator integrator;
-        
-        public DiameterModifier(P2HardSphere potentialAA ,P2HardSphere potentialBB ,P2HardSphere potentialAB ,
-                          P1HardWall membraneB,
-                          P1HardBoundary boundaryHard1A, P1HardBoundary boundaryHard2A, P1HardBoundary boundaryHard3A, 
-                          P1HardBoundary boundaryHardB,
-                          SpeciesSpheresMono speciesA ,SpeciesSpheresMono speciesB) {
-            this.potentialAA = potentialAA;
-            this.potentialBB = potentialBB;
-            this.potentialAB = potentialAB;
-            this.membraneB = membraneB;
-            this.boundaryHard1A = boundaryHard1A;
-            this.boundaryHard2A = boundaryHard2A;
-            this.boundaryHard3A = boundaryHard3A;
-            this.boundaryHardB = boundaryHardB;
-            this.speciesA = speciesA;
-            this.speciesB = speciesB;
-        }
-        
-        public String getLabel() {
-            return "a label";
-        }
-        
-        public Dimension getDimension() {
-            return Length.DIMENSION;
-        }
-        
-        public void setValue(double d) {
-            potentialAA.setCollisionDiameter(d);
-            potentialBB.setCollisionDiameter(d);
-            potentialAB.setCollisionDiameter(d);
-            boundaryHard1A.setCollisionRadius(0.5*d);
-            boundaryHard2A.setCollisionRadius(0.5*d);
-            boundaryHard3A.setCollisionRadius(0.5*d);
-            membraneB.setCollisionRadius(0.5*d);
-            boundaryHardB.setCollisionRadius(0.5*d);
-            ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(d);
-            ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(d);
-            if (display != null) {
-                display.repaint();
-            }
-            if (integrator != null) {
-                try {
-                    integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {
-                    //overlaps are likely after increasing the diameter
-                }
-            }
-        }
-        
-        public double getValue() {
-            return ((AtomTypeSphere)speciesA.getMoleculeType()).getDiameter();
-        }
-        
-        public void setDisplay(DisplayPhase newDisplay){
-            display = newDisplay;
-        }
-        
-        public void setIntegrator(Integrator newIntegrator) {
-            integrator = newIntegrator;
-        }
     }
 
     public static class Applet extends javax.swing.JApplet {
