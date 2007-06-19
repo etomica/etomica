@@ -65,28 +65,41 @@ public class OsmosisSim extends Simulation {
 	    potentialAB = new P2HardSphere(space, sigma, true);
         potentialMaster.addPotential(potentialAB, new Species[]{speciesA, speciesB});
         
+        //boundary for solvent on the top and bottom
 	    boundaryHardTopBottomA = new P1HardBoundary(space, true);
         potentialMaster.addPotential(boundaryHardTopBottomA, new Species[]{speciesA});
+        //disable left and right
         boundaryHardTopBottomA.setActive(0, true, false);
         boundaryHardTopBottomA.setActive(0, false, false);
 	    boundaryHardTopBottomA.setCollisionRadius(0.5*sigma);
+        
+	    //left and right boundaries need to be separate so we can measure the
+        //force on each and get an osmotic pressure
+        // left boundary
         boundaryHardLeftA = new P1HardBoundary(space, true);
+        //disable right
         boundaryHardLeftA.setActive(0, false, false);
+        //disable top and bottom
         boundaryHardLeftA.setActive(1, true, false);
         boundaryHardLeftA.setActive(1, false, false);
         potentialMaster.addPotential(boundaryHardLeftA, new Species[]{speciesA});
         boundaryHardLeftA.setCollisionRadius(0.5*sigma);
+        // right boundary
         boundaryHardRightA = new P1HardBoundary(space, true);
-        boundaryHardLeftA.setActive(0, true, false);
-        boundaryHardLeftA.setActive(1, true, false);
-        boundaryHardLeftA.setActive(1, false, false);
+        //disable left
+        boundaryHardRightA.setActive(0, true, false);
+        //disable top and bottom
+        boundaryHardRightA.setActive(1, true, false);
+        boundaryHardRightA.setActive(1, false, false);
         potentialMaster.addPotential(boundaryHardRightA, new Species[]{speciesA});
         boundaryHardRightA.setCollisionRadius(0.5*sigma);
         
+        //single boundary for solute since it only exists on the right side.
 	    boundaryHardB = new P1HardBoundary(space, true);
         potentialMaster.addPotential(boundaryHardB, new Species[]{speciesB});
 	    boundaryHardB.setCollisionRadius(0.5*sigma);
-        
+
+        //wall in the middle that only applies to the solute
 	    boundarySemiB = new P1HardWall(space, sigma);
         potentialMaster.addPotential(boundarySemiB, new Species[]{speciesB});
 	    boundarySemiB.setCollisionRadius(0.5*sigma);
