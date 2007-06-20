@@ -237,7 +237,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
             int[] iteratorDimensions = new int[latticeDimensions.length+1];
             System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0,
                     latticeDimensions.length);
-            iteratorDimensions[latticeDimensions.length] = 1;
+            iteratorDimensions[latticeDimensions.length] = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
             indexIterator.setSize(iteratorDimensions);
         }
         else {
