@@ -1,6 +1,7 @@
 package etomica.densityofstate;
 
 import etomica.data.Data;
+import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
@@ -67,7 +68,7 @@ public class DataProcessorPhi extends DataProcessor {
 		return tag;
 	}
 
-	public DataProcessor getDataCaster(IDataInfo dataInfo) { //hook up to meter to the Dataprocessor
+	public DataPipe getDataCaster(IDataInfo dataInfo) { //hook up to meter to the Dataprocessor
 		if (dataInfo instanceof DataInfoDouble)
 			return null;
 		throw new IllegalArgumentException("i only want double");
