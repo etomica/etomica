@@ -156,6 +156,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     public Tensor lastCollisionVirialTensor() {
         // let's hope people only call this on purpose.  It should really be 0.
+        // we're really returning the change in momentum 
         lastVirialTensor.E(0);
         lastVirialTensor.setComponent(lastCollisionDim, lastCollisionDim, lastVirial);
         return lastVirialTensor;
@@ -219,5 +220,4 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     private boolean[][] isActiveDim;
     private boolean[][] longWallDim;
-        
 }
