@@ -3,7 +3,6 @@ package etomica.config;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -45,11 +44,6 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
-    protected final SpaceLattice lattice;
-    protected final IndexIteratorSizable indexIterator;
-    protected boolean rescalingToFitVolume = true;
-    protected final AtomActionTranslateTo atomActionTranslateTo;
-    protected MyLattice myLat;
     private static final long serialVersionUID = 2L;
     private Plane plane;
     private ArrayList species;
@@ -79,10 +73,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
-        this.lattice = lattice;
-        this.indexIterator = indexIterator;
         this.plane = plane;
-        atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
         species = new ArrayList();
         allocation = new HashMap();
     }
@@ -368,53 +359,4 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         simGraphic.makeAndDisplayFrame();
     }
 
-    /**
-     * Used to store the state of a lattice.
-     * 
-     * @author nancycribbin, Andrew Schultz, Dr. Kofke
-     * 
-     */
-    public static class MyLattice implements SpaceLattice {
-
-        public MyLattice(SpaceLattice l, IVector latticeScaling, IVector offset) {
-            lattice = l;
-            this.latticeScaling = latticeScaling;
-            this.offset = offset;
-            this.site = l.getSpace().makeVector();
-        }
-
-        public Space getSpace() {
-            return lattice.getSpace();
-        }
-
-        public int D() {
-            return lattice.D();
-        }
-
-        /**
-         * Returns the same instance of IVector with each call.
-         */
-        public Object site(int[] index) {
-            site.E((IVector) lattice.site(index));
-            site.TE(latticeScaling);
-            site.PE(offset);
-
-            return site;
-        }
-
-        public double[] getLatticeConstants() {
-            double[] lat = lattice.getLatticeConstants();
-            for (int i = 0; i < lat.length; i++) {
-                lat[i] *= latticeScaling.x(i);
-            }
-            return lat;
-        }
-
-        final SpaceLattice lattice;
-        final public IVector latticeScaling;
-        final IVector offset;
-        final IVector site;
-
-    }
-	
 }
