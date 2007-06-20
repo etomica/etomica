@@ -112,8 +112,7 @@ public class Osmosis extends SimulationGraphic {
 	    displayCycles.setPrecision(6);	
 
 	    // Right side of membrane osmotic
-        osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardLeftA,sim.boundaryHardLeftB}, 
-                new P1HardBoundary[]{sim.boundaryHardRightA, sim.boundaryHardRightB});
+        osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardA,sim.boundaryHardB}); 
         osmosisPMeter.setIntegrator(sim.integrator);
         final AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverage();
         final DataPump osmosisPump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
@@ -449,11 +448,3 @@ public class Osmosis extends SimulationGraphic {
 
     }
 }
-
-
-
-
-
-
-
-

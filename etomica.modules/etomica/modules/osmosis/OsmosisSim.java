@@ -40,8 +40,8 @@ public class OsmosisSim extends Simulation {
     public SpeciesSpheresMono speciesSolvent,speciesSolute;
     public Phase phase;
     public P2HardSphere potentialAA,potentialBB,potentialAB;
-    public P1HardBoundary boundaryHardTopBottomA, boundaryHardLeftA, boundaryHardRightA;
-    public P1HardBoundary boundaryHardTopBottomB, boundaryHardLeftB, boundaryHardRightB;
+    public P1HardBoundary boundaryHardA;
+    public P1HardBoundary boundaryHardB;
     public P1HardWall boundarySemiB;
     public ActivityIntegrate activityIntegrate;
 
@@ -68,91 +68,15 @@ public class OsmosisSim extends Simulation {
 	    potentialAB = new P2HardSphere(space, sigma, true);
         potentialMaster.addPotential(potentialAB, new Species[]{speciesSolvent, speciesSolute});
         
-        //boundary for solvent on the top and bottom
-	    boundaryHardTopBottomA = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardTopBottomA, new Species[]{speciesSolvent});
-        //disable left and right
-        boundaryHardTopBottomA.setActive(0, true, false);
-        boundaryHardTopBottomA.setActive(0, false, false);
-	    boundaryHardTopBottomA.setCollisionRadius(0.5*sigma);
+	    //Boundary potential for the solvent
+        boundaryHardA = new P1HardBoundary(space, true);
+        potentialMaster.addPotential(boundaryHardA, new Species[]{speciesSolvent});
+        boundaryHardA.setCollisionRadius(0.5*sigma);
         
-	    //left and right boundaries need to be separate so we can measure the
-        //force on each and get an osmotic pressure
-        //SOLVENT
-        // left boundary 
-        boundaryHardLeftA = new P1HardBoundary(space, true);
-        //disable right
-        boundaryHardLeftA.setActive(0, false, false);
-        //disable top and bottom
-        boundaryHardLeftA.setActive(1, true, false);
-        boundaryHardLeftA.setActive(1, false, false);
-        if (space.D() == 3) {
-            //disable front and back
-            boundaryHardLeftA.setActive(2, true, false);
-            boundaryHardLeftA.setActive(2, false, false);
-        }
-        potentialMaster.addPotential(boundaryHardLeftA, new Species[]{speciesSolvent});
-        boundaryHardLeftA.setCollisionRadius(0.5*sigma);
-        // right boundary
-        boundaryHardRightA = new P1HardBoundary(space, true);
-        //disable left
-        boundaryHardRightA.setActive(0, true, false);
-        //disable top and bottom
-        boundaryHardRightA.setActive(1, true, false);
-        boundaryHardRightA.setActive(1, false, false);
-        if (space.D() == 3) {
-            //disable front and back
-            boundaryHardRightA.setActive(2, true, false);
-            boundaryHardRightA.setActive(2, false, false);
-        }
-        potentialMaster.addPotential(boundaryHardRightA, new Species[]{speciesSolvent});
-        boundaryHardRightA.setCollisionRadius(0.5*sigma);
-        
-        boundaryHardTopBottomA = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardTopBottomA, new Species[]{speciesSolvent});
-        //disable left and right
-        boundaryHardTopBottomA.setActive(0, true, false);
-        boundaryHardTopBottomA.setActive(0, false, false);
-        boundaryHardTopBottomA.setCollisionRadius(0.5*sigma);
-        
-        //left and right boundaries need to be separate so we can measure the
-        //force on each and get an osmotic pressure
-        //SOLUTE
-        // left boundary
-        boundaryHardLeftB = new P1HardBoundary(space, true);
-        //disable right
-        boundaryHardLeftB.setActive(0, false, false);
-        //disable top and bottom
-        boundaryHardLeftB.setActive(1, true, false);
-        boundaryHardLeftB.setActive(1, false, false);
-        if (space.D() == 3) {
-            //disable front and back
-            boundaryHardLeftB.setActive(2, true, false);
-            boundaryHardLeftB.setActive(2, false, false);
-        }
-        potentialMaster.addPotential(boundaryHardLeftB, new Species[]{speciesSolute});
-        boundaryHardLeftB.setCollisionRadius(0.5*sigma);
-        // right boundary
-        boundaryHardRightB = new P1HardBoundary(space, true);
-        //disable left
-        boundaryHardRightB.setActive(0, true, false);
-        //disable top and bottom
-        boundaryHardRightB.setActive(1, true, false);
-        boundaryHardRightB.setActive(1, false, false);
-        if (space.D() == 3) {
-            //disable front and back
-            boundaryHardRightB.setActive(2, true, false);
-            boundaryHardRightB.setActive(2, false, false);
-        }
-        potentialMaster.addPotential(boundaryHardRightB, new Species[]{speciesSolute});
-        boundaryHardRightB.setCollisionRadius(0.5*sigma);
-
-        boundaryHardTopBottomB = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardTopBottomB, new Species[]{speciesSolute});
-        //disable left and right
-        boundaryHardTopBottomB.setActive(0, true, false);
-        boundaryHardTopBottomB.setActive(0, false, false);
-        boundaryHardTopBottomB.setCollisionRadius(0.5*sigma);
+        //Boundary potential for the solute
+        boundaryHardB = new P1HardBoundary(space, true);
+        potentialMaster.addPotential(boundaryHardB, new Species[]{speciesSolute});
+        boundaryHardB.setCollisionRadius(0.5*sigma);
 
         //wall in the middle that only applies to the solute
 	    boundarySemiB = new P1HardWall(space, sigma);

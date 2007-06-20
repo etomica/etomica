@@ -14,13 +14,11 @@ public class MeterOsmoticPressure extends MeterPressureHard {
     private static final long serialVersionUID = 1L;
     private double virialSum;
     private double collisionRadius;
-    private final P1HardBoundary[] leftBoundaries;
-    private final P1HardBoundary[] rightBoundaries;
+    private final P1HardBoundary[] boundaryPotentials;
     
-    public MeterOsmoticPressure(Space space, P1HardBoundary[] leftBoundaries, P1HardBoundary[] rightBoundaries) {
+    public MeterOsmoticPressure(Space space, P1HardBoundary[] boundaryPotentials) {
         super(space);
-        this.leftBoundaries = leftBoundaries;
-        this.rightBoundaries = rightBoundaries;
+        this.boundaryPotentials = boundaryPotentials;
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -47,14 +45,9 @@ public class MeterOsmoticPressure extends MeterPressureHard {
     }
     
     public void collisionAction(IntegratorHard.Agent agent) {
-        for (int i=0; i<leftBoundaries.length; i++) {
-            if (agent.collisionPotential == leftBoundaries[i]) {
-                virialSum -= leftBoundaries[i].lastCollisionVirialTensor().component(0, 0);
-            }
-        }
-        for (int i=0; i<rightBoundaries.length; i++) {
-            if (agent.collisionPotential == rightBoundaries[i]) {
-                virialSum += rightBoundaries[i].lastCollisionVirialTensor().component(0, 0);
+        for (int i=0; i<boundaryPotentials.length; i++) {
+            if (agent.collisionPotential == boundaryPotentials[i]) {
+                virialSum += boundaryPotentials[i].lastCollisionVirialTensor().component(0, 0);
             }
         }
     }
