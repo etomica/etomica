@@ -144,6 +144,13 @@ public class OsmosisSim extends Simulation {
         potentialMaster.addPotential(boundaryHardRightB, new Species[]{speciesB});
         boundaryHardRightB.setCollisionRadius(0.5*sigma);
 
+        boundaryHardTopBottomB = new P1HardBoundary(space, true);
+        potentialMaster.addPotential(boundaryHardTopBottomB, new Species[]{speciesB});
+        //disable left and right
+        boundaryHardTopBottomB.setActive(0, true, false);
+        boundaryHardTopBottomB.setActive(0, false, false);
+        boundaryHardTopBottomB.setCollisionRadius(0.5*sigma);
+
         //wall in the middle that only applies to the solute
 	    boundarySemiB = new P1HardWall(space, sigma);
         potentialMaster.addPotential(boundarySemiB, new Species[]{speciesB});
