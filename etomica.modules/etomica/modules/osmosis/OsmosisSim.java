@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSphere;
-import etomica.config.ConfigurationLattice;
+import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
@@ -33,8 +33,11 @@ import etomica.species.SpeciesSpheresMono;
 public class OsmosisSim extends Simulation {
 
     private static final long serialVersionUID = 1L;
+    protected final static int initialSolute = 10;
+    protected final static int initialSolvent = 50;
+
     public IntegratorHard integrator;
-    public SpeciesSpheresMono speciesA,speciesB;
+    public SpeciesSpheresMono speciesSolvent,speciesSolute;
     public Phase phase;
     public P2HardSphere potentialAA,potentialBB,potentialAB;
     public P1HardBoundary boundaryHardTopBottomA, boundaryHardLeftA, boundaryHardRightA;
@@ -49,25 +52,25 @@ public class OsmosisSim extends Simulation {
 
         final double sigma = 1.0;
 
-	    speciesA = new SpeciesSpheresMono(this);
-	    speciesA.setName("Solvent");
-        getSpeciesManager().addSpecies(speciesA);
-	    speciesB = new SpeciesSpheresMono(this);
-	    speciesB.setName("Solute");
-        getSpeciesManager().addSpecies(speciesB);
-        ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(sigma);
-        ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(sigma);
+	    speciesSolvent = new SpeciesSpheresMono(this);
+	    speciesSolvent.setName("Solvent");
+        getSpeciesManager().addSpecies(speciesSolvent);
+	    speciesSolute = new SpeciesSpheresMono(this);
+	    speciesSolute.setName("Solute");
+        getSpeciesManager().addSpecies(speciesSolute);
+        ((AtomTypeSphere)speciesSolvent.getMoleculeType()).setDiameter(sigma);
+        ((AtomTypeSphere)speciesSolute.getMoleculeType()).setDiameter(sigma);
 
 	    potentialAA = new P2HardSphere(space, sigma, true);
-        potentialMaster.addPotential(potentialAA, new Species[]{speciesA, speciesA});
+        potentialMaster.addPotential(potentialAA, new Species[]{speciesSolvent, speciesSolvent});
 	    potentialBB = new P2HardSphere(space, sigma, true);
-        potentialMaster.addPotential(potentialBB, new Species[]{speciesB, speciesB});
+        potentialMaster.addPotential(potentialBB, new Species[]{speciesSolute, speciesSolute});
 	    potentialAB = new P2HardSphere(space, sigma, true);
-        potentialMaster.addPotential(potentialAB, new Species[]{speciesA, speciesB});
+        potentialMaster.addPotential(potentialAB, new Species[]{speciesSolvent, speciesSolute});
         
         //boundary for solvent on the top and bottom
 	    boundaryHardTopBottomA = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardTopBottomA, new Species[]{speciesA});
+        potentialMaster.addPotential(boundaryHardTopBottomA, new Species[]{speciesSolvent});
         //disable left and right
         boundaryHardTopBottomA.setActive(0, true, false);
         boundaryHardTopBottomA.setActive(0, false, false);
@@ -88,7 +91,7 @@ public class OsmosisSim extends Simulation {
             boundaryHardLeftA.setActive(2, true, false);
             boundaryHardLeftA.setActive(2, false, false);
         }
-        potentialMaster.addPotential(boundaryHardLeftA, new Species[]{speciesA});
+        potentialMaster.addPotential(boundaryHardLeftA, new Species[]{speciesSolvent});
         boundaryHardLeftA.setCollisionRadius(0.5*sigma);
         // right boundary
         boundaryHardRightA = new P1HardBoundary(space, true);
@@ -102,11 +105,11 @@ public class OsmosisSim extends Simulation {
             boundaryHardRightA.setActive(2, true, false);
             boundaryHardRightA.setActive(2, false, false);
         }
-        potentialMaster.addPotential(boundaryHardRightA, new Species[]{speciesA});
+        potentialMaster.addPotential(boundaryHardRightA, new Species[]{speciesSolvent});
         boundaryHardRightA.setCollisionRadius(0.5*sigma);
         
         boundaryHardTopBottomA = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardTopBottomA, new Species[]{speciesA});
+        potentialMaster.addPotential(boundaryHardTopBottomA, new Species[]{speciesSolvent});
         //disable left and right
         boundaryHardTopBottomA.setActive(0, true, false);
         boundaryHardTopBottomA.setActive(0, false, false);
@@ -127,7 +130,7 @@ public class OsmosisSim extends Simulation {
             boundaryHardLeftB.setActive(2, true, false);
             boundaryHardLeftB.setActive(2, false, false);
         }
-        potentialMaster.addPotential(boundaryHardLeftB, new Species[]{speciesB});
+        potentialMaster.addPotential(boundaryHardLeftB, new Species[]{speciesSolute});
         boundaryHardLeftB.setCollisionRadius(0.5*sigma);
         // right boundary
         boundaryHardRightB = new P1HardBoundary(space, true);
@@ -141,11 +144,11 @@ public class OsmosisSim extends Simulation {
             boundaryHardRightB.setActive(2, true, false);
             boundaryHardRightB.setActive(2, false, false);
         }
-        potentialMaster.addPotential(boundaryHardRightB, new Species[]{speciesB});
+        potentialMaster.addPotential(boundaryHardRightB, new Species[]{speciesSolute});
         boundaryHardRightB.setCollisionRadius(0.5*sigma);
 
         boundaryHardTopBottomB = new P1HardBoundary(space, true);
-        potentialMaster.addPotential(boundaryHardTopBottomB, new Species[]{speciesB});
+        potentialMaster.addPotential(boundaryHardTopBottomB, new Species[]{speciesSolute});
         //disable left and right
         boundaryHardTopBottomB.setActive(0, true, false);
         boundaryHardTopBottomB.setActive(0, false, false);
@@ -153,7 +156,7 @@ public class OsmosisSim extends Simulation {
 
         //wall in the middle that only applies to the solute
 	    boundarySemiB = new P1HardWall(space, sigma);
-        potentialMaster.addPotential(boundarySemiB, new Species[]{speciesB});
+        potentialMaster.addPotential(boundarySemiB, new Species[]{speciesSolute});
 	    boundarySemiB.setCollisionRadius(0.5*sigma);
         
         //construct phase
@@ -161,17 +164,17 @@ public class OsmosisSim extends Simulation {
         addPhase(phase);
         phase.setBoundary(new BoundaryRectangularNonperiodic(space, getRandom()));
 
-        ConfigurationLattice config = null;
+        ConfigurationLatticeWithPlane config = null;
         if (space instanceof Space2D){ // 2D
             phase.getBoundary().setDimensions(new Vector2D(10.0, 10.0));
-            config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
+            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(2, 1.0), null);
         }
         else if (space instanceof Space3D) { // 3D
             phase.getBoundary().setDimensions(new Vector3D(10.0, 10.0, 10.0));
-        	config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));
+        	config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(3, 1.0), null);
         }
-        phase.getAgent(speciesA).setNMolecules(50);
-        phase.getAgent(speciesB).setNMolecules(10);
+        phase.getAgent(speciesSolvent).setNMolecules(initialSolvent);
+        phase.getAgent(speciesSolute).setNMolecules(initialSolute);
         config.initializeCoordinates(phase);
 
         integrator = new IntegratorHard(this, potentialMaster);
@@ -187,8 +190,8 @@ public class OsmosisSim extends Simulation {
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
         simGraphic.makeAndDisplayFrame();
         ColorSchemeByType colorScheme = new ColorSchemeByType();
-        colorScheme.setColor(sim.speciesA.getMoleculeType(), Color.blue);
-        colorScheme.setColor(sim.speciesB.getMoleculeType(), Color.red);
+        colorScheme.setColor(sim.speciesSolvent.getMoleculeType(), Color.blue);
+        colorScheme.setColor(sim.speciesSolute.getMoleculeType(), Color.red);
         simGraphic.getDisplayPhase(sim.phase).setColorScheme(colorScheme);
         sim.integrator.setTimeStep(0.05);
         sim.activityIntegrate.setDoSleep(true);

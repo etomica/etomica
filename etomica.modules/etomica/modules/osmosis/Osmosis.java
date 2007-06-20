@@ -9,21 +9,20 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
-import etomica.config.Configuration;
-import etomica.config.ConfigurationLattice;
+import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterLocalMoleFraction;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxesCAE;
@@ -35,6 +34,7 @@ import etomica.graphics.SimulationPanel;
 import etomica.graphics.DisplayBox.LabelType;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.math.geometry.Cuboid;
+import etomica.math.geometry.Plane;
 import etomica.math.geometry.Rectangle;
 import etomica.potential.P1HardBoundary;
 import etomica.space.IVector;
@@ -62,7 +62,7 @@ public class Osmosis extends SimulationGraphic {
     public MeterOsmoticPressure osmosisPMeter;
     public MeterLocalMoleFraction moleFractionRight, moleFractionLeft;
     public OsmosisSim sim;
-
+    
     public Osmosis(OsmosisSim simulation) {
 
     	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
@@ -74,26 +74,28 @@ public class Osmosis extends SimulationGraphic {
 
         Unit tUnit = Kelvin.UNIT;
 
-        Configuration config = null;
+        ConfigurationLatticeWithPlane config = null;
 
 	    //display of phase
         final DisplayPhase displayPhase = getDisplayPhase(sim.phase);
         ColorSchemeByType colorScheme = new ColorSchemeByType();
 
-        colorScheme.setColor(sim.speciesA.getMoleculeType(), Color.blue);
-        colorScheme.setColor(sim.speciesB.getMoleculeType(), Color.red);
+        colorScheme.setColor(sim.speciesSolvent.getMoleculeType(), Color.blue);
+        colorScheme.setColor(sim.speciesSolute.getMoleculeType(), Color.red);
         displayPhase.setColorScheme(colorScheme);
         displayPhase.setAlign(1,DisplayPhase.CENTER);
         displayPhase.setOriginShift(0, thickness);
         displayPhase.setOriginShift(1, -thickness);
         if (sim.getSpace() instanceof Space2D) {
             displayPhase.addDrawable(new MyWall());
-            config = new ConfigurationLattice(new LatticeCubicSimple(2, 1.0));
+            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(2, 1.0), null);
         }
         else if (sim.getSpace() instanceof Space3D) {
-        	etomica.math.geometry.Plane plane = new etomica.math.geometry.Plane(sim.getSpace());
+        	Plane plane = new Plane(sim.getSpace());
         	((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).addPlane(plane);
-            config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));        	
+            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(3, 1.0), plane); 
+            config.addSpecies((etomica.species.Species)sim.speciesSolvent);
+            config.addSpecies((etomica.species.Species)sim.speciesSolute);
         }
 
         config.initializeCoordinates(sim.phase);
@@ -160,7 +162,7 @@ public class Osmosis extends SimulationGraphic {
             moleFractionRight.setShapeOrigin(new Vector3D(dimensions.x(0)*0.25, 0, 0));
         }
 
-        moleFractionRight.setSpecies(sim.speciesB);
+        moleFractionRight.setSpecies(sim.speciesSolute);
         final AccumulatorAverage moleFractionAvgRight = new AccumulatorAverage();
         final DataPump molePumpRight = new DataPump(moleFractionRight, moleFractionAvgRight);
         dataStreamPumps.add(molePumpRight);
@@ -183,7 +185,7 @@ public class Osmosis extends SimulationGraphic {
             moleFractionLeft.setShapeOrigin(new Vector3D(-dimensions.x(0)*0.25, 0, 0));
         }
 
-        moleFractionLeft.setSpecies(sim.speciesB);
+        moleFractionLeft.setSpecies(sim.speciesSolute);
         final AccumulatorAverage moleFractionAvgLeft = new AccumulatorAverage();
         final DataPump molePumpLeft = new DataPump(moleFractionLeft, moleFractionAvgLeft);
         dataStreamPumps.add(molePumpLeft);
@@ -192,10 +194,6 @@ public class Osmosis extends SimulationGraphic {
         leftMFBox.setAccumulator(moleFractionAvgLeft);
         leftMFBox.setPrecision(8);
 
-        DeviceNSelector nASelector = new DeviceNSelector(sim.getController());
-        nASelector.setResetAction(simRestart);
-        nASelector.setSpeciesAgent(sim.phase.getAgent(sim.speciesA));
-        
         ChangeListener cl = new ChangeListener() {
         	public void stateChanged(ChangeEvent evt) {
 				molePumpLeft.actionPerformed();
@@ -211,14 +209,8 @@ public class Osmosis extends SimulationGraphic {
         	}
         };
 
-        nASelector.getSlider().addChangeListener(cl);
-        nASelector.setMaximum(50);
-
-        DeviceNSelector nBSelector = new DeviceNSelector(sim.getController());
-        nBSelector.setResetAction(simRestart);
-        nBSelector.setSpeciesAgent(sim.phase.getAgent(sim.speciesB));
-        nBSelector.getSlider().addChangeListener(cl);
-        nBSelector.setMaximum(10);
+        InitializeMolecules initPanel = new InitializeMolecules(config);
+        initPanel.addStateChangedListener(cl);
 
         // panel for osmotic pressure
         JPanel osmoticPanel = new JPanel(new FlowLayout());
@@ -245,27 +237,13 @@ public class Osmosis extends SimulationGraphic {
         rightMetricsPanel.setBorder(new TitledBorder(null, "Right of Membrane", TitledBorder.CENTER, TitledBorder.TOP));
         rightMetricsPanel.add(rightMoleFractionPanel);
 
-		// Solvent molecules slider
-        JPanel sliderPanelA = new JPanel(new GridLayout(0,1));
-        nASelector.setShowBorder(false);
-        sliderPanelA.add(nASelector.graphic(null));
-        sliderPanelA.setBorder(new TitledBorder
-           (null, "Set "+nASelector.getLabel(), TitledBorder.CENTER, TitledBorder.TOP));
-
-        // Solute molecules slider
-        JPanel sliderPanelB = new JPanel(new GridLayout(0,1));
-        nBSelector.setShowBorder(false);
-        sliderPanelB.add(nBSelector.graphic(null));
-        sliderPanelB.setBorder(new TitledBorder
-           (null, "Set "+nBSelector.getLabel(), TitledBorder.CENTER, TitledBorder.TOP));
 
         //panel for all the controls
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         getPanel().controlPanel.add(temperaturePanel, vertGBC);
-        getPanel().controlPanel.add(sliderPanelA, vertGBC);
-        getPanel().controlPanel.add(sliderPanelB, vertGBC);
+        getPanel().controlPanel.add(initPanel.graphic(), vertGBC);
         getPanel().plotPanel.add(displayCycles.graphic(), vertGBC);
         getPanel().plotPanel.add(osmoticPanel, vertGBC);
         getPanel().plotPanel.add(leftMetricsPanel, vertGBC);
@@ -365,6 +343,111 @@ public class Osmosis extends SimulationGraphic {
         private static final long serialVersionUID = 1L;
     }
 
+    protected class InitializeMolecules {
+
+    	private int MOLECULE_MAX = 150;
+    	private int SOLUTE_MAX = 50;
+    	private int SOLUTE_ON_LEFT_MAX = 100;
+
+    	private JPanel mainPanel;
+    	private JSlider total;
+    	private JSlider soluteVsSolvent;
+    	private JSlider soluteOnLeft;
+    	private ConfigurationLatticeWithPlane config;
+    	
+    	private int speciesSolventTotal = OsmosisSim.initialSolvent;
+    	private int speciesSoluteTotal = OsmosisSim.initialSolute;
+    	private float solutePct = (float)speciesSoluteTotal / (float)(speciesSolventTotal + speciesSoluteTotal);
+
+//
+// NOTE TO AUTHOR : NEED TO MAKE SURE ACTIONS DEFINED HERE HAPPEN BEFORE ANY
+// OTHER ACTIONS ADDED TO THE STATE CHANGE.  CURRENTLY, I DON'T THINK THE
+// IMPLEMENTATION WILL GAURENTEE THIS.
+
+    	public InitializeMolecules(ConfigurationLatticeWithPlane configuration) {
+
+    		this.config = configuration;
+
+    		// Slider that selects total number of molecules
+    		JPanel totalPanel = new JPanel();
+            totalPanel.setBorder(new TitledBorder(null, "Total Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
+    		total = new JSlider();
+    		total.setMaximum(MOLECULE_MAX);
+    		total.setMajorTickSpacing(MOLECULE_MAX / 5);
+    		total.setPaintLabels(true);
+    		total.setPaintTicks(true);
+    		total.setValue(speciesSolventTotal + speciesSoluteTotal);
+    		totalPanel.add(total);
+
+    		ChangeListener totalChange = new ChangeListener() {
+    			public void stateChanged(ChangeEvent evt) {
+    				speciesSoluteTotal = Math.round(((float)total.getValue()) *
+    						               (((float)soluteVsSolvent.getValue()) / 100.0f));
+    				speciesSolventTotal = total.getValue() - speciesSoluteTotal;
+    				
+    				sim.phase.getAgent(sim.speciesSolvent).setNMolecules(speciesSolventTotal);
+    				sim.phase.getAgent(sim.speciesSolute).setNMolecules(speciesSoluteTotal);
+    				config.initializeCoordinates(sim.phase);
+    				getDisplayPhase(sim.phase).graphic().repaint();
+    			}
+    		};
+
+    		total.addChangeListener(totalChange);
+
+
+    		// Slider that selects solute vx solvent ratio
+    		JPanel soluteVsSolventPanel = new JPanel();
+    		soluteVsSolventPanel.setBorder(new TitledBorder(null, "Percentage of Solute(vs Solvent)", TitledBorder.CENTER, TitledBorder.TOP));
+    		soluteVsSolvent = new JSlider();
+    		soluteVsSolvent.setMaximum(SOLUTE_MAX);
+    		soluteVsSolvent.setMajorTickSpacing(SOLUTE_MAX / 5);
+    		soluteVsSolvent.setPaintLabels(true);
+    		soluteVsSolvent.setPaintTicks(true);
+    		soluteVsSolvent.setValue(Math.round(solutePct * 100.0f));
+    		soluteVsSolventPanel.add(soluteVsSolvent);
+
+            soluteVsSolvent.addChangeListener(totalChange);
+
+
+    		//Slider that selects pct. of solute left of plane
+    		JPanel soluteOnLeftPanel = new JPanel();
+    		soluteOnLeftPanel.setBorder(new TitledBorder(null, "Percentage of Solute on Left", TitledBorder.CENTER, TitledBorder.TOP));
+    		soluteOnLeft = new JSlider();
+    		soluteOnLeft.setMaximum(SOLUTE_ON_LEFT_MAX);
+    		soluteOnLeft.setMajorTickSpacing(SOLUTE_ON_LEFT_MAX / 4);
+    		soluteOnLeft.setPaintLabels(true);
+    		soluteOnLeft.setPaintTicks(true);
+    		soluteOnLeftPanel.add(soluteOnLeft);
+
+    		ChangeListener pctChange = new ChangeListener() {
+    			public void stateChanged(ChangeEvent evt) {
+    				config.setSpeciesAllocation(sim.speciesSolute, (((float)soluteOnLeft.getValue()) / 100.0f));
+    				config.initializeCoordinates(sim.phase);
+    				getDisplayPhase(sim.phase).graphic().repaint();
+    			}
+    		};
+
+    		soluteOnLeft.addChangeListener(pctChange);
+
+
+            mainPanel = new JPanel(new GridLayout(0, 1));
+    		mainPanel.add(totalPanel);
+    		mainPanel.add(soluteVsSolventPanel);
+    		mainPanel.add(soluteOnLeftPanel);
+    	}
+
+
+    	public JPanel graphic() {
+    		return mainPanel;
+    	}
+
+    	public void addStateChangedListener(ChangeListener cl) {
+    		total.addChangeListener(cl);
+    		soluteVsSolvent.addChangeListener(cl);;
+        	soluteOnLeft.addChangeListener(cl);
+    	}
+
+    }
 }
 
 
