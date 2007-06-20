@@ -15,7 +15,7 @@ public class DataProcessorPhi extends DataProcessor {
 	public DataProcessorPhi(){
 		tag = new DataTag();
 	}
-	@Override
+
 	protected Data processData(Data inputData) {
 		// TODO Auto-generated method stub
 		double U = ((DataDouble)inputData).x;
@@ -55,7 +55,6 @@ public class DataProcessorPhi extends DataProcessor {
 	public void setTemperature(double newTemperature){
 		temperature = newTemperature;
 	}
-	@Override
 	protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
 		// TODO Auto-generated method stub
 		dataInfo = new DataInfoDoubleArray("phi", Null.DIMENSION, new int []{20});
@@ -74,7 +73,7 @@ public class DataProcessorPhi extends DataProcessor {
 		throw new IllegalArgumentException("i only want double");
 	}
 	
-	private final DataTag tag;
+	private DataTag tag;
 	private DataInfoDoubleArray dataInfo;
 	private DataDoubleArray data;
 	private double temperature;
