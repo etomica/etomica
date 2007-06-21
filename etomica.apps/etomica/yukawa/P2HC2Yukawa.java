@@ -1,5 +1,4 @@
 package etomica.yukawa;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
@@ -29,7 +28,7 @@ import etomica.space.Space;
  * @author msellers
  */
 
-public final class P2HC2Yukawa extends Potential2SoftSpherical implements EtomicaElement {
+public final class P2HC2Yukawa extends Potential2SoftSpherical {
 
 
 	

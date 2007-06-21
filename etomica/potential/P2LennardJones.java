@@ -1,5 +1,4 @@
 package etomica.potential;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.space.Space;
 import etomica.units.Dimension;
@@ -14,7 +13,7 @@ import etomica.units.Length;
  *
  * @author David Kofke
  */
-public final class P2LennardJones extends Potential2SoftSpherical implements EtomicaElement {
+public final class P2LennardJones extends Potential2SoftSpherical {
 
     public P2LennardJones(Space space) {
         this(space, 1.0, 1.0);

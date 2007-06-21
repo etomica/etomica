@@ -6,7 +6,6 @@ import etomica.action.activity.Controller;
 import etomica.units.Dimension;
 import etomica.units.Dimensioned;
 import etomica.units.Unit;
-import etomica.util.NameMaker;
 
 /**
  * Base class for all Devices.  These are objects that permit manipulation of the
@@ -25,7 +24,6 @@ public abstract class Device implements GraphicalElement, Dimensioned {
     
     public Device(Controller controller) {
         this.controller = controller;
-        setName(NameMaker.makeName(this.getClass()));
     }
     
     /**
@@ -89,26 +87,7 @@ public abstract class Device implements GraphicalElement, Dimensioned {
     public void setUnit(Unit u) {unit = u;}
     public Unit getUnit() {return unit;}
     public Dimension getDimension() {return unit.dimension();} //may want to override this in most cases
-    /**
-     * Accessor method of the name of this device
-     * 
-     * @return The given name of this device
-     */
-    public final String getName() {return name;}
-    /**
-     * Method to set the name of this device
-     */
-    public void setName(String name) {this.name = name;}
 
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the device
-     */
-    public String toString() {return getName();}
-
-    protected String name;
-    
     protected static class ActionSet implements Action {
         Action preAction, postAction, action;
         

@@ -12,8 +12,7 @@ public class SpeciesSignature implements Comparable {
      * The actual constructor should take a Simulation followed by the given constructor 
      * parameters.
      */
-    public SpeciesSignature(String speciesName, Constructor speciesConstructor, Object[] constructorParameters) {
-        name = speciesName;
+    public SpeciesSignature(Constructor speciesConstructor, Object[] constructorParameters) {
         constructor = speciesConstructor;
         parameters = (Object[])constructorParameters.clone();
     }
@@ -26,7 +25,6 @@ public class SpeciesSignature implements Comparable {
         return 0;
     }
     
-    public final String name;
     public final Constructor constructor;
     public final Object[] parameters;
 }

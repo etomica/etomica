@@ -2,7 +2,6 @@ package etomica.species;
 
 import java.lang.reflect.Constructor;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoAngular;
@@ -10,7 +9,6 @@ import etomica.atom.AtomFactoryMonoAngularDynamic;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.ISimulation;
-import etomica.simulation.Simulation;
 
 /**
  * Species in which molecules are made of a single atom of type OrientedSphere
@@ -19,7 +17,7 @@ import etomica.simulation.Simulation;
  * @see AtomTypeOrientedSphere
  * 
  */
-public class SpeciesSpheresRotating extends Species implements EtomicaElement {
+public class SpeciesSpheresRotating extends Species {
     
     public SpeciesSpheresRotating(ISimulation sim) {
         super(makeAtomFactory(sim, new AtomTypeOrientedSphere(new ElementSimple(sim),1.0)));
@@ -45,7 +43,7 @@ public class SpeciesSpheresRotating extends Species implements EtomicaElement {
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");
         }
-        return new SpeciesSignature(getName(),constructor,new Object[]{});
+        return new SpeciesSignature(constructor,new Object[]{});
     }
 
     private static final long serialVersionUID = 1L;

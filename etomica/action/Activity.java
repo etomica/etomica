@@ -1,6 +1,5 @@
 package etomica.action;
 
-import etomica.util.NameMaker;
 
 /**
  * An Action that supports the capability of pausing/unpausing and terminating
@@ -15,7 +14,6 @@ public abstract class Activity implements Action, java.io.Serializable {
      * Create class with a simple default label.
      */
     public Activity() {
-        setName(NameMaker.makeName(this.getClass()));
     }
     
     /**
@@ -144,21 +142,6 @@ public abstract class Activity implements Action, java.io.Serializable {
      */
     public synchronized boolean isActive() {
         return isActive;
-    }
-
-    /**
-     * Name used to reference this particular instance of Activity.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Sets a name used to reference or describe this particular instance of
-     * Activity.
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 
     protected boolean isActive = false;

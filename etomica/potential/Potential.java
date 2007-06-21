@@ -5,7 +5,6 @@ import etomica.phase.Phase;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Length;
-import etomica.util.NameMaker;
 
 /**
  * Superclass for all Potential classes, which define how the atoms in the
@@ -18,7 +17,6 @@ public abstract class Potential implements java.io.Serializable {
     
 	private final int nBody;
 	protected final Space space;
-    private String name;
 
     /**
      * General constructor for a potential instance
@@ -29,7 +27,6 @@ public abstract class Potential implements java.io.Serializable {
     public Potential(int nBody, Space space) {
         this.nBody = nBody;
         this.space = space;
-        setName(NameMaker.makeName(this.getClass()));
     }
 
     public Space getSpace() {
@@ -58,17 +55,4 @@ public abstract class Potential implements java.io.Serializable {
     public final int nBody() {return nBody;}
     
 
-    /**
-     * @return Returns the name.
-     */
-    public String getName() {
-        return name;
-    }
-    /**
-     * @param name The name to set.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-}//end of Potential
+}

@@ -1,13 +1,12 @@
 package etomica.species;
 import etomica.atom.AtomFactory;
+import etomica.atom.AtomManager;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSpeciesAgent;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
-import etomica.atom.AtomManager;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
-import etomica.util.NameMaker;
 
 
  /**
@@ -48,26 +47,7 @@ public class Species implements java.io.Serializable {
      */
     public Species(AtomFactory factory) {
         this.factory = factory;
-        setName(NameMaker.makeName(this.getClass()));
     }
-    
-    /**
-     * Accessor method of the name of this species.
-     * 
-     * @return The given name of this species
-     */
-    public final String getName() {return name;}
-    
-    /**
-     * Method to set the name of this species. The species' name
-     * provides a convenient way to label output data that is associated with
-     * it.  This method might be used, for example, to place a heading on a
-     * column of data. Default name is the base class followed by the integer
-     * index of this element.
-     * 
-     * @param name The name string to be associated with this species.
-     */
-    public void setName(String name) {this.name = name;}
     
     /**
      * Sets the AtomType for SpeciesAgents associated with this Species.
@@ -78,13 +58,6 @@ public class Species implements java.io.Serializable {
         factory.getType().setParentType(agentType);
     }
 
-    /**
-     * Overrides the Object class toString method to have it return the output of getName.
-     * 
-     * @return The name given to the phase
-     */
-    public String toString() {return getName();}
-    
     public AtomFactory moleculeFactory() {return factory;}
     
     /**
@@ -131,5 +104,4 @@ public class Species implements java.io.Serializable {
 //    final AtomType agentType;
     protected final AtomFactory factory;
     protected AtomTypeSpeciesAgent agentType;
-    private String name;
 }

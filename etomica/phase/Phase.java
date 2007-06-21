@@ -6,7 +6,6 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import etomica.EtomicaElement;
 import etomica.action.PhaseInflate;
 import etomica.atom.AtomManager;
 import etomica.atom.AtomSet;
@@ -55,7 +54,7 @@ import etomica.units.Volume;
  * @author David Kofke, Andrew Schultz
  * @see Boundary
  */
-public class Phase implements EtomicaElement, java.io.Serializable {
+public class Phase implements java.io.Serializable {
         
     /**
      * Constructs phase with default rectangular periodic boundary.
@@ -72,7 +71,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
         eventManager = new PhaseEventManager();
         atomManager = new AtomManager(this, eventManager);
         setBoundary(boundary);
-        setName(null);
         
         inflateEvent = new PhaseInflateEvent(this);
     }
@@ -107,34 +105,13 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     }
     
     /**
-     * Accessor method of the name of this phase
-     * 
-     * @return The given name of this phase
-     */
-    public final String getName() {
-        if (name == null) {
-            return "Phase"+getIndex();
-        }
-        return name;
-    }
-    
-    /**
-     * Method to set the name of this simulation element. The element's name
-     * provides a convenient way to label output data that is associated with
-     * it.  This method might be used, for example, to place a heading on a
-     * column of data. Default name is the base class followed by the integer
-     * index of this element.
-     * 
-     * @param name The name string to be associated with this element
-     */
-    public void setName(String name) {this.name = name;}
-
-    /**
      * Overrides the Object class toString method to have it return the output of getName
      * 
      * @return The name given to the phase
      */
-    public String toString() {return getName();}
+    public String toString() {
+        return "Phase"+getIndex();
+    }
     
     /**
      * Mutator method for flag that enables or disables application of long-range
@@ -300,7 +277,7 @@ public class Phase implements EtomicaElement, java.io.Serializable {
                 }
             }
             if (candidates.length > 0) {
-                newSpecies = resolver.whichOneDoYouLike(candidates,speciesSignature.name);
+                newSpecies = resolver.whichOneDoYouLike(candidates);
             }
             if (newSpecies == null) {
                 Constructor constructor = speciesSignature.constructor;
@@ -332,7 +309,6 @@ public class Phase implements EtomicaElement, java.io.Serializable {
     private Boundary boundary;
     private AtomManager atomManager;
     private boolean lrcEnabled = true;
-    private String name;
     protected final Space space;
     private final PhaseEventManager eventManager;
     private final PhaseEvent inflateEvent;

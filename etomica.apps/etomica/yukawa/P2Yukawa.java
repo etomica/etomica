@@ -1,6 +1,5 @@
 package etomica.yukawa;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.ISimulation;
@@ -17,7 +16,7 @@ import etomica.space.Space;
  *
  */
 
-public final class P2Yukawa extends Potential2SoftSpherical implements EtomicaElement {
+public final class P2Yukawa extends Potential2SoftSpherical {
 	
     public P2Yukawa(ISimulation sim) {
 		this(sim.getSpace(), 1.0, 1.0);

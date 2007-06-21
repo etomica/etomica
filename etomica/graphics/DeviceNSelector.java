@@ -37,25 +37,21 @@ public class DeviceNSelector extends DeviceSlider {
     public Action getResetAction() {
         return resetAction;
     }
-    
+
     public void setSpeciesAgent(ISpeciesAgent agent) {
-	    setMinimum(0);
+        setMinimum(0);
         int max = 60;
         if (agent.getNMolecules() > max) max = agent.getNMolecules();
-	    setMaximum(max);
-	    slider.setSnapToTicks(false);
-	    slider.setMajorTickSpacing(10);
-	    graphic(null).setSize(new java.awt.Dimension(40,30));
+        setMaximum(max);
+        slider.setSnapToTicks(false);
+        slider.setMajorTickSpacing(10);
+        graphic(null).setSize(new java.awt.Dimension(40,30));
         setModifier(new ModifierNMolecule(agent));
         if (resetAction != null) {
             targetAction = new ActionGroupSeries(new Action[]{modifyAction,resetAction});
         }
-	    
-	    if(agent.getType().getSpecies().getName() == "") {
-	        setLabel("Number of molecules");
-	    } else {
-	        setLabel(agent.getType().getSpecies().getName() + " molecules");
-	    }
+
+        setLabel("Number of molecules");
     }
     
     protected Action resetAction;

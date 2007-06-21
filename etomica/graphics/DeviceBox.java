@@ -10,7 +10,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifyAction;
@@ -25,7 +24,7 @@ import etomica.util.EnumeratedType;
  * @author David Kofke
  */
  
-public class DeviceBox extends Device implements EtomicaElement, javax.swing.event.ChangeListener, DeviceBoxValueChangedListener {
+public class DeviceBox extends Device implements javax.swing.event.ChangeListener, DeviceBoxValueChangedListener {
     
     /**
      * Descriptive text label to be displayed with the value

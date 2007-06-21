@@ -1,5 +1,4 @@
 package etomica.data.meter;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataSourceTensorVirialHard;
@@ -19,7 +18,7 @@ import etomica.units.Energy;
  * @author Rob Riggleman
  */
 
-public class MeterSurfaceTensionHard extends DataSourceScalar implements EtomicaElement {
+public class MeterSurfaceTensionHard extends DataSourceScalar {
     
     public MeterSurfaceTensionHard(Space space, IntegratorHard integrator) {
         super("Surface Tension",Energy.DIMENSION);

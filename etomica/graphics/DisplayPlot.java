@@ -3,7 +3,6 @@ import java.io.Serializable;
 import java.util.LinkedList;
 
 import ptolemy.plot.Plot;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.Data;
 import etomica.data.DataProcessor;
@@ -30,7 +29,7 @@ import etomica.util.Arrays;
  * @author David Kofke
  */
 
-public class DisplayPlot extends Display implements DataSetListener, EtomicaElement {
+public class DisplayPlot extends Display implements DataSetListener {
     
     /**
      * Creates a plot with a new, empty, DataSinkTable.
@@ -52,7 +51,6 @@ public class DisplayPlot extends Display implements DataSetListener, EtomicaElem
         dataSet.addDataListener(this);
         plot = new Plot();
         panel.add(plot);
-        setName("Data Plot");
         units = new Unit[0];
         labelList = new LinkedList();
         unitList = new LinkedList();

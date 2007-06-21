@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
@@ -17,7 +16,7 @@ import etomica.units.Length;
  * is of the form <tt>u(r) = (R/r)^12</tt>, where <tt>R</tt> is the repulsion radius.  This
  * term is summed over all four boundaries.
  */
-public class P1SoftBoundary extends Potential1 implements PotentialSoft, EtomicaElement {
+public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 
     private static final long serialVersionUID = 1L;
 	private final IVector[] gradient;

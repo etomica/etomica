@@ -53,10 +53,8 @@ public class OsmosisSim extends Simulation {
         final double sigma = 1.0;
 
 	    speciesSolvent = new SpeciesSpheresMono(this);
-	    speciesSolvent.setName("Solvent");
         getSpeciesManager().addSpecies(speciesSolvent);
 	    speciesSolute = new SpeciesSpheresMono(this);
-	    speciesSolute.setName("Solute");
         getSpeciesManager().addSpecies(speciesSolute);
         ((AtomTypeSphere)speciesSolvent.getMoleculeType()).setDiameter(sigma);
         ((AtomTypeSphere)speciesSolute.getMoleculeType()).setDiameter(sigma);

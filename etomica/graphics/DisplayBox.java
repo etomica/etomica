@@ -4,7 +4,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.Data;
 import etomica.data.DataPipe;
@@ -27,7 +26,7 @@ import etomica.util.EnumeratedType;
  * @author David Kofke
  */
  
-public class DisplayBox extends Display implements DataSink, EtomicaElement, javax.swing.event.ChangeListener {
+public class DisplayBox extends Display implements DataSink, javax.swing.event.ChangeListener {
     
     /**
      * Descriptive text label to be displayed with the value

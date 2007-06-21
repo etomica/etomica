@@ -4,7 +4,6 @@ import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.activity.Controller;
@@ -24,7 +23,7 @@ import etomica.units.Unit;
  *
  * @author David Kofke
  */
-public class DeviceThermoSelector extends Device implements EtomicaElement {
+public class DeviceThermoSelector extends Device {
     
     /**
      * Constructor that specifies Kelvin as temperature units.

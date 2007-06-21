@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.activity.Controller;
@@ -17,7 +16,7 @@ import etomica.graphics.Device;
  * @author David Kofke
  */
  
-public class DeviceButtonSingle extends Device implements EtomicaElement {
+public class DeviceButtonSingle extends Device {
     
     /**
      * Constructs button that is not connected to any action.  Subsequent

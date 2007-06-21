@@ -10,7 +10,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
@@ -28,7 +27,7 @@ import etomica.units.Pixel;
  * @author Steve Hotchkiss
  */
  
-public class DisplayPhase extends Display implements EtomicaElement {
+public class DisplayPhase extends Display {
         
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;

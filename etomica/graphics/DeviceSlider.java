@@ -14,7 +14,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.activity.Controller;
@@ -30,16 +29,7 @@ import etomica.util.Strings;
  *
  * @see ModifierGeneral
  */
- 
- /* History
-  * 10/08/02 (SKK) modified for DecimalSlider, textBox
-  * 10/12/02 (DAK) added init method
-  * 10/13/02 (DAK) restored nMajor and its accessor/mutator methods
-  *                changed graphic method to always return panel, never just slider
-  *                always adding slider to panel
-  */
-  
-public class DeviceSlider extends Device implements EtomicaElement {
+public class DeviceSlider extends Device {
     
     /**
      * Descriptive text label to be displayed with the value

@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
@@ -15,7 +14,7 @@ import etomica.space.Space;
  * @author Jhumpa Adhikari
  */
 
-public class P2TriangleWell extends Potential2 implements EtomicaElement {
+public class P2TriangleWell extends Potential2 {
 
     public P2TriangleWell(Space space) {
         this(space, 1.0, 2.0, 1.0);

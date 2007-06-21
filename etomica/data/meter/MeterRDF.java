@@ -22,7 +22,6 @@ import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Length;
 import etomica.units.Null;
-import etomica.util.NameMaker;
 
 /**
  * Meter for tabulation of the atomic radial distribution function (RDF).  The
@@ -51,7 +50,6 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
         dataInfo = new DataInfoFunction("g(r)", Null.DIMENSION, this);
 
 	    iterator = new ApiLeafAtoms();
-        setName(NameMaker.makeName(this.getClass()));
         dr = space.makeVector();
         tag = new DataTag();
         dataInfo.addTag(tag);

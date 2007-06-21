@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaElement;
 import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;
@@ -14,7 +13,7 @@ import etomica.units.Length;
  *
  * @author David Kofke
  */
-public class P2Fene extends Potential2SoftSpherical implements EtomicaElement {
+public class P2Fene extends Potential2SoftSpherical {
 
     private static final long serialVersionUID = 1L;
     private double r0, r02, h, prefactor;

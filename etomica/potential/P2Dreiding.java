@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaElement;
 import etomica.space.Space;
 
 /**
@@ -16,7 +15,7 @@ import etomica.space.Space;
  *
  */
 
-public class P2Dreiding extends Potential2SoftSpherical implements EtomicaElement {
+public class P2Dreiding extends Potential2SoftSpherical {
 
 	private double Re, alpha;
     

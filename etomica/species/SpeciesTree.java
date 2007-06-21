@@ -1,7 +1,6 @@
 package etomica.species;
 import java.lang.reflect.Constructor;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
@@ -9,7 +8,6 @@ import etomica.atom.AtomFactoryTree;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.simulation.ISimulation;
-import etomica.simulation.Simulation;
 
 /**
  * Species in which molecules are formed as an arbitrarily shaped tree.
@@ -17,7 +15,7 @@ import etomica.simulation.Simulation;
  * @author David Kofke
  */
 
-public class SpeciesTree extends Species implements EtomicaElement {
+public class SpeciesTree extends Species {
 
     /**
      * Constructs with nA = {1}, such that each molecule is a group
@@ -59,7 +57,7 @@ public class SpeciesTree extends Species implements EtomicaElement {
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");
         }
-        return new SpeciesSignature(getName(),constructor,new Object[]{new Integer(1)});
+        return new SpeciesSignature(constructor,new Object[]{new Integer(1)});
     }
     
     private static final long serialVersionUID = 1L;

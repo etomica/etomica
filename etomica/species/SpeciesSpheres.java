@@ -1,7 +1,6 @@
 package etomica.species;
 import java.lang.reflect.Constructor;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
@@ -13,7 +12,6 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.simulation.ISimulation;
-import etomica.simulation.Simulation;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,
@@ -22,7 +20,7 @@ import etomica.simulation.Simulation;
  * @author David Kofke
  */
 
-public class SpeciesSpheres extends Species implements EtomicaElement {
+public class SpeciesSpheres extends Species {
 
     public SpeciesSpheres(ISimulation sim) {
         this(sim, 1);
@@ -57,7 +55,7 @@ public class SpeciesSpheres extends Species implements EtomicaElement {
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");
         }
-        return new SpeciesSignature(getName(),constructor,new Object[]{new Integer(factory.getNumChildAtoms())});
+        return new SpeciesSignature(constructor,new Object[]{new Integer(factory.getNumChildAtoms())});
     }
     
     private static final long serialVersionUID = 1L;

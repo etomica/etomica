@@ -1,7 +1,6 @@
 package etomica.species;
 import java.lang.reflect.Constructor;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
@@ -12,7 +11,6 @@ import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.ISimulation;
-import etomica.simulation.Simulation;
 
 /**
  * Species in which molecules are made of arbitrary number of spheres,
@@ -21,7 +19,7 @@ import etomica.simulation.Simulation;
  * @author David Kofke
  */
 
-public class SpeciesSpheresHetero extends Species implements EtomicaElement {
+public class SpeciesSpheresHetero extends Species {
 
     /**
      * Constructs instance with 0 components and total number of children 
@@ -99,7 +97,7 @@ public class SpeciesSpheresHetero extends Species implements EtomicaElement {
         for (int i=0; i<childFactories.length; i++) {
             leafElements[i] = ((AtomTypeLeaf)childFactories[i].getType()).getElement();
         }
-        return new SpeciesSignature(getName(),constructor,new Object[]{leafElements, 
+        return new SpeciesSignature(constructor,new Object[]{leafElements, 
             new Integer(((AtomFactoryHetero)factory).getNumChildAtoms())});
     }
     

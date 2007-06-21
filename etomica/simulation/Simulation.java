@@ -6,7 +6,6 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.util.Arrays;
 import etomica.util.IRandom;
-import etomica.util.NameMaker;
 import etomica.util.RandomNumberGenerator;
 
 /**
@@ -40,7 +39,6 @@ public class Simulation implements java.io.Serializable, ISimulation  {
         this.space = space;
         this.dynamic = isDynamic;
         phaseList = new Phase[0];
-        setName(NameMaker.makeName(this.getClass()));
         setController(new Controller());
         random = new RandomNumberGenerator();
         eventManager = new SimulationEventManager();
@@ -105,31 +103,6 @@ public class Simulation implements java.io.Serializable, ISimulation  {
 	}
     
     /**
-     * Accessor method of the name of this simulation.
-     * 
-     * @return The given name of this phase
-     */
-    public final String getName() {return name;}
-
-    /**
-     * Method to set the name of this simulation. The simulation's name
-     * provides a convenient way to label output data that is associated with
-     * it.  This method might be used, for example, to place a heading on a
-     * column of data. Default name is the base class followed by the integer
-     * index of this simulation.
-     * 
-     * @param name The name string to be associated with this element
-     */
-    public void setName(String name) {this.name = name;}
-
-    /**
-     * Overrides the Object class toString method to have it return the output of getName
-     * 
-     * @return The name given to the phase
-     */
-    public String toString() {return getName();}
-    
-    /**
      * @return Returns a flag indicating whether the simulation involves molecular dynamics.
      */
     public boolean isDynamic() {
@@ -163,5 +136,4 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     protected final IRandom random;
     protected final boolean dynamic;
     private Controller controller;
-    private String name;
 }

@@ -1,5 +1,4 @@
 package etomica.potential;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.simulation.ISimulation;
 import etomica.space.Space;
@@ -15,7 +14,7 @@ import etomica.units.Length;
  *
  * @author David Kofke (edited by Eric C. Cichowski and Todd Schmidt)
  */
-public class P2WCA extends Potential2SoftSpherical implements EtomicaElement {
+public class P2WCA extends Potential2SoftSpherical {
 
     /**
      * Constructs potential using default sigma and epsilon given by Default class.

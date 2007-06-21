@@ -2,7 +2,6 @@
 package etomica.graphics;
 import javax.swing.JCheckBox;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.modifier.ModifierBoolean;
 
@@ -14,7 +13,7 @@ import etomica.modifier.ModifierBoolean;
  * 
  * @author David Kofke
  */
-public class DeviceCheckBox extends Device implements EtomicaElement {
+public class DeviceCheckBox extends Device {
     
     private ModifierBoolean modifier;
     private JCheckBox box;

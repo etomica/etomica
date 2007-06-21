@@ -4,7 +4,6 @@ import java.awt.Color;
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.atom.IAtom;
-import etomica.integrator.IntegratorHard;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.list.PotentialMasterList;
 
@@ -144,14 +143,14 @@ public abstract class ColorScheme implements java.io.Serializable {
       final DisplayPhaseCanvasG3DSys dpg3d = (DisplayPhaseCanvasG3DSys)simGraphic.getDisplayPhase(sim.phase).canvas;
       ModifierGeneral mg = new ModifierGeneral(dpg3d,"slab");
       slabslide.setModifier(mg);
-      slabslide.setName("Slab");
+      slabslide.setLabel("Slab");
       
       DeviceSlider depthslide = new DeviceSlider(sim.getController());
       depthslide.setMinimum(0);
       depthslide.setMaximum(100);
       ModifierGeneral mg2 = new ModifierGeneral(dpg3d,"depth");
       depthslide.setModifier(mg2);
-      depthslide.setName("Depth");
+      depthslide.setLabel("Depth");
       
       simGraphic.add(def);
       simGraphic.add(colorer);

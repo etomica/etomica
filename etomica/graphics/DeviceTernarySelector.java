@@ -3,7 +3,6 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.GridLayout;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.util.EventManager;
 
@@ -14,7 +13,7 @@ import etomica.util.EventManager;
  *
  * @author David Kofke
  */
-public class DeviceTernarySelector extends Device implements EtomicaElement {
+public class DeviceTernarySelector extends Device {
     
     private int sideLength, h;
     private int precision;

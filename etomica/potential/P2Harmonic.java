@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaElement;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -15,12 +14,9 @@ import etomica.units.Length;
  * @author Jhumpa Adhikari
  * @author David Kofke
  */
+public class P2Harmonic extends Potential2SoftSpherical {
 
-/* History 
- * 08/11/08 (DAK) added r0 parameter
- */
-public class P2Harmonic extends Potential2SoftSpherical implements EtomicaElement {
-
+    private static final long serialVersionUID = 1L;
     private double w = 100.0;// Spring constant gives a measure of the strength of harmonic interaction
 	private final boolean r0Zero;
 	private double r0;

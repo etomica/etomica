@@ -1,6 +1,5 @@
 package etomica.potential;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.exception.MethodNotImplementedException;
 import etomica.simulation.ISimulation;
@@ -19,7 +18,7 @@ import etomica.units.Length;
  * @author Tai Tan
  */
 
-public class P2Exp6 extends Potential2SoftSpherical implements EtomicaElement {
+public class P2Exp6 extends Potential2SoftSpherical {
 
     public P2Exp6(ISimulation sim) {
         // these defaults probably aren't appropriate -- need to develop A,B,C

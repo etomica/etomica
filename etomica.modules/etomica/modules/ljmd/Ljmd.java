@@ -46,7 +46,6 @@ public class Ljmd extends Simulation {
 	//    SpeciesSphereWells disks = new SpeciesSphereWells(this);//index 1
 	    species = new SpeciesSpheresMono(this);//index 1
         getSpeciesManager().addSpecies(species);
-	    species.setName("");
         
         //instantiate several potentials for selection in combo-box
 	    P2LennardJones potential = new P2LennardJones(space);

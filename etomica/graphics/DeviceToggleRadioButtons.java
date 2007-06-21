@@ -4,7 +4,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.modifier.ModifierBoolean;
 
@@ -17,7 +16,7 @@ import etomica.modifier.ModifierBoolean;
  * 
  * @author David Kofke
  */
-public class DeviceToggleRadioButtons extends Device implements EtomicaElement {
+public class DeviceToggleRadioButtons extends Device {
     
     private ModifierBoolean modifier;
     private JPanel panel;

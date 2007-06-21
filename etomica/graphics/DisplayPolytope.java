@@ -6,7 +6,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.math.geometry.Cuboid;
@@ -30,7 +29,7 @@ import etomica.units.Pixel;
  * @author Steve Hotchkiss
  */
  
-public class DisplayPolytope extends Display implements Action, EtomicaElement {
+public class DisplayPolytope extends Display implements Action {
         
     public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
     public static final int CENTER = 0;

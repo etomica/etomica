@@ -1,9 +1,7 @@
 package etomica.potential;
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
 import etomica.space.ICoordinateAngular;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
@@ -20,7 +18,7 @@ import etomica.units.Null;
  * @author Jayant K. Singh
  */
 
-public class P2HardAssociationCone extends Potential2 implements EtomicaElement {
+public class P2HardAssociationCone extends Potential2 {
     private static final long serialVersionUID = 1L;
     private double wellcutoffFactor;
     private double wellCutoffSquared;

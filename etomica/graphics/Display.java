@@ -6,8 +6,6 @@ import java.beans.PropertyChangeSupport;
 
 import javax.swing.JPanel;
 
-import etomica.util.NameMaker;
-
 /**
  * Superclass of all classes that display something from the simulation.
  * Included are displays of graphical and tabular data, and views of the
@@ -18,7 +16,6 @@ import etomica.util.NameMaker;
 public abstract class Display implements GraphicalElement {
 
     public Display() {
-        setName(NameMaker.makeName(this.getClass()));
     }
 
     /**
@@ -64,32 +61,14 @@ public abstract class Display implements GraphicalElement {
     }
 
     /**
-     * Method to set the name of this object
-     * 
-     * @param name
-     *            The name string to be associated with this object
-     */
-    public final void setName(String name) {
-        String oldName = this.name;
-        this.name = name;
-        support.firePropertyChange("name", oldName, name);
-    }
-
-    /**
-     * Accessor method of the name of this phase
-     * 
-     * @return The given name of this phase
-     */
-    public final String getName() {
-        return name;
-    }
-
-    /**
      * Overrides the Object class toString method to have it return the output
      * of getName
      */
     public String toString() {
-        return getName();
+        if (label == null) {
+            return label+" "+this.getClass().getName();
+        }
+        return this.getClass().getName();
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -103,5 +82,4 @@ public abstract class Display implements GraphicalElement {
     protected PropertyChangeSupport support = new PropertyChangeSupport(this);
     protected String label;
     private JPanel panel = new JPanel();
-    private String name;
 }

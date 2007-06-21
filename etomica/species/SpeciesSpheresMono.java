@@ -47,7 +47,7 @@ public class SpeciesSpheresMono extends Species {
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");
         }
-        return new SpeciesSignature(getName(),constructor,new Object[]{((AtomTypeLeaf)factory.getType()).getElement()});
+        return new SpeciesSignature(constructor,new Object[]{((AtomTypeLeaf)factory.getType()).getElement()});
     }
     
     private static final long serialVersionUID = 1L;

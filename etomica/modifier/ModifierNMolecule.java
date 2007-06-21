@@ -1,7 +1,6 @@
 package etomica.modifier;
 
 import etomica.atom.ISpeciesAgent;
-import etomica.atom.SpeciesAgent;
 import etomica.units.Dimension;
 import etomica.units.Quantity;
 
@@ -38,11 +37,11 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
     }
     
     public String getLabel() {
-        return speciesAgent.getType().getSpecies().getName() + " molecules";
+        return speciesAgent.getType().getSpecies() + " molecules";
     }
     
     public String toString() {
-        return "Change number of "+speciesAgent.getType().getSpecies().getName()+
+        return "Change number of "+speciesAgent.getType().getSpecies()+
                 " molecules from " + previousValue + " to " + mostRecentValue;
     }
     private static final long serialVersionUID = 1L;

@@ -19,7 +19,6 @@ import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.phase.Phase;
 import etomica.units.Null;
 import etomica.units.Quantity;
-import etomica.util.NameMaker;
 
 /**
  * @author Matt Moynihan MoleuclarCount returns an array with the number of
@@ -28,7 +27,6 @@ import etomica.util.NameMaker;
 public class MeterChainLength implements DataSource, Serializable, AgentSource, DataSourceIndependent {
 
     public MeterChainLength(AtomAgentManager aam) {
-        setName(NameMaker.makeName(this.getClass()));
         setupData(40);
         tag = new DataTag();
         agentManager = aam;
@@ -159,19 +157,10 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
-    
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     private static final long serialVersionUID = 1L;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private Phase phase;
-    private String name;
     private AtomLeafAgentManager tagManager;
     private AtomAgentManager agentManager;
     private DataFunction data;

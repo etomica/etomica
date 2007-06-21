@@ -21,7 +21,6 @@ import etomica.units.Dimension;
 import etomica.units.Length;
 import etomica.units.Mass;
 import etomica.units.Time;
-import etomica.util.NameMaker;
 
 /**
  * Returns the instantaneous total center-of-mass momentum, summed over all
@@ -36,7 +35,6 @@ public class MeterMomentumCOM implements DataSource, java.io.Serializable {
         dataInfo = new DataInfoVector("COM momentum", new CompoundDimension(
                 new Dimension[] {Mass.DIMENSION, Length.DIMENSION, Time.DIMENSION}, new double[] {1.,1.,-1.}),
                 space);
-        setName(NameMaker.makeName(this.getClass()));
         tag = new DataTag();
         dataInfo.addTag(tag);
         

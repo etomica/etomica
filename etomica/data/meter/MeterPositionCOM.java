@@ -17,7 +17,6 @@ import etomica.phase.Phase;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Length;
-import etomica.util.NameMaker;
 
 /**
  * Returns the instantaneous center-of-mass position, summed over all
@@ -30,7 +29,6 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
         data = new DataVector(space);
         positionSum = data.x;
         dataInfo = new DataInfoVector("COM momentum", Length.DIMENSION, space);
-        setName(NameMaker.makeName(this.getClass()));
         tag = new DataTag();
         dataInfo.addTag(tag);
         

@@ -1,7 +1,6 @@
 package etomica.models.water;
 import java.lang.reflect.Constructor;
 
-import etomica.EtomicaElement;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;
@@ -9,7 +8,7 @@ import etomica.species.SpeciesSignature;
 /**
  * Species for 3-point water molecule.
  */
-public class SpeciesWater3P extends Species implements EtomicaElement {
+public class SpeciesWater3P extends Species {
     
     private static final long serialVersionUID = 1L;
 
@@ -25,6 +24,6 @@ public class SpeciesWater3P extends Species implements EtomicaElement {
         catch(NoSuchMethodException e) {
             System.err.println("you have no constructor.  be afraid");
         }
-        return new SpeciesSignature(getName(),constructor,new Object[]{});
+        return new SpeciesSignature(constructor,new Object[]{});
     }
 }

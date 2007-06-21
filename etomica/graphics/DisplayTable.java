@@ -13,7 +13,6 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
 import etomica.data.DataSet;
 import etomica.data.DataSinkTable;
@@ -33,8 +32,7 @@ import etomica.units.systems.UnitSystem;
  * @author David Kofke
  * @see DisplayTableFunction
  */
-public class DisplayTable extends Display implements DataTableListener,
-        EtomicaElement {
+public class DisplayTable extends Display implements DataTableListener {
 
     public DisplayTable() {
         this(new DataSinkTable());

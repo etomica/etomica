@@ -1,21 +1,18 @@
 package etomica.data;
 import java.io.PrintStream;
 
-import etomica.EtomicaElement;
 import etomica.EtomicaInfo;
-import etomica.util.NameMaker;
 
 /**
  * Writes data to console or another print stream.
  */
-public class DataSinkConsole implements DataSink, EtomicaElement, java.io.Serializable {
+public class DataSinkConsole implements DataSink, java.io.Serializable {
 
     /**
      * Makes class using System.out as the default output stream.
      */
     public DataSinkConsole() {
         this(System.out);
-        setName(NameMaker.makeName(this.getClass()));
     }
     
     /**
@@ -68,21 +65,7 @@ public class DataSinkConsole implements DataSink, EtomicaElement, java.io.Serial
     public void setOut(PrintStream out) {
         this.out = out;
     }
-    
-    /**
-     * @return Returns the name.
-     */
-    public String getName() {
-        return name;
-    }
-    /**
-     * @param name The name to set.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
 
     private static final long serialVersionUID = 1L;
     private PrintStream out = System.out;
-    private String name;
 }
