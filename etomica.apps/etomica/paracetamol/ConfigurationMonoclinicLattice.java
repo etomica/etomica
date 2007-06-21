@@ -3,7 +3,6 @@ package etomica.paracetamol;
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -13,15 +12,14 @@ import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
+import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a
@@ -248,7 +246,7 @@ public class ConfigurationMonoclinicLattice extends Configuration implements Age
           atomGroupAction.actionPerformed(atom);
  
             if (indices != null) {
-                indices[atom.getGlobalIndex()] = (int[]) ii.clone();
+                indices[atom.getGlobalIndex()] = ii.clone();
             }
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(atom);
@@ -326,14 +324,15 @@ public class ConfigurationMonoclinicLattice extends Configuration implements Age
         Simulation sim = new Simulation(Space3D.getInstance());
         Phase phase = new Phase(sim);
         sim.addPhase(phase);
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
+        SpeciesParacetamol species = new SpeciesParacetamol(sim);
+        PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(sim.getSpace(), 12.119, 8.944, 7.278,  1.744806);
+        BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
         sim.getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(5.0);
         int k = 4;
         phase.getAgent(species).setNMolecules(4 * k * k * k);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
-        BravaisLatticeCrystal lattice = new LatticeCubicFcc();
+        BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
         // CubicLattice lattice = new LatticeCubicSimple();
         ConfigurationMonoclinicLattice configuration = new ConfigurationMonoclinicLattice(lattice);
         // phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));

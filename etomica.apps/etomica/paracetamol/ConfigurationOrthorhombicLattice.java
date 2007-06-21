@@ -3,7 +3,6 @@ package etomica.paracetamol;
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -13,15 +12,14 @@ import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
-import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
+import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
 
 /**
  * Constructs configuration that has the molecules placed on the sites of a
@@ -305,14 +303,16 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
         Simulation sim = new Simulation(Space3D.getInstance());
         Phase phase = new Phase(sim);
         sim.addPhase(phase);
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
+        SpeciesParacetamol species = new SpeciesParacetamol(sim);
+        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(sim.getSpace(), 17.248, 12.086, 7.382);
+        BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
+        
         sim.getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(5.0);
         int k = 4;
         phase.getAgent(species).setNMolecules(4 * k * k * k);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
-        BravaisLatticeCrystal lattice = new LatticeCubicFcc();
+        BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
         // CubicLattice lattice = new LatticeCubicSimple();
         ConfigurationOrthorhombicLattice configuration = new ConfigurationOrthorhombicLattice(lattice);
         // phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
