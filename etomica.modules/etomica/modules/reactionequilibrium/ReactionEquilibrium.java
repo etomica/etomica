@@ -1,6 +1,5 @@
 package etomica.modules.reactionequilibrium;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import etomica.action.PhaseImposePbc;
@@ -11,12 +10,8 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.config.Configuration;
-import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
-import etomica.graphics.DisplayPhase;
 import etomica.integrator.IntegratorHard;
-import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -31,8 +26,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public JPanel panel = new JPanel(new java.awt.BorderLayout());
     public IntegratorHard integratorHard1;
     public java.awt.Component display;
-    public Phase phase1;
-    public DisplayPhase displayPhase1;
+    public Phase phase;
     public etomica.action.SimulationRestart restartAction;
     public boolean initializing = true;
     public MeterTemperature thermometer;
@@ -55,25 +49,22 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         //controller and integrator
         integratorHard1 = new IntegratorHard(this, potentialMaster);
         integratorHard1.setIsothermal(true);
-//        integratorHard1.setThermostat(IntegratorMD.ANDERSEN_SINGLE);
 
         //construct phase
-        phase1 = new Phase(this);
-        addPhase(phase1);
-        phase1.setBoundary(new BoundaryRectangularPeriodic(space, random, 30));
-        integratorHard1.setPhase(phase1);
+        phase = new Phase(this);
+        addPhase(phase);
+        phase.setBoundary(new BoundaryRectangularPeriodic(space, random, 30.0));
+        integratorHard1.setPhase(phase);
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(speciesA);
         getSpeciesManager().addSpecies(speciesB);
         ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
         ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(diameter);
-        phase1.getAgent(speciesA).setNMolecules(30);
-        phase1.getAgent(speciesB).setNMolecules(30);
-        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
-        config.initializeCoordinates(phase1);
+        phase.getAgent(speciesA).setNMolecules(30);
+        phase.getAgent(speciesB).setNMolecules(30);
 
-        agentManager = new AtomLeafAgentManager(this,phase1);
+        agentManager = new AtomLeafAgentManager(this,phase);
 
         //potentials
         AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
@@ -85,15 +76,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, //core
                 2.0, //well multiplier
                 1.0, true);
-/*      P2SquareWell AAbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
-                2.0, //well multiplier
-                Default.POTENTIAL_WELL);
-        P2SquareWell ABbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
-                2.0, //well multiplier
-                Default.POTENTIAL_WELL);
-        P2SquareWell BBbonded = new P2SquareWell(space, 0.5 * Default.atomSize, //core
-                2.0, //well multiplier
-                Default.POTENTIAL_WELL);*/
         potentialMaster.addPotential(AAbonded,
                 new Species[] { speciesA, speciesA });
         potentialMaster.addPotential(ABbonded,
@@ -103,15 +85,15 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
 
         meterDimerFraction = new MeterDimerFraction(agentManager);
         meterDimerFraction.setSpeciesA(speciesA);
-        meterDimerFraction.setPhase(phase1);
+        meterDimerFraction.setPhase(phase);
         thermometer = new MeterTemperature();
-        thermometer.setPhase(phase1);
+        thermometer.setPhase(phase);
         
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integratorHard1);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        integratorHard1.addIntervalAction(new PhaseImposePbc(phase1));
+        integratorHard1.addIntervalAction(new PhaseImposePbc(phase));
 
 	}
     
@@ -136,26 +118,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     
     public void releaseAgent(Object agent, IAtom atom) {}
 
-	public static void main(String[] args) {
-		JFrame f = new JFrame("Reaction Equilibrium"); //create a window
-		f.setSize(800, 550);
-
-		ReactionEquilibrium sim = new ReactionEquilibrium();
-		ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim);
-		f.getContentPane().add(graphic.graphic());
-		f.pack();
-		f.setVisible(true);
-		f.addWindowListener(new java.awt.event.WindowAdapter() { //anonymous
-					// class to
-					// handle
-					// window
-					// closing
-					public void windowClosing(java.awt.event.WindowEvent e) {
-						System.exit(0);
-					}
-				});
-		//     sim.controller1.start();
-	}//end of main
 
 }
 

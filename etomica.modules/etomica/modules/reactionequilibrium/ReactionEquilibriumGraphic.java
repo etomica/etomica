@@ -1,6 +1,6 @@
 package etomica.modules.reactionequilibrium;
-
-import java.awt.BorderLayout;
+	
+import java.awt.GridBagConstraints;
 
 import javax.swing.JPanel;
 
@@ -13,6 +13,8 @@ import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.chem.elements.ElementSimple;
+import etomica.config.Configuration;
+import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -23,15 +25,16 @@ import etomica.data.DataTag;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DefaultToolbar;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
+import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
 import etomica.species.SpeciesSpheresMono;
@@ -47,36 +50,38 @@ import etomica.util.Constants.CompassDirection;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class ReactionEquilibriumGraphic {
-	private JPanel panel = new JPanel();
+public class ReactionEquilibriumGraphic extends SimulationGraphic {
+
+	private static final String APP_NAME = "Reaction Equilibrium";
+	private static final int REPAINT_INTERVAL = 1000;
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium sim) {
-        panel.setLayout(new BorderLayout());
-		initializing = true;
-		DeviceTrioControllerButton control = new DeviceTrioControllerButton(sim);
+
+		super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+
+		GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
+
+        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
+
+        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
+        config.initializeCoordinates(sim.phase);
+
 		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
-		displayPhase1 = new DisplayPhase(sim.phase1,new Pixel());
-        sim.integratorHard1.addIntervalAction(new Action() {
-                    public void actionPerformed() {
-                        displayPhase1.repaint();
-                    }
-                });
+        sim.integratorHard1.addIntervalAction(this.getDisplayPhasePaintAction(sim.phase));
         
 		tSelect.setTemperatures(new double[] { 50., 100., 300., 600., 1000.,
 				1200., 1600., 2000., 2500. });
 		tSelect.setUnit(Kelvin.UNIT);
 		tSelect.setSelected(3); //sets 300K as selected temperature
 		tSelect.getLabel().setText("Set value");
-        ((ColorSchemeByType)displayPhase1.getColorScheme()).setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
-        ((ColorSchemeByType)displayPhase1.getColorScheme()).setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
+        ((ColorSchemeByType)getDisplayPhase(sim.phase).getColorScheme()).setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
+        ((ColorSchemeByType)getDisplayPhase(sim.phase).getColorScheme()).setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
 
 		//	adjustment of species properties
 		MySpeciesEditor AEditor = new MySpeciesEditor(sim, 
-				sim.speciesA.getAgent(sim.phase1), "Red");
+				sim.speciesA.getAgent(sim.phase), "Red");
 		MySpeciesEditor BEditor = new MySpeciesEditor(sim, 
-				sim.speciesB.getAgent(sim.phase1), "Black");
-//		AEditor.nSlider.getSlider().setValue(21);
-//		BEditor.nSlider.getSlider().setValue(21);
+				sim.speciesB.getAgent(sim.phase), "Black");
 		int ms = 10;
 		AEditor.nSlider.getSlider().setMajorTickSpacing(ms);
 		BEditor.nSlider.getSlider().setMajorTickSpacing(ms);
@@ -182,7 +187,7 @@ public class ReactionEquilibriumGraphic {
 				BBWellSlider.getSlider().createStandardLabels(majorSpacing));
 
 		//so that display is updated when slider changes atom sizes
-		sizeModifier.setDisplay(displayPhase1);
+		sizeModifier.setDisplay(getDisplayPhase(sim.phase));
         
 		DisplayBox tBox = new DisplayBox(sim.thermometer.getDataInfo());
 		DataPump tPump = new DataPump (sim.thermometer, tBox);
@@ -192,6 +197,9 @@ public class ReactionEquilibriumGraphic {
 		tBox.setLabel("Measured value");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
+// NOTE : THE FOLLOWING IMPLEMENTATION IS CAUSING THE GRAPHIC
+// TO BE UPDATED.  NEED TO REMOVE THE UPDATE OF THE GRAPHIC
+// FROM THIS IMPLEMENTATION OF AVERAGE DISPLAY.
 		//display of averages
         DataFork dimerFork = new DataFork();
 		DataPump dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
@@ -206,7 +214,7 @@ public class ReactionEquilibriumGraphic {
         DataSplitter splitter = new DataSplitter();
         
         dimerFork.addDataSink(splitter);
-        
+         
 		//display for history of mole fractions
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integratorHard1);
         DisplayPlot plot = new DisplayPlot();
@@ -214,7 +222,8 @@ public class ReactionEquilibriumGraphic {
         plot.setDoLegend(true);
         int nData = sim.meterDimerFraction.getDataInfo().getLength();
         DataTable.DataInfoTable dimerInfo = (DataTable.DataInfoTable)sim.meterDimerFraction.getDataInfo();
-        for (int i=0; i<nData; i++) {
+
+         for (int i=0; i<nData; i++) {
             AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
             dimerfractionhistory.setTimeDataSource(timeCounter);
             
@@ -225,32 +234,12 @@ public class ReactionEquilibriumGraphic {
 
 		//************* Lay out components ****************//
 
-		//tabbed pane for the big displays
-		final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
-		displayPanel.add(displayPhase1.getLabel(), displayPhase1.graphic(null));
-		displayPanel.add(plot.getLabel(), plot.graphic(null));
-		displayPanel.add("Averages", table.graphic(null));
-		//workaround for JTabbedPane bug in JDK 1.2
-		displayPanel.addChangeListener(new javax.swing.event.ChangeListener() {
-			public void stateChanged(javax.swing.event.ChangeEvent event) {
-				displayPanel.invalidate();
-				displayPanel.validate();
-			}
-		});
-
-		JPanel startPanel = (JPanel) control.graphic();
 		//panel for the temperature control/display
 		JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
 		temperaturePanel.setBorder(new javax.swing.border.TitledBorder(
 				"Temperature (K)"));
-		java.awt.GridBagConstraints gbc1 = new java.awt.GridBagConstraints();
-		gbc1.gridx = 0;
-		gbc1.gridy = 0;
-		gbc1.gridwidth = 1;
-		temperaturePanel.add(tSelect.graphic(null), gbc1);
-		gbc1.gridx = 0;
-		gbc1.gridy = 1;
-		temperaturePanel.add(tBox.graphic(null), gbc1);
+		temperaturePanel.add(tSelect.graphic(null), SimulationPanel.getHorizGBC());
+		temperaturePanel.add(tBox.graphic(null), SimulationPanel.getHorizGBC());
 
 		//panel for the species editors
 		JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
@@ -319,37 +308,14 @@ public class ReactionEquilibriumGraphic {
 		});
 
 		//top panel for control, temperature, potential adjustment
-		JPanel topPanel = new JPanel(new java.awt.GridBagLayout());
-		java.awt.GridBagConstraints gbc2 = new java.awt.GridBagConstraints();
-		gbc2.gridx = 0;
-		gbc2.gridy = 0;
-		gbc2.gridheight = 1;
-		topPanel.add(startPanel, gbc2);
-		gbc2.gridx = 0;
-		gbc2.gridy = 1;
-		gbc2.gridheight = 1;
-		topPanel.add(temperaturePanel, gbc2);
-		gbc2.gridx = 1;
-		gbc2.gridy = 0;
-		gbc2.gridheight = 2;
-		topPanel.add(sliderPanel, gbc2);
+		getPanel().controlPanel.add(temperaturePanel, vertGBC);
+		getPanel().controlPanel.add(sliderPanel, vertGBC);
+		getPanel().controlPanel.add(speciesEditors, vertGBC);
+		add(plot);
+		add(table);
 
-		//panel for all the controls
-		//    JPanel controlPanel = new JPanel(new java.awt.GridLayout(0,1));
-		JPanel controlPanel = new JPanel(new java.awt.GridBagLayout());
-		gbc2 = new java.awt.GridBagConstraints();
-		gbc2.gridx = 0;
-		gbc2.gridy = java.awt.GridBagConstraints.RELATIVE;
-		/// controlPanel.add(startPanel,gbc2);
-		/// controlPanel.add(temperaturePanel, gbc2);
-		controlPanel.add(topPanel, gbc2);
-		controlPanel.add(speciesEditors, gbc2);
-		/// controlPanel.add(sliderPanel, gbc2);
 
-		panel.add(controlPanel, BorderLayout.WEST);
-		panel.add(displayPanel, BorderLayout.EAST);
-		DefaultToolbar tb = new DefaultToolbar(panel, "Reaction Equilibrium");
-		panel.add(tb.graphic(), BorderLayout.NORTH);
+        getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
 
 		//***************set all the colors******************
 		/*
@@ -425,6 +391,13 @@ public class ReactionEquilibriumGraphic {
 		//panel.add(panel);
 	}
 
+	public static void main(String[] args) {
+
+		ReactionEquilibrium sim = new ReactionEquilibrium();
+		ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim);
+		SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
+	}
+
 	//=================================================================
 	//panel containing species-editing devices
 
@@ -452,7 +425,7 @@ public class ReactionEquilibriumGraphic {
             nSlider.setPostAction(new Action() {
                 public void actionPerformed() {
                     AtomAgentManager agentManager = sim.getAgentManager();
-                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
+                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase);
                     iter.reset();
                     for (IAtom a = iter.nextAtom(); a != null; a = iter.nextAtom()) {
                         //                      System.out.println(iter.peek().toString());
@@ -461,33 +434,9 @@ public class ReactionEquilibriumGraphic {
                     try {
                     	sim.integratorHard1.reset();
                     } catch(ConfigurationOverlapException e) {}
-                    displayPhase1.repaint();
+                    getDisplayPhase(sim.phase).repaint();
                 }
            });
-//            nSlider.addChangeListener(new javax.swing.event.ChangeListener() {
-//                public void stateChanged(javax.swing.event.ChangeEvent evt) {
-//                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase1);
-//                    iter.reset();
-//                    while (iter.hasNext()) {
-//                        //                      System.out.println(iter.peek().toString());
-//                        Atom[] a = (Atom[])iter.nextAtom().allatomAgents[sim.idx];
-//                        a[0] = null;
-//                        a[1] = null;
-//                    }
-//                     try {
-//                         sim.integratorHard1.reset();
-//                     } catch(ConfigurationOverlapException e) {}
-//                     displayPhase1.repaint();
-//                }
-//            });
-			//            nSlider = new DeviceSlider(new NMoleculeModulator(s));
-			//            nSlider.setShowBorder(true);
-			//// nSlider.setLabel(label);
-			//			nSlider.setLabel("Atom count");
-			//	        nSlider.setMinimum(0);
-			//	        nSlider.setMaximum(40);
-			//	        nSlider.getSlider().setSnapToTicks(true);
-			//	        nSlider.graphic(null).setSize(new java.awt.Dimension(40,30));
 
 			//listener for changes to mass textbox
 			java.awt.event.ActionListener myListener = new java.awt.event.ActionListener() {
@@ -523,16 +472,14 @@ public class ReactionEquilibriumGraphic {
 		}
 	} //end of MySpeciesEditor
 
-	public JPanel graphic() {
-		return panel;
-	}
-
 	public static class Applet extends javax.swing.JApplet {
 
 		public void init() {
 			getRootPane().putClientProperty("defeatSystemEventQueueCheck",
 					Boolean.TRUE);
-			getContentPane().add(new ReactionEquilibriumGraphic(new ReactionEquilibrium()).panel);
+			ReactionEquilibrium sim = new ReactionEquilibrium();
+			ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim);
+			SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
 		}
 	}//end of Applet
 
@@ -651,5 +598,5 @@ public class ReactionEquilibriumGraphic {
 		}
 	}//end of WellModulator
 	boolean initializing;
-    protected DisplayPhase displayPhase1;
+
 }
