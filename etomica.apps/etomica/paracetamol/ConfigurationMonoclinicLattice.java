@@ -246,7 +246,7 @@ public class ConfigurationMonoclinicLattice extends Configuration implements Age
           atomGroupAction.actionPerformed(atom);
  
             if (indices != null) {
-                indices[atom.getGlobalIndex()] = ii.clone();
+                indices[atom.getGlobalIndex()] = (int[])ii.clone();
             }
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(atom);
