@@ -208,7 +208,7 @@ public class Osmosis extends SimulationGraphic {
         	}
         };
 
-        InitializeMolecules initPanel = new InitializeMolecules(config);
+        InitializeMolecules initPanel = new InitializeMolecules(config, simRestart);
         initPanel.addStateChangedListener(cl);
 
         // panel for osmotic pressure
@@ -353,6 +353,7 @@ public class Osmosis extends SimulationGraphic {
     	private JSlider soluteVsSolvent;
     	private JSlider soluteOnLeft;
     	private ConfigurationLatticeWithPlane config;
+    	private SimulationRestart simRestart;
     	
     	private int speciesSolventTotal = OsmosisSim.initialSolvent;
     	private int speciesSoluteTotal = OsmosisSim.initialSolute;
@@ -363,9 +364,11 @@ public class Osmosis extends SimulationGraphic {
 // OTHER ACTIONS ADDED TO THE STATE CHANGE.  CURRENTLY, I DON'T THINK THE
 // IMPLEMENTATION WILL GAURENTEE THIS.
 
-    	public InitializeMolecules(ConfigurationLatticeWithPlane configuration) {
+    	public InitializeMolecules(ConfigurationLatticeWithPlane configuration,
+    			                   SimulationRestart restart) {
 
     		this.config = configuration;
+    		this.simRestart = restart;
 
     		// Slider that selects total number of molecules
     		JPanel totalPanel = new JPanel();
@@ -386,7 +389,8 @@ public class Osmosis extends SimulationGraphic {
     				
     				sim.phase.getAgent(sim.speciesSolvent).setNMolecules(speciesSolventTotal);
     				sim.phase.getAgent(sim.speciesSolute).setNMolecules(speciesSoluteTotal);
-    				config.initializeCoordinates(sim.phase);
+    				simRestart.getDataResetAction().actionPerformed();
+    				simRestart.actionPerformed();
     				getDisplayPhase(sim.phase).graphic().repaint();
     			}
     		};
@@ -421,7 +425,8 @@ public class Osmosis extends SimulationGraphic {
     		ChangeListener pctChange = new ChangeListener() {
     			public void stateChanged(ChangeEvent evt) {
     				config.setSpeciesAllocation(sim.speciesSolute, (((float)soluteOnLeft.getValue()) / 100.0f));
-    				config.initializeCoordinates(sim.phase);
+    				simRestart.getDataResetAction().actionPerformed();
+    				simRestart.actionPerformed();
     				getDisplayPhase(sim.phase).graphic().repaint();
     			}
     		};
