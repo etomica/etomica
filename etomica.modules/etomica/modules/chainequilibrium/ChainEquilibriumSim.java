@@ -21,7 +21,7 @@ import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
-public class ReactionEquilibrium extends Simulation implements AgentSource {
+public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
 	public MeterChainLength molecularCount;
 	public Controller controller1;
@@ -39,7 +39,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     private AtomLeafAgentManager agentManager = null;
     public IAtom[] agents;
 
-    public ReactionEquilibrium() {
+    public ChainEquilibriumSim() {
         super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(space);
         controller1 = getController();

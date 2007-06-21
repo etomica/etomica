@@ -30,14 +30,14 @@ import etomica.util.Constants.CompassDirection;
  * TODO To change the template for this generated type comment go to Window -
  * Preferences - Java - Code Style - Code Templates
  */
-public class ReactionEquilibriumGraphic extends SimulationGraphic {
+public class ChainEquilibriumGraphic extends SimulationGraphic {
 
 	private static final String APP_NAME = "Chain Reaction Equilibrium";
 	private static final int REPAINT_INTERVAL = 35;
 
-    protected ReactionEquilibrium sim;
+    protected ChainEquilibriumSim sim;
 
-    public ReactionEquilibriumGraphic(ReactionEquilibrium simulation) {
+    public ChainEquilibriumGraphic(ChainEquilibriumSim simulation) {
 
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
@@ -216,7 +216,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
     }
 
-    public DeviceThermoSelector setup(ReactionEquilibrium sim){
+    public DeviceThermoSelector setup(ChainEquilibriumSim sim){
         DeviceThermoSelector tSelect = new DeviceThermoSelector(sim.controller1, Kelvin.UNIT, true);
         tSelect.setTemperatures(new double[] { 50., 100., 150., 200., 300.,500., 700., 1000., 1200. });
         tSelect.setUnit(Kelvin.UNIT);
@@ -224,7 +224,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         tSelect.getLabel().setText("Set value");
         return tSelect;
     }
-    public DeviceSlider sliders(ReactionEquilibrium sim, int eMin, int eMax, String s, P2SquareWellBonded p){
+    public DeviceSlider sliders(ChainEquilibriumSim sim, int eMin, int eMax, String s, P2SquareWellBonded p){
 
         DeviceSlider AASlider = new DeviceSlider(sim.getController(), new WellDepthModifier(p));
         AASlider.setUnit((Kelvin.UNIT));
@@ -237,7 +237,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         return AASlider;
     }
-    public DeviceSlider sliders(ReactionEquilibrium sim, int eMin, int eMax, String s, int majorSpacing, int minorSpacing,
+    public DeviceSlider sliders(ChainEquilibriumSim sim, int eMin, int eMax, String s, int majorSpacing, int minorSpacing,
             P2SquareWellBonded p){
 	
         DeviceSlider AASlider = new DeviceSlider(sim.getController(), new WellModifier(p));
@@ -258,8 +258,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        ReactionEquilibrium sim = new ReactionEquilibrium();
-        ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim);
+        ChainEquilibriumSim sim = new ChainEquilibriumSim();
+        ChainEquilibriumGraphic graphic = new ChainEquilibriumGraphic(sim);
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 
@@ -267,8 +267,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         public void init() {
 			getRootPane().putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-	        ReactionEquilibrium sim = new ReactionEquilibrium();
-			getContentPane().add(new ReactionEquilibriumGraphic(sim).getPanel());
+	        ChainEquilibriumSim sim = new ChainEquilibriumSim();
+			getContentPane().add(new ChainEquilibriumGraphic(sim).getPanel());
         }
     }
 }
