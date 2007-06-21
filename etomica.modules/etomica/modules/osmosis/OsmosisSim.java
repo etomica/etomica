@@ -4,12 +4,13 @@ import java.awt.Color;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSphere;
-import etomica.config.ConfigurationLatticeWithPlane;
+import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicSimple;
+import etomica.math.geometry.Plane;
 import etomica.phase.Phase;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
@@ -86,18 +87,14 @@ public class OsmosisSim extends Simulation {
         addPhase(phase);
         phase.setBoundary(new BoundaryRectangularNonperiodic(space, getRandom()));
 
-        ConfigurationLatticeWithPlane config = null;
         if (space instanceof Space2D){ // 2D
             phase.getBoundary().setDimensions(new Vector2D(10.0, 10.0));
-            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(2, 1.0), null);
         }
         else if (space instanceof Space3D) { // 3D
             phase.getBoundary().setDimensions(new Vector3D(10.0, 10.0, 10.0));
-        	config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(3, 1.0), null);
         }
         phase.getAgent(speciesSolvent).setNMolecules(initialSolvent);
         phase.getAgent(speciesSolute).setNMolecules(initialSolute);
-        config.initializeCoordinates(phase);
 
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setPhase(phase);
@@ -108,13 +105,26 @@ public class OsmosisSim extends Simulation {
     }
 
     public static void main(String[] args) {
-        OsmosisSim sim = new OsmosisSim(Space2D.getInstance());
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        simGraphic.makeAndDisplayFrame();
+        final OsmosisSim sim = new OsmosisSim(Space3D.getInstance());
+        final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));
+        config.initializeCoordinates(sim.phase);
+    	Plane plane = new Plane(sim.getSpace());
+
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim");
+    	((etomica.graphics.DisplayPhaseCanvasG3DSys)simGraphic.getDisplayPhase(sim.phase).canvas).addPlane(plane);
+    	simGraphic.getController().getReinitButton().setPostAction(new etomica.action.Action () {
+    		public void actionPerformed() {
+    	        config.initializeCoordinates(sim.phase);
+    			simGraphic.getDisplayPhase(sim.phase).repaint();
+    		}
+    	});
+        simGraphic.makeAndDisplayFrame("Osmosis Sim");
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesSolvent.getMoleculeType(), Color.blue);
         colorScheme.setColor(sim.speciesSolute.getMoleculeType(), Color.red);
         simGraphic.getDisplayPhase(sim.phase).setColorScheme(colorScheme);
+        config.initializeCoordinates(sim.phase);
+        simGraphic.getDisplayPhase(sim.phase).repaint();
         sim.integrator.setTimeStep(0.05);
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(1);
