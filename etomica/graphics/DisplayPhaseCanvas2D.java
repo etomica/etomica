@@ -69,7 +69,7 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         boolean drawWell = (a.getType() instanceof AtomTypeWell);
 
         g.setColor(displayPhase.getColorScheme().getAtomColor(a));
-            
+
         baseXP = origin[0] + (int)(displayPhase.getToPixels()*r.x(0));
         baseYP = origin[1] + (int)(displayPhase.getToPixels()*r.x(1));
         if(a.getType() instanceof AtomTypeSphere) {
@@ -166,7 +166,12 @@ public class DisplayPhaseCanvas2D extends DisplayCanvas {
         AtomSet leafList = displayPhase.getPhase().getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            drawAtom(g, atomOrigin, (IAtomPositioned)leafList.getAtom(iLeaf));
+            if(this instanceof DisplayPhaseSpin2D) {
+            	drawAtom(g, origin, (IAtomPositioned)leafList.getAtom(iLeaf));
+            }
+            else {
+                drawAtom(g, atomOrigin, (IAtomPositioned)leafList.getAtom(iLeaf));
+            }
         }
             
         //Draw overflow images if so indicated
