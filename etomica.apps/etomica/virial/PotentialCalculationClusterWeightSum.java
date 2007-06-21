@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.atom.iterator.AtomsetIterator;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 
 /**
@@ -17,7 +17,7 @@ public class PotentialCalculationClusterWeightSum extends PotentialCalculation {
         return weight;
     }
 
-    protected void doCalculation(AtomsetIterator iterator, Potential potential) {
+    protected void doCalculation(AtomsetIterator iterator, IPotential potential) {
         if (potential instanceof P0Cluster) {
             weight *= ((P0Cluster)potential).weight();
         }

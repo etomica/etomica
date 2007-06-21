@@ -1,6 +1,3 @@
-/*
- * Created on May 24, 2005
- */
 package etomica.models.hexane;
 
 import java.util.ArrayList;

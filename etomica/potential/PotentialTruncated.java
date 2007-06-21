@@ -15,12 +15,7 @@ import etomica.atom.AtomType;
  * @see PotentialMaster
  * @see PotentialGroup
  */
-
-/*
- * History
- * Created on Mar 28, 2005
- */
-public interface PotentialTruncated {
+public interface PotentialTruncated extends IPotential {
 
     /**
      * Returns a class that calculates the long-range contribution to the potential

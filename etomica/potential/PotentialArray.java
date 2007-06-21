@@ -25,7 +25,7 @@ public class PotentialArray implements java.io.Serializable {
      * @param potential The potential of interest
      * @return index associated with potential
      */
-    public int getPotentialIndex(Potential potential) {
+    public int getPotentialIndex(IPotential potential) {
         if(mostRecentIndex > -1 && potentials[mostRecentIndex]==potential) return mostRecentIndex;
 
         mostRecentIndex = -1;
@@ -46,11 +46,11 @@ public class PotentialArray implements java.io.Serializable {
      * @param newPotential the potential being added
      * @return the new or previously assigned index for the potential
      */
-    public int addPotential(Potential newPotential) {
+    public int addPotential(IPotential newPotential) {
     	for(mostRecentIndex=0; mostRecentIndex<potentials.length; mostRecentIndex++) {
     		if(potentials[mostRecentIndex] == newPotential) return mostRecentIndex;
     	}
-        potentials = (Potential[])Arrays.addObject(potentials, newPotential);
+        potentials = (IPotential[])Arrays.addObject(potentials, newPotential);
         // make room for a criterion to be added via setCriterion
         criteria = (NeighborCriterion[])Arrays.resizeArray(criteria, potentials.length);
     	return potentials.length-1;
@@ -59,7 +59,7 @@ public class PotentialArray implements java.io.Serializable {
     /**
      * Sets the criterion associated with the given potential
      */
-    public void setCriterion(Potential potential, NeighborCriterion criterion) {
+    public void setCriterion(IPotential potential, NeighborCriterion criterion) {
         criteria[getPotentialIndex(potential)] = criterion;
     }
 
@@ -69,7 +69,7 @@ public class PotentialArray implements java.io.Serializable {
      * it.  If the potential was not previously added to this instance, returns
      * -1.
      */
-    public int removePotential(Potential potential) {
+    public int removePotential(IPotential potential) {
         for (int i=0; i<potentials.length; i++) {
     		if (potentials[i] == potential) {
     	    	Potential[] newPotentials = new Potential[potentials.length-1];
@@ -87,7 +87,7 @@ public class PotentialArray implements java.io.Serializable {
     	return -1;
     }
     
-    public final Potential[] getPotentials() {
+    public final IPotential[] getPotentials() {
     	return potentials;
     }
     
@@ -96,7 +96,7 @@ public class PotentialArray implements java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    private Potential[] potentials = new Potential[0];
+    private IPotential[] potentials = new Potential[0];
     private NeighborCriterion[] criteria = new NeighborCriterion[0];
     private int mostRecentIndex = -1;
 

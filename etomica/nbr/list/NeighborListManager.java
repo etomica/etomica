@@ -16,7 +16,7 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.phase.Phase;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.util.Debug;
 
@@ -234,7 +234,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             IAtom atom0 = pair.getAtom(0);
             IAtom atom1 = pair.getAtom(1);
             PotentialArray potentialArray = potentialMaster.getRangedPotentials(atom0.getType());
-            Potential[] potentials = potentialArray.getPotentials();
+            IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
             for (int i = 0; i < potentials.length; i++) {
                 if (potentials[i].nBody() < 2) {
@@ -385,7 +385,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             }
 
             PotentialArray potentialArray = neighborListManager.potentialMaster.getRangedPotentials(atom.getType());
-            Potential[] potentials = potentialArray.getPotentials();
+            IPotential[] potentials = potentialArray.getPotentials();
             NeighborCriterion[] criteria = potentialArray.getCriteria();
 
             for (int i = 0; i < potentials.length; i++) {

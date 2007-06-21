@@ -9,7 +9,7 @@ import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.phase.Phase;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
@@ -33,7 +33,7 @@ public final class IntegratorHardField extends IntegratorHard {
 	
     //XXX not serializable
     private final IteratorDirective.PotentialCriterion noFieldsCriterion = new IteratorDirective.PotentialCriterion() {
-	    public boolean excludes(Potential candidatePotential) {
+	    public boolean excludes(IPotential candidatePotential) {
 	        return (candidatePotential instanceof Potential1);
 	    }
     };
@@ -49,7 +49,7 @@ public final class IntegratorHardField extends IntegratorHard {
         forceSum = new PotentialCalculationForceSum();
         //XXX not serializable
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {
-            public boolean excludes(Potential candidatePotential) {
+            public boolean excludes(IPotential candidatePotential) {
                 return !(candidatePotential instanceof Potential1);
             }
         });
@@ -180,7 +180,7 @@ public final class IntegratorHardField extends IntegratorHard {
      */
     public static final class PotentialCalculationForceSum extends etomica.potential.PotentialCalculationForceSum {
 
-		public void doCalculation(AtomsetIterator iterator, Potential potential) {
+		public void doCalculation(AtomsetIterator iterator, IPotential potential) {
 			super.doCalculation(iterator,potential);
             iterator.reset();
             for (AtomSet atoms = iterator.next(); atoms !=null; atoms = iterator.next()) {

@@ -1,6 +1,6 @@
 package etomica.chem.models;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 
@@ -60,12 +60,12 @@ public abstract class Model implements java.io.Serializable {
      * is associated with the potential.
      */
     public static class PotentialAndIterator {
-        protected PotentialAndIterator(Potential potential, AtomsetIteratorBasisDependent iterator) {
+        protected PotentialAndIterator(IPotential potential, AtomsetIteratorBasisDependent iterator) {
             this.potential = potential;
             this.iterator = iterator;
         }
         
-        public Potential getPotential() {
+        public IPotential getPotential() {
             return potential;
         }
         
@@ -73,7 +73,7 @@ public abstract class Model implements java.io.Serializable {
             return iterator;
         }
         
-        private final Potential potential;
+        private final IPotential potential;
         private final AtomsetIteratorBasisDependent iterator;
     }
 }

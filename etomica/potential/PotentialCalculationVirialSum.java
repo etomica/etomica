@@ -14,7 +14,7 @@ public class PotentialCalculationVirialSum extends PotentialCalculation {
 	 * Adds to the virial sum the energy values obtained from application of the given potential to the
 	 * atoms produced by the given iterator.  Iterator is reset by method before beginning calculation.
 	 */
-	protected void doCalculation(AtomsetIterator iterator, Potential potential) {
+	protected void doCalculation(AtomsetIterator iterator, IPotential potential) {
         if (!(potential instanceof PotentialSoft)) {
             return;
         }

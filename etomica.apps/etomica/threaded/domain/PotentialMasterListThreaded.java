@@ -13,7 +13,7 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.ISimulation;
@@ -89,7 +89,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
             IAtom parentAtom = targetAtom.getParentGroup();
             while (parentAtom.getType().getDepth() > 1) {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
-                Potential[] potentials = potentialArray.getPotentials();
+                IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setPhase(phase);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
@@ -97,7 +97,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 parentAtom = parentAtom.getParentGroup();
             }                
             PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
-            Potential[] potentials = potentialArray.getPotentials();
+            IPotential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
                 potentials[i].setPhase(phase);
             }

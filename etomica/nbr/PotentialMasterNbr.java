@@ -4,7 +4,7 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentManager.PhaseAgentSource;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
@@ -38,7 +38,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return new PotentialGroupNbr(nBody, simulation.getSpace());
     }
     
-    public void addPotential(Potential potential, Species[] species) {
+    public void addPotential(IPotential potential, Species[] species) {
         super.addPotential(potential, species);
         if (!(potential instanceof PotentialGroup)) {
              AtomType[] atomTypes = moleculeTypes(species);
@@ -54,7 +54,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         }
     }
 
-    public void potentialAddedNotify(Potential subPotential, PotentialGroup pGroup) {
+    public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {
         super.potentialAddedNotify(subPotential, pGroup);
         AtomType[] atomTypes = pGroup.getAtomTypes(subPotential);
         if (atomTypes == null) {
@@ -66,7 +66,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
                     }
                 }
                 if (!found) {
-                    allPotentials = (Potential[])etomica.util.Arrays.addObject(allPotentials, pGroup);
+                    allPotentials = (IPotential[])etomica.util.Arrays.addObject(allPotentials, pGroup);
                 }
                 //pGroup is PotentialGroupNbr
                 AtomType[] parentType = getAtomTypes(pGroup);
@@ -89,9 +89,9 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         addRangedPotentialForTypes(subPotential, atomTypes);
     }
 
-    protected abstract void addRangedPotentialForTypes(Potential subPotential, AtomType[] atomTypes);
+    protected abstract void addRangedPotentialForTypes(IPotential subPotential, AtomType[] atomTypes);
     
-    protected void addRangedPotential(Potential potential, AtomType atomType) {
+    protected void addRangedPotential(IPotential potential, AtomType atomType) {
         
         PotentialArray potentialAtomType = (PotentialArray)rangedAgentManager.getAgent(atomType);
         potentialAtomType.addPotential(potential);
@@ -103,11 +103,11 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
             }
         }
         if (!found) {
-            allPotentials = (Potential[])etomica.util.Arrays.addObject(allPotentials, potential);
+            allPotentials = (IPotential[])etomica.util.Arrays.addObject(allPotentials, potential);
         }
     }
     
-    public void removePotential(Potential potential) {
+    public void removePotential(IPotential potential) {
         super.removePotential(potential);
         if (potential.getRange() < Double.POSITIVE_INFINITY) {
             rangedPotentialIterator.reset();
@@ -121,7 +121,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
                 ((PotentialArray)intraPotentialIterator.next()).removePotential(potential);
             }
         }
-        allPotentials = (Potential[])Arrays.removeObject(allPotentials,potential);
+        allPotentials = (IPotential[])Arrays.removeObject(allPotentials,potential);
     }
     
     public PotentialArray getRangedPotentials(AtomType atomType) {
@@ -158,7 +158,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     protected AtomTypeAgentManager.AgentIterator intraPotentialIterator;
     protected final AtomTypeAgentManager rangedAgentManager;
     protected final AtomTypeAgentManager intraAgentManager;
-    protected Potential[] allPotentials = new Potential[0];
+    protected IPotential[] allPotentials = new IPotential[0];
     protected PhaseAgentSource phaseAgentSource;
     protected final ISimulation simulation;
     protected PhaseAgentManager phaseAgentManager;

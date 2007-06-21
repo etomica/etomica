@@ -9,7 +9,7 @@ import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
 import etomica.phase.Phase;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.IVector;
@@ -42,7 +42,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 		
 	}
 	
-	public void doCalculation(AtomsetIterator iterator, Potential potential) {
+	public void doCalculation(AtomsetIterator iterator, IPotential potential) {
 		throw new RuntimeException("This is not the correct 'doCalculation' to call.");
 	}
 	

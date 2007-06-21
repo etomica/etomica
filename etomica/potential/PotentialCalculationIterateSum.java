@@ -23,7 +23,7 @@ public final class PotentialCalculationIterateSum extends PotentialCalculation {
     
     public double getSum() {return sum;}
     
-	public void doCalculation(AtomsetIterator iterator, Potential potential) {
+	public void doCalculation(AtomsetIterator iterator, IPotential potential) {
 		iterator.reset();
         for (AtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) sum++;
 	}      

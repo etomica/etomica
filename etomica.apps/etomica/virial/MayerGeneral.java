@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.atom.AtomSet;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 
 /**
  * @author kofke
@@ -14,7 +14,7 @@ public class MayerGeneral implements MayerFunction, java.io.Serializable {
 	/**
 	 * Constructor Mayer function using given potential.
 	 */
-	public MayerGeneral(Potential potential) {
+	public MayerGeneral(IPotential potential) {
 		this.potential = potential;
 	}
 
@@ -22,5 +22,5 @@ public class MayerGeneral implements MayerFunction, java.io.Serializable {
 		return Math.exp(-beta*potential.energy(pair)) - 1.0;
 	}
 
-	private final Potential potential;
+	private final IPotential potential;
 }

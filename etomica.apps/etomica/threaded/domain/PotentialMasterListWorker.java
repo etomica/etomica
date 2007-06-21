@@ -13,7 +13,7 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.list.NeighborListManager;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.threaded.PotentialThreaded;
@@ -96,11 +96,11 @@ public class PotentialMasterListWorker extends Thread {
 		 singletIterator.setAtom(atom);
 	     IteratorDirective.Direction direction = id.direction();
 	     PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
-	     Potential[] potentials = potentialArray.getPotentials();
+	     IPotential[] potentials = potentialArray.getPotentials();
 		
 		for(int i=0; i<potentials.length; i++) {
             
-            Potential potentialThread = ((PotentialThreaded)potentials[i]).getPotentials()[threadNumber];
+            IPotential potentialThread = ((PotentialThreaded)potentials[i]).getPotentials()[threadNumber];
             
             
             switch (potentialThread.nBody()) {
@@ -172,7 +172,7 @@ public class PotentialMasterListWorker extends Thread {
             for(int i=0; i<potentials.length; i++) {
             
                 // Extracts thread-specific potential for intra-molecular atoms
-                Potential potentialIntraThread = ((PotentialThreaded)potentials[i]).getPotentials()[threadNumber];
+                IPotential potentialIntraThread = ((PotentialThreaded)potentials[i]).getPotentials()[threadNumber];
                 ((PotentialGroupNbr)potentialIntraThread).calculateRangeIndependent(atom,id,pc);
             }
             
@@ -186,7 +186,7 @@ public class PotentialMasterListWorker extends Thread {
         }
 	}
 	
-	protected void doNBodyStuff(IAtom atom, IteratorDirective id, PotentialCalculation pc, int potentialIndex, Potential potential) {
+	protected void doNBodyStuff(IAtom atom, IteratorDirective id, PotentialCalculation pc, int potentialIndex, IPotential potential) {
 	        AtomArrayList arrayList = atomsetArrayList.getArrayList();
 	        arrayList.clear();
 	        arrayList.add(atom);

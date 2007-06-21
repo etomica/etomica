@@ -105,7 +105,7 @@ public class PotentialMaster implements java.io.Serializable {
      * intra-species potential, defining the iteractions between molecules of the
      * same species).
      */
-    public void addPotential(Potential potential, Species[] species) {
+    public void addPotential(IPotential potential, Species[] species) {
     	if (potential.nBody() == 0) {
     		addPotential(potential, new AtomIterator0(),null);
     	}
@@ -141,7 +141,7 @@ public class PotentialMaster implements java.io.Serializable {
      * method of AtomType) before doing anything else.
      * 
      */
-    public void addPotential(Potential potential, AtomType[] atomTypes) {
+    public void addPotential(IPotential potential, AtomType[] atomTypes) {
         if (potential.nBody() != atomTypes.length) {
             throw new IllegalArgumentException("nBody of potential must match number of atom types");
         }
@@ -182,7 +182,7 @@ public class PotentialMaster implements java.io.Serializable {
      * This method is called by PotentialGroup and should not be called in
      * other circumstances.
      */
-    public void potentialAddedNotify(Potential subPotential, PotentialGroup pGroup) {
+    public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {
         // do nothing.  this is here for subclasses to override
     }
     
@@ -246,7 +246,7 @@ public class PotentialMaster implements java.io.Serializable {
         return species;
     }
     
-    protected void addPotential(Potential potential, AtomsetIteratorPDT iterator, AtomType[] types) {
+    protected void addPotential(IPotential potential, AtomsetIteratorPDT iterator, AtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -274,7 +274,7 @@ public class PotentialMaster implements java.io.Serializable {
      * Removes given potential from the group.  No error is generated if
      * potential is not in group.
      */
-    public synchronized void removePotential(Potential potential) {
+    public synchronized void removePotential(IPotential potential) {
         PotentialLinker previous = null;
         
         for(PotentialLinker link=first; link!=null; link=link.next) {
@@ -345,12 +345,12 @@ public class PotentialMaster implements java.io.Serializable {
     /**
      * Returns an array containing all molecular Potentials.
      */
-    public Potential[] getPotentials() {
+    public IPotential[] getPotentials() {
         int nPotentials=0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             nPotentials++;
         }
-        Potential[] potentials = new Potential[nPotentials];
+        IPotential[] potentials = new Potential[nPotentials];
         int i=0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             potentials[i++] = link.potential;
@@ -379,13 +379,13 @@ public class PotentialMaster implements java.io.Serializable {
 
     public static class PotentialLinker implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
-        public final Potential potential;
+        public final IPotential potential;
         public final AtomsetIteratorPDT iterator;
         public final AtomType[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(Potential a, AtomsetIteratorPDT i, AtomType[] t, PotentialLinker l) {
+        public PotentialLinker(IPotential a, AtomsetIteratorPDT i, AtomType[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;

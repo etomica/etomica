@@ -5,7 +5,6 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.phase.Phase;
-import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2Spherical;
@@ -66,7 +65,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
      * Returns infinity.
      */
     public double getRange() {
-        return ((Potential)wrappedPotential).getRange();
+        return wrappedPotential.getRange();
     }
     
     public Potential2Spherical getWrappedPotential() {
@@ -75,7 +74,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
 
     public void setPhase(Phase newPhase) {
         phase = newPhase;
-        ((Potential)wrappedPotential).setPhase(newPhase);
+        wrappedPotential.setPhase(newPhase);
     }
 
     public void bump(AtomSet atom, double falseTime) {

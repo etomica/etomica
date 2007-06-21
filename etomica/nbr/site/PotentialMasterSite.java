@@ -21,7 +21,7 @@ import etomica.nbr.PotentialMasterNbr;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
 import etomica.phase.PhaseAgentManager.PhaseAgentSource;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
@@ -71,7 +71,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         cellRange = newCellRange;
     }
     
-    protected void addRangedPotentialForTypes(Potential potential, AtomType[] atomType) {
+    protected void addRangedPotentialForTypes(IPotential potential, AtomType[] atomType) {
         NeighborCriterion criterion;
         if (atomType.length == 2) {
             criterion = new CriterionTypePair(new CriterionAll(), atomType[0], atomType[1]);
@@ -106,11 +106,11 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * Returns the criterion used by to determine what atoms interact with the
      * given potential.
      */
-    public NeighborCriterion getCriterion(Potential potential) {
+    public NeighborCriterion getCriterion(IPotential potential) {
         rangedPotentialIterator.reset();
         while (rangedPotentialIterator.hasNext()) {
             PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
-            Potential[] potentials = potentialArray.getPotentials();
+            IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
                     return potentialArray.getCriteria()[j];
@@ -127,11 +127,11 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * criterion.  The potential passed to this method must be a potential 
      * handled by this instance.
      */
-    public void setCriterion(Potential potential, NeighborCriterion criterion) {
+    public void setCriterion(IPotential potential, NeighborCriterion criterion) {
         rangedPotentialIterator.reset();
         while (rangedPotentialIterator.hasNext()) {
             PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
-            Potential[] potentials = potentialArray.getPotentials();
+            IPotential[] potentials = potentialArray.getPotentials();
             for (int j=0; j<potentials.length; j++) {
                 if (potentials[j] == potential) {
                     potentialArray.setCriterion(potential, criterion);
@@ -186,14 +186,14 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             while (pseudoTargetAtom.getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
                 pseudoTargetAtom = pseudoTargetAtom.getParentGroup();
                 PotentialArray potentialArray = getIntraPotentials(pseudoTargetAtom.getType());
-                Potential[] potentials = potentialArray.getPotentials();
+                IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setPhase(phase);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(pseudoTargetAtom,id,pc);
                 }
             }
             PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
-            Potential[] potentials = potentialArray.getPotentials();
+            IPotential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
                 potentials[i].setPhase(phase);
             }
@@ -213,7 +213,7 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     //TODO make a "TerminalGroup" indicator in type that permits child atoms but indicates that no potentials apply directly to them
 	protected void calculate(IAtom atom, IteratorDirective id, PotentialCalculation pc) {
         PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(atom.getType());
-        Potential[] potentials = potentialArray.getPotentials();
+        IPotential[] potentials = potentialArray.getPotentials();
         NeighborCriterion[] criteria = potentialArray.getCriteria();
 
         for(int i=0; i<potentials.length; i++) {

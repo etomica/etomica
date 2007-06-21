@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.atom.IAtom;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.util.EnumeratedType;
 
 /**
@@ -41,7 +41,7 @@ public final class IteratorDirective implements java.io.Serializable {
 
     public final Direction direction() {return direction;}
     
-    public final boolean excludes(Potential p) {
+    public final boolean excludes(IPotential p) {
         for(PotentialCriterion crit=potentialCriteriaHead; crit!=null; crit=crit.nextCriterion()) {
             if(crit.excludes(p)) return true;
         }
@@ -111,7 +111,7 @@ public final class IteratorDirective implements java.io.Serializable {
          * Note that any subclasses should be sure to override clone method if more than
          * a shallow copy is appropriate.
          */
-        public abstract boolean excludes(Potential pot);
+        public abstract boolean excludes(IPotential pot);
         
         //Linked-list constructs
         private PotentialCriterion nextCriterion;

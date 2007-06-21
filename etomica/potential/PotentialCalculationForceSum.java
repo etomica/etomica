@@ -37,7 +37,7 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 	 * Adds forces due to given potential acting on the atoms produced by the iterator.
 	 * Implemented for only 1- and 2-body potentials.
 	 */
-	public void doCalculation(AtomsetIterator iterator, Potential potential) {
+	public void doCalculation(AtomsetIterator iterator, IPotential potential) {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
 		iterator.reset();

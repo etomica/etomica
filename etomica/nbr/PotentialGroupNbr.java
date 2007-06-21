@@ -5,7 +5,7 @@ import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
@@ -41,14 +41,14 @@ public class PotentialGroupNbr extends PotentialGroup {
         }
     }
     
-    protected void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
+    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
         super.addPotential(potential, iterator, types);
         if (potential.getRange() == Double.POSITIVE_INFINITY) {
             firstRangeIndependent = new PotentialLinker(potential, iterator, types, firstRangeIndependent);
         }
     }
     
-    public boolean removePotential(Potential potential) {
+    public boolean removePotential(IPotential potential) {
         super.removePotential(potential);
         
         PotentialLinker previous = null;

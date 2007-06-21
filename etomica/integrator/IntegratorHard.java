@@ -19,7 +19,7 @@ import etomica.nbr.list.PhaseEventNeighborsUpdated;
 import etomica.phase.Phase;
 import etomica.phase.PhaseEvent;
 import etomica.phase.PhaseListener;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
@@ -541,7 +541,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         }//end of setAtom
 
         //atom pair
-        public void doCalculation(AtomsetIterator iterator, Potential potential) {
+        public void doCalculation(AtomsetIterator iterator, IPotential potential) {
             final boolean notPairIterator = (iterator.nBody() != 2);
             iterator.reset();
             PotentialHard pHard = (PotentialHard)potential;
@@ -579,7 +579,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             integratorAgentManager = newAgentManager;
         }
         
-		public void doCalculation(AtomsetIterator iterator, Potential potential) {
+		public void doCalculation(AtomsetIterator iterator, IPotential potential) {
 			if (potential.nBody() != 2) return;
 			iterator.reset();
             PotentialHard pHard = (PotentialHard)potential;
@@ -625,7 +625,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             integratorAgentManager = newAgentManager;
         }
         
-        public void doCalculation(AtomsetIterator iterator, Potential p) {
+        public void doCalculation(AtomsetIterator iterator, IPotential p) {
             if (iterator.nBody() != 2) return;
             iterator.reset();
             // look for pairs in which pair[0] is the collision partner of pair[1]

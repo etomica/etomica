@@ -17,7 +17,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.modifier.ModifierBoolean;
 import etomica.phase.Phase;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -303,7 +303,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         }
         
         //pair
-        public void doCalculation(AtomsetIterator iterator, Potential potential2) {
+        public void doCalculation(AtomsetIterator iterator, IPotential potential2) {
             Potential2Soft potentialSoft = (Potential2Soft)potential2;
             iterator.reset();
             for (AtomSet pair = iterator.next(); pair != null;
@@ -317,7 +317,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
                 nearestImageTransformer.nearestImage(dr);
 
                 double r2 = dr.squared();
-                u += ((Potential)potentialSoft).energy(pair);
+                u += potentialSoft.energy(pair);
                 w += potentialSoft.virial(pair);
                 double hv = potentialSoft.hyperVirial(pair);
                 x += hv;

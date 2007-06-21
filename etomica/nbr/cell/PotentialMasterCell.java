@@ -5,7 +5,7 @@ import etomica.atom.AtomType;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.simulation.ISimulation;
 
@@ -104,7 +104,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
         maxPotentialRange = 0;
         while (rangedPotentialIterator.hasNext()) {
             PotentialArray potentialArray = (PotentialArray)rangedPotentialIterator.next();
-            Potential[] potentials = potentialArray.getPotentials();
+            IPotential[] potentials = potentialArray.getPotentials();
             for (int i=0; i<potentials.length; i++) {
                 if (potentials[i].getRange() > maxPotentialRange) {
                     maxPotentialRange = potentials[i].getRange();
@@ -118,14 +118,14 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * AtomTypes.  This method creates a criterion for the potential and 
      * notifies the NeighborListManager of its existence.
      */
-    protected void addRangedPotentialForTypes(Potential potential, AtomType[] atomType) {
+    protected void addRangedPotentialForTypes(IPotential potential, AtomType[] atomType) {
         super.addRangedPotentialForTypes(potential, atomType);
         if (potential.getRange() > maxPotentialRange) {
             maxPotentialRange = potential.getRange();
         }
     }
 
-    public void removePotential(Potential potential) {
+    public void removePotential(IPotential potential) {
         super.removePotential(potential);
         
         maxPotentialRange = 0;

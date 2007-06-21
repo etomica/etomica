@@ -54,7 +54,7 @@ public class PotentialGroup extends Potential {
 	 * @param potential the potential in question
 	 * @return boolean true if potential has been added to this group
 	 */
-    public boolean contains(Potential potential) {
+    public boolean contains(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential.equals(potential)) return true;
         }//end for
@@ -74,7 +74,7 @@ public class PotentialGroup extends Potential {
      * potential, pairs are formed from the first-type atoms taken from the first basis
      * atom, with the second-type atoms taken from the second basis.
      */
-    public void addPotential(Potential potential, AtomType[] types) {
+    public void addPotential(IPotential potential, AtomType[] types) {
         if(this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
         Arrays.sort(types);
         switch(types.length) {
@@ -106,11 +106,11 @@ public class PotentialGroup extends Potential {
      * Adds the given potential to this group, defining it to apply to the atoms
      * provided by the given basis-dependent iterator.  
      */
-    public synchronized void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator) {
+    public synchronized void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator) {
         addPotential(potential,iterator,null);
     }
     
-    protected void addPotential(Potential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
+    protected void addPotential(IPotential potential, AtomsetIteratorBasisDependent iterator, AtomType[] types) {
         //the order of the given potential should be consistent with the order of the iterator
         if(potential.nBody() != iterator.nBody()) {
             throw new RuntimeException("Error: adding to PotentialGroup a potential and iterator that are incompatible");
@@ -151,7 +151,7 @@ public class PotentialGroup extends Potential {
      * within this group or does not apply to specific AtomTypes, null is 
      * returned.
      */
-    public AtomType[] getAtomTypes(Potential potential) {
+    public AtomType[] getAtomTypes(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential == potential) {
                 return link.types;
@@ -202,7 +202,7 @@ public class PotentialGroup extends Potential {
      * potential is not in group.  Returns true if the given Potential was
      * found and removed.
      */
-    public boolean removePotential(Potential potential) {
+    public boolean removePotential(IPotential potential) {
         PotentialLinker previous = null;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential == potential) {//found it
@@ -255,7 +255,7 @@ public class PotentialGroup extends Potential {
      * Indicates that the specified potential should not contribute to potential
      * calculations. If potential is not in this group, no action is taken.
      */
-    public void setEnabled(Potential potential, boolean enabled) {
+    public void setEnabled(IPotential potential, boolean enabled) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential == potential) {
                 link.enabled = enabled;
@@ -268,7 +268,7 @@ public class PotentialGroup extends Potential {
      * Returns true if the potential is in this group and has not been disabled
      * via a previous call to setEnabled; returns false otherwise.
      */
-    public boolean isEnabled(Potential potential) {
+    public boolean isEnabled(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(link.potential == potential) {
                 return link.enabled;
@@ -277,12 +277,12 @@ public class PotentialGroup extends Potential {
         return false;
     }
 
-    public Potential[] getPotentials() {
+    public IPotential[] getPotentials() {
         int nPotentials=0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             nPotentials++;
         }
-        Potential[] potentials = new Potential[nPotentials];
+        IPotential[] potentials = new Potential[nPotentials];
         int i=0;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             potentials[i++] = link.potential;
@@ -302,13 +302,13 @@ public class PotentialGroup extends Potential {
 
     protected static class PotentialLinker implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
-        public final Potential potential;
+        public final IPotential potential;
         public final AtomsetIteratorBasisDependent iterator;
         public final AtomType[] types;
         public PotentialLinker next;
         public boolean enabled = true;
         //Constructors
-        public PotentialLinker(Potential a, AtomsetIteratorBasisDependent i, AtomType[] t, PotentialLinker l) {
+        public PotentialLinker(IPotential a, AtomsetIteratorBasisDependent i, AtomType[] t, PotentialLinker l) {
             potential = a;
             iterator = i;
             next = l;

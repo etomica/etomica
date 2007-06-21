@@ -30,7 +30,7 @@ public abstract class PotentialCalculation implements java.io.Serializable {
 	 * @param id
 	 * @param potential
 	 */
-	public void doCalculation(AtomsetIterator iterator, IteratorDirective id, Potential potential) {	
+	public void doCalculation(AtomsetIterator iterator, IteratorDirective id, IPotential potential) {	
 		if(potential instanceof PotentialGroup) {
 			((PotentialGroup)potential).calculate(iterator, id, this);
 		} else {
@@ -45,6 +45,6 @@ public abstract class PotentialCalculation implements java.io.Serializable {
 	 * for which the calculation is performed.
 	 * @param potential The potential used to apply the action defined by this class.
 	 */
-	protected abstract void doCalculation(AtomsetIterator iterator, Potential potential);
+	protected abstract void doCalculation(AtomsetIterator iterator, IPotential potential);
 	
 }//end of PotentialCalculation

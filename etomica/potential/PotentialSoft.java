@@ -10,7 +10,7 @@ import etomica.space.Tensor;
  *
  * @author David Kofke
  */
-public interface PotentialSoft {
+public interface PotentialSoft extends IPotential {
 
     public double virial(AtomSet atoms);
 

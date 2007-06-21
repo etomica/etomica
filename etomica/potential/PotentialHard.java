@@ -10,7 +10,7 @@ import etomica.space.Tensor;
 /**
  * Interface for hard potentials, having impulsive forces.
  */
-public interface PotentialHard {
+public interface PotentialHard extends IPotential {
 
     /**
      * Value of the virial from the most recent collision.

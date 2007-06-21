@@ -34,7 +34,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
 	 * Adds the pressure tensor contribution based on the forces acting on each
      * pair of atoms produced by the iterator.
 	 */
-	public void doCalculation(AtomsetIterator iterator, Potential potential) {
+	public void doCalculation(AtomsetIterator iterator, IPotential potential) {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 
 		iterator.reset();

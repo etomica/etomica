@@ -13,7 +13,7 @@ import etomica.units.Length;
  * @author David Kofke
  */
  
-public abstract class Potential implements java.io.Serializable {
+public abstract class Potential implements java.io.Serializable, IPotential {
     
 	private final int nBody;
 	protected final Space space;
@@ -39,6 +39,10 @@ public abstract class Potential implements java.io.Serializable {
         return Length.DIMENSION;
     }
     
+    /**
+     * Returns the interaction energy between the given atoms.  There might be
+     * 0, 1, 2 or more atoms in the AtomSet.
+     */
     public abstract double energy(AtomSet atoms);
     
     /**

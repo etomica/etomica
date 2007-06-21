@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Sep 20, 2004 by kofke
- */
 package etomica.nbr;
 
 import etomica.atom.AtomPositionDefinition;
@@ -14,7 +10,7 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.phase.PhaseAgentManager;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.ISimulation;
@@ -111,7 +107,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         useNbrLists = flag;
     }
     
-    public void addPotential(Potential potential, Species[] species) {
+    public void addPotential(IPotential potential, Species[] species) {
         potentialMasterList.addPotential(potential, species);
         potentialMasterCell.addPotential(potential, species);
         if (potential instanceof PotentialGroup) {
@@ -122,10 +118,10 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         }
     }
     
-    protected void addRangedPotentialForTypes(Potential potential, AtomType[] atomTypes) {
+    protected void addRangedPotentialForTypes(IPotential potential, AtomType[] atomTypes) {
     }
     
-    public void potentialAddedNotify(Potential subPotential, PotentialGroup pGroup) {
+    public void potentialAddedNotify(IPotential subPotential, PotentialGroup pGroup) {
         potentialMasterList.potentialAddedNotify(subPotential, pGroup);
         potentialMasterCell.potentialAddedNotify(subPotential, pGroup);
     }
@@ -134,7 +130,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         return potentialMasterList.getNeighborManager(phase);
     }
 
-    public void removePotential(Potential potential) {
+    public void removePotential(IPotential potential) {
         potentialMasterList.removePotential(potential);
         potentialMasterCell.removePotential(potential);
     }
