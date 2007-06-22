@@ -211,7 +211,7 @@ public class PotentialMaster implements java.io.Serializable {
      * contained by the potential master or any PotentialGroup it holds, or 
      * does not apply to specific AtomTypes, null is returned.
      */
-    public AtomType[] getAtomTypes(Potential potential) {
+    public AtomType[] getAtomTypes(IPotential potential) {
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if (link.potential == potential) {
                 return link.types;
