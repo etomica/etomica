@@ -99,8 +99,9 @@ class MySpeciesEditor extends javax.swing.JPanel {
                          atom = iter.nextAtom()) {
                         //                      System.out.println(iter.peek().toString());
                         IAtom[] a = (IAtom[])agentManager.getAgent(atom);
-                        a[0] = null;
-                        a[1] = null;
+                        for(int i = 0; i < a.length; i++) {
+                            a[i] = null;
+                        }
                     }
                     try {
                         sim.integratorHard1.reset();
