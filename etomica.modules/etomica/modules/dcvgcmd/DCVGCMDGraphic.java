@@ -9,8 +9,8 @@ import javax.swing.border.TitledBorder;
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFilter;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.data.AccumulatorAverage;
@@ -148,7 +148,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayPhase(sim.phase).getColorScheme());
 		colorScheme.setColor(sim.species.getMoleculeType(),colorA);
 		colorScheme.setColor(sim.species1.getMoleculeType(),colorB);
-		colorScheme.setColor(((AtomFactoryHomo)sim.speciesTube.getFactory()).getChildFactory().getType(),java.awt.Color.cyan);
+		colorScheme.setColor(((AtomTypeGroup)sim.speciesTube.getMoleculeType()).getChildTypes()[0],java.awt.Color.cyan);
 
 	    //panel for the temperature control/display
 		JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());

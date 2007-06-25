@@ -86,10 +86,6 @@ public class Species implements java.io.Serializable {
         return factory.getType();
     }
     
-    public final AtomFactory getFactory() {
-        return factory;
-    }
-    
     /**
      * Returns a SpeciesSignature for this Species.  Subclasses must override
      * this method.

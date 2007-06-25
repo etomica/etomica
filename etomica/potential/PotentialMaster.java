@@ -233,7 +233,7 @@ public class PotentialMaster implements java.io.Serializable {
     protected AtomType[] moleculeTypes(Species[] species) {
         AtomType[] types = new AtomType[species.length];
         for(int i=0; i<species.length; i++) {
-            types[i] = species[i].getFactory().getType();
+            types[i] = species[i].getMoleculeType();
         }
         return types;
     }
