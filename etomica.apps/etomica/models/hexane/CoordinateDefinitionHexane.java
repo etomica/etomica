@@ -24,6 +24,18 @@ import etomica.space3d.Vector3D;
  */
 public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
 
+    private static final long serialVersionUID = 1L;
+    private final Vector3D axis0prime, bPrime, midpoint13, deltaVPrime;
+    private final Vector3D c, deltaV, b;
+    private Vector3D[] axes;
+    private Vector3D angles;
+    private Vector3D vex, temp, axial;
+    private double length, phi;
+    private Tensor rotor;
+    private ConformationHexane confHex;
+    private AtomSet childlist;
+    
+    
     public CoordinateDefinitionHexane(Phase phase, Primitive primitive, 
             SpeciesHexane species){
         super(phase, primitive, 6);
@@ -277,18 +289,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // Put the molecule into its initial conformation
         confHex.initializePositions(((AtomGroup)atoms).getChildList());
         childlist = ((AtomGroup)atoms).getChildList();
-        
-//        temp.E(((AtomLeaf)childlist.get(2)).getPosition());
-//        temp.ME(((AtomLeaf)childlist.get(0)).getPosition());
-//        axial.E(temp);
-//        double axislength = Math.sqrt(temp.dot(temp));
-//        
-////        temp.E(((AtomLeaf)childlist.get(1)).getPosition());
-////        temp.ME(((AtomLeaf)childlist.get(0)).getPosition());
-////        double skewlength = Math.sqrt(temp.dot(temp));
-//        //Dur, this is a bond.
-//        double skewlength = length;
-        
+  
         /*
          * Deal with u[5].  We do this first, and we can do this at all,
          * because the initial molecule we are manipulating is in the same 
@@ -317,52 +318,55 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             rotor.transform(temp);
         }
         
+        /*
+         * Deal with u[3] & u[4].
+         * u[3] is the projection of axis0prime onto axes[1]
+         * u[4] is the projection of axis0prime onto axes[2]
+         * We combine them to get the projection of axis0prime on the 
+         * axes[1]-axes[2] plane.  Then we cross that projection with axes[0]
+         * to get a vector we can normalize and rotate around.
+         * Formula on page 721 of Thomas & Finney for the projection
+         * of one vector onto another gives us the angle between axis0prime
+         * and the plane; we rotate around the normalized vector that much.
+         */
         
-//        //Deal with u[3]; the rotation around axes[2]
-//        sinA = Math.sqrt(1 - u[3]*u[3]);     //use a trig identity.
-//        cosA = u[3];
-//        vex.E(axes[2]);
-//        rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
-//                (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
-//                (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
-//                (1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
-//                cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
-//                (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0), // yz
-//                (1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
-//                (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
-//                cosA + (1 - cosA) * vex.x(2) * vex.x(2) // zz
-//        });
-//        
-//        //now we rotate everything about the axis.
-//        for(int i = 1; i < 6; i++){
-//            temp.E(((AtomLeaf)childlist.getAtom(i)).getPosition());
-//            temp.ME(((AtomLeaf)childlist.getAtom(i-1)).getPosition());
-//            rotor.transform(temp);
-//        }
-//        
-//        //Deal with u[4]; the rotation around axes[1]
-//        sinA = Math.sqrt(1 - u[4]*u[4]);     //use a trig identity.
-//        cosA = u[4];
-//        vex.E(axes[1]);
-//        rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
-//                (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
-//                (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
-//                (1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
-//                cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
-//                (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0), // yz
-//                (1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
-//                (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
-//                cosA + (1 - cosA) * vex.x(2) * vex.x(2) // zz
-//        });
-//        
-//        //now we rotate everything about the axis.
-//        for(int i = 1; i < 6; i++){
-//            temp.E(((AtomLeaf)childlist.getAtom(i)).getPosition());
-//            temp.ME(((AtomLeaf)childlist.getAtom(i-1)).getPosition());
-//            rotor.transform(temp);
-//        }
+        //temp is the projection vector.
+        temp.Ea1Tv1(u[3], axes[1]);
+        vex.Ea1Tv1(u[4], axes[2]);
+        temp.PE(vex);
         
+        //cross the projection vector and axes[0], then normalize, to get vex
+        // which we will rotate the projection around.
+        vex.E(temp);
+        vex.XE(axes[0]);
+        vex.normalize();
         
+        //Calculate the angle between the projected vector and the plane.
+        double projLength = temp.x(0) * temp.x(0) + temp.x(1) * temp.x(1) + 
+            temp.x(2) + temp.x(2);
+        projLength = Math.sqrt(projLength);
+        double theta = Math.acos(projLength);
+        
+        //Rotate the projection vector.
+        sinA = Math.sin(theta);
+        cosA = Math.cos(theta);
+        
+        rotor.E(new double[] { cosA + (1 - cosA) * vex.x(0) * vex.x(0), // xx
+              (1 - cosA) * vex.x(0) * vex.x(1) - sinA * vex.x(2), // xy
+              (1 - cosA) * vex.x(0) * vex.x(2) + sinA * vex.x(1), // xz
+              (1 - cosA) * vex.x(1) * vex.x(0) + sinA * vex.x(2), // yx
+              cosA + (1 - cosA) * vex.x(1) * vex.x(1), // yy
+              (1 - cosA) * vex.x(1) * vex.x(2) - sinA * vex.x(0), // yz
+              (1 - cosA) * vex.x(2) * vex.x(0) - sinA * vex.x(1), // zx
+              (1 - cosA) * vex.x(2) * vex.x(1) + sinA * vex.x(0), // zy
+              cosA + (1 - cosA) * vex.x(2) * vex.x(2) // zz
+        });
+        
+        for(int i = 1; i < 6; i++){
+             temp.E(((AtomLeaf)childlist.getAtom(i)).getPosition());
+             temp.ME(((AtomLeaf)childlist.getAtom(i-1)).getPosition());
+             rotor.transform(temp);
+        }
         
         
         //Apply the TORSIONAL angles
@@ -409,16 +413,6 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         throw new RuntimeException("Don't yet know how to set orientation");
     }
 
-    private static final long serialVersionUID = 1L;
-    private final Vector3D axis0prime, bPrime, midpoint13, deltaVPrime;
-    private final Vector3D c, deltaV, b;
-    private Vector3D[] axes;
-    private Vector3D angles;
-    private Vector3D vex, temp, axial;
-    private double length, phi;
-    private Tensor rotor;
-    private ConformationHexane confHex;
-    private AtomSet childlist;
     
     
     public void setLength(double length) {
