@@ -344,7 +344,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         //Calculate the angle between the projected vector and the plane.
         double projLength = temp.x(0) * temp.x(0) + temp.x(1) * temp.x(1) + 
             temp.x(2) + temp.x(2);
-        projLength = Math.sqrt(projLength);
+        projLength = -1.0 * Math.sqrt(projLength);  //we multiply by -1 because 
+                    // of the direction of the axis we're rotating around
         double theta = Math.acos(projLength);
         
         //Rotate the projection vector.
@@ -410,7 +411,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         //Uses center of mass/ geometric center.
         super.setToU(atoms, u);
         
-        throw new RuntimeException("Don't yet know how to set orientation");
+//        throw new RuntimeException("Don't yet know how to set orientation");
     }
 
     
