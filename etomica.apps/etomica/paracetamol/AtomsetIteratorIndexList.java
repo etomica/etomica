@@ -100,7 +100,7 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
      * Returns true if three non-null atoms have set and a call to reset() has
      * been performed, without any subsequent calls to next() or nextPair().
      */
-    public boolean hasNext() {
+    protected boolean hasNext() {
 
     	if (target != null){
         	for(; cursor < index.length; cursor++){   //index.length = number of pairs
@@ -154,19 +154,6 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
      */
     public AtomSet next() {
         return nextSet();
-    }
-
-    /**
-     * Returns the set last specified via setSet, if hasNext() is true. Does
-     * not advance iterator.
-     */
-    public AtomSet peek() {
-        if (!hasNext())
-            return null;
-		atoms[0] = parentGroup.getChildList().getAtom(index[cursor][0]);
-		atoms[1] = parentGroup.getChildList().getAtom(index[cursor][1]);
-		atoms[2] = parentGroup.getChildList().getAtom(index[cursor][2]);
-        return atomset;
     }
 
     /**
