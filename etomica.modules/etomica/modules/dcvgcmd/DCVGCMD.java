@@ -86,8 +86,7 @@ public class DCVGCMD extends Simulation {
         getSpeciesManager().addSpecies(species);
         getSpeciesManager().addSpecies(species1);
         getSpeciesManager().addSpecies(speciesTube);
-        AtomType tubetype = ((AtomFactoryHomo) speciesTube.moleculeFactory())
-                .getChildFactory().getType();
+        AtomType tubetype = ((AtomTypeGroup) speciesTube.getMoleculeType()).getChildTypes()[0];
         AtomType speciestype = species.getMoleculeType();
         AtomType speciestype1 = species1.getMoleculeType();
         ((ElementSimple)((AtomTypeLeaf)speciestype).getElement()).setMass(mass);

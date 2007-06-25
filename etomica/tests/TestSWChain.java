@@ -81,7 +81,7 @@ public class TestSWChain extends Simulation {
 
         P2SquareWell potential = new P2SquareWell(space,sigma,sqwLambda,0.5,false);
 
-        AtomTypeSphere sphereType = (AtomTypeSphere)((AtomFactoryHomo)species.moleculeFactory()).getChildFactory().getType();
+        AtomTypeSphere sphereType = (AtomTypeSphere)((AtomTypeGroup)species.getMoleculeType()).getChildTypes()[0];
         potentialMaster.addPotential(potential,new AtomType[]{sphereType,sphereType});
         CriterionInterMolecular sqwCriterion = (CriterionInterMolecular)potentialMaster.getCriterion(potential);
         CriterionBondedSimple nonBondedCriterion = new CriterionBondedSimple(new CriterionAll());
