@@ -222,12 +222,12 @@ public class ConfigurationLattice extends Configuration {
             if (dimLeft > 1) {
                 latticeDimensions[dmin] = (int) Math.round(shape.x(dmin)
                         * Math.pow((nCellsLeft / product), 1.0 / dimLeft));
-                if (latticeDimensions[dmin] == 0){
-                	latticeDimensions[dmin] = 1;
-                }
             } else {
                 latticeDimensions[dmin] = (int) Math.ceil(shape.x(dmin)
                         * nCellsLeft / product);
+            }
+            if (latticeDimensions[dmin] == 0){
+            	latticeDimensions[dmin] = 1;
             }
             nCellsLeft = (nCellsLeft + latticeDimensions[dmin] - 1)
                     / latticeDimensions[dmin];

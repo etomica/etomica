@@ -141,177 +141,110 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      */
 // Method is assuming plane is in the middle.  Calculations making this
 // assumption are noted.
-// Method also currently hardcoded for 3D
     public void initializeCoordinates(Phase phase) {
-//System.out.println("---------------------------------------");
-//System.out.println("mc count = " + phase.getSpeciesMaster().moleculeCount());
 
         int numSpecies = species.size();
         int[] speciesCount = new int[numSpecies];
-//System.out.println("# species : " + numSpecies);
 
         int sumOfMolecules = 0;
         for (int i = 0; i < numSpecies; i++) {
-//System.out.println(" sp = " + ((Species)species.get(i)).getAgent(phase).getNMolecules());
             speciesCount[i] = ((Species)species.get(i)).getAgent(phase).getNMolecules();
             sumOfMolecules = sumOfMolecules + speciesCount[i];
         }
 
         if (sumOfMolecules == 0) {
-//System.out.println("Should not be showing any molecules");
             return;
         }
-//System.out.println("sumOfMolecules : " + sumOfMolecules);
 
         // Allocate species to left or right side of plane
-// THE FOLLOWING WILL NEED TO BE CHANGED :
-// for now, going to allocate 50/50 for each species.
         int [][] molecules = new int[RIGHT+1][numSpecies];
-        int moleculesOnLeft = 0;
-        int moleculesOnRight = 0;
+        int [] maxMolecules = { 0, 0 };
 
         for (int i = 0; i < numSpecies; i++) {
         	Species sp = ((Species)species.get(i));
-// NEXT LINE NEEDS TO DETERMINE ACTUAL PCT ON LEFT AND NOT JUST DIVIDE BY 2
             molecules[LEFT][i] =  (int)(sp.getAgent(phase).getNMolecules() * getSpeciesAllocation(sp));
             molecules[RIGHT][i] = sp.getAgent(phase).getNMolecules() - molecules[LEFT][i];
-            moleculesOnLeft += molecules[LEFT][i];
-            moleculesOnRight += molecules[RIGHT][i];
-//System.out.println("  on left : " + molecules[LEFT][i]);
-//System.out.println("  on right : " + molecules[RIGHT][i]);
+            maxMolecules[LEFT] += molecules[LEFT][i];
+            maxMolecules[RIGHT] += molecules[RIGHT][i];
         }
 
         // determine scaled shape of simulation volume
-        IVector shape = phase.getSpace().makeVector();
-        shape.E(phase.getBoundary().getDimensions());
+        IVector halfShape = phase.getSpace().makeVector();
+        halfShape.E(phase.getBoundary().getDimensions());
 
-//System.out.println("shapeX(pre-plane adjustment) = " + shape.x(0));
-//System.out.println("shapeY(pre-plane adjustment) = " + shape.x(1));
-//System.out.println("shapeZ(pre-plane adjustment) = " + shape.x(2));
+	    int planeDimIdx = 0;
+	    if(plane.getA() > plane.epsilon) {
+	        planeDimIdx = 0;
+	    }
+	    else if(plane.getB() > plane.epsilon) {
+	    	planeDimIdx = 1;
+	    }
+	    else if(phase.getSpace().D() == 3 &&
+	    		plane.getC() > plane.epsilon) {
+	    	planeDimIdx = 2;
+	    }
 
-//System.out.println("plane a = " + plane.getA());
-//System.out.println("plane b = " + plane.getB());
-//System.out.println("plane c = " + plane.getC());
+	    IVector entireShape = phase.getSpace().makeVector();
+	    entireShape.E(halfShape);
 
-    int planeDimIdx = 0;
-    if(plane.getA() > plane.epsilon) {
-        planeDimIdx = 0;
-    }
-    else if(plane.getB() > plane.epsilon) {
-    	planeDimIdx = 1;
-    }
-    else if(phase.getSpace().D() == 3 &&
-    		plane.getC() > plane.epsilon) {
-    	planeDimIdx = 2;
-    }
+	    //  NOTE, JUST DIVIDING BY 2 ASSUMES PLANE DOWN CENTER
+        // Need to adjust shape on either side of plane in plane dimension.
+	    halfShape.setX(planeDimIdx, halfShape.x(planeDimIdx) / 2);
 
-    // Need to adjust shape on either side of plane.
-    //  NOTE, JUST DIVIDING BY 2 ASSUMES PLANE DOWN CENTER OF PHASE
-    shape.setX(0, shape.x(planeDimIdx) / 2);
-
-//System.out.println("shapeX(post-plane adjustment) = " + shape.x(0));
-//System.out.println("shapeY(post-plane adjustment) = " + shape.x(1));
-//System.out.println("shapeZ(post-plane adjustment) = " + shape.x(2));
 
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
-        shape.DE(latticeConstantV);
+        halfShape.DE(latticeConstantV);
 
-        int maxMolecules = Math.max(moleculesOnLeft, moleculesOnRight);
-        // determine number of cells in each direction
-        int[] latticeDimensions = calculateLatticeDimensions((maxMolecules*2), shape);
+        int[][] latticeDimensions;
+        latticeDimensions = new int[RIGHT+1][];
 
-//System.out.println("indexIterator.getD() = " + indexIterator.getD());
-//System.out.println("latticeDimensions.length = " + latticeDimensions.length);
-//System.out.println("  latticeDimensions[0] = " + latticeDimensions[0]);
-//System.out.println("  latticeDimensions[1] = " + latticeDimensions[1]);
-//System.out.println("  latticeDimensions[2] = " + latticeDimensions[2]);
-// NOTE : Division by 2.0 assumes plane is in center of phase
-        if(Math.abs(Math.IEEEremainder(latticeDimensions[planeDimIdx], 2.0)) > 0.95) {
-	        latticeDimensions[planeDimIdx]++;
+        for(int side = LEFT; side <= RIGHT; side++) {
+		    // determine number of cells in each direction
+		    latticeDimensions[side] = calculateLatticeDimensions(maxMolecules[side], halfShape);
         }
-//System.out.println("  latticeDimensions[0] = " + latticeDimensions[0]);
-//System.out.println("  latticeDimensions[1] = " + latticeDimensions[1]);
-//System.out.println("  latticeDimensions[2] = " + latticeDimensions[2]);
-
-        if (indexIterator.getD() > latticeDimensions.length) {
-            int[] iteratorDimensions = new int[latticeDimensions.length+1];
-            System.arraycopy(latticeDimensions, 0, iteratorDimensions, 0,
-                    latticeDimensions.length);
-            iteratorDimensions[latticeDimensions.length] = ((BravaisLatticeCrystal)lattice).getBasis().getScaledCoordinates().length;
-            indexIterator.setSize(iteratorDimensions);
-        }
-        else {
-            indexIterator.setSize(latticeDimensions);
-        }
-
-        // determine lattice constant
-        IVector latticeScaling = phase.getSpace().makeVector();
-        if (rescalingToFitVolume) {
-            // in favorable situations, this should be approximately equal
-            // to 1.0
-            latticeScaling.E(phase.getBoundary().getDimensions());
-            latticeScaling.DE(latticeConstantV);
-            latticeScaling.DE(Space.makeVector(latticeDimensions));
-        } else {
-            latticeScaling.E(1.0);
-        }
-
-        // determine amount to shift lattice so it is centered in volume
-        IVector offset = phase.getSpace().makeVector();
-        offset.E(phase.getBoundary().getDimensions());
-        IVector vectorOfMax = phase.getSpace().makeVector();
-        IVector vectorOfMin = phase.getSpace().makeVector();
-        IVector site = phase.getSpace().makeVector();
-        vectorOfMax.E(Double.NEGATIVE_INFINITY);
-        vectorOfMin.E(Double.POSITIVE_INFINITY);
-
-        // XXX this can do strange things. it's probably not needed for 
-        // periodic boundaries, but gets the atoms off the boundaries for 
-        // non-periodic boundaries
-        indexIterator.reset();
-
-        while (indexIterator.hasNext()) {
-            site.E((IVector) lattice.site(indexIterator.next()));
-            site.TE(latticeScaling);
-            for (int i=0; i<site.getD(); i++) {
-                vectorOfMax.setX(i, Math.max(site.x(i),vectorOfMax.x(i)));
-                vectorOfMin.setX(i, Math.min(site.x(i),vectorOfMin.x(i)));
-            }
-        }
-        offset.Ev1Mv2(vectorOfMax, vectorOfMin);
-        offset.TE(-0.5);
-        offset.ME(vectorOfMin);
-//latticeScaling.setX(0, latticeScaling.x(0) / (plane.getA() + 1.0));
-//latticeScaling.setX(1, latticeScaling.x(1) / (plane.getB() + 1.0));
-//latticeScaling.setX(2, latticeScaling.x(2) / (plane.getC() + 1.0));
-//System.out.println("latticeScaling = " + latticeScaling.x(0));
-//System.out.println("latticeScaling = " + latticeScaling.x(1));
-//System.out.println("latticeScaling = " + latticeScaling.x(2));
-//System.out.println("offset = " + offset.x(0));
-//System.out.println("offset = " + offset.x(1));
-//System.out.println("offset = " + offset.x(2));
-
-        myLat = new MyLattice(lattice, latticeScaling, offset);
-
-        indexIterator.reset();
 
         AtomIteratorArrayListSimple[] atomIterator = new AtomIteratorArrayListSimple[numSpecies];
-
-        int maxOnSide = latticeDimensions[0] * latticeDimensions[1] * latticeDimensions[2] / 2;
-
-        // Place molecules
         for (int i = 0; i < numSpecies; i++) {
             atomIterator[i] = new AtomIteratorArrayListSimple(((Species)species.get(i)).getAgent(phase).getChildList());
             atomIterator[i].reset();
         }
-//System.out.println("maxOnSide = " + maxOnSide);
-//System.out.println("moleculesOnLeft = " + moleculesOnLeft);
-//System.out.println("moleculesOnRight = " + moleculesOnRight);
 
-        for(int x = LEFT; x <= RIGHT; x++) {
+        for(int side = LEFT; side <= RIGHT; side++) {
+
+	        // determine lattice constant
+	        IVector latticeScaling = phase.getSpace().makeVector();
+	        if (rescalingToFitVolume) {
+                latticeScaling.E(halfShape);
+	            latticeScaling.DE(Space.makeVector(latticeDimensions[side]));
+	        } else {
+	            latticeScaling.E(1.0);
+	        }
+
+            indexIterator.setSize(latticeDimensions[side]);
+            indexIterator.reset();
+
+	        // determine amount to shift lattice so it is centered in volume
+	        IVector offset = phase.getSpace().makeVector();
+	        offset.E(phase.getBoundary().getDimensions());
+
+	        IVector temp3 = phase.getSpace().makeVector();
+            temp3.E(entireShape);
+            temp3.TE(-0.5);
+            temp3.setX(planeDimIdx, halfShape.x(planeDimIdx) * (side-1));
+            offset.E(temp3);
+
+	        IVector temp2 = phase.getSpace().makeVector();
+	        temp2.E(latticeScaling);
+	        temp2.TE(0.5);
+	        offset.PE(temp2);
+
+	        myLat = new MyLattice(lattice, latticeScaling, offset);
+	
+	        indexIterator.reset();
+
+	        // Place molecules
 	        for (int i = 0; i < numSpecies; i++) {
-
-	        	for (int y = 0; y < molecules[x][i]; y++) {
+	        	for (int y = 0; y < molecules[side][i]; y++) {
 	                IAtom a = atomIterator[i].nextAtom();
 
 			        int[] idx = indexIterator.next();
@@ -321,12 +254,8 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 	
 		        }
 	        }
-	        if(x == LEFT) {
-	        	for(int i = 0; i < (maxOnSide - moleculesOnLeft); i++) {
-	        		indexIterator.next();
-	        	}
-	        }
         }
+
     }
 
     public static void main(String[] args) {
