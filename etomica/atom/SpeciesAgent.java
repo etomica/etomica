@@ -29,7 +29,7 @@ public final class SpeciesAgent extends AtomGroup implements ISpeciesAgent {
     public int getNMolecules() {return childList.getAtomCount();}
             
     public IAtom addNewAtom() {
-        IAtom aNew = type.getSpecies().moleculeFactory().makeAtom();
+        IAtom aNew = type.getSpecies().getMoleculeFactory().makeAtom();
         addChildAtom(aNew);
         return aNew;
     }
@@ -58,8 +58,8 @@ public final class SpeciesAgent extends AtomGroup implements ISpeciesAgent {
      * @param n  the new number of molecules for this species
      */
     public void setNMolecules(int n) {
-        atomManager.notifyNewAtoms((n-getNMolecules())*type.getSpecies().moleculeFactory().getNumTreeAtoms(),
-                                     (n-getNMolecules())*type.getSpecies().moleculeFactory().getNumLeafAtoms());
+        atomManager.notifyNewAtoms((n-getNMolecules())*type.getSpecies().getMoleculeFactory().getNumTreeAtoms(),
+                                     (n-getNMolecules())*type.getSpecies().getMoleculeFactory().getNumLeafAtoms());
         if(n > childList.getAtomCount()) {
             for(int i=childList.getAtomCount(); i<n; i++) addNewAtom();
         }

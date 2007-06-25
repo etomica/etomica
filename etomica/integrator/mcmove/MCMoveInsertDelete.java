@@ -59,7 +59,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
             speciesAgent = species.getAgent(phase);
             moleculeList = speciesAgent.getChildList();
         }
-        moleculeFactory = species.moleculeFactory();
+        moleculeFactory = species.getMoleculeFactory();
     }
     public Species getSpecies() {return species;}
     

@@ -58,7 +58,9 @@ public class Species implements java.io.Serializable {
         factory.getType().setParentType(agentType);
     }
 
-    public AtomFactory moleculeFactory() {return factory;}
+    public AtomFactory getMoleculeFactory() {
+        return factory;
+    }
     
     /**
      * Constructs an Agent of this species and sets its SpeciesMaster.
