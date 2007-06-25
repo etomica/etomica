@@ -23,7 +23,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     }
 	
 	 public void setParameters(Species s, ParameterSetMEAM p) {
-		 int index = s.getFactory().getType().getIndex();
+		 int index = s.getMoleculeType().getIndex();
 		 if(index > parameters.length) { //15 parameters for each species
 			 parameters = 
 			 	(ParameterSetMEAM[])Arrays.resizeArray(parameters, index+1);
@@ -33,7 +33,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 
 	 public void setParametersIMC(Species s, ParameterSetMEAM p) {
 	 	 //If Cu (Ag) is involved, the reference IMC structure is Cu3Sn (Ag3Sn).
-		 int index = s.getFactory().getType().getIndex();
+		 int index = s.getMoleculeType().getIndex();
 		 if(index > parametersIMC.length) {
 			 parametersIMC = 
 			 	(ParameterSetMEAM[])Arrays.resizeArray(parametersIMC, index+1);

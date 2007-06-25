@@ -124,13 +124,13 @@ public class ZeoliteSimulation extends Simulation {
         	species[i] = new SpeciesSpheresMono(this);
             getSpeciesManager().addSpecies(species[i]);
         	phase.getAgent(species[i]).setNMolecules(numAtoms[i]);
-        	((etomica.atom.AtomTypeSphere)species[i].getFactory().getType()).setDiameter(atomicSize[i]);
+        	((etomica.atom.AtomTypeSphere)species[i].getMoleculeType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){
                 // all elements except the last (methane) are fixed
-        	    ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getFactory().getType()).getElement()).setMass(Double.POSITIVE_INFINITY);
+        	    ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getMoleculeType()).getElement()).setMass(Double.POSITIVE_INFINITY);
         	}
             else {
-                ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getFactory().getType()).getElement()).setMass(16);
+                ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getMoleculeType()).getElement()).setMass(16);
             }
         }
         //Setting up potential for Methane-Methane interactions

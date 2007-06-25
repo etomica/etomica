@@ -4,8 +4,8 @@
 package etomica.models.hexane;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -157,8 +157,8 @@ public class TestHexane extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        AtomTypeSphere sphereType = (AtomTypeSphere) ((AtomFactoryHomo) species
-                .moleculeFactory()).getChildFactory().getType();
+        AtomTypeSphere sphereType = (AtomTypeSphere) ((AtomTypeGroup) species
+                .getMoleculeType()).getChildTypes()[0];
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,

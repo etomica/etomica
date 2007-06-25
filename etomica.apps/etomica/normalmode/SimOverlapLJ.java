@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -96,7 +95,7 @@ public class SimOverlapLJ extends Simulation {
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
-        AtomType sphereType = ((AtomFactoryMono)species.moleculeFactory()).getType();
+        AtomType sphereType = species.getMoleculeType();
         potentialMasterTarget.addPotential(pTruncated, new AtomType[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
         

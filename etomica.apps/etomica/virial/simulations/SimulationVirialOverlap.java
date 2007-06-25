@@ -77,7 +77,7 @@ public class SimulationVirialOverlap extends Simulation {
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
         mcMoveTranslate = new MCMovePhaseStep[sampleClusters.length];
-        if (species.getFactory().getType() instanceof AtomTypeGroup) {
+        if (species.getMoleculeType() instanceof AtomTypeGroup) {
             mcMoveRotate = new MCMovePhaseStep[sampleClusters.length];
         }
         if (species instanceof SpeciesSpheres) {
@@ -99,7 +99,7 @@ public class SimulationVirialOverlap extends Simulation {
             
             MCMoveManager moveManager = integrators[iPhase].getMoveManager();
             
-            if (species.getFactory().getType() instanceof AtomTypeLeaf) {
+            if (species.getMoleculeType() instanceof AtomTypeLeaf) {
                 mcMoveTranslate[iPhase] = new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
                 mcMoveTranslate[iPhase].setStepSize(0.41);
                 moveManager.addMCMove(mcMoveTranslate[iPhase]);
@@ -111,7 +111,7 @@ public class SimulationVirialOverlap extends Simulation {
                 mcMoveTranslate[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, getRandom(), 0.41, nMolecules-1);
                 moveManager.addMCMove(mcMoveTranslate[iPhase]);
                 if (species instanceof SpeciesSpheres) {
-                    if (((SpeciesSpheres)species).getFactory().getNumChildAtoms() > 2) {
+                    if (species.getMoleculeFactory().getNumChildAtoms() > 2) {
                         mcMoveWiggle[iPhase] = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules);
                         moveManager.addMCMove(mcMoveWiggle[iPhase]);
                     }

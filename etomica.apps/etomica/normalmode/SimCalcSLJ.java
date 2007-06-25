@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomType;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
@@ -77,7 +76,7 @@ public class SimCalcSLJ extends Simulation {
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundary.getDimensions().x(0) * 0.45;
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
-        AtomType sphereType = ((AtomFactoryMono)species.moleculeFactory()).getType();
+        AtomType sphereType = species.getMoleculeType();
         potentialMaster.addPotential(pTruncated, new AtomType[] {sphereType, sphereType});
         move.setPotential(pTruncated);
 

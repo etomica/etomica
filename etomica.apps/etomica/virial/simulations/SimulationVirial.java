@@ -64,7 +64,7 @@ public class SimulationVirial extends Simulation {
 		ai = new ActivityIntegrate(integrator);
 		getController().addAction(ai);
 		
-        if (species.getFactory().getType() instanceof AtomTypeLeaf) {
+        if (species.getMoleculeType() instanceof AtomTypeLeaf) {
             mcMoveTranslate= new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
         }
         else {
@@ -72,7 +72,7 @@ public class SimulationVirial extends Simulation {
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(),nMolecules-1);
             mcMoveRotate.setStepSize(Math.PI);
             if (species instanceof SpeciesSpheres) {
-                if (((SpeciesSpheres)species).getFactory().getNumChildAtoms() > 2) {
+                if (species.getMoleculeFactory().getNumChildAtoms() > 2) {
                     mcMoveWiggle = new MCMoveClusterWiggleMulti(this,potentialMaster, nMolecules);
                     integrator.getMoveManager().addMCMove(mcMoveWiggle);
                     mcMoveReptate = new MCMoveClusterReptateMulti(this,potentialMaster, nMolecules-1);

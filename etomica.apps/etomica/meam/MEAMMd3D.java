@@ -187,11 +187,11 @@ public class MEAMMd3D extends Simulation {
         /** The following values come from either the ASM Handbook or Cullity & Stock's 
          * "Elements of X-Ray Diffraction" (2001)
          */
-        ((AtomTypeSphere)sn.getFactory().getType()).setDiameter(3.022); 
+        ((AtomTypeSphere)sn.getMoleculeType()).setDiameter(3.022); 
         
-        ((AtomTypeSphere)ag.getFactory().getType()).setDiameter(2.8895); 
+        ((AtomTypeSphere)ag.getMoleculeType()).setDiameter(2.8895); 
         
-        ((AtomTypeSphere)cu.getFactory().getType()).setDiameter(2.5561); 
+        ((AtomTypeSphere)cu.getMoleculeType()).setDiameter(2.5561); 
         
         
         phase = new Phase(this);

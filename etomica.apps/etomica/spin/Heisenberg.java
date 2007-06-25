@@ -1,6 +1,7 @@
 package etomica.spin;
 
 import etomica.action.Action;
+import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.data.AccumulatorAverage;
@@ -64,7 +65,7 @@ public class Heisenberg extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 
-        AtomType type = spins.getFactory().getType();
+        AtomType type = spins.getMoleculeType();
         potentialMaster.addPotential(field, new AtomType[] {type});
         potentialMaster.addPotential(potential, new AtomType[] {type, type});
         
@@ -72,8 +73,9 @@ public class Heisenberg extends Simulation {
         
         meter = new MeterSpin(space);
         meter.setPhase(phase);
-        dAcc = new AccumulatorAverage();
+        dAcc = new AccumulatorAverage(10);
         pump = new DataPump(meter, dAcc);
+        dAcc.setPushInterval(10);
         integrator.addIntervalAction(pump);
         integrator.setActionInterval(pump, 10);
     }
@@ -93,6 +95,7 @@ public class Heisenberg extends Simulation {
     public static void main(String[] args) {
         Heisenberg sim = new Heisenberg(Space2D.getInstance(), 60);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+        ((SimulationRestart)simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
 		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
         DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
 

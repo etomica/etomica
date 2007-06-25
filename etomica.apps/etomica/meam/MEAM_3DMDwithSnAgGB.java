@@ -257,19 +257,19 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 	     * "Elements of X-Ray Diffraction" (2001)
 	     */
 	    
-	    ((AtomTypeSphere)snFixedA.getFactory().getType()).setDiameter(3.022); 
+	    ((AtomTypeSphere)snFixedA.getMoleculeType()).setDiameter(3.022); 
 	    
-	    ((AtomTypeSphere)snA.getFactory().getType()).setDiameter(3.022); 
+	    ((AtomTypeSphere)snA.getMoleculeType()).setDiameter(3.022); 
 	        
 //	    ((AtomTypeSphere)agA.getFactory().getType()).setDiameter(2.8895); 
 	        
 //	    ((AtomTypeSphere)cuA.getFactory().getType()).setDiameter(2.5561); 
 	    
-	    ((AtomTypeSphere)agFixedB.getFactory().getType()).setDiameter(2.8895); 
+	    ((AtomTypeSphere)agFixedB.getMoleculeType()).setDiameter(2.8895); 
 	        
 //	    ((AtomTypeSphere)snB.getFactory().getType()).setDiameter(3.022); 
 	        
-	    ((AtomTypeSphere)agB.getFactory().getType()).setDiameter(2.8895); 
+	    ((AtomTypeSphere)agB.getMoleculeType()).setDiameter(2.8895); 
 	        
 //	    ((AtomTypeSphere)cuB.getFactory().getType()).setDiameter(2.5561); 
 	     
