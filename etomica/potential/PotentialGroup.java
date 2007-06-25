@@ -290,10 +290,6 @@ public class PotentialGroup extends Potential {
         return potentials;
     }
     
-    public NeighborCriterion getCriterion() {
-        return criterion;
-    }
-    
     private static final long serialVersionUID = 1L;
     protected PotentialLinker first;
     protected Phase phase;
