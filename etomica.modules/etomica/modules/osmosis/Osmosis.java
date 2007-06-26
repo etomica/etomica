@@ -380,15 +380,23 @@ public class Osmosis extends SimulationGraphic {
 
     		ChangeListener totalChange = new ChangeListener() {
     			public void stateChanged(ChangeEvent evt) {
-    				speciesSoluteTotal = Math.round(((float)total.getValue()) *
-    						               (((float)soluteVsSolvent.getValue()) / 100.0f));
-    				speciesSolventTotal = (int)total.getValue() - speciesSoluteTotal;
-    				
-    				sim.phase.getAgent(sim.speciesSolvent).setNMolecules(speciesSolventTotal);
-    				sim.phase.getAgent(sim.speciesSolute).setNMolecules(speciesSoluteTotal);
-    				simRestart.getDataResetAction().actionPerformed();
-    				simRestart.actionPerformed();
-    				getDisplayPhase(sim.phase).graphic().repaint();
+
+    	    		Action setAction = new Action() {
+    	    			public void actionPerformed() {
+    	    				speciesSoluteTotal = Math.round(((float)total.getValue()) *
+    					               (((float)soluteVsSolvent.getValue()) / 100.0f));
+    			            speciesSolventTotal = (int)total.getValue() - speciesSoluteTotal;
+    			            sim.phase.getAgent(sim.speciesSolvent).setNMolecules(speciesSolventTotal);
+    			            sim.phase.getAgent(sim.speciesSolute).setNMolecules(speciesSoluteTotal);
+    	    				simRestart.getDataResetAction().actionPerformed();
+    	    				simRestart.actionPerformed();
+    	            		getDisplayPhase(sim.phase).graphic().repaint();
+    	    			}
+    	    		};
+
+    	    		// Need to pause controller, do action, resume controller
+    	    		// which is why the action is implemented in this manner.
+    	    		sim.getController().doActionNow(setAction);
     			}
     		};
 
@@ -417,14 +425,24 @@ public class Osmosis extends SimulationGraphic {
     		soluteOnLeft.setMaximum(SOLUTE_ON_LEFT_MAX);
     		soluteOnLeft.setNMajor(4);
     		soluteOnLeft.setShowValues(false);
+    		soluteOnLeft.setValue(50);
     		soluteOnLeftPanel.add(soluteOnLeft.graphic());
 
     		ChangeListener pctChange = new ChangeListener() {
     			public void stateChanged(ChangeEvent evt) {
-    				config.setSpeciesAllocation(sim.speciesSolute, (((float)soluteOnLeft.getValue()) / 100.0f));
-    				simRestart.getDataResetAction().actionPerformed();
-    				simRestart.actionPerformed();
-    				getDisplayPhase(sim.phase).graphic().repaint();
+
+    	    		Action setAction = new Action() {
+    	    			public void actionPerformed() {
+                            config.setSpeciesAllocation(sim.speciesSolute, (((float)soluteOnLeft.getValue()) / 100.0f));
+    				        simRestart.getDataResetAction().actionPerformed();
+    				        simRestart.actionPerformed();
+    				        getDisplayPhase(sim.phase).graphic().repaint();
+    	    			}
+    	    		};
+
+    	    		// Need to pause controller, do action, resume controller
+    	    		// which is why the action is implemented in this manner.
+    	    		sim.getController().doActionNow(setAction);
     			}
     		};
 
