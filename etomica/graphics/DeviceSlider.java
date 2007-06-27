@@ -238,11 +238,11 @@ public class DeviceSlider extends Device {
     
     private void setTicks() {
         double minorTick = 1.0 ;
-       if(showMinorValues){ minorTick = 2;}
-       double spacing = (getMaximum()-getMinimum())/nMajor; 
-       if(spacing <= 0) return;
+        if(showMinorValues){ minorTick = 2.0;}
+        double spacing = (getMaximum()-getMinimum())/nMajor; 
+        if(spacing <= 0) return;
         slider.setDecimalSliderMajorTickSpacing(spacing);
-        slider.setDecimalSliderMinorTickSpacing(spacing/2.0);
+        slider.setDecimalSliderMinorTickSpacing(spacing/minorTick);
         //need to do the following because JSlider does not automatically
         //reset labels if they have been set before
         slider.setDecimalSliderLabelTable(slider.createDecimalSliderStandardLabels(Math.max(spacing/minorTick,1)));
