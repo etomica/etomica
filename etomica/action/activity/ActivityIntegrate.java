@@ -36,7 +36,7 @@ public class ActivityIntegrate extends Activity {
      * loop continues until number of steps equals maxSteps field.  This method should
      * not be called directly, but instead is called by the instance's actionPerformed method.
      */
-    public void run() {
+    protected void run() {
         try {
             integrator.initialize();
         }
