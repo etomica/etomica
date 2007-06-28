@@ -30,11 +30,6 @@ public class AtomPair implements AtomSet, java.io.Serializable {
         return 2;
     }
     
-    public void copyTo(AtomPair pair) {
-        pair.atom0 = atom0;
-        pair.atom1 = atom1;
-    }
-    
     public String toString() {
         return "["+atom0+","+atom1+"]";
     }
