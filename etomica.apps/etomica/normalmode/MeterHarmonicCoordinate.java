@@ -8,7 +8,7 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.units.Energy;
 
 /**
@@ -60,13 +60,13 @@ public class MeterHarmonicCoordinate implements DataSource {
         return data;
     }
     
-    public Phase getPhase() {
-        return coordinateDefinition.getPhase();
+    public Box getBox() {
+        return coordinateDefinition.getBox();
     }
 
-    public void setPhase(Phase newPhase) {
-        normalModes.getWaveVectorFactory().makeWaveVectors(newPhase);
-        setEigenvectors(normalModes.getEigenvectors(newPhase));
+    public void setBox(Box newBox) {
+        normalModes.getWaveVectorFactory().makeWaveVectors(newBox);
+        setEigenvectors(normalModes.getEigenvectors(newBox));
 
         dataInfo = new DataInfoDoubleArray("Harmonic Coordinates", Energy.DIMENSION, new int[]{modes.length});
         data = new DataDoubleArray(new int[]{modes.length});

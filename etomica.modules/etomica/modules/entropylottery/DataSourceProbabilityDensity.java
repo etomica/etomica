@@ -11,8 +11,8 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
-import etomica.integrator.IntegratorPhase;
-import etomica.phase.Phase;
+import etomica.integrator.IntegratorBox;
+import etomica.box.Box;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.IVector;
 import etomica.units.Quantity;
@@ -44,7 +44,7 @@ public class DataSourceProbabilityDensity implements DataSource, Action, Integra
         data.assignTo(newData);
         double[] oldData = data.getData();
         int nBin = oldData.length;
-        if (((BoundaryPeriodic)phase.getBoundary()).getPeriodicity()[0]) {
+        if (((BoundaryPeriodic)box.getBoundary()).getPeriodicity()[0]) {
             // with PBC, let balls drift around the boundary
             newData[0] += ((oldData[nBin-1]+oldData[1])/2 - oldData[0])/totalAtomCount;
             newData[nBin-1] += ((oldData[nBin-1]+oldData[0])/2 - oldData[nBin-1])/totalAtomCount;
@@ -61,9 +61,9 @@ public class DataSourceProbabilityDensity implements DataSource, Action, Integra
 
     public void nonintervalAction(IntegratorNonintervalEvent evt) {
         if (evt.type() == IntegratorNonintervalEvent.RESET) {
-            phase = ((IntegratorPhase)evt.getSource()).getPhase();
-            totalAtomCount = phase.getSpeciesMaster().moleculeCount();
-            IVector dimensions = phase.getBoundary().getDimensions();
+            box = ((IntegratorBox)evt.getSource()).getBox();
+            totalAtomCount = box.getSpeciesMaster().moleculeCount();
+            IVector dimensions = box.getBoundary().getDimensions();
             if (data.getLength() != (int)Math.round(dimensions.x(0))) {
                 int newSize = (int)Math.round(dimensions.x(0));
                 data = new DataDoubleArray(newSize);
@@ -72,7 +72,7 @@ public class DataSourceProbabilityDensity implements DataSource, Action, Integra
                 newData = new double[newSize];
             }
             data.E(0);
-            atomIterator.setPhase(phase);
+            atomIterator.setBox(box);
             atomIterator.reset();
             double[] atomCount = data.getData();
             for (IAtomPositioned a = (IAtomPositioned)atomIterator.nextAtom(); a != null;
@@ -85,7 +85,7 @@ public class DataSourceProbabilityDensity implements DataSource, Action, Integra
 
     protected DataDoubleArray data;
     protected DataInfoDoubleArray dataInfo;
-    protected Phase phase;
+    protected Box box;
     protected final AtomIteratorLeafAtoms atomIterator;
     protected double[] newData;
     protected int totalAtomCount;

@@ -8,8 +8,8 @@ import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.mcmove.MCMovePhase;
-import etomica.phase.Phase;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.util.IRandom;
@@ -22,7 +22,7 @@ import etomica.util.IRandom;
  * @author cribbin
  *
  */
-public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
+public class MCMoveCombinedCbmcTranslation extends MCMoveBox {
 
     protected MCMoveCBMC cbmcMove;
     protected double uNew, uOld;
@@ -58,15 +58,15 @@ public class MCMoveCombinedCbmcTranslation extends MCMovePhase {
     }
     
     public MCMoveCombinedCbmcTranslation(PotentialMaster pm, MCMoveCBMC mv, 
-            IRandom nRandom, Phase ph){
+            IRandom nRandom, Box ph){
         this(pm, mv, nRandom);
-        setPhase(ph);
+        setBox(ph);
     }
     
-    public void setPhase(Phase newPhase) {
-        super.setPhase(newPhase);
-        moleculeSource.setPhase(newPhase);
-        energyMeter.setPhase(newPhase);
+    public void setBox(Box newBox) {
+        super.setBox(newBox);
+        moleculeSource.setBox(newBox);
+        energyMeter.setBox(newBox);
     }
     
     public AtomIterator affectedAtoms() { return affectedAtomIterator; }

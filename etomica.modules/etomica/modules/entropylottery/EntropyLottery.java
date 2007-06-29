@@ -1,7 +1,7 @@
 package etomica.modules.entropylottery;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.IntegratorMC;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
@@ -14,7 +14,7 @@ public class EntropyLottery extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono species;
-    public Phase phase;
+    public Box box;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     
@@ -34,17 +34,17 @@ public class EntropyLottery extends Simulation {
 	    species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         
-        //construct phase
-	    phase = new Phase(new BoundaryRectangularNonperiodic(space, getRandom()));
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(N);
+        //construct box
+	    box = new Box(new BoundaryRectangularNonperiodic(space, getRandom()));
+        addBox(box);
+        box.getAgent(species).setNMolecules(N);
         IVector dimensions = space.makeVector();
         dimensions.E(10);
-        phase.getBoundary().setDimensions(dimensions);
-        new ConfigurationZero().initializeCoordinates(phase);
-        integrator.setPhase(phase);
+        box.getBoundary().setDimensions(dimensions);
+        new ConfigurationZero().initializeCoordinates(box);
+        integrator.setBox(box);
 		
-//        PhaseImposePbc imposePBC = new PhaseImposePbc(phase);
+//        BoxImposePbc imposePBC = new BoxImposePbc(box);
 //        integrator.addListener(new IntervalActionAdapter(imposePBC));
         
     }  

@@ -8,7 +8,7 @@ import etomica.integrator.IIntegrator;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 
 /**
@@ -49,13 +49,13 @@ public final class SimulationRestart extends SimulationActionAdapter {
     }
     
     /**
-     * Resets phases, integrators, and accumulators.
+     * Resets boxs, integrators, and accumulators.
      */
     public void actionPerformed() {
-        Phase[] phases = simulation.getPhases();
-        for(int i=0; i<phases.length; i++) {
+        Box[] boxs = simulation.getBoxs();
+        for(int i=0; i<boxs.length; i++) {
             if (configuration != null) {
-                configuration.initializeCoordinates(phases[i]);
+                configuration.initializeCoordinates(boxs[i]);
             }
         }
         

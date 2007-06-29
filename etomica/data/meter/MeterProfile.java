@@ -15,7 +15,7 @@ import etomica.data.types.DataFunction;
 import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -43,7 +43,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Breaks a meter's measurements into a profile taken along some direction in phase");
+        EtomicaInfo info = new EtomicaInfo("Breaks a meter's measurements into a profile taken along some direction in box");
         return info;
     }
 
@@ -88,7 +88,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     public void setProfileVector(IVector v) {
         profileVector.E(v);
         profileVector.normalize();
-        double halfBox = 0.5*phase.getBoundary().getDimensions().dot(profileVector);
+        double halfBox = 0.5*box.getBoundary().getDimensions().dot(profileVector);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
     }
@@ -97,10 +97,10 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
      * Returns the profile for the current configuration.
      */
     public Data getData() {
-        Boundary boundary = phase.getBoundary();
+        Boundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
@@ -111,7 +111,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
             y[i] += value;
         }
         double dx = (xDataSource.getXMax() - xDataSource.getXMin())/y.length;
-        double norm = 1.0/(phase.atomCount()*dx);
+        double norm = 1.0/(box.atomCount()*dx);
         data.TE(norm);
         return data;
     }
@@ -129,17 +129,17 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        double halfBox = 0.5*phase.getBoundary().getDimensions().dot(profileVector);
+    public void setBox(Box box) {
+        this.box = box;
+        double halfBox = 0.5*box.getBoundary().getDimensions().dot(profileVector);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
     }
@@ -153,7 +153,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     }
 
     private static final long serialVersionUID = 1L;
-    private Phase phase;
+    private Box box;
     private String name;
     private DataSourceUniform xDataSource;
     private DataFunction data;

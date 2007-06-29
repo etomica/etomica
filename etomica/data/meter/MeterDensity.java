@@ -2,7 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.DimensionRatio;
@@ -10,8 +10,8 @@ import etomica.units.Quantity;
 import etomica.units.Volume;
 
 /**
- * Meter for measurement of the total molecule number density in a phase
- * Molecule number density is defined (number of molecules)/(volume of phase)
+ * Meter for measurement of the total molecule number density in a box
+ * Molecule number density is defined (number of molecules)/(volume of box)
  */
 public class MeterDensity extends DataSourceScalar {
     
@@ -20,7 +20,7 @@ public class MeterDensity extends DataSourceScalar {
     }
 
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Number density (molecules/volume) in a phase");
+        EtomicaInfo info = new EtomicaInfo("Number density (molecules/volume) in a box");
         return info;
     }
     
@@ -32,27 +32,27 @@ public class MeterDensity extends DataSourceScalar {
     }
 
     public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+        if (box == null) throw new IllegalStateException("must call setBox before using meter");
         return (species == null ? 
-        			phase.moleculeCount() : 
-        			phase.getAgent(species).getNMolecules())
-				/phase.volume();
+        			box.moleculeCount() : 
+        			box.getAgent(species).getNMolecules())
+				/box.volume();
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private Phase phase;
+    private Box box;
     private Species species;
 }

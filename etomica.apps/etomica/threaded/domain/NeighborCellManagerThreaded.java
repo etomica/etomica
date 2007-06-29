@@ -2,21 +2,21 @@ package etomica.threaded.domain;
 
 import etomica.atom.AtomPositionDefinition;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 
 public class NeighborCellManagerThreaded extends NeighborCellManager {
 
     public int totalCells;
     
-    public NeighborCellManagerThreaded(Phase phase, double potentialRange) {
-        super(phase, potentialRange);
+    public NeighborCellManagerThreaded(Box box, double potentialRange) {
+        super(box, potentialRange);
         // TODO Auto-generated constructor stub
     }
 
-    public NeighborCellManagerThreaded(Phase phase, double potentialRange,
+    public NeighborCellManagerThreaded(Box box, double potentialRange,
             AtomPositionDefinition positionDefinition) {
-        super(phase, potentialRange, positionDefinition);
+        super(box, potentialRange, positionDefinition);
         // TODO Auto-generated constructor stub
     }
     
@@ -30,7 +30,7 @@ public class NeighborCellManagerThreaded extends NeighborCellManager {
     public void setNumCells(int totalCells){
         this.totalCells = totalCells;
         if(totalCells==0){return;}
-        IVector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getDimensions();
         lattice.setDimensions(dimensions);
        
         int [] nCells = calculateLatticeDimensions(totalCells, dimensions);

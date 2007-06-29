@@ -18,9 +18,9 @@ import etomica.nbr.CriterionTypesMulti;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.PotentialMasterNbr;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
-import etomica.phase.PhaseAgentManager.PhaseAgentSource;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
+import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.potential.IPotential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialArray;
@@ -38,20 +38,20 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * to assign cells. 
 	 */
 	public PotentialMasterSite(ISimulation sim, int nCells) {
-        this(sim, new PhaseAgentSiteManager(nCells));
+        this(sim, new BoxAgentSiteManager(nCells));
     }
     
-    public PotentialMasterSite(ISimulation sim, PhaseAgentSource phaseAgentSource) {
-        this(sim, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
+    public PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource) {
+        this(sim, boxAgentSource, new BoxAgentManager(boxAgentSource));
     }
     
-    public PotentialMasterSite(ISimulation sim, PhaseAgentSource phaseAgentSource, PhaseAgentManager agentManager) {
-        this(sim, phaseAgentSource, agentManager, new Api1ASite(sim.getSpace().D(),agentManager));
+    public PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource, BoxAgentManager agentManager) {
+        this(sim, boxAgentSource, agentManager, new Api1ASite(sim.getSpace().D(),agentManager));
     }
     
-    protected PotentialMasterSite(ISimulation sim, PhaseAgentSource phaseAgentSource, 
-            PhaseAgentManager agentManager, AtomsetIteratorPDT neighborIterator) {
-        super(sim, phaseAgentSource, agentManager);
+    protected PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource, 
+            BoxAgentManager agentManager, AtomsetIteratorPDT neighborIterator) {
+        super(sim, boxAgentSource, agentManager);
         singletAtomIterator = new AtomIteratorSinglet();
 		singletPairIterator = new AtomsetIteratorSinglet(2);
         this.neighborIterator = neighborIterator;
@@ -146,32 +146,32 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
      * specified in directive, neighborlist iteration is begun with
-     * speciesMaster of phase, and repeated recursively down species hierarchy;
+     * speciesMaster of box, and repeated recursively down species hierarchy;
      * if one atom is specified, neighborlist iteration is performed on it and
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if (!enabled)
             return;
         for (int i=0; i<criteriaArray.length; i++) {
-            criteriaArray[i].setPhase(phase);
+            criteriaArray[i].setBox(box);
         }
         IAtom targetAtom = id.getTargetAtom();
-        neighborIterator.setPhase(phase);
+        neighborIterator.setBox(box);
         if (targetAtom == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
             neighborIterator.setDirection(IteratorDirective.Direction.UP);
-            // invoke setPhase on all potentials
+            // invoke setBox on all potentials
             for (int i=0; i<allPotentials.length; i++) {
-                allPotentials[i].setPhase(phase);
+                allPotentials[i].setBox(box);
             }
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
-            AtomSet list = phase.getSpeciesMaster().getAgentList();
+            AtomSet list = box.getSpeciesMaster().getAgentList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 IAtom a = list.getAtom(i);
@@ -188,19 +188,19 @@ public class PotentialMasterSite extends PotentialMasterNbr {
                 PotentialArray potentialArray = getIntraPotentials(pseudoTargetAtom.getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
-                    potentials[i].setPhase(phase);
+                    potentials[i].setBox(box);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(pseudoTargetAtom,id,pc);
                 }
             }
             PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
-                potentials[i].setPhase(phase);
+                potentials[i].setBox(box);
             }
             calculate(targetAtom, id, pc);
         }
         if (lrcMaster != null) {
-            lrcMaster.calculate(phase, id, pc);
+            lrcMaster.calculate(box, id, pc);
         }
     }
 	
@@ -263,8 +263,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     protected final AtomsetIteratorPDT neighborIterator;
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     
-    public static class PhaseAgentSiteManager implements PhaseAgentSource {
-        public PhaseAgentSiteManager(int nCells) {
+    public static class BoxAgentSiteManager implements BoxAgentSource {
+        public BoxAgentSiteManager(int nCells) {
             this.nCells = nCells;
         }
         
@@ -272,8 +272,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
             return NeighborSiteManager.class;
         }
         
-        public Object makeAgent(Phase phase) {
-            return new NeighborSiteManager(phase,nCells);
+        public Object makeAgent(Box box) {
+            return new NeighborSiteManager(box,nCells);
         }
         
         public void releaseAgent(Object agent) {

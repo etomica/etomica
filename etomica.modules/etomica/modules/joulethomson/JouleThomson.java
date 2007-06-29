@@ -82,7 +82,7 @@ public class JouleThomson extends SimulationGraphic {
     public JouleThomson(JouleThomsonSim simulation) {
         super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         sim = simulation;
-        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
@@ -109,13 +109,13 @@ public class JouleThomson extends SimulationGraphic {
 	    //colorscheme to color atoms blue to red according to their velocity
 	    DeviceSlider scaleSlider = null;
         if(sim.getSpace().D() == 2) 
-            getDisplayPhase(sim.phase).setColorScheme(new ColorSchemeTemperature(100, 500));
+            getDisplayBox(sim.box).setColorScheme(new ColorSchemeTemperature(100, 500));
         else {
             ColorSchemeByType colorScheme = new ColorSchemeByType();
             colorScheme.setColor(sim.species.getMoleculeType(), Color.blue);
-            getDisplayPhase(sim.phase).setColorScheme(colorScheme);
+            getDisplayBox(sim.box).setColorScheme(colorScheme);
         }
-        ModifierFunctionWrapper scaleModifier = new ModifierFunctionWrapper(getDisplayPhase(sim.phase), "scale");
+        ModifierFunctionWrapper scaleModifier = new ModifierFunctionWrapper(getDisplayBox(sim.box), "scale");
         scaleModifier.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
         scaleSlider = new DeviceSlider(sim.getController());
         scaleSlider.setModifier(scaleModifier);
@@ -124,7 +124,7 @@ public class JouleThomson extends SimulationGraphic {
         // the display
         scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-            	getDisplayPhase(sim.phase).graphic().repaint();
+            	getDisplayBox(sim.box).graphic().repaint();
             }
         });
         scaleSlider.setMinimum(10);
@@ -164,13 +164,13 @@ public class JouleThomson extends SimulationGraphic {
 //        etomica.MeterScalar hMeter = properties.allMeters()[2];
 //        properties.setHistorying(true);
 //        tMeter.setHistorying(true);
-//        tMeter.setPhase(phase);
+//        tMeter.setBox(box);
 //        pMeter.setHistorying(true);
 //        hMeter.setHistorying(true);
         
         //meter and display for density
         final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setPhase(sim.phase);
+        densityMeter.setBox(sim.box);
         AccumulatorHistory densityHistoryAcc = new AccumulatorHistory();
         DataPump densityPump = new DataPump(densityMeter, densityHistoryAcc);
         sim.integratorJT.addIntervalAction(densityPump);
@@ -271,16 +271,16 @@ public class JouleThomson extends SimulationGraphic {
         getPanel().controlPanel.add(sliderPanel, vertGBC);
 
         // Panel that graphic sits on configuration tab
-	    JPanel displayPhasePanel = new JPanel(new BorderLayout());
-	    displayPhasePanel.add(getDisplayPhase(sim.phase).graphic(),BorderLayout.CENTER);
+	    JPanel displayBoxPanel = new JPanel(new BorderLayout());
+	    displayBoxPanel.add(getDisplayBox(sim.box).graphic(),BorderLayout.CENTER);
 
 	    // Add widgets specific to 2D application
 	    if(sim.getSpace().D() < 3) {
-	    	displayPhasePanel.add(scaleSlider.getSlider(),BorderLayout.EAST);
+	    	displayBoxPanel.add(scaleSlider.getSlider(),BorderLayout.EAST);
 	    }
 
         // Add objects to tabbed pane (display area)
-	    getPanel().tabbedPane.add(getDisplayPhase(sim.phase).getLabel(), displayPhasePanel);
+	    getPanel().tabbedPane.add(getDisplayBox(sim.box).getLabel(), displayBoxPanel);
 	    getPanel().tabbedPane.add(displayTable.getLabel(), displayTable.graphic());
 	    getPanel().tabbedPane.add(plot.getLabel(), plot.graphic());
 	    getPanel().tabbedPane.add(plotH.getLabel(), plotH.graphic());
@@ -292,7 +292,7 @@ public class JouleThomson extends SimulationGraphic {
 	    getPanel().add(getPanel().tabbedPane);
 	    getPanel().toolbar.addContributor("Colin Tedlock");
 
-	    getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
+	    getController().getReinitButton().setPostAction(getDisplayBoxPaintAction(sim.box));
     }
 
     //inner class the defines a drop-down menu to select LJ parameters to mimic
@@ -350,8 +350,8 @@ public class JouleThomson extends SimulationGraphic {
             String speciesName = (String)evt.getItemSelectable().getSelectedObjects()[0];
             setSpecies(speciesName);
 
-            // Display the new phase
-            simGraphic.getDisplayPhase(sim.phase).repaint();
+            // Display the new box
+            simGraphic.getDisplayBox(sim.box).repaint();
         }
 
         public void setSpecies(String speciesName) {
@@ -373,20 +373,20 @@ public class JouleThomson extends SimulationGraphic {
             }
     	    double targetDensity = 0.5;
     	    if(currentSig > 0.5) {
-    	        sim.phase.setDensity(targetDensity/Math.pow(currentSig,sim.getSpace().D()));
-    	        double size = currentSig*Math.pow(sim.phase.atomCount()/targetDensity,1.0/sim.getSpace().D());
+    	        sim.box.setDensity(targetDensity/Math.pow(currentSig,sim.getSpace().D()));
+    	        double size = currentSig*Math.pow(sim.box.atomCount()/targetDensity,1.0/sim.getSpace().D());
                 IVector v = sim.getSpace().makeVector();
                 v.E(size);
-                sim.phase.getBoundary().setDimensions(v);
+                sim.box.getBoundary().setDimensions(v);
                 SpaceLattice lattice;
-                if (sim.phase.getSpace().D() == 2) {
+                if (sim.box.getSpace().D() == 2) {
                     lattice = new LatticeOrthorhombicHexagonal();
                 }
                 else {
                     lattice = new LatticeCubicFcc();
                 }
                 Configuration config = new ConfigurationLattice(lattice);
-                config.initializeCoordinates(sim.phase);
+                config.initializeCoordinates(sim.box);
             }
             if(speciesName.equals("Ideal gas")) sim.integrator.getPotential().setEnabled(sim.potential,false);
             else sim.integrator.getPotential().setEnabled(sim.potential,true);

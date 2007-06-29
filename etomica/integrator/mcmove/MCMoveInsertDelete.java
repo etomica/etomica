@@ -10,18 +10,18 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.species.Species;
 import etomica.util.IRandom;
 
 /**
  * Elementary Monte Carlo move in which a molecule of a specified species is
- * inserted into or removed from a phase.
+ * inserted into or removed from a box.
  *
  * @author David Kofke
  */
-public class MCMoveInsertDelete extends MCMovePhase {
+public class MCMoveInsertDelete extends MCMoveBox {
     
     private static final long serialVersionUID = 2L;
     //chemical potential
@@ -55,19 +55,19 @@ public class MCMoveInsertDelete extends MCMovePhase {
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
     public void setSpecies(Species s) {
         species = s;
-        if(phase != null) {
-            speciesAgent = species.getAgent(phase);
+        if(box != null) {
+            speciesAgent = species.getAgent(box);
             moleculeList = speciesAgent.getChildList();
         }
         moleculeFactory = species.getMoleculeFactory();
     }
     public Species getSpecies() {return species;}
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        energyMeter.setPhase(phase);
+    public void setBox(Box p) {
+        super.setBox(p);
+        energyMeter.setBox(box);
         if(species != null) {
-            speciesAgent = species.getAgent(phase);
+            speciesAgent = species.getAgent(box);
             moleculeList = speciesAgent.getChildList();
         }
     }
@@ -85,7 +85,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
             else testMolecule = moleculeFactory.makeAtom();
             speciesAgent.addChildAtom(testMolecule);
 
-            atomTranslator.setDestination(phase.getBoundary().randomPosition());
+            atomTranslator.setDestination(box.getBoundary().randomPosition());
             atomTranslator.actionPerformed(testMolecule);
         } else {//delete
             if(speciesAgent.getNMolecules() == 0) {
@@ -102,8 +102,8 @@ public class MCMoveInsertDelete extends MCMovePhase {
     }//end of doTrial
     
     public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-        return insert ? phase.volume()/speciesAgent.getNMolecules() 
-                      : (speciesAgent.getNMolecules()+1)/phase.volume();        
+        return insert ? box.volume()/speciesAgent.getNMolecules() 
+                      : (speciesAgent.getNMolecules()+1)/box.volume();        
     }
     
     public double getB() {
@@ -118,7 +118,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
     
     public void acceptNotify() {
         if(!insert) {
-            // accepted deletion - remove from phase and add to reservoir 
+            // accepted deletion - remove from box and add to reservoir 
             speciesAgent.removeChildAtom(testMolecule);
             reservoir.add(testMolecule);
         }
@@ -126,7 +126,7 @@ public class MCMoveInsertDelete extends MCMovePhase {
     
     public void rejectNotify() {
         if(insert) {
-            // rejected insertion - remove from phase and return to reservoir
+            // rejected insertion - remove from box and return to reservoir
             speciesAgent.removeChildAtom(testMolecule);
             reservoir.add(testMolecule);
             // test molecule is no longer in the simulation and should not be 

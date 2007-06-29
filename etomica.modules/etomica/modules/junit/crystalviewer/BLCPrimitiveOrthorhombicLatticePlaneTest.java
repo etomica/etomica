@@ -29,7 +29,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
 		super.setUp();
 		if (lptu == null) {
 			lptu = new LatticePlaneTestUtility();			
-	        lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, DEFAULT_MILLER, DEFAULT_BOX);
+	        lptu.createLatticeAndBox(lptu.ORTHORHOMBIC, DEFAULT_MILLER, DEFAULT_BOX);
 	        lptu.setDimensions(DEFAULT_SIZE);
 		}
 	}
@@ -55,7 +55,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	double plane = 1.0;
     	AtomSet leafList = null;
 
-        lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.ORTHORHOMBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeA(cubicSize);
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeB(cubicSize);
@@ -67,7 +67,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -116,7 +116,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	double plane = -2.0;
     	AtomSet leafList = null;
 
-        lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.ORTHORHOMBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -129,7 +129,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -187,7 +187,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
 
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.ORTHORHOMBIC, millerIndices, new int[] {size, size, size});
         
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeA(cubicSize);
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeB(cubicSize);
@@ -198,7 +198,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -246,7 +246,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	int dimensionSize = 4;
     	double plane = 0.0;
 
-        lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, DEFAULT_MILLER,
+        lptu.createLatticeAndBox(lptu.ORTHORHOMBIC, DEFAULT_MILLER,
         		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeA(cubicSize);
@@ -258,7 +258,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -290,7 +290,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	int dimensionSize = 4;
     	double plane = 0.5;
 
-        lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, DEFAULT_MILLER,
+        lptu.createLatticeAndBox(lptu.ORTHORHOMBIC, DEFAULT_MILLER,
         		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeA(cubicSize);
@@ -303,7 +303,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -355,7 +355,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	double plane = 2.95;
     	int[] millerIndices = new int[] { 2, 2, 1 };
 
-        lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.ORTHORHOMBIC, millerIndices, new int[] {size, size, size});
         
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -366,7 +366,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -417,7 +417,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
 
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.ORTHORHOMBIC, millerIndices, new int[] {size, size, size});
         
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -428,7 +428,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -481,7 +481,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
     	double plane = 3.05;
     	int[] millerIndices = new int[] { 2, 2, 1 };
 
-        lptu.createLatticeAndPhase(lptu.ORTHORHOMBIC, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.ORTHORHOMBIC, millerIndices, new int[] {size, size, size});
         
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveOrthorhombic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -492,7 +492,7 @@ public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {

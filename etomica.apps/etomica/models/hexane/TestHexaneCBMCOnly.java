@@ -11,7 +11,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.BravaisLattice;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -68,16 +68,16 @@ public class TestHexaneCBMCOnly extends Simulation {
         getSpeciesManager().addSpecies(species);
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[] {
             4, 6, 6 });
-        phase = new Phase(bdry);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numMolecules);
-        // config.initializeCoordinates(phase);
+        box = new Box(bdry);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numMolecules);
+        // config.initializeCoordinates(box);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
 
         growMolecule = new CBMCGrowSolidHexane(potentialMaster,
-                getRandom(), integrator, phase, species, 20);
-        growMolecule.setPhase(phase);
+                getRandom(), integrator, box, species, 20);
+        growMolecule.setBox(box);
         integrator.getMoveManager().addMCMove(growMolecule);
 
         // nan we're going to need some stuff in there to set the step sizes and
@@ -166,12 +166,12 @@ public class TestHexaneCBMCOnly extends Simulation {
         // species.getMoleculeType() } );
 
         // Initialize the positions of the atoms.
-        config.initializeCoordinates(phase);
+        config.initializeCoordinates(box);
 
-        integrator.setPhase(phase);
+        integrator.setBox(box);
 
         // nan this will need to be changed
-        // pri = new PairIndexerMolecule(phase, new PrimitiveHexane(space));
+        // pri = new PairIndexerMolecule(box, new PrimitiveHexane(space));
     }
 
     public static void main(String[] args) {
@@ -187,7 +187,7 @@ public class TestHexaneCBMCOnly extends Simulation {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
             simGraphic.makeAndDisplayFrame(APP_NAME);
         } else {
-            // PDBWriter write = new PDBWriter(sim.phase);
+            // PDBWriter write = new PDBWriter(sim.box);
             // write.setFileName("HexaneCBMCOnly");
             // sim.getController().addAction(write); //after it runs, it writes.
 
@@ -210,7 +210,7 @@ public class TestHexaneCBMCOnly extends Simulation {
             // meterNormalMode.setWaveVectorFactory(waveVectorFactory);
             // meterNormalMode.setCoordinateDefinition(new
             // CoordinateDefinitionHexane());
-            // meterNormalMode.setPhase(sim.phase);
+            // meterNormalMode.setBox(sim.box);
 
             long nSteps = 100;
 //            sim.activityIntegrate.setMaxSteps(nSteps / 10);
@@ -242,7 +242,7 @@ public class TestHexaneCBMCOnly extends Simulation {
             sim.getController().actionPerformed();
 
             // DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
-            // normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()
+            // normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()
 //                  *meterNormalMode.getCallCount()));
             // int normalDim =
             // meterNormalMode.getCoordinateDefinition().getCoordinateDim();
@@ -283,7 +283,7 @@ public class TestHexaneCBMCOnly extends Simulation {
 
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
-    public Phase phase;
+    public Box box;
     public BoundaryDeformablePeriodic bdry;
     public CBMCGrowSolidHexane growMolecule;
     public BravaisLattice lattice;

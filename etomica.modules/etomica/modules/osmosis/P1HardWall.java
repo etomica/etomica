@@ -27,7 +27,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Harmonic potential at the phase boundaries");
+        EtomicaInfo info = new EtomicaInfo("Harmonic potential at the box boundaries");
         return info;
     }
 

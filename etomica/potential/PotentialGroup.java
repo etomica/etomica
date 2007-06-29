@@ -16,7 +16,7 @@ import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster.AtomIterator0;
 import etomica.space.Space;
 
@@ -244,10 +244,10 @@ public class PotentialGroup extends Potential {
     	}
     }
     
-    public void setPhase(Phase phase) {
-    	this.phase = phase;
+    public void setBox(Box box) {
+    	this.box = box;
   		for (PotentialLinker link=first; link!= null; link=link.next) {
-  		    link.potential.setPhase(phase);
+  		    link.potential.setBox(box);
   		}
     }
     
@@ -292,7 +292,7 @@ public class PotentialGroup extends Potential {
     
     private static final long serialVersionUID = 1L;
     protected PotentialLinker first;
-    protected Phase phase;
+    protected Box box;
     protected PotentialMaster potentialMaster;
     protected NeighborCriterion criterion = new CriterionAll();
 

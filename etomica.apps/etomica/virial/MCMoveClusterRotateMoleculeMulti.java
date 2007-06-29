@@ -5,14 +5,14 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.util.IRandom;
 
 /**
  * MCMove for use in a Mayer sampling simulation that rotates all molecules in
- * a Phase except the first molecule, which is never moved.  The angle of
+ * a Box except the first molecule, which is never moved.  The angle of
  * rotation is the step size and can be tuned for some acceptance rate.
  */
 public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
@@ -31,9 +31,9 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         oldPositions = new IVector[nMolecules][];
     }
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        weightMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        weightMeter.setBox(p);
         selectMolecules();
         for (int i=0; i<nMolecules; i++) {
             molecule = selectedMolecules[i];
@@ -75,13 +75,13 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             }
         }
 
-        ((PhaseCluster)phase).trialNotify();
+        ((BoxCluster)box).trialNotify();
         uNew = weightMeter.getDataAsScalar();
         return true;
     }
     
     public void selectMolecules() {
-        AtomSet atomList = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
+        AtomSet atomList = ((IAtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
         for (int i=0; i<selectedMolecules.length; i++) {
             selectedMolecules[i] = (IAtomGroup)atomList.getAtom(i+1);
         }
@@ -97,7 +97,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     
     public void acceptNotify() {
         super.acceptNotify();
-        ((PhaseCluster)phase).acceptNotify();
+        ((BoxCluster)box).acceptNotify();
     }
     
     public void rejectNotify() {
@@ -111,7 +111,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
                 a.getPosition().E(oldPositions[i][j++]);
             }
         }
-        ((PhaseCluster)phase).rejectNotify();
+        ((BoxCluster)box).rejectNotify();
     }
     
     public void setRelaxAction(AtomAction action) {

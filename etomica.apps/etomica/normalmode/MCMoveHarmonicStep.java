@@ -3,9 +3,9 @@ package etomica.normalmode;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.mcmove.MCMovePhaseStep;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.util.IRandom;
 
@@ -17,7 +17,7 @@ import etomica.util.IRandom;
  *
  * @author Andrew Schultz
  */
-public class MCMoveHarmonicStep extends MCMovePhaseStep {
+public class MCMoveHarmonicStep extends MCMoveBoxStep {
 
     public MCMoveHarmonicStep(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
@@ -53,10 +53,10 @@ public class MCMoveHarmonicStep extends MCMovePhaseStep {
         eigenVectors = newEigenVectors;
     }
     
-    public void setPhase(Phase newPhase) {
-        super.setPhase(newPhase);
-        iterator.setPhase(newPhase);
-        energyMeter.setPhase(newPhase);
+    public void setBox(Box newBox) {
+        super.setBox(newBox);
+        iterator.setBox(newBox);
+        energyMeter.setBox(newBox);
         latticeEnergy = energyMeter.getDataAsScalar();
     }
 

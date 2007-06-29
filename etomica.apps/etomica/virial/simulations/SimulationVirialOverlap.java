@@ -18,7 +18,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMovePhaseStep;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -40,7 +40,7 @@ import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
-import etomica.virial.PhaseCluster;
+import etomica.virial.BoxCluster;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
@@ -73,12 +73,12 @@ public class SimulationVirialOverlap extends Simulation {
         getSpeciesManager().addSpecies(species);
         accumulators = new AccumulatorVirialOverlapSingleAverage[sampleClusters.length];
         accumulatorPumps = new DataPump[sampleClusters.length];
-        phase = new PhaseCluster[sampleClusters.length];
+        box = new BoxCluster[sampleClusters.length];
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
-        mcMoveTranslate = new MCMovePhaseStep[sampleClusters.length];
+        mcMoveTranslate = new MCMoveBoxStep[sampleClusters.length];
         if (species.getMoleculeType() instanceof AtomTypeGroup) {
-            mcMoveRotate = new MCMovePhaseStep[sampleClusters.length];
+            mcMoveRotate = new MCMoveBoxStep[sampleClusters.length];
         }
         if (species instanceof SpeciesSpheres) {
             mcMoveWiggle = new MCMoveClusterWiggleMulti[sampleClusters.length];
@@ -87,43 +87,43 @@ public class SimulationVirialOverlap extends Simulation {
         P0Cluster p0 = new P0Cluster(space);
         potentialMaster.addPotential(p0,new Species[]{});
         
-        for (int iPhase=0; iPhase<sampleClusters.length; iPhase++) {
-            // integrator for iPhase samples based on iPhase cluster
-            phase[iPhase] = new PhaseCluster(this,sampleClusters[iPhase]);
-            phase[iPhase].getAgent(species).setNMolecules(nMolecules);
+        for (int iBox=0; iBox<sampleClusters.length; iBox++) {
+            // integrator for iBox samples based on iBox cluster
+            box[iBox] = new BoxCluster(this,sampleClusters[iBox]);
+            box[iBox].getAgent(species).setNMolecules(nMolecules);
             
-            integrators[iPhase] = new IntegratorMC(this, potentialMaster);
-            integrators[iPhase].setTemperature(temperature);
-            integrators[iPhase].setPhase(phase[iPhase]);
-            integrators[iPhase].getMoveManager().setEquilibrating(false);
+            integrators[iBox] = new IntegratorMC(this, potentialMaster);
+            integrators[iBox].setTemperature(temperature);
+            integrators[iBox].setBox(box[iBox]);
+            integrators[iBox].getMoveManager().setEquilibrating(false);
             
-            MCMoveManager moveManager = integrators[iPhase].getMoveManager();
+            MCMoveManager moveManager = integrators[iBox].getMoveManager();
             
             if (species.getMoleculeType() instanceof AtomTypeLeaf) {
-                mcMoveTranslate[iPhase] = new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
-                mcMoveTranslate[iPhase].setStepSize(0.41);
-                moveManager.addMCMove(mcMoveTranslate[iPhase]);
+                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
+                mcMoveTranslate[iBox].setStepSize(0.41);
+                moveManager.addMCMove(mcMoveTranslate[iBox]);
             }
             else {
-                mcMoveRotate[iPhase] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(),nMolecules-1);
-                mcMoveRotate[iPhase].setStepSize(Math.PI);
-                moveManager.addMCMove(mcMoveRotate[iPhase]);
-                mcMoveTranslate[iPhase] = new MCMoveClusterMoleculeMulti(potentialMaster, getRandom(), 0.41, nMolecules-1);
-                moveManager.addMCMove(mcMoveTranslate[iPhase]);
+                mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(),nMolecules-1);
+                mcMoveRotate[iBox].setStepSize(Math.PI);
+                moveManager.addMCMove(mcMoveRotate[iBox]);
+                mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(potentialMaster, getRandom(), 0.41, nMolecules-1);
+                moveManager.addMCMove(mcMoveTranslate[iBox]);
                 if (species instanceof SpeciesSpheres) {
                     if (species.getMoleculeFactory().getNumChildAtoms() > 2) {
-                        mcMoveWiggle[iPhase] = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules);
-                        moveManager.addMCMove(mcMoveWiggle[iPhase]);
+                        mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules);
+                        moveManager.addMCMove(mcMoveWiggle[iBox]);
                     }
                 }
             }
             
             ConfigurationCluster configuration = new ConfigurationCluster(getRandom());
-            configuration.initializeCoordinates(phase[iPhase]);
-            MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iPhase],aSampleClusters[1-iPhase]});
-            setMeter(meter,iPhase);
-            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(11, iPhase==0);
-            setAccumulator(acc,iPhase);
+            configuration.initializeCoordinates(box[iBox]);
+            MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iBox],aSampleClusters[1-iBox]});
+            setMeter(meter,iBox);
+            AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(11, iBox==0);
+            setAccumulator(acc,iBox);
               
         }
         
@@ -144,27 +144,27 @@ public class SimulationVirialOverlap extends Simulation {
         accumulators[1].setBennetParam(refPrefCenter,span);
     }
     
-    public void setMeter(MeterVirial newMeter, int iPhase) {
-        if (accumulators[iPhase] != null) {
+    public void setMeter(MeterVirial newMeter, int iBox) {
+        if (accumulators[iBox] != null) {
             // we need a new accumulator so nuke the old one now.
-            if (accumulatorPumps[iPhase] != null) {
-                integrators[iPhase].removeIntervalAction(accumulatorPumps[iPhase]);
-                accumulatorPumps[iPhase] = null;
+            if (accumulatorPumps[iBox] != null) {
+                integrators[iBox].removeIntervalAction(accumulatorPumps[iBox]);
+                accumulatorPumps[iBox] = null;
             }
-            accumulators[iPhase] = null;
+            accumulators[iBox] = null;
         }
-        meters[iPhase] = newMeter;
-        newMeter.setPhase(phase[iPhase]);
+        meters[iBox] = newMeter;
+        newMeter.setBox(box[iBox]);
     }
 
-    public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iPhase) {
-        accumulators[iPhase] = newAccumulator;
-        if (accumulatorPumps[iPhase] == null) {
-            accumulatorPumps[iPhase] = new DataPump(meters[iPhase],newAccumulator);
-            integrators[iPhase].addIntervalAction(accumulatorPumps[iPhase]);
+    public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
+        accumulators[iBox] = newAccumulator;
+        if (accumulatorPumps[iBox] == null) {
+            accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
+            integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
         }
         else {
-            accumulatorPumps[iPhase].setDataSink(newAccumulator);
+            accumulatorPumps[iBox].setDataSink(newAccumulator);
         }
         if (integratorOS != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
@@ -275,11 +275,11 @@ public class SimulationVirialOverlap extends Simulation {
     public AccumulatorVirialOverlapSingleAverage[] accumulators;
     protected DataPump[] accumulatorPumps;
 	protected final ClusterWeight[] sampleClusters;
-    public PhaseCluster[] phase;
+    public BoxCluster[] box;
     public Species species;
     public IntegratorMC[] integrators;
-    public MCMovePhaseStep[] mcMoveRotate;
-    public MCMovePhaseStep[] mcMoveTranslate;
+    public MCMoveBoxStep[] mcMoveRotate;
+    public MCMoveBoxStep[] mcMoveTranslate;
     public MCMoveClusterWiggleMulti[] mcMoveWiggle;
     public MeterVirial[] meters;
     public ActivityIntegrate ai;

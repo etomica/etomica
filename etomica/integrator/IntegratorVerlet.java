@@ -9,7 +9,7 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
@@ -61,12 +61,12 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         t2 = timeStep * timeStep;
     }
           
-    public void setPhase(Phase p) {
-        if (phase != null) {
-            // allow agentManager to de-register itself as a PhaseListener
+    public void setBox(Box p) {
+        if (box != null) {
+            // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
         }
-        super.setPhase(p);
+        super.setBox(p);
         agentManager = new AtomLeafAgentManager(this,p);
         forceSum.setAgentManager(agentManager);
     }
@@ -78,11 +78,11 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         super.doStepInternal();
         //Compute forces on each atom
         forceSum.reset();
-        potential.calculate(phase, allAtoms, forceSum);
+        potential.calculate(box, allAtoms, forceSum);
         pressureTensor.E(forceSum.getPressureTensor());
 
         //take step
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -117,7 +117,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     }
     
     protected void updateMrLast() {
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -159,7 +159,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     
     public void releaseAgent(Object agent, IAtom atom) {}
             
-	public final static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
+	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVector force;
         public IVector rMrLast;  //r - rLast
 

@@ -170,8 +170,8 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
         DeviceTable table = new DeviceTable(Simulation.instance, new Modifier[] {mod1, mod2});
         sim.integrator.setIsothermal(true);
         sim.integrator.setTemperature(Kelvin.UNIT.toSim(300.));
-		DisplayBox box1 = new DisplayBox();
-		DisplayBox box2 = new DisplayBox();
+		DisplayTextBox box1 = new DisplayTextBox();
+		DisplayTextBox box2 = new DisplayTextBox();
 		box1.setDatumSource(mod1);
 		box2.setDatumSource(mod2);
 		

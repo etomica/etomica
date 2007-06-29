@@ -6,9 +6,9 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
@@ -35,9 +35,9 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
         atomAgentManager = new AtomLeafAgentManager[pc.length];
         
         for (int i=0; i<pc.length; i++){
-            atomAgentManager[i] = new AtomLeafAgentManager(this, agentManager.getPhase());
+            atomAgentManager[i] = new AtomLeafAgentManager(this, agentManager.getBox());
             pc[i].setAgentManager(atomAgentManager[i]);
-            agentManager.getPhase();
+            agentManager.getBox();
 		}
 		
 	}
@@ -55,14 +55,14 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 	
 	public void writeData(){
        
-		Phase phase = integratorAgentManager.getPhase();
-        AtomSet atomArrayList = phase.getSpeciesMaster().getLeafList();
+		Box box = integratorAgentManager.getBox();
+        AtomSet atomArrayList = box.getSpeciesMaster().getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
-            IVector force = ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atomArrayList.getAtom(j))).force();
+            IVector force = ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atomArrayList.getAtom(j))).force();
       
             for(int i=0; i<pc.length; i++){
-                force.PE(((IntegratorPhase.Forcible)atomAgentManager[i].getAgent(atomArrayList.getAtom(j))).force());
+                force.PE(((IntegratorBox.Forcible)atomAgentManager[i].getAgent(atomArrayList.getAtom(j))).force());
                
                 
             }
@@ -75,7 +75,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
     }
 
     public final Object makeAgent(IAtom a) {
-        return new MyAgent(integratorAgentManager.getPhase().getSpace());
+        return new MyAgent(integratorAgentManager.getBox().getSpace());
     }
     
     public void releaseAgent(Object object, IAtom atom){

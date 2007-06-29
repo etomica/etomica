@@ -5,11 +5,11 @@ import java.io.IOException;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 
 /**
- * Dumps a phase's configuration to a file.  The coordinates are written in a 
+ * Dumps a box's configuration to a file.  The coordinates are written in a 
  * format that can be read in by ConfigurationFile.  The output file has a 
  * "pos_new" extension, which should be renamed to "pos" for use with
  * ConfigurationFile.
@@ -31,18 +31,18 @@ public class WriteConfiguration implements Action {
     }
     
     /**
-     * Sets the phase whose atom coordinates get written to the file.
+     * Sets the box whose atom coordinates get written to the file.
      */
-    public void setPhase(Phase newPhase) {
-        phase = newPhase;
+    public void setBox(Box newBox) {
+        box = newBox;
         setDoApplyPBC(true);
     }
     
     /**
-     * Returns the phase whose atom coordinates get written to the file.
+     * Returns the box whose atom coordinates get written to the file.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     
     /**
@@ -74,14 +74,14 @@ public class WriteConfiguration implements Action {
             return;
         }
         try {
-            IVector writePosition = phase.getSpace().makeVector();
-            AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+            IVector writePosition = box.getSpace().makeVector();
+            AtomSet leafList = box.getSpeciesMaster().getLeafList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
                 writePosition.E(a.getPosition());
                 if (doApplyPBC) {
-                    IVector shift = phase.getBoundary().centralImage(writePosition);
+                    IVector shift = box.getBoundary().centralImage(writePosition);
                     if (!shift.isZero()) {
                         writePosition.PE(shift);
                     }
@@ -100,6 +100,6 @@ public class WriteConfiguration implements Action {
     }
 
     private String confName;
-    private Phase phase;
+    private Box box;
     private boolean doApplyPBC;
 }

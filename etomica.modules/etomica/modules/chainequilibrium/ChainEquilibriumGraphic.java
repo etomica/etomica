@@ -14,7 +14,7 @@ import etomica.data.DataSinkTable;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
@@ -44,7 +44,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
         
-        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
         GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
@@ -65,15 +65,15 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DeviceSlider BBWellSlider = sliders(sim, 5, 95, "BB core", majorSpacing, minorSpacing, sim.BBbonded);
 
         // The Species Editors
-        MySpeciesEditor AEditor = new MySpeciesEditor(this, sim.speciesA.getAgent(sim.phase), "Red");
-        MySpeciesEditor BEditor = new MySpeciesEditor(this, sim.speciesB.getAgent(sim.phase), "Black");
+        MySpeciesEditor AEditor = new MySpeciesEditor(this, sim.speciesA.getAgent(sim.box), "Red");
+        MySpeciesEditor BEditor = new MySpeciesEditor(this, sim.speciesB.getAgent(sim.box), "Black");
 		
         // the Atom Diameter Modifer
         DiameterModifier sizeModifier = new DiameterModifier(sim.AAbonded,sim.ABbonded, sim.BBbonded, sim.speciesA, sim.speciesB);
 
         DeviceSlider sizeSlider = new DeviceSlider(sim.getController(), sizeModifier);
 		
-        DisplayBox tBox = new DisplayBox();
+        DisplayTextBox tBox = new DisplayTextBox();
 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
@@ -101,7 +101,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         compositionPlot.setDoLegend(false);
 
-        getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
+        getController().getReinitButton().setPostAction(getDisplayBoxPaintAction(sim.box));
 
         // Things to Do while simulation is on (It is adding the DataPumps, which run off the meters)
         sim.integratorHard1.addIntervalAction(tPump);
@@ -110,7 +110,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
 		DeviceThermoSelector tSelect = setup(sim);
         tSelect.setIntegrator(sim.integratorHard1);
-        ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayPhase(sim.phase).getColorScheme();
+        ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
         colorScheme.setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
         colorScheme.setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
 
@@ -129,7 +129,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         sizeSlider.setValue(3.0);
         sizeSlider.setShowValues(true);
         sizeSlider.setEditValues(true);
-        sizeModifier.setDisplay(getDisplayPhase(sim.phase));
+        sizeModifier.setDisplay(getDisplayBox(sim.box));
 
         tBox.setUnit(Kelvin.UNIT);
         tBox.setLabel("Measured value");
@@ -137,7 +137,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         compositionPlot.setLabel("Composition");
 
-        getPanel().tabbedPane.add(getDisplayPhase(sim.phase).getLabel(), getDisplayPhase(sim.phase).graphic());
+        getPanel().tabbedPane.add(getDisplayBox(sim.box).getLabel(), getDisplayBox(sim.box).graphic());
         getPanel().tabbedPane.add(compositionPlot.getLabel(), compositionPlot.graphic());
         getPanel().tabbedPane.add("Averages", THING.graphic());
 

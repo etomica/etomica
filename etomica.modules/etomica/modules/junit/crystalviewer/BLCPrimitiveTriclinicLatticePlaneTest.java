@@ -30,7 +30,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 		super.setUp();
 		if (lptu == null) {
 			lptu = new LatticePlaneTestUtility();			
-	        lptu.createLatticeAndPhase(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
+	        lptu.createLatticeAndBox(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
 	        lptu.setDimensions(DEFAULT_SIZE);
 		}
 	}
@@ -59,7 +59,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double plane = 1.0;
     	AtomSet leafList = null;
 
-        lptu.createLatticeAndPhase(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
 
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeA(cubicSize);
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeB(cubicSize);
@@ -74,7 +74,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -127,7 +127,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double plane = -2.0;
     	AtomSet leafList = null;
 
-        lptu.createLatticeAndPhase(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
 
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -142,7 +142,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -198,7 +198,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double gamma = Math.PI * 2.0 * (120.0 / 360.0);
     	AtomSet leafList = null;
 
-        lptu.createLatticeAndPhase(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.TRICLINIC, DEFAULT_MILLER, DEFAULT_BOX);
 
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -213,7 +213,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
        	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -303,7 +303,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
 
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndPhase(lptu.TRICLINIC, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.TRICLINIC, millerIndices, new int[] {size, size, size});
         
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -317,7 +317,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
 
     	try {
@@ -378,7 +378,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double plane = 2.95;
     	int[] millerIndices = new int[] { 1, 1, 1 };
 
-        lptu.createLatticeAndPhase(lptu.TRICLINIC, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.TRICLINIC, millerIndices, new int[] {size, size, size});
         
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -392,7 +392,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
 
     	try {
@@ -468,7 +468,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
             { 2.7220696505721866, 4.227092136242205, -3.6592047969123156 } };
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndPhase(lptu.TRICLINIC, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.TRICLINIC, millerIndices, new int[] {size, size, size});
         
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -482,7 +482,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
 
     	try {
@@ -542,7 +542,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
     	double gamma = Math.PI * 2.0 * (115.0 / 360.0);
     	int[] millerIndices = new int[] { 1, 1, 1 };
 
-        lptu.createLatticeAndPhase(lptu.TRICLINIC, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.TRICLINIC, millerIndices, new int[] {size, size, size});
         
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeA(cubicSizeA);
         ((PrimitiveTriclinic)lptu.getLattice().getPrimitive()).setSizeB(cubicSizeB);
@@ -556,7 +556,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
 
     	try {

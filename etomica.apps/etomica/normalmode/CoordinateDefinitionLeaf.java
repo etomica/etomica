@@ -7,7 +7,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 
 /**
@@ -23,13 +23,13 @@ import etomica.space.IVector;
 public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         Serializable {
 
-    public CoordinateDefinitionLeaf(Phase phase, Primitive primitive) {
-        this(phase, primitive, new BasisMonatomic(phase.getSpace()));
+    public CoordinateDefinitionLeaf(Box box, Primitive primitive) {
+        this(box, primitive, new BasisMonatomic(box.getSpace()));
     }
     
-    public CoordinateDefinitionLeaf(Phase phase, Primitive primitive, Basis basis) {
-        super(phase, phase.getSpace().D()*basis.getScaledCoordinates().length, primitive, basis);
-        workVector = phase.getSpace().makeVector();
+    public CoordinateDefinitionLeaf(Box box, Primitive primitive, Basis basis) {
+        super(box, box.getSpace().D()*basis.getScaledCoordinates().length, primitive, basis);
+        workVector = box.getSpace().makeVector();
         u = new double[coordinateDim];
     }
 

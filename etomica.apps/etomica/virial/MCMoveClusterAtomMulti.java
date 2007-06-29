@@ -3,7 +3,7 @@ package etomica.virial;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
@@ -27,9 +27,9 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         setStepSize(1.2);
 	}
 	
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        weightMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        weightMeter.setBox(p);
     }
     
 	//note that total energy is calculated
@@ -41,7 +41,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
             translationVectors[i].TE(stepSize);
             selectedAtoms[i].getPosition().PE(translationVectors[i]);
         }
-		((PhaseCluster)phase).trialNotify();
+		((BoxCluster)box).trialNotify();
 		uNew = Double.NaN;
 		return true;
 	}
@@ -56,7 +56,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     }
     
     public void selectAtoms() {
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int total = leafList.getAtomCount();
     	for(int i=1; i<total; i++) {
     		selectedAtoms[i-1] = (IAtomPositioned)leafList.getAtom(i);
@@ -67,11 +67,11 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
         for(int i=0; i<selectedAtoms.length; i++) {
             selectedAtoms[i].getPosition().ME(translationVectors[i]);
         }
-    	((PhaseCluster)phase).rejectNotify();
+    	((BoxCluster)box).rejectNotify();
     }
     
     public void acceptNotify() {
-    	((PhaseCluster)phase).acceptNotify();
+    	((BoxCluster)box).acceptNotify();
     }
 
     private static final long serialVersionUID = 1L;

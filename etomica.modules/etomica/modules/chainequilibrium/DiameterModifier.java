@@ -7,7 +7,7 @@
 package etomica.modules.chainequilibrium;
 
 import etomica.atom.AtomTypeSphere;
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.modifier.Modifier;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
@@ -21,7 +21,7 @@ import etomica.units.Dimension;
 class DiameterModifier implements Modifier {
 	P2SquareWellBonded potentialRR, potentialRB, potentialBB;
 	SpeciesSpheresMono speciesR, speciesB;
-	DisplayPhase display;
+	DisplayBox display;
 
 	DiameterModifier(P2SquareWellBonded potentialRR,
 			P2SquareWellBonded potentialRB, P2SquareWellBonded potentialBB,
@@ -57,7 +57,7 @@ class DiameterModifier implements Modifier {
 		return ((AtomTypeSphere)speciesR.getMoleculeType()).getDiameter();
 	}
 
-	public void setDisplay(DisplayPhase display) {
+	public void setDisplay(DisplayBox display) {
 		this.display = display;
 	}
 

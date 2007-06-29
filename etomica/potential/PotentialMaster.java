@@ -13,7 +13,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
 import etomica.chem.models.Model;
 import etomica.chem.models.Model.PotentialAndIterator;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -55,28 +55,28 @@ public class PotentialMaster implements java.io.Serializable {
      }
 
      /**
-      * Performs the given PotentialCalculation on the atoms of the given Phase.
-      * Sets the phase for all molecule iterators and potentials, sets target
+      * Performs the given PotentialCalculation on the atoms of the given Box.
+      * Sets the box for all molecule iterators and potentials, sets target
       * and direction for iterators as specified by given IteratorDirective,
       * and applies doCalculation of given PotentialCalculation with the iterators
       * and potentials.
       */
-    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
     	IAtom targetAtom = id.getTargetAtom();
-    	mostRecentPhase = phase;
+    	mostRecentBox = box;
 
         for(PotentialLinker link=first; link!=null; link=link.next) {
     	    if(!link.enabled) continue;
-	        link.iterator.setPhase(phase);
-	        link.potential.setPhase(phase);
+	        link.iterator.setBox(box);
+	        link.potential.setBox(box);
     	    link.iterator.setTarget(targetAtom);
     	    link.iterator.setDirection(id.direction());
     	    pc.doCalculation(link.iterator, id, link.potential);
         }
         
         if(lrcMaster != null) {
-            lrcMaster.calculate(phase, id, pc);
+            lrcMaster.calculate(box, id, pc);
         }
     }
     
@@ -360,7 +360,7 @@ public class PotentialMaster implements java.io.Serializable {
     
     private static final long serialVersionUID = 1L;
 	protected PotentialMasterLrc lrcMaster;
-	protected Phase mostRecentPhase = null;
+	protected Box mostRecentBox = null;
 	protected IteratorFactory iteratorFactory;
 
     protected PotentialLinker first, last;
@@ -372,7 +372,7 @@ public class PotentialMaster implements java.io.Serializable {
         AtomIterator0() {
             super(new AtomsetArray(0));
         }
-        public void setPhase(Phase phase) {}
+        public void setBox(Box box) {}
         public void setTarget(IAtom target) {}
         public void setDirection(IteratorDirective.Direction direction) {}
     }

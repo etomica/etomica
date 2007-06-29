@@ -6,8 +6,8 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.phase.Phase;
-import etomica.phase.PhaseCellManager;
+import etomica.box.Box;
+import etomica.box.BoxCellManager;
 import etomica.space.Space;
 
 /**
@@ -31,17 +31,17 @@ import etomica.space.Space;
 /*
  * History Created on May 23, 2005 by kofke
  */
-public class NeighborSiteManager implements PhaseCellManager, AgentSource {
+public class NeighborSiteManager implements BoxCellManager, AgentSource {
 
     /**
-     * Constructs manager for neighbor cells in the given phase. The number of
+     * Constructs manager for neighbor cells in the given box. The number of
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborSiteManager(final Phase phase, int nCells) {
-        space = phase.getSpace();
+    public NeighborSiteManager(final Box box, int nCells) {
+        space = box.getSpace();
 
-        lattice = new CellLattice(phase.getBoundary().getDimensions(),
+        lattice = new CellLattice(box.getBoundary().getDimensions(),
                 AtomSite.FACTORY);
         int[] size = new int[space.D()];
         for (int i = 0; i < space.D(); i++)
@@ -51,7 +51,7 @@ public class NeighborSiteManager implements PhaseCellManager, AgentSource {
         siteIterator.setLattice(lattice);
         siteIterator.reset();
 
-        agentManager = new AtomAgentManager(this,phase);
+        agentManager = new AtomAgentManager(this,box);
     }
 
     /**

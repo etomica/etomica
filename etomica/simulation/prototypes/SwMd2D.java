@@ -1,13 +1,13 @@
 package etomica.simulation.prototypes;
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -25,10 +25,10 @@ public class SwMd2D extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
-    public Phase phase;
+    public Box box;
     public P2SquareWell potential;
     public Controller controller;
-    public DisplayPhase display;
+    public DisplayBox display;
 
     public SwMd2D() {
         this(Space2D.getInstance());
@@ -48,15 +48,15 @@ public class SwMd2D extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(50);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(50);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
         potential = new P2SquareWell(space);
         potential.setCoreDiameter(sigma);
         potentialMaster.addPotential(potential,new Species[]{species,species});
         
-        integrator.setPhase(phase);
-        integrator.addIntervalAction(new PhaseImposePbc(phase));
+        integrator.setBox(box);
+        integrator.addIntervalAction(new BoxImposePbc(box));
     } 
 }

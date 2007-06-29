@@ -45,8 +45,8 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxesCAE;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -85,18 +85,18 @@ public class LjmdGraphic extends SimulationGraphic {
 
         sim.activityIntegrate.setDoSleep(true);
        
-	    //display of phase, timer
+	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
-        getDisplayPhase(sim.phase).setColorScheme(new ColorSchemeByType());
-//        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayPhasePaintAction(sim.phase)));
+        getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
+//        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
         sim.integrator.addIntervalAction(rdfMeter);
         sim.integrator.setActionInterval(rdfMeter, 10);
         rdfMeter.getXDataSource().setXMax(4.0);
-        rdfMeter.setPhase(sim.phase);
+        rdfMeter.setBox(sim.box);
         DisplayPlot rdfPlot = new DisplayPlot();
         DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(rdfPump);
@@ -110,7 +110,7 @@ public class LjmdGraphic extends SimulationGraphic {
         double vMin = 0;
         double vMax = 4;
 		DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(new HistogramSimple(100,new DoubleRange(0,4)));
-        meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.phase));
+        meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.box));
         AccumulatorAverage rmsAverage = new AccumulatorAverage(10);
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
         sim.integrator.addIntervalAction(velocityPump);
@@ -140,7 +140,7 @@ public class LjmdGraphic extends SimulationGraphic {
 		
         getController().getReinitButton().setPostAction(new Action() {
             public void actionPerformed() {
-                getDisplayPhase(sim.phase).repaint();
+                getDisplayBox(sim.box).repaint();
                 rdfMeter.reset();
             }
         });
@@ -156,14 +156,14 @@ public class LjmdGraphic extends SimulationGraphic {
         //add meter and display for current kinetic temperature
 
 		MeterTemperature thermometer = new MeterTemperature();
-        thermometer.setPhase(sim.phase);
+        thermometer.setBox(sim.box);
         DataFork temperatureFork = new DataFork();
         DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
         sim.integrator.addIntervalAction(temperaturePump);
         sim.integrator.setActionInterval(temperaturePump, 10);
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(timeCounter);
-		DisplayBox tBox = new DisplayBox();
+		DisplayTextBox tBox = new DisplayTextBox();
 		temperatureFork.setDataSinks(new DataSink[]{tBox,temperatureHistory});
 		tBox.setUnit(tUnit);
 		tBox.setLabel("Measured value");
@@ -171,8 +171,8 @@ public class LjmdGraphic extends SimulationGraphic {
 
 		// Number density box
 	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setPhase(sim.phase);
-	    DisplayBox densityBox = new DisplayBox();
+        densityMeter.setBox(sim.box);
+	    DisplayTextBox densityBox = new DisplayTextBox();
         DataPump densityPump = new DataPump(densityMeter, densityBox);
         sim.integrator.addIntervalAction(densityPump);
         sim.integrator.setActionInterval(densityPump, 10);
@@ -180,7 +180,7 @@ public class LjmdGraphic extends SimulationGraphic {
 	    densityBox.setLabel("Number density");
 	    
 		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential());
-        eMeter.setPhase(sim.phase);
+        eMeter.setBox(sim.box);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
         DataPump energyPump = new DataPump(eMeter, energyHistory);
@@ -190,7 +190,7 @@ public class LjmdGraphic extends SimulationGraphic {
         dataStreamPumps.add(energyPump);
 		
 		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotential());
-        peMeter.setPhase(sim.phase);
+        peMeter.setBox(sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
         AccumulatorAverage peAccumulator = new AccumulatorAverage(100);
@@ -203,7 +203,7 @@ public class LjmdGraphic extends SimulationGraphic {
         dataStreamPumps.add(pePump);
 		
 		MeterKineticEnergy keMeter = new MeterKineticEnergy();
-        keMeter.setPhase(sim.phase);
+        keMeter.setBox(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
         keHistory.setTimeDataSource(timeCounter);
         DataPump kePump = new DataPump(keMeter, keHistory);
@@ -232,14 +232,14 @@ public class LjmdGraphic extends SimulationGraphic {
         pAccumulator.setPushInterval(10);
         dataStreamPumps.add(pPump);
 
-        DisplayBoxesCAE pDisplay = new DisplayBoxesCAE();
+        DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
         pDisplay.setAccumulator(pAccumulator);
-        DisplayBoxesCAE peDisplay = new DisplayBoxesCAE();
+        DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setResetAction(new SimulationRestart(sim));
-        nSlider.setSpeciesAgent(sim.species.getAgent(sim.phase));
+        nSlider.setSpeciesAgent(sim.species.getAgent(sim.box));
         nSlider.setMinimum(1);
         nSlider.setMaximum(224);
         nSlider.setLabel("Number of atoms");
@@ -251,7 +251,7 @@ public class LjmdGraphic extends SimulationGraphic {
             public void stateChanged(ChangeEvent evt) {
                 int n = (int)nSlider.getValue();
                 sim.integrator.setThermostatInterval(400/n);
-                getDisplayPhase(sim.phase).repaint();
+                getDisplayBox(sim.box).repaint();
             }
         });
 
@@ -265,9 +265,9 @@ public class LjmdGraphic extends SimulationGraphic {
         
     	final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
     	try {
-        	((javax.swing.JComponent)getDisplayPhase(sim.phase).graphic()).setPreferredSize(new java.awt.Dimension(300,300));
+        	((javax.swing.JComponent)getDisplayBox(sim.box).graphic()).setPreferredSize(new java.awt.Dimension(300,300));
         } catch(ClassCastException e) {}
-        getDisplayPhase(sim.phase).setScale(0.7);
+        getDisplayBox(sim.box).setScale(0.7);
         bigPanel.add(displayPanel);
         
         javax.swing.JPanel thermoPanel = new javax.swing.JPanel();
@@ -319,7 +319,7 @@ public class LjmdGraphic extends SimulationGraphic {
         // show config button
         DeviceButton configButton = new DeviceButton(sim.getController());
         configButton.setLabel("Show Config");
-        configButton.setAction(new ActionConfigWindow(sim.phase));
+        configButton.setAction(new ActionConfigWindow(sim.box));
 
         getPanel().controlPanel.add(temperaturePanel, vertGBC);
         add(nSlider);

@@ -23,9 +23,9 @@ import etomica.nbr.NeighborCriterion;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.nbr.cell.PhaseAgentSourceCellManager;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
+import etomica.nbr.cell.BoxAgentSourceCellManager;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
@@ -61,23 +61,23 @@ public class PotentialMasterList extends PotentialMasterNbr {
      *            if null, specifies use of atom type's position definition
      */
     public PotentialMasterList(ISimulation sim, double range, AtomPositionDefinition positionDefinition) {
-        this(sim, range, new PhaseAgentSourceCellManager(positionDefinition));
+        this(sim, range, new BoxAgentSourceCellManager(positionDefinition));
     }
     
-    public PotentialMasterList(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
-        this(sim, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
+    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource) {
+        this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource));
     }
     
-    public PotentialMasterList(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager){
-        this(sim, range, phaseAgentSource, agentManager, new NeighborListAgentSource(range));
+    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, BoxAgentManager agentManager){
+        this(sim, range, boxAgentSource, agentManager, new NeighborListAgentSource(range));
     }
             
-    public PotentialMasterList(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource, PhaseAgentManager agentManager, NeighborListAgentSource neighborListAgentSource) {
-        super(sim, phaseAgentSource, agentManager);
-        phaseAgentSource.setRange(range);
+    public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, BoxAgentManager agentManager, NeighborListAgentSource neighborListAgentSource) {
+        super(sim, boxAgentSource, agentManager);
+        boxAgentSource.setRange(range);
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
-        neighborListAgentManager = new PhaseAgentManager(neighborListAgentSource);
+        neighborListAgentManager = new BoxAgentManager(neighborListAgentSource);
         atomIterator = new AtomIteratorArrayListSimple();
         singletIterator = new AtomIteratorSinglet();
         pairIterator = new ApiInnerFixed(singletIterator, atomIterator);
@@ -97,10 +97,10 @@ public class PotentialMasterList extends PotentialMasterNbr {
             throw new IllegalArgumentException("Range must be greater than 0");
         }
         range = newRange;
-        ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(range);
+        ((BoxAgentSourceCellManager)boxAgentSource).setRange(range);
         recomputeCriteriaRanges();
         
-        PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
@@ -207,7 +207,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         recomputeCriteriaRanges();
 
-        PhaseAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborListManager neighborListManager = (NeighborListManager)iterator.next();
@@ -365,7 +365,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
         }
         recomputeCriteriaRanges();
 
-        PhaseAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator iterator = neighborListAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborListManager neighborListManager = (NeighborListManager)iterator.next();
@@ -381,27 +381,27 @@ public class PotentialMasterList extends PotentialMasterNbr {
      * Overrides superclass method to enable direct neighbor-list iteration
      * instead of iteration via species/potential hierarchy. If no target atoms are
      * specified in directive, neighborlist iteration is begun with
-     * speciesMaster of phase, and repeated recursively down species hierarchy;
+     * speciesMaster of box, and repeated recursively down species hierarchy;
      * if one atom is specified, neighborlist iteration is performed on it and
      * down species hierarchy from it; if two or more atoms are specified,
      * superclass method is invoked.
      */
-    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
-        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(phase);
+        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
         if (targetAtom == null) {
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
-            // invoke setPhase on all potentials
+            // invoke setBox on all potentials
             for (int i=0; i<allPotentials.length; i++) {
-                allPotentials[i].setPhase(phase);
+                allPotentials[i].setBox(box);
             }
 
             //no target atoms specified
             //call calculate with each SpeciesAgent
-            AtomSet list = phase.getSpeciesMaster().getAgentList();
+            AtomSet list = box.getSpeciesMaster().getAgentList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 IAtom a = list.getAtom(i);
@@ -415,7 +415,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
-                    potentials[i].setPhase(phase);
+                    potentials[i].setBox(box);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
                 }
                 parentAtom = parentAtom.getParentGroup();
@@ -423,12 +423,12 @@ public class PotentialMasterList extends PotentialMasterNbr {
             PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
-                potentials[i].setPhase(phase);
+                potentials[i].setBox(box);
             }
             calculate(targetAtom, id, pc, neighborManager);
         }
         if(lrcMaster != null) {
-            lrcMaster.calculate(phase, id, pc);
+            lrcMaster.calculate(box, id, pc);
         }
     }
 	
@@ -541,21 +541,21 @@ public class PotentialMasterList extends PotentialMasterNbr {
         arrayList.clear();
     }
 
-    public NeighborListManager getNeighborManager(Phase phase) {
+    public NeighborListManager getNeighborManager(Box box) {
         // we didn't have the simulation when we made the agent manager.
         // setting the simulation after the first time is a quick return
-        return (NeighborListManager)neighborListAgentManager.getAgent(phase);
+        return (NeighborListManager)neighborListAgentManager.getAgent(box);
     }
 
     
-    public NeighborCellManager getNbrCellManager(Phase phase) {
-        return (NeighborCellManager)phaseAgentManager.getAgent(phase);
+    public NeighborCellManager getNbrCellManager(Box box) {
+        return (NeighborCellManager)boxAgentManager.getAgent(box);
     }
 
     public void setCellRange(int newCellRange) {
         cellRange = newCellRange;
 
-        PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
@@ -573,7 +573,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private final ApiInnerFixed pairIterator;
     private final ApiInnerFixed swappedPairIterator;
     protected final NeighborListAgentSource neighborListAgentSource;
-    protected final PhaseAgentManager neighborListAgentManager;
+    protected final BoxAgentManager neighborListAgentManager;
     private int cellRange;
     protected double range;
     private double maxPotentialRange = 0;
@@ -584,7 +584,7 @@ public class PotentialMasterList extends PotentialMasterNbr {
     private AtomsetArrayList atomsetArrayList;
     private AtomsetIteratorSinglet singletSetIterator;
     
-    protected static class NeighborListAgentSource implements PhaseAgentManager.PhaseAgentSource,
+    protected static class NeighborListAgentSource implements BoxAgentManager.BoxAgentSource,
                                                               java.io.Serializable {
         public NeighborListAgentSource(double range) {
             
@@ -603,8 +603,8 @@ public class PotentialMasterList extends PotentialMasterNbr {
             return NeighborListManager.class;
         }
         
-        public Object makeAgent(Phase phase) {
-            return new NeighborListManager(potentialMaster, range, phase);
+        public Object makeAgent(Box box) {
+            return new NeighborListManager(potentialMaster, range, box);
         }
         
         public void releaseAgent(Object object) {

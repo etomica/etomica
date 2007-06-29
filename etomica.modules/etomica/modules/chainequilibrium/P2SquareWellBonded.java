@@ -4,7 +4,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2SquareWell;
 import etomica.space.Space;
 
@@ -30,16 +30,16 @@ public class P2SquareWellBonded extends P2SquareWell {
 
     private static final long serialVersionUID = 1L;
     private AtomAgentManager agentManager;
-    private Phase phase;
+    private Box box;
 
 	public P2SquareWellBonded(Space space, AtomAgentManager aam, double coreDiameter,double lambda, double epsilon) {
 		super(space, coreDiameter, lambda, epsilon, true);
         agentManager = aam;
 	}
 
-    public void setPhase(Phase newPhase){
-        phase = newPhase;
-        super.setPhase(phase);
+    public void setBox(Box newBox){
+        box = newBox;
+        super.setBox(box);
     }
     
 	/**

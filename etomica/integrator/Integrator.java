@@ -10,7 +10,7 @@ import etomica.space.IVector;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and
- * generate new configurations in one or more phases. All integrator techniques,
+ * generate new configurations in one or more boxs. All integrator techniques,
  * such as molecular dynamics or Monte Carlo, are implemented via subclasses of
  * this Integrator class. The Integrator's activities are managed via the
  * actions of the governing Controller.
@@ -76,7 +76,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     
     /**
      * Defines the actions taken by the integrator to reset itself, such as
-     * required if a perturbation is applied to the simulated phase (e.g.,
+     * required if a perturbation is applied to the simulated box (e.g.,
      * addition or deletion of a molecule). Also invoked when the
      * integrator is started or initialized.
      */

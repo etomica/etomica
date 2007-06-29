@@ -7,8 +7,8 @@ import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMovePhase;
-import etomica.integrator.mcmove.MCMovePhaseStep;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -25,7 +25,7 @@ import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
-import etomica.virial.PhaseCluster;
+import etomica.virial.BoxCluster;
 import etomica.virial.SpeciesFactory;
 
 /**
@@ -42,23 +42,23 @@ public class SimulationVirial extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster(space);
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
-		phase = new PhaseCluster(this,sampleCluster);
-        phase.getBoundary().setDimensions(Space.makeVector(new double[]{3.0,3.0,3.0}));
+		box = new BoxCluster(this,sampleCluster);
+        box.getBoundary().setDimensions(Space.makeVector(new double[]{3.0,3.0,3.0}));
 		species = speciesFactory.makeSpecies(this);
         getSpeciesManager().addSpecies(species);
-        phase.getAgent(species).setNMolecules(nMolecules);
+        box.getAgent(species).setNMolecules(nMolecules);
         
         if (refCluster instanceof ClusterCoupled) {
-            ((ClusterCoupled)refCluster).setPhase(phase);
+            ((ClusterCoupled)refCluster).setBox(box);
         }
         if (targetClusters[0] instanceof ClusterCoupled) {
-            ((ClusterCoupled)targetClusters[0]).setPhase(phase);
+            ((ClusterCoupled)targetClusters[0]).setBox(box);
         }
 
         integrator = new IntegratorMC(this, potentialMaster);
         // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         integrator.getMoveManager().setEquilibrating(false);
         integrator.setEventInterval(1);
 		ai = new ActivityIntegrate(integrator);
@@ -87,13 +87,13 @@ public class SimulationVirial extends Simulation {
 		potentialMaster.addPotential(p0,new Species[]{});
 		
         ConfigurationCluster configuration = new ConfigurationCluster(getRandom());
-        configuration.initializeCoordinates(phase);
+        configuration.initializeCoordinates(box);
 
         allValueClusters = new ClusterAbstract[targetClusters.length+1];
         allValueClusters[0] = refCluster;
         System.arraycopy(targetClusters,0,allValueClusters,1,targetClusters.length);
         setMeter(new MeterVirial(allValueClusters));
-        ((MeterVirial)meter).setPhase(phase);
+        ((MeterVirial)meter).setBox(box);
         setAccumulator(new AccumulatorRatioAverage());
 	}
 	
@@ -104,13 +104,13 @@ public class SimulationVirial extends Simulation {
 	public Species species;
 	public ActivityIntegrate ai;
 	public IntegratorMC integrator;
-	public PhaseCluster phase;
+	public BoxCluster box;
     public ClusterAbstract[] allValueClusters;
     public ClusterWeight sampleCluster;
-    public MCMovePhaseStep mcMoveTranslate;
-    public MCMovePhaseStep mcMoveRotate;
-    public MCMovePhaseStep mcMoveWiggle;
-    public MCMovePhase mcMoveReptate;
+    public MCMoveBoxStep mcMoveTranslate;
+    public MCMoveBoxStep mcMoveRotate;
+    public MCMoveBoxStep mcMoveWiggle;
+    public MCMoveBox mcMoveReptate;
 
 	public void setMeter(DataSource newMeter) {
 		meter = newMeter;

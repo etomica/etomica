@@ -8,7 +8,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -28,9 +28,9 @@ public class SimCalcJ extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numAtoms);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numAtoms);
 
         Basis basis;
         int[] nCells;
@@ -48,9 +48,9 @@ public class SimCalcJ extends Simulation {
             basis = new BasisCubicFcc();
             basis = new BasisMonatomic(space);
         }
-        phase.setBoundary(bdry);
+        box.setBoundary(bdry);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive, basis);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis);
         coordinateDefinition.initializeCoordinates(nCells);
     }
 
@@ -107,7 +107,7 @@ public class SimCalcJ extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMD integrator;
     public ActivityIntegrate activityIntegrate;
-    public Phase phase;
+    public Box box;
     public Boundary bdry;
     public Primitive primitive;
     public CoordinateDefinition coordinateDefinition;

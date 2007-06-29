@@ -19,16 +19,16 @@
 Provides classes that define and organize atoms and the information related to them.  The
 physical atoms that are manipulated in a simulation are represented by instances of the
 class {@link etomica.atom.Atom Atom}. Atom plays a larger role than this, however. Instances of Atom 
-are arranged into a tree structure, through which they organize atoms into molecules, species, and phases.
+are arranged into a tree structure, through which they organize atoms into molecules, species, and boxs.
 <p>
 This "Atom tree" may be understood as follows:
 <ul>
 <li>At the top of the tree is an instance of <u>SpeciesRoot</u>, which serves as a single point of reference
 for all Atom instances in the simulation.
 <li>At the bottom of the tree are the "<u>leaf Atoms</u>", which correspond the physical atoms being simulated.
-<li>Below the SpeciesRoot atom are instances of <u>SpeciesMaster</u>, which correspond to the phases being 
-simulated.  All Atoms in the tree below a given SpeciesMaster belong to a single Phase, and are subject to interaction
-with each other (Atoms in different Phases have no mutual interactions).  Every instance of a Phase has a 
+<li>Below the SpeciesRoot atom are instances of <u>SpeciesMaster</u>, which correspond to the boxs being 
+simulated.  All Atoms in the tree below a given SpeciesMaster belong to a single Box, and are subject to interaction
+with each other (Atoms in different Boxs have no mutual interactions).  Every instance of a Box has a 
 single SpeciesMaster field.
 <li>Below each SpeciesMaster in the tree are one or more <u>SpeciesAgent</u> instances.  There is a SpeciesAgent
 for each Species that has been instantiated by the Simulation.
@@ -62,7 +62,7 @@ Important features are as follows:
 <ul>
 <li>At the top of the type hierarchy is AtomTypeRoot, which is the AtomType held by SpeciesRoot.
 <li>Below AtomTypeRoot is a single instance of AtomTypeGroup, which is the AtomType held by all SpeciesMaster 
-instances.  The Phase an atom is in has no significance to its AtomType.
+instances.  The Box an atom is in has no significance to its AtomType.
 <li>Below the SpeciesMaster AtomType is an AtomType instance corresponding to each Species.  All SpeciesAgents
 for a given Species reference the same AtomType.
 <li>Likewise, on down the tree all similarly formed Atoms will reference the same AtomType instance.  The AtomType

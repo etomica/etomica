@@ -11,7 +11,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.math.geometry.Plane;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
@@ -39,7 +39,7 @@ public class OsmosisSim extends Simulation {
 
     public IntegratorHard integrator;
     public SpeciesSpheresMono speciesSolvent,speciesSolute;
-    public Phase phase;
+    public Box box;
     public P2HardSphere potentialAA,potentialBB,potentialAB;
     public P1HardBoundary boundaryHardA;
     public P1HardBoundary boundaryHardB;
@@ -82,22 +82,22 @@ public class OsmosisSim extends Simulation {
         potentialMaster.addPotential(boundarySemiB, new Species[]{speciesSolute});
 	    boundarySemiB.setCollisionRadius(0.5*sigma);
         
-        //construct phase
-	    phase = new Phase(this);
-        addPhase(phase);
-        phase.setBoundary(new BoundaryRectangularNonperiodic(space, getRandom()));
+        //construct box
+	    box = new Box(this);
+        addBox(box);
+        box.setBoundary(new BoundaryRectangularNonperiodic(space, getRandom()));
 
         if (space instanceof Space2D){ // 2D
-            phase.getBoundary().setDimensions(new Vector2D(10.0, 10.0));
+            box.getBoundary().setDimensions(new Vector2D(10.0, 10.0));
         }
         else if (space instanceof Space3D) { // 3D
-            phase.getBoundary().setDimensions(new Vector3D(10.0, 10.0, 10.0));
+            box.getBoundary().setDimensions(new Vector3D(10.0, 10.0, 10.0));
         }
-        phase.getAgent(speciesSolvent).setNMolecules(initialSolvent);
-        phase.getAgent(speciesSolute).setNMolecules(initialSolute);
+        box.getAgent(speciesSolvent).setNMolecules(initialSolvent);
+        box.getAgent(speciesSolute).setNMolecules(initialSolute);
 
         integrator = new IntegratorHard(this, potentialMaster);
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
 
         activityIntegrate = new ActivityIntegrate(integrator, false, false);
@@ -107,24 +107,24 @@ public class OsmosisSim extends Simulation {
     public static void main(String[] args) {
         final OsmosisSim sim = new OsmosisSim(Space3D.getInstance());
         final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));
-        config.initializeCoordinates(sim.phase);
+        config.initializeCoordinates(sim.box);
     	Plane plane = new Plane(sim.getSpace());
 
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim");
-    	((etomica.graphics.DisplayPhaseCanvasG3DSys)simGraphic.getDisplayPhase(sim.phase).canvas).addPlane(plane);
+    	((etomica.graphics.DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
     	simGraphic.getController().getReinitButton().setPostAction(new etomica.action.Action () {
     		public void actionPerformed() {
-    	        config.initializeCoordinates(sim.phase);
-    			simGraphic.getDisplayPhase(sim.phase).repaint();
+    	        config.initializeCoordinates(sim.box);
+    			simGraphic.getDisplayBox(sim.box).repaint();
     		}
     	});
         simGraphic.makeAndDisplayFrame("Osmosis Sim");
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.speciesSolvent.getMoleculeType(), Color.blue);
         colorScheme.setColor(sim.speciesSolute.getMoleculeType(), Color.red);
-        simGraphic.getDisplayPhase(sim.phase).setColorScheme(colorScheme);
-        config.initializeCoordinates(sim.phase);
-        simGraphic.getDisplayPhase(sim.phase).repaint();
+        simGraphic.getDisplayBox(sim.box).setColorScheme(colorScheme);
+        config.initializeCoordinates(sim.box);
+        simGraphic.getDisplayBox(sim.box).repaint();
         sim.integrator.setTimeStep(0.05);
         sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(1);

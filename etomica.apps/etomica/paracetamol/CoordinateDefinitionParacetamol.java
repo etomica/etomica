@@ -18,7 +18,7 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Tensor;
 import etomica.space3d.IVector3D;
@@ -34,54 +34,54 @@ import etomica.space3d.IVector3D;
 public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecule
         implements Serializable {
 
-    public CoordinateDefinitionParacetamol(Phase phase, Primitive primitive, Basis basis) {
-    	super(phase, primitive, 3, basis);
+    public CoordinateDefinitionParacetamol(Box box, Primitive primitive, Basis basis) {
+    	super(box, primitive, 3, basis);
        
        	axes = new IVector3D [3];
-        axes [0] = (IVector3D)phase.getSpace().makeVector();
-        axes [1] = (IVector3D)phase.getSpace().makeVector();
-        axes [2] = (IVector3D)phase.getSpace().makeVector();
-        com = (IVector3D)phase.getSpace().makeVector();
-        temp = (IVector3D)phase.getSpace().makeVector();
-        proj = (IVector3D)phase.getSpace().makeVector();
-        proja = (IVector3D)phase.getSpace().makeVector();
-        projb = (IVector3D)phase.getSpace().makeVector();
-        axisNorm = (IVector3D)phase.getSpace().makeVector();
-        axisNormPrime = (IVector3D)phase.getSpace().makeVector();
-        axis0 = (IVector3D)phase.getSpace().makeVector();
-        axis0Prime = (IVector3D)phase.getSpace().makeVector();
-        b = (IVector3D)phase.getSpace().makeVector();
-        bprime = (IVector3D)phase.getSpace().makeVector();
-        c = (IVector3D)phase.getSpace().makeVector();
+        axes [0] = (IVector3D)box.getSpace().makeVector();
+        axes [1] = (IVector3D)box.getSpace().makeVector();
+        axes [2] = (IVector3D)box.getSpace().makeVector();
+        com = (IVector3D)box.getSpace().makeVector();
+        temp = (IVector3D)box.getSpace().makeVector();
+        proj = (IVector3D)box.getSpace().makeVector();
+        proja = (IVector3D)box.getSpace().makeVector();
+        projb = (IVector3D)box.getSpace().makeVector();
+        axisNorm = (IVector3D)box.getSpace().makeVector();
+        axisNormPrime = (IVector3D)box.getSpace().makeVector();
+        axis0 = (IVector3D)box.getSpace().makeVector();
+        axis0Prime = (IVector3D)box.getSpace().makeVector();
+        b = (IVector3D)box.getSpace().makeVector();
+        bprime = (IVector3D)box.getSpace().makeVector();
+        c = (IVector3D)box.getSpace().makeVector();
         
-        x = (IVector3D)phase.getSpace().makeVector();
-        y = (IVector3D)phase.getSpace().makeVector();
-        z = (IVector3D)phase.getSpace().makeVector();
-        xPrime = (IVector3D)phase.getSpace().makeVector();
-        zPrime = (IVector3D)phase.getSpace().makeVector();
+        x = (IVector3D)box.getSpace().makeVector();
+        y = (IVector3D)box.getSpace().makeVector();
+        z = (IVector3D)box.getSpace().makeVector();
+        xPrime = (IVector3D)box.getSpace().makeVector();
+        zPrime = (IVector3D)box.getSpace().makeVector();
         
-        xNorm = (IVector3D)phase.getSpace().makeVector();
-        yNorm = (IVector3D)phase.getSpace().makeVector();
-        zNorm = (IVector3D)phase.getSpace().makeVector();
+        xNorm = (IVector3D)box.getSpace().makeVector();
+        yNorm = (IVector3D)box.getSpace().makeVector();
+        zNorm = (IVector3D)box.getSpace().makeVector();
         
-        yDoublePrime = (IVector3D)phase.getSpace().makeVector();
-        zDoublePrime = (IVector3D)phase.getSpace().makeVector();
+        yDoublePrime = (IVector3D)box.getSpace().makeVector();
+        zDoublePrime = (IVector3D)box.getSpace().makeVector();
         
-        xTriplePrime = (IVector3D)phase.getSpace().makeVector();
-        yTriplePrime = (IVector3D)phase.getSpace().makeVector();
-        zTriplePrime = (IVector3D)phase.getSpace().makeVector();
-        zQuadruplePrime = (IVector3D)phase.getSpace().makeVector();
+        xTriplePrime = (IVector3D)box.getSpace().makeVector();
+        yTriplePrime = (IVector3D)box.getSpace().makeVector();
+        zTriplePrime = (IVector3D)box.getSpace().makeVector();
+        zQuadruplePrime = (IVector3D)box.getSpace().makeVector();
         
         rotationL = lattice.getSpace().makeTensor();
         rotationM = lattice.getSpace().makeTensor();
         rotationN = lattice.getSpace().makeTensor();
         
-        orientationManager = new AtomAgentManager(new OrientationAgentSource(), phase);
+        orientationManager = new AtomAgentManager(new OrientationAgentSource(), box);
         atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
     }
 
     public void initializeCoordinates(int[] nCells) {
-        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(phase);
+        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
@@ -92,8 +92,8 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         }
         offset.TE(-0.5);
         
-        IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(phase.getSpace().D()+1);
-        int[] iteratorDimensions = new int[phase.getSpace().D()+1];
+        IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(box.getSpace().D()+1);
+        int[] iteratorDimensions = new int[box.getSpace().D()+1];
         
         
         System.arraycopy(nCells, 0, iteratorDimensions, 0, nCells.length);
@@ -138,7 +138,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
             atomActionTranslateTo.setDestination(position);
             atomActionTranslateTo.actionPerformed(a);
 
-            if (ii[phase.getSpace().D()] == 0) {
+            if (ii[box.getSpace().D()] == 0) {
                 if (iCell > -1) {
                     initNominalU(cells[iCell].molecules);
                 }
@@ -153,7 +153,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomAgentManager(new SiteSource(phase.getSpace()), phase);
+        siteManager = new AtomAgentManager(new SiteSource(box.getSpace()), box);
     }
     
     public void setBasisOrthorhombic(){
@@ -314,9 +314,9 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     		
     		IVector3D[] orientation = new IVector3D[3];
     		
-    		orientation[0] = (IVector3D)phase.getSpace().makeVector();
-    		orientation[1] = (IVector3D)phase.getSpace().makeVector();
-    		orientation[2] = (IVector3D)phase.getSpace().makeVector();
+    		orientation[0] = (IVector3D)box.getSpace().makeVector();
+    		orientation[1] = (IVector3D)box.getSpace().makeVector();
+    		orientation[2] = (IVector3D)box.getSpace().makeVector();
     		IAtomGroup molecule = (IAtomGroup)molecules.getAtom(i);
     		
     	    	/*

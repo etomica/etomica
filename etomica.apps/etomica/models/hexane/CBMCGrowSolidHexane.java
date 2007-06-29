@@ -3,7 +3,7 @@ package etomica.models.hexane;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.IntegratorMC;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.Tensor;
@@ -23,7 +23,7 @@ import etomica.util.IRandom;
 public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     public CBMCGrowSolidHexane(PotentialMaster p, IRandom random,
-            IntegratorMC integrator, Phase phs, Species species, int NTrials) {
+            IntegratorMC integrator, Box phs, Species species, int NTrials) {
         super(p, random, integrator, phs, species, 6, NTrials);
 
         if (p.getSpace().D() != 3) {
@@ -182,7 +182,7 @@ public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
         // but I want it in here for reference when I am extending
         // this code.
         // potMast.setEnabled(pots[0], true);
-        externalMeter.setPhase(phase);
+        externalMeter.setBox(box);
         externalMeter.setTarget(a);
 
         double blind = externalMeter.getDataAsScalar();

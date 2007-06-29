@@ -14,7 +14,7 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -30,10 +30,10 @@ import etomica.space3d.Space3D;
  * array is passed to the site method of the lattice which returns the position
  * for placement of the next molecule. Each array index is iterated to a maximum
  * value determined by the number of molecules to be placed, the dimensions of
- * the phase in which they are placed, and the lattice constants of the lattice.
+ * the box in which they are placed, and the lattice constants of the lattice.
  * <p>
  * An instance of this class may be configured to place atoms such that they
- * uniformly fill the volume of the phase. It will attempt this by scaling the
+ * uniformly fill the volume of the box. It will attempt this by scaling the
  * lattice constants of the configuration in an appropriate way. Success in
  * getting a good spatial distribution may vary.
  * <p>
@@ -88,12 +88,12 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
 	}
 	
 	/**
-     * Places the molecules in the given phase on the positions of the
+     * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(Phase phase) {
+    public void initializeCoordinates(Box box) {
     	
-        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(phase);
+        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
         int sumOfMolecules = atomIterator.size();
         if (sumOfMolecules == 0) {
             return;
@@ -107,8 +107,8 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector shape = phase.getSpace().makeVector();
-        shape.E(phase.getBoundary().getDimensions());
+        IVector shape = box.getSpace().makeVector();
+        shape.E(box.getBoundary().getDimensions());
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
@@ -126,11 +126,11 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
         }
 
         // determine lattice constant
-        IVector latticeScaling = phase.getSpace().makeVector();
+        IVector latticeScaling = box.getSpace().makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
-            latticeScaling.E(phase.getBoundary().getDimensions());
+            latticeScaling.E(box.getBoundary().getDimensions());
             latticeScaling.DE(latticeConstantV);
             latticeScaling.DE(Space.makeVector(latticeDimensions));
         } else {
@@ -138,11 +138,11 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = phase.getSpace().makeVector();
-        offset.E(phase.getBoundary().getDimensions());
-        IVector vectorOfMax = phase.getSpace().makeVector();
-        IVector vectorOfMin = phase.getSpace().makeVector();
-        IVector site = phase.getSpace().makeVector();
+        IVector offset = box.getSpace().makeVector();
+        offset.E(box.getBoundary().getDimensions());
+        IVector vectorOfMax = box.getSpace().makeVector();
+        IVector vectorOfMin = box.getSpace().makeVector();
+        IVector site = box.getSpace().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -170,7 +170,7 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
         indexIterator.reset();
 
     	ConformationParacetamolOrthorhombic regConfig = new ConformationParacetamolOrthorhombic(lattice.getSpace());
-    	cellManager = new AtomAgentManager(this, phase);
+    	cellManager = new AtomAgentManager(this, box);
     	IVector cellPosition = null;
     	Tensor t = lattice.getSpace().makeTensor();
     	
@@ -232,7 +232,7 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
             atomActionTranslateTo.actionPerformed(atom);
             
             if (ii[3] == 0){
-            	cellPosition = phase.getSpace().makeVector();
+            	cellPosition = box.getSpace().makeVector();
             	cellPosition.E((IVector)myLat.site(ii));
             	
             	
@@ -301,27 +301,27 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
 
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
-        Phase phase = new Phase(sim);
-        sim.addPhase(phase);
+        Box box = new Box(sim);
+        sim.addBox(box);
         SpeciesParacetamol species = new SpeciesParacetamol(sim);
         PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(sim.getSpace(), 17.248, 12.086, 7.382);
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         
         sim.getSpeciesManager().addSpecies(species);
         int k = 4;
-        phase.getAgent(species).setNMolecules(4 * k * k * k);
+        box.getAgent(species).setNMolecules(4 * k * k * k);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
         // CubicLattice lattice = new LatticeCubicSimple();
         ConfigurationOrthorhombicLattice configuration = new ConfigurationOrthorhombicLattice(lattice);
-        // phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
-        configuration.initializeCoordinates(phase);
-        // etomica.graphics.DisplayPhase display = new
-        // etomica.graphics.DisplayPhase(phase);
+        // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
+        configuration.initializeCoordinates(box);
+        // etomica.graphics.DisplayBox display = new
+        // etomica.graphics.DisplayBox(box);
 
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
-//        ((ColorSchemeByType) ((DisplayPhase) simGraphic.displayList()
+//        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
 //                .getFirst()).getColorScheme()).setColor(species
 //                .getMoleculeType(), java.awt.Color.red);
         simGraphic.makeAndDisplayFrame(APP_NAME);
@@ -338,7 +338,7 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
 
     /**
      * Sets the resizeLatticeToFitVolume flag, which if true indicates that the
-     * primitive vectors should be resized to fit the dimensions of the phase.
+     * primitive vectors should be resized to fit the dimensions of the box.
      * Default is true.
      * 
      * @param resizeLatticeToFitVolume

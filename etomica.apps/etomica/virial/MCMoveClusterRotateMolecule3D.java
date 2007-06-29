@@ -4,7 +4,7 @@ import etomica.action.AtomAction;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.util.IRandom;
@@ -18,9 +18,9 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         setName("MCMoveClusterMolecule");
     }
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        weightMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        weightMeter.setBox(p);
         oldPositions = new IVector[molecule.getChildList().getAtomCount()-1];
         for (int j=0; j<oldPositions.length; j++) {
             oldPositions[j] = p.getSpace().makeVector();
@@ -28,7 +28,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     }
 
     public boolean doTrial() {
-        if(phase.moleculeCount()==1) {molecule = null; return false;}
+        if(box.moleculeCount()==1) {molecule = null; return false;}
             
         molecule = (IAtomGroup)moleculeSource.getAtom();
         while (molecule.getIndex() == 0) {
@@ -58,7 +58,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         }
 
         uNew = Double.NaN;
-        ((PhaseCluster)phase).trialNotify();
+        ((BoxCluster)box).trialNotify();
         return true;
     }
     
@@ -73,12 +73,12 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     
     public void acceptNotify() {
         super.acceptNotify();
-        ((PhaseCluster)phase).acceptNotify();
+        ((BoxCluster)box).acceptNotify();
     }
     
     public void rejectNotify() {
         super.rejectNotify();
-        ((PhaseCluster)phase).rejectNotify();
+        ((BoxCluster)box).rejectNotify();
     }
     
     public void setRelaxAction(AtomAction action) {

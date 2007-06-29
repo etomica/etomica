@@ -19,7 +19,7 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -31,21 +31,21 @@ import etomica.space.Space;
  * For non-spherical molecules it will also include elements related to the
  * orientation.  This class provides methods to compute the k-dependent collective generalized
  * coordinates, obtained by Fourier-summing the generalized coordinates over the atoms
- * in a phase.
+ * in a box.
  * 
  * @author Andrew Schultz, David Kofke
  */
 public abstract class CoordinateDefinition {
 
-    public CoordinateDefinition(Phase phase, int coordinateDim, Primitive primitive) {
-        this(phase, coordinateDim, primitive, new BasisMonatomic(primitive.getSpace()));
+    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive) {
+        this(box, coordinateDim, primitive, new BasisMonatomic(primitive.getSpace()));
     }
     
-    public CoordinateDefinition(Phase phase, int coordinateDim, Primitive primitive, Basis basis) {
+    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Basis basis) {
         this.coordinateDim = coordinateDim;
         this.primitive = primitive;
         this.basis = basis;
-        this.phase = phase;
+        this.box = box;
         lattice = new BravaisLatticeCrystal(primitive, basis);
 
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
@@ -54,7 +54,7 @@ public abstract class CoordinateDefinition {
     }
     
     public void initializeCoordinates(int[] nCells) {
-        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(phase);
+        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
@@ -65,8 +65,8 @@ public abstract class CoordinateDefinition {
         }
         offset.TE(-0.5);
         
-        IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(phase.getSpace().D()+1);
-        int[] iteratorDimensions = new int[phase.getSpace().D()+1];
+        IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(box.getSpace().D()+1);
+        int[] iteratorDimensions = new int[box.getSpace().D()+1];
         
         
         System.arraycopy(nCells, 0, iteratorDimensions, 0, nCells.length);
@@ -100,7 +100,7 @@ public abstract class CoordinateDefinition {
             atomActionTranslateTo.setDestination(position);
             atomActionTranslateTo.actionPerformed(a);
 
-            if (ii[phase.getSpace().D()] == 0) {
+            if (ii[box.getSpace().D()] == 0) {
                 if (iCell > -1) {
                     initNominalU(cells[iCell].molecules);
                 }
@@ -115,7 +115,7 @@ public abstract class CoordinateDefinition {
         
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomAgentManager(new SiteSource(phase.getSpace()), phase);
+        siteManager = new AtomAgentManager(new SiteSource(box.getSpace()), box);
     }
 
     
@@ -200,8 +200,8 @@ public abstract class CoordinateDefinition {
 
     }
 
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
 
     public IVector getLatticePosition(IAtom atom) {
@@ -213,7 +213,7 @@ public abstract class CoordinateDefinition {
     }
 
     protected final int coordinateDim;
-    protected final Phase phase;
+    protected final Box box;
     protected AtomAgentManager siteManager;
     protected final BravaisLatticeCrystal lattice;
     protected final Primitive primitive;

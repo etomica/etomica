@@ -1,5 +1,5 @@
 package etomica.simulation.prototypes;
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSphere;
 import etomica.config.ConfigurationLattice;
@@ -11,7 +11,7 @@ import etomica.integrator.mcmove.MCMoveRotate;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -46,12 +46,12 @@ public class GEMCWithRotation extends Simulation {
         getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
 
-	    phase1 = new Phase(this);
-        addPhase(phase1);
-        phase1.getAgent(species).setNMolecules(200);
+	    box1 = new Box(this);
+        addBox(box1);
+        box1.getAgent(species).setNMolecules(200);
         
 	    IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster);
-        integratorMC1.setPhase(phase1);
+        integratorMC1.setBox(box1);
         integratorMC1.setTemperature(0.420);
         MCMoveManager moveManager = integratorMC1.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom()));
@@ -59,11 +59,11 @@ public class GEMCWithRotation extends Simulation {
         integrator.addIntegrator(integratorMC1);
         
 
-	    phase2 = new Phase(this);
-        addPhase(phase2);
-        phase2.getAgent(species).setNMolecules(200);
+	    box2 = new Box(this);
+        addBox(box2);
+        box2.getAgent(species).setNMolecules(200);
         IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster);
-        integratorMC2.setPhase(phase2);
+        integratorMC2.setBox(box2);
         integratorMC2.setTemperature(0.420);
         moveManager = integratorMC2.getMoveManager();
         moveManager.addMCMove(new MCMoveRotate(potentialMaster, getRandom()));
@@ -80,21 +80,21 @@ public class GEMCWithRotation extends Simulation {
             lattice = new LatticeCubicFcc();
         }
         ConfigurationLattice config = new ConfigurationLattice(lattice);
-        config.initializeCoordinates(phase1);
-        config.initializeCoordinates(phase2);
+        config.initializeCoordinates(box1);
+        config.initializeCoordinates(box2);
             
 	    potential = new P2LennardJones(space);
 	    potential.setSigma(sigma);
 
         potentialMaster.addPotential(potential,new Species[] {species, species});
 
-        integratorMC1.addIntervalAction(new PhaseImposePbc(phase1));
-        integratorMC2.addIntervalAction(new PhaseImposePbc(phase2));
+        integratorMC1.addIntervalAction(new BoxImposePbc(box1));
+        integratorMC2.addIntervalAction(new BoxImposePbc(box2));
 
-	    phase2.setDensity(0.1);
+	    box2.setDensity(0.1);
     }
     
-    public Phase phase1, phase2;
+    public Box box1, box2;
     public IntegratorGEMC integrator;
     public SpeciesSpheresRotating species;
     public P2LennardJones potential;

@@ -47,7 +47,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         dataStreamPumps.add(simulation.dataPump);
         dataStreamPumps.add(simulation.dataPumpEnergy);
 
-        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(400/sim.phase.getBoundary().getDimensions().x(0)));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(400/sim.box.getBoundary().getDimensions().x(0)));
 
         final DisplayPlot plot = new DisplayPlot();
         DataProcessorFunction log = new DataProcessorFunction(new Function() {
@@ -111,12 +111,12 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         
         DataSourceScalar delta = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return 0.5*sim.phase.atomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
+                return 0.5*sim.box.atomCount() * Math.log(omegaBSlider.getValue()/omegaASlider.getValue());
             }
         };
         DataSourceScalar uAvg = new DataSourceScalar("exact",Energy.DIMENSION) {
             public double getDataAsScalar() {
-                return sim.phase.atomCount();
+                return sim.box.atomCount();
             }
         };
         
@@ -172,8 +172,8 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 
         final DataSourceFunction uA = new DataSourceFunction("A",Null.DIMENSION,fUA,100,"x",Length.DIMENSION);
         final DataSourceFunction uB = new DataSourceFunction("B",Null.DIMENSION,fUB,100,"x",Length.DIMENSION);
-        uA.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
-        uB.getXSource().setXMax(sim.phase.getBoundary().getDimensions().x(0));
+        uA.getXSource().setXMax(sim.box.getBoundary().getDimensions().x(0));
+        uB.getXSource().setXMax(sim.box.getBoundary().getDimensions().x(0));
         uAPump = new DataPump(uA, uPlot.getDataSet().makeDataSink());
         uBPump = new DataPump(uB, uPlot.getDataSet().makeDataSink());
         Action uUpdate = new Action() {
@@ -204,17 +204,17 @@ public class MultiharmonicGraphic extends SimulationGraphic {
         energyPlot.setSize(300,200);
         getPanel().controlPanel.add(energyPlot.graphic(), vertGBC);
         
-        //plot of potential and display of phase and running average
+        //plot of potential and display of box and running average
         JPanel displayPanel = new JPanel(new GridBagLayout());
         displayPanel.add(uPlot.graphic(), vertGBC);
-        displayPanel.add(getDisplayPhase(sim.phase).graphic(), vertGBC);
+        displayPanel.add(getDisplayBox(sim.box).graphic(), vertGBC);
         displayPanel.add(plot.graphic(), vertGBC);
 
         getPanel().graphicsPanel.add(displayPanel);
 
         getController().getReinitButton().setPostAction(new Action() {
         	public void actionPerformed() {
-                getDisplayPhase(sim.phase).repaint();
+                getDisplayBox(sim.box).repaint();
                 energyPlot.getPlot().repaint();
                 plot.getPlot().repaint();
         	}

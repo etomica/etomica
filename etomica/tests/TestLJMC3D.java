@@ -13,7 +13,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -31,7 +31,7 @@ public class TestLJMC3D extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
-    public Phase phase;
+    public Box box;
     public P2LennardJones potential;
     public Controller controller;
     
@@ -54,26 +54,26 @@ public class TestLJMC3D extends Simulation {
         getController().addAction(actionIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-	    phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numAtoms);
-        phase.setDensity(0.65);
+	    box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numAtoms);
+        box.setDensity(0.65);
         potential = new P2LennardJones(space, sigma, 1.0);
         double truncationRadius = 3.0*sigma;
-        if(truncationRadius > 0.5*phase.getBoundary().getDimensions().x(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
+        if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
         }
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potentialTruncated.getRange());
         potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
-        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(phase).makeMCMoveListener());
+        integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         
         ConfigurationFile config = new ConfigurationFile("LJMC3D"+Integer.toString(numAtoms));
-        config.initializeCoordinates(phase);
-        integrator.setPhase(phase);
-        potentialMaster.getNbrCellManager(phase).assignCellAll();
-//        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
+        config.initializeCoordinates(box);
+        integrator.setBox(box);
+        potentialMaster.getNbrCellManager(box).assignCellAll();
+//        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
 //        integrator.addListener(writeConfig);
     }
  
@@ -99,7 +99,7 @@ public class TestLJMC3D extends Simulation {
         sim.getController().actionPerformed();
         
         //XXX double Z = 1 + ...  ??
-        double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).x*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
+        double Z = ((DataDouble)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).x*sim.box.volume()/(sim.box.moleculeCount()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
         avgPE /= numAtoms;
         System.out.println("Z="+Z);

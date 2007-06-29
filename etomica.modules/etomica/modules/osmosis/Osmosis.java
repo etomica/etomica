@@ -24,14 +24,14 @@ import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxesCAE;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.graphics.DisplayBox.LabelType;
+import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Plane;
@@ -58,7 +58,7 @@ public class Osmosis extends SimulationGraphic {
 	private final static int REPAINT_INTERVAL = 40;
 
     public DataSourceCountTime cycles;
-    public DisplayBox displayCycles;
+    public DisplayTextBox displayCycles;
     public MeterOsmoticPressure osmosisPMeter;
     public MeterLocalMoleFraction moleFractionRight, moleFractionLeft;
     public OsmosisSim sim;
@@ -76,29 +76,29 @@ public class Osmosis extends SimulationGraphic {
 
         ConfigurationLatticeWithPlane config = null;
 
-	    //display of phase
-        final DisplayPhase displayPhase = getDisplayPhase(sim.phase);
+	    //display of box
+        final DisplayBox displayBox = getDisplayBox(sim.box);
         ColorSchemeByType colorScheme = new ColorSchemeByType();
 
         colorScheme.setColor(sim.speciesSolvent.getMoleculeType(), Color.blue);
         colorScheme.setColor(sim.speciesSolute.getMoleculeType(), Color.red);
-        displayPhase.setColorScheme(colorScheme);
-        displayPhase.setAlign(1,DisplayPhase.CENTER);
-        displayPhase.setOriginShift(0, thickness);
-        displayPhase.setOriginShift(1, -thickness);
+        displayBox.setColorScheme(colorScheme);
+        displayBox.setAlign(1,DisplayBox.CENTER);
+        displayBox.setOriginShift(0, thickness);
+        displayBox.setOriginShift(1, -thickness);
         if (sim.getSpace() instanceof Space2D) {
-            displayPhase.addDrawable(new MyWall());
+            displayBox.addDrawable(new MyWall());
             config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(2, 1.0), null);
         }
         else if (sim.getSpace() instanceof Space3D) {
         	Plane plane = new Plane(sim.getSpace());
-        	((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).addPlane(plane);
+        	((etomica.graphics.DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(plane);
             config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(3, 1.0), plane); 
             config.addSpecies((etomica.species.Species)sim.speciesSolvent);
             config.addSpecies((etomica.species.Species)sim.speciesSolute);
         }
 
-        config.initializeCoordinates(sim.phase);
+        config.initializeCoordinates(sim.box);
 
         SimulationRestart simRestart = getController().getSimRestart();
         
@@ -119,7 +119,7 @@ public class Osmosis extends SimulationGraphic {
         dataStreamPumps.add(osmosisPump);
         sim.integrator.addIntervalAction(osmosisPump);
         sim.integrator.setActionInterval(osmosisPump, 40);
-        final DisplayBoxesCAE osmoticBox = new DisplayBoxesCAE();
+        final DisplayTextBoxesCAE osmoticBox = new DisplayTextBoxesCAE();
         osmoticBox.setAccumulator(osmosisPMeterAvg);
         osmoticBox.setPrecision(6);
 
@@ -132,8 +132,8 @@ public class Osmosis extends SimulationGraphic {
 	    tSelect.setUnit(tUnit);
 	    tSelect.setSelected(0); //sets adiabatic as selected temperature
 		MeterTemperature thermometer = new MeterTemperature();
-		thermometer.setPhase(sim.phase);
-		DisplayBox tBox = new DisplayBox();
+		thermometer.setBox(sim.box);
+		DisplayTextBox tBox = new DisplayTextBox();
         DataPump tempPump = new DataPump(thermometer, tBox);
         sim.integrator.addIntervalAction(tempPump);
 		tBox.setUnit(tUnit);
@@ -149,8 +149,8 @@ public class Osmosis extends SimulationGraphic {
 
         // Right side of membrane mole fraction
         moleFractionRight = new MeterLocalMoleFraction();
-        moleFractionRight.setPhase(sim.phase);
-        IVector dimensions = sim.phase.getBoundary().getDimensions();
+        moleFractionRight.setBox(sim.box);
+        IVector dimensions = sim.box.getBoundary().getDimensions();
 
         if (sim.getSpace() instanceof Space2D) { // 2D
             moleFractionRight.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
@@ -166,13 +166,13 @@ public class Osmosis extends SimulationGraphic {
         final DataPump molePumpRight = new DataPump(moleFractionRight, moleFractionAvgRight);
         dataStreamPumps.add(molePumpRight);
         sim.integrator.addIntervalAction(molePumpRight);
-        final DisplayBoxesCAE rightMFBox = new DisplayBoxesCAE();
+        final DisplayTextBoxesCAE rightMFBox = new DisplayTextBoxesCAE();
         rightMFBox.setAccumulator(moleFractionAvgRight);
         rightMFBox.setPrecision(8);
 
         // Left side of membrane mole fraction
         moleFractionLeft = new MeterLocalMoleFraction();
-        moleFractionLeft.setPhase(sim.phase);
+        moleFractionLeft.setBox(sim.box);
 
         if (sim.getSpace() instanceof Space2D) { // 2D
             moleFractionLeft.setShape(new Rectangle(sim.getSpace(), dimensions.x(0)*0.5, dimensions.x(1)));
@@ -189,7 +189,7 @@ public class Osmosis extends SimulationGraphic {
         final DataPump molePumpLeft = new DataPump(moleFractionLeft, moleFractionAvgLeft);
         dataStreamPumps.add(molePumpLeft);
         sim.integrator.addIntervalAction(molePumpLeft);
-        final DisplayBoxesCAE leftMFBox = new DisplayBoxesCAE();
+        final DisplayTextBoxesCAE leftMFBox = new DisplayTextBoxesCAE();
         leftMFBox.setAccumulator(moleFractionAvgLeft);
         leftMFBox.setPrecision(8);
 
@@ -204,7 +204,7 @@ public class Osmosis extends SimulationGraphic {
 				rightMFBox.repaint();
 				osmoticBox.putData(osmosisPMeterAvg.getData());
 				osmoticBox.repaint();
-				getDisplayPhase(sim.phase).graphic().repaint();
+				getDisplayBox(sim.box).graphic().repaint();
         	}
         };
 
@@ -259,7 +259,7 @@ public class Osmosis extends SimulationGraphic {
         		rightMFBox.repaint();
         		osmoticBox.putData(osmosisPMeterAvg.getData());
         		osmoticBox.repaint();
-        		getDisplayPhase(sim.phase).graphic().repaint();
+        		getDisplayBox(sim.box).graphic().repaint();
         	}
         };
 
@@ -281,9 +281,9 @@ public class Osmosis extends SimulationGraphic {
         getController().getResetAveragesButton().setPostAction(resetDisplayAction);
 
         if (sim.getSpace() instanceof Space3D) { // 3D
-            ((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).setBackgroundColor(Color.WHITE);
-            ((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).setBoundaryFrameColor(Color.BLACK);
-            ((etomica.graphics.DisplayPhaseCanvasG3DSys)displayPhase.canvas).setPlaneColor(Color.GREEN);
+            ((etomica.graphics.DisplayBoxCanvasG3DSys)displayBox.canvas).setBackgroundColor(Color.WHITE);
+            ((etomica.graphics.DisplayBoxCanvasG3DSys)displayBox.canvas).setBoundaryFrameColor(Color.BLACK);
+            ((etomica.graphics.DisplayBoxCanvasG3DSys)displayBox.canvas).setPlaneColor(Color.GREEN);
         }
 
     }
@@ -293,9 +293,9 @@ public class Osmosis extends SimulationGraphic {
     protected class MyWall implements Drawable {
     	public void draw(Graphics g, int[] origin, double scale) {
     		if(sim.getSpace() instanceof Space2D) {
-    		    int x1 = origin[0]+(int)(0.5*scale*sim.phase.getBoundary().getDimensions().x(0));
+    		    int x1 = origin[0]+(int)(0.5*scale*sim.box.getBoundary().getDimensions().x(0));
     		    int y1 = origin[1];
-			    int h = (int)(scale*sim.phase.getBoundary().getDimensions().x(1));
+			    int h = (int)(scale*sim.box.getBoundary().getDimensions().x(1));
 			    int w = 4;
 			    g.setColor(Color.green);
     		    g.fillRect(x1-w, y1, w, h);
@@ -386,11 +386,11 @@ public class Osmosis extends SimulationGraphic {
     	    				speciesSoluteTotal = Math.round(((float)total.getValue()) *
     					               (((float)soluteVsSolvent.getValue()) / 100.0f));
     			            speciesSolventTotal = (int)total.getValue() - speciesSoluteTotal;
-    			            sim.phase.getAgent(sim.speciesSolvent).setNMolecules(speciesSolventTotal);
-    			            sim.phase.getAgent(sim.speciesSolute).setNMolecules(speciesSoluteTotal);
+    			            sim.box.getAgent(sim.speciesSolvent).setNMolecules(speciesSolventTotal);
+    			            sim.box.getAgent(sim.speciesSolute).setNMolecules(speciesSoluteTotal);
     	    				simRestart.getDataResetAction().actionPerformed();
     	    				simRestart.actionPerformed();
-    	            		getDisplayPhase(sim.phase).graphic().repaint();
+    	            		getDisplayBox(sim.box).graphic().repaint();
     	    			}
     	    		};
 
@@ -436,7 +436,7 @@ public class Osmosis extends SimulationGraphic {
                             config.setSpeciesAllocation(sim.speciesSolute, (((float)soluteOnLeft.getValue()) / 100.0f));
     				        simRestart.getDataResetAction().actionPerformed();
     				        simRestart.actionPerformed();
-    				        getDisplayPhase(sim.phase).graphic().repaint();
+    				        getDisplayBox(sim.box).graphic().repaint();
     	    			}
     	    		};
 

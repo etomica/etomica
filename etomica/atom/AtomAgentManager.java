@@ -2,40 +2,40 @@ package etomica.atom;
 
 import java.lang.reflect.Array;
 
-import etomica.atom.iterator.AtomIteratorTreePhase;
+import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAtomAddedEvent;
-import etomica.phase.PhaseAtomEvent;
-import etomica.phase.PhaseAtomIndexChangedEvent;
-import etomica.phase.PhaseAtomRemovedEvent;
-import etomica.phase.PhaseEvent;
-import etomica.phase.PhaseGlobalAtomIndexEvent;
-import etomica.phase.PhaseListener;
+import etomica.box.Box;
+import etomica.box.BoxAtomAddedEvent;
+import etomica.box.BoxAtomEvent;
+import etomica.box.BoxAtomIndexChangedEvent;
+import etomica.box.BoxAtomRemovedEvent;
+import etomica.box.BoxEvent;
+import etomica.box.BoxGlobalAtomIndexEvent;
+import etomica.box.BoxListener;
 import etomica.util.Arrays;
 
 /**
  * AtomAgentManager acts on behalf of client classes (an AgentSource) to manage 
- * agents in every Atom in a phase.  When atoms are added or removed from the 
- * phase, the agents array (indexed by the atom's global index) is updated.  
+ * agents in every Atom in a box.  When atoms are added or removed from the 
+ * box, the agents array (indexed by the atom's global index) is updated.  
  * The client should call getAgents() at any point where an atom might have 
  * have been added to the system because the old array would be stale at that
  * point. 
  * @author andrew
  */
-public class AtomAgentManager implements PhaseListener, java.io.Serializable {
+public class AtomAgentManager implements BoxListener, java.io.Serializable {
 
-    public AtomAgentManager(AgentSource source, Phase phase) {
-        this(source, phase, true);
+    public AtomAgentManager(AgentSource source, Box box) {
+        this(source, box, true);
     }
     
-    public AtomAgentManager(AgentSource source, Phase phase, boolean isBackend) {
+    public AtomAgentManager(AgentSource source, Box box, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
-        atomManager = phase.getSpeciesMaster();
+        atomManager = box.getSpeciesMaster();
         treeIterator = new AtomIteratorTreeRoot();
         treeIterator.setDoAllNodes(true);
-        setupPhase();
+        setupBox();
     }        
     
     /**
@@ -47,7 +47,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     
     /**
      * Returns the agent associated with the given IAtom.  The IAtom must be
-     * from the Phase associated with this instance.
+     * from the Box associated with this instance.
      */
     public Object getAgent(IAtom a) {
         return agents[a.getGlobalIndex()];
@@ -55,7 +55,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     
     /**
      * Sets the agent associated with the given atom to be the given agent.
-     * The IAtom must be from the Phase associated with this instance.  The
+     * The IAtom must be from the Box associated with this instance.  The
      * IAtom's old agent is not released.  This should be done manually if
      * needed.
      */
@@ -64,19 +64,19 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     }
     
     /**
-     * Convenience method to return the phase the Manager is tracking.
+     * Convenience method to return the box the Manager is tracking.
      */
-    public Phase getPhase(){
-        return atomManager.getPhase();
+    public Box getBox(){
+        return atomManager.getBox();
     }
     
     /**
      * Notifies the AtomAgentManager it should disconnect itself as a listener.
      */
     public void dispose() {
-        // remove ourselves as a listener to the phase
-        atomManager.getPhase().getEventManager().removeListener(this);
-        AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(atomManager.getPhase(),Integer.MAX_VALUE,true);
+        // remove ourselves as a listener to the box
+        atomManager.getBox().getEventManager().removeListener(this);
+        AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(atomManager.getBox(),Integer.MAX_VALUE,true);
         iterator.reset();
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
@@ -92,15 +92,15 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     }
     
     /**
-     * Sets the Phase in which this AtomAgentManager will manage Atom agents.
+     * Sets the Box in which this AtomAgentManager will manage Atom agents.
      */
-    protected void setupPhase() {
-        atomManager.getPhase().getEventManager().addListener(this, isBackend);
+    protected void setupBox() {
+        atomManager.getBox().getEventManager().addListener(this, isBackend);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 atomManager.getMaxGlobalIndex()+1+atomManager.getIndexReservoirSize());
         // fill in the array with agents from all the atoms
-        AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(atomManager.getPhase(),Integer.MAX_VALUE,true);
+        AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(atomManager.getBox(),Integer.MAX_VALUE,true);
         iterator.reset();
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
@@ -108,10 +108,10 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
         }
     }
     
-    public void actionPerformed(PhaseEvent evt) {
-        if (evt instanceof PhaseAtomEvent) {
-            IAtom a = ((PhaseAtomEvent)evt).getAtom();
-            if (evt instanceof PhaseAtomAddedEvent) {
+    public void actionPerformed(BoxEvent evt) {
+        if (evt instanceof BoxAtomEvent) {
+            IAtom a = ((BoxAtomEvent)evt).getAtom();
+            if (evt instanceof BoxAtomAddedEvent) {
                 addAgent(a);
                 if (a instanceof IAtomGroup) {
                     // add all atoms below this atom
@@ -123,7 +123,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                     }
                 }       
             }
-            else if (evt instanceof PhaseAtomRemovedEvent) {
+            else if (evt instanceof BoxAtomRemovedEvent) {
                 int index = a.getGlobalIndex();
                 if (agents[index] != null) {
                     // Atom used to have an agent.  nuke it.
@@ -144,16 +144,16 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
                     }
                 }
             }
-            else if (evt instanceof PhaseAtomIndexChangedEvent) {
+            else if (evt instanceof BoxAtomIndexChangedEvent) {
                 // the atom's index changed.  assume it would get the same agent
-                int oldIndex = ((PhaseAtomIndexChangedEvent)evt).getOldIndex();
+                int oldIndex = ((BoxAtomIndexChangedEvent)evt).getOldIndex();
                 agents[a.getGlobalIndex()] = agents[oldIndex];
                 agents[oldIndex] = null;
             }
         }
-        else if (evt instanceof PhaseGlobalAtomIndexEvent) {
+        else if (evt instanceof BoxGlobalAtomIndexEvent) {
             int reservoirSize = atomManager.getIndexReservoirSize();
-            int newMaxIndex = ((PhaseGlobalAtomIndexEvent)evt).getMaxIndex();
+            int newMaxIndex = ((BoxGlobalAtomIndexEvent)evt).getMaxIndex();
             if (agents.length > newMaxIndex+reservoirSize || agents.length < newMaxIndex) {
                 // indices got compacted.  If our array is a lot bigger than it
                 // needs to be, shrink it.
@@ -174,7 +174,7 @@ public class AtomAgentManager implements PhaseListener, java.io.Serializable {
     
     /**
      * Interface for an object that wants an agent associated with each Atom in
-     * a Phase.
+     * a Box.
      */
     public interface AgentSource {
         /**

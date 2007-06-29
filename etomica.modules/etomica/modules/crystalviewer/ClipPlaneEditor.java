@@ -10,9 +10,9 @@ import etomica.data.types.DataDouble;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceCheckBox;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPhase;
-import etomica.graphics.DisplayPhaseCanvasG3DSys;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.lattice.LatticePlane;
 import etomica.math.geometry.Plane;
 import etomica.modifier.Modifier;
@@ -39,9 +39,9 @@ public class ClipPlaneEditor {
     protected DeviceBox boxH, boxK, boxL;
     protected LatticePlane latticePlane;
     private DeviceSlider positionSlider;
-    private DisplayBox distanceDisplay;
+    private DisplayTextBox distanceDisplay;
     
-    protected DisplayPhase display;
+    protected DisplayBox display;
 
     //highlight color for atoms when they are in the plane
     protected java.awt.Color highlightColor = java.awt.Color.yellow;
@@ -70,7 +70,7 @@ public class ClipPlaneEditor {
 	private final int MILLER_INDEX_MIN = -10;
 	private final int MILLER_INDEX_MAX = 10;
 
-    public ClipPlaneEditor(final LatticePlane latticePlane, final DisplayPhase display) {
+    public ClipPlaneEditor(final LatticePlane latticePlane, final DisplayBox display) {
 
         this.latticePlane = latticePlane;
         this.display = display;
@@ -98,13 +98,13 @@ public class ClipPlaneEditor {
         });
         
         //box to toggle visibility of plane
-        ((DisplayPhaseCanvasG3DSys)display.canvas).addPlane(latticePlane.getPlane());
+        ((DisplayBoxCanvasG3DSys)display.canvas).addPlane(latticePlane.getPlane());
         DeviceCheckBox showplaneToggle = new DeviceCheckBox("Show plane", new ModifierBoolean() {
             public boolean getBoolean() {return showPlane;}
             public void setBoolean(boolean b) {
                 showPlane = b;
-                if(b) ((DisplayPhaseCanvasG3DSys)display.canvas).addPlane(latticePlane.getPlane());
-                else  ((DisplayPhaseCanvasG3DSys)display.canvas).removePlane(latticePlane.getPlane());
+                if(b) ((DisplayBoxCanvasG3DSys)display.canvas).addPlane(latticePlane.getPlane());
+                else  ((DisplayBoxCanvasG3DSys)display.canvas).removePlane(latticePlane.getPlane());
                 display.canvas.repaint();
             }
         });
@@ -164,7 +164,7 @@ public class ClipPlaneEditor {
         boxK.doUpdate();
         boxL.doUpdate();
 
-        distanceDisplay = new DisplayBox();
+        distanceDisplay = new DisplayTextBox();
         distanceDisplay.setLabel("Distance from Origin");
         distanceDisplay.setPrecision(DISTANCE_PRECISION);
 

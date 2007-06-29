@@ -15,7 +15,7 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.chem.models.Model;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.species.Species;
 
@@ -31,25 +31,25 @@ import etomica.species.Species;
 public class BondListener implements AtomAgentManager.AgentSource, Serializable {
 
     /**
-     * Creates a new BondListener for the given Phase, using the given
+     * Creates a new BondListener for the given Box, using the given
      * BondManager to actually create or remove bonds.  The BondListener
      * (and its AtomAgentManager) are consdidered to be "backend".
      */
-    public BondListener(Phase phase, BondManager bondManager) {
-        this(phase, bondManager, true);
+    public BondListener(Box box, BondManager bondManager) {
+        this(box, bondManager, true);
     }
     
     /**
-     * Creates a new BondListener for the given Phase, using the given
+     * Creates a new BondListener for the given Box, using the given
      * BondManager to actually create or remove bonds.  The BondListener
      * (and its AtomAgentManager, BondManager and bonds) are consdidered to be
      * "backend" (they will be serialized along with the simulation) if the
      * given isBackend parameter is true.  
      */
-    public BondListener(Phase phase, BondManager bondManager, boolean isBackend) {
-        this.phase = phase;
+    public BondListener(Box box, BondManager bondManager, boolean isBackend) {
+        this.box = box;
         bondIteratorsHash = new HashMap();
-        atomAgentManager = new AtomAgentManager(this, phase, isBackend);
+        atomAgentManager = new AtomAgentManager(this, box, isBackend);
         this.bondManager = bondManager;
     }
 
@@ -68,7 +68,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         // now find bonds for atoms that already exist
         // the ArrayLists (agents) for the Atoms will already exist
         AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(new Species[]{species});
-        moleculeIterator.setPhase(phase);
+        moleculeIterator.setBox(box);
         moleculeIterator.reset();
         for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
              molecule = moleculeIterator.nextAtom()) {
@@ -105,7 +105,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     public void removeModel(Model model) {
         Species species = model.getSpecies();
         AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(new Species[]{species});
-        moleculeIterator.setPhase(phase);
+        moleculeIterator.setBox(box);
         moleculeIterator.reset();
         AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
         for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
@@ -186,7 +186,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     }
     
     private static final long serialVersionUID = 1L;
-    protected final Phase phase;
+    protected final Box box;
     protected final AtomAgentManager atomAgentManager;
     protected final HashMap bondIteratorsHash;
     protected BondManager bondManager;

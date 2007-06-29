@@ -26,17 +26,17 @@ public abstract class DataSourceScalar implements DataSource, java.io.Serializab
     }
     
     /**
-     * Returns a single scalar value as the measurement for the given phase.
+     * Returns a single scalar value as the measurement for the given box.
      * Subclasses define this method to specify the measurement they make.
      */
 	public abstract double getDataAsScalar();
 	
     
     /**
-     * Causes the single getDataAsScalar(Phase) value to be computed and
-     * returned for the given phase. In response to a getData() call,
-     * MeterAbstract superclass will loop over all phases previously specified
-     * via setPhase and collect these values into a vector and return them in
+     * Causes the single getDataAsScalar(Box) value to be computed and
+     * returned for the given box. In response to a getData() call,
+     * MeterAbstract superclass will loop over all boxs previously specified
+     * via setBox and collect these values into a vector and return them in
      * response to a getData() call.
      */
 	public final DataDouble getDataDouble() {

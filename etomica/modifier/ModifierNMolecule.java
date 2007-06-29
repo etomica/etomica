@@ -6,12 +6,12 @@ import etomica.units.Quantity;
 
 /**
  * Modifier class that enables change of the number of molecules of a particular species
- * in a particular phase.
+ * in a particular box.
  */
 public class ModifierNMolecule implements Modifier, java.io.Serializable {
 
     /**
-     * @param speciesAgent Agent of the affected species in the affected phase.
+     * @param speciesAgent Agent of the affected species in the affected box.
      * Cannot be changed after construction.
      */
     public ModifierNMolecule(ISpeciesAgent speciesAgent) {

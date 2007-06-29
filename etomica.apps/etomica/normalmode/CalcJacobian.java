@@ -23,7 +23,7 @@ public class CalcJacobian {
         int vectorPos = 0;
         double sqrtN = Math.sqrt(cells.length);
         for (int iVector = 0; iVector < waveVectors.length; iVector++) {
-            double phaseAngle = Double.NaN;
+            double boxAngle = Double.NaN;
             for (int iCell = 0; iCell < cells.length; iCell++) {
                 IVector latticePosition = cells[iCell].cellPosition;
                 double kR = waveVectors[iVector].dot(latticePosition);
@@ -44,11 +44,11 @@ public class CalcJacobian {
                     }
                     else {
                         // single degree of freedom.
-                        // All kR must be 100% in-phase or 100% out of phase. kR-phaseAngle will be 0 or pi
-                        if (!Double.isNaN(phaseAngle) && Math.abs(Math.sin(kR-phaseAngle)) > 1.e-10) {
-                            throw new RuntimeException("oops "+iVector+" "+waveVectors[iVector]+" "+phaseAngle+" "+kR);
+                        // All kR must be 100% in-box or 100% out of box. kR-boxAngle will be 0 or pi
+                        if (!Double.isNaN(boxAngle) && Math.abs(Math.sin(kR-boxAngle)) > 1.e-10) {
+                            throw new RuntimeException("oops "+iVector+" "+waveVectors[iVector]+" "+boxAngle+" "+kR);
                         }
-                        phaseAngle = kR;
+                        boxAngle = kR;
                         double value;
                         // either one works so long as it's not 0
                         if (Math.abs(coskR) > 0.1) {
@@ -87,7 +87,7 @@ public class CalcJacobian {
         coordinateDefinition = newCoordinateDefinition;
         coordinateDim = coordinateDefinition.getCoordinateDim();
 
-        waveVectorFactory.makeWaveVectors(newCoordinateDefinition.getPhase());
+        waveVectorFactory.makeWaveVectors(newCoordinateDefinition.getBox());
         waveVectors = waveVectorFactory.getWaveVectors();
         waveVectorCoefficients = waveVectorFactory.getCoefficients();
     }

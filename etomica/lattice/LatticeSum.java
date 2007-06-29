@@ -91,16 +91,16 @@ public class LatticeSum {
 //        BravaisLattice lattice = new BravaisLattice(primitive);
 //        WaveVectorFactory kFactory = new WaveVectorFactoryFcc(primitive);
 //        Simulation sim = new Simulation(Space3D.getInstance());
-//        Phase phase = new Phase(sim);
-//        sim.addPhase(phase);
+//        Box box = new Box(sim);
+//        sim.addBox(box);
 //        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
 //        sim.getSpeciesManager().addSpecies(species);
-//        species.getAgent(phase).setNMolecules(32);
+//        species.getAgent(box).setNMolecules(32);
 //        int n = 2;
-//        phase.getBoundary().setDimensions(new Vector3D(n*primitive.getSize()[0]*Math.sqrt(2),
+//        box.getBoundary().setDimensions(new Vector3D(n*primitive.getSize()[0]*Math.sqrt(2),
 //                n*primitive.getSize()[1]*Math.sqrt(2),n*primitive.getSize()[2]*Math.sqrt(2)));
-//        System.out.println("Density: "+phase.getDensity());
-//        kFactory.makeWaveVectors(phase);
+//        System.out.println("Density: "+box.getDensity());
+//        kFactory.makeWaveVectors(box);
 //        System.out.println("Number of wave vectors: "+kFactory.getWaveVectors().length);
 //        LatticeSum summer = new LatticeSum(lattice);
 //        final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);

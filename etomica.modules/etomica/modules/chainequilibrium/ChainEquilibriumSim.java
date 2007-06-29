@@ -1,6 +1,6 @@
 package etomica.modules.chainequilibrium;
 
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomAgentManager;
@@ -13,7 +13,7 @@ import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -27,7 +27,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 	public Controller controller1;
 	public IntegratorHard integratorHard1;
 	public java.awt.Component display;
-	public Phase phase;
+	public Box box;
 	public etomica.action.SimulationRestart restartAction;
 	public boolean initializing = true;
 	public MeterTemperature thermometer;
@@ -51,24 +51,24 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         integratorHard1.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard1.setThermostatInterval(10);
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.setBoundary(new BoundaryRectangularPeriodic(space, random, 30));
-        integratorHard1.setPhase(phase);	
+        box = new Box(this);
+        addBox(box);
+        box.setBoundary(new BoundaryRectangularPeriodic(space, random, 30));
+        integratorHard1.setBox(box);	
         speciesA = new SpeciesSpheresMono(this);
         speciesB = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(speciesA);
         getSpeciesManager().addSpecies(speciesB);
         ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
         ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(diameter);
-        phase.getAgent(speciesA).setNMolecules(10);
-        phase.getAgent(speciesB).setNMolecules(40);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
+        box.getAgent(speciesA).setNMolecules(10);
+        box.getAgent(speciesB).setNMolecules(40);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
 
-        agentManager = new AtomLeafAgentManager(this,phase);
+        agentManager = new AtomLeafAgentManager(this,box);
 
         molecularCount = new MeterChainLength(agentManager);
-        molecularCount.setPhase(phase);
+        molecularCount.setBox(box);
 
 		//potentials
         AAbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, 2.0, 1.0);
@@ -86,13 +86,13 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 		// **** Setting Up the thermometer Meter *****
 		
 		thermometer = new MeterTemperature();
-		thermometer.setPhase(phase);
+		thermometer.setBox(box);
         
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integratorHard1,true,true);
 		activityIntegrate.setDoSleep(true);
 		activityIntegrate.setSleepPeriod(1);
 		getController().addAction(activityIntegrate);
-		integratorHard1.addIntervalAction(new PhaseImposePbc(phase));
+		integratorHard1.addIntervalAction(new BoxImposePbc(box));
 
 	}
     

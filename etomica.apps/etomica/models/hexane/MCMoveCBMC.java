@@ -11,17 +11,17 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMovePhase;
-import etomica.phase.Phase;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.util.Constants;
 import etomica.util.IRandom;
 
-public abstract class MCMoveCBMC extends MCMovePhase {
+public abstract class MCMoveCBMC extends MCMoveBox {
 
     public MCMoveCBMC(PotentialMaster potentialMaster, IRandom random,
-            IntegratorMC integrator, Phase p, int maxAtomsPerMolecule,
+            IntegratorMC integrator, Box p, int maxAtomsPerMolecule,
             int NTrial) {
         super(potentialMaster);
         this.random = random;
@@ -34,10 +34,10 @@ public abstract class MCMoveCBMC extends MCMovePhase {
 
         externalMeter = new MeterPotentialEnergy(potentialMaster);
 
-        phase = p;
+        box = p;
 
         moleculeSource = new AtomSourceRandomMolecule();
-        moleculeSource.setPhase(phase);
+        moleculeSource.setBox(box);
         ((AtomSourceRandomMolecule) moleculeSource).setRandom(random);
         setMoleculeSource(moleculeSource);
 
@@ -63,9 +63,9 @@ public abstract class MCMoveCBMC extends MCMovePhase {
 
     public abstract double energyChange();
 
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        externalMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        externalMeter.setBox(p);
     }
 
     public void acceptNotify() {

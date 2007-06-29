@@ -8,12 +8,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
@@ -26,7 +26,7 @@ import etomica.species.SpeciesSpheresMono;
 public class HSMD3DNoNbr extends Simulation {
 
     private static final long serialVersionUID = 1L;
-    public Phase phase;
+    public Box box;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species;
     public P2HardSphere potential;
@@ -52,22 +52,22 @@ public class HSMD3DNoNbr extends Simulation {
         potential = new P2HardSphere(space, sigma, false);
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numAtoms);
-        phase.setDimensions(Space.makeVector(new double[]{l,l,l}));
-//        phase.setBoundary(new BoundaryTruncatedOctahedron(space));
-        integrator.setPhase(phase);
-        integrator.addIntervalAction(new PhaseImposePbc(phase));
-        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numAtoms);
+        box.setDimensions(Space.makeVector(new double[]{l,l,l}));
+//        box.setBoundary(new BoundaryTruncatedOctahedron(space));
+        integrator.setBox(box);
+        integrator.addIntervalAction(new BoxImposePbc(box));
+        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
         
         //ColorSchemeByType.setColor(speciesSpheres0, java.awt.Color.blue);
 
  //       MeterPressureHard meterPressure = new MeterPressureHard(integrator);
  //       DataAccumulator accumulatorManager = new DataAccumulator(meterPressure);
-        // 	DisplayBox box = new DisplayBox();
+        // 	DisplayTextBox box = new DisplayBox();
         // 	box.setDatumSource(meterPressure);
- //       phase.setDensity(0.7);
+ //       box.setDensity(0.7);
     } //end of constructor
 
     public static void main( String[] args )

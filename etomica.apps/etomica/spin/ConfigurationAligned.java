@@ -3,7 +3,7 @@ package etomica.spin;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 
 
@@ -26,8 +26,8 @@ public class ConfigurationAligned extends Configuration {
     /**
      * Sets all spins to be aligned in the +x direction
      */
-    public void initializeCoordinates(Phase phase) {
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
+    public void initializeCoordinates(Box box) {
+        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
         iterator.reset();
         for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom(); atom != null;
              atom = (IAtomPositioned)iterator.nextAtom()) {

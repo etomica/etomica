@@ -6,12 +6,12 @@ import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceScalar;
 import etomica.data.IDataInfo;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 import etomica.units.Quantity;
 
 /**
- * Meter for recording the total number of molecules in the phase
+ * Meter for recording the total number of molecules in the box
  */
 public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomic {
     
@@ -23,7 +23,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Number of molecules in a phase");
+        EtomicaInfo info = new EtomicaInfo("Number of molecules in a box");
         return info;
     }
 
@@ -31,8 +31,8 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
     public Species getSpecies() {return species;}
 
     public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-        return (species == null) ? phase.moleculeCount(): phase.getAgent(species).getNMolecules();
+        if (box == null) throw new IllegalStateException("must call setBox before using meter");
+        return (species == null) ? box.moleculeCount(): box.getAgent(species).getNMolecules();
     }
     
     public Data getData(IAtom atom) {
@@ -45,17 +45,17 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
-    private Phase phase;
+    private Box box;
 }

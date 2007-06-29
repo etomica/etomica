@@ -4,7 +4,7 @@ import java.awt.Color;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
  * Parent class for color schemes that are best implemented by attaching colors
@@ -16,8 +16,8 @@ public abstract class ColorSchemeCollective extends ColorScheme implements Agent
     
     protected AtomLeafAgentManager agentManager;
     
-    public ColorSchemeCollective(Phase phase) {
-        agentManager = new AtomLeafAgentManager(this, phase);
+    public ColorSchemeCollective(Box box) {
+        agentManager = new AtomLeafAgentManager(this, box);
     }
     
     //determine color

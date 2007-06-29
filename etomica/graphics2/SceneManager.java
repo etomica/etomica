@@ -10,13 +10,13 @@ import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentIterator;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 
 /**
- * Converts all drawable information in a Phase object into graphics primitives
+ * Converts all drawable information in a Box object into graphics primitives
  *  using the Renderable interface. 
  * It does not handle mouse or keyboard - it's up to the implementation to do it. 
  */
@@ -37,16 +37,16 @@ public final class SceneManager {
 
    
     public void updateAtomPositions() {
-        if(!isVisible() || getPhase() == null) return;
+        if(!isVisible() || getBox() == null) return;
         // Create graphical object for the boundary
-        Boundary bnd = phase.getBoundary();
+        Boundary bnd = box.getBoundary();
         Polytope shape = bnd.getShape();
         boolean needUpdate = false;
         IVector[] newVertices = shape.getVertices();
         if (boundaryVertices == null || boundaryVertices.length != newVertices.length) {
             boundaryVertices = new IVector[newVertices.length];
             for (int i=0; i<boundaryVertices.length; i++) {
-                boundaryVertices[i] = phase.getSpace().makeVector();
+                boundaryVertices[i] = box.getSpace().makeVector();
                 boundaryVertices[i].E(newVertices[i]);
             }
             needUpdate = true;
@@ -66,7 +66,7 @@ public final class SceneManager {
             }
             
             LineSegment[] edges = shape.getEdges();
-            IVector shift = phase.getSpace().makeVector();
+            IVector shift = box.getSpace().makeVector();
             
             boundaryPoly = renderer.createPoly();
             for(int i=0; i<edges.length; i++) 
@@ -91,21 +91,21 @@ public final class SceneManager {
         }
     }
     
-    public void setPhase(Phase newPhase) {
-        if (newPhase == phase) {
+    public void setBox(Box newBox) {
+        if (newBox == box) {
             return;
         }
-        agentManager = new AtomAgentManager(new SphereShapeSource(), newPhase, false);
+        agentManager = new AtomAgentManager(new SphereShapeSource(), newBox, false);
         agentIterator = agentManager.makeIterator();
-    	phase = newPhase;
-        if (phase != null) {
-            from = phase.getSpace().makeVector();
-            to = phase.getSpace().makeVector();
+    	box = newBox;
+        if (box != null) {
+            from = box.getSpace().makeVector();
+            to = box.getSpace().makeVector();
         }
     }
     
-    public Phase getPhase() {
-    	return phase;
+    public Box getBox() {
+    	return box;
     }
     
     public boolean isVisible() {
@@ -174,7 +174,7 @@ public final class SceneManager {
 
     protected AtomFilter atomFilter;
     protected double scale;
-    protected Phase phase;
+    protected Box box;
     protected IVector[] boundaryVertices;
     protected IVector from, to;
     

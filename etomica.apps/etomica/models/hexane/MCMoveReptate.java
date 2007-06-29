@@ -8,15 +8,15 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.mcmove.MCMovePhaseStep;
-import etomica.phase.Phase;
+import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
 
-public class MCMoveReptate extends MCMovePhaseStep {
+public class MCMoveReptate extends MCMoveBoxStep {
     
     public MCMoveReptate(ISimulation sim, PotentialMaster potentialMaster){
         this(potentialMaster, sim.getRandom(), 1.0, 15.0, false /*, con*/);
@@ -56,7 +56,7 @@ public class MCMoveReptate extends MCMovePhaseStep {
        energyMeter.setTarget(atom);
        uOld = energyMeter.getDataAsScalar();
 //       if(uOld > 1e10 && !fixOverlap) {
-//           throw new RuntimeException(new ConfigurationOverlapException(atom.node.parentPhase()));
+//           throw new RuntimeException(new ConfigurationOverlapException(atom.node.parentBox()));
 //       }
        
 //       //This is the part where we make the change.  We've selected an atom already.
@@ -67,8 +67,8 @@ public class MCMoveReptate extends MCMovePhaseStep {
 //       
 //       //Decide which direction the molecule is moving.
 //       double dir = Simulation.random.nextDouble();
-//       Atom at = new Atom(phase.space());
-//       Vector store = phase.space().makeVector();
+//       Atom at = new Atom(box.space());
+//       Vector store = box.space().makeVector();
 //       
 //       
 //       int leng = aim.size();
@@ -162,12 +162,12 @@ public class MCMoveReptate extends MCMovePhaseStep {
     
     public double energyChange(){return uNew - uOld;}
      
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        energyMeter.setPhase(p);
-        atomSource.setPhase(p);
-        tempV = (IVectorRandom)phase.getSpace().makeVector();
-        positionOld = phase.getSpace().makeVector();
+    public void setBox(Box p) {
+        super.setBox(p);
+        energyMeter.setBox(p);
+        atomSource.setBox(p);
+        tempV = (IVectorRandom)box.getSpace().makeVector();
+        positionOld = box.getSpace().makeVector();
     }
     
     /**

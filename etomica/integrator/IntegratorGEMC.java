@@ -7,7 +7,7 @@ import etomica.util.IRandom;
 
 /**
  * Simple Gibbs-ensemble Monte Carlo integrator. Used to evaluate fluid-fluid
- * phase coexistence. Written to apply to only two phases.
+ * box coexistence. Written to apply to only two boxs.
  * 
  * @author David Kofke
  */
@@ -19,23 +19,23 @@ public class IntegratorGEMC extends IntegratorManagerMC {
 
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo(
-                "Gibbs-ensemble Monte Carlo simulation of phase coexistence");
+                "Gibbs-ensemble Monte Carlo simulation of box coexistence");
         return info;
     }
 
     public void addIntegrator(IIntegrator newIntegrator) {
-        if (!(newIntegrator instanceof IntegratorPhase)) {
-            throw new IllegalArgumentException("Sub integrators must be able to handle a phase");
+        if (!(newIntegrator instanceof IntegratorBox)) {
+            throw new IllegalArgumentException("Sub integrators must be able to handle a box");
         }
         if (nIntegrators == 2) {
             throw new IllegalArgumentException("Only 2 sub-integrators can be added");
         }
         super.addIntegrator(newIntegrator);
         if (nIntegrators == 2) {
-            volumeExchange = new MCMoveVolumeExchange(((IntegratorPhase)newIntegrator).getPotential(), random,
-                    (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
-            moleculeExchange = new MCMoveMoleculeExchange(((IntegratorPhase)newIntegrator).getPotential(), random,
-                    (IntegratorPhase)integrators[0],(IntegratorPhase)integrators[1]);
+            volumeExchange = new MCMoveVolumeExchange(((IntegratorBox)newIntegrator).getPotential(), random,
+                    (IntegratorBox)integrators[0],(IntegratorBox)integrators[1]);
+            moleculeExchange = new MCMoveMoleculeExchange(((IntegratorBox)newIntegrator).getPotential(), random,
+                    (IntegratorBox)integrators[0],(IntegratorBox)integrators[1]);
             moveManager.addMCMove(volumeExchange);
             moveManager.addMCMove(moleculeExchange);
         }

@@ -5,7 +5,7 @@ import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -17,7 +17,7 @@ import etomica.space.Space;
  * For non-spherical molecules it will also include elements related to the
  * orientation.  This class provides methods to compute the k-dependent collective generalized
  * coordinates, obtained by Fourier-summing the generalized coordinates over the atoms
- * in a phase.
+ * in a box.
  * 
  * @author Andrew Schultz, David Kofke
  */
@@ -106,17 +106,17 @@ public abstract class CoordinateDefinitionUpper {
 
     }
 
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
 
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        siteManager = new AtomAgentManager(new SiteSource(phase.getSpace()), phase);
-        int N = phase.getSpeciesMaster().moleculeCount();
+    public void setBox(Box box) {
+        this.box = box;
+        siteManager = new AtomAgentManager(new SiteSource(box.getSpace()), box);
+        int N = box.getSpeciesMaster().moleculeCount();
         sqrtN = Math.sqrt(N);
 
-        iterator.setPhase(phase);
+        iterator.setBox(box);
         iterator.reset();
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
@@ -125,10 +125,10 @@ public abstract class CoordinateDefinitionUpper {
 
     }
     
-    public void setCell(Phase phase){
-    	this.phase = phase;
-    	cellManager = new AtomAgentManager(new SiteSource(phase.getSpace()),phase);
-    	int N = phase.getSpeciesMaster().moleculeCount();
+    public void setCell(Box box){
+    	this.box = box;
+    	cellManager = new AtomAgentManager(new SiteSource(box.getSpace()),box);
+    	int N = box.getSpeciesMaster().moleculeCount();
     }
 
     public IVector getLatticePosition(IAtom atom) {
@@ -136,7 +136,7 @@ public abstract class CoordinateDefinitionUpper {
     }
 
     protected final int coordinateDim;
-    protected Phase phase;
+    protected Box box;
     public double sqrtN;
     public final AtomIteratorAllMolecules iterator;
     private AtomAgentManager siteManager, cellManager;

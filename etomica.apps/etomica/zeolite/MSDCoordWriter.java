@@ -8,9 +8,9 @@ import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.integrator.Integrator;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -55,14 +55,14 @@ public class MSDCoordWriter implements Action,
 		setWriteInterval(1);
 	}
 	
-	public void setPhase(Phase newPhase){
+	public void setBox(Box newBox){
 		
-		phase = newPhase;
-		iterator.setPhase(phase);
-		afterPBCinstance.setPhase(phase);
+		box = newBox;
+		iterator.setBox(box);
+		afterPBCinstance.setBox(box);
 	}
     
-    public void setIterator(AtomIteratorPhaseDependent newIterator) {
+    public void setIterator(AtomIteratorBoxDependent newIterator) {
         iterator = newIterator;
         afterPBCinstance.setIterator(iterator);
     }
@@ -107,7 +107,7 @@ public class MSDCoordWriter implements Action,
 	public void actionPerformed() {
 		afterPBCinstance.updateAtomOldCoord();
 		if (--intervalCount == 0){
-			IVector phasedim = phase.getBoundary().getDimensions();
+			IVector boxdim = box.getBoundary().getDimensions();
 			// Gets atomPBIarray from AfterPBC subclass, through the subclass instance
 			int [][] atomPBIarray = afterPBCinstance.getAtomPBIarray();
 
@@ -117,13 +117,13 @@ public class MSDCoordWriter implements Action,
 				for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom();
                      atom != null; atom = (IAtomPositioned)iterator.nextAtom()) {
 					IVector atomPosition = atom.getPosition();
-					for (int j=0;j < phasedim.getD();j++){
+					for (int j=0;j < boxdim.getD();j++){
 						double actualDistance;
 							
 						// Total distance traveled between file writes is computed
-						actualDistance = atomPBIarray[i][j] * phasedim.x(j) + atomPosition.x(j);
+						actualDistance = atomPBIarray[i][j] * boxdim.x(j) + atomPosition.x(j);
 						fileWriter.write(""+actualDistance);
-						if(j!=phasedim.getD()-1){
+						if(j!=boxdim.getD()-1){
 							fileWriter.write("\t");
 						}
 						
@@ -154,8 +154,8 @@ public class MSDCoordWriter implements Action,
     }
 
 	private AfterPBC afterPBCinstance;
-	private Phase phase;
-	private AtomIteratorPhaseDependent iterator;
+	private Box box;
+	private AtomIteratorBoxDependent iterator;
 	private int writeInterval;
 	private int intervalCount;
 	private String fileName;
@@ -167,7 +167,7 @@ public class MSDCoordWriter implements Action,
 	
 	private static class AfterPBC implements Action {
 		
-		public AfterPBC(Space space, AtomIteratorPhaseDependent iterator){
+		public AfterPBC(Space space, AtomIteratorBoxDependent iterator){
 			workVector = space.makeVector();
 			this.iterator = iterator;
 		}
@@ -177,19 +177,19 @@ public class MSDCoordWriter implements Action,
 			return atomPBIarray;
 		}
 				
-		public void setPhase(Phase phase){
-			atomOldCoord = new IVector[phase.atomCount()];
+		public void setBox(Box box){
+			atomOldCoord = new IVector[box.atomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
-				atomOldCoord[j] = phase.getSpace().makeVector();
+				atomOldCoord[j] = box.getSpace().makeVector();
 			}
 						
-			atomPBIarray = new int[phase.atomCount()][phase.getSpace().D()];
-			iterator.setPhase(phase);
-			phaseDim = phase.getBoundary().getDimensions();
+			atomPBIarray = new int[box.atomCount()][box.getSpace().D()];
+			iterator.setBox(box);
+			boxDim = box.getBoundary().getDimensions();
 			updateAtomOldCoord();
 		}
         
-        public void setIterator(AtomIteratorPhaseDependent newIterator) {
+        public void setIterator(AtomIteratorBoxDependent newIterator) {
             iterator = newIterator;
         }
 		
@@ -214,9 +214,9 @@ public class MSDCoordWriter implements Action,
                  atom != null; atom = (IAtomPositioned)iterator.nextAtom()) {
 				workVector.E(atomOldCoord[i]);
 				workVector.ME(atom.getPosition()); 
-				workVector.DE(phaseDim);
+				workVector.DE(boxDim);
 				
-				for (int j=0;j < phaseDim.getD();j++){
+				for (int j=0;j < boxDim.getD();j++){
 					
 					// Before Math.round, workVector is -/+ 0.9999,1.000,1.0001,0.000
 					// Value will truncate when added to atomPBIarray, we must make workVector a whole number
@@ -227,11 +227,11 @@ public class MSDCoordWriter implements Action,
 			}
 		}
 		
-		private IVector phaseDim;
+		private IVector boxDim;
 		private int [][] atomPBIarray;
 		private IVector workVector;
 		private IVector [] atomOldCoord;
-		private AtomIteratorPhaseDependent iterator;
+		private AtomIteratorBoxDependent iterator;
 	}
 	
 }

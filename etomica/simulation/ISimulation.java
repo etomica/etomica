@@ -1,28 +1,28 @@
 package etomica.simulation;
 
 import etomica.action.activity.Controller;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.util.IRandom;
 
 public interface ISimulation {
 
     /**
-     * Adds a Phase to the simulation.  This method should not be called if
-     * newPhase is already held by the simulation.
+     * Adds a Box to the simulation.  This method should not be called if
+     * newBox is already held by the simulation.
      */
-    public void addPhase(Phase newPhase);
+    public void addBox(Box newBox);
 
     /**
-     * Removes a Phase to the simulation.  This method should not be called if
-     * oldPhase is not held by the simulation.
+     * Removes a Box to the simulation.  This method should not be called if
+     * oldBox is not held by the simulation.
      */
-    public void removePhase(Phase oldPhase);
+    public void removeBox(Box oldBox);
 
     /**
-     * Returns an array of Phases contained in the Simulation
+     * Returns an array of Boxs contained in the Simulation
      */
-    public Phase[] getPhases();
+    public Box[] getBoxs();
 
     /**
      * Returns the Controller used to run the simulation's Actions and 
@@ -37,7 +37,7 @@ public interface ISimulation {
 
     /**
      * Returns the Simulation's event manager, which fires events for
-     * Phases and Species being added and removed.
+     * Boxs and Species being added and removed.
      */
     public SimulationEventManager getEventManager();
 

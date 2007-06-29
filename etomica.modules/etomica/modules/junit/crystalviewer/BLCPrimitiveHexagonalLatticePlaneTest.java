@@ -27,7 +27,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 		super.setUp();
 		if (lptu == null) {
 			lptu = new LatticePlaneTestUtility();			
-	        lptu.createLatticeAndPhase(lptu.HEXAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
+	        lptu.createLatticeAndBox(lptu.HEXAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
 	        lptu.setDimensions(DEFAULT_SIZE);
 		}
 	}
@@ -53,7 +53,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	double plane = 1.0;
     	AtomSet leafList = null;
 
-        lptu.createLatticeAndPhase(lptu.HEXAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.HEXAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
 
 
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSize);
@@ -66,7 +66,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
         //Only (and all) atoms where x = 0 should be in plane.
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -113,7 +113,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	double plane = -1.0;
     	AtomSet leafList = null;
 
-        lptu.createLatticeAndPhase(lptu.HEXAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.HEXAGONAL, DEFAULT_MILLER, DEFAULT_BOX);
 
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSizeAB);
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSizeC);
@@ -124,7 +124,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-        leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+        leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -186,7 +186,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
 
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndPhase(lptu.HEXAGONAL, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.HEXAGONAL, millerIndices, new int[] {size, size, size});
 
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSize);
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSize);
@@ -196,7 +196,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-        leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+        leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -244,7 +244,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	int dimensionSize = 4;
     	double plane = 0.0;
 
-        lptu.createLatticeAndPhase(lptu.HEXAGONAL, DEFAULT_MILLER,
+        lptu.createLatticeAndBox(lptu.HEXAGONAL, DEFAULT_MILLER,
         		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSize);
@@ -255,7 +255,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -287,7 +287,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	int dimensionSize = 4;
     	double plane = 0.5;
 
-        lptu.createLatticeAndPhase(lptu.HEXAGONAL, DEFAULT_MILLER,
+        lptu.createLatticeAndBox(lptu.HEXAGONAL, DEFAULT_MILLER,
         		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSize);
@@ -299,7 +299,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -349,7 +349,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	double plane = 0.05;
     	int[] millerIndices = new int[] { 1, 1, 2 };
 
-        lptu.createLatticeAndPhase(lptu.HEXAGONAL, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.HEXAGONAL, millerIndices, new int[] {size, size, size});
 
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSizeAB);
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSizeC);
@@ -359,7 +359,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-        leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+        leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -405,7 +405,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
                   { 1.4, 2.4248711305964283, -2.8 } };
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndPhase(lptu.HEXAGONAL, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.HEXAGONAL, millerIndices, new int[] {size, size, size});
 
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSizeAB);
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSizeC);
@@ -415,7 +415,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-        leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+        leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -466,7 +466,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
     	double plane = 0.05;
     	int[] millerIndices = new int[] { 1, 1, 2 };
 
-        lptu.createLatticeAndPhase(lptu.HEXAGONAL, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.HEXAGONAL, millerIndices, new int[] {size, size, size});
 
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeAB(cubicSizeAB);
         ((PrimitiveHexagonal)lptu.getLattice().getPrimitive()).setSizeC(cubicSizeC);
@@ -476,7 +476,7 @@ public class BLCPrimitiveHexagonalLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-        leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+        leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {

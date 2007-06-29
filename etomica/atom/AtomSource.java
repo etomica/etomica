@@ -1,22 +1,22 @@
 package etomica.atom;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
  * Interface for objects when return atoms (meeting some specification)
- * from a phase.
+ * from a box.
  */
 public interface AtomSource {
     
     /**
-     * sets the Phase the source should pull Atoms from.
-     * Phase should not be null
+     * sets the Box the source should pull Atoms from.
+     * Box should not be null
      */
-    public void setPhase(Phase p);
+    public void setBox(Box p);
 
     /**
      * Returns an atom.  Will return null if there are no appropriate atoms in 
-     * the given phase.
+     * the given box.
      */
     public IAtom getAtom();
 }

@@ -32,7 +32,7 @@ public class DataProcessorCvMD extends DataProcessor {
 		data.x = ((DataDouble)inputData).x;
 		double systemTemp = integrator.getTemperature();
 		data.x /= systemTemp;
-		data.x *= data.x/integrator.getPhase().moleculeCount();
+		data.x *= data.x/integrator.getBox().moleculeCount();
 		return data;
 	}
 

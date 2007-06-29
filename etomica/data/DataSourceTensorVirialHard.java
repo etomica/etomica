@@ -2,7 +2,7 @@ package etomica.data;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Null;
@@ -48,10 +48,10 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
             data.E(Double.NaN);
             return data;
         }
-        Phase phase = integratorHard.getPhase();
-        int D = phase.getSpace().D();
+        Box box = integratorHard.getBox();
+        int D = box.getSpace().D();
 
-        work.TE(-1./(integratorHard.getTemperature()*elapsedTime*D*phase.atomCount()));
+        work.TE(-1./(integratorHard.getTemperature()*elapsedTime*D*box.atomCount()));
         data.x.E(work);
         //don't add 1.0 to diagonal elements because meter returns only virial contribution to pressure
         return data;
@@ -69,12 +69,12 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
      */
     public Tensor collisionValue(IntegratorHard.Agent agent) {
         data.x.E(agent.collisionPotential.lastCollisionVirialTensor());
-        data.x.TE(1/(double)integratorHard.getPhase().atomCount());
+        data.x.TE(1/(double)integratorHard.getBox().atomCount());
         return data.x;
     }
                 
     /**
-     * Informs meter of the integrator for its phase, and zeros elapsed-time counter
+     * Informs meter of the integrator for its box, and zeros elapsed-time counter
      */
     public void setIntegrator(IntegratorHard newIntegrator) {
         if(newIntegrator == integratorHard) return;

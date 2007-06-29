@@ -7,7 +7,7 @@ import etomica.data.DataPump;
 import etomica.data.meter.MeterEnergy;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.species.Species;
 import etomica.util.HistoryCollapsing;
 
@@ -28,7 +28,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
 
     public void actionPerformed() {
         if(integrator != null) {
-        	//Turn off PhaseDisplay
+        	//Turn off BoxDisplay
         	//graphic.remove(graphic.display);
         	
         	
@@ -37,8 +37,8 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sim.activityIntegrate.setDoSleep(false);
         	((IntegratorMD)integrator).setThermostatInterval(327000);
         	//Keeping another graphic of the total energy drift
-        	MeterEnergy eMeter = new MeterEnergy(((IntegratorPhase)integrator).getPotential());
-        	eMeter.setPhase(sim.phase);
+        	MeterEnergy eMeter = new MeterEnergy(((IntegratorBox)integrator).getPotential());
+        	eMeter.setBox(sim.box);
         	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsing());
         	energyHistory.getHistory().setHistoryLength(sim.getInterval()*500);
         	//AccumulatorAverage enAcc = new AccumulatorAverage(sim);
@@ -65,7 +65,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	System.out.println(filename);
         	//sim.integrator.setTimeStep(0.00);
         	MSDCoordWriter coordWriter = new MSDCoordWriter(sim.getSpace(), filename);
-        	coordWriter.setPhase(sim.phase);
+        	coordWriter.setBox(sim.box);
             coordWriter.setIterator(new AtomIteratorMolecule(sp));
             coordWriter.setIntegrator(sim.integrator);
             coordWriter.setWriteInterval(interval);

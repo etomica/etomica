@@ -16,7 +16,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.units.Null;
 import etomica.units.Quantity;
 
@@ -99,7 +99,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         }
 
         for (int i=0; i<histogram.length; i++) {
-            histogram[i] /= phase.atomCount();
+            histogram[i] /= box.atomCount();
         }
         
         return data;
@@ -139,19 +139,19 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         
     }
     
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
         if (tagManager != null) {
-            // allow old agentManager to de-register itself as a PhaseListener
+            // allow old agentManager to de-register itself as a BoxListener
             tagManager.dispose();
         }
-        tagManager = new AtomLeafAgentManager(this,phase);
+        tagManager = new AtomLeafAgentManager(this,box);
         
-        iterator.setPhase(phase);
+        iterator.setBox(box);
     }
 
     public IDataInfo getDataInfo() {
@@ -160,7 +160,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
 
     private static final long serialVersionUID = 1L;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    private Phase phase;
+    private Box box;
     private AtomLeafAgentManager tagManager;
     private AtomAgentManager agentManager;
     private DataFunction data;

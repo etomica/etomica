@@ -52,7 +52,7 @@ public class SimCalcSParacetamolEquilibration extends Simulation {
         sim.activityIntegrate.setMaxSteps(simSteps);
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.integrator.getPotential());
-        meterPE.setPhase(sim.phase);
+        meterPE.setBox(sim.box);
         
         DataLogger dataLoggerPE = new DataLogger();
         dataLoggerPE.setWriteInterval(1);
@@ -70,7 +70,7 @@ public class SimCalcSParacetamolEquilibration extends Simulation {
         sim.getController().actionPerformed();
         WriteConfiguration writeConfig = new WriteConfiguration();
         writeConfig.setConfName("Coord_Paracetamol_FormII_"+Kelvin.UNIT.fromSim(temperature)+"_K");
-        writeConfig.setPhase(sim.phase);
+        writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);
         writeConfig.actionPerformed();
         

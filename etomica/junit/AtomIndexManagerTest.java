@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
 import etomica.atom.AtomManager;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
@@ -19,7 +19,7 @@ import etomica.species.SpeciesSpheresMono;
 
 /**
  * Performs tests of AtomIndexManager, checking that methods to determine
- * if two atoms are in the same phase, species, molecule, etc., function 
+ * if two atoms are in the same box, species, molecule, etc., function 
  * correctly.
  */
 public class AtomIndexManagerTest extends TestCase {
@@ -34,38 +34,38 @@ public class AtomIndexManagerTest extends TestCase {
         SpeciesSpheres species1 = new SpeciesSpheres(sim, 5);
         sim.getSpeciesManager().addSpecies(species0);
         sim.getSpeciesManager().addSpecies(species1);
-        Phase phase0 = new Phase(sim);
-        Phase phase1 = new Phase(sim);
-        sim.addPhase(phase0);
-        sim.addPhase(phase1);
-        phase0.getAgent(species0).setNMolecules(20);
-        phase0.getAgent(species1).setNMolecules(10);
-        phase1.getAgent(species0).setNMolecules(20);
-        phase1.getAgent(species1).setNMolecules(10);
+        Box box0 = new Box(sim);
+        Box box1 = new Box(sim);
+        sim.addBox(box0);
+        sim.addBox(box1);
+        box0.getAgent(species0).setNMolecules(20);
+        box0.getAgent(species1).setNMolecules(10);
+        box1.getAgent(species0).setNMolecules(20);
+        box1.getAgent(species1).setNMolecules(10);
         atoms = new IAtom[24];
         int i = 0;
-//        atoms[i++] = master0 = phase0.getSpeciesMaster();//0
-//        atoms[i++] = master1 = phase1.getSpeciesMaster();//1
-        atoms[i++] = agent00 = (SpeciesAgent)phase0.getAgent(species0);//2
-        atoms[i++] = agent01 = (SpeciesAgent)phase0.getAgent(species1);//3
-        atoms[i++] = agent10 = (SpeciesAgent)phase1.getAgent(species0);//4
-        atoms[i++] = agent11 = (SpeciesAgent)phase1.getAgent(species1);//5
+//        atoms[i++] = master0 = box0.getSpeciesMaster();//0
+//        atoms[i++] = master1 = box1.getSpeciesMaster();//1
+        atoms[i++] = agent00 = (SpeciesAgent)box0.getAgent(species0);//2
+        atoms[i++] = agent01 = (SpeciesAgent)box0.getAgent(species1);//3
+        atoms[i++] = agent10 = (SpeciesAgent)box1.getAgent(species0);//4
+        atoms[i++] = agent11 = (SpeciesAgent)box1.getAgent(species1);//5
         AtomGroup[][] node = new AtomGroup[2][2];
         node[0][0] = agent00;
         node[0][1] = agent01;
         node[1][0] = agent10;
         node[1][1] = agent11;
-        phaseIndex =    new int[] {0,0,0,0,1,1,1,1, 0,0,0,0,0,0,1,1,1,1,1,1};
+        boxIndex =    new int[] {0,0,0,0,1,1,1,1, 0,0,0,0,0,0,1,1,1,1,1,1};
         speciesIndex =  new int[] {0,0,1,1,0,0,1,1, 1,1,1,1,1,1,1,1,1,1,1,1};
         moleculeIndex = new int[] {0,5,0,3,0,5,0,4, 0,0,3,3,4,4,0,0,3,3,4,4};
         atomIndex =     new int[] {0,5,0,3,0,5,0,4, 1,4,0,4,0,1,1,4,0,4,0,1};
         i0 = i;
         int del = 8;
         for(int j=0; j<del; j++) {
-            atoms[i++] = node[phaseIndex[j]][speciesIndex[j]].getChildList().getAtom(moleculeIndex[j]);//7
+            atoms[i++] = node[boxIndex[j]][speciesIndex[j]].getChildList().getAtom(moleculeIndex[j]);//7
         }
-        for(int j=del; j<phaseIndex.length; j++) {
-            atoms[i++] = node[phaseIndex[j]][speciesIndex[j]].getDescendant(new int[] {moleculeIndex[j], atomIndex[j]});
+        for(int j=del; j<boxIndex.length; j++) {
+            atoms[i++] = node[boxIndex[j]][speciesIndex[j]].getDescendant(new int[] {moleculeIndex[j], atomIndex[j]});
         }
         atom = new AtomLeaf(Space3D.getInstance());
     }
@@ -95,7 +95,7 @@ public class AtomIndexManagerTest extends TestCase {
             AtomManager iSpeciesMaster = getSpeciesMaster(atoms[i]);
             for(int j=0; j<atoms.length; j++) {
                 if (iSpeciesMaster != getSpeciesMaster(atoms[j])) {
-                    // different phases, so skip
+                    // different boxs, so skip
                     continue;
                 }
 //                System.out.println(i+" "+j);
@@ -128,7 +128,7 @@ public class AtomIndexManagerTest extends TestCase {
             AtomManager iSpeciesMaster = getSpeciesMaster(atoms[i]);
             for(int j=0; j<atoms.length; j++) {
                 if (iSpeciesMaster != getSpeciesMaster(atoms[j])) {
-                    // different phases, so skip
+                    // different boxs, so skip
                     continue;
                 }
                 boolean is = atoms[i].getType().isDescendedFrom(atoms[j].getType());
@@ -172,7 +172,7 @@ public class AtomIndexManagerTest extends TestCase {
                     continue;
                 }
                 if (iSpeciesMaster != getSpeciesMaster(atoms[j])) {
-                    // different phases, so skip
+                    // different boxs, so skip
                     continue;
                 }
                 IAtom moleculeB = atoms[j];
@@ -202,6 +202,6 @@ public class AtomIndexManagerTest extends TestCase {
     SpeciesAgent agent00, agent01, agent10, agent11;
     AtomManager master0, master1;
     IAtom[] atoms;
-    int[] moleculeIndex, phaseIndex, speciesIndex, atomIndex;
+    int[] moleculeIndex, boxIndex, speciesIndex, atomIndex;
     int i0;
 }

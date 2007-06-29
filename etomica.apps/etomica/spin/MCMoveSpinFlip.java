@@ -5,8 +5,8 @@ import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.mcmove.MCMovePhase;
-import etomica.phase.Phase;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.util.IRandom;
 
@@ -18,11 +18,11 @@ import etomica.util.IRandom;
  * @author David Kofke
  *
  */
-public class MCMoveSpinFlip extends MCMovePhase {
+public class MCMoveSpinFlip extends MCMoveBox {
 
     /**
      * @param potentialMaster
-     * @param nPhases
+     * @param nBoxs
      */
     public MCMoveSpinFlip(PotentialMaster potentialMaster, IRandom random) {
         super(potentialMaster);
@@ -34,16 +34,16 @@ public class MCMoveSpinFlip extends MCMovePhase {
 
     }
 
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        energyMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        energyMeter.setBox(p);
     }
     
     /* (non-Javadoc)
      * @see etomica.integrator.MCMove#doTrial()
      */
     public boolean doTrial() {
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         atom = (IAtomPositioned)leafList.getAtom(random.nextInt(leafList.getAtomCount()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
@@ -82,7 +82,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
     }
 
     /* (non-Javadoc)
-     * @see etomica.integrator.MCMove#affectedAtoms(etomica.Phase)
+     * @see etomica.integrator.MCMove#affectedAtoms(etomica.Box)
      */
     public AtomIterator affectedAtoms() {
         affectedAtomIterator.setAtom(atom);
@@ -90,7 +90,7 @@ public class MCMoveSpinFlip extends MCMovePhase {
     }
 
     /* (non-Javadoc)
-     * @see etomica.integrator.MCMove#energyChange(etomica.Phase)
+     * @see etomica.integrator.MCMove#energyChange(etomica.Box)
      */
     public double energyChange() {
         return uNew - uOld;

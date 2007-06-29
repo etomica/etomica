@@ -4,12 +4,12 @@ import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.units.Null;
 
 /**
- * Calculates the entropy of the distribution of Atoms in a Phase
+ * Calculates the entropy of the distribution of Atoms in a Box
  * using Stirling's approximation.
  * @author Andrew Schultz
  */
@@ -22,14 +22,14 @@ public class MeterEntropy extends DataSourceScalar implements DataSource {
     }
 
     public double getDataAsScalar() {
-        IVector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getDimensions();
         if (atomCount.length != (int)Math.round(dimensions.x(0))) {
             atomCount = new int[(int)Math.round(dimensions.x(0))];
         }
         for (int i=0; i<atomCount.length; i++) {
             atomCount[i] = 0;
         }
-        atomIterator.setPhase(phase);
+        atomIterator.setBox(box);
         atomIterator.reset();
         for (IAtomPositioned a = (IAtomPositioned)atomIterator.nextAtom(); a != null;
              a = (IAtomPositioned)atomIterator.nextAtom()) {
@@ -47,17 +47,17 @@ public class MeterEntropy extends DataSourceScalar implements DataSource {
         return -sum;
     }
 
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
 
-    public void setPhase(Phase newPhase) {
-        phase = newPhase;
+    public void setBox(Box newBox) {
+        box = newBox;
 
     }
 
     private static final long serialVersionUID = 1L;
-    protected Phase phase;
+    protected Box box;
     protected int[] atomCount;
     protected final AtomIteratorLeafAtoms atomIterator;
 }

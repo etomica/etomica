@@ -13,8 +13,8 @@ import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IntegratorPhase;
-import etomica.phase.Phase;
+import etomica.integrator.IntegratorBox;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -22,7 +22,7 @@ import etomica.species.Species;
 import etomica.util.IRandom;
 
 /**
- * Performs a trial that results in the exchange of a molecule from one phase to another.
+ * Performs a trial that results in the exchange of a molecule from one box to another.
  * Primary use is as an elementary move in a Gibbs ensemble simulation
  *
  * @author David Kofke
@@ -31,9 +31,9 @@ import etomica.util.IRandom;
 public final class MCMoveMoleculeExchange extends MCMove {
     
     private static final long serialVersionUID = 2L;
-    private Phase firstPhase;
-    private Phase secondPhase;
-    private final IntegratorPhase integrator1, integrator2;
+    private Box firstBox;
+    private Box secondBox;
+    private final IntegratorBox integrator1, integrator2;
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final AtomActionTranslateTo moleculeTranslator;
@@ -43,14 +43,14 @@ public final class MCMoveMoleculeExchange extends MCMove {
     private AtomSource moleculeSource;
     
     private transient IAtom molecule;
-    private transient Phase iPhase, dPhase;
+    private transient Box iBox, dBox;
     private transient ISpeciesAgent iSpecies, dSpecies;
     private transient double uOld;
     private transient double uNew = Double.NaN;
     
 
     public MCMoveMoleculeExchange(PotentialMaster potentialMaster, IRandom random,
-            IntegratorPhase integrator1, IntegratorPhase integrator2) {
+            IntegratorBox integrator1, IntegratorBox integrator2) {
         super(potentialMaster);
         this.random = random;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
@@ -62,38 +62,38 @@ public final class MCMoveMoleculeExchange extends MCMove {
         setAtomPositionDefinition(new AtomPositionCOM(space));
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;
-        firstPhase = integrator1.getPhase();
-        secondPhase = integrator2.getPhase();
+        firstBox = integrator1.getBox();
+        secondBox = integrator2.getBox();
         moleculeSource = new AtomSourceRandomMolecule();
         ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
     }
     
     public boolean doTrial() {
         if(random.nextInt(2) == 0) {
-            iPhase = firstPhase;
-            dPhase = secondPhase;
+            iBox = firstBox;
+            dBox = secondBox;
         }
         else {
-            iPhase = secondPhase;
-            dPhase = firstPhase;
+            iBox = secondBox;
+            dBox = firstBox;
         }
-        if(dPhase.moleculeCount() == 0) { //no molecules to delete; trial is over
+        if(dBox.moleculeCount() == 0) { //no molecules to delete; trial is over
             uNew = uOld = 0.0;
             return false;
         }
 
-        moleculeSource.setPhase(dPhase);
+        moleculeSource.setBox(dBox);
         molecule = moleculeSource.getAtom();  //select random molecule to delete
         Species species = molecule.getType().getSpecies();
         
-        iSpecies = species.getAgent(iPhase);  //insertion-phase speciesAgent
-        dSpecies = species.getAgent(dPhase);  //deletion-phase species Agent
+        iSpecies = species.getAgent(iBox);  //insertion-box speciesAgent
+        dSpecies = species.getAgent(dBox);  //deletion-box species Agent
         
         energyMeter.setTarget(molecule);
-        energyMeter.setPhase(dPhase);
+        energyMeter.setBox(dBox);
         uOld = energyMeter.getDataAsScalar();
 
-        moleculeTranslator.setDestination(iPhase.getBoundary().randomPosition());         //place at random in insertion phase
+        moleculeTranslator.setDestination(iBox.getBoundary().randomPosition());         //place at random in insertion box
         moleculeTranslator.actionPerformed(molecule);
         dSpecies.removeChildAtom(molecule);
         iSpecies.addChildAtom(molecule);
@@ -116,7 +116,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
     }
     
     public double getA() {
-        energyMeter.setPhase(iPhase);
+        energyMeter.setBox(iBox);
         energyMeter.setTarget(molecule);
         uNew = energyMeter.getDataAsScalar();
         double B = -(uNew - uOld);
@@ -124,8 +124,8 @@ public final class MCMoveMoleculeExchange extends MCMove {
         double T = integrator1.getTemperature();
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return B/T * (dSpecies.getNMolecules()+1)/dPhase.volume()
-               * iPhase.volume()/iSpecies.getNMolecules(); 
+        return B/T * (dSpecies.getNMolecules()+1)/dBox.volume()
+               * iBox.volume()/iSpecies.getNMolecules(); 
     }
     
     public double getB() {
@@ -151,16 +151,16 @@ public final class MCMoveMoleculeExchange extends MCMove {
         dSpecies.addChildAtom(molecule);
     }
 
-    public final AtomIterator affectedAtoms(Phase phase) {
-        if(this.firstPhase != phase && this.secondPhase != phase) return AtomIteratorNull.INSTANCE;
+    public final AtomIterator affectedAtoms(Box box) {
+        if(this.firstBox != box && this.secondBox != box) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
     
-    public double energyChange(Phase phase) {
-        if(phase == iPhase) return uNew;
-        else if(phase == dPhase) return -uOld;
+    public double energyChange(Box box) {
+        if(box == iBox) return uNew;
+        else if(box == dBox) return -uOld;
         else return 0.0;
     }
 

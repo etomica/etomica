@@ -159,7 +159,7 @@ public class DeviceToggleRadioButtons extends Device {
                 else  sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.blue);}});
                 sim.panel().repaint();
             }
-            public boolean getBoolean() {return sim.phase.firstAtom().getColor() == java.awt.Color.red;}
+            public boolean getBoolean() {return sim.box.firstAtom().getColor() == java.awt.Color.red;}
         };
         DeviceToggleRadioButtons selector = new DeviceToggleRadioButtons(sim, modifier);
         selector.setTrueLabel("Red");

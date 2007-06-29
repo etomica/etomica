@@ -12,8 +12,8 @@ import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLattice;
@@ -23,7 +23,7 @@ import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2Dreiding;
 import etomica.potential.P2Exp6;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -63,9 +63,9 @@ public class MDParacetamolMonoclinic extends Simulation {
     public final PotentialMasterList potentialMaster;
     
     /**
-     * The Phase holding the atoms. 
+     * The Box holding the atoms. 
      */
-    public final Phase phase;
+    public final Box box;
     /**
      * The Integrator performing the dynamics.
      */
@@ -120,14 +120,14 @@ public class MDParacetamolMonoclinic extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.setDimensions(Space.makeVector(new double[] {25,25,25}));
+        box = new Box(this);
+        addBox(box);
+        box.setDimensions(Space.makeVector(new double[] {25,25,25}));
         species = new SpeciesParacetamol(this);
         getSpeciesManager().addSpecies(species);
-        species.getAgent(phase).setNMolecules(96);
+        species.getAgent(box).setNMolecules(96);
         
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
+        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addNonintervalListener(nbrManager);
         integrator.addIntervalAction(nbrManager);
                
@@ -318,48 +318,48 @@ public class MDParacetamolMonoclinic extends Simulation {
         double truncationRadiusOO = 3.0* 3.033153776;
         double truncationRadiusNN = 3.0* 3.262560196;
         
-        if(truncationRadiusCC > 0.5*phase.getBoundary().getDimensions().x(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
+        if(truncationRadiusCC > 0.5*box.getBoundary().getDimensions().x(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusCC);
         P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3832.14700*11604.45728, 0.277778, 25.286949*11604.45728), truncationRadiusCC); 
         potentialMaster.addPotential(interpotentialCC, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).cType} );
         
-        if(truncationRadiusCO > 0.5*phase.getBoundary().getDimensions().x(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
+        if(truncationRadiusCO > 0.5*box.getBoundary().getDimensions().x(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusCO);
         P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3022.850200*11604.45728, 0.264550, 17.160239*11604.45728), truncationRadiusCO); 
         potentialMaster.addPotential(interpotentialCO, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
         
-        if(truncationRadiusCN > 0.5*phase.getBoundary().getDimensions().x(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
+        if(truncationRadiusCN > 0.5*box.getBoundary().getDimensions().x(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusCN);
         P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3179.514600*11604.45728, 0.271003, 19.006710*11604.45728), truncationRadiusCN); 
         potentialMaster.addPotential(interpotentialCN, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
         
-        if(truncationRadiusON > 0.5*phase.getBoundary().getDimensions().x(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
+        if(truncationRadiusON > 0.5*box.getBoundary().getDimensions().x(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusON);
         P2SoftSphericalTruncated interpotentialON = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2508.044800*11604.45728, 0.258398, 12.898341*11604.45728), truncationRadiusON); 
         potentialMaster.addPotential(interpotentialON, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).oType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
         
-        if(truncationRadiusOO > 0.5*phase.getBoundary().getDimensions().x(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
+        if(truncationRadiusOO > 0.5*box.getBoundary().getDimensions().x(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusOO);
         P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2384.465800*11604.45728, 0.252525, 11.645288*11604.45728), truncationRadiusOO); 
         potentialMaster.addPotential(interpotentialOO, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).oType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
         
-        if(truncationRadiusNN > 0.5*phase.getBoundary().getDimensions().x(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
+        if(truncationRadiusNN > 0.5*box.getBoundary().getDimensions().x(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
             }
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusNN);
@@ -376,12 +376,12 @@ public class MDParacetamolMonoclinic extends Simulation {
         
         bdry =  new BoundaryDeformableLattice(primitive, getRandom(), new int []{2, 3, 4});
         // bdry.setDimensions(Space.makeVector(new double []{3*12.119, 4*8.944, 4*7.278}));
-        phase.setBoundary(bdry);
-        configMonoLattice.initializeCoordinates(phase);
+        box.setBoundary(bdry);
+        configMonoLattice.initializeCoordinates(box);
        	
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(phase, primitive, basis);
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
 
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         
     } //end of constructor
     
@@ -397,29 +397,29 @@ public class MDParacetamolMonoclinic extends Simulation {
         
    /*****************************************************************************/    
         MeterKineticEnergy meterKE = new MeterKineticEnergy();
-        meterKE.setPhase(sim.phase);
-        DisplayBox KEbox = new DisplayBox();
+        meterKE.setBox(sim.box);
+        DisplayTextBox KEbox = new DisplayTextBox();
         DataPump KEpump = new DataPump(meterKE, KEbox);
         sim.integrator.addIntervalAction(KEpump);
         dataStreamPumps.add(KEpump);
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setPhase(sim.phase);
-        DisplayBox PEbox = new DisplayBox();
+        meterPE.setBox(sim.box);
+        DisplayTextBox PEbox = new DisplayTextBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
         sim.integrator.addIntervalAction(PEpump);
         dataStreamPumps.add(PEpump);
         
         MeterEnergy meterTotal = new MeterEnergy(sim.potentialMaster);
-        meterTotal.setPhase(sim.phase);   
-        DisplayBox meterTotalbox = new DisplayBox();
+        meterTotal.setBox(sim.box);   
+        DisplayTextBox meterTotalbox = new DisplayTextBox();
         DataPump meterTotalpump = new DataPump(meterTotal, meterTotalbox);
         sim.integrator.addIntervalAction(meterTotalpump);
         dataStreamPumps.add(meterTotalpump);
            
         MeterTemperature meterTemp = new MeterTemperature();
-        meterTemp.setPhase(sim.phase);
-        DisplayBox tempBox = new DisplayBox();
+        meterTemp.setBox(sim.box);
+        DisplayTextBox tempBox = new DisplayTextBox();
         tempBox.setUnit(Kelvin.UNIT);
         DataPump tempPump = new DataPump(meterTemp, tempBox);
         sim.integrator.addIntervalAction(tempPump);
@@ -432,10 +432,10 @@ public class MDParacetamolMonoclinic extends Simulation {
         simGraphic.add(meterTotalbox);
         simGraphic.add(tempBox);
 
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
 
-        simGraphic.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(PIXEL_SIZE));
-        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
+        simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(PIXEL_SIZE));
+        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         AtomTypeGroup atomType = (AtomTypeGroup)sim.species.getMoleculeType();
         colorScheme.setColor(atomType.getChildTypes()[0], java.awt.Color.red);
         colorScheme.setColor(atomType.getChildTypes()[1], java.awt.Color.gray);
@@ -445,7 +445,7 @@ public class MDParacetamolMonoclinic extends Simulation {
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 
-        simGraphic.getDisplayPhase(sim.phase).repaint();
+        simGraphic.getDisplayBox(sim.box).repaint();
 
     }//end of main
     

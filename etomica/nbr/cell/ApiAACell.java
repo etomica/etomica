@@ -10,7 +10,7 @@ import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.BoundaryPeriodic;
 
 /**
@@ -19,7 +19,7 @@ import etomica.space.BoundaryPeriodic;
 public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable {
 
     /**
-     * Constructor makes iterator that must have phase specified and then be
+     * Constructor makes iterator that must have box specified and then be
      * reset() before iteration.
      * 
      * @param D
@@ -30,14 +30,14 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
      *            neighbors. Used to define neighbor cells; some iterates may
      *            exceed this separation
      */
-	public ApiAACell(int D, double range, Phase phase) {
+	public ApiAACell(int D, double range, Box box) {
         cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         neighborIterator.setDirection(IteratorDirective.Direction.UP);
         interListIterator = new ApiInterArrayList();
         intraListIterator = new ApiIntraArrayList();
         listIterator = intraListIterator;
-        this.phase = phase;
+        this.box = box;
 	}
 
 	public void setLattice(CellLattice lattice) {
@@ -114,8 +114,8 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
     }
     
     public void reset() {
-        neighborIterator.setPeriod(phase.getBoundary().getDimensions());
-        neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
+        neighborIterator.setPeriod(box.getBoundary().getDimensions());
+        neighborIterator.setPeriodicity(((BoundaryPeriodic)box.getBoundary()).getPeriodicity());
         cellIterator.reset();
         neighborIterator.checkDimensions();
         neighborIterator.unset();
@@ -174,7 +174,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
    
     private static final long serialVersionUID = 1L;
     private AtomsetIterator listIterator;
-    private final Phase phase;
+    private final Box box;
     private final ApiIntraArrayList intraListIterator;
     private final ApiInterArrayList interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;

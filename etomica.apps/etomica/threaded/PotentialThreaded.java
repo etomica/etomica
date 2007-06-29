@@ -1,7 +1,7 @@
 package etomica.threaded;
 
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.potential.Potential;
 import etomica.space.Space;
@@ -26,10 +26,10 @@ public class PotentialThreaded extends Potential {
 		return potential[0].getRange();
 	}
 
-	public void setPhase(Phase phase) {
+	public void setBox(Box box) {
 		
 		for(int i=0; i<potential.length; i++){
-			potential[i].setPhase(phase);
+			potential[i].setBox(box);
 		}
 
 	}

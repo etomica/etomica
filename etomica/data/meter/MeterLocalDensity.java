@@ -3,10 +3,10 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
 import etomica.units.Volume;
@@ -21,7 +21,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
     }
 
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Local number density in a subregion of a phase");
+        EtomicaInfo info = new EtomicaInfo("Local number density in a subregion of a box");
         return info;
     }
     
@@ -37,7 +37,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
      * @return the current value of the local density or local mole fraction
      */
     public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+        if (box == null) throw new IllegalStateException("must call setBox before using meter");
         //compute local molar density
         int nSum = 0;
         iterator.reset();
@@ -49,39 +49,39 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        iterator.setPhase(phase);
+    public void setBox(Box box) {
+        this.box = box;
+        iterator.setBox(box);
         if (shape == null) {
-            setShape(phase.getBoundary().getShape());
+            setShape(box.getBoundary().getShape());
         }
     }
 
     /**
      * @return Returns the iterator.
      */
-    public AtomIteratorPhaseDependent getIterator() {
+    public AtomIteratorBoxDependent getIterator() {
         return iterator;
     }
     /**
      * @param iterator The iterator to set.
      */
-    public void setIterator(AtomIteratorPhaseDependent iterator) {
+    public void setIterator(AtomIteratorBoxDependent iterator) {
         this.iterator = iterator;
     }
 
-    private Phase phase;
+    private Box box;
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */
-    private AtomIteratorPhaseDependent iterator = new AtomIteratorLeafAtoms();
+    private AtomIteratorBoxDependent iterator = new AtomIteratorLeafAtoms();
     private Polytope shape;
 }

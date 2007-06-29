@@ -6,7 +6,7 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.units.Energy;
 
@@ -63,17 +63,17 @@ public class MeterHarmonicSingleEnergy implements DataSource {
         return data;
     }
     
-    public Phase getPhase() {
-        return coordinateDefinition.getPhase();
+    public Box getBox() {
+        return coordinateDefinition.getBox();
     }
 
-    public void setPhase(Phase newPhase) {
+    public void setBox(Box newBox) {
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         
-        normalModes.getWaveVectorFactory().makeWaveVectors(newPhase);
+        normalModes.getWaveVectorFactory().makeWaveVectors(newBox);
         setWaveVectors(normalModes.getWaveVectorFactory().getWaveVectors(),normalModes.getWaveVectorFactory().getCoefficients());
-        setEigenvectors(normalModes.getEigenvectors(newPhase));
-        setOmegaSquared(normalModes.getOmegaSquared(newPhase));
+        setEigenvectors(normalModes.getEigenvectors(newBox));
+        setOmegaSquared(normalModes.getOmegaSquared(newBox));
 
         dataInfo = new DataInfoDoubleArray("Harmonic single energy", Energy.DIMENSION, new int[]{waveVectors.length,coordinateDim});
         data = new DataDoubleArray(new int[]{waveVectors.length,coordinateDim});

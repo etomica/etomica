@@ -15,10 +15,10 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.nbr.list.PhaseEventNeighborsUpdated;
-import etomica.phase.Phase;
-import etomica.phase.PhaseEvent;
-import etomica.phase.PhaseListener;
+import etomica.nbr.list.BoxEventNeighborsUpdated;
+import etomica.box.Box;
+import etomica.box.BoxEvent;
+import etomica.box.BoxListener;
 import etomica.potential.IPotential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialCalculation;
@@ -43,7 +43,7 @@ import etomica.util.TreeList;
  * @author David Kofke
  *
  */
-public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseListener {
+public class IntegratorHard extends IntegratorMD implements AgentSource, BoxListener {
 
     private static final long serialVersionUID = 1L;
     //handle to the integrator agent holding information about the next collision
@@ -86,21 +86,21 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         collisionHandlerDown.setAgentManager(agentManager);
     }
     
-    public void setPhase(Phase newPhase) {
-        if (phase != null) {
-            // allow agentManager to de-register itself as a PhaseListener
+    public void setBox(Box newBox) {
+        if (box != null) {
+            // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
-            phase.getEventManager().removeListener(this);
+            box.getEventManager().removeListener(this);
         }
-        super.setPhase(newPhase);
-        agentManager = new AtomLeafAgentManager(this,newPhase);
+        super.setBox(newBox);
+        agentManager = new AtomLeafAgentManager(this,newBox);
         collisionHandlerUp.setAgentManager(agentManager);
         collisionHandlerDown.setAgentManager(agentManager);
         reverseCollisionHandler.setAgentManager(agentManager);
         if (nullPotential != null) {
-            ((Potential1)nullPotential).setPhase(newPhase);
+            ((Potential1)nullPotential).setBox(newBox);
         }
-        phase.getEventManager().addListener(this);
+        box.getEventManager().addListener(this);
     }
     
     /* (non-Javadoc)
@@ -139,15 +139,15 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    IVector dr = phase.getSpace().makeVector();
-                    IVector dv = phase.getSpace().makeVector();
+                    IVector dr = box.getSpace().makeVector();
+                    IVector dv = box.getSpace().makeVector();
 
                     IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
                     IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
                     dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
                     
                     dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-                    phase.getBoundary().nearestImage(dr);
+                    box.getBoundary().nearestImage(dr);
 
                     dr.PEa1Tv1(oldTime,dv);
                     System.out.println("distance at last collision time was "+Math.sqrt(dr.squared()));
@@ -156,21 +156,21 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
                 }
                 throw new RuntimeException("this simulation is not a time machine");
             }
-            if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.thisPhase(phase)) || Debug.anyAtom(atoms))) {
+            if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.thisBox(box)) || Debug.anyAtom(atoms))) {
                 System.out.println("collision between atoms "+atoms+" at "+collisionTimeStep+" with "+colliderAgent.collisionPotential.getClass());
             }
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
-                debugPair = Debug.getAtoms(phase);
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box)) {
+                debugPair = Debug.getAtoms(box);
                 if (!(debugPair.atom0 instanceof IAtomGroup && debugPair.atom1 instanceof IAtomGroup)) {
-                    IVector dr = phase.getSpace().makeVector();
-                    IVector dv = phase.getSpace().makeVector();
+                    IVector dr = box.getSpace().makeVector();
+                    IVector dv = box.getSpace().makeVector();
 
                     IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
                     IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
                     dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
                     
                     dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-                    phase.getBoundary().nearestImage(dr);
+                    box.getBoundary().nearestImage(dr);
 
                     dr.PEa1Tv1(collisionTimeStep,dv);
                     double r2 = dr.squared();
@@ -222,18 +222,18 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
 
         advanceAcrossTimeStep(timeStep);
         collisionTimeStep = 0.0;
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisPhase(phase)) {
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.thisBox(box)) {
             eventList.check();
-            meterPE.setPhase(phase);
+            meterPE.setBox(box);
             double PE = meterPE.getDataAsScalar();
             if (Math.abs((PE - currentPotentialEnergy)/(PE+currentPotentialEnergy)) > 1.e-9
                     && Math.abs(PE - currentPotentialEnergy) > 1.e-9) {
-                throw new RuntimeException("potential energy of "+phase+" is wrong. it's actually "+PE+" but I thought it was "+currentPotentialEnergy);
+                throw new RuntimeException("potential energy of "+box+" is wrong. it's actually "+PE+" but I thought it was "+currentPotentialEnergy);
             }
-            meterKE.setPhase(phase);
+            meterKE.setBox(box);
             double KE = meterKE.getDataAsScalar();
             if (Math.abs(KE - currentKineticEnergy) > 1.e-8) {
-                throw new RuntimeException("kinetic energy of "+phase+" is wrong. it's actually "+KE+" but I thought it was "+currentKineticEnergy);
+                throw new RuntimeException("kinetic energy of "+box+" is wrong. it's actually "+KE+" but I thought it was "+currentKineticEnergy);
             }
         }
 
@@ -262,9 +262,9 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         listToUpdate.clear();
 
         downList.setTargetAtom(colliders.atom0);
-        potential.calculate(phase, downList, reverseCollisionHandler);
+        potential.calculate(box, downList, reverseCollisionHandler);
         downList.setTargetAtom(colliders.atom1);
-        potential.calculate(phase, downList, reverseCollisionHandler);
+        potential.calculate(box, downList, reverseCollisionHandler);
 
         // this will also update colliders[0] since it thought it would collide 
         // with colliders[1] (and did)
@@ -272,7 +272,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
 
         downList.setTargetAtom(colliders.atom0);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(phase, downList, collisionHandlerDown);
+        potential.calculate(box, downList, collisionHandlerDown);
 
         Agent agent = ((Agent)agentManager.getAgent(colliders.atom1));
         if (agent.collisionPotential != null) {
@@ -282,13 +282,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         upList.setTargetAtom(colliders.atom1);
         collisionHandlerUp.setAtom(colliders.atom1);
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(phase, upList, collisionHandlerUp);
+        potential.calculate(box, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
         downList.setTargetAtom(colliders.atom1);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(phase, downList, collisionHandlerDown);
+        potential.calculate(box, downList, collisionHandlerDown);
 
     }
     
@@ -302,7 +302,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         listToUpdate.clear();
 
         downList.setTargetAtom(a);
-        potential.calculate(phase, downList, reverseCollisionHandler);
+        potential.calculate(box, downList, reverseCollisionHandler);
         processReverseList();
 
         Agent agent = (Agent)agentManager.getAgent(a);
@@ -313,12 +313,12 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         upList.setTargetAtom(a);
         collisionHandlerUp.setAtom(a);
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(phase, upList, collisionHandlerUp);
+        potential.calculate(box, upList, collisionHandlerUp);
         if (agent.collisionPotential != null) {
             eventList.add(agent.eventLinker);
         }
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
-        potential.calculate(phase, downList, collisionHandlerDown);
+        potential.calculate(box, downList, collisionHandlerDown);
     }
 
     /**
@@ -338,7 +338,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
             upList.setTargetAtom(reverseAtom);
             collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
             collisionHandlerUp.setAtom(reverseAtom);
-            potential.calculate(phase, upList, collisionHandlerUp);
+            potential.calculate(box, upList, collisionHandlerUp);
             if (agent.collisionPotential != null) {
                 eventList.add(agent.eventLinker);
             }
@@ -351,7 +351,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      * Uses free-flight kinematics.
      */
 	protected void advanceAcrossTimeStep(double tStep) {
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -377,13 +377,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         if (overlapException != null) {
             throw overlapException;
         }
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.thisPhase(phase)) {
-            debugPair = Debug.getAtoms(phase);
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box)) {
+            debugPair = Debug.getAtoms(box);
         }
     }
 
-    public void actionPerformed(PhaseEvent phaseEvent) {
-        if (phaseEvent instanceof PhaseEventNeighborsUpdated) {
+    public void actionPerformed(BoxEvent boxEvent) {
+        if (boxEvent instanceof BoxEventNeighborsUpdated) {
             resetCollisionTimes();
         }
     }
@@ -393,7 +393,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      */
     public void resetCollisionTimes() {
         if(!initialized) return;
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
@@ -402,7 +402,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
         upList.setTargetAtom(null);
         collisionHandlerUp.reset();
         collisionHandlerUp.collisionTimeStep = 0;
-        potential.calculate(phase, upList, collisionHandlerUp); //assumes only one phase
+        potential.calculate(box, upList, collisionHandlerUp); //assumes only one box
         eventList.reset();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
@@ -419,7 +419,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
     protected double scaleMomenta() {
         double s = super.scaleMomenta();
         double rs = 1.0/s;
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
@@ -497,8 +497,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, PhaseLi
      */
     public void setNullPotential(Potential1 nullPotential) {
         this.nullPotential = (PotentialHard)nullPotential;
-        if (nullPotential != null && phase != null) {
-            nullPotential.setPhase(phase);
+        if (nullPotential != null && box != null) {
+            nullPotential.setBox(box);
         }
     }
     

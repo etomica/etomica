@@ -13,7 +13,7 @@ import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
-import etomica.graphics.DisplayBoxesCAE;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -37,7 +37,7 @@ import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.P2XOrder;
 import etomica.normalmode.SimHarmonic;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
@@ -59,7 +59,7 @@ public class SimHarmonicHexane extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public Phase phase;
+    public Box box;
 
     public BoundaryDeformablePeriodic bdry;
     public BravaisLattice lattice;
@@ -101,10 +101,10 @@ public class SimHarmonicHexane extends Simulation {
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
-        phase = new Phase(bdry);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(xCells * yCells * zCells);
-//        config.initializeCoordinates(phase);
+        box = new Box(bdry);
+        addBox(box);
+        box.getAgent(species).setNMolecules(xCells * yCells * zCells);
+//        config.initializeCoordinates(box);
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
         
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
@@ -114,33 +114,33 @@ public class SimHarmonicHexane extends Simulation {
         integrator.getMoveManager().addMCMove(moveMolecule);
         ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
         
-        // moveVolume = new MCMoveVolume(potentialMaster, phase.space(),
+        // moveVolume = new MCMoveVolume(potentialMaster, box.space(),
         // sim.getDefaults().pressure);
-        // moveVolume.setPhase(phase);
+        // moveVolume.setBox(box);
         // integrator.getMoveManager().addMCMove(moveVolume);
         
         // crank = new MCMoveCrankshaft();
 
         // snake = new MCMoveReptate(this);
-        // snake.setPhase(phase);
+        // snake.setBox(box);
         // integrator.getMoveManager().addMCMove(snake);
         
         rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom());
-        rot.setPhase(phase);
+        rot.setBox(box);
         rot.setStepSize(0.042);
         integrator.getMoveManager().addMCMove(rot);
         ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
         
         growMolecule = new CBMCGrowSolidHexane(potentialMaster,
-                getRandom(), integrator, phase, species, 20);
-        growMolecule.setPhase(phase);
+                getRandom(), integrator, box, species, 20);
+        growMolecule.setBox(box);
         integrator.getMoveManager().addMCMove(growMolecule);
 
         coupledMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(coupledMove);
         
         cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, growMolecule, getRandom());
-        cctMove.setPhase(phase);
+        cctMove.setBox(box);
         integrator.getMoveManager().addMCMove(cctMove);
         
         // nan we're going to need some stuff in there to set the step sizes and
@@ -278,13 +278,13 @@ public class SimHarmonicHexane extends Simulation {
 
 
         //Initialize the positions of the atoms.
-        coordinateDefinition = new CoordinateDefinitionHexane(phase, primitive, species);
+        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species);
         coordinateDefinition.initializeCoordinates(nCells);
 
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         
         //nan this will need to be changed
-//        pri = new PairIndexerMolecule(phase, new PrimitiveHexane(space));
+//        pri = new PairIndexerMolecule(box, new PrimitiveHexane(space));
     }
 
     public static void main(String[] args) {
@@ -337,10 +337,10 @@ public class SimHarmonicHexane extends Simulation {
 //            MeterNormalMode meterNormalMode = new MeterNormalMode();
 //            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
 //            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
-//            meterNormalMode.setPhase(sim.phase);
+//            meterNormalMode.setBox(sim.box);
 
-//            PhaseInflateDeformable pid = new PhaseInflateDeformable(sim.getSpace());
-////            PhaseInflate pid = new PhaseInflate(sim.phase);
+//            BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
+////            BoxInflate pid = new BoxInflate(sim.box);
 //            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
 //            meterPressure.setIntegrator(sim.integrator);
 //            AccumulatorAverage pressureAccumulator = new AccumulatorAverage(sim);
@@ -365,7 +365,7 @@ public class SimHarmonicHexane extends Simulation {
             sim.getController().actionPerformed();
             
 //            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
-//            normalModeData.TE(1.0/(sim.phase.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
+//            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
 //            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
 //            
 //            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
@@ -442,7 +442,7 @@ public class SimHarmonicHexane extends Simulation {
 //    private static final long serialVersionUID = 1L;
 //    public IntegratorMC integrator;
 //    public ActivityIntegrate activityIntegrate;
-//    public Phase phase;
+//    public Box box;
 //    public Boundary boundary;
 //    public Species species;
 //    public NormalModes normalModes;
@@ -467,9 +467,9 @@ public class SimHarmonicHexane extends Simulation {
 //        species = new SpeciesHexane(this);
 //        getSpeciesManager().addSpecies(species);
 //
-//        phase = new Phase(this);
-//        addPhase(phase);
-//        phase.getAgent(species).setNMolecules(numAtoms);
+//        box = new Box(this);
+//        addBox(box);
+//        box.getAgent(species).setNMolecules(numAtoms);
 //
 //        integrator = new IntegratorMC(this, null);
 //
@@ -489,9 +489,9 @@ public class SimHarmonicHexane extends Simulation {
 //            nCells = new int[]{xCells, yCells, zCells};
 //            boundary = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
 //
-//            phase.setBoundary(boundary);
+//            box.setBoundary(boundary);
 //
-//        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive);
+//        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive);
 //        coordinateDefinition.initializeCoordinates(nCells);
 //        
 //        if(D == 1) {
@@ -502,16 +502,16 @@ public class SimHarmonicHexane extends Simulation {
 //        normalModes.setHarmonicFudge(harmonicFudge);
 //        
 //        WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
-//        waveVectorFactory.makeWaveVectors(phase);
-//        move.setOmegaSquared(normalModes.getOmegaSquared(phase), waveVectorFactory.getCoefficients());
-//        move.setEigenVectors(normalModes.getEigenvectors(phase));
+//        waveVectorFactory.makeWaveVectors(box);
+//        move.setOmegaSquared(normalModes.getOmegaSquared(box), waveVectorFactory.getCoefficients());
+//        move.setEigenVectors(normalModes.getEigenvectors(box));
 //        move.setWaveVectors(waveVectorFactory.getWaveVectors());
 //        move.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
 //        move.setCoordinateDefinition(coordinateDefinition);
 //        
-//        move.setPhase(phase);
+//        move.setBox(box);
 //        
-//        integrator.setPhase(phase);
+//        integrator.setBox(box);
 //    }
 //
 //    /**
@@ -575,12 +575,12 @@ public class SimHarmonicHexane extends Simulation {
 //            }
 //            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
 //            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-//            ((PotentialMasterList)potentialMaster).getNeighborManager(sim.phase).reset();
+//            ((PotentialMasterList)potentialMaster).getNeighborManager(sim.box).reset();
 //        }
 //
 //        //meters for FEP calculations
 //        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster);
-//        meterPE.setPhase(sim.phase);
+//        meterPE.setBox(sim.box);
 //        BoltzmannProcessor bp = new BoltzmannProcessor();
 //        bp.setTemperature(1);
 //        DataPump pump = new DataPump(meterPE,bp);
@@ -597,7 +597,7 @@ public class SimHarmonicHexane extends Simulation {
 ////         filter.setDataSink(console);
 ////         IntervalActionAdapter comAdapter = new IntervalActionAdapter(comPump);
 ////         sim.integrator.addListener(comAdapter);
-////         meterCOM.setPhase(sim.phase);
+////         meterCOM.setBox(sim.box);
 //
 //        //set up things for determining energy of harmonic system
 //        //read and set up wave vectors
@@ -605,7 +605,7 @@ public class SimHarmonicHexane extends Simulation {
 //        if(graphic){
 //            //meter for harmonic system energy, sent to direct and to boltzmann average
 //            MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(sim.coordinateDefinition, sim.normalModes);
-//            harmonicEnergy.setPhase(sim.phase);
+//            harmonicEnergy.setBox(sim.box);
 //            DataFork harmonicFork = new DataFork();
 //            AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
 //            DataPump pumpHarmonic = new DataPump(harmonicEnergy, harmonicFork);
@@ -615,7 +615,7 @@ public class SimHarmonicHexane extends Simulation {
 //            //histogram energy of individual modes
 ////            MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(coordinateDefinitionLeaf, sim.normalModes);
 ////            harmonicSingleEnergy.setTemperature(1.0);
-////            harmonicSingleEnergy.setPhase(sim.phase);
+////            harmonicSingleEnergy.setBox(sim.box);
 ////    //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
 ////            AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(5);
 ////            DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
@@ -631,7 +631,7 @@ public class SimHarmonicHexane extends Simulation {
 //            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
 //            WaveVectorFactory waveVectorFactory = sim.normalModes.getWaveVectorFactory();
 //            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-//            meterNormalMode.setPhase(sim.phase);
+//            meterNormalMode.setBox(sim.box);
 //
 //
 //            //graphic simulation -- set up window
@@ -641,12 +641,12 @@ public class SimHarmonicHexane extends Simulation {
 //            dataStreamPumps.add(pump);
 //            dataStreamPumps.add(pumpHarmonic);
 //            
-//            DisplayBoxesCAE boxesPE = new DisplayBoxesCAE();
+//            DisplayTextBoxesCAE boxesPE = new DisplayTextBoxesCAE();
 //            boxesPE.setAccumulator(avgBoltzmann);
 //            boxesPE.setPrecision(6);
 //            simG.add(boxesPE);
 //
-//            DisplayBoxesCAE harmonicBoxes = new DisplayBoxesCAE();
+//            DisplayTextBoxesCAE harmonicBoxes = new DisplayTextBoxesCAE();
 //            harmonicBoxes.setAccumulator(harmonicAvg);
 //            simG.add(harmonicBoxes);
 //
@@ -655,7 +655,7 @@ public class SimHarmonicHexane extends Simulation {
 ////            harmonicSingleAvg.addDataSink(harmonicPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
 ////            simG.add(harmonicPlot);
 //
-//            simG.getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
+//            simG.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 //            simG.makeAndDisplayFrame(APP_NAME);
 //        } else {
 //            //not graphic, so run simulation batch

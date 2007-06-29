@@ -1,16 +1,16 @@
 package etomica.atom.iterator;
 
 import etomica.atom.ISpeciesAgent;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 
 /**
- * Gives pairs formed from the molecules of two different species in a phase.
+ * Gives pairs formed from the molecules of two different species in a box.
  * Species are specified at construction and cannot be changed afterwards.
  */
 
 public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
-        AtomsetIteratorPhaseDependent {
+        AtomsetIteratorBoxDependent {
 
     /**
      * Constructs iterator that provides iterates taken from the molecules of
@@ -33,7 +33,7 @@ public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
             throw new IllegalArgumentException("Incorrect array length; must be 2 but length is "+species.length);
         }
 
-        // we need to sort these.  we'll do that once we have the phase
+        // we need to sort these.  we'll do that once we have the box
         species0 = species[0];
         species1 = species[1];
         if (species0 == null || species1 == null) {
@@ -48,12 +48,12 @@ public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
 
     /**
      * Configures iterator to return molecules from the set species in the given
-     * phase.
-     * @throws a NullPointerException if the Phase is null
+     * box.
+     * @throws a NullPointerException if the Box is null
      */
-    public void setPhase(Phase phase) {
-        ISpeciesAgent agent0 = phase.getAgent(species0);
-        ISpeciesAgent agent1 = phase.getAgent(species1);
+    public void setBox(Box box) {
+        ISpeciesAgent agent0 = box.getAgent(species0);
+        ISpeciesAgent agent1 = box.getAgent(species1);
         if (agent0.getIndex() > agent1.getIndex()) {
             // species were out of order.  swap them
             Species tempSpecies = species0;

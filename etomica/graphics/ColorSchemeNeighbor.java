@@ -7,18 +7,18 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.nbr.cell.Api1ACell;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 
 public class ColorSchemeNeighbor extends ColorSchemeCollective {
     
-    public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, Phase phase) {
-        super(phase);
+    public ColorSchemeNeighbor(ISimulation sim, PotentialMasterList potentialMaster, Box box) {
+        super(box);
         typeColorScheme = new ColorSchemeByType();
-        leafList = phase.getSpeciesMaster().getLeafList();
+        leafList = box.getSpeciesMaster().getLeafList();
         nbrIterator = new Api1ACell(sim.getSpace().D(), 1.0, potentialMaster.getCellAgentManager());
         nbrIterator.setDirection(null);
-        nbrIterator.setPhase(phase);
+        nbrIterator.setBox(box);
     }
     
     public void colorAllAtoms() {

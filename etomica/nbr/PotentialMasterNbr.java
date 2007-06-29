@@ -2,8 +2,8 @@ package etomica.nbr;
 
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
-import etomica.phase.PhaseAgentManager;
-import etomica.phase.PhaseAgentManager.PhaseAgentSource;
+import etomica.box.BoxAgentManager;
+import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialGroup;
@@ -16,12 +16,12 @@ import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
 
-    protected PotentialMasterNbr(ISimulation sim, PhaseAgentSource phaseAgentSource, 
-            PhaseAgentManager phaseAgentManager) {
+    protected PotentialMasterNbr(ISimulation sim, BoxAgentSource boxAgentSource, 
+            BoxAgentManager boxAgentManager) {
         super(sim.getSpace());
         simulation = sim;
-        this.phaseAgentSource = phaseAgentSource;
-        this.phaseAgentManager = phaseAgentManager;
+        this.boxAgentSource = boxAgentSource;
+        this.boxAgentManager = boxAgentManager;
         rangedAgentManager = new AtomTypeAgentManager(this);
         intraAgentManager = new AtomTypeAgentManager(this);
 
@@ -31,7 +31,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         intraAgentManager.init(speciesManager, simEventManager);
         rangedPotentialIterator = rangedAgentManager.makeIterator();
         intraPotentialIterator = intraAgentManager.makeIterator();
-        phaseAgentManager.setSimulation(sim);
+        boxAgentManager.setSimulation(sim);
     }
     
     public PotentialGroup makePotentialGroup(int nBody) {
@@ -132,8 +132,8 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return (PotentialArray)intraAgentManager.getAgent(atomType);
     }
     
-    public final PhaseAgentManager getCellAgentManager() {
-        return phaseAgentManager;
+    public final BoxAgentManager getCellAgentManager() {
+        return boxAgentManager;
     }
     
     public Class getAgentClass() {
@@ -159,7 +159,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
     protected final AtomTypeAgentManager rangedAgentManager;
     protected final AtomTypeAgentManager intraAgentManager;
     protected IPotential[] allPotentials = new IPotential[0];
-    protected PhaseAgentSource phaseAgentSource;
+    protected BoxAgentSource boxAgentSource;
     protected final ISimulation simulation;
-    protected PhaseAgentManager phaseAgentManager;
+    protected BoxAgentManager boxAgentManager;
 }

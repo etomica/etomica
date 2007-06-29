@@ -3,7 +3,7 @@ package etomica.models.hexane;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.IntegratorMC;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
@@ -34,7 +34,7 @@ import etomica.util.IRandom;
 public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
     public CBMCGrowStraightAlkane(PotentialMaster potentialMaster,
-            IRandom random, IntegratorMC integrator, Phase p, Species species,
+            IRandom random, IntegratorMC integrator, Box p, Species species,
             int n, int NTrials) {
         super(potentialMaster, random, integrator, p, n, NTrials);
 
@@ -93,7 +93,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                 // trials
                 if (i == beginIndex) { // If we're placing the first atom of a
                     // molecule
-                    (((IAtomPositioned) atomList.getAtom(i)).getPosition()).E(phase
+                    (((IAtomPositioned) atomList.getAtom(i)).getPosition()).E(box
                             .getBoundary().randomPosition());
                 } else if (i == beginIndex + dir) { // If we're placing the
                     // second atom of a molecule
@@ -188,7 +188,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
                 if (i == beginIndex) { // If we're placing the first atom of a
                     // molecule
-                    (((IAtomPositioned) atomList.getAtom(i)).getPosition()).E(phase
+                    (((IAtomPositioned) atomList.getAtom(i)).getPosition()).E(box
                             .getBoundary().randomPosition());
                 } else if (i == beginIndex + dir) { // If we're placing the
                     // second atom of a molecule
@@ -320,7 +320,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
     // Based on algorithm 46 in Frenkel & Smit
     protected IVector calcRandomBondWithAngleAndTorsion(IAtomPositioned a, IAtomPositioned b,
             IAtomPositioned c, int dorkball) {
-        if (phase.getSpace().D() != 3) {
+        if (box.getSpace().D() != 3) {
             throw new IllegalArgumentException("Torsional bond is only used "
                     + "in 3D simulations");
         }

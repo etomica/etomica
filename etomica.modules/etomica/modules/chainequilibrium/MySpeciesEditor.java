@@ -43,7 +43,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
         sim = simGraphic.sim;
 		nSlider = new MyNSelector(simGraphic, species);
 		
-		//nSlider.setDisplayPhase(DisplayPhase1);
+		//nSlider.setDisplayBox(DisplayBox1);
         int majorSpacing = 50;
 		nSlider.setMinimum(0);
 		nSlider.setMaximum(100);
@@ -93,7 +93,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
             Action anotherAction = new Action() {
                 public void actionPerformed() {
                     AtomAgentManager agentManager = sim.getAgentManager();
-                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase);
+                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.box);
                     iter.reset();
                     for (IAtom atom = iter.nextAtom(); atom != null;
                          atom = iter.nextAtom()) {
@@ -107,7 +107,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
                         sim.integratorHard1.reset();
                     } catch (ConfigurationOverlapException e) {
                     }
-                    simGraphic.getDisplayPhase(sim.phase).repaint();
+                    simGraphic.getDisplayBox(sim.box).repaint();
                     
                 }
                 

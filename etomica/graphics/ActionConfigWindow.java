@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 import etomica.action.Action;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 
 /**
@@ -18,8 +18,8 @@ import etomica.space.IVector;
 public class ActionConfigWindow implements Action {
     private final AtomSet leafList;
     
-    public ActionConfigWindow(Phase phase) {
-        leafList = phase.getSpeciesMaster().getLeafList();
+    public ActionConfigWindow(Box box) {
+        leafList = box.getSpeciesMaster().getLeafList();
     }
     
     public void actionPerformed() {

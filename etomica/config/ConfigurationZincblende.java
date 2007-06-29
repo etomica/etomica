@@ -6,9 +6,9 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -34,10 +34,10 @@ public class ConfigurationZincblende extends ConfigurationLattice {
      * Initializes positions of atoms to the zincblende structure.  The given
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
-    public void initializeCoordinates(Phase phase) {
-        translator0 = new AtomGroupAction(new AtomActionTranslateBy(phase.getSpace()));
-        translator1 = new AtomGroupAction(new AtomActionTranslateBy(phase.getSpace()));
-        AtomSet[] lists = getMoleculeLists(phase);
+    public void initializeCoordinates(Box box) {
+        translator0 = new AtomGroupAction(new AtomActionTranslateBy(box.getSpace()));
+        translator1 = new AtomGroupAction(new AtomActionTranslateBy(box.getSpace()));
+        AtomSet[] lists = getMoleculeLists(box);
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }
@@ -48,8 +48,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         int nCells = (int) Math.ceil(lists[0].getAtomCount() / 4.0);
 
         // determine scaled shape of simulation volume
-        IVector shape = phase.getSpace().makeVector();
-        shape.E(phase.getBoundary().getDimensions());
+        IVector shape = box.getSpace().makeVector();
+        shape.E(box.getBoundary().getDimensions());
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
@@ -68,7 +68,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
 
         //shift lattice in all three directions by one-quarter the lattice constant
         Vector3D shift = new Vector3D();
-        shift.Ea1Tv1(-0.5,phase.getBoundary().getDimensions());
+        shift.Ea1Tv1(-0.5,box.getBoundary().getDimensions());
         shift.PE(0.125*((LatticeCubicFcc)lattice).getLatticeConstant());
         ((AtomActionTranslateBy)translator0.getAction()).setTranslationVector(shift);
 
@@ -85,7 +85,6 @@ public class ConfigurationZincblende extends ConfigurationLattice {
 
             IAtom a0 = lists[0].getAtom(i);
             IAtom a1 = lists[1].getAtom(i);
-            i++;
             atomActionTranslateTo.actionPerformed(a0);
             atomActionTranslateTo.actionPerformed(a1);
 
@@ -101,31 +100,31 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     	final String APP_NAME = "Configuration Zinc Blende";
 
         Simulation sim = new Simulation(Space3D.getInstance());
-        final Phase phase = new Phase(sim);
-        phase.getBoundary().setDimensions(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
-        sim.addPhase(phase);
+        final Box box = new Box(sim);
+        box.getBoundary().setDimensions(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
+        sim.addBox(box);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(speciesSpheres0);
         sim.getSpeciesManager().addSpecies(speciesSpheres1);
         ((AtomTypeSphere)speciesSpheres0.getMoleculeType()).setDiameter(5.0);
         ((AtomTypeSphere)speciesSpheres1.getMoleculeType()).setDiameter(5.0);
-        phase.getAgent(speciesSpheres0).setNMolecules(32);
-        phase.getAgent(speciesSpheres1).setNMolecules(32);
+        box.getAgent(speciesSpheres0).setNMolecules(32);
+        box.getAgent(speciesSpheres1).setNMolecules(32);
         ConfigurationZincblende config = new ConfigurationZincblende(15);
-        config.initializeCoordinates(phase);
+        config.initializeCoordinates(box);
 
         final etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME);
-        simGraphic.add(new DisplayPhase(phase));
-        ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayPhase(phase).getColorScheme();
+        simGraphic.add(new DisplayBox(box));
+        ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
         colorScheme.setColor(speciesSpheres0.getMoleculeType(),new java.awt.Color(0,255,0));
         colorScheme.setColor(speciesSpheres1.getMoleculeType(), java.awt.Color.red);
 
         simGraphic.getController().getSimRestart().setConfiguration(config);
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(phase));
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(box));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
-        simGraphic.getDisplayPhase(phase).graphic().repaint();
+        simGraphic.getDisplayBox(box).graphic().repaint();
     }
     
 }

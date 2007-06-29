@@ -2,7 +2,7 @@ package etomica.virial;
 
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.units.Dimension;
 import etomica.units.Null;
@@ -22,24 +22,24 @@ public class MeterClusterWeight extends DataSourceScalar {
     
     public double getDataAsScalar() {
     	weight.reset();
-    	potential.calculate(phase, up, weight);
+    	potential.calculate(box, up, weight);
     	return weight.weight();
     }
 
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
-    private Phase phase;
+    private Box box;
     private final PotentialMaster potential;
     private final PotentialCalculationClusterWeightSum weight = new PotentialCalculationClusterWeightSum();
     private final IteratorDirective up = new IteratorDirective();

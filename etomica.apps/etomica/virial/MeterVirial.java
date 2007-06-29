@@ -9,7 +9,7 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.units.Null;
 
 /**
- * Measures value of clusters in a phase and returns the values
+ * Measures value of clusters in a box and returns the values
  * divided by the sampling bias from the sampling cluster.
  */
 public class MeterVirial implements DataSource, java.io.Serializable {
@@ -34,9 +34,9 @@ public class MeterVirial implements DataSource, java.io.Serializable {
     }
     
     public Data getData() {
-        CoordinatePairSet cPairSet = phase.getCPairSet();
-        AtomPairSet aPairSet = phase.getAPairSet();
-        double pi = phase.getSampleCluster().value(cPairSet,aPairSet);
+        CoordinatePairSet cPairSet = box.getCPairSet();
+        AtomPairSet aPairSet = box.getAPairSet();
+        double pi = box.getSampleCluster().value(cPairSet,aPairSet);
         double x[] = data.getData();
         for (int i=0; i<clusters.length; i++) {
             x[i] = clusters[i].value(cPairSet,aPairSet)/pi;
@@ -44,18 +44,18 @@ public class MeterVirial implements DataSource, java.io.Serializable {
         return data;
     }
     
-    public PhaseCluster getPhase() {
-        return phase;
+    public BoxCluster getBox() {
+        return box;
     }
     
-    public void setPhase(PhaseCluster newPhase) {
-        phase = newPhase;
+    public void setBox(BoxCluster newBox) {
+        box = newBox;
     }
 
     protected final ClusterAbstract clusters[];
 	private final DataDoubleArray data;
 	private final IDataInfo dataInfo;
     private final DataTag tag;
-    private PhaseCluster phase;
+    private BoxCluster box;
     private static final long serialVersionUID = 1L;
 }

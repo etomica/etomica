@@ -2,7 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
 
@@ -25,8 +25,8 @@ public class MeterTemperature extends DataSourceScalar {
 	}
 
 	public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
-		return (2. / (phase.atomCount() * phase.getSpace().D()))
+        if (box == null) throw new IllegalStateException("must call setBox before using meter");
+		return (2. / (box.atomCount() * box.getSpace().D()))
 				* meterKE.getDataAsScalar();
 	}
 
@@ -35,20 +35,20 @@ public class MeterTemperature extends DataSourceScalar {
 	}
 
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        meterKE.setPhase(phase);
+    public void setBox(Box box) {
+        this.box = box;
+        meterKE.setBox(box);
     }
 
     private static final long serialVersionUID = 1L;
-    protected Phase phase;
+    protected Box box;
 	protected final MeterKineticEnergy meterKE;
 }

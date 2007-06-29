@@ -4,13 +4,13 @@ import etomica.action.PDBWriter;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.potential.PotentialMaster;
 import etomica.units.Energy;
 
 /**
- * Meter for evaluation of the potential energy in a phase.
+ * Meter for evaluation of the potential energy in a box.
  * Includes several related methods for computing the potential energy of a single
  * atom or molecule with all neighboring atoms
  *
@@ -27,7 +27,7 @@ public class MeterPotentialEnergy extends DataSourceScalar {
     }
       
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total intermolecular potential energy in a phase");
+        EtomicaInfo info = new EtomicaInfo("Total intermolecular potential energy in a box");
         return info;
     }
 
@@ -52,30 +52,30 @@ public class MeterPotentialEnergy extends DataSourceScalar {
     }
     
    /**
-    * Computes total potential energy for phase.
+    * Computes total potential energy for box.
     * Currently, does not include long-range correction to truncation of energy
     */
     public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+        if (box == null) throw new IllegalStateException("must call setBox before using meter");
     	energy.zeroSum();
-        potential.calculate(phase, iteratorDirective, energy);
+        potential.calculate(box, iteratorDirective, energy);
         return energy.getSum();
     }
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private Phase phase;
+    private Box box;
     private final IteratorDirective iteratorDirective = new IteratorDirective();
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private final PotentialMaster potential;

@@ -4,11 +4,11 @@ import java.io.Serializable;
 
 import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 
 /**
- * Gives pairs formed from the molecules of a species in a phase, taking one
+ * Gives pairs formed from the molecules of a species in a box, taking one
  * molecule the species with all of its other molecules. Species is specified at
  * construction and cannot be changed afterwards.
  */
@@ -50,12 +50,12 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
 
     /**
      * Configures iterator to return molecules from the set species in the given
-     * phase.
-     * @throws NullPointerException if the Phase is null
+     * box.
+     * @throws NullPointerException if the Box is null
      */
-    public void setPhase(Phase newPhase) {
-        phase = newPhase;
-        agent = phase.getAgent(species);
+    public void setBox(Box newBox) {
+        box = newBox;
+        agent = box.getAgent(species);
         identifyTargetMolecule();
     }
 
@@ -79,11 +79,11 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
 
     /**
      * Finds target molecule as indicated by the target atom. Sets target
-     * molecule to null if target atom is null, phase is null, or atom is not
+     * molecule to null if target atom is null, box is null, or atom is not
      * part of either species.
      */
     private void identifyTargetMolecule() {
-        if (phase == null || targetAtom == null) {
+        if (box == null || targetAtom == null) {
             targetMolecule = null;
         } else {
             targetMolecule = targetAtom.getChildWhereDescendedFrom(agent);
@@ -96,7 +96,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     private final Species species;
 
     private ISpeciesAgent agent;
-    private Phase phase;
+    private Box box;
     private IAtom targetAtom, targetMolecule;
 
 }

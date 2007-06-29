@@ -97,7 +97,7 @@ public class DeviceBox extends Device implements javax.swing.event.ChangeListene
             textField.setText(Integer.toString((int)unit.fromSim(modifyAction.getWrappedModifier().getValue())));
         }
         else {
-            textField.setText(DisplayBox.format(unit.fromSim(modifyAction.getWrappedModifier().getValue()),precision));
+            textField.setText(DisplayTextBox.format(unit.fromSim(modifyAction.getWrappedModifier().getValue()),precision));
         }
     }
     

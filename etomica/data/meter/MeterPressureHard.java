@@ -1,7 +1,7 @@
 package etomica.data.meter;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorHard;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.units.Pressure;
 
@@ -29,12 +29,12 @@ public class MeterPressureHard extends DataSourceScalar implements
         if (!integratorHard.isIsothermal()) {
             throw new IllegalStateException("Integrator must be isothermal");
         }
-        Phase phase = integratorHard.getPhase();
+        Box box = integratorHard.getBox();
         double currentTime = integratorHard.getCurrentTime();
         double elapsedTime = currentTime - lastTime;
         if(elapsedTime == 0.0) return Double.NaN;
-        double value = (integratorHard.getTemperature()*phase.atomCount() - virialSum/(phase.getSpace().D()*elapsedTime)) / 
-                        phase.getBoundary().volume();
+        double value = (integratorHard.getTemperature()*box.atomCount() - virialSum/(box.getSpace().D()*elapsedTime)) / 
+                        box.getBoundary().volume();
 
         virialSum = 0.0;
         lastTime = currentTime;

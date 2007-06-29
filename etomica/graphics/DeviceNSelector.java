@@ -9,7 +9,7 @@ import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
 
 /**
- * Slider that selects the number of atoms of a given species in a phase.
+ * Slider that selects the number of atoms of a given species in a box.
  *
  * @author David Kofke
  */
@@ -65,11 +65,11 @@ public class DeviceNSelector extends DeviceSlider {
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species1));
-        nSelector.setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
+        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species1));
+        nSelector.setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
         graphic.add(nSelector);
 
-        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
+        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
 
         graphic.makeAndDisplayFrame(APP_NAME);
 

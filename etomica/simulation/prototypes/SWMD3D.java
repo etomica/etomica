@@ -2,18 +2,18 @@
 
 package etomica.simulation.prototypes;
 
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorScheme;
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.modifier.Modifier;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -67,14 +67,14 @@ public class SWMD3D extends Simulation {
     getController().addAction(activityIntegrate);
 
 
-    phase = new Phase(this);
-    addPhase(phase);
+    box = new Box(this);
+    addBox(box);
     potential  = new etomica.potential.P2SquareWell(space);
     potential.setLambda(1.6);
 
     species  = new etomica.species.SpeciesSpheresMono(this);
     getSpeciesManager().addSpecies(species);
-    phase.getAgent(species).setNMolecules(108);
+    box.getAgent(species).setNMolecules(108);
 
 	
 //	DeviceSlider tControl = new DeviceSlider(integrator, "temperature");
@@ -102,23 +102,23 @@ public class SWMD3D extends Simulation {
 
     potentialMaster.addPotential(potential,new Species[]{species,species});
 
-    integrator.setPhase(phase);
-    integrator.addIntervalAction(new PhaseImposePbc(phase));
+    integrator.setBox(box);
+    integrator.addIntervalAction(new BoxImposePbc(box));
 
-//	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(phase0));
+//	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(box0));
 //	nControl.setMaximum(108);
-	phase.setDensity(0.0405);
+	box.setDensity(0.0405);
     ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
-    configuration.initializeCoordinates(phase);
+    configuration.initializeCoordinates(box);
   }
 
   private static final long serialVersionUID = 1L;
   public IntegratorHard integrator;
   public SpeciesSpheresMono species;
-  public Phase phase;
+  public Box box;
   public P2SquareWell potential;
   public Controller controller;
-  public DisplayPhase display;
+  public DisplayBox display;
 
 
   

@@ -450,7 +450,7 @@ public class DisplayTable extends Display implements DataTableListener {
         MeterPressureHard pMeter = new MeterPressureHard(sim.getSpace());
         pMeter.setIntegrator(sim.integrator);
         MeterNMolecules nMeter = new MeterNMolecules();
-        nMeter.setPhase(sim.phase);
+        nMeter.setBox(sim.box);
         DataTableAverages dataTable = new DataTableAverages(sim.integrator);
         dataTable.addDataSource(pMeter);
         dataTable.addDataSource(nMeter);
@@ -461,7 +461,7 @@ public class DisplayTable extends Display implements DataTableListener {
         table.setShowingRowLabels(true);
         table.setPrecision(7);
 
-        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
+        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
 
         graphic.add(table);
         graphic.makeAndDisplayFrame(APP_NAME);

@@ -2,20 +2,20 @@ package etomica.nbr.list;
 
 import etomica.action.Action;
 import etomica.action.AtomActionAdapter;
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.atom.iterator.AtomIteratorTreePhase;
+import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.util.Debug;
@@ -24,8 +24,8 @@ import etomica.util.Debug;
  * Initiates the process of updating the neighbor lists. Instance is constructed
  * by PotentialMasterNbr constructor. Acts as a listener of the integrator(s),
  * and performs the update at regular intervals upon receiving interval events.
- * Each event causes the manager to loop through all phases acted upon by the
- * integrator (as given by the integrator's getPhase method), and check each
+ * Each event causes the manager to loop through all boxs acted upon by the
+ * integrator (as given by the integrator's getBox method), and check each
  * atom against any neighbor criteria that apply to it, seeing if it has changed
  * (e.g., moved) in a way that requires its neighbor lists to be updated. When
  * this is found for any atom, all atom neighbor lists are updated via a call to
@@ -39,23 +39,23 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * Configures instance for use by the given PotentialMaster.
      */
     public NeighborListManager(PotentialMasterList potentialMasterList, double range, 
-            Phase phase) {
+            Box box) {
         setUpdateInterval(1);
-        this.phase = phase;
+        this.box = box;
         iieCount = updateInterval;
-        iterator = new AtomIteratorTreePhase();
-        iterator.setPhase(phase);
+        iterator = new AtomIteratorTreeBox();
+        iterator.setBox(box);
         iterator.setDoAllNodes(true);
         neighborCheck = new NeighborCheck(this);
         setPriority(200);
-        pbcEnforcer = new PhaseImposePbc();
+        pbcEnforcer = new BoxImposePbc();
         pbcEnforcer.setApplyToMolecules(false);
         potentialMaster = potentialMasterList;
-        cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range, phase);
-        agentManager2Body = new AtomAgentManager(this, phase);
-        agentManager1Body = new AtomAgentManager(new AtomPotential1ListSource(), phase);
+        cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range, box);
+        agentManager2Body = new AtomAgentManager(this, box);
+        agentManager1Body = new AtomAgentManager(new AtomPotential1ListSource(), box);
         neighborReset = new NeighborReset(this, agentManager2Body, agentManager1Body);
-        phaseEvent = new PhaseEventNeighborsUpdated(phase);
+        boxEvent = new BoxEventNeighborsUpdated(box);
     }
     
     /**
@@ -99,14 +99,14 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     }
 
     /**
-     * For each phase in the array, applies central image, 
+     * For each box in the array, applies central image, 
      * resets neighbors of all atoms, and sets up all neighbor
      * lists.
      */
     public void reset() {
         // the NeighborCellManager might not have existed during construction
         // so we couldn't se the lattice.  It better exist now.
-        cellNbrIterator.setLattice(potentialMaster.getNbrCellManager(phase).getLattice());
+        cellNbrIterator.setLattice(potentialMaster.getNbrCellManager(box).getLattice());
 
         NeighborCriterion[] criteriaArray = potentialMaster.getNeighborCriteria();
         if (oldCriteria != criteriaArray) {
@@ -116,9 +116,9 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             oldCriteria = criteriaArray;
         }
         for (int j = 0; j < criteriaArray.length; j++) {
-            criteriaArray[j].setPhase(phase);
+            criteriaArray[j].setBox(box);
         }
-        pbcEnforcer.setPhase(phase);
+        pbcEnforcer.setBox(box);
         pbcEnforcer.actionPerformed();
         neighborSetup();
         iieCount = updateInterval;
@@ -127,7 +127,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     /**
      * Checks whether any atom needs neighbor list updating, and if
      * one is found, performs neighbor list updates of all atom 
-     * neighbor lists.  Performs this action on all phases acted on
+     * neighbor lists.  Performs this action on all boxs acted on
      * by given integrator.
      */
     public void updateNbrsIfNeeded() {
@@ -140,7 +140,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             oldCriteria = criteriaArray;
         }
         for (int j = 0; j < criteriaArray.length; j++) {
-            criteriaArray[j].setPhase(phase);
+            criteriaArray[j].setBox(box);
         }
 
         iterator.allAtoms(neighborCheck);
@@ -154,7 +154,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             }
             pbcEnforcer.actionPerformed();
             neighborSetup();
-            phase.getEventManager().fireEvent(phaseEvent);
+            box.getEventManager().fireEvent(boxEvent);
         }
     }
 
@@ -200,7 +200,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     /**
      * @return Returns the pbcEnforcer.
      */
-    public PhaseImposePbc getPbcEnforcer() {
+    public BoxImposePbc getPbcEnforcer() {
         return pbcEnforcer;
     }
 
@@ -208,7 +208,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * @param pbcEnforcer
      *            The pbcEnforcer to set.
      */
-    public void setPbcEnforcer(PhaseImposePbc pbcEnforcer) {
+    public void setPbcEnforcer(BoxImposePbc pbcEnforcer) {
         this.pbcEnforcer = pbcEnforcer;
     }
 
@@ -217,13 +217,13 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * neighbor pairs, determines for each pair whether a potential applies to it,
      * and if so, puts each in the other's neighbor list.
      * Called by updateNbrsIfNeeded, and by reset.
-     * @param phase phase in which neighbor setup is performed.
+     * @param box box in which neighbor setup is performed.
      */
     protected void neighborSetup() {
 
         iterator.allAtoms(neighborReset);
         
-        NeighborCellManager cellManager = potentialMaster.getNbrCellManager(phase);
+        NeighborCellManager cellManager = potentialMaster.getNbrCellManager(box);
         cellManager.assignCellAll();
 
         cellNbrIterator.reset();
@@ -302,19 +302,19 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     private static final long serialVersionUID = 1L;
     private int updateInterval;
     private int iieCount;
-    private final AtomIteratorTreePhase iterator;
+    private final AtomIteratorTreeBox iterator;
     private final NeighborCheck neighborCheck;
     private final NeighborReset neighborReset;
     private final ApiAACell cellNbrIterator;
     protected final PotentialMasterList potentialMaster;
     private int priority;
-    private PhaseImposePbc pbcEnforcer;
+    private BoxImposePbc pbcEnforcer;
     private boolean quiet;
     private final AtomAgentManager agentManager2Body;
     private final AtomAgentManager agentManager1Body;
-    protected Phase phase;
+    protected Box box;
     private NeighborCriterion[] oldCriteria;
-    protected final PhaseEventNeighborsUpdated phaseEvent;
+    protected final BoxEventNeighborsUpdated boxEvent;
 
     /**
      * Atom action class that checks if any criteria indicate that the given

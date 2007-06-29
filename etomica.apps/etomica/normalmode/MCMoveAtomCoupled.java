@@ -10,8 +10,8 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.mcmove.MCMovePhaseStep;
-import etomica.phase.Phase;
+import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVectorRandom;
@@ -23,7 +23,7 @@ import etomica.util.IRandom;
  *
  * @author Andrew Schultz
  */
-public class MCMoveAtomCoupled extends MCMovePhaseStep {
+public class MCMoveAtomCoupled extends MCMoveBoxStep {
     
     private static final long serialVersionUID = 2L;
     protected final AtomIteratorArrayListSimple affectedAtomIterator;
@@ -75,7 +75,7 @@ public class MCMoveAtomCoupled extends MCMovePhaseStep {
         pair.atom1 = atom1;
         uOld -= potential.energy(pair);
         if(uOld > 1e10) {
-            throw new RuntimeException(new ConfigurationOverlapException(phase));
+            throw new RuntimeException(new ConfigurationOverlapException(box));
         }
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
@@ -134,11 +134,11 @@ public class MCMoveAtomCoupled extends MCMovePhaseStep {
         return affectedAtomIterator;
     }
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        energyMeter.setPhase(p);
-        atomSource.setPhase(p);
-        potential.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        energyMeter.setBox(p);
+        atomSource.setBox(p);
+        potential.setBox(p);
     }
     
     /**

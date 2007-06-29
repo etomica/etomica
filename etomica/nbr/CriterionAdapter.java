@@ -6,7 +6,7 @@ package etomica.nbr;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
  * Wraps another criterion while adding additional criteria to the acceptance
@@ -54,12 +54,12 @@ public abstract class CriterionAdapter implements NeighborCriterion, java.io.Ser
     }
 
     /**
-     * Specifies to the wrapped criterion the phase where the criterion is being
+     * Specifies to the wrapped criterion the box where the criterion is being
      * applied. Sometimes needed if the criterion depends on features of the
-     * phase, such as the volume.
+     * box, such as the volume.
      */
-    public void setPhase(Phase phase) {
-        subCriterion.setPhase(phase);
+    public void setBox(Box box) {
+        subCriterion.setBox(box);
     }
 
     /**

@@ -39,21 +39,21 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         
         this.getController().getSimRestart().setConfiguration(new ConfigurationZero());
 
-        this.getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
+        this.getController().getReinitButton().setPostAction(getDisplayBoxPaintAction(sim.box));
 
-        this.getController().getControllerButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
+        this.getController().getControllerButton().setPostAction(getDisplayBoxPaintAction(sim.box));
 
-	    //display of phase, timer
-        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(300/sim.phase.getBoundary().getDimensions().x(0)));
-        getDisplayPhase(sim.phase).setDrawingHeight(300);
-        DisplayPhaseCanvas1DBins canvas = new DisplayPhaseCanvas1DBins(getDisplayPhase(sim.phase));
-        getDisplayPhase(sim.phase).setPhaseCanvas(canvas);
+	    //display of box, timer
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(300/sim.box.getBoundary().getDimensions().x(0)));
+        getDisplayBox(sim.box).setDrawingHeight(300);
+        DisplayBoxCanvas1DBins canvas = new DisplayBoxCanvas1DBins(getDisplayBox(sim.box));
+        getDisplayBox(sim.box).setBoxCanvas(canvas);
 
         //tabbed pane for the big displays
         JPanel bigPanel = new JPanel(new GridLayout(2,0));
         
         MeterEntropy meterEntropy = new MeterEntropy();
-        meterEntropy.setPhase(sim.phase);
+        meterEntropy.setBox(sim.box);
         AccumulatorHistory entropyHistory = new AccumulatorHistory(new HistoryCollapsing(100));
         DataSourceCountSteps stepCounter = new DataSourceCountSteps(sim.integrator);
         entropyHistory.setTimeDataSource(stepCounter);
@@ -85,11 +85,11 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         entropyPlot.getPlot().setTitle("Entropy");
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
+        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
         nSelector.setLabel("Number of Balls");
         nSelector.setShowBorder(true);
         
-        final DeviceSlider nUrnSelector = new DeviceSlider(sim.getController(), new ModifierDimensions(sim.phase));
+        final DeviceSlider nUrnSelector = new DeviceSlider(sim.getController(), new ModifierDimensions(sim.box));
         nUrnSelector.setMinimum(3);
         nUrnSelector.setMaximum(30);
         nUrnSelector.setLabel("Number of Urns");
@@ -98,13 +98,13 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
             public void actionPerformed() {
                 double nUrn = nUrnSelector.getValue();
                 double a2p = 300.0/nUrn;
-                getDisplayPhase(sim.phase).setPixelUnit(new Pixel(a2p));
-                double yScale = nUrn*nUrn/(6*sim.phase.getAgent(sim.species).getNMolecules());
+                getDisplayBox(sim.box).setPixelUnit(new Pixel(a2p));
+                double yScale = nUrn*nUrn/(6*sim.box.getAgent(sim.species).getNMolecules());
                 if (yScale > 6) {
                     yScale = 6;
                 }
-                ((DisplayPhaseCanvas1DBins)getDisplayPhase(sim.phase).canvas).setYScale(yScale);
-                getDisplayPhase(sim.phase).repaint();
+                ((DisplayBoxCanvas1DBins)getDisplayBox(sim.box).canvas).setYScale(yScale);
+                getDisplayBox(sim.box).repaint();
             }
         };
 
@@ -121,12 +121,12 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
 
         resetDisplay.actionPerformed();
 
-        // SimulationGraphic has already added the phase graphic.
+        // SimulationGraphic has already added the box graphic.
         // Remove it from the graphicsPanel and add it to this
         // classes' bigPanel.
         getPanel().graphicsPanel.removeAll();
         bigPanel.add(entropyPlot.getPlot());
-        bigPanel.add(getDisplayPhase(sim.phase).graphic());
+        bigPanel.add(getDisplayBox(sim.box).graphic());
 
         add(nSelector);
         add(nUrnSelector);

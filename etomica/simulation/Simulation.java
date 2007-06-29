@@ -1,7 +1,7 @@
 package etomica.simulation;
 
 import etomica.action.activity.Controller;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.util.Arrays;
@@ -38,54 +38,54 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     public Simulation(Space space, boolean isDynamic, int[] bitLength) {
         this.space = space;
         this.dynamic = isDynamic;
-        phaseList = new Phase[0];
+        boxList = new Box[0];
         setController(new Controller());
         random = new RandomNumberGenerator();
         eventManager = new SimulationEventManager();
         speciesManager = new SpeciesManager(this, bitLength);
     }
 
-    public final void addPhase(Phase newPhase) {
-        for (int i=0; i<phaseList.length; i++) {
-            if (phaseList[i] == newPhase) {
-                throw new IllegalArgumentException("Phase "+newPhase+" is already a part of this Simulation");
+    public final void addBox(Box newBox) {
+        for (int i=0; i<boxList.length; i++) {
+            if (boxList[i] == newBox) {
+                throw new IllegalArgumentException("Box "+newBox+" is already a part of this Simulation");
             }
         }
-        phaseList = (Phase[])Arrays.addObject(phaseList, newPhase);
-        newPhase.resetIndex(this);
-        speciesManager.phaseAddedNotify(newPhase);
-        eventManager.fireEvent(new SimulationPhaseAddedEvent(newPhase));
+        boxList = (Box[])Arrays.addObject(boxList, newBox);
+        newBox.resetIndex(this);
+        speciesManager.boxAddedNotify(newBox);
+        eventManager.fireEvent(new SimulationBoxAddedEvent(newBox));
     }
     
-    public final void removePhase(Phase oldPhase) {
+    public final void removeBox(Box oldBox) {
         boolean found = false;
-        for (int i=0; i<phaseList.length; i++) {
-            if (phaseList[i] == oldPhase) {
+        for (int i=0; i<boxList.length; i++) {
+            if (boxList[i] == oldBox) {
                 found = true;
                 break;
             }
         }
         if (!found) {
-            throw new IllegalArgumentException("Phase "+oldPhase+" is not part of this Simulation");
+            throw new IllegalArgumentException("Box "+oldBox+" is not part of this Simulation");
         }
 
-        phaseList = (Phase[])Arrays.removeObject(phaseList, oldPhase);
+        boxList = (Box[])Arrays.removeObject(boxList, oldBox);
 
-        for (int i = oldPhase.getIndex(); i<phaseList.length; i++) {
-            phaseList[i].resetIndex(this);
+        for (int i = oldBox.getIndex(); i<boxList.length; i++) {
+            boxList[i].resetIndex(this);
         }
         
-        // notify oldPhase that we no longer have it.
-        oldPhase.resetIndex(null);
+        // notify oldBox that we no longer have it.
+        oldBox.resetIndex(null);
         
-        eventManager.fireEvent(new SimulationPhaseRemovedEvent(oldPhase));
+        eventManager.fireEvent(new SimulationBoxRemovedEvent(oldBox));
     }
     
     /**
-     * Returns an array of Phases contained in the Simulation
+     * Returns an array of Boxs contained in the Simulation
      */
-    public final Phase[] getPhases() {
-        return phaseList;
+    public final Box[] getBoxs() {
+        return boxList;
     }
 
     /**
@@ -131,7 +131,7 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     private static final long serialVersionUID = 4L;
     protected final Space space;
     protected final SimulationEventManager eventManager;
-    private Phase[] phaseList;
+    private Box[] boxList;
     private final SpeciesManager speciesManager;
     protected final IRandom random;
     protected final boolean dynamic;

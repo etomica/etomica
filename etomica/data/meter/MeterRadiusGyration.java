@@ -6,7 +6,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -37,7 +37,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
      * tabulate the ROG. By setting this iterator the
      * meter can be configured to compute pair distribution for any set of atom
      * pairs. At construction the default is an instance of ApiLeafAtoms, which
-     * generates pairs from all leaf atoms in the phase.
+     * generates pairs from all leaf atoms in the box.
      * 
      * @param iter
      */
@@ -56,11 +56,11 @@ public class MeterRadiusGyration extends DataSourceScalar {
     }
 
     public double getDataAsScalar() {
-        if (phase == null)
+        if (box == null)
             throw new IllegalStateException(
-                    "must call setPhase before using meter");
-        NearestImageTransformer nearestImageTransformer = phase.getBoundary();
-        iterator.setPhase(phase);
+                    "must call setBox before using meter");
+        NearestImageTransformer nearestImageTransformer = box.getBoundary();
+        iterator.setBox(box);
         iterator.reset();
         AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
         int nLeafAtomsTot = 0;
@@ -122,22 +122,22 @@ public class MeterRadiusGyration extends DataSourceScalar {
     }
 
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
 
     /**
-     * @param phase
-     *            The phase to set.
+     * @param box
+     *            The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private Phase phase;
+    private Box box;
     private AtomIteratorAllMolecules iterator;
     private final IVector cm, realPos;
     private final IVector dr;

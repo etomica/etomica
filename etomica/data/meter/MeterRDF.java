@@ -4,7 +4,7 @@ import etomica.action.Action;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiLeafAtoms;
-import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
+import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
@@ -16,7 +16,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -34,7 +34,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
 	
 	/**
 	 * Creates meter with default to compute pair correlation for all
-	 * leaf atoms in a phase.
+	 * leaf atoms in a box.
 	 * @param parent
 	 */
     public MeterRDF(Space space) {
@@ -86,7 +86,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
     }
     
     /**
-     * Takes the RDF for the current configuration of the given phase.
+     * Takes the RDF for the current configuration of the given box.
      */
     public void actionPerformed() {
         if (rData != xDataSource.getData() ||
@@ -96,7 +96,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
         }
         
         double xMaxSquared = xMax*xMax;
-        iterator.setPhase(phase);
+        iterator.setBox(box);
         iterator.reset();
         // iterate over all pairs
         for (AtomSet pair = iterator.next(); pair != null;
@@ -126,7 +126,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
         }
         
         final double[] y = data.getData();
-	    double norm = 0.5 * callCount * phase.getDensity()*(phase.getSpeciesMaster().getLeafList().getAtomCount()-1);
+	    double norm = 0.5 * callCount * box.getDensity()*(box.getSpeciesMaster().getLeafList().getAtomCount()-1);
 	    double[] r = rData.getData();
 	    double dx2 = 0.5*(xMax - xDataSource.getXMin())/r.length;
 	    for(int i=0;i<r.length; i++) {
@@ -153,17 +153,17 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        nearestImageTransformer = phase.getBoundary();
+    public void setBox(Box box) {
+        this.box = box;
+        nearestImageTransformer = box.getBoundary();
     }
 
     public String getName() {
@@ -175,13 +175,13 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
     }
     
     private static final long serialVersionUID = 1L;
-    protected Phase phase;
+    protected Box box;
     protected final Space space;
     protected long[] gSum;
     protected DataFunction data;
     private IDataInfo dataInfo;
     protected DataDoubleArray rData;
-    protected AtomsetIteratorPhaseDependent iterator;
+    protected AtomsetIteratorBoxDependent iterator;
     private final IVector dr;
     private NearestImageTransformer nearestImageTransformer;
     protected final DataSourceUniform xDataSource;

@@ -3,7 +3,7 @@ package etomica.virial;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 
@@ -18,19 +18,19 @@ public class MCMoveClusterAtom extends MCMoveAtom {
         weightMeter = new MeterClusterWeight(potentialMaster);
 	}
 	
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        weightMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        weightMeter.setBox(p);
     }
     
 	public boolean doTrial() {
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
 		atom = leafList.getAtom(random.nextInt(1+leafList.getAtomCount()-1));
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         ((IAtomPositioned)atom).getPosition().PE(translationVector);
-		((PhaseCluster)phase).trialNotify();
+		((BoxCluster)box).trialNotify();
 		uNew = Double.NaN;
 		return true;
 	}
@@ -46,12 +46,12 @@ public class MCMoveClusterAtom extends MCMoveAtom {
 
     public void rejectNotify() {
     	super.rejectNotify();
-    	((PhaseCluster)phase).rejectNotify();
+    	((BoxCluster)box).rejectNotify();
     }
     
     public void acceptNotify() {
     	super.acceptNotify();
-    	((PhaseCluster)phase).acceptNotify();
+    	((BoxCluster)box).acceptNotify();
     }
 
     private static final long serialVersionUID = 1L;

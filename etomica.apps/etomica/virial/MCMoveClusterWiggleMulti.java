@@ -7,7 +7,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
@@ -23,7 +23,7 @@ import etomica.util.IRandom;
  * crankshaft move is performed that maintains its distances with its 
  * neightobors.  If a middle Atom has a bond angle too close to 180 degrees
  * (such that rotation does nothing) the Atom is not moved at all.
- * In each doTrail, wiggle moves are attempted on all molecules in the phase. 
+ * In each doTrail, wiggle moves are attempted on all molecules in the box. 
  * 
  * @author Andrew Schultz
  */
@@ -42,7 +42,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
      * Constructor for MCMoveAtomMulti.
      * @param parentIntegrator
      * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * phase should be at least one greater than this value (greater
+     * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
     public MCMoveClusterWiggleMulti(PotentialMaster potentialMaster, 
@@ -64,10 +64,10 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         work3 = new Vector3D();
     }
 
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        weightMeter.setPhase(p);
-        energyMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        weightMeter.setBox(p);
+        energyMeter.setBox(p);
     }
     
     //note that total energy is calculated
@@ -166,7 +166,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
                 }
             }
         }
-        ((PhaseCluster)phase).trialNotify();
+        ((BoxCluster)box).trialNotify();
         wNew = weightMeter.getDataAsScalar();
         uNew = energyMeter.getDataAsScalar();
 //        System.out.println(uOld+" => "+uNew+"   "+wOld+" => "+wNew+" "+stepSize);
@@ -178,8 +178,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     }
 	
     protected IAtom[] selectMolecules() {
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
-        if (iterator.size() != nAtoms) throw new IllegalStateException("move should work on number of molecules in phase");
+        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
+        if (iterator.size() != nAtoms) throw new IllegalStateException("move should work on number of molecules in box");
         iterator.reset();
         int i=0;
         for (IAtomGroup a = (IAtomGroup)iterator.nextAtom(); a != null;
@@ -194,11 +194,11 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             selectedAtoms[i].getPosition().ME(translationVectors[i]);
 //            System.out.println(selectedAtoms[i]+" rejected => "+selectedAtoms[i].coord.position());
         }
-        ((PhaseCluster)phase).rejectNotify();
+        ((BoxCluster)box).rejectNotify();
     }
 
     public void acceptNotify() {
-        ((PhaseCluster)phase).acceptNotify();
+        ((BoxCluster)box).acceptNotify();
         for(int i=0; i<selectedMolecules.length; i++) {
 //            System.out.println(selectedAtoms[i]+" accepted => "+selectedAtoms[i].coord.position());
         }

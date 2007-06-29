@@ -2,7 +2,7 @@
 package etomica.models.water;
 
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -107,7 +107,7 @@ public class P2WaterSPCE extends Potential2 {
         chargeHH = chargeH * chargeH;
     }
 
-    public void setPhase(Phase phase) {
+    public void setBox(Box box) {
     }
 
     private static final long serialVersionUID = 1L;

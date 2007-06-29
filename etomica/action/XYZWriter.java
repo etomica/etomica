@@ -14,18 +14,18 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementChemical;
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
- * Action that dumps a phase's configuration to an XYZ file.  Arbitrary but 
+ * Action that dumps a box's configuration to an XYZ file.  Arbitrary but 
  * unique elements are assigned to each atom type.  After writing the PDB file,
  * writeRasmolScript can be called to write a script that will properly 
  * initialize the atomic radii.
  */
 public class XYZWriter implements Action, Serializable {
 
-    public XYZWriter(Phase aPhase) {
-        leafList = aPhase.getSpeciesMaster().getLeafList();
+    public XYZWriter(Box aBox) {
+        leafList = aBox.getSpeciesMaster().getLeafList();
         elementAtomType = new LinkedList();
     }
 

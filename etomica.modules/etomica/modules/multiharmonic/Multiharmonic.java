@@ -12,7 +12,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -39,25 +39,25 @@ public class Multiharmonic extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(0.02);
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getBoundary().setDimensions(new Vector1D(3.0));
+        box = new Box(this);
+        addBox(box);
+        box.getBoundary().setDimensions(new Vector1D(3.0));
         controller = getController();
         integrator = new IntegratorVelocityVerlet(this, potentialMaster);
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);
         integrator.setTemperature(1.0);
-        species.getAgent(phase).setNMolecules(20);
+        species.getAgent(box).setNMolecules(20);
         potentialA = new P1Harmonic(space);
         potentialA.setX0(new Vector1D(x0));
         potentialA.setSpringConstant(1.0);
         potentialMaster.addPotential(potentialA, new Species[] {species});
         
-        phase.getAgent(species).setNMolecules(20);
+        box.getAgent(species).setNMolecules(20);
         
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-        iterator.setPhase(phase);
+        iterator.setBox(box);
         iterator.reset();
         for (IAtomPositioned a = (IAtomPositioned)iterator.nextAtom(); a != null;
              a = (IAtomPositioned)iterator.nextAtom()) {
@@ -72,14 +72,14 @@ public class Multiharmonic extends Simulation {
         potentialB.setX0(new Vector1D(x0+1));
         potentialB.setSpringConstant(10);
         meter = new MeterFreeEnergy(potentialA, potentialB);
-        meter.setPhase(phase);
+        meter.setBox(box);
         accumulator = new AccumulatorAverage();
         accumulator.setBlockSize(100);
         dataPump = new DataPump(meter, accumulator);
         integrator.addIntervalAction(dataPump);
         
         meterEnergy = new MeterEnergy(potentialMaster);
-        meterEnergy.setPhase(phase);
+        meterEnergy.setBox(box);
         accumulatorEnergy = new AccumulatorAverage();
         accumulatorEnergy.setBlockSize(100);
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
@@ -98,7 +98,7 @@ public class Multiharmonic extends Simulation {
     AccumulatorAverage accumulatorEnergy;
     AccumulatorHistory historyEnergy;
     SpeciesSpheresMono species;
-    Phase phase;
+    Box box;
     Controller controller;
     P1Harmonic potentialA, potentialB;
     IntegratorVelocityVerlet integrator;

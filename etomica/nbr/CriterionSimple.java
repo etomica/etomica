@@ -5,9 +5,9 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
-import etomica.phase.PhaseAgentSourceAtomManager;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
+import etomica.box.BoxAgentSourceAtomManager;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
@@ -31,7 +31,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 		this.interactionRange = interactionRange;
         neighborRadius2 = neighborRadius * neighborRadius;
         setSafetyFactor(0.4);
-        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim,true);
+        boxAgentManager = new BoxAgentManager(new BoxAgentSourceAtomManager(this),sim,true);
 	}
 	
 	public void setSafetyFactor(double f) {
@@ -93,9 +93,9 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 		return r2 > displacementLimit2;
 	}
 
-	public void setPhase(Phase phase) {
-        nearestImageTransformer = phase.getBoundary();
-        agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
+	public void setBox(Box box) {
+        nearestImageTransformer = box.getBoundary();
+        agentManager = (AtomAgentManager)boxAgentManager.getAgent(box);
 	}
     
 	public boolean unsafe() {
@@ -142,5 +142,5 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
 	protected double safetyFactor;
 	protected double r2, r2MaxSafe;
     private AtomAgentManager agentManager;
-    private final PhaseAgentManager phaseAgentManager;
+    private final BoxAgentManager boxAgentManager;
 }

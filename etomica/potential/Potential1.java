@@ -1,6 +1,6 @@
 package etomica.potential; 
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Boundary;
 import etomica.space.Space;
 
@@ -17,8 +17,8 @@ public abstract class Potential1 extends Potential {
         super(1, space);
     }
 
-    public void setPhase(Phase phase) {
-    	boundary = phase.getBoundary();
+    public void setBox(Box box) {
+    	boundary = box.getBoundary();
     }
     
     /**

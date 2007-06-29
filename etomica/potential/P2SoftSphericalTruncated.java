@@ -116,11 +116,11 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         }
  
         public double energy(AtomSet atoms) {
-            return uCorrection(nPairs()/phase.volume());
+            return uCorrection(nPairs()/box.volume());
         }
         
         public double virial(AtomSet atoms) {
-            return duCorrection(nPairs()/phase.volume());
+            return duCorrection(nPairs()/box.volume());
         }
         
         public IVector[] gradient(AtomSet atoms) {

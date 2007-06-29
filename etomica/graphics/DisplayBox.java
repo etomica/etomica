@@ -1,396 +1,866 @@
-//class includes a main method to demonstrate and test its use
 package etomica.graphics;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+
+import java.awt.Component;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.LinkedList;
 
 import etomica.EtomicaInfo;
-import etomica.data.Data;
-import etomica.data.DataPipe;
-import etomica.data.DataSink;
-import etomica.data.IDataInfo;
-import etomica.data.types.CastToDouble;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.units.Null;
-import etomica.units.Unit;
-import etomica.units.systems.UnitSystem;
-import etomica.util.Constants;
-import etomica.util.EnumeratedType;
+import etomica.atom.AtomFilter;
+import etomica.atom.AtomFilterStatic;
+import etomica.box.Box;
+import etomica.space.IVector;
+import etomica.units.Pixel;
 
 /**
- * A simple display of a single value in a textbox with an associated label.
- * Value is obtained from an associated DataSource.
- * A label and unit is associated with the value.
+ * Displays a picture of a box, with configurations of molecules, boundaries, and other objects as appropriate, assuming 2-dimensional system.  
+ * Instantiates a ConfigurationCanvas (an inner class of this one) for most of the work.
+ * DisplayBox is an input event (mouse and key) listener of the canvas.  It receives these 
+ * events and uses information from them to form and fire a DisplayBoxEvent to registered listeners.
  *
  * @author David Kofke
+ * @author Steve Hotchkiss
  */
  
-public class DisplayBox extends Display implements DataSink, javax.swing.event.ChangeListener {
-    
-    /**
-     * Descriptive text label to be displayed with the value
-     */
-    protected JLabel jLabel;
-    private Constants.CompassDirection labelPosition = Constants.CompassDirection.NORTH;
-    /**
-     * Object for displaying the value as a text field
-     */
-    protected JTextField value;
-    /**
-     * Displayed panel that holds the label and value
-     * (not yet used; meant to implement to make lightweight display)
-     */
-    protected JPanel panel = new JPanel(new java.awt.BorderLayout());
-    /**
-     * Integer specifying the number of significant figures to be displayed.
-     * Default is 4.
-     */
-    int precision;
-    private LabelType labelType;
-    private boolean integerDisplay;
-    
-    /**
-     * Physical units associated with the displayed value.
-     * Default is null (dimensionless).
-     */
-    protected etomica.units.Unit unit;
-    
-    public DisplayBox() {
-        this("", Null.UNIT);
-    }
-    
-    public DisplayBox(IDataInfo info) {
-        this(info.getLabel(), info.getDimension().getUnit(UnitSystem.SIM));
-    }
-    
-    public DisplayBox(String label, Unit unit) {
-        super();
-        this.unit = unit;
-        jLabel = new JLabel();
-        value = new JTextField("");
-        value.setEditable(false);
-        panel.add(value, java.awt.BorderLayout.CENTER);
-        setLabelType(LabelType.STRING);
-        setLabel(label);
- //       panel.setMinimumSize(new java.awt.Dimension(80,60));
-        setPrecision(4);
-        setIntegerDisplay(false);
+public class DisplayBox extends Display {
         
- /*       addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {//right-click
-                    Device editor = new DeviceUnitEditor(DisplayBox.this);
-                    editor.graphic(null).setLocation(evt.getX(), evt.getY());
-                    parentSimulation().add(editor.graphic(null));
-                    parentSimulation().validate();
-                    parentSimulation().repaint();
-                }
-            }
-        });  */
-    }//end of constructor
+    public static final int LEFT = -1;   //Class variables to code for alignment of drawn image within display region
+    public static final int CENTER = 0;
+    public static final int RIGHT = +1;
+    public static final int TOP = -1;
+    public static final int BOTTOM = +1;
+    public static boolean _3dEnabled;
+    private final int D = 2;
+    protected ColorScheme colorScheme = new ColorSchemeByType();
+    protected AtomFilter atomFilter = AtomFilterStatic.ACCEPT_ALL;
+    protected boolean displayBoundary = true;
+    LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
+    private Box box;
+    private boolean graphicResizable = true;
+            
+    //do not instantiate here; instead must be in graphic method
+    public DisplayCanvasInterface canvas = null;
+
+//Explicit to 2D because drawing to 2D image
+    public final int[] align = new int[D];
     
-    public void putDataInfo(IDataInfo dataInfo) {
-        if(unit == Null.UNIT) {
-            unit = dataInfo.getDimension().getUnit(UnitSystem.SIM);
-        }
-        if(label.equals("")) {
-            setLabel(dataInfo.getLabel());
-        }
+ /**
+  * Size of drawing region of central image, in pixels
+  *
+  * @see #computeDrawSize
+  */
+    protected final int[] drawSize = new int[D];
+   
+ /**
+  * Factor used to scale the size of the image. May be used
+  * to scale up or down the image within one box without affecting those
+  * in other displays.  Default value is 1.0.
+  */
+    protected double scale = 1.0;
+          
+   /**
+    * Coordinate origin for central image
+    * Explicit to 2D because drawing is done to 2D image
+    */
+    protected final int[] centralOrigin = new int[D];
+    
+    /**
+     * Amount of simple shift of drawing origin.
+     */
+    private final int[] originShift = new int[D];
+
+    private double toPixels;
+        
+    /**
+     * When using periodic boundaries, image molecules near the cell boundaries often have parts that overflow
+     * into the central cell.  When the box is drawn, these "overflow portions" are not normally
+     * included in the central image.  Setting this flag to <code>true</code> causes extra drawing
+     * to be done so that the overflow portions are properly rendered.  This is particularly helpful
+     * to have on when imageShells is non-zero.  Default value is <code>false</code>.
+     */
+    private boolean drawOverflow = false;
+  
+    public DisplayBox(Box box) {
+        this(box,new Pixel());
     }
     
     /**
-     * Returns caster needed to convert type indicated by DataInfo to a DataDouble.
+     * Warning: after instantiation, clients using G3DSys may need to toggle
+     * display.canvas.setVisible false and then true to fix the 'sometimes
+     * gray' bug.
+     * 
+     * i.e.;
+     * if(display.canvas instanceof JComponent) {
+     * ((JComponent)display.canvas).setVisible(false);
+     * ((JComponent)display.canvas).setVisible(true);
+     * }
+     * @param box
+     * @param pixel
      */
-    public DataPipe getDataCaster(IDataInfo dataInfo) {
-        if(dataInfo instanceof DataInfoDouble) return null;
-        return new CastToDouble();
+    public DisplayBox(Box box, Pixel pixel) {
+        super();
+        setPixelUnit(pixel);
+        setLabel("Configuration");
+
+        align[0] = align[1] = CENTER;
+
+        setBox(box);
     }
-    
+
+    /**
+     * Returns a very brief description of Etomica.
+     * 
+     * @return static EtomicaInfo
+     */
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple display of one data source's value with a label");
+        EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a box as the simulation proceeds");
         return info;
     }
-    
-    /** 
-     * calls doUpdate method.  Implementation of ChangeListener interface.
+
+    /**
+     * Sets the size of the box graphic.
+     * 
+     * @param width  : width of the box graphic
+     * @param height : height of the box graphic
+     * @return void
      */
-    public void stateChanged(javax.swing.event.ChangeEvent evt) {
-        panel.repaint();
+    private void setSize(int width, int height) {
+    	if(width <= 0 || height <= 0) return;
+        java.awt.Dimension temp = new java.awt.Dimension(width, height);
+        canvas.setSize(width, height);
+        canvas.setMinimumSize(temp);
+        canvas.setMaximumSize(temp);
+        canvas.setPreferredSize(temp);
+        canvas.reshape(width, height);
+
     }
-    
+
     /**
-     * Accessor method to set the physical units of the displayed value.
-     * Text describing unit is used in label.
+     * Gets the size of the box graphic.
+     * 
+     * @return java.awt.Dimension  : Dimension object containing box graphic size
      */
-    public void setUnit(etomica.units.Unit u) {
-        unit = u;
+    public java.awt.Dimension getSize() {
+    	return canvas.getSize();
     }
+
     /**
-     * Returns the physical units of the displayed value.
+     * Amount (in pixels) of a simple shift (translation) applied in determing origin.
+     * Usually zero, but can be set to any value by passing in dimension and the number
+     * of pixels to shift in the specified dimension.
+     * <p>
+     * Dimension :
+     *  0  => X direction
+     *  1  => Y direction
+     *  2  => Z direction (not used)
+     *  
+     *  @return void
      */
-    public etomica.units.Unit getUnit() {return unit;}
-    
-    public java.awt.Component graphic(Object obj) {return panel;}
-    
-    
-    /**
-     * @return Returns the integerDisplay.
-     */
-    public boolean isIntegerDisplay() {
-        return integerDisplay;
-    }
-    /**
-     * @param integerDisplay The integerDisplay to set.
-     */
-    public void setIntegerDisplay(boolean integerDisplay) {
-        this.integerDisplay = integerDisplay;
-    }
-    /**
-     * Accessor method of the precision, which specifies the number of significant figures to be displayed.
-     */
-    public int getPrecision() {return precision;}
-    
-    /**
-     * Accessor method of the precision, which specifies the number of significant figures to be displayed.
-     */
-    public void setPrecision(int n) {
-        // the actual size of the box is closer to n+3, which is what we actually want
-        value.setColumns(n+2);
-        precision = n;
-    }
-    
-    /**
-     * Sets the value of a descriptive label using the given string.
-     */
-    public void setLabel(String s) {
-        String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
-        super.setLabel(s+suffix);
-        jLabel.setText(s+suffix);
-        if(labelType == LabelType.BORDER) {
-            panel.setBorder(new javax.swing.border.TitledBorder(s+suffix));
+    public void setOriginShift(int dimension, int shift) {
+        if(dimension <= D) {
+        	originShift[dimension] = shift;
+        	java.awt.Dimension dim = canvas.getSize();
+        	switch(dimension) {
+        	case 0:
+        		setSize(dim.width + 2*Math.abs(shift), dim.height);
+        		break;
+        	case 1:
+        		setSize(dim.width, dim.height + 2*Math.abs(shift));
+        		break;
+        	default:
+        		break;
+        	}
         }
-        if(labelType == LabelType.STRING) setLabelPosition(labelPosition);
-    }
-    /**
-     * @return the current value of the descriptive label.
-     */
-    public String getLabel() {return jLabel.getText();}
-    
-    /**
-     * Sets label to the given value if it was not previously set.
-     * If setLabel was previously called, this method has no effect.
-     * This method is usually invoked automatically when this data
-     * sink is attached to a data pipe.
-     */
-    public void setDefaultLabel(String defaultLabel) {
-        if(getLabel() == "") setLabel(defaultLabel);
     }
 
-
-    public void setLabelType(LabelType labelType) {
-        this.labelType = labelType;
-        if(labelType != LabelType.BORDER) panel.setBorder(new javax.swing.border.EmptyBorder(2,2,2,2));
-        if(labelType != LabelType.STRING) panel.remove(jLabel);
-        setLabel(jLabel.getText());
-    }
-    public LabelType getLabelType() {
-        return labelType;
-    }
-
-    public void setLabelPosition(Constants.CompassDirection position) {
-        labelPosition = position;
-        if(labelType != LabelType.STRING) return;
-        panel.remove(jLabel);
-        panel.add(jLabel,position.toString());//toString() returns the corresponding BorderLayout constant
-//        support.firePropertyChange("label",oldLabel,label);
-        panel.revalidate();
-        panel.repaint();
-    }
-    
-    public Constants.CompassDirection getLabelPosition() {return labelPosition;}
     /**
-     * Sets the display text to reflect the desired value from the datasource.
+     *  
+     *  @return int[] : 
      */
-    public void putData(Data data) {
-        double xValue = unit.fromSim(((DataDouble)data).x);
-        if(integerDisplay) {
-            value.setText(Integer.toString((int)xValue));
-        } else {
-            value.setText(format(xValue,precision));
+    public int[] getOrigin() {
+        computeImageParameters();
+        return centralOrigin;
+    }
+ 
+    /**
+     *  
+     *  @return int[] : 
+     */
+    public int[] getDrawSize() {
+        computeImageParameters();
+        return drawSize;
+    }
+
+    /**
+     *  
+     *  @return void 
+     */
+    public void setAlign(int i, int value) {
+        align[i] = value;
+    }
+
+    /**
+     *  
+     *  @return int : 
+     */
+    public int getAlign(int i) {return align[i];}
+
+    /**
+     *  
+     *  @return final boolean : 
+     */
+    public final boolean getDrawOverflow() {return drawOverflow;}
+
+    /**
+     *  
+     *  @return void 
+     */
+    public final void setDrawOverflow(boolean b) {drawOverflow = b;}
+
+    /**
+     *  
+     *  @return double 
+     */
+    public double getToPixels() {return(toPixels);}
+
+    /**
+     *  
+     *  @return void 
+     */
+    public void setScale(double s) {
+        if(s>0) {
+            scale = s;
         }
-        panel.repaint();
+    }
+
+    /**
+     *  
+     *  @return double 
+     */
+    public double getScale() {return scale;}
+
+    /**
+     *  
+     *  @return void
+     */
+    public void addDrawable(Drawable obj) {
+        drawables.add(obj);
+    }
+    /**
+     *  
+     *  @return void
+     */
+    public void removeDrawable(Drawable obj) {
+        drawables.remove(obj);
+    }
+    /**
+     *  
+     *  @return void
+     */
+    public void addDrawable(Object obj) {
+        if(box.getSpace().D() == 3) drawables.add(obj);
+    }
+    /**
+     *  
+     *  @return void
+     */
+    public void removeDrawable(Object obj) {
+        drawables.remove(obj);
     }
     
     /**
-     * Demonstrates how this class is implemented.
+     * @return Box : the box associated with this display
      */
-/*    public static void main(String[] args) {
+    public final Box getBox() {return box;}
 
-   //     etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-   //     Simulation.instance = sim;
-
-        Simulation sim = Simulation.instance;
-	    IntegratorHard integrator = new IntegratorHard();
-	    Species species = new SpeciesSpheres();
-	    species.setNMolecules(25);
-	    Phase phase = new Phase();
-	    Controller controller = new Controller();
-	    Display display = new DisplayPhase();
-	    IntegratorMD.Timer timer = integrator.new Timer(integrator.chronoMeter());
-	    timer.setUpdateInterval(10);
-		
-        Potential2 potential = new P2SquareWell(sim);
- //       Potential2 potential = new P2HardSphere(sim);
-		sim.elementCoordinator.go();
-        Potential2.Agent potentialAgent = (Potential2.Agent)potential.getAgent(phase);
-        potentialAgent.setIterator(new AtomPairIterator(phase));
-
-        //part that is unique to this demonstration
-        Modifier mod1 = new Modifier(integrator, "timeStep");
-        Meter ke = new MeterKineticEnergy();
-        Meter energy = new MeterEnergy();
-        ke.setPhase(phase);
-        DisplayBox box = new DisplayBox();
-        box.setDatumSource(ke);
-        box.setUpdateInterval(10);
-        //DisplayBox showing the current value (default is most recent, but this is zero because meter is inactive (not keeping averages), and thus doesn't hold a most-recent value)
-        DisplayBox box0 = new DisplayBox(energy);
-        box0.setWhichValue(MeterAbstract.CURRENT);
-        box0.setLabelType(DisplayBox.STRING);
-        box0.setLabelPosition(Constants.SOUTH);
-        //here's a DisplayBox tied to a Modifier
-		DisplayBox box1 = new DisplayBox();
-		box1.setDatumSource(mod1);
-        //end of unique part
-                                            
-		Simulation.instance.elementCoordinator.go(); 		                                    
-        Simulation.makeAndDisplayFrame(Simulation.instance);
-    }//end of main  
-    */
-
-    
-    
-    /********** Utility method for formatting a double to a string **************/
-    
     /**
-     * Formats a double with a specified number of digits.
-     * When java converts a <tt>double</tt> to a <tt>String</tt>
-     * it retains the full precision of the number. This can
-     * generate 15 decimal places! This method truncates this output
-     * to some specified number of decimal places.
-     * @param d the double to format
-     * @param precision the number of digits desired
-     * @return returns the formatted string
-     *
-     * Taken from the comphys package of Richard Gonsalves of the
-     * SUNY Buffalo Department of Physics
+     * Specifies the box for this display.  Updates atomIterator appropriately.
+     * @return void
      */
+    public void setBox(Box p) {
 
-    public static String format (double d, int precision) {
+    	Box oldBox = box;
+    	box = p;
+    	if(p == null) {
+            canvas = null;
+            return;
+        }
 
-        if (Double.isNaN(d) || Double.isInfinite(d))
-            return Double.toString(d);
+        int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels() + 1);
+        int boxY = 1;
+
+        switch(box.getSpace().D()) {
+            case 3:
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                boxX *=1.4;
+                boxY *=1.4;
+                //canvas = new DisplayBoxCanvas3DOpenGL(this, boxX, boxY);
+                if(canvas == null) {
+                	canvas = new DisplayBoxCanvasG3DSys(this);
+                    setSize(boxX, boxY);
+                }
+                else {
+                	canvas.stopRotate();
+                    ((DisplayBoxCanvasG3DSys)canvas).removeObjectByBox(oldBox);
+                    ((DisplayBoxCanvasG3DSys)canvas).refreshAtomAgentMgr();
+                }
+                break;
+            case 2:
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels() + 1);
+                canvas = new DisplayBoxCanvas2D(this);
+                setSize(boxX, boxY);
+                break;
+            case 1:
+            default:
+                boxY = drawingHeight;
+                canvas = new DisplayBoxCanvas1D(this);
+                setSize(boxX, boxY);
+                break;
+        }
         
-        StringBuffer buffer = new StringBuffer(20);
-        
-        if (d < 0) {
-            d = -d;
-            buffer.append('-');
+        canvas.setPixelUnit(pixel);
+
+        if (graphicResizable == true) {
+             setSize(boxX, boxY);
         }
 
-        if (d == 0) {
-            buffer.append("0.0");
-            for (int p = 0; p < precision - 1; p++)
-                buffer.append('0');
-            return buffer.toString();
-        }
+        InputEventHandler listener = new InputEventHandler();
+        canvas.addMouseListener(listener);
+        canvas.addMouseMotionListener(listener);
+        canvas.addKeyListener(listener);
 
-        int exponent = 0;
-        while (d >= 10) {
-            ++exponent;
-            d /= 10;
-        }
-        while (d < 1) {
-            --exponent;
-            d *= 10;
-        }
-
-        // original = d * 10^exponent
-        // 1 < d <= 10
-        
-        int p = precision;
-        while (--p > 0)
-            d *= 10;
-        
-        long ld = Math.round(d);
-        char[] digits = new char[precision];
-        p = precision;
-        long ld_div_10 = 0;
-        long ld_save = ld;
-        while (--p >= 0) {
-            ld_div_10 = ld / 10;
-            digits[p] = (char) ('0' + ( ld - (ld_div_10 * 10) ));
-            ld = ld_div_10;
-        }
-    	if (ld_div_10 > 0) {
-    	    ld = ld_save / 10;
-    	    p = precision;
-    	    while (--p >= 0) {
-        		ld_div_10 = ld / 10;
-        		digits[p] = (char) ('0' + ( ld - (ld_div_10 * 10) ));
-        		ld = ld_div_10;
-    	    }
-    	    ++exponent;
-    	}
-
-        int decimalPoint = 0;
-        if (Math.abs(exponent) < precision) {
-            while (exponent > 0) {
-                ++decimalPoint;
-                --exponent;
-            }
-            while (exponent < 0) {
-                --decimalPoint;
-                ++exponent;
-            }
-            // exponent is now 0
-
-            if (decimalPoint < 0) {
-                buffer.append("0.");
-                while (decimalPoint < -1) {
-                    buffer.append("0");
-                    ++decimalPoint;
+        canvas.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+//                    if(DeviceConfigurationEditor.exists) return;
+//                    Device editor = new DeviceConfigurationEditor(DisplayBox.this);
+//                    ((SimulationGraphic)parentSimulation()).panel().add(editor.graphic(null));
+//                    ((SimulationGraphic)parentSimulation()).panel().validate();
+//                    ((SimulationGraphic)parentSimulation()).panel().repaint();
                 }
             }
-        }
-
-        for (p = 0; p < precision; p++) {
-            buffer.append(digits[p]);
-            if (p == decimalPoint)
-                if (p < precision - 1)
-                    buffer.append(".");
-        }
-
-        if (exponent != 0)
-            buffer.append("E" + exponent);
-
-        return buffer.toString();
-
+        });
     }
 
     /**
-     * Typed constant used to indicate the type of label to be used with the display.
+     * 
+     * @return void
      */
-     
-	public static class LabelType extends EnumeratedType {
-        public LabelType(String label) {super(label);}       
-        public static final LabelType BORDER = new LabelType("Border");
-        public static final LabelType STRING = new LabelType("String");
+    public void setBoxCanvas(DisplayCanvas boxCanvas) {
+        canvas = boxCanvas;
+        if (boxCanvas == null) return;
+        if (box == null) throw new IllegalStateException("Cannot set canvas before setting box");
+        
+        int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
+        int boxY = 1;
 
-        public static final LabelType[] choices() { 
-            return new LabelType[] {BORDER,STRING};
+        switch(box.getSpace().D()) {
+            case 3:
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                boxX *=1.4;
+                boxY *=1.4;
+                break;
+            case 2:
+                boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                break;
+            case 1:
+            default:
+                boxY = drawingHeight;
+                break;
+        }
+
+        setSize(boxX, boxY);
+
+
+        InputEventHandler listener = new InputEventHandler();
+        canvas.addMouseListener(listener);
+        canvas.addMouseMotionListener(listener);
+        canvas.addKeyListener(listener);
+        
+        canvas.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                if((evt.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
+//                    if(DeviceConfigurationEditor.exists) return;
+//                    Device editor = new DeviceConfigurationEditor(DisplayBox.this);
+//                    ((SimulationGraphic)parentSimulation()).panel().add(editor.graphic(null));
+//                    ((SimulationGraphic)parentSimulation()).panel().validate();
+//                    ((SimulationGraphic)parentSimulation()).panel().repaint();
+                }
+            }
+        });
+    }
+    
+    /**
+     * Accessor method for the color scheme used for this display
+     * @return void
+     */
+    public void setColorScheme(ColorScheme colorScheme) {
+        this.colorScheme = colorScheme;
+    }
+    /**
+     * Accessor method for the color scheme used for this display
+     * @return ColorScheme
+     */
+    public ColorScheme getColorScheme() {return colorScheme;}
+    
+    /**
+     * Mutator method for the atom filter that determines which atoms 
+     * are displayed.  Atoms for which the filter returns false are not displayed.
+     * Default is AtomFilter.ALL, according to which all atoms are displayed.
+     * @return void
+     */
+    public void setAtomFilter(AtomFilter filter) {
+        atomFilter = (filter == null) ? AtomFilterStatic.ACCEPT_ALL : filter;
+    }
+
+    /**
+     * Accessor method for the atom filter that determines which atoms 
+     * are displayed.  Atoms for which the filter returns false are not displayed.
+     * Default is AtomFilter.ALL, according to which all atoms are displayed.
+     * @return Atomfilter
+     */
+    public AtomFilter getAtomFilter() {return atomFilter;}
+
+    /**
+     *
+     * @return LinkedList
+     */
+    public LinkedList getDrawables() {return(drawables);}
+    
+
+    /** 
+     * Simulation.GraphicalElement interface method.  Overrides Display method
+     * to return the DisplayBox.Canvas as the display object.
+     *
+     * @param obj ignored by this method.
+     * @return Component
+     */
+    public Component graphic(Object obj) {
+        return (Component)canvas;
+    }
+
+    /**
+    * @return int : the current value of imageShells.
+    */
+    public int getImageShells() {return imageShells;}
+     
+    /**
+    * Changes the value of image shells, and increases/decreases scale accordingly.
+    *
+    * @param n the new value of imageShells
+    * @return void
+    */
+    public void setImageShells(int n) {
+        if(n>=0) {
+            scale *= (double)(2*imageShells+1)/(double)(2*n+1);
+            imageShells = n;
         }
     }
     
-}
+/*    public double getFPS() {
+        try {
+            return Default.DISPLAY_USE_OPENGL ? ((DisplayCanvasOpenGL)canvas).getFps() : 0.;
+        }
+        catch(NoClassDefFoundError e) {System.out.println("NoClassDefFoundError in getFPS");}
+        return 0.0;
+    }
+    public boolean getUseFpsSleep() {if(Default.DISPLAY_USE_OPENGL)return(((DisplayCanvasOpenGL)canvas).getUseFpsSleep());return(true);}
+    public boolean getUseRepaint() {if(Default.DISPLAY_USE_OPENGL)return(((DisplayCanvasOpenGL)canvas).getUseRepaint());return(true);}
+    public void setFPS(double fps) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setAnimateFps(fps);}
+    public void setUseFpsSleep(boolean b) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setUseFpsSleep(b);}
+    public void setUseRepaint(boolean b) {if(Default.DISPLAY_USE_OPENGL)((DisplayCanvasOpenGL)canvas).setUseRepaint(b);}
+*/
+    protected void computeImageParameters() {
+        int w = canvas.getSize().width - 2 * originShift[0];
+        int h = canvas.getSize().height - 2 * originShift[1];
+        computeImageParameters2(w, h);
+    }
+
+    /**
+     * @param int w :
+     * @param int h :
+     * @return void
+     */
+    public void computeImageParameters2(int w, int h) {
+        //Compute factor converting simulation units to pixels for this display
+        toPixels = scale*pixel.toPixels();
+        //Determine length and width of drawn image, in pixels
+        drawSize[0] = (int)(toPixels*getBox().getBoundary().getBoundingBox().x(0));
+        drawSize[1] = (box.getSpace().D()==1) ? drawingHeight: (int)(toPixels*getBox().getBoundary().getBoundingBox().x(1));
+        //Find origin for drawing action
+        centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
+        centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
+    }    
+      
+    private int computeOrigin(int alignX, int drawSizeX, int size) {
+        switch(alignX) {
+            case   LEFT: return 0;    //same as TOP
+            case CENTER: return (size-drawSizeX)/2;
+            case  RIGHT: return size-drawSizeX; //same as BOTTOM
+            default: return 0;
+        }
+    }
+
+    /**
+     * Repaint the graphic associated with the display box.
+     * @return void
+     */
+    public void repaint() {
+        if (canvas != null) {
+            canvas.repaint();
+        }
+    }
+      
+    //Methods for handling DisplayBoxEvents
+    
+    /**
+     * @return Pixel : unit for conversion between simulation units and display pixels.
+     */
+    public Pixel getPixelUnit() {
+        return pixel;
+    }
+
+    /**
+     * Sets unit for conversion between simulation units and display pixels.
+     * @param Pixel : 
+     * @return void
+     */
+    public void setPixelUnit(Pixel pixel) {
+        this.pixel = pixel;
+        if(canvas != null) {
+            canvas.setPixelUnit(pixel);
+
+            int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
+            int boxY = 1;
+
+            switch(box.getSpace().D()) {
+                case 3:
+                    boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                    boxX *=1.4;
+                    boxY *=1.4;
+                    break;
+                case 2:
+                    boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
+                    break;
+                case 1:
+                default:
+                    boxY = drawingHeight;
+                    break;
+            }
+            
+            setSize(boxX, boxY);
+
+            computeImageParameters();
+        }
+    }
+    
+    /**
+     * Set the height of the drawing area (only relevant for 1D)
+     * @param int newDrawingHeight :
+     * @return void
+     */
+    public void setDrawingHeight(int newDrawingHeight) {
+        drawingHeight = newDrawingHeight;
+    }
+
+    /**
+     * return int : height of the drawing area (only relevant for 1D)
+     */
+    public int getDrawingHeight() {
+        return drawingHeight;
+    }
+
+    /**
+     * Set the flag indicating if the boundary should be drawn.
+     * @param boolean b : draw boundary flag
+     * @return void
+     */
+    public void setShowBoundary(boolean b) {
+    	displayBoundary = b;
+    }
+
+    /**
+     * Get the flag indicating if the boundary should be drawn.
+     * @return boolean
+     */
+    public boolean getShowBoundary() {
+    	return displayBoundary;
+    }
+
+    /**
+     * Set the flag indicating whether the graphic should resize from its
+     * currently displayed size when a new box is set.
+     * @param boolean b
+     * @return void
+     */
+    public void setResizeOnNewBox(boolean b) {
+    	graphicResizable = b;
+    }
+
+    /**
+     * Get the flag indicating whether the graphic should resize from its
+     * currently displayed size when a new box is set.
+     * @return boolean
+     */
+    public boolean getResizeOnNewBox() {
+    	return graphicResizable;
+    }
+
+    /**
+     * Number of periodic-image shells to be drawn when drawing this box to the
+     * screen.  Default value is 0.
+     *
+     * @see #paint
+     */
+     private int imageShells = 0;
+     
+     private int drawingHeight = 10;
+      
+     private Pixel pixel;
+    
+    /**
+     * Class to listen for and interpret mouse and key events on the configuration display.
+     * Holding the "a" key down while performing a mouse button action causes selection of the nearest
+     * atom to the cursor and firing of a DisplayBoxEvent with this atom.
+     * Pressing of "s", "b", or "o" keys while display has focus invokes actions that affect the display.
+     */
+    private class InputEventHandler implements MouseListener, MouseMotionListener, KeyListener {
+        
+        IVector point;
+        
+        //not yet configured to do molecule selections
+        private boolean atomSelectEnabled = false;
+        private boolean moleculeSelectEnabled = false;
+        private boolean atomSelected = false;
+        private boolean moleculeSelected = false;
+        private boolean rotate = false, zoom = false, translate = false;
+        
+        InputEventHandler() {
+            if(box == null) return;
+            point = box.getSpace().makeVector();
+        }
+        
+        public void mouseClicked(MouseEvent evt) {
+            canvas.requestFocus();
+            //if(parentSimulation().space().D() == 3 && Default.DISPLAY_USE_OPENGL)
+            //((DisplayBoxCanvas3DOpenGL)canvas).start();
+        }
+        public void mouseEntered(MouseEvent evt) {canvas.requestFocus();}
+        public void mouseExited(MouseEvent evt) {canvas.transferFocus();}
+        public void mousePressed(MouseEvent evt) {
+//			System.out.println("mouse press");
+           mouseAction(evt);
+            if(box.getSpace().D() == 3) {
+                canvas.setPrevX(evt.getX());
+                canvas.setPrevY(evt.getY());
+            }
+        }
+        public void mouseReleased(MouseEvent evt) {
+//			System.out.println("mouse release");
+            mouseAction(evt);
+            atomSelected = false;
+            moleculeSelected = false;
+        }
+         public void mouseDragged(MouseEvent evt) {
+//			System.out.println("mouse drag");
+            if(atomSelected || moleculeSelected) mouseAction(evt);
+           float x = evt.getX();
+            float y = evt.getY();
+            
+            if (rotate  && box.getSpace().D() == 3) {
+                float xtheta = (y - canvas.getPrevY()) * (360f / canvas.getSize().height);
+                float ytheta = (x - canvas.getPrevX()) * (360f / canvas.getSize().width);
+                canvas.setXRot(canvas.getXRot()+xtheta);
+                canvas.setYRot(canvas.getYRot()+ytheta);
+            }
+
+            if (translate && box.getSpace().D() == 3) {
+                float xShift = (x - canvas.getPrevX())/-(canvas.getSize().width/canvas.getZoom());
+                float yShift = (canvas.getPrevY() - y)/-(canvas.getSize().height/canvas.getZoom());
+                canvas.setShiftX(xShift+canvas.getShiftX());
+                canvas.setShiftY(yShift+canvas.getShiftY());
+            }                                                   
+
+            if (zoom  && box.getSpace().D() == 3) {
+                float xShift = 1f+(x-canvas.getPrevX())/canvas.getSize().width;
+                float yShift = 1f+(canvas.getPrevY()-y)/canvas.getSize().height;
+                float shift = (xShift+yShift)/2f;
+                shift = shift == 1f ? 0: shift < 1f ? shift: -shift;
+                canvas.setZoom(canvas.getZoom()+shift);
+            }
+            
+            canvas.repaint();
+            if(box.getSpace().D() == 3) {
+                canvas.setPrevX(evt.getX());
+                canvas.setPrevY(evt.getY());
+            }
+            evt.consume();
+        }//end of mouseDragged
+        
+        public void mouseMoved(MouseEvent evt) {}
+        
+        private void mouseAction(MouseEvent evt) {
+            double x = (evt.getX() - centralOrigin[0])/toPixels;
+            double y = (evt.getY() - centralOrigin[1])/toPixels;
+            point.setX(0, x);
+            point.setX(1, y);
+            if(atomSelectEnabled && !atomSelected) {
+                atomSelected = true;
+            }
+            //fire an event if needed
+        }
+        
+        /**
+         * Returns the atom nearest the currently selected point
+         */
+//        private IAtom selectAtom() {
+//            IAtom nearestAtom = null;
+//            double r2Min = Double.MAX_VALUE;
+//            atomIterator.reset();
+//            while(atomIterator.hasNext()) {
+//                AtomLeaf atom = (AtomLeaf)atomIterator.nextAtom();
+//                double r2 = Space.r2(point,atom.getPosition(),getBox().getBoundary());
+//                if(r2 < r2Min) {
+//                    nearestAtom = atom;
+//                    r2Min = r2;
+//                }
+//            }
+//            return nearestAtom;
+//        }
+        
+        /**
+         * Returns the molecule nearest the currently selected point
+         */
+//        private IAtom selectMolecule() {
+            //box.moleculeIterator needs to be defined to implement method
+//            throw new RuntimeException("method DisplayBox.selectMolecule not implemented");
+            
+        /*    Atom nearestMolecule = null;
+            double r2Min = Double.MAX_VALUE;
+            for(AtomIterator iter=box.moleculeIterator; iter.hasNext(); ) {
+                Atom m=iter.next();
+                double r2 = parentSimulation().space().r2(point,m.coord.position(),box().boundary());
+                if(r2 < r2Min) {
+                   nearestMolecule = m;
+                   r2Min = r2;
+                }
+            }
+            return nearestMolecule;*/
+//        }  
+        
+        
+//		public void keyPressed(KeyEvent evt) {
+//			System.out.println("key pressed");
+//			char c = evt.getKeyChar();
+//			if(Character.isDigit(c)) {}
+//			else if(Character.isLetter(c)) {
+//				switch(c) {
+//					case 'a':
+//						atomSelectEnabled = true;
+//						moleculeSelectEnabled = false;
+//						break;
+//					case 'm':
+//						atomSelectEnabled = false;
+//						moleculeSelectEnabled = true;
+//						break;
+//					case 'r':
+//						rotate = true;
+//						zoom = false;
+//						translate = false;
+//						break;
+//					case 'z':
+//						rotate = false;
+//						zoom = true;
+//						translate = false;
+//						break;
+//					case 't':
+//						rotate = false;
+//						zoom = false;
+//						translate = true;
+//						break;
+//				   default:
+//					   break;
+//				}//end switch
+//			}
+//			keyAction(evt);
+//		}
+		public void keyPressed(KeyEvent evt) {
+//			System.out.println("key pressed");
+			char c = evt.getKeyChar();
+			if(Character.isDigit(c)) {}
+			else if(Character.isLetter(c)) {
+				switch(c) {
+					case 'a':
+						atomSelectEnabled = true;
+						moleculeSelectEnabled = false;
+						break;
+					case 'm':
+						atomSelectEnabled = false;
+						moleculeSelectEnabled = true;
+						break;
+					case 'r':
+						rotate = !rotate;
+						zoom = false;
+						translate = false;
+						break;
+					case 'z':
+						rotate = false;
+						zoom = !zoom;
+						translate = false;
+						break;
+					case 't':
+						rotate = false;
+						zoom = false;
+						translate = !translate;
+						break;
+				   default:
+					   break;
+				}//end switch
+			}
+			keyAction(evt);
+		}
+        public void keyReleased(KeyEvent evt) {
+//        	System.out.println("released");
+            atomSelectEnabled = false;
+            moleculeSelectEnabled = false;
+//            rotate = false;
+//            zoom = false;
+//            translate = false;
+            keyAction(evt);
+        }
+        public void keyTyped(KeyEvent evt) {
+            char c = evt.getKeyChar();
+            if(Character.isDigit(c)) {setImageShells(Character.getNumericValue(c));}
+            else if(Character.isLetter(c)) {
+                switch(c) {
+                    case 's':
+                        canvas.setWriteScale(!canvas.getWriteScale());
+                        break;
+                    case 'o':
+                        drawOverflow = !drawOverflow;
+                        break;
+                    case 'b':
+                        canvas.setDrawBoundary(canvas.getDrawBoundary()+1);
+                        break;
+                    case 'q':
+                        canvas.setQuality(canvas.getQuality()+1);
+//                        canvas.setHighQuality(!canvas.getHighQuality());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            keyAction(evt);
+        }
+
+        private void keyAction(KeyEvent evt) {
+            //fire an event if needed
+        }
+            
+    }//end of InputEventHandler
+}//end of DisplayBox

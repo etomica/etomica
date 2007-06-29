@@ -4,7 +4,7 @@ import etomica.space3d.Vector3D;
 /**
  * Basis that helps construct a beta-tin crystal.  
  * 
- * The beta-tin phase of tin has the beta-tin crystal structure, designated 
+ * The beta-tin box of tin has the beta-tin crystal structure, designated 
  * by the Pearson symbol tI4 (ASM Handbook).  The "t" indicates that the structure 
  * belongs to the tetragonal crystal system.  The "I" indicates that the space 
  * lattice, or lattice type, is body-centered (There is an atom at the center 
@@ -31,10 +31,10 @@ import etomica.space3d.Vector3D;
  * center of their faces.
  * 
  * It should be noted that the beta-tin structure is not specific to the element tin.
- * Silicon, germanium and tin have several solid phases, and each experience the 
+ * Silicon, germanium and tin have several solid boxs, and each experience the 
  * diamond-cubic crystal structure and the beta-tin crystal structure (Mujica,
  * Rubio, Munoz, and Needs, 2003). The diamond crystal structure for tin is 
- * often refered to as the alpha-tin phase (gray tin).
+ * often refered to as the alpha-tin box (gray tin).
  * 
  * This class uses the primitive vectors as given in PrimitiveTetragonal.java.
  * 

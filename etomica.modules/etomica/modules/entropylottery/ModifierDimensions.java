@@ -1,15 +1,15 @@
 package etomica.modules.entropylottery;
 
 import etomica.modifier.Modifier;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.units.Dimension;
 import etomica.units.Length;
 
 public class ModifierDimensions implements Modifier {
 
-    public ModifierDimensions(Phase phase) {
-        this.phase = phase;
+    public ModifierDimensions(Box box) {
+        this.box = box;
     }
 
     public Dimension getDimension() {
@@ -21,17 +21,17 @@ public class ModifierDimensions implements Modifier {
     }
 
     public double getValue() {
-        return phase.getBoundary().getDimensions().x(0);
+        return box.getBoundary().getDimensions().x(0);
     }
 
     public void setValue(double newValue) {
         if (newValue <= 0 || newValue > 1000) {
             throw new IllegalArgumentException("Bogus value for dimension");
         }
-        IVector dim = phase.getBoundary().getDimensions();
+        IVector dim = box.getBoundary().getDimensions();
         dim.setX(0, newValue);
-        phase.setDimensions(dim);
+        box.setDimensions(dim);
     }
 
-    private final Phase phase;
+    private final Box box;
 }

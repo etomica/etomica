@@ -34,7 +34,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Harmonic potential at the phase boundaries");
+        EtomicaInfo info = new EtomicaInfo("Harmonic potential at the box boundaries");
         return info;
     }
 

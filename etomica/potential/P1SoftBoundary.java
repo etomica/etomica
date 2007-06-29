@@ -12,7 +12,7 @@ import etomica.units.Length;
 /**
  * @author David Kofke
  *
- * Inverse-power potential between an atom and all four boundaries of the phase.  Potential
+ * Inverse-power potential between an atom and all four boundaries of the box.  Potential
  * is of the form <tt>u(r) = (R/r)^12</tt>, where <tt>R</tt> is the repulsion radius.  This
  * term is summed over all four boundaries.
  */
@@ -33,7 +33,7 @@ public class P1SoftBoundary extends Potential1 implements PotentialSoft {
 	}
     
 	public static EtomicaInfo getEtomicaInfo() {
-		EtomicaInfo info = new EtomicaInfo("PotentialSoft repulsive potential at the phase boundaries");
+		EtomicaInfo info = new EtomicaInfo("PotentialSoft repulsive potential at the box boundaries");
 		return info;
 	}
     

@@ -3,7 +3,7 @@ package etomica.virial;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
@@ -28,7 +28,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
      * Constructor for MCMoveAtomMulti.
      * @param parentIntegrator
      * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * phase should be at least one greater than this value (greater
+     * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
     public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster,
@@ -44,9 +44,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         setName("MCMoveClusterMolecule");
     }
 
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        weightMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        weightMeter.setBox(p);
     }
     
     //note that total energy is calculated
@@ -59,14 +59,14 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
             groupTranslationVector.E(translationVectors[i]);
             moveMoleculeAction.actionPerformed(selectedAtoms[i]);
         }
-        ((PhaseCluster)phase).trialNotify();
+        ((BoxCluster)box).trialNotify();
         uNew = Double.NaN;
         return true;
     }
 	
     protected IAtom[] selectMolecules() {
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
-        if (iterator.size()-1 != nAtoms) throw new IllegalStateException("move should work on number of molecules in phase-1");
+        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
+        if (iterator.size()-1 != nAtoms) throw new IllegalStateException("move should work on number of molecules in box-1");
         iterator.reset();
         int i=0;
         iterator.next();
@@ -83,11 +83,11 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
             groupTranslationVector.TE(-1);
             moveMoleculeAction.actionPerformed(selectedAtoms[i]);
         }
-        ((PhaseCluster)phase).rejectNotify();
+        ((BoxCluster)box).rejectNotify();
     }
 
     public void acceptNotify() {
-        ((PhaseCluster)phase).acceptNotify();
+        ((BoxCluster)box).acceptNotify();
     }
     
     public double getB() {

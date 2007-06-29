@@ -11,7 +11,7 @@ import etomica.lattice.LatticeSumCrystal;
 import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -44,12 +44,12 @@ public class NormalModesPotential implements NormalModes {
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, new RandomNumberGenerator(), nCells);
         
-        Phase phase = new Phase(boundary);
+        Box box = new Box(boundary);
 
         System.out.println("Cell Density: "+nSites/boundary.volume());
         System.out.println("Site Density: "+nSites/boundary.volume()*basis.getScaledCoordinates().length);
         kFactory = new WaveVectorFactorySimple(primitive);
-        kFactory.makeWaveVectors(phase);
+        kFactory.makeWaveVectors(box);
         System.out.println("Number of wave vectors: "+kFactory.getWaveVectors().length);
         
         double sum = 0.0;
@@ -146,14 +146,14 @@ public class NormalModesPotential implements NormalModes {
         this.potential = potential;
     }
 
-    public double[][][] getEigenvectors(Phase phase) {
+    public double[][][] getEigenvectors(Box box) {
         if(needToCalculateModes) {
             calculateModes();
         }
         return eigenvectors;
     }
 
-    public double[][] getOmegaSquared(Phase phase) {
+    public double[][] getOmegaSquared(Box box) {
         if(needToCalculateModes) {
             calculateModes();
         }

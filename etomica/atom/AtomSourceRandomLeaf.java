@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.util.Debug;
 import etomica.util.IRandom;
 
@@ -23,15 +23,15 @@ public class AtomSourceRandomLeaf implements AtomSource, java.io.Serializable {
         return random;
     }
     
-    public void setPhase(Phase p) {
+    public void setBox(Box p) {
         list = p.getSpeciesMaster().getLeafList();
     }
     
     /**
-     * returns a random atom from the phase's leaf atom list
+     * returns a random atom from the box's leaf atom list
      */
     public IAtom getAtom() {
-        if (Debug.ON && list== null) throw new IllegalStateException("must set the phase before calling getAtom");
+        if (Debug.ON && list== null) throw new IllegalStateException("must set the box before calling getAtom");
         return list.getAtom(random.nextInt(list.getAtomCount()));
     }
     

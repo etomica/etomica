@@ -1,7 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
-import etomica.action.PhaseInflate;
-import etomica.action.PhaseInflateDeformable;
+import etomica.action.BoxInflate;
+import etomica.action.BoxInflateDeformable;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -10,8 +10,8 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorPhase;
-import etomica.phase.Phase;
+import etomica.integrator.IntegratorBox;
+import etomica.box.Box;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -43,14 +43,14 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         inflateDimensions = new boolean[space.D()];
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
-        inflater = new PhaseInflate(space);
+        inflater = new BoxInflate(space);
     }
     
-    public MeterPressureByVolumeChange(Space space, PhaseInflateDeformable pid){
+    public MeterPressureByVolumeChange(Space space, BoxInflateDeformable pid){
         this(space, makeDefaultDimensions(space.D()), pid);
     }
     
-    public MeterPressureByVolumeChange(Space space, boolean[] dimensions, PhaseInflateDeformable pid){
+    public MeterPressureByVolumeChange(Space space, boolean[] dimensions, BoxInflateDeformable pid){
         this.space = space;
         tag = new DataTag();
         setX(-0.001, 0.001, 10);
@@ -68,19 +68,19 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     
     /**
      * Sets the integrator associated with this instance.  The pressure is 
-     * calculated for the phase the integrator acts on and the integrator's 
+     * calculated for the box the integrator acts on and the integrator's 
      * temperature is used to calculate the pressure.
      */
-    public void setIntegrator(IntegratorPhase newIntegrator) {
+    public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
     }
     
     /**
      * Returns the integrator associated with this instance.  The pressure is 
-     * calculated for the phase the integrator acts on and the integrator's 
+     * calculated for the box the integrator acts on and the integrator's 
      * temperature is used to calculate the pressure.
      */
-    public IntegratorPhase getIntegrator() {
+    public IntegratorBox getIntegrator() {
         return integrator;
     }
 
@@ -150,10 +150,10 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     
     public Data getData() {
         if (integrator == null) throw new IllegalStateException("must call setIntegrator before using meter");
-        Phase phase = integrator.getPhase();
-        inflater.setPhase(phase);
+        Box box = integrator.getBox();
+        inflater.setBox(box);
         energy.zeroSum();
-        integrator.getPotential().calculate(phase, iteratorDirective, energy);
+        integrator.getPotential().calculate(box, iteratorDirective, energy);
         double uOld = energy.getSum();
         final double[] x = ((DataDoubleArray)xDataSource.getData()).getData();
 
@@ -161,10 +161,10 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
             inflater.setVectorScale(scale[i]);
             inflater.actionPerformed();
             energy.zeroSum();
-            integrator.getPotential().calculate(phase, iteratorDirective, energy);
+            integrator.getPotential().calculate(box, iteratorDirective, energy);
             double uNew = energy.getSum();
             dataArray[i] = Math.exp(-(uNew-uOld)/integrator.getTemperature()
-                              + phase.moleculeCount()*x[i]);
+                              + box.moleculeCount()*x[i]);
             inflater.undo();
         }
         
@@ -177,7 +177,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     private IDataInfo dataInfo;
     private final DataTag tag;
     private double[] dataArray;
-    private final PhaseInflate inflater;
+    private final BoxInflate inflater;
     private IVector[] scale;
     private final boolean[] inflateDimensions;
     private final IteratorDirective iteratorDirective;
@@ -185,5 +185,5 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     private int nDimension;
     private final Space space;
     private DataSourceUniform xDataSource;
-    private IntegratorPhase integrator;
+    private IntegratorBox integrator;
 }

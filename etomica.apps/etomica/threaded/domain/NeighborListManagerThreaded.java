@@ -1,20 +1,20 @@
 package etomica.threaded.domain;
 
 import etomica.nbr.list.NeighborListManager;
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 public class NeighborListManagerThreaded extends NeighborListManager {
 
     public NeighborListManagerThreaded(PotentialMasterListThreaded potentialMasterListThreaded,
-            double range, Phase phase) {
-        super(potentialMasterListThreaded, range, phase);
+            double range, Box box) {
+        super(potentialMasterListThreaded, range, box);
         
     }
 
     
     protected void neighborSetup() {
       
-        NeighborCellManagerThreaded cellManager = ((PotentialMasterListThreaded)potentialMaster).getNbrCellManagerThreaded(phase);
+        NeighborCellManagerThreaded cellManager = ((PotentialMasterListThreaded)potentialMaster).getNbrCellManagerThreaded(box);
         cellManager.assignCellAll();
         super.neighborSetup();
     }

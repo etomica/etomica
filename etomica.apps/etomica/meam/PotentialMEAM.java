@@ -2,7 +2,7 @@ package etomica.meam;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialSoft;
 import etomica.space.IVector;
@@ -302,10 +302,10 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 	}
 
 	/* (non-Javadoc)
-	 * @see etomica.potential.Potential#setPhase(etomica.phase.Phase)
+	 * @see etomica.potential.Potential#setBox(etomica.box.Box)
 	 */
-	public void setPhase(Phase phase) {
-		nearestImageTransformer = phase.getBoundary();
+	public void setBox(Box box) {
+		nearestImageTransformer = box.getBoundary();
 	}
 
 	public double virial(AtomSet atoms) {

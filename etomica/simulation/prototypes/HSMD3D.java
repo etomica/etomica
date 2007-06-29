@@ -1,18 +1,18 @@
 package etomica.simulation.prototypes;
 
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -39,9 +39,9 @@ public class HSMD3D extends Simulation {
 
     private static final long serialVersionUID = 1L;
     /**
-     * The Phase holding the atoms. 
+     * The Box holding the atoms. 
      */
-    public final Phase phase;
+    public final Box box;
     /**
      * The Integrator performing the dynamics.
      */
@@ -102,13 +102,13 @@ public class HSMD3D extends Simulation {
 
         potentialMaster.addPotential(potential,new Species[]{species,species});
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numAtoms);
-        phase.setDensity(params.eta * 6 / Math.PI);
-        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numAtoms);
+        box.setDensity(params.eta * 6 / Math.PI);
+        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
         //deformed
-//        phase.setBoundary(
+//        box.setBoundary(
 //            new etomica.space.BoundaryDeformablePeriodic(
 //            space,getRandom(),
 //            new IVector[]{
@@ -116,19 +116,19 @@ public class HSMD3D extends Simulation {
 //              new Vector3D(2,6,4),
 //              new Vector3D(1,2,6)}));
         //truncated octahedron
-//        phase.setBoundary(
+//        box.setBoundary(
 //            new etomica.space3d.BoundaryTruncatedOctahedron(this));
         
-        integrator.setPhase(phase);
+        integrator.setBox(box);
 
         if (params.useNeighborLists) { 
-            NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(phase);
+            NeighborListManager nbrManager = ((PotentialMasterList)potentialMaster).getNeighborManager(box);
             ((PotentialMasterList)potentialMaster).setRange(sigma*neighborRangeFac);
             integrator.addIntervalAction(nbrManager);
             integrator.addNonintervalListener(nbrManager);
         }
         else {
-            integrator.addIntervalAction(new PhaseImposePbc(phase));
+            integrator.addIntervalAction(new BoxImposePbc(box));
         }
     }
 
@@ -144,15 +144,15 @@ public class HSMD3D extends Simulation {
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
+        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
 
-        nSelector.setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+        nSelector.setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
         simGraphic.add(nSelector);
 
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
-        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
+        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
     }
 

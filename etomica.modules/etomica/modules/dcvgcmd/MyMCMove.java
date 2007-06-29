@@ -4,9 +4,9 @@ import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.util.IRandom;
@@ -23,7 +23,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 * Constructor for MyMCMove.
 	 * @param parent
 	 */
-	public MyMCMove(IntegratorPhase integrator, IRandom random, double zFraction) {
+	public MyMCMove(IntegratorBox integrator, IRandom random, double zFraction) {
 		super(integrator.getPotential(), random);
 		position =  (Vector3D)integrator.getPotential().getSpace().makeVector();
 		setZFraction(zFraction);
@@ -32,9 +32,9 @@ public class MyMCMove extends MCMoveInsertDelete {
         activeAtoms = new AtomArrayList();
 	}
 
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        energyMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        energyMeter.setBox(p);
     }
     
 	/**
@@ -48,13 +48,13 @@ public class MyMCMove extends MCMoveInsertDelete {
 			if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getAtomCount()-1);
 			else testMolecule = moleculeFactory.makeAtom();
             speciesAgent.addChildAtom(testMolecule);
-			position = (Vector3D)phase.getBoundary().randomPosition();
+			position = (Vector3D)box.getBoundary().randomPosition();
 			double z = position.x(2);
             z *= zFraction;
 			if(nearOrigin) {
-                z = (0.5*zFraction-0.5)*phase.getBoundary().getDimensions().x(2) + z;
+                z = (0.5*zFraction-0.5)*box.getBoundary().getDimensions().x(2) + z;
 			} else {
-				z = (0.5-0.5*zFraction)*phase.getBoundary().getDimensions().x(2) - z;
+				z = (0.5-0.5*zFraction)*box.getBoundary().getDimensions().x(2) - z;
 			}
 			position.setX(2,z); //multiply z-coordinate by zFraction
 			atomTranslator.setDestination(position);
@@ -74,8 +74,8 @@ public class MyMCMove extends MCMoveInsertDelete {
 	}//end of doTrial
 
 	public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-		return insert ? zFraction*phase.volume()/(activeAtoms.getAtomCount()+1) 
-					  : activeAtoms.getAtomCount()/zFraction/phase.volume();        
+		return insert ? zFraction*box.volume()/(activeAtoms.getAtomCount()+1) 
+					  : activeAtoms.getAtomCount()/zFraction/box.volume();        
 	}
 
 	public void acceptNotify() {
@@ -93,7 +93,7 @@ public class MyMCMove extends MCMoveInsertDelete {
     
     public void setupActiveAtoms() {
     	activeAtoms.clear();
-    	double zBoundary = phase.getBoundary().getDimensions().x(2);
+    	double zBoundary = box.getBoundary().getDimensions().x(2);
     	double zmin = nearOrigin ? -0.5*zBoundary : 0.5*(1.0-zFraction)*zBoundary;
     	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
         int nMolecules = moleculeList.getAtomCount();
@@ -118,7 +118,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	private final AtomArrayList activeAtoms;
     private AtomSet moleculeList;
 	private final AtomActionRandomizeVelocity randomizer;
-    private final IntegratorPhase integrator;
+    private final IntegratorBox integrator;
     protected int testMoleculeIndex;
 	
 	/**

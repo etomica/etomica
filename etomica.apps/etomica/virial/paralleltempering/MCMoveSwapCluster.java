@@ -7,14 +7,14 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMove;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
-import etomica.virial.PhaseCluster;
+import etomica.virial.BoxCluster;
 
 /**
- * Swaps configurations and pairSet between phases for a virial clustering simulation. 
+ * Swaps configurations and pairSet between boxs for a virial clustering simulation. 
  */
 public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap {
 
@@ -24,28 +24,28 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     private AtomIteratorLeafAtoms iterator2 = new AtomIteratorLeafAtoms();
     private AtomIteratorAllMolecules affectedAtomIterator = new AtomIteratorAllMolecules();
     private IVector r;
-    private PhaseCluster phase1, phase2;
+    private BoxCluster box1, box2;
     private double weightOld1, weightOld2;
     private double weightNew1, weightNew2;
-    private final Phase[] swappedPhases = new Phase[2];
+    private final Box[] swappedBoxs = new Box[2];
 
     public MCMoveSwapCluster(IntegratorMC integrator1, IntegratorMC integrator2) {
         super(null);
-        r = integrator1.getPhase().getSpace().makeVector();
+        r = integrator1.getBox().getSpace().makeVector();
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;		
     }
 
     public boolean doTrial() {
-        if(phase1 == null || phase2 == null) {
-            phase1 = (PhaseCluster)integrator1.getPhase();
-            phase2 = (PhaseCluster)integrator2.getPhase();
-            iterator1.setPhase(phase1);
-            iterator2.setPhase(phase2);
+        if(box1 == null || box2 == null) {
+            box1 = (BoxCluster)integrator1.getBox();
+            box2 = (BoxCluster)integrator2.getBox();
+            iterator1.setBox(box1);
+            iterator2.setBox(box2);
         }
 
-        weightOld1 = phase1.getSampleCluster().value(phase1.getCPairSet(), phase1.getAPairSet());
-        weightOld2 = phase2.getSampleCluster().value(phase2.getCPairSet(), phase2.getAPairSet());
+        weightOld1 = box1.getSampleCluster().value(box1.getCPairSet(), box1.getAPairSet());
+        weightOld2 = box2.getSampleCluster().value(box2.getCPairSet(), box2.getAPairSet());
         
 //        System.out.println("in trial "+integrator2.getWeight()+" "+weightOld2);
 //        System.out.println("in trial "+integrator1.getWeight()+" "+weightOld1);
@@ -63,9 +63,9 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
             a2.getPosition().E(r);
         }
 
-        //assumes energy will be determined using only pairSets in phases
-        phase1.trialNotify();
-        phase2.trialNotify();
+        //assumes energy will be determined using only pairSets in boxs
+        box1.trialNotify();
+        box2.trialNotify();
 		
         weightNew1 = weightNew2 = Double.NaN;
         return true;
@@ -74,20 +74,20 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     public double getB() {return 0.0;}
     
     public double getA() {
-        weightNew1 = phase1.getSampleCluster().value(phase1.getCPairSet(), phase1.getAPairSet());
-        weightNew2 = phase2.getSampleCluster().value(phase2.getCPairSet(), phase2.getAPairSet());
+        weightNew1 = box1.getSampleCluster().value(box1.getCPairSet(), box1.getAPairSet());
+        weightNew2 = box2.getSampleCluster().value(box2.getCPairSet(), box2.getAPairSet());
 //        System.out.println(weightOld1+" "+weightOld2+" "+weightNew1+" "+weightNew2);
         return  (weightNew1 * weightNew2) / (weightOld1 * weightOld2);
     }
 	
     /**
-     * Swaps positions of molecules in two phases.
+     * Swaps positions of molecules in two boxs.
      */
     public void acceptNotify() {
 //        System.out.println("accepted");
 		
-        phase1.acceptNotify();
-        phase2.acceptNotify();
+        box1.acceptNotify();
+        box2.acceptNotify();
     }
 	
     public void rejectNotify() {
@@ -106,28 +106,28 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
             a2.getPosition().E(r);
         }
 
-        phase1.rejectNotify();
-        phase2.rejectNotify();
+        box1.rejectNotify();
+        box2.rejectNotify();
     }
     
-    public double energyChange(Phase phase) {
-        if(phase == phase1) return weightNew1/weightOld1;
-        if(phase == phase2) return weightNew2/weightOld2;
+    public double energyChange(Box box) {
+        if(box == box1) return weightNew1/weightOld1;
+        if(box == box2) return weightNew2/weightOld2;
         return 0.0;
     }
 
     /**
      * Implementation of MCMoveSwap interface
      */
-    public Phase[] swappedPhases() {
-        swappedPhases[0] = phase1;
-        swappedPhases[1] = phase2;
-        return swappedPhases;
+    public Box[] swappedBoxs() {
+        swappedBoxs[0] = box1;
+        swappedBoxs[1] = box2;
+        return swappedBoxs;
     }
 
-    public AtomIterator affectedAtoms(Phase p) {
-        if(p == phase1 || p == phase2) {
-            affectedAtomIterator.setPhase(p);
+    public AtomIterator affectedAtoms(Box p) {
+        if(p == box1 || p == box2) {
+            affectedAtomIterator.setBox(p);
             affectedAtomIterator.reset();
             return affectedAtomIterator;
         }
@@ -137,7 +137,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     public final static SwapFactory FACTORY = new SwapFactory();
     
     protected static class SwapFactory implements IntegratorPT.MCMoveSwapFactory, java.io.Serializable {
-        public MCMove makeMCMoveSwap(IntegratorPhase integrator1, IntegratorPhase integrator2) {
+        public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2) {
             return new MCMoveSwapCluster((IntegratorMC)integrator1, (IntegratorMC)integrator2);
         }
         private static final long serialVersionUID = 1L;

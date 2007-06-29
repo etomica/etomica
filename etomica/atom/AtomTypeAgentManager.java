@@ -15,7 +15,7 @@ import etomica.util.Arrays;
 
 /**
  * AtomTypeAgentManager acts on behalf of client classes (an AgentSource) to 
- * manage agents in every AtomType in a phase.  When species are added or 
+ * manage agents in every AtomType in a box.  When species are added or 
  * removed from the simulation, the agents array (indexed by the AtomType's 
  * global index) is updated.  The client should call getAgents() at any point 
  * where an atom might have have been added to the system because the old array
@@ -143,7 +143,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      * releases its agents.
      */
     public void dispose() {
-        // remove ourselves as a listener to the old phase
+        // remove ourselves as a listener to the old box
         simEventManager.removeListener(this);
         AtomTypeSpeciesAgent[] speciesAgentTypes = speciesManager.getSpeciesAgentTypes();
         for (int i=0; i<speciesAgentTypes.length; i++) {

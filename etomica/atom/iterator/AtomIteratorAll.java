@@ -7,12 +7,12 @@ import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 
 /**
- * Iterator for all the molecules of a set of species in a phase.  Each iterate
- * is all the molecules in a phase, with each Atom as the first atom in the 
+ * Iterator for all the molecules of a set of species in a box.  Each iterate
+ * is all the molecules in a box, with each Atom as the first atom in the 
  * set. This class is used by PotentialMaster to iterate over molecules for 
  * N-body potentials.
  * 
@@ -31,13 +31,13 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
     }
 
     /**
-     * Sets the phase containing the molecules for iteration. A null
-     * phase conditions iterator to give no iterates.
+     * Sets the box containing the molecules for iteration. A null
+     * box conditions iterator to give no iterates.
      */
-    public void setPhase(Phase newPhase) {
-        phase = newPhase;
-        if (phase == null) {
-            throw new NullPointerException("Null phase");
+    public void setBox(Box newBox) {
+        box = newBox;
+        if (box == null) {
+            throw new NullPointerException("Null box");
         }
     }
 
@@ -60,7 +60,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         AtomArrayList arrayList = next.getArrayList();
         arrayList.clear();
         for (int i=0; i<species.length; i++) {
-            ISpeciesAgent speciesAgent = phase.getAgent(species[i]);
+            ISpeciesAgent speciesAgent = box.getAgent(species[i]);
             arrayList.addAll(speciesAgent.getChildList());
         }
         nextCursor = 0;
@@ -109,7 +109,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
 
     private static final long serialVersionUID = 1L;
     private final Species[] species;
-    private Phase phase;
+    private Box box;
     private int nextCursor;
     private final AtomsetArrayList next;
 }

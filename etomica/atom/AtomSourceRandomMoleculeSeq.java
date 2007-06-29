@@ -1,11 +1,11 @@
 package etomica.atom;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
 
-    public void setPhase(Phase p) {
-        super.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
         atomManager = p.getSpeciesMaster();
         agentList = atomManager.getAgentList();
         reset();
@@ -17,7 +17,7 @@ public class AtomSourceRandomMoleculeSeq extends AtomSourceRandomMolecule {
         if (prevIndex == -1 || prevIndex > moleculeCount-1) {
             // no suitable previous atom to step forward from the beginning
             reset();
-            // no atoms in the phase
+            // no atoms in the box
             if (prevIndex == -1) return null;
         }
         int lookAhead = random.nextInt(maxLookAhead+1);

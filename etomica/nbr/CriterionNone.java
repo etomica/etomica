@@ -2,14 +2,14 @@ package etomica.nbr;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 public final class CriterionNone implements NeighborCriterion, java.io.Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
      * Always returns false, indicating that neighbor list never needs updating.
-     * This is appropriate if atoms are never added to or removed from phase,
+     * This is appropriate if atoms are never added to or removed from box,
      * because all atoms are always on neighbor list.
      */
     public boolean needUpdate(IAtom atom) {return false;}
@@ -17,7 +17,7 @@ public final class CriterionNone implements NeighborCriterion, java.io.Serializa
     /**
      * Performs no action.
      */
-    public void setPhase(Phase phase) {}
+    public void setBox(Box box) {}
 
     /**
      * Always returns false, indicating that neighbor list never needs updating.

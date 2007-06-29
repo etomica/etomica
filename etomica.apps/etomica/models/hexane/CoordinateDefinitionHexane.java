@@ -7,7 +7,7 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
@@ -36,9 +36,9 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     private AtomSet childlist;
     
     
-    public CoordinateDefinitionHexane(Phase phase, Primitive primitive, 
+    public CoordinateDefinitionHexane(Box box, Primitive primitive, 
             SpeciesHexane species){
-        super(phase, primitive, 6);
+        super(box, primitive, 6);
 
         //TODO patched the orientation in the previous line
         
@@ -62,8 +62,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         temp = new Vector3D();
         axial = new Vector3D();
         
-        rotor = phase.getSpace().makeTensor();
-        confHex = new ConformationHexane(phase.getSpace());
+        rotor = box.getSpace().makeTensor();
+        confHex = new ConformationHexane(box.getSpace());
         
     }
 

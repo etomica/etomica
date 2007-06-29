@@ -4,7 +4,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Undefined;
@@ -29,12 +29,12 @@ public class MeterSpin extends DataSourceScalar implements DataSource {
     }
 
     /* (non-Javadoc)
-     * @see etomica.data.meter.MeterScalar#getDataAsScalar(etomica.Phase)
+     * @see etomica.data.meter.MeterScalar#getDataAsScalar(etomica.Box)
      */
     public double getDataAsScalar() {
         sum.E(0.0);
         int count = 0;
-        iterator.setPhase(phase);
+        iterator.setBox(box);
         iterator.reset();
         for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom(); atom != null;
              atom = (IAtomPositioned)iterator.nextAtom()) {
@@ -45,20 +45,20 @@ public class MeterSpin extends DataSourceScalar implements DataSource {
     }
 
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private Phase phase;
+    private Box box;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private final IVector sum;
 }

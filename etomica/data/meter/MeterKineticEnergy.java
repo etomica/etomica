@@ -4,21 +4,21 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.units.Energy;
 
 /**
- * Meter for the total kinetic energy in a phase
- * Computes total KE by summing values of KE returned by every atom in the phase.
- * A different phase-dependent atom integrator may be set to permit calculation
- * over a particular set of atoms in the phase.
+ * Meter for the total kinetic energy in a box
+ * Computes total KE by summing values of KE returned by every atom in the box.
+ * A different box-dependent atom integrator may be set to permit calculation
+ * over a particular set of atoms in the box.
  */
  
 public class MeterKineticEnergy extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
-    private AtomIteratorPhaseDependent iterator;
+    private AtomIteratorBoxDependent iterator;
     
     public MeterKineticEnergy() {
         super("Kinetic Energy",Energy.DIMENSION);
@@ -26,7 +26,7 @@ public class MeterKineticEnergy extends DataSourceScalar {
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total kinetic energy of molecular motion in a phase");
+        EtomicaInfo info = new EtomicaInfo("Total kinetic energy of molecular motion in a box");
         return info;
     }
 
@@ -34,29 +34,29 @@ public class MeterKineticEnergy extends DataSourceScalar {
      * Returns the iterator that defines the atoms summed for their
      * kinetic energy.
      */
-	public AtomIteratorPhaseDependent getIterator() {
+	public AtomIteratorBoxDependent getIterator() {
 		return iterator;
 	}
 	
 	/**
 	 * Sets the iterator that defines the atoms which are summed for
 	 * their total kinetic energy.  Default is a leaf-atom iterator,
-	 * giving all leaf atoms in the phase.
+	 * giving all leaf atoms in the box.
 	 * @param iterator
 	 */
-	public void setIterator(AtomIteratorPhaseDependent iterator) {
+	public void setIterator(AtomIteratorBoxDependent iterator) {
 		this.iterator = iterator;
 	}
 	
 	/**
 	 * Returns the total kinetic energy summed over all atoms produced by
-	 * the iterator when applied to the given phase.  Does not include contributions
+	 * the iterator when applied to the given box.  Does not include contributions
      * from atoms having infinite mass (it assumes they are stationary).
 	 */
     public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+        if (box == null) throw new IllegalStateException("must call setBox before using meter");
         double ke = 0.0;
-        iterator.setPhase(phase);
+        iterator.setBox(box);
         iterator.reset();
         for (IAtomKinetic atom = (IAtomKinetic)iterator.nextAtom(); atom != null;
              atom = (IAtomKinetic)iterator.nextAtom()) {
@@ -68,17 +68,17 @@ public class MeterKineticEnergy extends DataSourceScalar {
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
-    private Phase phase;
+    private Box box;
  }

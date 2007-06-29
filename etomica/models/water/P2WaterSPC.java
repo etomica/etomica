@@ -2,7 +2,7 @@
 package etomica.models.water;
 
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -24,8 +24,8 @@ public class P2WaterSPC extends Potential2 {
 		setCharges();
 	}   
 
-    public void setPhase(Phase phase) {
-        boundary = phase.getBoundary();
+    public void setBox(Box box) {
+        boundary = box.getBoundary();
     }
 
     public double energy(AtomSet pair){

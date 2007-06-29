@@ -5,10 +5,10 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomManager;
 import etomica.atom.AtomSet;
 import etomica.atom.ISpeciesAgent;
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.IndexIteratorRectangular;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformablePeriodic;
@@ -114,13 +114,13 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     
     public static SimulationGraphic makeDisplay(BoundaryDeformablePeriodicTest test) {
         Simulation sim = new Simulation(test.space);
-        Phase phase = new Phase(test.boundary);
-        sim.addPhase(phase);
+        Box box = new Box(test.boundary);
+        sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
-        phase.getAgent(species).setNMolecules(3);
+        box.getAgent(species).setNMolecules(3);
         SimulationGraphic simGraphic = new SimulationGraphic(sim);
-        DisplayPhase display = new DisplayPhase(phase, new Pixel());
+        DisplayBox display = new DisplayBox(box, new Pixel());
         simGraphic.add(display);
         simGraphic.makeAndDisplayFrame();
         return simGraphic;
@@ -142,12 +142,12 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
         BoundaryDeformablePeriodicTest test = new BoundaryDeformablePeriodicTest();
         test.simGraphic = makeDisplay(test);
         test.sim = test.simGraphic.getSimulation();
-        AtomManager atomManager = test.sim.getPhases()[0].getSpeciesMaster();
+        AtomManager atomManager = test.sim.getBoxs()[0].getSpeciesMaster();
         AtomSet list = ((ISpeciesAgent)atomManager.getAgentList().getAtom(0)).getChildList();
         test.atom0 = (AtomLeaf)list.getAtom(0);
         test.atom1 = (AtomLeaf)list.getAtom(1);
         test.atom2 = (AtomLeaf)list.getAtom(2);
-        test.display = ((DisplayPhase)test.simGraphic.displayList().getFirst());
+        test.display = ((DisplayBox)test.simGraphic.displayList().getFirst());
         test.interactive = true;
         test.testNearestImage();
     }
@@ -160,7 +160,7 @@ public class BoundaryDeformablePeriodicTest extends TestCase {
     IVector[] edgeVectors;
     ISimulation sim;
     SimulationGraphic simGraphic;
-    DisplayPhase display;
+    DisplayBox display;
     AtomLeaf atom0, atom1, atom2;
     private boolean interactive = false;
 }

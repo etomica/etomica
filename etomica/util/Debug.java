@@ -5,8 +5,8 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
-import etomica.atom.iterator.AtomIteratorTreePhase;
-import etomica.phase.Phase;
+import etomica.atom.iterator.AtomIteratorTreeBox;
+import etomica.box.Box;
 
 /**
  * Class holding static fields that determine whether debugging is on, how
@@ -75,7 +75,7 @@ public final class Debug {
     public static final int MOLECULE2_INDEX = -1;
     
     /**
-     * index of phase of interest.  -1 indicates no particular phase.
+     * index of box of interest.  -1 indicates no particular box.
      */
     public static final int PHASE_INDEX = 0;
     
@@ -86,7 +86,7 @@ public final class Debug {
     
 	/**
 	 * determines whether any of the atoms in the given array are set to be debugged
-	 * (via ATOMx_NUM and setAtoms(phase)).
+	 * (via ATOMx_NUM and setAtoms(box)).
 	 * @param atoms array of atoms to be checked for debugging status
 	 * @return true if any of the atoms in the atoms array should be debugged
 	 */
@@ -108,7 +108,7 @@ public final class Debug {
 
 	/**
 	 * determines if all of the atoms in the given array are set to be debugged
-	 * (via ATOMx_NUM and setAtoms(phase)).
+	 * (via ATOMx_NUM and setAtoms(box)).
 	 * @param atoms array of atoms to be checked for debugging status
 	 * @return true if all of the atoms in the atoms array should be debugged
 	 */
@@ -129,24 +129,24 @@ public final class Debug {
 	}
 
     /**
-     * Checks whether the given phase is of debugging interest
-     * @param checkPhase phase to be checked
-     * @return true if the phase is of interest
+     * Checks whether the given box is of debugging interest
+     * @param checkBox box to be checked
+     * @return true if the box is of interest
      */
-    public static boolean thisPhase(Phase checkPhase) {
-         return checkPhase.getIndex() == PHASE_INDEX;
+    public static boolean thisBox(Box checkBox) {
+         return checkBox.getIndex() == PHASE_INDEX;
     }
     
     /**
      * Returns an AtomPair containing the two atoms with global indices
-     * ATOM1_INDEX and ATOM2_INDEX within the given phase.  The atom in
-     * the AtomPair will be null if the phase does not contain an Atom 
+     * ATOM1_INDEX and ATOM2_INDEX within the given box.  The atom in
+     * the AtomPair will be null if the box does not contain an Atom 
      * with the proper global index.
      */
-    public static AtomPair getAtoms(Phase phase) {
+    public static AtomPair getAtoms(Box box) {
         AtomPair pair = new AtomPair();
         if (ATOM1_INDEX > -1 || ATOM2_INDEX > -1) {
-            AtomIteratorTreePhase iterator = new AtomIteratorTreePhase(phase,Integer.MAX_VALUE,true);
+            AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(box,Integer.MAX_VALUE,true);
             iterator.reset();
             for (IAtom atom = iterator.nextAtom(); atom != null;
                  atom = iterator.nextAtom()) {

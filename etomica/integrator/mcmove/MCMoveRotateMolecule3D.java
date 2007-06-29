@@ -7,14 +7,14 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.RotationTensor;
 import etomica.util.IRandom;
 
 
-public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
+public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     
     private static final long serialVersionUID = 2L;
     private final MeterPotentialEnergy energyMeter;
@@ -58,7 +58,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
     public boolean doTrial() {
 //        System.out.println("doTrial MCMoveRotateMolecule called");
         
-        if(phase.moleculeCount()==0) {molecule = null; return false;}
+        if(box.moleculeCount()==0) {molecule = null; return false;}
             
         molecule = (IAtomGroup)moleculeSource.getAtom();
         energyMeter.setTarget(molecule);
@@ -84,7 +84,7 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
              a = (IAtomPositioned)leafAtomIterator.nextAtom()) {
             IVector r = a.getPosition();
             r.ME(r0);
-            phase.getBoundary().nearestImage(r);
+            box.getBoundary().nearestImage(r);
             rotationTensor.transform(r);
             r.PE(r0);
         }
@@ -120,11 +120,11 @@ public class MCMoveRotateMolecule3D extends MCMovePhaseStep {
 
 
     /* (non-Javadoc)
-     * @see etomica.integrator.MCMove#setPhase(etomica.Phase[])
+     * @see etomica.integrator.MCMove#setBox(etomica.Box[])
      */
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        energyMeter.setPhase(p);
-        moleculeSource.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        energyMeter.setBox(p);
+        moleculeSource.setBox(p);
     }
 }

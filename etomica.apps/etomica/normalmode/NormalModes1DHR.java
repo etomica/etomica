@@ -1,6 +1,6 @@
 package etomica.normalmode;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
  * Normal-mode quantities for a 1-dimensional system of hard rods.  Frequencies are defined
@@ -12,12 +12,12 @@ public class NormalModes1DHR implements NormalModes {
         harmonicFudge = 1;
     }
     
-    public double[][] getOmegaSquared(Phase phase) {
-        if(phase.getSpace().D() != 1) {
-            throw new RuntimeException("Must give a phase for a 1D system"); 
+    public double[][] getOmegaSquared(Box box) {
+        if(box.getSpace().D() != 1) {
+            throw new RuntimeException("Must give a box for a 1D system"); 
         }
-        int nA = phase.moleculeCount();
-        double L = phase.getBoundary().getDimensions().x(0);
+        int nA = box.moleculeCount();
+        double L = box.getBoundary().getDimensions().x(0);
         int mMax = nA/2;
         double[][] omega2= new double[mMax+1][1];
         omega2[0][0] = Double.POSITIVE_INFINITY;
@@ -27,11 +27,11 @@ public class NormalModes1DHR implements NormalModes {
         return omega2;
     }
 
-    public double[][][] getEigenvectors(Phase phase) {
-        if(phase.getSpace().D() != 1) {
-            throw new RuntimeException("Must give a phase for a 1D system"); 
+    public double[][][] getEigenvectors(Box box) {
+        if(box.getSpace().D() != 1) {
+            throw new RuntimeException("Must give a box for a 1D system"); 
         }
-        int nA = phase.moleculeCount();
+        int nA = box.moleculeCount();
         int mMax = nA/2;
         double[][][] eVecs = new double[mMax+1][1][1];
         for(int m=0; m<=mMax; m++) {

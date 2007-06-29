@@ -1,5 +1,5 @@
 package etomica.simulation.prototypes;
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.config.ConfigurationLattice;
@@ -7,7 +7,7 @@ import etomica.data.DataSourceCountSteps;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -27,7 +27,7 @@ public class HsMc2d extends Simulation {
     public IntegratorMC integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species, species2;
-    public Phase phase;
+    public Box box;
     public P2HardSphere potential;
     public Controller controller;
     public DataSourceCountSteps meterCycles;
@@ -43,26 +43,26 @@ public class HsMc2d extends Simulation {
         species2 = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         getSpeciesManager().addSpecies(species2);
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(20);
-        phase.getAgent(species2).setNMolecules(20);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(20);
+        box.getAgent(species2).setNMolecules(20);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
 	    potential = new P2HardSphere(space);
         potentialMaster.addPotential(potential, new Species[] {species, species});
         potentialMaster.addPotential(potential, new Species[] {species, species2});
         potentialMaster.addPotential(potential, new Species[] {species2, species2});
 	    meterCycles = new DataSourceCountSteps(integrator);
 
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.addIntervalAction(new PhaseImposePbc(phase));
+        integrator.addIntervalAction(new BoxImposePbc(box));
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);
 	    
 //		elementCoordinator.go();
-//	    etomica.lattice.BravaisLattice lattice = ((IteratorFactoryCell)this.getIteratorFactory()).getLattice(phase);
+//	    etomica.lattice.BravaisLattice lattice = ((IteratorFactoryCell)this.getIteratorFactory()).getLattice(box);
 //        colorSchemeCell.setLattice(lattice);
     }
     

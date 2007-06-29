@@ -34,7 +34,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         int nAtoms = 11;
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {nAtoms},2,new int[] {nAtoms},null,null);
-        ISpeciesAgent agent = sim.getPhases()[0].getAgent(sim.getSpeciesManager().getSpecies()[0]);
+        ISpeciesAgent agent = sim.getBoxs()[0].getAgent(sim.getSpeciesManager().getSpecies()[0]);
         AtomArrayList atomList = new AtomArrayList();
         atomList.addAll(agent.getChildList());
 

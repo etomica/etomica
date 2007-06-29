@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.junit.UnitTestUtil;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 
 /**
@@ -31,29 +31,29 @@ public class AtomIteratorLeafAtomsTest extends IteratorTestAbstract {
         //test new iterator gives no iterates
         testNoIterates(iterator);
         
-        Phase[] phase = sim.getPhases();
+        Box[] box = sim.getBoxs();
         int[][] moleculeCount = new int[3][];
-        for(int i=0; i<phase.length; i++) {
+        for(int i=0; i<box.length; i++) {
             moleculeCount[i] = new int[] {n0[i], n1[i], n2[i]};
         }
 
         /**
-         * For each phase, check iterate atoms against full atom list, check count,
+         * For each box, check iterate atoms against full atom list, check count,
          * and for each species check count.  Check that full list is given again
          * when species is set to null
          */
-        for (int i = 0; i < phase.length; i++) {
-            iterator.setPhase(phase[i]);
+        for (int i = 0; i < box.length; i++) {
+            iterator.setBox(box[i]);
             int count = nA0 * n0[i] + n1[i] + n2[i] * n2Tree[0] * n2Tree[1];
-            LinkedList list = testIterates(iterator, ((AtomArrayList)phase[i].getSpeciesMaster().getLeafList()).toArray());
-            assertEquals(list.size(), phase[i].atomCount());
+            LinkedList list = testIterates(iterator, ((AtomArrayList)box[i].getSpeciesMaster().getLeafList()).toArray());
+            assertEquals(list.size(), box[i].atomCount());
             assertEquals(list.size(), count);
         }
 
-        //test null phase throws an exception
+        //test null box throws an exception
         boolean exceptionThrown = false;
         try {
-            iterator.setPhase(null);
+            iterator.setBox(null);
         }
         catch (RuntimeException e) {
             exceptionThrown = true;

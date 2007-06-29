@@ -17,12 +17,12 @@
 <body bgcolor="white">
 
 Provides interfaces and classes that define elementary actions that can be performed
-on simulation elements. Examples include classes that move an atom, or that change the density of a phase.
+on simulation elements. Examples include classes that move an atom, or that change the density of a box.
 This package defines the {@link etomica.action.Action Action} interface. This interface includes the <tt>actionPerformed</tt>
 method, which a class implements to define its action.
 <p>
 Interfaces extending Action define actions for different <i>etomica</i> elements, such as
-Phase, Atom, and so on.  Atomset actions are expected as arguments
+Box, Atom, and so on.  Atomset actions are expected as arguments
 to the allAtoms methods of {@link etomica.atom.iterator atom iterators}.
 <p>
 {@link etomica.action.Activity Activity} implements Action and is an abstract class appropriate

@@ -4,7 +4,7 @@ import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P1Harmonic;
 import etomica.units.Energy;
 
@@ -34,17 +34,17 @@ public class MeterFreeEnergy extends DataSourceScalar implements DataSource {
         return Math.exp(-sum);
     }
     
-    public void setPhase(Phase phase) {
-        iterator.setPhase(phase);
-        this.phase = phase;
+    public void setBox(Box box) {
+        iterator.setBox(box);
+        this.box = box;
     }
     
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
 
     private static final long serialVersionUID = 1L;
     AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    Phase phase;
+    Box box;
     P1Harmonic reference, target;
 }

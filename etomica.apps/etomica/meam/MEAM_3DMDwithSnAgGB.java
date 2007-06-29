@@ -16,8 +16,8 @@ import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
@@ -29,7 +29,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
@@ -77,10 +77,10 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 //    public SpeciesSpheresMono snB;
     public SpeciesSpheresMono agB;
 //    public SpeciesSpheresMono cuB;
-    public Phase phase;
+    public Box box;
     public PotentialMEAM potentialN;
     public Controller controller;
-    public DisplayPhase display;
+    public DisplayBox display;
     public DisplayPlot plot;
     public MeterEnergy energy;
     public ActivityIntegrate activityIntegrate;
@@ -92,8 +92,8 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	
-    	energyMeter.setPhase(sim.phase);
-    	kineticMeter.setPhase(sim.phase);
+    	energyMeter.setBox(sim.box);
+    	kineticMeter.setBox(sim.box);
         
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -136,11 +136,11 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);
         
-    	DisplayBox cvBoxPE = new DisplayBox();
+    	DisplayTextBox cvBoxPE = new DisplayTextBox();
     	dataProcessorPE.setDataSink(cvBoxPE);
     	cvBoxPE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
     	cvBoxPE.setLabel("PE Cv contrib.");
-    	DisplayBox cvBoxKE = new DisplayBox();
+    	DisplayTextBox cvBoxKE = new DisplayTextBox();
     	dataProcessorKE.setDataSink(cvBoxKE);
     	cvBoxKE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
     	cvBoxKE.setLabel("KE Cv contrib.");
@@ -150,9 +150,9 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     	simgraphic.getPanel().plotPanel.add(cvBoxPE.graphic(), SimulationPanel.getVertGBC());
     	simgraphic.getPanel().plotPanel.add(cvBoxKE.graphic(), SimulationPanel.getVertGBC());
 
-    	simgraphic.getController().getReinitButton().setPostAction(simgraphic.getDisplayPhasePaintAction(sim.phase));
+    	simgraphic.getController().getReinitButton().setPostAction(simgraphic.getDisplayBoxPaintAction(sim.box));
 
-    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simgraphic.displayList().getFirst()).getColorScheme());
+    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simgraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.snFixedA.getMoleculeType(),java.awt.Color.white);
     	colorScheme.setColor(sim.snA.getMoleculeType(),java.awt.Color.white);
 //    	colorScheme.setColor(sim.agA.getMoleculeType(),java.awt.Color.gray);
@@ -168,8 +168,8 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
     	//sim.getController().run();
     	//DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
         //double PE = ((DataDouble)data.getData(AccumulatorAverage.StatType.AVERAGE.index)).x
-                    // /sim.species.getAgent(sim.phase).getNMolecules();  // kmb changed 8/3/05
-        //double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.phase).getNMolecules();  // orig line
+                    // /sim.species.getAgent(sim.box).getNMolecules();  // kmb changed 8/3/05
+        //double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.box).getNMolecules();  // orig line
         //System.out.println("PE(eV)="+ElectronVolt.UNIT.fromSim(PE));
     }
     
@@ -214,19 +214,19 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         nAImpurity = 0; nAVacancy = 0;
         nBImpurity = 0; nBVacancy = 0;
         
-        phase = new Phase(new BoundaryRectangularSlit(this, 2));
-        addPhase(phase);
+        box = new Box(new BoundaryRectangularSlit(this, 2));
+        addBox(box);
         
-        // beta-Sn phase
+        // beta-Sn box
         
         //The dimensions of the simulation box must be proportional to those of
         //the unit cell to prevent distortion of the lattice.  The values for the 
-        //lattice parameters for tin's beta phase (a = 5.8314 angstroms, c = 3.1815 
+        //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815 
         //angstroms) are taken from the ASM Handbook. 
         aA = bA = 5.796; cA = 3.1815; basisA = 4;
         PrimitiveTetragonal primitiveA = new PrimitiveTetragonal(space, aA, cA);
         //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
-        //phase.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
+        //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
         //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         BravaisLatticeCrystal latticeA = new BravaisLatticeCrystal(primitiveA, new BasisBetaSnA5());
         
@@ -234,7 +234,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 	    PrimitiveCubic primitiveB = new PrimitiveCubic(space, aB);
 	    BravaisLatticeCrystal latticeB = new BravaisLatticeCrystal(primitiveB, new BasisCubicFcc());
         
-        phase.setDimensions(new Vector3D(aA*nCellsAx, aA*nCellsAy, (cA*nCellsAz)+(cB*nCellsBz)));
+        box.setDimensions(new Vector3D(aA*nCellsAx, aA*nCellsAy, (cA*nCellsAz)+(cB*nCellsBz)));
 		
 	    nA = (nCellsAx * nCellsAy * nCellsAz) * basisA;
 	    nAFixed = (nCellsAx * nCellsAy * 2) * basisA;
@@ -243,14 +243,14 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 	    nBFixed = (nCellsBx * nCellsBy * 2) * basisB;
 	    nBMobile = nB - nBFixed - nBImpurity - nBVacancy;
 	        
-	    snFixedA.getAgent(phase).setNMolecules(nAFixed);
-	    snA.getAgent(phase).setNMolecules(nAMobile);
-//	    agA.getAgent(phase).setNMolecules(0);
-//	    cuA.getAgent(phase).setNMolecules(0);
-	    agFixedB.getAgent(phase).setNMolecules(nBFixed);
-//	    snB.getAgent(phase).setNMolecules(0);
-	    agB.getAgent(phase).setNMolecules(nBMobile);
-//	    cuB.getAgent(phase).setNMolecules(0);
+	    snFixedA.getAgent(box).setNMolecules(nAFixed);
+	    snA.getAgent(box).setNMolecules(nAMobile);
+//	    agA.getAgent(box).setNMolecules(0);
+//	    cuA.getAgent(box).setNMolecules(0);
+	    agFixedB.getAgent(box).setNMolecules(nBFixed);
+//	    snB.getAgent(box).setNMolecules(0);
+	    agB.getAgent(box).setNMolecules(nBMobile);
+//	    cuB.getAgent(box).setNMolecules(0);
 	    
 	        
 	    /** The following values come from either the ASM Handbook or Cullity & Stock's 
@@ -276,7 +276,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
 	    GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB);
 	    config.setDimensions(nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy, 
 	    		nCellsBz, aA, bA, cA, aB, bB, cB);
-	    config.initializeCoordinates(phase);
+	    config.initializeCoordinates(box);
         
 		potentialN = new PotentialMEAM(space);
 		potentialN.setParameters(snFixedA, ParameterSetMEAM.Sn);
@@ -295,14 +295,14 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         this.potentialMaster.addPotential(potentialN, new Species[]{snFixedA, snA, agFixedB, agB});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
-        integrator.addNonintervalListener(potentialMaster.getNeighborManager(phase));
-        integrator.addIntervalAction(potentialMaster.getNeighborManager(phase));
+        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
         
-        integrator.setPhase(phase);
+        integrator.setBox(box);
 		
         // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
         //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
-        //coordWriter.setPhase(phase);
+        //coordWriter.setBox(box);
         //coordWriter.setIntegrator(integrator);
         //coordWriter.setWriteInterval(100);
         

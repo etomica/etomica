@@ -8,7 +8,7 @@ import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.simulation.ISimulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.units.Kelvin;
@@ -28,7 +28,7 @@ public class DeviceThermoSelector extends Device {
     /**
      * Constructor that specifies Kelvin as temperature units.
      */
-     public DeviceThermoSelector(ISimulation sim, final IntegratorPhase integrator) {
+     public DeviceThermoSelector(ISimulation sim, final IntegratorBox integrator) {
         this(sim.getController(), Kelvin.UNIT, false);
         setController(controller);
         setIntegrator(integrator);
@@ -82,7 +82,7 @@ public class DeviceThermoSelector extends Device {
         doAction(targetAction);
     }
 
-    public void setIntegrator(final IntegratorPhase integrator) {
+    public void setIntegrator(final IntegratorBox integrator) {
         targetAction = new Action() {
             public void actionPerformed() {
                 if(integrator == null) return;
@@ -179,12 +179,12 @@ public class DeviceThermoSelector extends Device {
         LinkedList displays = graphic.displayList();
         for(Iterator iter=displays.iterator(); iter.hasNext();) {
             Display next = (Display)iter.next();
-            if(next instanceof DisplayPhase) {
-                ((DisplayPhase)next).setColorScheme(new ColorSchemeTemperature(0.5, 5.0));
+            if(next instanceof DisplayBox) {
+                ((DisplayBox)next).setColorScheme(new ColorSchemeTemperature(0.5, 5.0));
             }
         }
 
-        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
+        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
 
         graphic.makeAndDisplayFrame(APP_NAME);
     }//end of main

@@ -3,7 +3,7 @@ package etomica.modules.crystalviewer;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.BravaisLattice;
@@ -20,7 +20,7 @@ import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveTriclinic;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
@@ -37,11 +37,11 @@ public class CrystalViewer extends SimulationPanel {
     private JPanel mainPanel;
 
     protected SpeciesSpheresMono species;
-    protected Phase phase;
+    protected Box box;
     protected IVector center;
     protected LatticePlane latticePlane;
     protected ClipPlaneEditor clipPlaneEditor;
-    protected DisplayPhase displayPhase;
+    protected DisplayBox displayBox;
     protected LatticeEditor latticeEditor;
 
 
@@ -70,22 +70,22 @@ public class CrystalViewer extends SimulationPanel {
 
         double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
         
-        phase  = new Phase(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
+        box  = new Box(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
         		                                         (etomica.util.IRandom)null,
         		                                         boxSize));
-        sim.addPhase(phase);
+        sim.addBox(box);
 
         String[] latticeNames = new String[]{
                 "Simple Cubic", "Tetragonal", "Hexagonal", "Orthorhombic", "Monoclinic", "Triclinic", "FCC", "BCC", "HCP", "Diamond"};
 
-        displayPhase = new DisplayPhase(phase);
-        displayPhase.setPixelUnit(new Pixel(20));
-        displayPhase.setResizeOnNewPhase(false);
+        displayBox = new DisplayBox(box);
+        displayBox.setPixelUnit(new Pixel(20));
+        displayBox.setResizeOnNewBox(false);
 
         // we pass these to make LatticePlane happy.  they'll get whacked by update() later
         latticePlane = new LatticePlane(lattices[0].getPrimitive(), new int[] {1,0,0});
         
-        clipPlaneEditor = new ClipPlaneEditor(latticePlane, displayPhase);
+        clipPlaneEditor = new ClipPlaneEditor(latticePlane, displayBox);
         
         latticeEditor = new LatticeEditor(this, lattices, latticeNames);
         
@@ -94,15 +94,15 @@ public class CrystalViewer extends SimulationPanel {
         controlTabs.add("Plane", clipPlaneEditor.getPanel());
 
         controlPanel.add(controlTabs);
-        graphicsPanel.add(displayPhase.graphic());
+        graphicsPanel.add(displayBox.graphic());
         toolbar.addContributor("Colin Tedlock");
     }
 
     public void update(BravaisLattice currentLattice) {
         latticePlane.setPrimitive(currentLattice.getPrimitive());
-        displayPhase.setLabel(currentLattice.toString());
+        displayBox.setLabel(currentLattice.toString());
         clipPlaneEditor.update();
-        displayPhase.repaint();
+        displayBox.repaint();
     }    
     
     public static class Applet extends javax.swing.JApplet {

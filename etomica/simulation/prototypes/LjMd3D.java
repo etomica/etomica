@@ -1,6 +1,6 @@
 package etomica.simulation.prototypes;
 
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeSphere;
@@ -8,11 +8,11 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.graphics.DisplayBoxesCAE;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -29,7 +29,7 @@ public class LjMd3D extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
-    public Phase phase;
+    public Box box;
     public P2LennardJones potential;
     public Controller controller;
     public MeterPotentialEnergy energy;
@@ -41,12 +41,12 @@ public class LjMd3D extends Simulation {
     	final LjMd3D sim = new LjMd3D();
     	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 
-        DisplayBoxesCAE display = new DisplayBoxesCAE();
+        DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
         display.setAccumulator(sim.avgEnergy);
         simGraphic.add(display);
     }
@@ -63,21 +63,21 @@ public class LjMd3D extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(50);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(50);
         potential = new P2LennardJones(space, sigma, 1.0);
         potentialMaster.addPotential(potential,new Species[]{species,species});
         
-        integrator.setPhase(phase);
-        PhaseImposePbc imposepbc = new PhaseImposePbc();
-        imposepbc.setPhase(phase);
+        integrator.setBox(box);
+        BoxImposePbc imposepbc = new BoxImposePbc();
+        imposepbc.setBox(box);
         integrator.addIntervalAction(imposepbc);
 		
         ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
-        configuration.initializeCoordinates(phase);
+        configuration.initializeCoordinates(box);
         energy = new MeterPotentialEnergy(potentialMaster);
-        energy.setPhase(phase);
+        energy.setBox(box);
         avgEnergy = new AccumulatorAverage(200);
         avgEnergy.setPushInterval(10);
         pump = new DataPump(energy, avgEnergy);
@@ -92,10 +92,10 @@ public class LjMd3D extends Simulation {
             LjMd3D sim= new LjMd3D();
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3);
 
-            simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
+            simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(sim.pump);
 
-            DisplayBoxesCAE display = new DisplayBoxesCAE();
+            DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();
             display.setAccumulator(sim.avgEnergy);
             simGraphic.add(display);
             getContentPane().add(simGraphic.getPanel());

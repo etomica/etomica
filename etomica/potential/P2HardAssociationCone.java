@@ -1,7 +1,7 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.ICoordinateAngular;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
@@ -186,7 +186,7 @@ public class P2HardAssociationCone extends Potential2 {
     }
     public Dimension getThetaDimension() {return Angle.DIMENSION;}
 
-    public void setPhase(Phase phase) {
-        nearestImageTransformer = phase.getBoundary();
+    public void setBox(Box box) {
+        nearestImageTransformer = box.getBoundary();
     }
 }

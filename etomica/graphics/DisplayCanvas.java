@@ -10,14 +10,14 @@ import etomica.units.Pixel;
  * Much of the class is involved with defining event handling methods to permit display 
  * to be moved or resized; in the future these functions will be handled instead using awt component functions.
  * 
- * @see DisplayPhase.Canvas
+ * @see DisplayBox.Canvas
  */
 public abstract class DisplayCanvas extends javax.swing.JPanel implements DisplayCanvasInterface {
 
     protected Image offScreen;
     protected Graphics osg;
             
-    protected DisplayPhase displayPhase;
+    protected DisplayBox displayBox;
 
     /**
     * Variable specifying whether a line tracing the boundary of the display should be drawn

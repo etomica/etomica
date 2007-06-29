@@ -4,18 +4,18 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 
 /**
- * Iterator for the molecules of a single species in a phase.  Can be targeted to
+ * Iterator for the molecules of a single species in a box.  Can be targeted to
  * give the molecule containing a specific atom (if consistent with the species),
- * or all molecules of the species in a phase.<br>
+ * or all molecules of the species in a box.<br>
  * This class is used by PotentialMaster to iterate over molecules for single-body
  * potentials.
  */
 public class AtomIteratorMolecule extends AtomIteratorAdapter implements
-        AtomsetIteratorPDT, AtomIteratorPhaseDependent {
+        AtomsetIteratorPDT, AtomIteratorBoxDependent {
 
     /**
      * @param species species for which molecules are returned as iterates. Only
@@ -28,12 +28,12 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     }
 
     /**
-     * Sets the phase containing the molecules for iteration. A null
-     * phase conditions iterator to give no iterates.
-     * @throws a NullPointerException if the Phase is null
+     * Sets the box containing the molecules for iteration. A null
+     * box conditions iterator to give no iterates.
+     * @throws a NullPointerException if the Box is null
      */
-    public void setPhase(Phase phase) {
-        speciesAgent = phase.getAgent(species);
+    public void setBox(Box box) {
+        speciesAgent = box.getAgent(species);
     }
     
     public void reset() {
@@ -46,7 +46,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * the given target atom.  Only the first element of the array is relevant.
      * If argument is null, of zero length, or if targetAtom[0] is null, then
      * no target atom is specified and all molecules of the species in the
-     * phase will be given on iteration.
+     * box will be given on iteration.
      * 
      * @throws NullPointerException
      *          if targetAtom is null
@@ -66,7 +66,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
 
     /**
      * Configures the list iterator with a list appropriate to the specified
-     * phase and target.
+     * box and target.
      */
     private void setList() {
         if(targetAtom == null) {

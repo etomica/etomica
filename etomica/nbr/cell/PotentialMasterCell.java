@@ -3,8 +3,8 @@ package etomica.nbr.cell;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomType;
 import etomica.nbr.site.PotentialMasterSite;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.simulation.ISimulation;
@@ -38,16 +38,16 @@ public class PotentialMasterCell extends PotentialMasterSite {
 
     public PotentialMasterCell(ISimulation sim, double range,
             AtomPositionDefinition positionDefinition) {
-        this(sim, range, new PhaseAgentSourceCellManager(positionDefinition));
+        this(sim, range, new BoxAgentSourceCellManager(positionDefinition));
     }
     
-    public PotentialMasterCell(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource) {
-        this(sim, range, phaseAgentSource, new PhaseAgentManager(phaseAgentSource));
+    public PotentialMasterCell(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource) {
+        this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource));
     }
     
-    public PotentialMasterCell(ISimulation sim, double range, PhaseAgentSourceCellManager phaseAgentSource,
-            PhaseAgentManager agentManager) {
-        super(sim, phaseAgentSource, agentManager, new Api1ACell(sim.getSpace().D(),range,agentManager));
+    public PotentialMasterCell(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
+            BoxAgentManager agentManager) {
+        super(sim, boxAgentSource, agentManager, new Api1ACell(sim.getSpace().D(),range,agentManager));
     }
     
     public double getRange() {
@@ -64,7 +64,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
     public void setCellRange(int d) {
         super.setCellRange(d);
 
-        PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
@@ -74,10 +74,10 @@ public class PotentialMasterCell extends PotentialMasterSite {
     
     public void setRange(double d) {
         ((Api1ACell)neighborIterator).getNbrCellIterator().setNeighborDistance(d);
-        ((PhaseAgentSourceCellManager)phaseAgentSource).setRange(d);
+        ((BoxAgentSourceCellManager)boxAgentSource).setRange(d);
         range = d;
 
-        PhaseAgentManager.AgentIterator iterator = phaseAgentManager.makeIterator();
+        BoxAgentManager.AgentIterator iterator = boxAgentManager.makeIterator();
         iterator.reset();
         while (iterator.hasNext()) {
             NeighborCellManager cellManager = (NeighborCellManager)iterator.next();
@@ -86,8 +86,8 @@ public class PotentialMasterCell extends PotentialMasterSite {
         
     }
     
-    public NeighborCellManager getNbrCellManager(Phase phase) {
-        NeighborCellManager manager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
+    public NeighborCellManager getNbrCellManager(Box box) {
+        NeighborCellManager manager = (NeighborCellManager)boxAgentManager.getAgent(box);
         manager.setPotentialRange(range);
         manager.setCellRange(getCellRange());
         return manager;

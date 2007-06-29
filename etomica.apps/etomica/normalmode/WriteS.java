@@ -93,7 +93,7 @@ public class WriteS implements Action {
         NormalModeEigenGetter.doit(thisFilename);
 
         BasisCell[] cells = meterNormalMode.getCoordinateDefinition().getBasisCells();
-        CalcHarmonicA.doit(thisFilename, meterNormalMode.getPhase().getSpace().D(), 1.0, temperature, cells[0].molecules.getAtomCount(), cells.length);
+        CalcHarmonicA.doit(thisFilename, meterNormalMode.getBox().getSpace().D(), 1.0, temperature, cells[0].molecules.getAtomCount(), cells.length);
     }
 
     protected MeterNormalMode meterNormalMode;

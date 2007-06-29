@@ -5,30 +5,30 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSpeciesAgent;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 
 
  /**
   * A Species holds information about how to construct a molecule, and
-  * provides for the management of molecules in a phase.
+  * provides for the management of molecules in a box.
   * 
   * These are the important features of a Species: <br>
   * <ol>
   * <li>It holds an AtomFactory instance that constructs molecules when
   * needed.
-  * <li>It makes a SpeciesAgent class that is placed in each phase (each
-  * phase has one species agent from each species). This agent manages the
-  * molecules of that species in that phase (counting, adding, removing,
-  * etc.) The agent for a given phase may be obtained through the getAgent
+  * <li>It makes a SpeciesAgent class that is placed in each box (each
+  * box has one species agent from each species). This agent manages the
+  * molecules of that species in that box (counting, adding, removing,
+  * etc.) The agent for a given box may be obtained through the getAgent
   * method. <br>
   * <li>Each Species has a unique species index assigned when it is
   * constructed. The index assignment begins at 1 and is incremented after
   * each Species construction. This index is useful when collecting things
   * in reference to the species (for example, in the use of neighbor lists).
   * </ol>
-  * The number of molecules of a species in a phase may be changed at run
-  * time. Interactions among all molecules in a phase are defined by
+  * The number of molecules of a species in a box may be changed at run
+  * time. Interactions among all molecules in a box are defined by
   * associating an intermolecular potential to one or more Species via a
   * call to the addPotential method of the PotentialMaster for the simulation.
   * 
@@ -76,13 +76,13 @@ public class Species implements java.io.Serializable {
     }
 
     /**
-     * Returns the agent of this species in the given phase
-     * Hashmap is used to connect phase(key)-agent(value) pairs
+     * Returns the agent of this species in the given box
+     * Hashmap is used to connect box(key)-agent(value) pairs
      * 
-     * @param p The phase for which this species' agent is requested
-     * @return The agent of this species in the phase
+     * @param p The box for which this species' agent is requested
+     * @return The agent of this species in the box
      */
-    public final ISpeciesAgent getAgent(Phase p) {return p.getAgent(this);}
+    public final ISpeciesAgent getAgent(Box p) {return p.getAgent(this);}
 
     public final AtomType getMoleculeType() {
         return factory.getType();

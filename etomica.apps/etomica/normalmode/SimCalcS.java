@@ -10,7 +10,7 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -35,9 +35,9 @@ public class SimCalcS extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numAtoms);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numAtoms);
 
         integrator = new IntegratorHard(potentialMaster, random, 0.04, 1.0);
 
@@ -67,12 +67,12 @@ public class SimCalcS extends Simulation {
             bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
             basis = new BasisCubicFcc();
         }
-        phase.setBoundary(bdry);
+        box.setBoundary(bdry);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive, basis);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
         
-        integrator.setPhase(phase);
+        integrator.setBox(box);
     }
 
     /**
@@ -130,7 +130,7 @@ public class SimCalcS extends Simulation {
             waveVectorFactory = new WaveVectorFactorySimple(primitive);
         }
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-        meterNormalMode.setPhase(sim.phase);
+        meterNormalMode.setBox(sim.box);
 
         sim.integrator.addIntervalAction(meterNormalMode);
         sim.integrator.setActionInterval(meterNormalMode, 2);
@@ -142,7 +142,7 @@ public class SimCalcS extends Simulation {
         // IntervalActionAdapter comAdapter = new
         // IntervalActionAdapter(comPump);
         // sim.integrator.addListener(comAdapter);
-        // meterCOM.setPhase(sim.phase);
+        // meterCOM.setBox(sim.box);
 
         // start simulation
         int nSteps = (int) (simTime / sim.integrator.getTimeStep());
@@ -167,7 +167,7 @@ public class SimCalcS extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMD integrator;
     public ActivityIntegrate activityIntegrate;
-    public Phase phase;
+    public Box box;
     public Boundary bdry;
     public Primitive primitive;
     public CoordinateDefinition coordinateDefinition;

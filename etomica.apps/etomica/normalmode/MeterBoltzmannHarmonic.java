@@ -22,7 +22,7 @@ public class MeterBoltzmannHarmonic implements DataSource {
     public MeterBoltzmannHarmonic(MCMoveHarmonic mcMoveHarmonic, PotentialMaster potentialMaster) {
         this.mcMoveHarmonic = mcMoveHarmonic;
         meterEnergy = new MeterPotentialEnergy(potentialMaster);
-        meterEnergy.setPhase(mcMoveHarmonic.getPhase());
+        meterEnergy.setBox(mcMoveHarmonic.getBox());
         data = new DataDoubleArray(2);
         dataInfo = new DataInfoDoubleArray("Scaled Harmonic and hard sphere Energies", Null.DIMENSION, new int[]{2});
         // AccumulatorVirialOverlapSingleAverage expects the first data value to

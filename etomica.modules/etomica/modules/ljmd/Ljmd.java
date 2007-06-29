@@ -1,11 +1,11 @@
 package etomica.modules.ljmd;
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
@@ -21,7 +21,7 @@ public class Ljmd extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public SpeciesSpheresMono species;
-    public Phase phase;
+    public Box box;
     public IntegratorVelocityVerlet integrator;
     public ActivityIntegrate activityIntegrate;
     
@@ -52,17 +52,17 @@ public class Ljmd extends Simulation {
         P2SoftSphericalTruncated p2Truncated = new P2SoftSphericalTruncated(potential,2.5);
 	    potentialMaster.addPotential(p2Truncated, new Species[]{species, species});
 	    
-        //construct phase
-	    phase = new Phase(this);
-        addPhase(phase);
+        //construct box
+	    box = new Box(this);
+        addBox(box);
         IVector dim = space.makeVector();
         dim.E(14);
-        phase.setDimensions(dim);
-        phase.getAgent(species).setNMolecules(N);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
-        integrator.setPhase(phase);
+        box.setDimensions(dim);
+        box.getAgent(species).setNMolecules(N);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
+        integrator.setBox(box);
 		
-        PhaseImposePbc imposePBC = new PhaseImposePbc(phase);
+        BoxImposePbc imposePBC = new BoxImposePbc(box);
         integrator.addIntervalAction(imposePBC);
         
     }//end of constructor    

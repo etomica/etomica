@@ -7,7 +7,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
@@ -57,11 +57,11 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
     }
 
 	
-    public void setPhase(Phase p) {
-        if (phase != null) {
+    public void setBox(Box p) {
+        if (box != null) {
             agentManager.dispose();
         }
-        super.setPhase(p);
+        super.setBox(p);
         agentManager = new AtomLeafAgentManager(this,p);
         forceSum.setAgentManager(agentManager);
     }
@@ -82,21 +82,21 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
   	public void doStepInternal() {
         super.doStepInternal();
 
-        double dim = phase.getSpace().D();  //get the dimension
+        double dim = box.getSpace().D();  //get the dimension
 
   	    //Compute forces on each atom
   	    forceSum.reset();
-  	    potential.calculate(phase, allAtoms, forceSum);
+  	    potential.calculate(box, allAtoms, forceSum);
 
   	    //MoveA
         //Advance velocities from T-Dt/2 to T without constraint
         double Free=0.0;
         //degrees of freedom
-        Free=((phase.moleculeCount()-1)*dim); 
+        Free=((box.moleculeCount()-1)*dim); 
 
         double k=0.0;
         double chi;
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -143,12 +143,12 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
     }
     
     public final Object makeAgent(IAtom a) {
-        return new Agent(phase.getSpace());
+        return new Agent(box.getSpace());
     }
     
     public void releaseAgent(Object agent, IAtom atom) {}
             
-	public final static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
+	public final static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVector force;
 
         public Agent(Space space) {

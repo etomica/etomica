@@ -4,11 +4,11 @@ import etomica.action.AtomsetAction;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
  * Adapater class that wraps three atomPair iterators, one suitable for
- * iterating over all molecule pairs in a phase (AA), another suitable for
+ * iterating over all molecule pairs in a box (AA), another suitable for
  * iterating over all molecule pairs formed with a target molecule (1A), and the
  * third suitable for iterating over a single molecule pair (11). Appropriate
  * iterator is selected based on argument given to setTarget method. If
@@ -26,9 +26,9 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
      * @param api1A
      *            iterator for all pairs formed with a target molecule
      * @param apiAA
-     *            iterator for all pairs in the phase
+     *            iterator for all pairs in the box
      */
-    public ApiMolecule(AtomsetIteratorPDT api1A, AtomsetIteratorPhaseDependent apiAA) {
+    public ApiMolecule(AtomsetIteratorPDT api1A, AtomsetIteratorBoxDependent apiAA) {
         this.api1A = api1A;
         this.apiAA = apiAA;
         setTarget(null);
@@ -55,12 +55,12 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
     }
 
     /**
-     * Specifies the phase from which iterates are taken.
+     * Specifies the box from which iterates are taken.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        if (phase == null) {
-            throw new NullPointerException("Null Phase");
+    public void setBox(Box box) {
+        this.box = box;
+        if (box == null) {
+            throw new NullPointerException("Null Box");
         }
     }
 
@@ -77,7 +77,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
      * Readies iterator for iteration.
      */
     public void reset() {
-        ((AtomsetIteratorPhaseDependent)iterator).setPhase(phase);
+        ((AtomsetIteratorBoxDependent)iterator).setBox(box);
         iterator.reset();
     }
 
@@ -110,7 +110,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
      * clobbers iteration state.
      */
     public int size() {
-        ((AtomIteratorPhaseDependent)iterator).setPhase(phase);
+        ((AtomIteratorBoxDependent)iterator).setBox(box);
         return iterator.size();
     }
 
@@ -131,14 +131,14 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
     /**
      * Returns the AA iterator set at construction.
      */
-    public AtomsetIteratorPhaseDependent getApiAA() {
+    public AtomsetIteratorBoxDependent getApiAA() {
         return apiAA;
     }
     
     private static final long serialVersionUID = 1L;
     private AtomsetIterator iterator;
     private final AtomsetIteratorPDT api1A;
-    private final AtomsetIteratorPhaseDependent apiAA;
-    private Phase phase;
+    private final AtomsetIteratorBoxDependent apiAA;
+    private Box box;
 
 }

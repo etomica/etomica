@@ -2,7 +2,7 @@ package etomica.integrator.mcmove;
 
 import java.io.Serializable;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.util.IRandom;
 
 public class MCMoveManager implements Serializable {
@@ -38,10 +38,10 @@ public class MCMoveManager implements Serializable {
     /**
      * Adds the given MCMove to the set of moves performed by the integrator and
      * recalculates move frequencies.  If the MCMoveManager has been given a 
-     * Phase, the MCMove added here must be of type MCMovePhase.
+     * Box, the MCMove added here must be of type MCMoveBox.
      * 
-     * @throws ClassCastException if this MCMoveManager has a Phase and the
-     * given MCMove is not an MCMovePhase
+     * @throws ClassCastException if this MCMoveManager has a Box and the
+     * given MCMove is not an MCMoveBox
      */
     public void addMCMove(MCMove move) {
         //make sure move wasn't added already
@@ -56,8 +56,8 @@ public class MCMoveManager implements Serializable {
             lastMoveLink.nextLink = new MCMoveLinker(move);
             lastMoveLink = lastMoveLink.nextLink;
         }
-        if (phase != null) {
-            ((MCMovePhase)move).setPhase(phase);
+        if (box != null) {
+            ((MCMoveBox)move).setBox(box);
         }
         moveCount++;
         recomputeMoveFrequencies();
@@ -88,23 +88,23 @@ public class MCMoveManager implements Serializable {
     }
 
     /**
-     * Invokes superclass method and informs all MCMoves about the new phase.
-     * The moves are assumed to all be of type MCMovePhase.
+     * Invokes superclass method and informs all MCMoves about the new box.
+     * The moves are assumed to all be of type MCMoveBox.
      * 
-     * @throws ClassCastException if any move is not an MCMovePhase
+     * @throws ClassCastException if any move is not an MCMoveBox
      */
-    public void setPhase(Phase p) {
-        phase = p;
+    public void setBox(Box p) {
+        box = p;
         for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
-            ((MCMovePhase)link.move).setPhase(phase);
+            ((MCMoveBox)link.move).setBox(box);
         }
     }
 
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
 
     /**
@@ -150,7 +150,7 @@ public class MCMoveManager implements Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private Phase phase;
+    private Box box;
     private MCMoveLinker firstMoveLink, lastMoveLink;
     private MCMoveLinker selectedLink;
     private int frequencyTotal;
@@ -172,18 +172,18 @@ public class MCMoveManager implements Serializable {
         MCMoveLinker(MCMove move) {
             this.move = move;
             frequency = move.getNominalFrequency();
-            perParticleFrequency = (move instanceof MCMovePhase) && ((MCMovePhase)move).isNominallyPerParticleFrequency();
+            perParticleFrequency = (move instanceof MCMoveBox) && ((MCMoveBox)move).isNominallyPerParticleFrequency();
         }
 
         /**
          * Updates the full frequency based on the current value of the
          * frequency, the status of the perParticleFrequency flag, and the
-         * current number of molecules in the phases affected by the move.
+         * current number of molecules in the boxs affected by the move.
          */
         void resetFullFrequency() {
             fullFrequency = frequency;
-            if (perParticleFrequency && ((MCMovePhase)move).getPhase() != null) {
-                fullFrequency *= ((MCMovePhase)move).getPhase().moleculeCount();
+            if (perParticleFrequency && ((MCMoveBox)move).getBox() != null) {
+                fullFrequency *= ((MCMoveBox)move).getBox().moleculeCount();
             }
         }
 

@@ -21,8 +21,8 @@ public class CellLattice extends RectangularLattice {
      *            dimensions at any time are given by the array passed here, so
      *            any changes to the array external to this class will result in
      *            a change in the dimensions of this lattice (this is useful in
-     *            resizing the lattice to the dimensions of a phase,
-     *            by giving a reference to phase.boundary().dimension() here).
+     *            resizing the lattice to the dimensions of a box,
+     *            by giving a reference to box.boundary().dimension() here).
      *            The dimensions array reference is final and cannot be changed .
      *            The lattice dimension D is given by dimensions.length.
      * @param siteFactory

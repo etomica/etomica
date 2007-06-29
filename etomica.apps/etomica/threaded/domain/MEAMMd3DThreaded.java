@@ -18,8 +18,8 @@ import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -31,7 +31,7 @@ import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -75,11 +75,11 @@ public class MEAMMd3DThreaded extends Simulation {
     public SpeciesSpheresMono sn;
     public SpeciesSpheresMono ag;
     public SpeciesSpheresMono cu;
-    public Phase phase;
+    public Box box;
     public PotentialMEAM[] potentialN;
     public PotentialThreaded potentialThreaded;
     public Controller controller;
-    public DisplayPhase display;
+    public DisplayBox display;
     public DisplayPlot plot;
     public MeterEnergy energy;
     public ActivityIntegrate activityIntegrate;
@@ -93,8 +93,8 @@ public class MEAMMd3DThreaded extends Simulation {
     	MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
     	MeterKineticEnergy kineticMeter = new MeterKineticEnergy();
     	
-    	energyMeter.setPhase(sim.phase);
-    	kineticMeter.setPhase(sim.phase);
+    	energyMeter.setBox(sim.box);
+    	kineticMeter.setBox(sim.box);
         
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
@@ -139,11 +139,11 @@ public class MEAMMd3DThreaded extends Simulation {
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);
 
-    	DisplayBox cvBoxPE = new DisplayBox();
+    	DisplayTextBox cvBoxPE = new DisplayTextBox();
     	dataProcessorPE.setDataSink(cvBoxPE);
     	cvBoxPE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
     	cvBoxPE.setLabel("PE Cv contrib.");
-    	DisplayBox cvBoxKE = new DisplayBox();
+    	DisplayTextBox cvBoxKE = new DisplayTextBox();
     	dataProcessorKE.setDataSink(cvBoxKE);
     	cvBoxKE.setUnit(new CompoundUnit(new Unit[]{Joule.UNIT, Kelvin.UNIT, Mole.UNIT}, new double []{1,-1,-1}));
     	cvBoxKE.setLabel("KE Cv contrib.");
@@ -154,8 +154,8 @@ public class MEAMMd3DThreaded extends Simulation {
     	simGraphic.add(cvBoxKE);
     	simGraphic.add(cvBoxPE);
 
-    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(sim.phase));
-    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
+    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
+    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);
     	colorScheme.setColor(sim.ag.getMoleculeType(),java.awt.Color.gray);
     	colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.orange);
@@ -166,8 +166,8 @@ public class MEAMMd3DThreaded extends Simulation {
     	//sim.getController().run();
     	//DataGroup data = (DataGroup)energyAccumulator.getData(); // kmb change type to Data instead of double[]
         //double PE = ((DataDouble)data.getData(AccumulatorAverage.StatType.AVERAGE.index)).x
-                    // /sim.species.getAgent(sim.phase).getNMolecules();  // kmb changed 8/3/05
-        //double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.phase).getNMolecules();  // orig line
+                    // /sim.species.getAgent(sim.box).getNMolecules();  // kmb changed 8/3/05
+        //double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.box).getNMolecules();  // orig line
         //System.out.println("PE(eV)="+ElectronVolt.UNIT.fromSim(PE));
     }
     
@@ -200,22 +200,22 @@ public class MEAMMd3DThreaded extends Simulation {
         ((AtomTypeSphere)cu.getMoleculeType()).setDiameter(2.5561); 
         
         
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(sn).setNMolecules(0);
-        phase.getAgent(ag).setNMolecules(numAtoms);
-        phase.getAgent(cu).setNMolecules(0);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(sn).setNMolecules(0);
+        box.getAgent(ag).setNMolecules(numAtoms);
+        box.getAgent(cu).setNMolecules(0);
         
-        // beta-Sn phase
+        // beta-Sn box
         /**
         //The dimensions of the simulation box must be proportional to those of
         //the unit cell to prevent distortion of the lattice.  The values for the 
-        //lattice parameters for tin's beta phase (a = 5.8314 angstroms, c = 3.1815 
+        //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815 
         //angstroms) are taken from the ASM Handbook. 
-        phase.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
+        box.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
-        //phase.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
+        //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
         //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
         LatticeCrystal crystal = new LatticeCrystal(new Crystal(
         		primitive, new BasisBetaSnA5(primitive)));
@@ -223,7 +223,7 @@ public class MEAMMd3DThreaded extends Simulation {
 		
         //FCC Cu
 		/**
-	    phase.setDimensions(new Vector3D(3.6148*4, 3.6148*4, 3.6148*4));
+	    box.setDimensions(new Vector3D(3.6148*4, 3.6148*4, 3.6148*4));
 	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
 	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
 		        primitive, new BasisCubicFcc(primitive)));
@@ -231,13 +231,13 @@ public class MEAMMd3DThreaded extends Simulation {
         
         //FCC Ag
         
-	    phase.setDimensions(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
+	    box.setDimensions(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
 	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
 	    BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
 	    
            
 		Configuration config = new ConfigurationLattice(crystal);
-		config.initializeCoordinates(phase);
+		config.initializeCoordinates(box);
         
         
         
@@ -257,20 +257,20 @@ public class MEAMMd3DThreaded extends Simulation {
        
         potentialMaster.addPotential(potentialThreaded, new Species[]{sn, ag, cu});  
         
-        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, phase);
+        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, box);
         
         ((PotentialMasterListThreaded)potentialMaster).setRange(potentialThreaded.getRange()*1.1);
         ((PotentialMasterListThreaded)potentialMaster).setCriterion(potentialThreaded, new CriterionSimple(this, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
-        integrator.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
-        integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(phase));
+        integrator.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
         
         
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         
         
         // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
         //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
-        //coordWriter.setPhase(phase);
+        //coordWriter.setBox(box);
         //coordWriter.setIntegrator(integrator);
         //coordWriter.setWriteInterval(100);
         

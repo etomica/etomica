@@ -5,22 +5,22 @@ import etomica.atom.AtomsetFilter;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiFiltered;
 import etomica.atom.iterator.AtomsetIterator;
-import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
-import etomica.phase.Phase;
+import etomica.atom.iterator.AtomsetIteratorBoxDependent;
+import etomica.box.Box;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.space.Boundary;
 import etomica.space.IVector;
 
 /**
- * Our own ApiFiltered that's phase-dependent
+ * Our own ApiFiltered that's box-dependent
  */
-public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorPhaseDependent {
+public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorBoxDependent {
     public ApiFilteredCylinder(AtomsetIterator iterator, AtomsetFilter filter) {
         super(iterator, filter);
     }
 
-    public void setPhase(Phase newPhase) {
-        ((AtomsetIteratorPhaseDependent)iterator).setPhase(newPhase);
+    public void setBox(Box newBox) {
+        ((AtomsetIteratorBoxDependent)iterator).setBox(newBox);
     }
     private static final long serialVersionUID = 1L;
 

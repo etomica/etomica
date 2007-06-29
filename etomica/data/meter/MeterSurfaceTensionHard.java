@@ -4,7 +4,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.DataSourceTensorVirialHard;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Energy;
@@ -23,7 +23,7 @@ public class MeterSurfaceTensionHard extends DataSourceScalar {
     public MeterSurfaceTensionHard(Space space, IntegratorHard integrator) {
         super("Surface Tension",Energy.DIMENSION);
         velocityTensor = new MeterTensorVelocity(space);
-        velocityTensor.setPhase(integrator.getPhase());
+        velocityTensor.setBox(integrator.getBox());
         virialTensor = new DataSourceTensorVirialHard(space,integrator);
         pressureTensor = space.makeTensor();
     }
@@ -58,19 +58,19 @@ public class MeterSurfaceTensionHard extends DataSourceScalar {
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return velocityTensor.getPhase();
+    public Box getBox() {
+        return velocityTensor.getBox();
     }
 
     public void setIntegrator(IntegratorHard newIntegrator) {
         if (newIntegrator == null) {
-            velocityTensor.setPhase(null);
+            velocityTensor.setBox(null);
             virialTensor.setIntegrator(null);
             return;
         }
-        velocityTensor.setPhase(newIntegrator.getPhase());
+        velocityTensor.setBox(newIntegrator.getBox());
         virialTensor.setIntegrator(newIntegrator);
     }
     

@@ -19,7 +19,7 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -47,9 +47,9 @@ public class SimTarget extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numAtoms);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numAtoms);
 
         integrator = new IntegratorHard(this, potentialMaster);
 
@@ -77,9 +77,9 @@ public class SimTarget extends Simulation {
             nCells = (int)Math.round(Math.pow(numAtoms, 1.0/3.0));
             boundary = new BoundaryDeformableLattice(primitive, getRandom(), new int[]{nCells,nCells,nCells});
         }
-        phase.setBoundary(boundary);
+        box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
 
         if (potentialMaster instanceof PotentialMasterList) {
@@ -94,10 +94,10 @@ public class SimTarget extends Simulation {
             }
             ((PotentialMasterList)potentialMaster).setRange(neighborRange);
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(phase).reset();
+            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
         }
 
-        integrator.setPhase(phase);
+        integrator.setBox(box);
     }
 
     /**
@@ -157,14 +157,14 @@ public class SimTarget extends Simulation {
         //this one does averaging of total energy and its Boltzmann factor
         //so long as we're using a MeterHarmonicSingleEnergy, we'll use that instead to get the sum
 //        MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(new CoordinateDefinitionLeaf(sim.getSpace()), normalModes);
-//        harmonicEnergy.setPhase(sim.phase);
+//        harmonicEnergy.setBox(sim.box);
 //        DataPump foo = new DataPump(harmonicEnergy, null);
 //        IntervalActionAdapter bar = new IntervalActionAdapter(foo, sim.integrator);
 //        bar.setActionInterval(50);
         
         //this one does averaging of Boltzmann factors of each mode
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
-        harmonicSingleEnergy.setPhase(sim.phase);
+        harmonicSingleEnergy.setBox(sim.box);
         DataPump pump = new DataPump(harmonicSingleEnergy, null);
         sim.integrator.addIntervalAction(pump);
         sim.integrator.setActionInterval(pump, 50);
@@ -215,7 +215,7 @@ public class SimTarget extends Simulation {
         }
         System.out.println("Harmonic free energy correction (independent approx): "+deltaA+" +/- "+deltaAerr);
         
-        double[][] omega2 = normalModes.getOmegaSquared(sim.phase);
+        double[][] omega2 = normalModes.getOmegaSquared(sim.box);
         double[] coeffs = normalModes.getWaveVectorFactory().getCoefficients();
         double AHarmonic = 0;
         for(int i=0; i<omega2.length; i++) {
@@ -293,7 +293,7 @@ public class SimTarget extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public ActivityIntegrate activityIntegrate;
-    public Phase phase;
+    public Box box;
     public Boundary boundary;
     public BravaisLattice lattice;
     public Primitive primitive;

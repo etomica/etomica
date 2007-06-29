@@ -22,7 +22,7 @@ public class DisplayPolytopeCanvas2D extends DisplayCanvas {
     
     /**
      * Sets the size of the display to a new value and scales the image so that
-     * the phase fits in the canvas in the same proportion as before.
+     * the box fits in the canvas in the same proportion as before.
      */
     public void scaleSetSize(int width, int height) {
         if(getBounds().width * getBounds().height != 0) {  //reset scale based on larger size change
@@ -43,14 +43,14 @@ public class DisplayPolytopeCanvas2D extends DisplayCanvas {
     }
        
     /**
-     * doPaint is the method that handles the drawing of the phase to the screen.
+     * doPaint is the method that handles the drawing of the box to the screen.
      * Several variables and conditions affect how the image is drawn.  First,
      * the Unit.Length.Sim class variable <code>TO_PIXELS</code> performs the conversion 
      * between polytope dimensions and pixels.  The default value is 10 pixels/unit length
-     * reflecting the default size of the phase (300 pixels by 300 pixels) and the
+     * reflecting the default size of the box (300 pixels by 300 pixels) and the
      * default polytope size (30 by 30).
      *
-     * @param g The graphic object to which the image of the phase is drawn
+     * @param g The graphic object to which the image of the box is drawn
      */
     public void doPaint(Graphics g) {
         if(!isVisible() || displayPolytope.getPolytope() == null) {return;}

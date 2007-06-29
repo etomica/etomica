@@ -7,7 +7,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiIntraspeciesAA;
 import etomica.junit.UnitTestUtil;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 
@@ -32,9 +32,9 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         
         Species[] species = sim.getSpeciesManager().getSpecies();
 
-        phaseTest(sim.getPhases()[0], species);
-        phaseTest(sim.getPhases()[1], species);
-        phaseTest(sim.getPhases()[2], species);
+        boxTest(sim.getBoxs()[0], species);
+        boxTest(sim.getBoxs()[1], species);
+        boxTest(sim.getBoxs()[2], species);
         
         
         //test new iterator gives no iterates
@@ -70,34 +70,34 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
     }
     
     /**
-     * Performs tests on different species combinations in a particular phase.
+     * Performs tests on different species combinations in a particular box.
      */
-    private void phaseTest(Phase phase, Species[] species) {
-        speciesTestForward(phase, species, 0);
-        speciesTestForward(phase, species, 1);
-        speciesTestForward(phase, species, 2);
+    private void boxTest(Box box, Species[] species) {
+        speciesTestForward(box, species, 0);
+        speciesTestForward(box, species, 1);
+        speciesTestForward(box, species, 2);
     }
 
     /**
      * Test iteration in various directions with different targets.  Iterator constructed with
      * index of first species less than index of second.
      */
-    private void speciesTestForward(Phase phase, Species[] species, int species0Index) {
+    private void speciesTestForward(Box box, Species[] species, int species0Index) {
         ApiIntraspeciesAA api = new ApiIntraspeciesAA(species[species0Index]);
         AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
 
-        api.setPhase(phase);
-        IAtom[] molecules0 = ((AtomArrayList)phase.getAgent(species[species0Index]).getChildList()).toArray();
+        api.setBox(box);
+        IAtom[] molecules0 = ((AtomArrayList)box.getAgent(species[species0Index]).getChildList()).toArray();
         
         int count = molecules0.length * (molecules0.length - 1) / 2;
         
         countTest(api, count);
         api.allAtoms(speciesTest);
 
-        //test null phase throws an exception
+        //test null box throws an exception
         boolean exceptionThrown = false;
         try {
-            api.setPhase(null);
+            api.setBox(null);
         }
         catch (RuntimeException e) {
             exceptionThrown = true;

@@ -16,8 +16,8 @@ import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.space.BoundaryPeriodic;
 
 /**
@@ -30,7 +30,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
                                   java.io.Serializable {
     
     /**
-     * Constructor makes iterator that must have phase specified and then be
+     * Constructor makes iterator that must have box specified and then be
      * reset() before iteration.
      * 
      * @param D
@@ -42,7 +42,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
      *            exceed this separation
      *  
      */
-    public Api1ACell(int D, double range, PhaseAgentManager agentManager) {
+    public Api1ACell(int D, double range, BoxAgentManager agentManager) {
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         aiOuter = new AtomIteratorSinglet();
         aiSeq = new AtomIteratorArrayListSimple();
@@ -58,15 +58,15 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
         latticeIndex = new int[D];
 
         neighborIterator.setDirection(null);
-        phaseAgentManager = agentManager;
+        boxAgentManager = agentManager;
 	}
 
-	public void setPhase(Phase phase) {
-        cellManager = (NeighborCellManager)phaseAgentManager.getAgent(phase);
+	public void setBox(Box box) {
+        cellManager = (NeighborCellManager)boxAgentManager.getAgent(box);
         lattice = cellManager.getLattice();
         neighborIterator.setLattice(lattice);
-        neighborIterator.setPeriod(phase.getBoundary().getDimensions());
-        neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
+        neighborIterator.setPeriod(box.getBoundary().getDimensions());
+        neighborIterator.setPeriodicity(((BoundaryPeriodic)box.getBoundary()).getPeriodicity());
 	}
 
     /**
@@ -267,7 +267,7 @@ public class Api1ACell implements AtomsetIteratorPDT, AtomsetIteratorCellular,
     private boolean doGoDown, upListNow;
     private boolean inCentralCell;
     private IAtom targetAtom;
-    private final PhaseAgentManager phaseAgentManager;
+    private final BoxAgentManager boxAgentManager;
     private NeighborCellManager cellManager;
     
     private CellLattice lattice;

@@ -6,7 +6,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.junit.UnitTestUtil;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 
@@ -31,28 +31,28 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         Species[] species = sim.getSpeciesManager().getSpecies();
 
         for(int i=0; i<n0.length; i++) {
-            phaseTest(sim.getPhases()[i], species);
+            boxTest(sim.getBoxs()[i], species);
         }
 
     }
 
     /**
-     * Performs tests on different species combinations in a particular phase.
+     * Performs tests on different species combinations in a particular box.
      */
-    private void phaseTest(Phase phase, Species[] species) {
+    private void boxTest(Box box, Species[] species) {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules();
 
-        iterator.setPhase(phase);
+        iterator.setBox(box);
         
         AtomArrayList moleculeList = new AtomArrayList();
         for(int i=0; i<species.length; i++) {
-            AtomSet molecules = phase.getAgent(species[i]).getChildList();
+            AtomSet molecules = box.getAgent(species[i]).getChildList();
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 moleculeList.add(molecules.getAtom(j));
             }
         }
         
         LinkedList list = testIterates(iterator, moleculeList.toArray());
-        assertEquals(list.size(), phase.moleculeCount());
+        assertEquals(list.size(), box.moleculeCount());
     }
 }

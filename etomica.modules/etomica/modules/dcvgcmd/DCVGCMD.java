@@ -19,7 +19,7 @@ import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.CriterionType;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.NeighborListManager;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
@@ -49,7 +49,7 @@ public class DCVGCMD extends Simulation {
     public SpeciesSpheresMono species;
     public SpeciesSpheresMono species1;
     public SpeciesTube speciesTube;
-    public Phase phase;
+    public Box box;
     public DataSourceGroup fluxMeters;
     public MeterFlux meterFlux0, meterFlux1, meterFlux2, meterFlux3;
     public MeterTemperature thermometer;
@@ -168,22 +168,22 @@ public class DCVGCMD extends Simulation {
         potentialMaster.getPotentialMasterList().setCriterion(potentialwallPorousB1, new CriterionType(criterionWallB1, speciestype1));
 
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(20);
-        phase.getAgent(species1).setNMolecules(20);
-        phase.getAgent(speciesTube).setNMolecules(1);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(20);
+        box.getAgent(species1).setNMolecules(20);
+        box.getAgent(speciesTube).setNMolecules(1);
         
         double temperature = Kelvin.UNIT.toSim(500.);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature, species,
                 species1);
         final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster);
         final IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
-        integratorDCV.setPhase(phase);
+        integratorDCV.setBox(box);
 
         /***/
         potentialMaster.setRange(potential.getRange() * neighborRangeFac);
-        integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(phase).makeMCMoveListener());
+        integratorMC.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 
 
         activityIntegrate = new ActivityIntegrate(integratorDCV);
@@ -195,22 +195,22 @@ public class DCVGCMD extends Simulation {
         //integrator.setSleepPeriod(1);
         integratorMD.setTimeStep(0.007);
         //integrator.setInterval(10);
-        final NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
+        final NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integratorMD.addIntervalAction(nbrManager);
         integratorMD.addNonintervalListener(nbrManager);
         activityIntegrate.setDoSleep(true);
-        phase.setBoundary(new BoundaryRectangularSlit(this, 2));
-//        phase.setBoundary(new BoundaryRectangularPeriodic(space));
-        phase.setDimensions(new Vector3D(40, 40, 80));
+        box.setBoundary(new BoundaryRectangularSlit(this, 2));
+//        box.setBoundary(new BoundaryRectangularPeriodic(space));
+        box.setDimensions(new Vector3D(40, 40, 80));
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
         double length = 0.25;
         config = new ConfigurationLatticeTube(new LatticeCubicFcc(), length);
-        config.initializeCoordinates(phase);
+        config.initializeCoordinates(box);
 
         //position of hole in porous-wall potential
         poreCenter = space.makeVector();
-//        poreCenter.Ea1Tv1(0.5, phase.getBoundary().getDimensions());
+//        poreCenter.Ea1Tv1(0.5, box.getBoundary().getDimensions());
         IVector[] poreCentersVector = new IVector[] { poreCenter };
         potentialwallPorousA.setPoreCenters(poreCentersVector);
         potentialwallPorousA1.setPoreCenters(poreCentersVector);
@@ -226,8 +226,8 @@ public class DCVGCMD extends Simulation {
         potentialwallPorousB1.setPoreRadius(poreRadius);
 
         //place porous-wall potentials; put just past the edges of the tube
-        double zA = (-0.5 + length + 0.05) * phase.getBoundary().getDimensions().x(2);
-        double zB = ( 0.5 - length - 0.05) * phase.getBoundary().getDimensions().x(2);
+        double zA = (-0.5 + length + 0.05) * box.getBoundary().getDimensions().x(2);
+        double zB = ( 0.5 - length - 0.05) * box.getBoundary().getDimensions().x(2);
         potentialwallPorousA.setZ(zA);
         potentialwallPorousA1.setZ(zA);
         potentialwallPorousB.setZ(zB);
@@ -246,10 +246,10 @@ public class DCVGCMD extends Simulation {
         meterFlux1 = new MeterFlux(moves[1], integratorDCV);
         meterFlux2 = new MeterFlux(moves[2], integratorDCV);
         meterFlux3 = new MeterFlux(moves[3], integratorDCV);
-        meterFlux0.setPhase(phase);
-        meterFlux1.setPhase(phase);
-        meterFlux2.setPhase(phase);
-        meterFlux3.setPhase(phase);
+        meterFlux0.setBox(box);
+        meterFlux1.setBox(box);
+        meterFlux2.setBox(box);
+        meterFlux3.setBox(box);
         fluxMeters = new DataSourceGroup(new MeterFlux[] { meterFlux0,
                 meterFlux1, meterFlux2, meterFlux3 });
 //        fluxAccumulator = new AccumulatorAverage();
@@ -258,21 +258,21 @@ public class DCVGCMD extends Simulation {
 //                fluxPump, integratorDCV);
 
         thermometer = new MeterTemperature(speciesTube);
-        thermometer.setPhase(phase);
+        thermometer.setBox(box);
 
         density1 = new MeterNMolecules();
         density2 = new MeterNMolecules();
-        density1.setPhase(phase);
-        density2.setPhase(phase);
+        density1.setBox(box);
+        density2.setBox(box);
         density1.setSpecies(species);
         density2.setSpecies(species1);
         profile1 = new MeterProfile(space);
         profile2 = new MeterProfile(space);
         profile1.setDataSource(density1);
-        profile1.setPhase(phase);
+        profile1.setBox(box);
         profile1.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
         profile2.setDataSource(density2);
-        profile2.setPhase(phase);
+        profile2.setBox(box);
         profile2.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
 
         accumulator1 = new AccumulatorAverage();
@@ -283,6 +283,6 @@ public class DCVGCMD extends Simulation {
         profile2pump = new DataPump(profile2, accumulator2);
         integratorDCV.addIntervalAction(profile2pump);
 
-        potentialMaster.getNbrCellManager(phase).assignCellAll();
+        potentialMaster.getNbrCellManager(box).assignCellAll();
     }
 }

@@ -198,7 +198,7 @@ public class RectangularLatticeNbrIteratorSquare extends
 
     /**
      * Sets the magnitude of the elements of the pbc array.  Normally
-     * this would be the dimensions of the phase boundary.  This quantity
+     * this would be the dimensions of the box boundary.  This quantity
      * has no effect on the selection of the neighbor cells; it affects only
      * the vector returned by the currentPbc method.
      * @param newPeriod values of new period are copied to internal vector

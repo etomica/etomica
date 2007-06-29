@@ -15,8 +15,8 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.space.BoundaryPeriodic;
 
 /**
@@ -26,26 +26,26 @@ import etomica.space.BoundaryPeriodic;
 public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
     
     /**
-	 * Constructor makes iterator that must have phase specified and then be 
+	 * Constructor makes iterator that must have box specified and then be 
 	 * reset() before iteration.
      * 
      * @param D the dimension of the space of the simulation (used to construct cell iterators)
      * @param species length = 2 array with the (different) species whose molecules are interacting 
      */
-	public Api1ASite(int D, PhaseAgentManager agentManager) {
+	public Api1ASite(int D, BoxAgentManager agentManager) {
         neighborIterator = new RectangularLatticeNbrIteratorAdjacent(D);
         
         latticeIndex = new int[D];
         
         neighborIterator.setDirection(null);
-        phaseAgentManager = agentManager;
+        boxAgentManager = agentManager;
 	}
 
-	public void setPhase(Phase phase) {
-        neighborSiteManager = (NeighborSiteManager)phaseAgentManager.getAgent(phase);
+	public void setBox(Box box) {
+        neighborSiteManager = (NeighborSiteManager)boxAgentManager.getAgent(box);
         lattice = neighborSiteManager.getLattice();
         neighborIterator.setLattice(lattice);
-        neighborIterator.setPeriodicity(((BoundaryPeriodic)phase.getBoundary()).getPeriodicity());
+        neighborIterator.setPeriodicity(((BoundaryPeriodic)box.getBoundary()).getPeriodicity());
 	}
     
     /**
@@ -170,7 +170,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
     private boolean upListNow;
     private IteratorDirective.Direction direction;
     private IAtom targetAtom;
-    private final PhaseAgentManager phaseAgentManager;
+    private final BoxAgentManager boxAgentManager;
     private NeighborSiteManager neighborSiteManager;
     
     private CellLattice lattice;

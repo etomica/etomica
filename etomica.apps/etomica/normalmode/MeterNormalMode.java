@@ -11,7 +11,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -59,13 +59,13 @@ public class MeterNormalMode implements DataSource, Action, Serializable {
     }
     
     /**
-     * Sets the phase, and should be called while the Atoms are in 
+     * Sets the box, and should be called while the Atoms are in 
      * their lattice positions.
      */
-    public void setPhase(Phase newPhase) {
+    public void setBox(Box newBox) {
         callCount = 0;
 
-        waveVectorFactory.makeWaveVectors(newPhase);
+        waveVectorFactory.makeWaveVectors(newBox);
         waveVectors = waveVectorFactory.getWaveVectors();
         // we don't actually care about the coefficients
         numWaveVectors = waveVectors.length;
@@ -85,8 +85,8 @@ public class MeterNormalMode implements DataSource, Action, Serializable {
         dataInfo = new DataInfoGroup("all S", Null.DIMENSION, Sinfo);
     }
     
-    public Phase getPhase() {
-        return coordinateDefinition.getPhase();
+    public Box getBox() {
+        return coordinateDefinition.getBox();
     }
     
     public IVector[] getWaveVectors() {

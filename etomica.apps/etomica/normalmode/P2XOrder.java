@@ -4,7 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
 import etomica.potential.Potential2Spherical;
@@ -26,7 +26,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
     
     private static final long serialVersionUID = 1L;
     protected final IVector dr;
-    protected Phase phase;
+    protected Box box;
     protected Potential2HardSpherical wrappedPotential;
     
     public P2XOrder(Space space, Potential2HardSpherical wrappedPotential) {
@@ -50,7 +50,7 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
         dr.Ev1Mv2(((IAtomPositioned)atom1).getPosition(), ((IAtomPositioned)atom0).getPosition());
         int dI = atom1.getIndex() - atom0.getIndex();
         if (Math.abs(dI) == atom1.getParentGroup().getChildList().getAtomCount()-1) {
-            dr.PEa1Tv1(dI > 0 ? -1 : 1, phase.getBoundary().getDimensions());
+            dr.PEa1Tv1(dI > 0 ? -1 : 1, box.getBoundary().getDimensions());
             return (dr.x(0) * dI > 0.0) ? Double.POSITIVE_INFINITY : wrappedPotential.u(dr.squared());
         }
         else if (dI == 1 || dI == -1) {
@@ -72,9 +72,9 @@ public class P2XOrder extends Potential2 implements Potential2Spherical, Potenti
         return wrappedPotential;
     }
 
-    public void setPhase(Phase newPhase) {
-        phase = newPhase;
-        wrappedPotential.setPhase(newPhase);
+    public void setBox(Box newBox) {
+        box = newBox;
+        wrappedPotential.setBox(newBox);
     }
 
     public void bump(AtomSet atom, double falseTime) {

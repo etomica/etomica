@@ -7,8 +7,8 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.iterator.AtomIteratorTreePhase;
-import etomica.phase.Phase;
+import etomica.atom.iterator.AtomIteratorTreeBox;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -42,19 +42,19 @@ public class UnitTestUtil {
     }
 
     /**
-     * Makes tree hierarchy of three species and one or more phases. First
+     * Makes tree hierarchy of three species and one or more boxs. First
      * species has multiatoms molecules, second species has monatomic molecules
      * (with leaf atoms in molecule layer), and third species has an arbitrary
      * tree structure.
      * 
      * @param n0
-     *            number of atoms of species0 in each phase
+     *            number of atoms of species0 in each box
      * @param nA0
      *            number of atoms per molecule of species0
      * @param n1
-     *            number of atoms of species1 in each phase
+     *            number of atoms of species1 in each box
      * @param n2
-     *            number of atoms of species2 in each phase
+     *            number of atoms of species2 in each box
      * @param n2A
      *            tree specification of species 2, e.g., {2,4} indicates that
      *            each molecule has 2 subgroups, each with 4 atoms (such as
@@ -69,37 +69,37 @@ public class UnitTestUtil {
         Species species0 = null;
         Species species1 = null;
         Species species2 = null;
-        int nPhase = 0;
+        int nBox = 0;
         if (n0 != null) {
             species0 = new SpeciesSpheres(sim, nA0);
             sim.getSpeciesManager().addSpecies(species0);
-            nPhase = n0.length;
+            nBox = n0.length;
         }
         if (n1 != null) {
             species1 = new SpeciesSpheresMono(sim);
             sim.getSpeciesManager().addSpecies(species1);
-            nPhase = n1.length;
+            nBox = n1.length;
         }
         if (n2 != null) {
             species2 = new SpeciesTree(sim, n2Tree);
             sim.getSpeciesManager().addSpecies(species2);
-            nPhase = n2.length;
+            nBox = n2.length;
         }
-        for (int i = 0; i < nPhase; i++) {
-            Phase phase = new Phase(sim);
-            sim.addPhase(phase);
+        for (int i = 0; i < nBox; i++) {
+            Box box = new Box(sim);
+            sim.addBox(box);
             if (species0 != null)
-                phase.getAgent(species0).setNMolecules(n0[i]);
+                box.getAgent(species0).setNMolecules(n0[i]);
             if (species1 != null)
-                phase.getAgent(species1).setNMolecules(n1[i]);
+                box.getAgent(species1).setNMolecules(n1[i]);
             if (species2 != null)
-                phase.getAgent(species2).setNMolecules(n2[i]);
+                box.getAgent(species2).setNMolecules(n2[i]);
         }
         return sim;
     }
 
     /**
-     * Makes tree hierarchy of one or more species in a single phase. Number of
+     * Makes tree hierarchy of one or more species in a single box. Number of
      * species if determined by length of nMolecules array. Each molecule is
      * heterogeneous, formed from atoms of different types. For example:
      * <ul>
@@ -127,8 +127,8 @@ public class UnitTestUtil {
         Space space = Space3D.getInstance();
         ISimulation sim = new Simulation(space, false, new int[] { 9, 11, 6, 3, 3 });
         //        new SpeciesSpheres(sim);
-        Phase phase = new Phase(sim);
-        sim.addPhase(phase);
+        Box box = new Box(sim);
+        sim.addBox(box);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomFactoryHetero factory = new AtomFactoryHetero(sim);
             AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
@@ -141,17 +141,17 @@ public class UnitTestUtil {
             factory.setChildCount(nAtoms[i]);
             Species species = new Species(factory);
             sim.getSpeciesManager().addSpecies(species);
-            phase.getAgent(species).setNMolecules(nMolecules[i]);
+            box.getAgent(species).setNMolecules(nMolecules[i]);
         }
         return sim;
     }
     
     public static void main(String[] arg) {
         ISimulation sim = makeStandardSpeciesTree();
-        Phase[] phases = sim.getPhases();
-        for (int i=0; i<phases.length; i++) {
-            AtomIteratorTreePhase iterator = new AtomIteratorTreePhase();
-            iterator.setPhase(phases[i]);
+        Box[] boxs = sim.getBoxs();
+        for (int i=0; i<boxs.length; i++) {
+            AtomIteratorTreeBox iterator = new AtomIteratorTreeBox();
+            iterator.setBox(boxs[i]);
             iterator.setDoAllNodes(true);
             iterator.reset();
             for (AtomSet atom = iterator.next(); atom != null;

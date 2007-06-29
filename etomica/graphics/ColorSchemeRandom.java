@@ -6,14 +6,14 @@ import etomica.atom.AtomLeaf;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.util.IRandom;
 
 public class ColorSchemeRandom extends ColorScheme implements AgentSource {
     
-    public ColorSchemeRandom(Phase phase, IRandom random) {
+    public ColorSchemeRandom(Box box, IRandom random) {
         this.random = random;
-        agentManager = new AtomLeafAgentManager(this, phase);
+        agentManager = new AtomLeafAgentManager(this, box);
     }
     
     public Color getAtomColor(IAtom a) {

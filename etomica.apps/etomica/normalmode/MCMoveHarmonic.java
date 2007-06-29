@@ -2,14 +2,14 @@ package etomica.normalmode;
 
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.integrator.mcmove.MCMovePhase;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.util.IRandom;
 
-public class MCMoveHarmonic extends MCMovePhase {
+public class MCMoveHarmonic extends MCMoveBox {
 
     public MCMoveHarmonic(IRandom random) {
         super(null, new MCMoveTracker());
@@ -50,9 +50,9 @@ public class MCMoveHarmonic extends MCMovePhase {
         eigenVectors = newEigenVectors;
     }
     
-    public void setPhase(Phase newPhase) {
-        super.setPhase(newPhase);
-        iterator.setPhase(newPhase);
+    public void setBox(Box newBox) {
+        super.setBox(newBox);
+        iterator.setBox(newBox);
 
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         u = new double[coordinateDim];

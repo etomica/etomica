@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -40,8 +40,8 @@ public abstract class Potential2HardSpherical extends Potential2 implements Pote
         return u(dr.squared());
     }
     
-    public void setPhase(Phase phase) {
-        nearestImageTransformer = phase.getBoundary();
+    public void setBox(Box box) {
+        nearestImageTransformer = box.getBoundary();
     }
 
     protected final IVector dr;

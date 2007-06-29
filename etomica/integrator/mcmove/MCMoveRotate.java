@@ -4,7 +4,7 @@ import etomica.atom.AtomSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.ICoordinateAngular;
 import etomica.space.Orientation;
@@ -13,7 +13,7 @@ import etomica.util.IRandom;
 /**
  * Performs a rotation of an atom (not a molecule) that has an orientation coordinate.
  */
-public class MCMoveRotate extends MCMovePhaseStep {
+public class MCMoveRotate extends MCMoveBoxStep {
     
     private static final long serialVersionUID = 2L;
     private MeterPotentialEnergy energyMeter;
@@ -55,7 +55,7 @@ public class MCMoveRotate extends MCMovePhaseStep {
     }
      
     public boolean doTrial() {
-        if(phase.moleculeCount()==0) {return false;}
+        if(box.moleculeCount()==0) {return false;}
         molecule = (ICoordinateAngular)atomSource.getAtom();
 
         energyMeter.setTarget(molecule);
@@ -89,8 +89,8 @@ public class MCMoveRotate extends MCMovePhaseStep {
         return affectedAtomIterator;
     }
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        energyMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        energyMeter.setBox(p);
     }
 }

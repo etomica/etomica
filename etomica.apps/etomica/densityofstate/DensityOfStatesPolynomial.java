@@ -13,7 +13,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -36,7 +36,7 @@ public class DensityOfStatesPolynomial extends Simulation{
 	public IntegratorMC integrator;
 	public MCMoveAtom mcMoveAtom;
 	public SpeciesSpheresMono species;
-	public Phase phase;
+	public Box box;
 	public P2Yukawa potential;
 	public Controller controller;
 	public ActivityIntegrate activityIntegrate; 
@@ -60,25 +60,25 @@ public class DensityOfStatesPolynomial extends Simulation{
 		activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
-		species.getAgent(phase).setNMolecules(numAtoms);
-		phase = new Phase(this);
-		phase.setDensity(0.65);
+		species.getAgent(box).setNMolecules(numAtoms);
+		box = new Box(this);
+		box.setDensity(0.65);
 		potential = new P2Yukawa(this);
 		double truncationRadius = 3.0*potential.getKappa();
-		if(truncationRadius > 0.5*phase.getBoundary().getDimensions().x(0)){
-			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*phase.getBoundary().getDimensions().x(0));
+		if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)){
+			throw new RuntimeException("Truncaiton radius too large.  Max allowed is "+0.5*box.getBoundary().getDimensions().x(0));
 		}
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
 		((PotentialMasterCell)potentialMaster).setCellRange(3);
 		((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
 		potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
 			
-		integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).makeMCMoveListener());
+		integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(box).makeMCMoveListener());
 		
-		new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
-		integrator.setPhase(phase);
+		new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
+		integrator.setBox(box);
 		
-		((PotentialMasterCell)potentialMaster).getNbrCellManager(phase).assignCellAll();
+		((PotentialMasterCell)potentialMaster).getNbrCellManager(box).assignCellAll();
 		
 	}
 	
@@ -180,7 +180,7 @@ public class DensityOfStatesPolynomial extends Simulation{
 		//SimulationGraphic simGraphic = new SimulationGraphic(sim);
         //simGraphic.makeAndDisplayFrame();
         //simGraphic.panel().add(HistogramDisplay.graphic());
-        //ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
+        //ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         //colorScheme.setColor(sim.species.getMoleculeType(), java.awt.Color.red);
 
 

@@ -1,17 +1,17 @@
 package etomica.atom.iterator;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
- * Iterator that will loop over all leaf atoms in a phase. Can be configured to
+ * Iterator that will loop over all leaf atoms in a box. Can be configured to
  * iterate all leaf atoms, or only those of a particular species.
  */
 public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements 
-        AtomIteratorPhaseDependent {
+        AtomIteratorBoxDependent {
 
     /**
-     * Creates iterator with no phase specified. Iteration will return no atoms
-     * until a call to setPhase is performed.
+     * Creates iterator with no box specified. Iteration will return no atoms
+     * until a call to setBox is performed.
      */
     public AtomIteratorLeafAtoms() {
         super(new AtomIteratorArrayListSimple());
@@ -19,21 +19,21 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
 
     /**
      * Creates iterator conditioned to give all leaf atoms of the specified
-     * phase. Call to reset() is required before beginning iteration.
+     * box. Call to reset() is required before beginning iteration.
      */
-    public AtomIteratorLeafAtoms(Phase phase) {
+    public AtomIteratorLeafAtoms(Box box) {
         this();
-        setPhase(phase);
+        setBox(box);
     }
 
     /**
      * Configures iterator to form its iterates from the leaf atoms of the given
-     * phase. If a species was previously (or subsequently) set, iterates will
-     * be the leaf atoms of under the species in the specified phase.
-     * @throws a NullPointerException if the Phase is null
+     * box. If a species was previously (or subsequently) set, iterates will
+     * be the leaf atoms of under the species in the specified box.
+     * @throws a NullPointerException if the Box is null
      */
-    public void setPhase(Phase phase) {
-        ((AtomIteratorArrayListSimple)iterator).setList(phase.getSpeciesMaster().getLeafList());
+    public void setBox(Box box) {
+        ((AtomIteratorArrayListSimple)iterator).setList(box.getSpeciesMaster().getLeafList());
     }
 
     private static final long serialVersionUID = 1L;

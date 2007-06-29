@@ -6,7 +6,7 @@ import etomica.space.Space;
 /**
  * General class for assignment of coordinates to a group of atoms.  Puts
  * a list of atoms in a standard conformation, which then can be manipulated
- * further by a Configuration class to place the molecules in a phase, or by
+ * further by a Configuration class to place the molecules in a box, or by
  * a super-conformation class that arranges these atoms with other ones in a 
  * molecule.
  * <p>

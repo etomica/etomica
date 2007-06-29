@@ -5,13 +5,13 @@
 package etomica.nbr;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
  * Atom filter used to specify whether two atoms are considered neighbors,
  * for the purpose of tabulating neighbor lists.  Neighbors are indicated 
  * if the AtomsetFilter.accept() method returns true.  Adds neighbor management
- * methods to set the phase where the criterion is being applied, and to
+ * methods to set the box where the criterion is being applied, and to
  * indicate if neighbor list for atom needs updating.
  */
 public interface NeighborCriterion {
@@ -26,11 +26,11 @@ public interface NeighborCriterion {
 	public boolean needUpdate(IAtom atom);
 	
     /**
-     * Specifies the phase where the criterion is being applied.  Sometimes
-     * needed if the criterion depends on features of the phase, such as the
+     * Specifies the box where the criterion is being applied.  Sometimes
+     * needed if the criterion depends on features of the box, such as the
      * boundary.
      */
-	public void setPhase(Phase phase);
+	public void setBox(Box box);
 	
     /**
      * Indicates whether the atom has changed (e.g. moved) by an amount 

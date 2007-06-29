@@ -6,7 +6,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -25,7 +25,7 @@ public class TestHSMD3D extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species, species2;
-    public Phase phase;
+    public Box box;
 
     public TestHSMD3D(Space space, int numAtoms) {
         super(space, true);
@@ -57,19 +57,19 @@ public class TestHSMD3D extends Simulation {
 
         potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new Species[]{species2,species2});
         
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numAtoms);
-        phase.getAgent(species2).setNMolecules(numAtoms/100);
-        phase.setDimensions(Space.makeVector(new double[]{l,l,l}));
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numAtoms);
+        box.getAgent(species2).setNMolecules(numAtoms/100);
+        box.setDimensions(Space.makeVector(new double[]{l,l,l}));
+        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);
         integrator.addNonintervalListener(nbrManager);
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         ConfigurationFile config = new ConfigurationFile("HSMD3D"+Integer.toString(numAtoms));
-        config.initializeCoordinates(phase);
+        config.initializeCoordinates(box);
         
-//        WriteConfiguration writeConfig = new WriteConfiguration("foo",phase,1);
+//        WriteConfiguration writeConfig = new WriteConfiguration("foo",box,1);
 //        integrator.addIntervalListener(writeConfig);
     }
     
@@ -88,7 +88,7 @@ public class TestHSMD3D extends Simulation {
         
         sim.getController().actionPerformed();
         
-        double Z = pMeter.getDataAsScalar()*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
+        double Z = pMeter.getDataAsScalar()*sim.box.volume()/(sim.box.moleculeCount()*sim.integrator.getTemperature());
         System.out.println("Z="+Z);
         
         // compressibility factor for this system should be 5.22

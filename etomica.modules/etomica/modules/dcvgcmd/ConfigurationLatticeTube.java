@@ -10,12 +10,12 @@ import etomica.atom.IAtomGroup;
 import etomica.config.ConfigurationLattice;
 import etomica.config.Conformation;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -43,8 +43,8 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
 	}
 	
-    public void initializeCoordinates(Phase phase) {
-        AtomSet[] lists = getMoleculeLists(phase);
+    public void initializeCoordinates(Box box) {
+        AtomSet[] lists = getMoleculeLists(box);
         if(lists.length == 0 || lists[0].getAtomCount() == 0) return;
         
         int basisSize = 1;
@@ -54,8 +54,8 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         int nCells = (int)Math.ceil((double)lists[0].getAtomCount()/(double)basisSize);
         
         //determine scaled shape of simulation volume
-        IVector shape = phase.getSpace().makeVector();
-        shape.E(phase.getBoundary().getDimensions());
+        IVector shape = box.getSpace().makeVector();
+        shape.E(box.getBoundary().getDimensions());
         shape.setX(2,shape.x(2)*length);
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
@@ -74,7 +74,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
     
         // determine lattice constant
-        IVector latticeScaling = phase.getSpace().makeVector();
+        IVector latticeScaling = box.getSpace().makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -85,10 +85,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = phase.getSpace().makeVector();
-        offset.E(phase.getBoundary().getDimensions());
-        IVector vectorOfMax = phase.getSpace().makeVector();
-        IVector vectorOfMin = phase.getSpace().makeVector();
+        IVector offset = box.getSpace().makeVector();
+        offset.E(box.getBoundary().getDimensions());
+        IVector vectorOfMax = box.getSpace().makeVector();
+        IVector vectorOfMin = box.getSpace().makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -107,7 +107,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         offset.Ev1Mv2(vectorOfMax, vectorOfMin);
         offset.TE(-0.5);
         offset.ME(vectorOfMin);
-        offset.setX(2, offset.x(2) - 0.5*phase.getBoundary().getDimensions().x(2)*(1-length));
+        offset.setX(2, offset.x(2) - 0.5*box.getBoundary().getDimensions().x(2)*(1-length));
 
         myLat = new MyLattice(lattice, latticeScaling, offset);
 
@@ -126,7 +126,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
         
         double z = offset.x(2);
-        offset.setX(2,z+phase.getBoundary().getDimensions().x(2)*(1-length));
+        offset.setX(2,z+box.getBoundary().getDimensions().x(2)*(1-length));
         myLat = new MyLattice(lattice, latticeScaling, offset);
         indexIterator.reset();
         
@@ -143,9 +143,9 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         
         //loop for multiple tubes.
         int nTubes = lists[2].getAtomCount();
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(phase.getSpace()));
+        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(box.getSpace()));
         // put them all at 0.  oops
-        atomActionTranslateTo.setDestination(phase.getSpace().makeVector());
+        atomActionTranslateTo.setDestination(box.getSpace().makeVector());
         for (int i=0; i<nTubes; i++) {
             IAtomGroup a = (IAtomGroup)lists[2].getAtom(i);
         	Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
@@ -162,8 +162,8 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 
 	public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
-		Phase phase = new Phase(sim);
-        sim.addPhase(phase);
+		Box box = new Box(sim);
+        sim.addBox(box);
         SpeciesSpheresMono species1 = new SpeciesSpheresMono(sim);
 		SpeciesSpheresMono species2 = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species1);
@@ -171,24 +171,24 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         ((AtomTypeSphere)species1.getMoleculeType()).setDiameter(3.0);
         ((AtomTypeSphere)species2.getMoleculeType()).setDiameter(3.0);
 		int k = 4;
-		phase.getAgent(species1).setNMolecules(2*k*k*k);
-        phase.getAgent(species2).setNMolecules(2*k*k*k);
+		box.getAgent(species1).setNMolecules(2*k*k*k);
+        box.getAgent(species2).setNMolecules(2*k*k*k);
         SpeciesTube speciesTube = new SpeciesTube(sim, 10, 10);
         sim.getSpeciesManager().addSpecies(speciesTube);
         ((AtomTypeSphere)((AtomTypeGroup)speciesTube.getMoleculeType()).getChildTypes()[0]).setDiameter(3.0);
         
-        phase.getAgent(speciesTube).setNMolecules(1);
+        box.getAgent(speciesTube).setNMolecules(1);
 //        CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new LatticeCubicFcc();
 //        CubicLattice lattice = new LatticeCubicSimple();
 		ConfigurationLatticeTube configuration = new ConfigurationLatticeTube(lattice, .25);
-//        phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
-        configuration.initializeCoordinates(phase);
-//		etomica.graphics.DisplayPhase display = new etomica.graphics.DisplayPhase(phase);
+//        box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
+        configuration.initializeCoordinates(box);
+//		etomica.graphics.DisplayBox display = new etomica.graphics.DisplayBox(box);
 		
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
-        simGraphic.add(new DisplayPhase(phase));
-        ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayPhase(phase).getColorScheme();
+        simGraphic.add(new DisplayBox(box));
+        ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
         colorScheme.setColor(species1.getMoleculeType(), java.awt.Color.blue);
         colorScheme.setColor(species2.getMoleculeType(), java.awt.Color.white);
 		simGraphic.makeAndDisplayFrame();

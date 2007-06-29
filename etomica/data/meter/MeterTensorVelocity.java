@@ -10,7 +10,7 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Energy;
@@ -55,10 +55,10 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
      * Returns the velocity dyad (mass*vv) summed over all atoms, and divided by N
      */
     public Data getData() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+        if (box == null) throw new IllegalStateException("must call setBox before using meter");
         data.E(0.0);
         int count = 0;
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             getData(leafList.getAtom(iLeaf));
@@ -80,16 +80,16 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     }
 
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
     public String getName() {
@@ -102,7 +102,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     
     private static final long serialVersionUID = 1L;
     private String name;
-    private Phase phase;
+    private Box box;
     private final DataTensor data, atomData;
     private final DataInfoTensor dataInfo;
     protected DataTag tag;

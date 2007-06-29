@@ -28,7 +28,7 @@ public class IntegratorTMMC extends IntegratorMC {
     
     public void setMacrostateManager(MacrostateManager m) {
         macrostateManager = m;
-        nStates = macrostateManager.numberOfStates(phase);
+        nStates = macrostateManager.numberOfStates(box);
         C = new double[nStates][3];
         H = new double[nStates];
         weight = new double[nStates];
@@ -59,7 +59,7 @@ public class IntegratorTMMC extends IntegratorMC {
         if(move == null) return;
         
         //perform the trial
-        int iStateOld = macrostateManager.stateIndex(phase);//new to tmmc
+        int iStateOld = macrostateManager.stateIndex(box);//new to tmmc
         if(!move.doTrial()) {
             C[iStateOld][1] += 1;
             if(--doStepCount == 0) updateWeights();
@@ -72,7 +72,7 @@ public class IntegratorTMMC extends IntegratorMC {
         }
         
         //decide acceptance
-        int iStateNew = macrostateManager.stateIndex(phase);//new to tmmc
+        int iStateNew = macrostateManager.stateIndex(box);//new to tmmc
         int iDelta = iStateNew - iStateOld + 1;// 0, 1, 2  new to tmmc
         double weightDifference = weight[iStateNew] - weight[iStateOld]; //new to tmmc
         double lnChi = move.getA() + move.getB();

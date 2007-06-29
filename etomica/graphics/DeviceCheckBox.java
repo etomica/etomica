@@ -109,7 +109,7 @@ public class DeviceCheckBox extends Device {
 ////                else  sim.species.allAtoms(new AtomAction() {public void actionPerformed(Atom a) {a.setColor(java.awt.Color.blue);}});
 //                sim.panel().repaint();
 //            }
-//            public boolean getBoolean() {return colorScheme.atomColor(sim.phase.firstAtom()) == java.awt.Color.blue;}
+//            public boolean getBoolean() {return colorScheme.atomColor(sim.box.firstAtom()) == java.awt.Color.blue;}
 //        };
 //        modifier.setBoolean(true);
 //        DeviceCheckBox button = new DeviceCheckBox(sim, "Blue", modifier);

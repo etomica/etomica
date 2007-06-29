@@ -8,7 +8,7 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.util.IRandom;
@@ -16,7 +16,7 @@ import etomica.util.IRandom;
 /**
  * @author kofke
  *
- * Generates a configuration such that the value of the phase's
+ * Generates a configuration such that the value of the box's
  * sampling cluster is positive at beta = 1.
  */
 public class ConfigurationCluster extends Configuration {
@@ -33,12 +33,12 @@ public class ConfigurationCluster extends Configuration {
 	 * @see etomica.config.Configuration#initializePositions(etomica.AtomIterator)
 	 */
     //XXX this can't actually handle multi-atom molecules
-	public void initializeCoordinates(Phase phase) {
-		IVectorRandom translationVector = (IVectorRandom)phase.getSpace().makeVector();
-        IVector dimVector = phase.getSpace().makeVector();
-        dimVector.E(phase.getBoundary().getDimensions());
-		IVector center = phase.getSpace().makeVector();
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
+	public void initializeCoordinates(Box box) {
+		IVectorRandom translationVector = (IVectorRandom)box.getSpace().makeVector();
+        IVector dimVector = box.getSpace().makeVector();
+        dimVector.E(box.getBoundary().getDimensions());
+		IVector center = box.getSpace().makeVector();
+        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
 		iterator.reset();
         for (IAtom a = iterator.nextAtom(); a != null;
              a = iterator.nextAtom()) {
@@ -50,7 +50,7 @@ public class ConfigurationCluster extends Configuration {
         }
         iterator.reset();
 
-        AtomActionTranslateTo translator = new AtomActionTranslateTo(phase.getSpace());
+        AtomActionTranslateTo translator = new AtomActionTranslateTo(box.getSpace());
         translator.setDestination(center);
         translator.setAtomPositionDefinition(new AtomPositionFirstAtom());
         translator.actionPerformed(iterator.nextAtom());
@@ -60,9 +60,9 @@ public class ConfigurationCluster extends Configuration {
              atom = iterator.nextAtom()) {
             translator.actionPerformed(atom); //.coord.position().E(center);//put all at center of box
         }
-        PhaseCluster phaseCluster = (PhaseCluster)phase;
-        phaseCluster.trialNotify();
-		double value = phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet());
+        BoxCluster boxCluster = (BoxCluster)box;
+        boxCluster.trialNotify();
+		double value = boxCluster.getSampleCluster().value(boxCluster.getCPairSet(), boxCluster.getAPairSet());
         if (value == 0) {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");
         }
@@ -78,12 +78,12 @@ public class ConfigurationCluster extends Configuration {
                 translator.setDestination(translationVector);
                 translator.actionPerformed(a);
 			}
-            phaseCluster.trialNotify();
-			value = phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(),phaseCluster.getAPairSet());
+            boxCluster.trialNotify();
+			value = boxCluster.getSampleCluster().value(boxCluster.getCPairSet(),boxCluster.getAPairSet());
             System.out.println("value "+value);
             if (value != 0) {
                 System.out.println("that wasn't so bad.");
-                phaseCluster.acceptNotify();
+                boxCluster.acceptNotify();
             }
 		}
 	}

@@ -286,7 +286,7 @@ public class DeviceTernarySelector extends Device {
             for(int i=0; i<3; i++) {x[i] /= norm;}
             //update display boxes if present
             if(boxes != null) {
-                for(int i=0; i<3; i++) {boxes[i].setText(DisplayBox.format(x[i],precision));};
+                for(int i=0; i<3; i++) {boxes[i].setText(DisplayTextBox.format(x[i],precision));};
             }
             return x;
         }//end of fractions

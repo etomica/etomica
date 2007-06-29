@@ -4,9 +4,9 @@ import etomica.action.Action;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.atom.iterator.AtomIteratorPhaseDependent;
+import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Undefined;
@@ -25,11 +25,11 @@ import etomica.units.Undefined;
 public class MeterMeanSquareDisplacement extends DataSourceScalar {
 
     
-    public MeterMeanSquareDisplacement(Space space, IntegratorPhase integrator) {
+    public MeterMeanSquareDisplacement(Space space, IntegratorBox integrator) {
         this(space, integrator, new AtomIteratorLeafAtoms());
     }
 
-    public MeterMeanSquareDisplacement(Space space, IntegratorPhase integrator, AtomIteratorPhaseDependent iter) {
+    public MeterMeanSquareDisplacement(Space space, IntegratorBox integrator, AtomIteratorBoxDependent iter) {
         super("Mean square displacement", Undefined.DIMENSION);
         this.space = space;
         this.integrator = integrator;
@@ -47,17 +47,17 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
         return info;
     }
     
-    public void setIterator(AtomIteratorPhaseDependent iterator) {
+    public void setIterator(AtomIteratorBoxDependent iterator) {
         if(iterator == null) {
             throw new NullPointerException("Cannot give a null iterator");
         }
         this.iterator = iterator;
-        if(integrator.getPhase() != null) {
-            iterator.setPhase(integrator.getPhase());
+        if(integrator.getBox() != null) {
+            iterator.setBox(integrator.getBox());
             reset();
         } else {
-            //throw an exception, because meter won't be informed when integrator has phase set
-            throw new IllegalStateException("Must first define Phase for Integrator before constructing MeterMeanSquareDisplacement");
+            //throw an exception, because meter won't be informed when integrator has box set
+            throw new IllegalStateException("Must first define Box for Integrator before constructing MeterMeanSquareDisplacement");
         }
     }
 
@@ -93,7 +93,7 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
             this.meter = meter;
         }
         public void actionPerformed() {
-//            meter.iterator.setPhase(meter.integrator.getPhase()[0]);
+//            meter.iterator.setBox(meter.integrator.getBox()[0]);
             AtomIterator it = meter.iterator;
             it.reset();
             int i = 0;
@@ -132,8 +132,8 @@ public class MeterMeanSquareDisplacement extends DataSourceScalar {
     
     private static final long serialVersionUID = 1L;
     private int nAtoms = 0;
-    AtomIteratorPhaseDependent iterator;
-    IntegratorPhase integrator;
+    AtomIteratorBoxDependent iterator;
+    IntegratorBox integrator;
     protected IVector[] rAccum, rLast;
     private final Space space;
 

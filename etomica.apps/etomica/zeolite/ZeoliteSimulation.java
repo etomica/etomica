@@ -11,12 +11,12 @@ import etomica.data.DataSink;
 import etomica.data.meter.MeterEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2WCA;
@@ -47,9 +47,9 @@ public class ZeoliteSimulation extends Simulation {
     private static final String APP_NAME = "Zeolite Simulation";
 
     /**
-     * The Phase holding the atoms. 
+     * The Box holding the atoms. 
      */
-    public final Phase phase;
+    public final Box box;
     /**
      * The Integrator performing the dynamics.
      */
@@ -114,16 +114,16 @@ public class ZeoliteSimulation extends Simulation {
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
         
-        phase = new Phase(this);
-        addPhase(phase);
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
+        box = new Box(this);
+        addBox(box);
+        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addNonintervalListener(nbrManager);
         integrator.addIntervalAction(nbrManager);
         species = new SpeciesSpheresMono[numAtoms.length];
         for(int i=0;i<numAtoms.length;i++){
         	species[i] = new SpeciesSpheresMono(this);
             getSpeciesManager().addSpecies(species[i]);
-        	phase.getAgent(species[i]).setNMolecules(numAtoms[i]);
+        	box.getAgent(species[i]).setNMolecules(numAtoms[i]);
         	((etomica.atom.AtomTypeSphere)species[i].getMoleculeType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){
                 // all elements except the last (methane) are fixed
@@ -161,10 +161,10 @@ public class ZeoliteSimulation extends Simulation {
         potentialMaster.addPotential(potentialMS,new Species[]{species[1],species[2]});
         
         //Initializes the coordinates and positions
-        config.initializeCoordinates(phase);
-        phase.getBoundary().setDimensions(config.getUpdatedDimensions());
-        integrator.setPhase(phase);
-        //integrator.addListener(new PhaseImposePbc(phase));
+        config.initializeCoordinates(box);
+        box.getBoundary().setDimensions(config.getUpdatedDimensions());
+        integrator.setBox(box);
+        //integrator.addListener(new BoxImposePbc(box));
           
         //PARAMETERS For Simulation Run
         //activityIntegrate.setMaxSteps(5000000);
@@ -181,7 +181,7 @@ public class ZeoliteSimulation extends Simulation {
         sp[0] = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);
-        coordWriter.setPhase(this.phase);
+        coordWriter.setBox(this.box);
         coordWriter.setNatoms(numAtoms[2]);
         coordWriter.setIntegrator(integrator);
         coordWriter.setWriteInterval(interval);
@@ -220,7 +220,7 @@ public class ZeoliteSimulation extends Simulation {
         int num = sim.species.length;
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species[num-1]));
+        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species[num-1]));
         simGraphic.add(nSelector);
         
         //Energy
@@ -228,7 +228,7 @@ public class ZeoliteSimulation extends Simulation {
         //Settings
         
         MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential());
-        eMeter.setPhase(sim.phase);
+        eMeter.setBox(sim.box);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.getHistory().setHistoryLength(history);
         AccumulatorAverage enAcc = new AccumulatorAverage();
@@ -242,7 +242,7 @@ public class ZeoliteSimulation extends Simulation {
 		
         /*
         MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.potentialMaster);
-        peMeter.setPhase(sim.phase);
+        peMeter.setBox(sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setHistoryLength(history);
         AccumulatorAverage peAccumulator = new AccumulatorAverage(sim);
@@ -255,7 +255,7 @@ public class ZeoliteSimulation extends Simulation {
         sim.integrator.addListener(peAdapter);
 		
 		MeterKineticEnergy keMeter = new MeterKineticEnergy();
-        keMeter.setPhase(sim.phase);
+        keMeter.setBox(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
         keHistory.setHistoryLength(history);
         DataPump kePump = new DataPump(keMeter, keHistory);
@@ -267,7 +267,7 @@ public class ZeoliteSimulation extends Simulation {
         
         
         MeterTemperature temp = new MeterTemperature();
-		temp.setPhase(sim.phase);
+		temp.setBox(sim.box);
 		AccumulatorHistory tHistory = new AccumulatorHistory();
         tHistory.setHistoryLength(history);
         AccumulatorAverage tAccumulator = new AccumulatorAverage(sim);
@@ -293,7 +293,7 @@ public class ZeoliteSimulation extends Simulation {
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
 
-        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayPhase)simGraphic.displayList().getFirst()).getColorScheme());
+        ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         for(int i=0;i<sim.species.length;i++){
         	switch(i){
         		case 0:

@@ -5,10 +5,10 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveEventManager;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMovePhase;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.integrator.mcmove.MCMoveTrialInitiatedEvent;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.util.IRandom;
@@ -24,7 +24,7 @@ import etomica.util.IRandom;
  * @see MCMove
  */
 
-public class IntegratorMC extends IntegratorPhase {
+public class IntegratorMC extends IntegratorBox {
 
     public IntegratorMC(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 1.0);
@@ -67,13 +67,13 @@ public class IntegratorMC extends IntegratorPhase {
     }
     
     /**
-     * Invokes superclass method and informs all MCMoves about the new phase.
-     * Moves are not notified if they have a number of phases different from
-     * the number of phases handled by the integrator.
+     * Invokes superclass method and informs all MCMoves about the new box.
+     * Moves are not notified if they have a number of boxs different from
+     * the number of boxs handled by the integrator.
      */
-    public void setPhase(Phase p) {
-    	super.setPhase(p);
-    	moveManager.setPhase(p);
+    public void setBox(Box p) {
+    	super.setBox(p);
+    	moveManager.setBox(p);
     }
 
     /**
@@ -86,13 +86,13 @@ public class IntegratorMC extends IntegratorPhase {
      */
     public void doStepInternal() {
     	//select the move
-    	MCMovePhase move = (MCMovePhase)moveManager.selectMove();
+    	MCMoveBox move = (MCMoveBox)moveManager.selectMove();
     	if (move == null)
     		return;
 
     	//perform the trial
     	//returns false if the trial cannot be attempted; for example an
-    	// atom-displacement trial in a phase with no molecules
+    	// atom-displacement trial in a box with no molecules
     	if (!move.doTrial())
     		return;
 

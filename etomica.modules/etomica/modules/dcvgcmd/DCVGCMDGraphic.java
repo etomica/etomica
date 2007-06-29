@@ -20,7 +20,7 @@ import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceToggleButton;
-import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
@@ -42,7 +42,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	public DCVGCMDGraphic(final DCVGCMD sim){
 
 		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL);	
-        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
         getController().getDataStreamPumps().add(sim.profile1pump);
         getController().getDataStreamPumps().add(sim.profile2pump);
@@ -54,20 +54,20 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
 	    //Button for cutaway view
 	    CutAway cutawayFilter = new CutAway();
-	    getDisplayPhase(sim.phase).setAtomFilter(cutawayFilter);
+	    getDisplayBox(sim.box).setAtomFilter(cutawayFilter);
 	    DeviceToggleButton cutawayButton = new DeviceToggleButton(sim.getController());
 	    cutawayButton.setModifier(cutawayFilter, "Restore", "Cut tube");
-	    cutawayButton.setPostAction(getDisplayPhasePaintAction(sim.phase));
+	    cutawayButton.setPostAction(getDisplayBoxPaintAction(sim.box));
 
 	    //Number of each type of atom
 	    MeterNMolecules meterA = new MeterNMolecules();
 	    MeterNMolecules meterB = new MeterNMolecules();
-	    meterA.setPhase(sim.phase);
+	    meterA.setBox(sim.box);
 	    meterA.setSpecies(sim.species);
-	    meterB.setPhase(sim.phase);
+	    meterB.setBox(sim.box);
 	    meterB.setSpecies(sim.species1);
-	    DisplayBox boxA = new DisplayBox(meterA.getDataInfo());
-	    DisplayBox boxB = new DisplayBox(meterB.getDataInfo());
+	    DisplayTextBox boxA = new DisplayTextBox(meterA.getDataInfo());
+	    DisplayTextBox boxB = new DisplayTextBox(meterB.getDataInfo());
 	    boxA.setPrecision(3);
 	    boxB.setPrecision(3);
 	    boxA.setIntegerDisplay(true);
@@ -110,7 +110,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		//tubePanelSlider.setMaximum(24);
 		
 	    //Display to see adjusted temperature
-		DisplayBox box1 = new DisplayBox(sim.thermometer.getDataInfo());
+		DisplayTextBox box1 = new DisplayTextBox(sim.thermometer.getDataInfo());
 	    final DataPump tpump = new DataPump(sim.thermometer, box1);
         sim.integratorDCV.addIntervalAction(tpump);
 		sim.integratorDCV.setActionInterval(tpump, 100);
@@ -145,7 +145,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	            new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
 
 	    //set color of molecules
-	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayPhase(sim.phase).getColorScheme());
+	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayBox(sim.box).getColorScheme());
 		colorScheme.setColor(sim.species.getMoleculeType(),colorA);
 		colorScheme.setColor(sim.species1.getMoleculeType(),colorB);
 		colorScheme.setColor(((AtomTypeGroup)sim.speciesTube.getMoleculeType()).getChildTypes()[0],java.awt.Color.cyan);
@@ -173,8 +173,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    ActionGroupSeries reinitActions = new ActionGroupSeries();
 	    reinitActions.addAction(new Action() {
 	        public void actionPerformed() {
-	            sim.phase.getAgent(sim.species).setNMolecules(20);
-	            sim.phase.getAgent(sim.species1).setNMolecules(20);
+	            sim.box.getAgent(sim.species).setNMolecules(20);
+	            sim.box.getAgent(sim.species1).setNMolecules(20);
 	            meterAPump.actionPerformed();
 	            meterBPump.actionPerformed();
 	            tpump.actionPerformed();
@@ -183,7 +183,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    reinitActions.addAction(simRestart);
 
 	    getController().getReinitButton().setAction(reinitActions);
-	    getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
+	    getController().getReinitButton().setPostAction(getDisplayBoxPaintAction(sim.box));
 
 		getPanel().toolbar.addContributor("Colin Tedlock");
 

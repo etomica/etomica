@@ -13,7 +13,7 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.CompoundDimension;
@@ -24,7 +24,7 @@ import etomica.units.Time;
 
 /**
  * Returns the instantaneous total center-of-mass momentum, summed over all
- * leaf atoms in a phase.
+ * leaf atoms in a box.
  *
  */
 public class MeterMomentumCOM implements DataSource, java.io.Serializable {
@@ -41,11 +41,11 @@ public class MeterMomentumCOM implements DataSource, java.io.Serializable {
     }
 
     /**
-     * Returns the instantaneous total center-of-mass momentum over all atoms in the phase.
+     * Returns the instantaneous total center-of-mass momentum over all atoms in the box.
      */
     public Data getData() {
         momentumSum.E(0.0);
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -56,16 +56,16 @@ public class MeterMomentumCOM implements DataSource, java.io.Serializable {
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
     
     public String getName() {
@@ -85,7 +85,7 @@ public class MeterMomentumCOM implements DataSource, java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private Phase phase;
+    private Box box;
     private final IVector momentumSum;
     private final DataVector data;    
     private final DataInfo dataInfo;

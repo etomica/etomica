@@ -13,10 +13,10 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
- * Action that dumps a phase's configuration to an PDB file.  Arbitrary but 
+ * Action that dumps a box's configuration to an PDB file.  Arbitrary but 
  * unique elements are assigned to each atom type.  After writing the PDB file,
  * writeRasmolScript can be called to write a script that will properly 
  * initialize the atomic radii.
@@ -32,13 +32,13 @@ public class PDBWriter implements Action, Serializable {
         }
     }        
     
-    public PDBWriter(Phase aPhase) {
+    public PDBWriter(Box aBox) {
         this();
-        setPhase(aPhase);
+        setBox(aBox);
     }
 
-    public void setPhase(Phase newPhase) {
-        leafList = newPhase.getSpeciesMaster().getLeafList();
+    public void setBox(Box newBox) {
+        leafList = newBox.getSpeciesMaster().getLeafList();
     }
     
     /**

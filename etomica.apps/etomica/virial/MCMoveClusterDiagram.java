@@ -7,8 +7,8 @@
 package etomica.virial;
 
 import etomica.atom.iterator.AtomIterator;
-import etomica.integrator.mcmove.MCMovePhase;
-import etomica.phase.Phase;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 
 /**
@@ -17,7 +17,7 @@ import etomica.potential.PotentialMaster;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class MCMoveClusterDiagram extends MCMovePhase {
+public class MCMoveClusterDiagram extends MCMoveBox {
 
     private static final long serialVersionUID = 1L;
     private MeterClusterWeight weightMeter;
@@ -26,10 +26,10 @@ public class MCMoveClusterDiagram extends MCMovePhase {
         weightMeter = new MeterClusterWeight(potentialMaster);
     }
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        weightMeter.setPhase(p);
-        ClusterAbstract sampleCluster = ((PhaseCluster)p).getSampleCluster();
+    public void setBox(Box p) {
+        super.setBox(p);
+        weightMeter.setBox(p);
+        ClusterAbstract sampleCluster = ((BoxCluster)p).getSampleCluster();
         ClusterAbstract cluster1;
         if (sampleCluster instanceof ClusterWeightAbs) {
             cluster1 = ((ClusterWeightAbs)sampleCluster).getSubCluster();
@@ -46,7 +46,7 @@ public class MCMoveClusterDiagram extends MCMovePhase {
     }
     
     public boolean doTrial() {
-        // don't notify the phase.  we're not moving any atoms.
+        // don't notify the box.  we're not moving any atoms.
         uOld = weightMeter.getDataAsScalar();
         cluster.randomizeDiagram();
         return true;

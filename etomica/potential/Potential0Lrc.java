@@ -6,7 +6,7 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -37,22 +37,22 @@ import etomica.space.Space;
  * that is kept by a single Potential0GroupLrc instance in the PotentialMaster.<br>
  *
  * Before the calculate method of PotentialMaster is called to compute something,
- * its set(Phase) method must have been previously called, which identifies to
- * all potentials (including Potential0GroupLrc) which phase is subject to the 
+ * its set(Box) method must have been previously called, which identifies to
+ * all potentials (including Potential0GroupLrc) which box is subject to the 
  * ensuing calculation.  Potential0Group ignores this notification if the
- * given phase is the same as the one specified in the previous call; otherwise
- * it passes the identified phase to all the set(Phase) methods (inherited from Potential0)
+ * given box is the same as the one specified in the previous call; otherwise
+ * it passes the identified box to all the set(Box) methods (inherited from Potential0)
  * of the Potential0Lrc classes it holds.<br>
  *
  * Then when the calculate(IteratorDirective, PotentialCalculation) method of
  * PotentialMaster is invoked, it passes the call on to the calculate methods of
  * its child potentials, including the Potential0GroupLrc instance if present.
- * Potential0GroupLrc checks that a phase has been specified, that its
+ * Potential0GroupLrc checks that a box has been specified, that its
  * enableLrc flag is <b>true</b> (the default), and that the given iteratorDirective's
  * includeP0Lrc flag is also <b>true</b> (default is <b>false</b>).  If so, it 
  * calls the calculate methods of all child Potential0Lrc classes.
  *
- * The Potential0Lrc class will use the volume from the specified phase and the
+ * The Potential0Lrc class will use the volume from the specified box and the
  * size method of the iterator of its associated potential to determine the
  * pair density.  The Potential0Lrc methods are called if the PotentialCalculation
  * implements Potential0Calculation.
@@ -85,7 +85,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
         return truncatedPotential;
     }
 
-    public void setPhase(Phase p) {
+    public void setBox(Box p) {
         agents[0] = p.getAgent(types[0].getSpecies());
         agents[1] = p.getAgent(types[1].getSpecies());
         if (lrcAtomsPerMolecule[0] == 0 || lrcAtomsPerMolecule[1] == 0) {
@@ -108,7 +108,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
                 }
             }
         }
-        phase = p;
+        box = p;
     }
     
     public void setTargetAtoms(AtomSet targetAtoms) {
@@ -156,8 +156,8 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
      
     /**
      * Returns the number of pairs formed from molecules of the current
-     * species, in the given phase.
-     * @param phase
+     * species, in the given box.
+     * @param box
      * @return int
      */
     protected int nPairs() {
@@ -190,6 +190,6 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     public abstract double d2uCorrection(double pairDensity);
     
     protected double divisor;
-    protected Phase phase;
+    protected Box box;
 
 }//end of Potential0Lrc

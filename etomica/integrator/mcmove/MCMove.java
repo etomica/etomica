@@ -1,7 +1,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.atom.iterator.AtomIterator;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 
 /**
@@ -19,8 +19,8 @@ public abstract class MCMove implements java.io.Serializable {
 
     /**
      * @param potentialMaster the potential master that move can use to calculate energy
-     * @param nPhases the number of phases on which the move acts.  This is used at
-     * construction to size the (final) phases array and cannot be changed.
+     * @param nBoxs the number of boxs on which the move acts.  This is used at
+     * construction to size the (final) boxs array and cannot be changed.
      */
 	public MCMove(PotentialMaster potentialMaster) {
         this(potentialMaster, new MCMoveTracker());
@@ -28,8 +28,8 @@ public abstract class MCMove implements java.io.Serializable {
 
     /**
      * @param potentialMaster the potential master that move can use to calculate energy
-     * @param nPhases the number of phases on which the move acts.  This is used at
-     * construction to size the (final) phases array and cannot be changed.
+     * @param nBoxs the number of boxs on which the move acts.  This is used at
+     * construction to size the (final) boxs array and cannot be changed.
      */
     public MCMove(PotentialMaster potentialMaster, MCMoveTracker acceptanceTracker) {
         potential = potentialMaster;
@@ -39,7 +39,7 @@ public abstract class MCMove implements java.io.Serializable {
 
 	/**
 	 * Method to perform trial move. Returns false if the trial could not be
-	 * attempted, for example if there were no molecules in the phase and the
+	 * attempted, for example if there were no molecules in the box and the
 	 * trial is designed to displace an atom; returns true otherwise.
 	 */
 	public abstract boolean doTrial();
@@ -47,14 +47,14 @@ public abstract class MCMove implements java.io.Serializable {
 	/**
      * Returns the temperature-independent part of the acceptance probability.  
      * The actual acceptance probility is calculated as max(1,A*exp(-B/T))
-     * where T is the IntegratorPhase's temperature.
+     * where T is the IntegratorBox's temperature.
 	 */
 	public abstract double getA();
 
 	/**
 	 * Returns the temperature-dependent part of the acceptance probability.  
      * The actual acceptance probility is calculated as max(1,A*exp(-B/T))
-     * where T is the IntegratorPhase's temperature.
+     * where T is the IntegratorBox's temperature.
 	 */
 	public abstract double getB();
 
@@ -79,17 +79,17 @@ public abstract class MCMove implements java.io.Serializable {
 	 * while the move is in progress, or need to update after the move is
 	 * completed. Such objects can receive notification of the move's completion
 	 * by registering with the IntegratorMC as MCMoveEventListeners.  If the    
-     * move caused an atom to be removed from the phase, it will not be returned
+     * move caused an atom to be removed from the box, it will not be returned
      * because that Atom is not considered an affected Atom.                    
 	 */
-	public abstract AtomIterator affectedAtoms(Phase phase);
+	public abstract AtomIterator affectedAtoms(Box box);
 
 	/**
-	 * Returns the change in the energy of the given phase that results from the
+	 * Returns the change in the energy of the given box that results from the
 	 * trial move. Should be called only after lnProbabilityRatio(); returns
 	 * Double.NaN if invoked between calls to doTrial and lnProbabilityRatio.
 	 */
-	public abstract double energyChange(Phase phase);
+	public abstract double energyChange(Box box);
 
 	public MCMoveTracker getTracker() {
         return moveTracker;

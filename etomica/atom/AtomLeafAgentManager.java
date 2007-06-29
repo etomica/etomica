@@ -2,38 +2,38 @@ package etomica.atom;
 
 import java.lang.reflect.Array;
 
-import etomica.phase.Phase;
-import etomica.phase.PhaseAtomAddedEvent;
-import etomica.phase.PhaseAtomEvent;
-import etomica.phase.PhaseAtomLeafIndexChangedEvent;
-import etomica.phase.PhaseAtomRemovedEvent;
-import etomica.phase.PhaseEvent;
-import etomica.phase.PhaseGlobalAtomLeafIndexEvent;
+import etomica.box.Box;
+import etomica.box.BoxAtomAddedEvent;
+import etomica.box.BoxAtomEvent;
+import etomica.box.BoxAtomLeafIndexChangedEvent;
+import etomica.box.BoxAtomRemovedEvent;
+import etomica.box.BoxEvent;
+import etomica.box.BoxGlobalAtomLeafIndexEvent;
 import etomica.util.Arrays;
 
 /**
  * AtomLeafAgentManager acts on behalf of client classes (an AgentSource) to
- * manage agents for every leaf Atom in a phase.  When leaf atoms are added or
- * removed from the phase, the agents array (indexed by the atom's global
+ * manage agents for every leaf Atom in a box.  When leaf atoms are added or
+ * removed from the box, the agents array (indexed by the atom's global
  * index) is updated.  The client can access and modify the agents via getAgent
  * and setAgent.
  * @author Andrew Schultz
  */
 public class AtomLeafAgentManager extends AtomAgentManager {
 
-    public AtomLeafAgentManager(AgentSource source, Phase phase) {
-        this(source, phase, true);
+    public AtomLeafAgentManager(AgentSource source, Box box) {
+        this(source, box, true);
     }
     
-    public AtomLeafAgentManager(AgentSource source, Phase phase, boolean isBackend) {
-        super(source, phase, isBackend);
+    public AtomLeafAgentManager(AgentSource source, Box box, boolean isBackend) {
+        super(source, box, isBackend);
         // we just want the leaf atoms
         treeIterator.setDoAllNodes(false);
     }        
     
     /**
      * Returns the agent associated with the given IAtom.  The IAtom must be
-     * from the Phase associated with this instance.
+     * from the Box associated with this instance.
      */
     public Object getAgent(IAtom a) {
         return agents[atomManager.getLeafIndex(a)];
@@ -41,7 +41,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
     
     /**
      * Sets the agent associated with the given atom to be the given agent.
-     * The IAtom must be from the Phase associated with this instance.
+     * The IAtom must be from the Box associated with this instance.
      */
     public void setAgent(IAtom a, Object newAgent) {
         agents[atomManager.getLeafIndex(a)] = newAgent;
@@ -51,8 +51,8 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      * Notifies the AtomAgentManager it should disconnect itself as a listener.
      */
     public void dispose() {
-        // remove ourselves as a listener to the phase
-        atomManager.getPhase().getEventManager().removeListener(this);
+        // remove ourselves as a listener to the box
+        atomManager.getBox().getEventManager().removeListener(this);
         AtomSet leafList = atomManager.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
@@ -66,10 +66,10 @@ public class AtomLeafAgentManager extends AtomAgentManager {
     }
     
     /**
-     * Sets the Phase in which this AtomAgentManager will manage Atom agents.
+     * Sets the Box in which this AtomAgentManager will manage Atom agents.
      */
-    protected void setupPhase() {
-        atomManager.getPhase().getEventManager().addListener(this, isBackend);
+    protected void setupBox() {
+        atomManager.getBox().getEventManager().addListener(this, isBackend);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
                 atomManager.getLeafList().getAtomCount()+1+atomManager.getIndexReservoirSize());
@@ -83,10 +83,10 @@ public class AtomLeafAgentManager extends AtomAgentManager {
         }
     }
     
-    public void actionPerformed(PhaseEvent evt) {
-        if (evt instanceof PhaseAtomEvent) {
-            IAtom a = ((PhaseAtomEvent)evt).getAtom();
-            if (evt instanceof PhaseAtomAddedEvent) {
+    public void actionPerformed(BoxEvent evt) {
+        if (evt instanceof BoxAtomEvent) {
+            IAtom a = ((BoxAtomEvent)evt).getAtom();
+            if (evt instanceof BoxAtomAddedEvent) {
                 if (a instanceof IAtomGroup) {
                     // add all leaf atoms below this atom
                     treeIterator.setRootAtom(a);
@@ -101,7 +101,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
                     addAgent(a);
                 }
             }
-            else if (evt instanceof PhaseAtomRemovedEvent) {
+            else if (evt instanceof BoxAtomRemovedEvent) {
                 if (a instanceof IAtomGroup) {
                     // IAtomGroups don't have agents, but nuke all atoms below this atom
                     treeIterator.setRootAtom(a);
@@ -124,18 +124,18 @@ public class AtomLeafAgentManager extends AtomAgentManager {
                     }
                 }
             }
-            else if (evt instanceof PhaseAtomLeafIndexChangedEvent) {
+            else if (evt instanceof BoxAtomLeafIndexChangedEvent) {
                 // the atom's index changed.  assume it would get the same agent
-                int oldIndex = ((PhaseAtomLeafIndexChangedEvent)evt).getOldIndex();
+                int oldIndex = ((BoxAtomLeafIndexChangedEvent)evt).getOldIndex();
                 agents[atomManager.getLeafIndex(a)] = agents[oldIndex];
                 agents[oldIndex] = null;
             }
         }
-        else if (evt instanceof PhaseGlobalAtomLeafIndexEvent) {
+        else if (evt instanceof BoxGlobalAtomLeafIndexEvent) {
             int reservoirSize = atomManager.getIndexReservoirSize();
             // don't use leafList.size() since the SpeciesMaster might be notifying
             // us that it's about to add leaf atoms
-            int newMaxIndex = ((PhaseGlobalAtomLeafIndexEvent)evt).getMaxIndex();
+            int newMaxIndex = ((BoxGlobalAtomLeafIndexEvent)evt).getMaxIndex();
             if (agents.length > newMaxIndex+reservoirSize || agents.length < newMaxIndex) {
                 // indices got compacted.  If our array is a lot bigger than it
                 // needs to be, shrink it.

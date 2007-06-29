@@ -11,7 +11,7 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataTable;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataTable.DataInfoTable;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 import etomica.units.Fraction;
 
@@ -80,17 +80,17 @@ public final class MeterDimerFraction implements DataSource {
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        iterator.setPhase(phase);
+    public void setBox(Box box) {
+        this.box = box;
+        iterator.setBox(box);
     }
 
     public String getName() {
@@ -102,7 +102,7 @@ public final class MeterDimerFraction implements DataSource {
     }
 
     private String name;
-    private Phase phase;
+    private Box box;
     private Species speciesA;
     private final DataTable data;
     private final DataInfoTable dataInfo;

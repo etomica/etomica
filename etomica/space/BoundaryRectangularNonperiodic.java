@@ -55,6 +55,6 @@ public class BoundaryRectangularNonperiodic extends BoundaryRectangular {
     }
 
     private final IVector zero;
-    protected final double[][] origins= new double[0][0];//cannot be static because several phases may be using at once
+    protected final double[][] origins= new double[0][0];//cannot be static because several boxs may be using at once
     private static final long serialVersionUID = 1L;
 }

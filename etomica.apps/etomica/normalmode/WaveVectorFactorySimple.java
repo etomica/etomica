@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
@@ -13,7 +13,7 @@ import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Wave vector factory that returns wave vectors appropriate for a phase with 
+ * Wave vector factory that returns wave vectors appropriate for a box with 
  * a single-atom basis.  The box shape need not be rectangular so long as it
  * matches the primitive's shape.
  *
@@ -25,24 +25,24 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         this.primitive = primitive;
     }
     
-    public void makeWaveVectors(Phase phase) {
-        // If we weren't given wave vectors, determine them from the phase boundary and primitve
+    public void makeWaveVectors(Box box) {
+        // If we weren't given wave vectors, determine them from the box boundary and primitve
         // assume 1-molecule basis and matchup betwen the box and the primitive
     
         double[] d = primitive.getSize();
-        int[] numCells = new int[phase.getSpace().D()];
+        int[] numCells = new int[box.getSpace().D()];
         IVector[] reciprocals =  primitive.makeReciprocal().vectors();
         IVector[] waveVectorBasis = new IVector[reciprocals.length];
         
-        for (int i=0; i<phase.getSpace().D(); i++) {
-            waveVectorBasis[i] = phase.getSpace().makeVector();
+        for (int i=0; i<box.getSpace().D(); i++) {
+            waveVectorBasis[i] = box.getSpace().makeVector();
             waveVectorBasis[i].E(reciprocals[i]);
-            numCells[i] = (int)Math.round(phase.getBoundary().getDimensions().x(i) / (d[i]));
+            numCells[i] = (int)Math.round(box.getBoundary().getDimensions().x(i) / (d[i]));
             waveVectorBasis[i].TE(1.0/numCells[i]);
         }
     
-        int[] kMin = new int[phase.getSpace().D()];
-        int[] kMax= new int[phase.getSpace().D()];
+        int[] kMin = new int[box.getSpace().D()];
+        int[] kMax= new int[box.getSpace().D()];
         for (int i=0; i<kMax.length; i++) {
             kMin[i] = -(numCells[i]-1)/2;
             kMax[i] = numCells[i]/2;
@@ -123,7 +123,7 @@ outer:              for (int i=0; i<3; i++){
             for (int ky = -kMax[1]; ky < kMax[1]+1; ky++) {
                 for (int kz = -kMax[2]; kz < kMax[2]+1; kz++) {
                     if (waveVectorIndices[kx+kMax[0]][ky+kMax[1]][kz+kMax[2]] > 0) {
-                        waveVectors[count] = phase.getSpace().makeVector();
+                        waveVectors[count] = box.getSpace().makeVector();
                         waveVectors[count].Ea1Tv1(kx, waveVectorBasis[0]);
                         waveVectors[count].PEa1Tv1(ky, waveVectorBasis[1]);
                         waveVectors[count].PEa1Tv1(kz, waveVectorBasis[2]);
@@ -146,16 +146,16 @@ outer:              for (int i=0; i<3; i++){
     public static void main(String[] args) {
         int [] nCells = new int []{2,3,4};
         Simulation sim = new Simulation(Space3D.getInstance());
-        Phase phase = new Phase(sim);
-        sim.addPhase(phase);
-        phase.setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
+        Box box = new Box(sim);
+        sim.addBox(box);
+        box.setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
         Species species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
-        phase.getAgent(species).setNMolecules(nCells[0]*nCells[1]*nCells[2]);
+        box.getAgent(species).setNMolecules(nCells[0]*nCells[1]*nCells[2]);
         Primitive primitive = new PrimitiveCubic(sim.getSpace(), 1);
         
         WaveVectorFactorySimple foo = new WaveVectorFactorySimple(primitive);
-        foo.makeWaveVectors(phase);
+        foo.makeWaveVectors(box);
         IVector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);

@@ -2,7 +2,7 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space1d.Space1D;
@@ -26,13 +26,13 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
     public WaveVectorFactory1D() {
     }
     
-    public void makeWaveVectors(Phase phase) {
-        if(phase.getSpace().D() != 1) {
-            throw new RuntimeException("Must give a phase for a 1D system"); 
+    public void makeWaveVectors(Box box) {
+        if(box.getSpace().D() != 1) {
+            throw new RuntimeException("Must give a box for a 1D system"); 
         }
 
-        int nA = phase.moleculeCount();
-        double L = phase.getBoundary().getDimensions().x(0);
+        int nA = box.moleculeCount();
+        double L = box.getBoundary().getDimensions().x(0);
         
         int mMax = nA/2;
 
@@ -62,14 +62,14 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
     public static void main(String[] args) {
         int nCells = 6;
         Simulation sim = new Simulation(Space1D.getInstance());
-        Phase phase = new Phase(sim);
-        sim.addPhase(phase);
-        phase.setDimensions(new Vector1D(nCells));
+        Box box = new Box(sim);
+        sim.addBox(box);
+        box.setDimensions(new Vector1D(nCells));
         Species species = new SpeciesSpheresMono(sim);
-        phase.getAgent(species).setNMolecules(nCells*nCells*nCells);
+        box.getAgent(species).setNMolecules(nCells*nCells*nCells);
         
         WaveVectorFactory1D foo = new WaveVectorFactory1D();
-        foo.makeWaveVectors(phase);
+        foo.makeWaveVectors(box);
         IVector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);

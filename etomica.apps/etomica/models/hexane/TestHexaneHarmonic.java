@@ -18,8 +18,8 @@ import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataDouble.DataInfoDouble;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxesCAE;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -33,7 +33,7 @@ import etomica.normalmode.MeterHarmonicEnergy;
 import etomica.normalmode.MeterHarmonicSingleEnergy;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -88,22 +88,22 @@ public class TestHexaneHarmonic extends Simulation {
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{4,6,6};
         bdry =  new BoundaryDeformableLattice(primitive, getRandom(), nCells);
-        phase = new Phase(bdry);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numMolecules);
-//        config.initializeCoordinates(phase);
+        box = new Box(bdry);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numMolecules);
+//        config.initializeCoordinates(box);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
         moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(), 1.0, 15.0, false);
-//        moveVolume = new MCMoveVolume(potentialMaster, phase.space(), sim.getDefaults().pressure);
-//        moveVolume.setPhase(phase);
+//        moveVolume = new MCMoveVolume(potentialMaster, box.space(), sim.getDefaults().pressure);
+//        moveVolume.setBox(box);
 //        crank = new MCMoveCrankshaft();
         
 //         snake = new MCMoveReptate(this);
-//         snake.setPhase(phase);
+//         snake.setBox(box);
          
          rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom());
-         rot.setPhase(phase);
+         rot.setBox(box);
          
          // 0.025 for translate, 0.042 for rotate for rho=0.3737735
          moveMolecule.setStepSize(0.024);
@@ -193,13 +193,13 @@ public class TestHexaneHarmonic extends Simulation {
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
 
         //Initialize the positions of the atoms.
-        coordinateDefinition = new CoordinateDefinitionHexane(phase, primitive, species);
+        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species);
         coordinateDefinition.initializeCoordinates(nCells);
 
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         
         //nan this will need to be changed
-//        pri = new PairIndexerMolecule(phase, new PrimitiveHexane(space));
+//        pri = new PairIndexerMolecule(box, new PrimitiveHexane(space));
     }
 
     public static void main(String[] args) {
@@ -218,7 +218,7 @@ public class TestHexaneHarmonic extends Simulation {
         NormalModes normalModes = new NormalModesFromFile(filename, 3);
         
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(sim.coordinateDefinition, normalModes);
-        harmonicEnergy.setPhase(sim.phase);
+        harmonicEnergy.setBox(sim.box);
         DataFork harmonicFork = new DataFork();
         AccumulatorAverage harmonicAvg = new AccumulatorAverage();
         DataPump pump = new DataPump(harmonicEnergy, harmonicFork);
@@ -234,7 +234,7 @@ public class TestHexaneHarmonic extends Simulation {
         harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
         
         MeterHarmonicSingleEnergy harmonicSingleEnergy = new MeterHarmonicSingleEnergy(sim.coordinateDefinition, normalModes);
-        harmonicSingleEnergy.setPhase(sim.phase);
+        harmonicSingleEnergy.setBox(sim.box);
 //        DataProcessorFunction harmonicLog = new DataProcessorFunction(new Function.Log());
         boltz = new BoltzmannProcessor();
         boltz.setTemperature(1);
@@ -256,7 +256,7 @@ public class TestHexaneHarmonic extends Simulation {
             dataStreamPumps.add(pump);
             dataStreamPumps.add(pumpSingle);
             
-            DisplayBoxesCAE harmonicBoxes = new DisplayBoxesCAE();
+            DisplayTextBoxesCAE harmonicBoxes = new DisplayTextBoxesCAE();
             harmonicBoxes.setAccumulator(harmonicAvg);
             simGraphic.add(harmonicBoxes);
 
@@ -267,12 +267,12 @@ public class TestHexaneHarmonic extends Simulation {
             harmonicSingleHistogram.setDataSink(harmonicPlot.getDataSet().makeDataSink());
             simGraphic.add(harmonicPlot);
             
-            DisplayBox diffSingleA = new DisplayBox();
+            DisplayTextBox diffSingleA = new DisplayTextBox();
             diffSingleA.setLabel("deltaA, independent approx");
             fooerSingle.setDataSink(diffSingleA);
             simGraphic.add(diffSingleA);
 
-            DisplayBox diffA = new DisplayBox();
+            DisplayTextBox diffA = new DisplayTextBox();
             diffA.setLabel("deltaA");
             fooer.setDataSink(diffA);
             simGraphic.add(diffA);
@@ -326,7 +326,7 @@ public class TestHexaneHarmonic extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
 
-    public Phase phase;
+    public Box box;
 
     public BoundaryDeformablePeriodic bdry;
  

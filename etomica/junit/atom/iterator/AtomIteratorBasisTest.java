@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.junit.UnitTestUtil;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 
 
@@ -70,10 +70,10 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         assertEquals(list.size(), 0);
         
         //test no-target iteration of children of a basis
-        Phase phase = sim.getPhases()[0];
-        AtomSet moleculeList0 = phase.getAgent(sim.getSpeciesManager().getSpecies()[0]).getChildList();
-        AtomSet moleculeList1 = phase.getAgent(sim.getSpeciesManager().getSpecies()[1]).getChildList();
-        AtomSet moleculeList2 = phase.getAgent(sim.getSpeciesManager().getSpecies()[2]).getChildList();
+        Box box = sim.getBoxs()[0];
+        AtomSet moleculeList0 = box.getAgent(sim.getSpeciesManager().getSpecies()[0]).getChildList();
+        AtomSet moleculeList1 = box.getAgent(sim.getSpeciesManager().getSpecies()[1]).getChildList();
+        AtomSet moleculeList2 = box.getAgent(sim.getSpeciesManager().getSpecies()[2]).getChildList();
         basis = moleculeList0.getAtom(0);
         target = null;
         iterates = new AtomArrayList();
@@ -150,7 +150,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         target = null;
         testNoIterates(basis, target);
 
-        //int[] {phase (0), species (0,1,2), molecule etc}
+        //int[] {box (0), species (0,1,2), molecule etc}
     }
     
     private LinkedList testOneIterate(IAtom basis, IAtom target, IAtom iterate) {

@@ -10,7 +10,7 @@ import etomica.util.Arrays;
 import etomica.util.IRandom;
 
 /**
- * Integrator manages other Integrators which either act on a Phase, or manager 
+ * Integrator manages other Integrators which either act on a Box, or manager 
  * still other Integrators.  Each step, this class either performs global MC 
  * moves between the Integrators or runs the sub-integratos.
  * 
@@ -111,7 +111,7 @@ public class IntegratorManagerMC extends Integrator {
 
     /**
      * Performs a Monte Carlo trial that attempts to swap the configurations
-     * between two "adjacent" phases, or instructs all integrators to perform
+     * between two "adjacent" boxs, or instructs all integrators to perform
      * a single doStep.
      */
     public void doStepInternal() {
@@ -140,7 +140,7 @@ public class IntegratorManagerMC extends Integrator {
 
         //perform the trial
         //returns false if the trial cannot be attempted; for example an
-        // atom-displacement trial in a phase with no molecules
+        // atom-displacement trial in a box with no molecules
         if (!move.doTrial())
             return;
 
@@ -169,10 +169,10 @@ public class IntegratorManagerMC extends Integrator {
     }
     
     /**
-     * Sets the average interval between phase-swap trials.  With each 
+     * Sets the average interval between box-swap trials.  With each 
      * call to doStep of this integrator, there will be a probability of
      * 1/globalMoveInterval that a swap trial will be attempted.  A swap is attempted
-     * for only one pair of phases.  Default is 2.
+     * for only one pair of boxs.  Default is 2.
      */
     public void setGlobalMoveInterval(double newGlobalMoveInterval) {
         if(newGlobalMoveInterval <= 0) {
@@ -188,7 +188,7 @@ public class IntegratorManagerMC extends Integrator {
     }
     
     /**
-     * Accessor method for the average interval between phase-swap trials.
+     * Accessor method for the average interval between box-swap trials.
      */
     public double getGlobalMoveInterval() {return globalMoveInterval;}
     

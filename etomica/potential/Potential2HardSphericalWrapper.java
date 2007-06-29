@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -31,9 +31,9 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
         wrappedPotential = potential;
     }
     
-    public void setPhase(Phase phase) {
-        ((Potential2)wrappedPotential).setPhase(phase);
-        super.setPhase(phase);
+    public void setBox(Box box) {
+        ((Potential2)wrappedPotential).setBox(box);
+        super.setBox(box);
     }
     
     public double getRange() {

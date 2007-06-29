@@ -11,7 +11,7 @@ import etomica.units.Second;
  * molecular dynamics simulation.  Designed for use with
  * a single integrator.
  */
-public class DisplayTimer extends DisplayBox {
+public class DisplayTimer extends DisplayTextBox {
 
     public DisplayTimer(IntegratorMD integrator) {
         this(integrator, new DataSourceCountTime(integrator));

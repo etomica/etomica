@@ -1,10 +1,10 @@
 package etomica.integrator.mcmove;
 
-import etomica.action.PhaseInflate;
+import etomica.action.BoxInflate;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.units.Dimension;
@@ -16,12 +16,12 @@ import etomica.util.IRandom;
  *
  * @author David Kofke
  */
-public class MCMoveVolume extends MCMovePhaseStep {
+public class MCMoveVolume extends MCMoveBoxStep {
     
     private static final long serialVersionUID = 2L;
     protected double pressure;
     private MeterPotentialEnergy energyMeter;
-    protected final PhaseInflate inflate;
+    protected final BoxInflate inflate;
     private final int D;
     private IRandom random;
 
@@ -40,7 +40,7 @@ public class MCMoveVolume extends MCMovePhaseStep {
         super(potentialMaster);
         this.random = random;
         this.D = potentialMaster.getSpace().D();
-        inflate = new PhaseInflate(potentialMaster.getSpace());
+        inflate = new BoxInflate(potentialMaster.getSpace());
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         setStepSizeMax(1.0);
         setStepSizeMin(0.0);
@@ -51,14 +51,14 @@ public class MCMoveVolume extends MCMovePhaseStep {
         
     }
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        energyMeter.setPhase(p);
-        inflate.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        energyMeter.setBox(p);
+        inflate.setBox(p);
     }
     
     public boolean doTrial() {
-        double vOld = phase.volume();
+        double vOld = box.volume();
         uOld = energyMeter.getDataAsScalar();
         hOld = uOld + pressure*vOld;
         vScale = (2.*random.nextDouble()-1.)*stepSize;
@@ -71,7 +71,7 @@ public class MCMoveVolume extends MCMovePhaseStep {
     }//end of doTrial
     
     public double getA() {
-        return Math.exp((phase.moleculeCount()+1)*vScale);
+        return Math.exp((box.moleculeCount()+1)*vScale);
     }
     
     public double getB() {
@@ -89,7 +89,7 @@ public class MCMoveVolume extends MCMovePhaseStep {
     public double energyChange() {return uNew - uOld;}
     
     public AtomIterator affectedAtoms() {
-        return new AtomIteratorAllMolecules(phase);
+        return new AtomIteratorAllMolecules(box);
     }
 
     public void setPressure(double p) {pressure = p;}

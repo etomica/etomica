@@ -1,15 +1,15 @@
 package etomica.atom;
 
-import etomica.atom.iterator.AtomIteratorTreePhase;
+import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAtomAddedEvent;
-import etomica.phase.PhaseAtomIndexChangedEvent;
-import etomica.phase.PhaseAtomLeafIndexChangedEvent;
-import etomica.phase.PhaseAtomRemovedEvent;
-import etomica.phase.PhaseEventManager;
-import etomica.phase.PhaseGlobalAtomIndexEvent;
-import etomica.phase.PhaseGlobalAtomLeafIndexEvent;
+import etomica.box.Box;
+import etomica.box.BoxAtomAddedEvent;
+import etomica.box.BoxAtomIndexChangedEvent;
+import etomica.box.BoxAtomLeafIndexChangedEvent;
+import etomica.box.BoxAtomRemovedEvent;
+import etomica.box.BoxEventManager;
+import etomica.box.BoxGlobalAtomIndexEvent;
+import etomica.box.BoxGlobalAtomLeafIndexEvent;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
@@ -18,7 +18,7 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.util.Arrays;
 
 /**
- * Coordinator of all species agents in a phase. Parent is SpeciesRoot, and
+ * Coordinator of all species agents in a box. Parent is SpeciesRoot, and
  * children are SpeciesAgent instances. All instances of SpeciesMaster in a
  * given simulation share the same AtomType.
  * 
@@ -27,18 +27,18 @@ import etomica.util.Arrays;
 
 public final class AtomManager implements java.io.Serializable {
 
-    public AtomManager(Phase p, PhaseEventManager eventManager) {
+    public AtomManager(Box p, BoxEventManager eventManager) {
         agentList = new AtomArrayList();
-        phaseEventManager = eventManager;
+        boxEventManager = eventManager;
         indexReservoir = new int[reservoirSize];
         maxIndex = -1;
         leafIndices = new int[0];
         reservoirCount = 0;
-        phase = p;
+        box = p;
         treeIteratorRoot = new AtomIteratorTreeRoot();
         treeIteratorRoot.setDoAllNodes(true);
         treeIteratorRoot.setIterationDepth(Integer.MAX_VALUE);
-        treeIteratorPhase = new AtomIteratorTreePhase();
+        treeIteratorBox = new AtomIteratorTreeBox();
     }
 
     /**
@@ -74,25 +74,25 @@ public final class AtomManager implements java.io.Serializable {
     }
 
     /**
-     * Returns the number of molecules in the Phase
+     * Returns the number of molecules in the Box
      */
     public int moleculeCount() {
         return moleculeCount;
     }
 
     /**
-     * Returns an AtomArrayList containing the leaf atoms in the Phase
+     * Returns an AtomArrayList containing the leaf atoms in the Box
      */
     public AtomSet getLeafList() {
         return leafList;
     }
     
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
 
     /**
-     * Returns a "global" index for the Phase.  This method should only be
+     * Returns a "global" index for the Box.  This method should only be
      * called by Atom.
      */
     public int requestGlobalIndex() {
@@ -114,7 +114,7 @@ public final class AtomManager implements java.io.Serializable {
     }
     
     /**
-     * Returns the maximum global index for the Phase.
+     * Returns the maximum global index for the Box.
      */
     public int getMaxGlobalIndex() {
         return maxIndex;
@@ -139,29 +139,29 @@ public final class AtomManager implements java.io.Serializable {
             }
             j++;
         }
-        treeIteratorPhase.setPhase(phase);
-        treeIteratorPhase.reset();
+        treeIteratorBox.setBox(box);
+        treeIteratorBox.reset();
         // loop over all the atoms.  Any atoms whose index is larger than what
         // the new maxIndex will be get new indices
-        for (IAtom a = treeIteratorPhase.nextAtom(); a != null;
-             a = treeIteratorPhase.nextAtom()) {
+        for (IAtom a = treeIteratorBox.nextAtom(); a != null;
+             a = treeIteratorBox.nextAtom()) {
             if (a.getGlobalIndex() > maxIndex-reservoirSize) {
                 // Just re-invoke the Atom's method without first "returning"
                 // the index to the reservoir.  The old index gets dropped on the
                 // floor.
                 int oldGlobalIndex = a.getGlobalIndex();
-                PhaseAtomIndexChangedEvent event = new PhaseAtomIndexChangedEvent(phase, a, oldGlobalIndex);
+                BoxAtomIndexChangedEvent event = new BoxAtomIndexChangedEvent(box, a, oldGlobalIndex);
                 a.setGlobalIndex(this);
                 leafIndices[a.getGlobalIndex()] = leafIndices[oldGlobalIndex];
-                phaseEventManager.fireEvent(event);
+                boxEventManager.fireEvent(event);
             }
         }
         maxIndex -= reservoirSize;
         if (leafIndices.length > maxIndex + 1 + reservoirSize) {
             leafIndices = Arrays.resizeArray(leafIndices, maxIndex+1);
         }
-        PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(phase, maxIndex);
-        phaseEventManager.fireEvent(event);
+        BoxGlobalAtomIndexEvent event = new BoxGlobalAtomIndexEvent(box, maxIndex);
+        boxEventManager.fireEvent(event);
         if (reservoirCount != 0) {
             System.out.println("reservoir still has atoms:");
             for (int i=0; i<reservoirCount; i++) {
@@ -183,13 +183,13 @@ public final class AtomManager implements java.io.Serializable {
         // actual max index has already increased, there's no harm since
         // there's nothing that says the max index can't be too large.
         if (numNewAtoms > reservoirCount) {
-            PhaseGlobalAtomIndexEvent event = new PhaseGlobalAtomIndexEvent(phase, maxIndex + numNewAtoms - reservoirCount);
-            phaseEventManager.fireEvent(event);
+            BoxGlobalAtomIndexEvent event = new BoxGlobalAtomIndexEvent(box, maxIndex + numNewAtoms - reservoirCount);
+            boxEventManager.fireEvent(event);
             leafIndices = Arrays.resizeArray(leafIndices, maxIndex + numNewAtoms - reservoirCount + 1 + reservoirSize);
         }
         if (numNewLeafAtoms > 1) {
-            PhaseGlobalAtomLeafIndexEvent leafEvent = new PhaseGlobalAtomLeafIndexEvent(phase, leafList.getAtomCount() + numNewLeafAtoms);
-            phaseEventManager.fireEvent(leafEvent);
+            BoxGlobalAtomLeafIndexEvent leafEvent = new BoxGlobalAtomLeafIndexEvent(box, leafList.getAtomCount() + numNewLeafAtoms);
+            boxEventManager.fireEvent(leafEvent);
         }
     }
     
@@ -248,7 +248,7 @@ public final class AtomManager implements java.io.Serializable {
                 }
             }
         }
-        phaseEventManager.fireEvent(new PhaseAtomAddedEvent(phase, newAtom));
+        boxEventManager.fireEvent(new BoxAtomAddedEvent(box, newAtom));
     }
 
     //updating of leaf atomList may not be efficient enough for repeated
@@ -261,7 +261,7 @@ public final class AtomManager implements java.io.Serializable {
 //            ordinalReservoir.returnOrdinal(oldAtom.node.getOrdinal());
         }
         
-        phaseEventManager.fireEvent(new PhaseAtomRemovedEvent(phase, oldAtom));
+        boxEventManager.fireEvent(new BoxAtomRemovedEvent(box, oldAtom));
         if (!(oldAtom instanceof IAtomGroup)) {
             int leafIndex = leafIndices[oldAtom.getGlobalIndex()];
             leafList.removeAndReplace(leafIndex);
@@ -271,9 +271,9 @@ public final class AtomManager implements java.io.Serializable {
             if (leafList.getAtomCount() > leafIndex) {
                 IAtom movedAtom = leafList.getAtom(leafIndex);
                 int globalIndex = movedAtom.getGlobalIndex();
-                PhaseAtomLeafIndexChangedEvent event = new PhaseAtomLeafIndexChangedEvent(phase, movedAtom, leafIndices[globalIndex]);
+                BoxAtomLeafIndexChangedEvent event = new BoxAtomLeafIndexChangedEvent(box, movedAtom, leafIndices[globalIndex]);
                 leafIndices[globalIndex] = leafIndex;
-                phaseEventManager.fireEvent(event);
+                boxEventManager.fireEvent(event);
             }
             returnGlobalIndex(oldAtom.getGlobalIndex());
         } else {
@@ -288,9 +288,9 @@ public final class AtomManager implements java.io.Serializable {
                     if (leafList.getAtomCount() > leafIndex) {
                         IAtom movedAtom = leafList.getAtom(leafIndex);
                         int globalIndex = movedAtom.getGlobalIndex();
-                        PhaseAtomLeafIndexChangedEvent event = new PhaseAtomLeafIndexChangedEvent(phase, movedAtom, leafIndices[globalIndex]);
+                        BoxAtomLeafIndexChangedEvent event = new BoxAtomLeafIndexChangedEvent(box, movedAtom, leafIndices[globalIndex]);
                         leafIndices[globalIndex] = leafIndex;
-                        phaseEventManager.fireEvent(event);
+                        boxEventManager.fireEvent(event);
                     }
                 }
                 returnGlobalIndex(childAtom.getGlobalIndex());
@@ -301,25 +301,25 @@ public final class AtomManager implements java.io.Serializable {
     
     /**
      * Returns the index of the given leaf atom within the SpeciesMaster's
-     * leaf list.  The given leaf atom must be in the SpeciesMaster's Phase. 
+     * leaf list.  The given leaf atom must be in the SpeciesMaster's Box. 
      */
     public int getLeafIndex(IAtom atomLeaf) {
         return leafIndices[atomLeaf.getGlobalIndex()];
     }
 
     private static final long serialVersionUID = 2L;
-    private final Phase phase;
+    private final Box box;
     private final AtomArrayList agentList;
     /**
-     * List of leaf atoms in phase
+     * List of leaf atoms in box
      */
     protected final AtomArrayList leafList = new AtomArrayList();
 
-    protected final AtomIteratorTreePhase treeIteratorPhase;
+    protected final AtomIteratorTreeBox treeIteratorBox;
     protected final AtomIteratorTreeRoot treeIteratorRoot;
 
     protected int moleculeCount;
-    protected final PhaseEventManager phaseEventManager;
+    protected final BoxEventManager boxEventManager;
 
     protected int[] indexReservoir;
     protected int reservoirSize = 50;
@@ -340,13 +340,13 @@ public final class AtomManager implements java.io.Serializable {
         sim.getSpeciesManager().addSpecies(species2);
         sim.getSpeciesManager().addSpecies(species1);
         sim.getSpeciesManager().addSpecies(species0);
-        Phase phase = new Phase(sim);
-        sim.addPhase(phase);
-        phase.getAgent(species0).setNMolecules(4);
-        phase.getAgent(species1).setNMolecules(2);
-        phase.getAgent(species2).setNMolecules(2);
+        Box box = new Box(sim);
+        sim.addBox(box);
+        box.getAgent(species0).setNMolecules(4);
+        box.getAgent(species1).setNMolecules(2);
+        box.getAgent(species2).setNMolecules(2);
 
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);

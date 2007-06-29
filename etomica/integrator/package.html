@@ -35,9 +35,9 @@ integrator, IntegratorHard.  IntegratorMC holds a set of MCMove instances which 
 of Monte Carlo trials that are performed in the simulation.
 <p>
 To use an Integrator, add the instance to a new ActivityIntegrate instance, and add the
-ActivityIntegrate to the Simulation's Controller.  The Phase upon which the Integrator acts
+ActivityIntegrate to the Simulation's Controller.  The Box upon which the Integrator acts
 must be set before beginning the simulation.  Some Integrators require the specification of
-multiple phases.  It can also be helpful to invoke the register method in the governing Simulation,
+multiple boxs.  It can also be helpful to invoke the register method in the governing Simulation,
 passing the Integrator instance; this will cause the Integrator to be reset when the Simulation
 is reset to a new (or initial) condition.
 

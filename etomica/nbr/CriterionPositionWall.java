@@ -5,9 +5,9 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
-import etomica.phase.PhaseAgentSourceAtomManager;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
+import etomica.box.BoxAgentSourceAtomManager;
 import etomica.simulation.ISimulation;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -16,7 +16,7 @@ import etomica.util.Debug;
 /**
  * Simple neighbor criterion based on distance moved by a leaf atom since
  * the last update.  The potential is assumed to be from a wall that exists
- * at the phase boundaries or at some fixed position within the phase.
+ * at the box boundaries or at some fixed position within the box.
  * @author andrew
  */
 public class CriterionPositionWall implements NeighborCriterion, AgentSource, java.io.Serializable {
@@ -27,7 +27,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
         this.neighborRange = Double.NaN;
         setBoundaryWall(true);
         setSafetyFactor(0.8);
-        phaseAgentManager = new PhaseAgentManager(new PhaseAgentSourceAtomManager(this),sim,true);
+        boxAgentManager = new BoxAgentManager(new BoxAgentSourceAtomManager(this),sim,true);
 	}
 
     /**
@@ -102,14 +102,14 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     }
     
 	/**
-     * Returns true if the walls are at the phase boundaries.
+     * Returns true if the walls are at the box boundaries.
      */
     public boolean isBoundaryWall() {
         return isBoundaryWall;
     }
 
     /**
-     * Sets whether the walls are at the phase boundaries or not.
+     * Sets whether the walls are at the box boundaries or not.
      */
     public void setBoundaryWall(boolean isBoundaryWall) {
         this.isBoundaryWall = isBoundaryWall;
@@ -149,9 +149,9 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 		return dr > displacementLimit;
 	}
 
-	public void setPhase(Phase phase) {
-        boxSize = phase.getBoundary().getDimensions().x(neighborDim);
-        agentManager = (AtomAgentManager)phaseAgentManager.getAgent(phase);
+	public void setBox(Box box) {
+        boxSize = box.getBoundary().getDimensions().x(neighborDim);
+        agentManager = (AtomAgentManager)boxAgentManager.getAgent(box);
 	}
     
 	public boolean unsafe() {
@@ -210,5 +210,5 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 	protected double safetyFactor;
 	protected double dr, rMaxSafe;
     protected AtomAgentManager agentManager;
-    private final PhaseAgentManager phaseAgentManager;
+    private final BoxAgentManager boxAgentManager;
 }

@@ -6,7 +6,7 @@ import etomica.util.Arrays;
  * Implementation of some semi-empirical equations of state for the
  * Lennard-Jones model.
  * 
- * Equations for the fcc solid phase and liquid-fcc saturation conditions are
+ * Equations for the fcc solid box and liquid-fcc saturation conditions are
  * based on the empirical formulas proposed by van der Hoef:
  * 
  * [1] M.A. van der Hoef, "Free energy of the Lennard-Jones solid", Journal of
@@ -17,7 +17,7 @@ import etomica.util.Arrays;
  * [2] M.S. van der Hoef, "Gas-solid coexistence of the Lennard-Jones system", 
  * Journal of Chemical Physics, vol 117, page 5093 (2002).
  * 
- * No fluid-phase equations are (yet) implemented here.
+ * No fluid-box equations are (yet) implemented here.
  * 
  * This is a library class, containing only static methods, and thus is not
  * intended to be instantiated.
@@ -115,7 +115,7 @@ public final class LennardJones {
     }
     
     /**
-     * Returns the densities of coexisting (saturated) liquid and fcc phases
+     * Returns the densities of coexisting (saturated) liquid and fcc boxs
      * (i.e., melting and freezing densities). Uses Eqs. (25) and (26) of van
      * der Hoef [1].
      * 
@@ -162,7 +162,7 @@ public final class LennardJones {
     
 
     /**
-     * Returns the densities of coexisting (saturated) vapor and fcc phases
+     * Returns the densities of coexisting (saturated) vapor and fcc boxs
      * (sublimation densities). Uses Eqs. (2) and (3) of van der Hoef [2].
      * 
      * @param T

@@ -7,8 +7,8 @@ import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.mcmove.MCMovePhase;
-import etomica.phase.Phase;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
@@ -23,7 +23,7 @@ import etomica.util.IRandom;
  *
  * @author Andrew Schultz
  */
-public class MCMoveClusterReptateMulti extends MCMovePhase {
+public class MCMoveClusterReptateMulti extends MCMoveBox {
 
     private static final long serialVersionUID = 2L;
     private final MeterClusterWeight weightMeter;
@@ -39,7 +39,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
      * Constructor for MCMoveAtomMulti.
      * @param parentIntegrator
      * @param nAtoms number of atoms to move in a trial.  Number of atoms in
-     * phase should be at least one greater than this value (greater
+     * box should be at least one greater than this value (greater
      * because first atom is never moved)
      */
     public MCMoveClusterReptateMulti(PotentialMaster potentialMaster, IRandom random, int nAtoms) {
@@ -58,10 +58,10 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
         work1 = new Vector3D();
     }
 
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        weightMeter.setPhase(p);
-        energyMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        weightMeter.setBox(p);
+        energyMeter.setBox(p);
     }
     
     //note that total energy is calculated
@@ -131,7 +131,7 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
                 }
             }
         }
-        ((PhaseCluster)phase).trialNotify();
+        ((BoxCluster)box).trialNotify();
         wNew = weightMeter.getDataAsScalar();
 //        System.out.println("now energy");
 //        Potential2HardSpherical.foo = true;
@@ -146,8 +146,8 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
     }
 	
     protected IAtom[] selectMolecules() {
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(phase);
-        if (iterator.size() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in phase - 1");
+        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
+        if (iterator.size() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in box - 1");
         iterator.reset();
         //skip the first one
         iterator.next();
@@ -183,11 +183,11 @@ public class MCMoveClusterReptateMulti extends MCMovePhase {
             }
 //            System.out.println("rejected");
         }
-        ((PhaseCluster)phase).rejectNotify();
+        ((BoxCluster)box).rejectNotify();
     }
 
     public void acceptNotify() {
-        ((PhaseCluster)phase).acceptNotify();
+        ((BoxCluster)box).acceptNotify();
     }
     
     public double getB() {

@@ -11,7 +11,7 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -55,12 +55,12 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         return info;
     }
     
-    public void setPhase(Phase p) {
-        if (phase != null) {
-            // allow agentManager to de-register itself as a PhaseListener
+    public void setBox(Box p) {
+        if (box != null) {
+            // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
         }
-        super.setPhase(p);
+        super.setBox(p);
         agentManager = new AtomLeafAgentManager(this,p);
         forceSum.setAgentManager(agentManager);
     }
@@ -68,10 +68,10 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 //--------------------------------------------------------------
 // steps all particles across time interval tStep
 
-    // assumes one phase
+    // assumes one box
     public void doStepInternal() {
         super.doStepInternal();
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -84,7 +84,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
 
         forceSum.reset();
         //Compute forces on each atom
-        potential.calculate(phase, allAtoms, forceSum);
+        potential.calculate(box, allAtoms, forceSum);
         
         if(forceSum instanceof PotentialCalculationForcePressureSum){
             pressureTensor.E(((PotentialCalculationForcePressureSum)forceSum).getPressureTensor());
@@ -101,7 +101,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             velocity.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
         }
         
-        pressureTensor.TE(1/phase.getBoundary().volume());
+        pressureTensor.TE(1/box.getBoundary().volume());
 
         if(isothermal) {
             doThermostat();
@@ -122,7 +122,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         super.reset();
 
         forceSum.reset();
-        potential.calculate(phase, allAtoms, forceSum);
+        potential.calculate(box, allAtoms, forceSum);
     }
               
 //--------------------------------------------------------------
@@ -137,7 +137,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     
     public void releaseAgent(Object agent, IAtom atom) {}
             
-    public final static class MyAgent implements IntegratorPhase.Forcible, Serializable {  //need public so to use with instanceof
+    public final static class MyAgent implements IntegratorBox.Forcible, Serializable {  //need public so to use with instanceof
         private static final long serialVersionUID = 1L;
         public IVector force;
 

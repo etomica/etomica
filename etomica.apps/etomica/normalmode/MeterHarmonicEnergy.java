@@ -5,7 +5,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.data.DataSourceScalar;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
@@ -53,20 +53,20 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         return energySum;//don't multiply by 1/2 because we're summing over only half of the wave vectors
     }
 
-    public Phase getPhase() {
-        return coordinateDefinition.getPhase();
+    public Box getBox() {
+        return coordinateDefinition.getBox();
     }
 
-    public void setPhase(Phase newPhase) {
+    public void setBox(Box newBox) {
 
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         realT = new double[coordinateDim];
         imaginaryT = new double[coordinateDim];
 
-        normalModes.getWaveVectorFactory().makeWaveVectors(newPhase);
+        normalModes.getWaveVectorFactory().makeWaveVectors(newBox);
         setWaveVectors(normalModes.getWaveVectorFactory().getWaveVectors(),normalModes.getWaveVectorFactory().getCoefficients());
-        setEigenvectors(normalModes.getEigenvectors(newPhase));
-        setOmegaSquared(normalModes.getOmegaSquared(newPhase));
+        setEigenvectors(normalModes.getEigenvectors(newBox));
+        setOmegaSquared(normalModes.getOmegaSquared(newBox));
     }
     
     protected void setWaveVectors(IVector[] newWaveVectors, double[] coefficients) {
@@ -107,15 +107,15 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
 
-        Phase phase = new Phase(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), L));
-        sim.addPhase(phase);
-        phase.getAgent(species).setNMolecules(numAtoms);
+        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), L));
+        sim.addBox(box);
+        box.getAgent(species).setNMolecules(numAtoms);
 
-        AtomSet atoms = phase.getSpeciesMaster().getLeafList();
+        AtomSet atoms = box.getSpeciesMaster().getLeafList();
         
         Primitive primitive = new PrimitiveCubic(sim.getSpace());
 
-        CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive);
+        CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive);
         coordinateDefinition.initializeCoordinates(new int[]{numAtoms});
 
         for(int i=0; i<numAtoms; i++) {
@@ -126,7 +126,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         NormalModes normalModes = new NormalModes1DHR();
 
         MeterHarmonicEnergy meter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
-        meter.setPhase(phase);
+        meter.setBox(box);
         ((IAtomPositioned)atoms.getAtom(1)).getPosition().PE(0.5);
         ((IAtomPositioned)atoms.getAtom(6)).getPosition().PE(-1.5);
         System.out.println("Harmonic energy: "+meter.getDataAsScalar());

@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
@@ -9,7 +9,7 @@ import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Iterator for all the molecules in a phase. Loops over all those atoms that
+ * Iterator for all the molecules in a box. Loops over all those atoms that
  * lie just below the species agents in the atom tree hierarchy. To iterate the
  * molecules of just one species, use AtomIteratorMolecule.
  * 
@@ -18,26 +18,26 @@ import etomica.species.SpeciesSpheresMono;
  */
 
 public class AtomIteratorAllMolecules extends AtomIteratorAdapter 
-            implements AtomIteratorPhaseDependent {
+            implements AtomIteratorBoxDependent {
 
     public AtomIteratorAllMolecules() {
-        super(new AtomIteratorTreePhase(2));
+        super(new AtomIteratorTreeBox(2));
     }
 
     /**
      * Returns a new iterator ready to iterate over the molecules of the given
-     * phase.
+     * box.
      */
-    public AtomIteratorAllMolecules(Phase phase) {
+    public AtomIteratorAllMolecules(Box box) {
         this();
-        setPhase(phase);
+        setBox(box);
     }
 
     /**
-     * Sets the phase having the molecules to be returned as iterates.
+     * Sets the box having the molecules to be returned as iterates.
      */
-    public void setPhase(Phase phase) {
-        ((AtomIteratorPhaseDependent)iterator).setPhase(phase);
+    public void setBox(Box box) {
+        ((AtomIteratorBoxDependent)iterator).setBox(box);
     }
 
     private static final long serialVersionUID = 1L;
@@ -54,15 +54,15 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         sim.getSpeciesManager().addSpecies(species2);
         sim.getSpeciesManager().addSpecies(species1);
         sim.getSpeciesManager().addSpecies(species0);
-        Phase phase = new Phase(sim);
-        sim.addPhase(phase);
-        phase.getAgent(species0).setNMolecules(3);
-        phase.getAgent(species1).setNMolecules(2);
-        phase.getAgent(species2).setNMolecules(3);
+        Box box = new Box(sim);
+        sim.addBox(box);
+        box.getAgent(species0).setNMolecules(3);
+        box.getAgent(species1).setNMolecules(2);
+        box.getAgent(species2).setNMolecules(3);
 
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules();
 
-        iterator.setPhase(phase);
+        iterator.setBox(box);
         iterator.reset();
         for (AtomSet atom = iterator.next(); atom != null; atom = iterator.next()) {
             System.out.println(atom.toString());

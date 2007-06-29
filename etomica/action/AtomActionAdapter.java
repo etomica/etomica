@@ -9,7 +9,7 @@ import etomica.atom.IAtom;
  * <ul>
  * <li>they can be passed to the allAtoms method of atom iterators, which then performs
  * the specified action on all the atoms of the iterator.  
- * <li>they can be used in a DisplayPhase.AtomActionWrapper, to specify some action in response to 
+ * <li>they can be used in a DisplayBox.AtomActionWrapper, to specify some action in response to 
  * selection of an atom by the mouse.  
  * <li>they may be used to generate a Monte Carlo trial in an MCMove object.
  * 

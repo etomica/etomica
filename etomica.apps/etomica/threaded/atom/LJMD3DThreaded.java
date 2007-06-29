@@ -6,7 +6,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -27,7 +27,7 @@ public class LJMD3DThreaded extends Simulation {
     public IntegratorVelocityVerlet integrator;
     public MCMoveAtom mcMoveAtom;
     public SpeciesSpheresMono species;
-    public Phase phase;
+    public Box box;
     public P2LennardJones p2lj;
     public P2SoftSphericalTruncated[] potential;
     public PotentialThreaded potentialThreaded;
@@ -55,18 +55,18 @@ public class LJMD3DThreaded extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        phase = new Phase(this);
-        addPhase(phase);
-        species.getAgent(phase).setNMolecules(numAtoms);
-        phase.setDensity(0.65);
+        box = new Box(this);
+        addBox(box);
+        species.getAgent(box).setNMolecules(numAtoms);
+        box.setDensity(0.65);
         
         
        
         p2lj = new P2LennardJones(space);
         
         double truncationRadius = 2.5*p2lj.getSigma();
-        if(truncationRadius > 0.5*phase.getBoundary().getDimensions().x(0)) {
-            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*phase.getBoundary().getDimensions().x(0));
+        if(truncationRadius > 0.5*box.getBoundary().getDimensions().x(0)) {
+            throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
         }
         
         
@@ -83,19 +83,19 @@ public class LJMD3DThreaded extends Simulation {
         
         potentialMaster.setCellRange(1);
         potentialMaster.setRange(neighborFac * truncationRadius);
-        potentialMaster.getNeighborManager(phase).setQuiet(true);
+        potentialMaster.getNeighborManager(box).setQuiet(true);
         potentialMaster.addPotential(potentialThreaded, new Species[] {species, species});
        
         //--------------------------------------\\
         
-//        new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(phase);
-        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(phase);
-        integrator.setPhase(phase);
-//        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),phase,1);
+//        new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
+        integrator.setBox(box);
+//        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
 //        integrator.addListener(writeConfig);
-        integrator.addNonintervalListener(potentialMaster.getNeighborManager(phase));
-        integrator.addIntervalAction(potentialMaster.getNeighborManager(phase));
-        potentialMaster.setNumThreads(numThreads, phase);
+        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
+        potentialMaster.setNumThreads(numThreads, box);
     }
 
        
@@ -118,7 +118,7 @@ public class LJMD3DThreaded extends Simulation {
         IntervalActionAdapter iaa = new IntervalActionAdapter(pPump,sim.integrator);
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setIncludeLrc(false);
-        energyMeter.setPhase(sim.phase);
+        energyMeter.setBox(sim.box);
         AccumulatorAverage energyAccumulator = new AccumulatorAverage(sim);
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
@@ -126,7 +126,7 @@ public class LJMD3DThreaded extends Simulation {
         iaa.setActionInterval(50);
 
         MeterKineticEnergy KEMeter = new MeterKineticEnergy();
-        KEMeter.setPhase(sim.phase);
+        KEMeter.setBox(sim.box);
         AccumulatorAverage KEAccumulator = new AccumulatorAverage(sim);
         DataPump KEPump = new DataPump(KEMeter, KEAccumulator);
         KEAccumulator.setBlockSize(50);
@@ -137,7 +137,7 @@ public class LJMD3DThreaded extends Simulation {
         
 //        System.exit(0);
         
-        double Z = ((DataTensor)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).x.trace()/3*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
+        double Z = ((DataTensor)((DataGroup)pAccumulator.getData()).getData(StatType.AVERAGE.index)).x.trace()/3*sim.box.volume()/(sim.box.moleculeCount()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
         avgPE /= numAtoms;
         System.out.println("Z="+Z);

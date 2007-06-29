@@ -2,7 +2,7 @@ package etomica.junit.atom.iterator;
 
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.junit.UnitTestUtil;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 
 
@@ -28,10 +28,10 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         //test new iterator gives no iterates
         testNoIterates(api);
         
-        Phase[] phase = sim.getPhases();
+        Box[] box = sim.getBoxs();
         
-        for(int i=0; i<phase.length; i++) {
-            api.setPhase(phase[i]);
+        for(int i=0; i<box.length; i++) {
+            api.setBox(box[i]);
             int count = nA0*n0[i] + n1[i] + n2[i]*n2Tree[0]*n2Tree[1];
             count = count*(count-1)/2;
             countTest(api, count);
@@ -39,7 +39,7 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         
         boolean exceptionThrown = false;
         try {
-            api.setPhase(null);
+            api.setBox(null);
         }
         catch (RuntimeException e) {
             exceptionThrown = true;

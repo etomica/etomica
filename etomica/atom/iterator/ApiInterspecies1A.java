@@ -7,11 +7,11 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 
 /**
- * Gives pairs formed from the molecules of two different species in a phase,
+ * Gives pairs formed from the molecules of two different species in a box,
  * taking one molecule of one species with all molecules of the other. Species
  * are specified at construction and cannot be changed afterwards. The
  * 1-molecule species is identified via the setTarget method, and may be changed
@@ -71,19 +71,19 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
         apiDown = new ApiInnerFixed(aiOuter, aiInner, true);
         iterator = apiUp;
 
-        // we need to sort these.  we'll do that once we have the phase
+        // we need to sort these.  we'll do that once we have the box
         species0 = species[0];
         species1 = species[1];
     }
 
     /**
      * Configures iterator to return molecules from the set species in the given
-     * phase.
+     * box.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
-        agent0 = phase.getAgent(species0);
-        agent1 = phase.getAgent(species1);
+    public void setBox(Box box) {
+        this.box = box;
+        agent0 = box.getAgent(species0);
+        agent1 = box.getAgent(species1);
         if (agent0.getIndex() > agent1.getIndex()) {
             // species were out of order.  swap them
             Species tempSpecies = species0;
@@ -131,11 +131,11 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
 
     /**
      * Finds target molecule as indicated by the target atom. Sets target
-     * molecule to null if target atom is null, phase is null, or atom is not
+     * molecule to null if target atom is null, box is null, or atom is not
      * part of either species.
      */
     private void identifyTargetMolecule() {
-        if (phase == null || targetAtom == null) {
+        if (box == null || targetAtom == null) {
             targetMolecule = null;
         }
         else {
@@ -204,6 +204,6 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
     private ApiInnerFixed iterator;
     private IteratorDirective.Direction direction, allowedDirection;
     private ISpeciesAgent agent0, agent1;
-    private Phase phase;
+    private Box box;
     private IAtom targetAtom, targetMolecule;
 }

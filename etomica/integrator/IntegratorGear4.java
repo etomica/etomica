@@ -11,7 +11,7 @@ import etomica.atom.IAtomKinetic;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
@@ -65,12 +65,12 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         return info;
     }
 
-    public void setPhase(Phase p) {
-        if (phase != null) {
-            // allow agentManager to de-register itself as a PhaseListener
+    public void setBox(Box p) {
+        if (box != null) {
+            // allow agentManager to de-register itself as a BoxListener
             agentManager.dispose();
         }
-        super.setPhase(p);
+        super.setBox(p);
         agentManager = new AtomLeafAgentManager(this,p);
         forceSum.setAgentManager(agentManager);
     }
@@ -103,13 +103,13 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
         //zero forces on all atoms
         forceSum.reset();
         //Compute forces on each atom
-        potential.calculate(phase, allAtoms, forceSum);
+        potential.calculate(box, allAtoms, forceSum);
         
     }//end of calculateForces
     
     protected void corrector() {
         
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -142,7 +142,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     }//end of corrector
         
     protected void predictor() {
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -181,7 +181,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
 
     public void reset() throws ConfigurationOverlapException {
         calculateForces();
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -203,12 +203,12 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     }
     
     public Object makeAgent(IAtom a) {
-        return new Agent(phase.getSpace());
+        return new Agent(box.getSpace());
     }
     
     public void releaseAgent(Object agent, IAtom atom) {}
             
-    public static class Agent implements IntegratorPhase.Forcible {  //need public so to use with instanceof
+    public static class Agent implements IntegratorBox.Forcible {  //need public so to use with instanceof
         public IVector force;
         public IVector dr1, dr2, dr3, dr4;
         public IVector dv1, dv2, dv3, dv4;

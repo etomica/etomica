@@ -7,14 +7,14 @@ import etomica.data.DataSource;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialCalculationPressureTensor;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.units.Pressure;
 
 /**
- * Meter for evaluation of the soft-potential pressure tensor in a phase.  This
+ * Meter for evaluation of the soft-potential pressure tensor in a box.  This
  * should only be used when using an MC Integrator.  For MD, use a
  * MeterPressureTensorFromIntegrator.
  *
@@ -37,7 +37,7 @@ public class MeterPressureTensor implements DataSource, java.io.Serializable {
     }
       
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Total pressure in a phase (requires soft-potential model)");
+        EtomicaInfo info = new EtomicaInfo("Total pressure in a box (requires soft-potential model)");
         return info;
     }
     
@@ -51,21 +51,21 @@ public class MeterPressureTensor implements DataSource, java.io.Serializable {
     
     /**
      * Sets the integrator associated with this instance.  The pressure is 
-     * calculated for the phase the integrator acts on and integrator's 
+     * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public void setPhase(Phase newPhase) {
-        pc.setPhase(newPhase);
-        phase = newPhase;
+    public void setBox(Box newBox) {
+        pc.setBox(newBox);
+        box = newBox;
     }
     
     /**
      * Returns the integrator associated with this instance.  The pressure is 
-     * calculated for the phase the integrator acts on and integrator's 
+     * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
 
     /**
@@ -85,17 +85,17 @@ public class MeterPressureTensor implements DataSource, java.io.Serializable {
     }
 
 	 /**
-	  * Computes total pressure in phase by summing virial over all pairs, and adding
+	  * Computes total pressure in box by summing virial over all pairs, and adding
 	  * ideal-gas contribution.
 	  */
     public Data getData() {
-        if (phase == null) {
-            throw new IllegalStateException("You must call setPhase before using this class");
+        if (box == null) {
+            throw new IllegalStateException("You must call setBox before using this class");
         }
     	pc.zeroSum();
-        potentialMaster.calculate(phase, iteratorDirective, pc);
+        potentialMaster.calculate(box, iteratorDirective, pc);
         data.x.E(pc.getPressureTensor());
-        data.x.TE(1/phase.getBoundary().volume());
+        data.x.TE(1/box.getBoundary().volume());
         return data;
     }
 
@@ -104,7 +104,7 @@ public class MeterPressureTensor implements DataSource, java.io.Serializable {
     protected final DataTensor data;
     protected final DataInfo dataInfo;
     protected final PotentialMaster potentialMaster;
-    protected Phase phase;
+    protected Box box;
     protected IteratorDirective iteratorDirective;
     protected final PotentialCalculationPressureTensor pc;
     protected final double rD;

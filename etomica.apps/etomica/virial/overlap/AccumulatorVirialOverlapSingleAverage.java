@@ -58,7 +58,7 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
      */
     // the values coming in should be gamma1/|gamma1| and |gamma2|/|gamma1|
     // where 1 and 2 are target and reference or vica versa, depending on
-    // which phase the values are coming from.
+    // which box the values are coming from.
     public void addData(Data value) {
         if (Debug.ON && ((DataDoubleArray)value).getLength() != 2) {
             throw new IllegalArgumentException("must receive cluster value and 'other' weight (only)");

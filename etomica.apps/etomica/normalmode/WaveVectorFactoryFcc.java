@@ -3,7 +3,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.lattice.crystal.PrimitiveFcc;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
@@ -23,12 +23,12 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         this.primitive = primitive;
     }
     
-    public void makeWaveVectors(Phase phase) {
+    public void makeWaveVectors(Box box) {
         int numCells = 0;
         double d = -1;
-        for (int i=0; i<phase.getSpace().D(); i++) {
+        for (int i=0; i<box.getSpace().D(); i++) {
             //XXX divide by sqrt(2) for FCC
-            int n = (int)Math.round(phase.getBoundary().getDimensions().x(i) / (primitive.getSize()[i]*Math.sqrt(2)));
+            int n = (int)Math.round(box.getBoundary().getDimensions().x(i) / (primitive.getSize()[i]*Math.sqrt(2)));
             if (i>0 && n != numCells) {
                 throw new RuntimeException("Things would be so much happier if you would just use the same number of cells in each direction.");
             }
@@ -153,16 +153,16 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
     public static void main(String[] args) {
         int nCells = 3;
         Simulation sim = new Simulation(Space3D.getInstance());
-        Phase phase = new Phase(sim);
-        sim.addPhase(phase);
-        phase.setDimensions(new Vector3D(nCells, nCells, nCells));
+        Box box = new Box(sim);
+        sim.addBox(box);
+        box.setDimensions(new Vector3D(nCells, nCells, nCells));
         Species species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
-        phase.getAgent(species).setNMolecules(4*nCells*nCells*nCells);
+        box.getAgent(species).setNMolecules(4*nCells*nCells*nCells);
         PrimitiveFcc primitive = new PrimitiveFcc(sim.getSpace(), 1/Math.sqrt(2));
         
         WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc(primitive);
-        foo.makeWaveVectors(phase);
+        foo.makeWaveVectors(box);
         IVector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
         System.out.println("number of wave vectors "+waveVectors.length);

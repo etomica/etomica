@@ -24,7 +24,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
@@ -107,11 +107,11 @@ public class GrainBoundaryConfiguration extends Configuration {
     }	
 
     /**
-     * Places the molecules in the given phase on the positions of the
+     * Places the molecules in the given box on the positions of the
      * lattice.  
      */
-    public void initializeCoordinates(Phase phase) {
-    	AtomSet[] lists = getMoleculeLists(phase);
+    public void initializeCoordinates(Box box) {
+    	AtomSet[] lists = getMoleculeLists(box);
     	IVector firstAtomPosition = ((IAtomPositioned)lists[0].getAtom(0)).getPosition();
     	
     	System.out.println("At beginning of initializePositions  "+ firstAtomPosition);
@@ -136,8 +136,8 @@ public class GrainBoundaryConfiguration extends Configuration {
          *  lattice A is above lattice B, and both are centered on the z axis.
          */
         
-        Vector3D offsetA = (Vector3D)phase.getSpace().makeVector();
-        Vector3D offsetB = (Vector3D)phase.getSpace().makeVector();
+        Vector3D offsetA = (Vector3D)box.getSpace().makeVector();
+        Vector3D offsetB = (Vector3D)box.getSpace().makeVector();
         offsetA.setX(0, -0.5 * latticeDimensionsA[0]);
         offsetA.setX(1, -0.5 * latticeDimensionsA[1]);
         offsetA.setX(2, (latticeDimensionsB[2] - latticeDimensionsA[2])/2.0 );

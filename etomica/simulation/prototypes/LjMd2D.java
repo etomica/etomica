@@ -3,11 +3,11 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterEnergy;
-import etomica.graphics.DisplayPhase;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -24,10 +24,10 @@ public class LjMd2D extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorVelocityVerlet integrator;
     public SpeciesSpheresMono species;
-    public Phase phase;
+    public Box box;
     public P2LennardJones potential;
     public Controller controller;
-    public DisplayPhase display;
+    public DisplayBox display;
     public DisplayPlot plot;
     public MeterEnergy energy;
 
@@ -41,16 +41,16 @@ public class LjMd2D extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(50);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(50);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
         potential = new P2LennardJones(space);
         potentialMaster.addPotential(potential,new Species[]{species,species});
         
 //      elementCoordinator.go();
         //explicit implementation of elementCoordinator activities
-        integrator.setPhase(phase);
+        integrator.setBox(box);
 		
 		energy = new MeterEnergy(potentialMaster);
 //		energy.setHistorying(true);

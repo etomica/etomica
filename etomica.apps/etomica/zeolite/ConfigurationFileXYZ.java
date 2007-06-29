@@ -7,7 +7,7 @@ import java.io.IOException;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -18,10 +18,10 @@ public class ConfigurationFileXYZ extends Configuration{
 			confName = aConfName;
 		}
 		
-		public void initializeCoordinates(Phase phase) {
-            min = phase.getSpace().makeVector();
-            max = phase.getSpace().makeVector();
-            dim = phase.getSpace().makeVector();
+		public void initializeCoordinates(Box box) {
+            min = box.getSpace().makeVector();
+            max = box.getSpace().makeVector();
+            dim = box.getSpace().makeVector();
 	        String fileName = confName+".xyz";
 	        FileReader fileReader;
 	        try {
@@ -29,7 +29,7 @@ public class ConfigurationFileXYZ extends Configuration{
 	        }catch(IOException e) {
 	            throw new RuntimeException("Cannot open "+fileName+", caught IOException: " + e.getMessage());
 	        }
-            AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms(phase);
+            AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms(box);
 	        try {
 	            BufferedReader bufReader = new BufferedReader(fileReader);
 	            atomIterator.reset();

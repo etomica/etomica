@@ -9,7 +9,7 @@ import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSpeciesAgent;
 import etomica.chem.elements.Element;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 import etomica.util.Arrays;
 
@@ -34,7 +34,7 @@ public class SpeciesManager implements java.io.Serializable {
 
     /**
      * Adds species to the list of all species in the simulation, and
-     * adds new species agent to every phase currently in simulation.
+     * adds new species agent to every box currently in simulation.
      * This is called by the Species constructor.
      * 
      * @return the index assigned to the new species
@@ -46,7 +46,7 @@ public class SpeciesManager implements java.io.Serializable {
             }
         }
         speciesList = (Species[])Arrays.addObject(speciesList,species);
-        Phase[] phaseList = sim.getPhases();
+        Box[] boxList = sim.getBoxs();
         AtomTypeSpeciesAgent speciesAgentAtomType = new AtomTypeSpeciesAgent(
                 AtomAddressManager.makeRootIndexManager(bitLength), species, this);
         speciesAgentAtomType.setChildIndex(speciesAgentTypes.length);
@@ -56,16 +56,16 @@ public class SpeciesManager implements java.io.Serializable {
 
         species.setAgentType(speciesAgentAtomType);
         
-        for (int i=0; i<phaseList.length; i++) {
-            species.makeAgent(phaseList[i].getSpeciesMaster());
+        for (int i=0; i<boxList.length; i++) {
+            species.makeAgent(boxList[i].getSpeciesMaster());
         }
 
         sim.getEventManager().fireEvent(new SimulationSpeciesAddedEvent(species));
     }
     
-    public void phaseAddedNotify(Phase newPhase) {
+    public void boxAddedNotify(Box newBox) {
         for(int i=0; i<speciesList.length; i++) {
-            speciesList[i].makeAgent(newPhase.getSpeciesMaster());
+            speciesList[i].makeAgent(newBox.getSpeciesMaster());
         }
     }
 
@@ -89,9 +89,9 @@ public class SpeciesManager implements java.io.Serializable {
         sim.getEventManager().fireEvent(new SimulationSpeciesRemovedEvent(removedSpecies));
         
         speciesList = (Species[])Arrays.removeObject(speciesList,removedSpecies);
-        Phase[] phaseList = sim.getPhases();
-        for (int i=0; i<phaseList.length; i++) {
-            phaseList[i].getSpeciesMaster().removeSpeciesNotify(removedSpecies);
+        Box[] boxList = sim.getBoxs();
+        for (int i=0; i<boxList.length; i++) {
+            boxList[i].getSpeciesMaster().removeSpeciesNotify(removedSpecies);
         }
 
         for (int i=0; i<speciesAgentTypes.length; i++) {

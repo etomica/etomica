@@ -5,8 +5,8 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorPhase;
-import etomica.phase.Phase;
+import etomica.integrator.IntegratorBox;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.Null;
@@ -16,14 +16,14 @@ import etomica.units.Null;
  * species via the Widom insertion method. Call to getDataAsScalar returns a
  * Widom-insertion average (i.e., sum of exp(-energy/kT) using a configurable
  * number of insertion trials) for a molecule of the desired species in the
- * given phase in its current configuration. It is expected that repeated calls
+ * given box in its current configuration. It is expected that repeated calls
  * will be averaged to give an overall insertion average for many configurations
- * of the phase.
+ * of the box.
  * <br>
  * Meter can be configured to measure the residual chemical potential -- above
  * the ideal-gas value -- or the full chemical potential.  If not configured for
  * the residual chemical potential, the insertion average will be multiplied by
- * the species number density in the phase in its current configuration.  Default
+ * the species number density in the box in its current configuration.  Default
  * behavior will give residual chemical potential.
  * 
  * @author David Kofke
@@ -61,7 +61,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
 
     /**
      * Sets the species, takes a prototype molecule, and gets handle to
-     * appropriate species agent in phase
+     * appropriate species agent in box
      */
     public void setSpecies(Species s) {
         species = s;
@@ -93,20 +93,20 @@ public class MeterWidomInsertion extends DataSourceScalar {
     /**
      * Performs a Widom insertion average, doing nInsert insertion attempts
      * Temperature used to get exp(-uTest/kT) is that of the integrator for the
-     * phase
+     * box
      * 
      * @return the sum of exp(-uTest/kT)/nInsert, multiplied by V/N if 
      * <code>residual</code> is false
      */
     public double getDataAsScalar() {
-        if (integrator == null) throw new IllegalStateException("must call setPhase before using meter");
-        Phase phase = integrator.getPhase();
+        if (integrator == null) throw new IllegalStateException("must call setBox before using meter");
+        Box box = integrator.getBox();
         double sum = 0.0; //sum for local insertion average
-        ISpeciesAgent agent = phase.getAgent(species);
+        ISpeciesAgent agent = box.getAgent(species);
         agent.addChildAtom(testMolecule);
         energyMeter.setTarget(testMolecule);
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
-            atomTranslator.setDestination(phase.getBoundary().randomPosition());
+            atomTranslator.setDestination(box.getBoundary().randomPosition());
             atomTranslator.actionPerformed(testMolecule);
             double u = energyMeter.getDataAsScalar();
             sum += Math.exp(-u / integrator.getTemperature());
@@ -116,31 +116,31 @@ public class MeterWidomInsertion extends DataSourceScalar {
 
         if (!residual) {
             // multiply by V/N
-            sum *= phase.volume() / phase.getAgent(species).getNMolecules();
+            sum *= box.volume() / box.getAgent(species).getNMolecules();
         }
         return sum / nInsert; //return average
     }
 
     /**
-     * Returns the integrator associated with this class.  The phase, potentialMaster
+     * Returns the integrator associated with this class.  The box, potentialMaster
      * and temperature are taken from the integrator.
      */
-    public IntegratorPhase getIntegrator() {
+    public IntegratorBox getIntegrator() {
         return integrator;
     }
 
     /**
-     * Sets the integrator associated with this class.  The phase, potentialMaster
+     * Sets the integrator associated with this class.  The box, potentialMaster
      * and temperature are taken from the integrator.
      */
-    public void setIntegrator(IntegratorPhase newIntegrator) {
+    public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
         energyMeter = new MeterPotentialEnergy(integrator.getPotential());
-        energyMeter.setPhase(integrator.getPhase());
+        energyMeter.setBox(integrator.getBox());
     }
 
     private static final long serialVersionUID = 1L;
-    private IntegratorPhase integrator;
+    private IntegratorBox integrator;
 
     /**
      * Number of insertions attempted in each call to currentValue Default is

@@ -33,7 +33,7 @@ public class MeterRDFCylinder extends MeterRDF {
     public void reset() {
         super.reset();
         // make a new iterator with a new filter.  xMax might have changed
-        AtomFilterInCylinder filter = new AtomFilterInCylinder(phase.getBoundary(), pistonPotential, xDataSource.getXMax());
+        AtomFilterInCylinder filter = new AtomFilterInCylinder(box.getBoundary(), pistonPotential, xDataSource.getXMax());
         iterator = new ApiFilteredCylinder(new ApiLeafAtoms(), filter);
     }
 
@@ -42,7 +42,7 @@ public class MeterRDFCylinder extends MeterRDF {
 
         // renormalize the RDF to account for the excluded pairs
         double pistonRatio = 1;
-        IVector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getDimensions();
         double radius = pistonPotential.getCollisionRadius();
         for (int i=0; i<space.D(); i++) {
             if (i != 1) {

@@ -6,7 +6,7 @@ import etomica.space.Space;
 /**
  * Potential that does not depend on any atom positions.
  * Typically used to implement long-range corrections for potential truncation.
- * Potential thus depends on phase parameters, such as the number of molecules 
+ * Potential thus depends on box parameters, such as the number of molecules 
  * and the volume.
  *
  * @author David Kofke

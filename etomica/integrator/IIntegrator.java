@@ -19,7 +19,7 @@ public interface IIntegrator {
 
     /**
      * Defines the actions taken by the integrator to reset itself, such as
-     * required if a perturbation is applied to the simulated phase (e.g.,
+     * required if a perturbation is applied to the simulated box (e.g.,
      * addition or deletion of a molecule). Also invoked when the
      * integrator is started or initialized.
      */

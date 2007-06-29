@@ -4,8 +4,8 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomsetIterator;
-import etomica.integrator.IntegratorPhase;
-import etomica.phase.Phase;
+import etomica.integrator.IntegratorBox;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -21,7 +21,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
     protected final Tensor workTensor;
     protected final Space space;
     protected AtomSet leafList;
-    protected IntegratorPhase integrator;
+    protected IntegratorBox integrator;
     protected boolean warningPrinted;
     
     public PotentialCalculationPressureTensor(Space space) {
@@ -43,8 +43,8 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
 		}
 	}
     
-    public void setPhase(Phase newPhase) {
-        leafList = newPhase.getSpeciesMaster().getLeafList();
+    public void setBox(Box newBox) {
+        leafList = newBox.getSpeciesMaster().getLeafList();
     }
     
     public void zeroSum() {
@@ -56,7 +56,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
      * kinetic portion of the pressure.  If running a dynamic simulation
      * (where the Atoms have velocities), this method should not be called.
      */
-    public void setIntegrator(IntegratorPhase newIntegrator) {
+    public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
     }
     
@@ -79,10 +79,10 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
             }
         }
         else if (integrator == null) {
-            throw new RuntimeException("Need an IntegratorPhase to provide temperature since this is a non-dynamic simulation");
+            throw new RuntimeException("Need an IntegratorBox to provide temperature since this is a non-dynamic simulation");
         }
         else {
-            int D = integrator.getPhase().getSpace().D();
+            int D = integrator.getBox().getSpace().D();
             for (int i=0; i<D; i++) {
                 pressureTensor.PE(leafList.getAtomCount()*integrator.getTemperature());
             }

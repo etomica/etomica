@@ -6,8 +6,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.integrator.mcmove.MCMovePhase;
-import etomica.phase.Phase;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.box.Box;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.IVector;
 import etomica.util.IRandom;
@@ -17,7 +17,7 @@ import etomica.util.IRandom;
  *
  * @author Andrew Schultz
  */
-public class MCMoveAtomAdjacent extends MCMovePhase {
+public class MCMoveAtomAdjacent extends MCMoveBox {
     
     protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     protected IVector translationVector;
@@ -54,9 +54,9 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
      * doTrial.
      */
     public double getB() {
-        boolean[] periodicity = ((BoundaryPeriodic)phase.getBoundary()).getPeriodicity();
+        boolean[] periodicity = ((BoundaryPeriodic)box.getBoundary()).getPeriodicity();
         IVector position = ((IAtomPositioned)atom).getPosition();
-        IVector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getDimensions();
         for (int i=0; i<position.getD(); i++) {
             // if we're non-periodic, ensure we didn't try to jump over the boundary
             int x = (int)Math.round(position.x(i)+dimensions.x(i)*0.5-0.5);
@@ -101,10 +101,10 @@ public class MCMoveAtomAdjacent extends MCMovePhase {
         return affectedAtomIterator;
     }
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        translationVector = phase.getSpace().makeVector();
-        atomSource.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        translationVector = box.getSpace().makeVector();
+        atomSource.setBox(p);
     }
     
     /**

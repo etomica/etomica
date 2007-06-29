@@ -7,7 +7,7 @@ import etomica.atom.IAtom;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 
 /**
@@ -21,13 +21,13 @@ import etomica.space.IVector;
 public class CoordinateDefinitionMolecule extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMolecule(Phase phase, Primitive primitive, int orientationDim) {
-        this(phase, primitive, orientationDim, new BasisMonatomic(phase.getSpace()));
+    public CoordinateDefinitionMolecule(Box box, Primitive primitive, int orientationDim) {
+        this(box, primitive, orientationDim, new BasisMonatomic(box.getSpace()));
     }
     
-    public CoordinateDefinitionMolecule(Phase phase, Primitive primitive, int orientationDim, Basis basis) {
-        super(phase, (phase.getSpace().D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis);
-        work1 = phase.getSpace().makeVector();
+    public CoordinateDefinitionMolecule(Box box, Primitive primitive, int orientationDim, Basis basis) {
+        super(box, (box.getSpace().D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis);
+        work1 = box.getSpace().makeVector();
         u = new double[coordinateDim];
     }
 

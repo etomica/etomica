@@ -10,7 +10,7 @@ import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;
@@ -33,7 +33,7 @@ public class PistonCylinder extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorHardPiston integrator;
     public SpeciesSpheresMono species;
-    public Phase phase;
+    public Box box;
     public Controller controller;
     public Potential2HardSphericalWrapper potentialWrapper;
     public P1HardBoundary wallPotential;
@@ -51,9 +51,9 @@ public class PistonCylinder extends Simulation {
         ((ElementSimple)((AtomTypeLeaf)species.getMoleculeType()).getElement()).setMass(16);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
         getSpeciesManager().addSpecies(species);
-        phase = new Phase(new BoundaryPistonCylinder(space, getRandom()));
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(112);
+        box = new Box(new BoundaryPistonCylinder(space, getRandom()));
+        addBox(box);
+        box.getAgent(species).setNMolecules(112);
         IVector newDim;
         Configuration config;
         if (space.D() == 2) {
@@ -64,8 +64,8 @@ public class PistonCylinder extends Simulation {
             config = new ConfigurationLattice(new LatticeCubicFcc());
             newDim = new Vector3D(80,80,80);
         }
-        phase.setDimensions(newDim);
-        config.initializeCoordinates(phase);
+        box.setDimensions(newDim);
+        config.initializeCoordinates(box);
         
         P2SquareWell potentialSW = new P2SquareWell(space,sigma,lambda,31.875,true);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
@@ -84,9 +84,9 @@ public class PistonCylinder extends Simulation {
             wallPotential.setActive(2,false,true); // back wall
         }
 
-        pistonPotential = new P1HardMovingBoundary(space,phase.getBoundary(),1,400, true);
+        pistonPotential = new P1HardMovingBoundary(space,box.getBoundary(),1,400, true);
         pistonPotential.setCollisionRadius(sigma*0.5);
-        pistonPotential.setWallPosition(-phase.getBoundary().getDimensions().x(1)*0.5);
+        pistonPotential.setWallPosition(-box.getBoundary().getDimensions().x(1)*0.5);
         pistonPotential.setWallVelocity(0.5);
         if (D == 3) {
             pistonPotential.setPressure(Bar.UNIT.toSim(1.0));
@@ -96,10 +96,10 @@ public class PistonCylinder extends Simulation {
         }
         pistonPotential.setThickness(1.0);
         potentialMaster.addPotential(pistonPotential,new Species[]{species});
-        ((BoundaryPistonCylinder)phase.getBoundary()).setPistonPotential(pistonPotential);
+        ((BoundaryPistonCylinder)box.getBoundary()).setPistonPotential(pistonPotential);
         
         integrator = new IntegratorHardPiston(this,potentialMaster,pistonPotential);
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);

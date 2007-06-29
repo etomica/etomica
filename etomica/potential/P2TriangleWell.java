@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -111,8 +111,8 @@ public class P2TriangleWell extends Potential2 {
         return etomica.units.Energy.DIMENSION;
     }
 
-    public void setPhase(Phase phase) {
-        nearestImageTransformer = phase.getBoundary();
+    public void setBox(Box box) {
+        nearestImageTransformer = box.getBoundary();
     }
 
     private static final long serialVersionUID = 1L;

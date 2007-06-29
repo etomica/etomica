@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.Potential0;
 import etomica.space.Space;
 
@@ -21,7 +21,7 @@ import etomica.space.Space;
  */
 public class P0Cluster extends Potential0 {
 
-    private PhaseCluster phaseCluster;
+    private BoxCluster boxCluster;
 	/**
 	 * Constructor for P0Cluster.
 	 */
@@ -35,10 +35,10 @@ public class P0Cluster extends Potential0 {
 	}
 
     public double weight() {
-        return phaseCluster.getSampleCluster().value(phaseCluster.getCPairSet(), phaseCluster.getAPairSet());
+        return boxCluster.getSampleCluster().value(boxCluster.getCPairSet(), boxCluster.getAPairSet());
     }
 
-    public void setPhase(Phase phase) {
-    	phaseCluster = (PhaseCluster)phase;
+    public void setBox(Box box) {
+    	boxCluster = (BoxCluster)box;
     }
 }

@@ -28,8 +28,8 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPhase;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.SimulationGraphic;
@@ -61,27 +61,27 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 		GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-        getDisplayPhase(sim.phase).setPixelUnit(new Pixel(10));
+        getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
-        config.initializeCoordinates(sim.phase);
+        config.initializeCoordinates(sim.box);
 
 		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
-        sim.integratorHard1.addIntervalAction(this.getDisplayPhasePaintAction(sim.phase));
+        sim.integratorHard1.addIntervalAction(this.getDisplayBoxPaintAction(sim.box));
         
 		tSelect.setTemperatures(new double[] { 50., 100., 300., 600., 1000.,
 				1200., 1600., 2000., 2500. });
 		tSelect.setUnit(Kelvin.UNIT);
 		tSelect.setSelected(3); //sets 300K as selected temperature
 		tSelect.getLabel().setText("Set value");
-        ((ColorSchemeByType)getDisplayPhase(sim.phase).getColorScheme()).setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
-        ((ColorSchemeByType)getDisplayPhase(sim.phase).getColorScheme()).setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
 
 		//	adjustment of species properties
 		MySpeciesEditor AEditor = new MySpeciesEditor(sim, 
-				sim.speciesA.getAgent(sim.phase), "Red");
+				sim.speciesA.getAgent(sim.box), "Red");
 		MySpeciesEditor BEditor = new MySpeciesEditor(sim, 
-				sim.speciesB.getAgent(sim.phase), "Black");
+				sim.speciesB.getAgent(sim.box), "Black");
 		int ms = 10;
 		AEditor.nSlider.getSlider().setMajorTickSpacing(ms);
 		BEditor.nSlider.getSlider().setMajorTickSpacing(ms);
@@ -187,9 +187,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 				BBWellSlider.getSlider().createStandardLabels(majorSpacing));
 
 		//so that display is updated when slider changes atom sizes
-		sizeModifier.setDisplay(getDisplayPhase(sim.phase));
+		sizeModifier.setDisplay(getDisplayBox(sim.box));
         
-		DisplayBox tBox = new DisplayBox(sim.thermometer.getDataInfo());
+		DisplayTextBox tBox = new DisplayTextBox(sim.thermometer.getDataInfo());
 		DataPump tPump = new DataPump (sim.thermometer, tBox);
         sim.integratorHard1.addIntervalAction(tPump);
         sim.integratorHard1.setActionInterval(tPump, 100);
@@ -315,7 +315,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		add(table);
 
 
-        getController().getReinitButton().setPostAction(getDisplayPhasePaintAction(sim.phase));
+        getController().getReinitButton().setPostAction(getDisplayBoxPaintAction(sim.box));
 
 		//***************set all the colors******************
 		/*
@@ -353,7 +353,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		 * tBox.graphic(null).setBackground(background);
 		 * tSelect.graphic(null).setBackground(background);
 		 * 
-		 * displayPhase1.graphic(null).setBackground(panelColor);
+		 * displayBox1.graphic(null).setBackground(panelColor);
 		 * plot.graphic(null).setBackground(panelColor);
 		 * plot.getPlot().setBackground(panelColor); //doesn't have intended
 		 * effect table.graphic(null).setBackground(panelColor);
@@ -419,13 +419,13 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
             nSlider = new DeviceNSelector(sim.getController());
             nSlider.setResetAction(new SimulationRestart(sim));
             nSlider.setSpeciesAgent(species);
-            //nSlider.setDisplayPhase(DisplayPhase1);
+            //nSlider.setDisplayBox(DisplayBox1);
             nSlider.setMinimum(0);
             nSlider.setMaximum(40);
             nSlider.setPostAction(new Action() {
                 public void actionPerformed() {
                     AtomAgentManager agentManager = sim.getAgentManager();
-                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.phase);
+                    AtomIteratorLeafAtoms iter = new AtomIteratorLeafAtoms(sim.box);
                     iter.reset();
                     for (IAtom a = iter.nextAtom(); a != null; a = iter.nextAtom()) {
                         //                      System.out.println(iter.peek().toString());
@@ -434,7 +434,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
                     try {
                     	sim.integratorHard1.reset();
                     } catch(ConfigurationOverlapException e) {}
-                    getDisplayPhase(sim.phase).repaint();
+                    getDisplayBox(sim.box).repaint();
                 }
            });
 
@@ -490,7 +490,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 		SpeciesSpheresMono speciesR, speciesB;
 
-		DisplayPhase display;
+		DisplayBox display;
 
 		DiameterModifier(P2SquareWellBonded potentialRR,
 				P2SquareWellBonded potentialRB, P2SquareWellBonded potentialBB,
@@ -526,7 +526,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 			return ((AtomTypeSphere)speciesR.getMoleculeType()).getDiameter();
 		}
 
-		public void setDisplay(DisplayPhase display) {
+		public void setDisplay(DisplayBox display) {
 			this.display = display;
 		}
 

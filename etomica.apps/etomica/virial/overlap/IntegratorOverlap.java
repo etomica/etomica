@@ -4,7 +4,7 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.util.Debug;
 import etomica.util.IRandom;
 
@@ -14,7 +14,7 @@ import etomica.util.IRandom;
  */
 public class IntegratorOverlap extends IntegratorManagerMC {
 
-    public IntegratorOverlap(IRandom random, IntegratorPhase[] aIntegrators) {
+    public IntegratorOverlap(IRandom random, IntegratorBox[] aIntegrators) {
         super(random);
         setNumSubSteps(1000);
         for (int i=0; i<aIntegrators.length; i++) {
@@ -30,7 +30,7 @@ public class IntegratorOverlap extends IntegratorManagerMC {
     }
     
     /**
-     * Sets the DataSource that retrieves data from both phases and provides
+     * Sets the DataSource that retrieves data from both boxs and provides
      * information to the integrator about their progress.
      */
     public void setDSVO(DataSourceVirialOverlap dataSource) {

@@ -15,9 +15,9 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.integrator.IIntegrator;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.math.geometry.Plane;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
@@ -97,7 +97,7 @@ public class SimulationGraphic implements SimulationContainer {
         }
         dcb = new DeviceTrioControllerButton(simulation);
         add(dcb);
-        setupDisplayPhase();
+        setupDisplayBox();
     }
 
     public ISimulation getSimulation() {return simulation;}
@@ -117,30 +117,30 @@ public class SimulationGraphic implements SimulationContainer {
 	   return simulationPanel;
 	}
      
-	private void setupDisplayPhase() {
+	private void setupDisplayBox() {
 	    Controller controller = simulation.getController();
 	    Action[] activities = controller.getPendingActions();
-	    LinkedList phaseList = new LinkedList();
+	    LinkedList boxList = new LinkedList();
 	    for (int i=0; i<activities.length; i++) {
 	        if (activities[i] instanceof ActivityIntegrate) {
 	            IIntegrator integrator = ((ActivityIntegrate)activities[i]).getIntegrator();
-	            setupDisplayPhase(integrator, phaseList);
+	            setupDisplayBox(integrator, boxList);
 	        }
 	    }
 	}
 	 
 	/**
-	  * Creates a DisplayPhase for each Phase handled by the given Integrator 
-	  * and/or its sub-integrators.  Phases found are added to phaseList.  If 
-	  * a phase handled by an Integrator is in PhaseList, a new DisplayPhase is
+	  * Creates a DisplayBox for each Box handled by the given Integrator 
+	  * and/or its sub-integrators.  Boxs found are added to boxList.  If 
+	  * a box handled by an Integrator is in BoxList, a new DisplayBox is
 	  * not created.
 	  */
-	private void setupDisplayPhase(IIntegrator integrator, LinkedList phaseList) {
-	    if (integrator instanceof IntegratorPhase) {
-	        Phase phase = ((IntegratorPhase)integrator).getPhase();
-	        if (phaseList.contains(phase)) return;
-	        phaseList.add(phase);
-	        final DisplayPhase display = new DisplayPhase(phase, new Pixel(30));
+	private void setupDisplayBox(IIntegrator integrator, LinkedList boxList) {
+	    if (integrator instanceof IntegratorBox) {
+	        Box box = ((IntegratorBox)integrator).getBox();
+	        if (boxList.contains(box)) return;
+	        boxList.add(box);
+	        final DisplayBox display = new DisplayBox(box, new Pixel(30));
 	        add(display);
 	         
 	        /* For G3DSys: panel is invisible until set visible here.
@@ -157,14 +157,14 @@ public class SimulationGraphic implements SimulationContainer {
 	          ((JComponent)display.canvas).setVisible(true);
 	        }
 	         
-            Action repaintAction = getDisplayPhasePaintAction(phase);
+            Action repaintAction = getDisplayBoxPaintAction(box);
 	        integrator.addIntervalAction(repaintAction);
 	        integrator.setActionInterval(repaintAction, updateInterval);
 	    }
 	    else if (integrator instanceof IntegratorManagerMC) {
 	        IIntegrator[] subIntegrators = ((IntegratorManagerMC)integrator).getIntegrators();
 	        for (int i=0; i<subIntegrators.length; i++) {
-	            setupDisplayPhase(subIntegrators[i], phaseList);
+	            setupDisplayBox(subIntegrators[i], boxList);
 	        }
 	    }
 	
@@ -174,7 +174,7 @@ public class SimulationGraphic implements SimulationContainer {
         final Component component = display.graphic(null);
         if(component == null) return; //display is not graphic
 
-        if(display instanceof DisplayBox || display instanceof DisplayBoxesCAE) {
+        if(display instanceof DisplayBox || display instanceof DisplayTextBoxesCAE) {
             getPanel().controlPanel.add(component, SimulationPanel.getVertGBC());
         }
         else {
@@ -200,7 +200,7 @@ public class SimulationGraphic implements SimulationContainer {
     public void remove(Display display) {
         final Component component = display.graphic(null);
     	if(component == null) return; //display is not graphic
-    	if(display instanceof DisplayBox || display instanceof DisplayBoxesCAE) {
+    	if(display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
     	    getPanel().controlPanel.remove(component);
     	}
     	else {
@@ -253,10 +253,10 @@ public class SimulationGraphic implements SimulationContainer {
 
     public DeviceTrioControllerButton getController() { return dcb; }
 
-    public Action getDisplayPhasePaintAction(Phase phase) {
+    public Action getDisplayBoxPaintAction(Box box) {
     	Action repaintAction = null;
 
-    	final DisplayPhase display = getDisplayPhase(phase);
+    	final DisplayBox display = getDisplayBox(box);
     	if(display != null) {
 
     		repaintAction = new Action() {
@@ -306,12 +306,12 @@ public class SimulationGraphic implements SimulationContainer {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         };
         
-    public DisplayPhase getDisplayPhase(Phase phase) {
+    public DisplayBox getDisplayBox(Box box) {
         Iterator iterator = displayList.iterator();
         while(iterator.hasNext()) {
             Object display = iterator.next();
-            if(display instanceof DisplayPhase) {
-                if(((DisplayPhase)display).getPhase() == phase) return (DisplayPhase)display;
+            if(display instanceof DisplayBox) {
+                if(((DisplayBox)display).getBox() == box) return (DisplayBox)display;
             }
         }
         return null;
@@ -333,35 +333,35 @@ public class SimulationGraphic implements SimulationContainer {
 //        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
         SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY);
-		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
+		Action repaintAction = simGraphic.getDisplayBoxPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
+        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
         nSelector.setPostAction(repaintAction);
         simGraphic.add(nSelector);
         simGraphic.getController().getReinitButton().setPostAction(repaintAction);
         
-//        AtomFilterInPolytope filter = new AtomFilterInPolytope(sim.phase.boundary().getShape());
-//        MyFilter filter = new MyFilter((Polyhedron)sim.phase.boundary().getShape());
-//        PhaseDeleteMolecules deleter = new PhaseDeleteMolecules(filter);
+//        AtomFilterInPolytope filter = new AtomFilterInPolytope(sim.box.boundary().getShape());
+//        MyFilter filter = new MyFilter((Polyhedron)sim.box.boundary().getShape());
+//        BoxDeleteMolecules deleter = new BoxDeleteMolecules(filter);
         //positionDefinition shifts atom to same origin as polytope
 //        AtomPositionDefinition position = new AtomPositionDefinition() {
 //            public Vector position(Atom a) {
-//                Vector3D r = (Vector3D)sim.phase.boundary().dimensions().clone();
+//                Vector3D r = (Vector3D)sim.box.boundary().dimensions().clone();
 //                r.TE(-0.5);
 //                r.PE(a.coord.position());
 //                return r;
 //            }
 //        };
-//        deleter.setPhase(sim.phase);
+//        deleter.setBox(sim.box);
 //        filter.setPositionDefinition(position);
 //        DeviceButton deleteButton = new DeviceButton(sim.getController(),deleter);
 //        simGraphic.add(deleteButton);
         simGraphic.makeAndDisplayFrame();
         AtomType moleculeType = sim.species.getMoleculeType();
         final ColorSchemeByType colorScheme = new ColorSchemeByType();
-        ((DisplayPhase) simGraphic.displayList().getFirst())
+        ((DisplayBox) simGraphic.displayList().getFirst())
                 .setColorScheme(colorScheme);
         if (moleculeType.isLeaf()) {
             colorScheme.setColor(moleculeType, java.awt.Color.red);

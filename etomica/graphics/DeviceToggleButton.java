@@ -116,7 +116,7 @@ public class DeviceToggleButton extends DeviceButton {
         //here's the part unique to this class
         //sets up button to toggle atoms between red and blue
         final ColorSchemeByType colorScheme = new ColorSchemeByType();
-        ((DisplayPhase) graphic.displayList().getFirst())
+        ((DisplayBox) graphic.displayList().getFirst())
                 .setColorScheme(colorScheme);
         ModifierBoolean modifier = new ModifierBoolean() {
 
@@ -136,9 +136,9 @@ public class DeviceToggleButton extends DeviceButton {
                 modifier);
         button.setTrueLabel("Red");
         button.setFalseLabel("Blue");
-        button.setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
+        button.setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
 
-        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayPhasePaintAction(sim.phase));
+        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
 
         //end of unique part
         graphic.add(button);

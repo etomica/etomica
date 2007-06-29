@@ -10,7 +10,7 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.integrator.IntegratorHard;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Temperature;
@@ -39,14 +39,14 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     }
     
     public Data getData() {
-        if (phase == null || integratorHard == null) throw new IllegalStateException("must call setPhase and integrator before using meter");
+        if (box == null || integratorHard == null) throw new IllegalStateException("must call setBox and integrator before using meter");
         double t = integratorHard.getCurrentTime();
-        data.x.TE(-1/((t-t0)*phase.getSpace().D()));
+        data.x.TE(-1/((t-t0)*box.getSpace().D()));
         t0 = t;
 
         //We're using the instantaneous velocity tensor with the average virial tensor
         //not quite right, but works out in the end.
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -55,7 +55,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
             data.x.PE(v);
         }
 
-        data.x.TE(1.0/phase.atomCount());
+        data.x.TE(1.0/box.atomCount());
     
         return data;
     }
@@ -73,10 +73,10 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
             integratorHard.removeCollisionListener(this);
         }
         if (newIntegrator == null) {
-            phase = null;
+            box = null;
             return;
         }
-        phase = integratorHard.getPhase();
+        box = integratorHard.getBox();
         integratorHard = newIntegrator;
         integratorHard.addCollisionListener(this);
     }
@@ -98,7 +98,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     private Tensor v;
     private IntegratorHard integratorHard;
     private String name;
-    private Phase phase;
+    private Box box;
     private final DataTensor data;
     private final IDataInfo dataInfo;
     protected final DataTag tag;

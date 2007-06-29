@@ -6,7 +6,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
@@ -25,7 +25,7 @@ public class HSMD2D extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
     public SpeciesSpheresMono species1, species2;
-    public Phase phase;
+    public Box box;
     public Potential2 potential11;
     public Potential2 potential12;
     public Potential2 potential22;
@@ -65,15 +65,15 @@ public class HSMD2D extends Simulation {
 
         potentialMaster.addPotential(potential22,new Species[]{species2,species1});
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species1).setNMolecules(512);
-        phase.getAgent(species2).setNMolecules(5);
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species1).setNMolecules(512);
+        box.getAgent(species2).setNMolecules(5);
+        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);
         integrator.addNonintervalListener(nbrManager);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
-        integrator.setPhase(phase);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
+        integrator.setBox(box);
     }
     
     /**

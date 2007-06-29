@@ -15,7 +15,7 @@ import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveTriclinic;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
@@ -39,7 +39,7 @@ public class LatticePlaneTestUtility {
 	private ISimulation sim = null;
 	private Species species = null;
 	private BravaisLattice lattice = null;
-	private Phase phase = null;
+	private Box box = null;
 	private LatticePlane latticePlane = null;
 
 	public LatticePlaneTestUtility() {
@@ -53,7 +53,7 @@ public class LatticePlaneTestUtility {
 
 	}
 
-	public void createLatticeAndPhase(int index, int[] millerIndices, int[] boxSize) {
+	public void createLatticeAndBox(int index, int[] millerIndices, int[] boxSize) {
 
 		BasisMonatomic basisMonatomic = null;
 
@@ -104,15 +104,15 @@ public class LatticePlaneTestUtility {
         	new LatticePlane(lattice.getPrimitive(), millerIndices);
     	setLatticePlanePosition(0.0);
 
-	    // Create a phase
-    	if(phase != null) {
-    	 sim.removePhase(phase);
+	    // Create a box
+    	if(box != null) {
+    	 sim.removeBox(box);
     	}
-	    phase = new Phase(
+	    box = new Box(
 	    		new etomica.space.BoundaryDeformableLattice(
 	                  lattice.getPrimitive(),
 	              	  (etomica.util.IRandom)null, boxSize));
-	    sim.addPhase(phase);
+	    sim.addBox(box);
 
 	}
 
@@ -120,17 +120,17 @@ public class LatticePlaneTestUtility {
         // Set the number of atoms
         int numAtoms = size*size*size;
 
-	    // Set the dimensions for the phase
-	    IVector dimensions = phase.getBoundary().getDimensions();
+	    // Set the dimensions for the box
+	    IVector dimensions = box.getBoundary().getDimensions();
 	    dimensions.E(lattice.getPrimitive().getSize());
 	    dimensions.TE(size);
-	    phase.setDimensions(dimensions);
+	    box.setDimensions(dimensions);
 
-	    // Set the number of molecules for the phase and
+	    // Set the number of molecules for the box and
 	    // initialze the positions.
-	    phase.getAgent(species).setNMolecules(numAtoms);
+	    box.getAgent(species).setNMolecules(numAtoms);
 	    ConfigurationLattice config = new ConfigurationLattice(lattice);
-	    config.initializeCoordinates(phase);
+	    config.initializeCoordinates(box);
 		
 	}
 
@@ -154,8 +154,8 @@ public class LatticePlaneTestUtility {
 		return lattice;
 	}
 	
-	public Phase getPhase() {
-		return phase;
+	public Box getBox() {
+		return box;
 	}
 	
 	public LatticePlane getLatticePlane() {

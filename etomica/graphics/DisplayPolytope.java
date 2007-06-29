@@ -66,7 +66,7 @@ public class DisplayPolytope extends Display implements Action {
 
      /**
       * Factor used to scale the size of the image. May be used
-      * to scale up or down the image within one phase without affecting those
+      * to scale up or down the image within one box without affecting those
       * in other displays.  Default value is 1.0.
       */
     protected double scale = 1.0;
@@ -92,7 +92,7 @@ public class DisplayPolytope extends Display implements Action {
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a phase as the simulation proceeds");
+        EtomicaInfo info = new EtomicaInfo("Animated display of molecules in a box as the simulation proceeds");
         return info;
     }
     
@@ -208,7 +208,7 @@ public class DisplayPolytope extends Display implements Action {
     
     /** 
      * Simulation.GraphicalElement interface method.  Overrides Display method
-     * to return the DisplayPhase.Canvas as the display object.
+     * to return the DisplayBox.Canvas as the display object.
      *
      * @param obj ignored by this method.
      */
@@ -281,7 +281,7 @@ public class DisplayPolytope extends Display implements Action {
         public void mouseClicked(MouseEvent evt) {
             canvas.requestFocus();
             //if(parentSimulation().space().D() == 3 && Default.DISPLAY_USE_OPENGL)
-            //((DisplayPhaseCanvas3DOpenGL)canvas).start();
+            //((DisplayBoxCanvas3DOpenGL)canvas).start();
         }
         public void mouseEntered(MouseEvent evt) {canvas.requestFocus();}
         public void mouseExited(MouseEvent evt) {canvas.transferFocus();}
@@ -390,4 +390,4 @@ public class DisplayPolytope extends Display implements Action {
     }//end of Applet
 
     
-}//end of DisplayPhase
+}//end of DisplayBox

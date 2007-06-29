@@ -21,7 +21,7 @@ import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialGroup;
@@ -40,7 +40,7 @@ public class TestSWChain extends Simulation {
     
     private static final long serialVersionUID = 1L;
     public IntegratorHard integrator;
-    public Phase phase;
+    public Box box;
 
     public TestSWChain() {
         this(500);
@@ -88,17 +88,17 @@ public class TestSWChain extends Simulation {
         nonBondedCriterion.setBonded(false);
         sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.setDimensions(Space.makeVector(new double[]{l,l,l}));
-        phase.getAgent(species).setNMolecules(numMolecules);
-        NeighborListManager nbrManager = potentialMaster.getNeighborManager(phase);
+        box = new Box(this);
+        addBox(box);
+        box.setDimensions(Space.makeVector(new double[]{l,l,l}));
+        box.getAgent(species).setNMolecules(numMolecules);
+        NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);
         integrator.addNonintervalListener(nbrManager);
 
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         ConfigurationFile config = new ConfigurationFile("SWChain"+Integer.toString(numMolecules));
-        config.initializeCoordinates(phase);
+        config.initializeCoordinates(box);
     }
     
     public static void main(String[] args) {
@@ -118,7 +118,7 @@ public class TestSWChain extends Simulation {
         
         sim.getController().actionPerformed();
         
-        double Z = pMeter.getDataAsScalar()*sim.phase.volume()/(sim.phase.moleculeCount()*sim.integrator.getTemperature());
+        double Z = pMeter.getDataAsScalar()*sim.box.volume()/(sim.box.moleculeCount()*sim.integrator.getTemperature());
         double avgPE = ((DataDouble)((DataGroup)energyAccumulator.getData()).getData(StatType.AVERAGE.index)).x;
         avgPE /= numMolecules;
         System.out.println("Z="+Z);

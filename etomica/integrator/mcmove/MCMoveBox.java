@@ -1,0 +1,76 @@
+package etomica.integrator.mcmove;
+
+import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.Box;
+import etomica.potential.PotentialMaster;
+
+/**
+ * MCMove parent class for moves that operate on a single Box.
+ *
+ * @author Andrew Schultz
+ */
+public abstract class MCMoveBox extends MCMove {
+
+    public MCMoveBox(PotentialMaster potentialMaster) {
+        this(potentialMaster, new MCMoveTracker());
+    }
+
+    public MCMoveBox(PotentialMaster potentialMaster,
+            MCMoveTracker acceptanceTracker) {
+        super(potentialMaster, acceptanceTracker);
+        perParticleFrequency = false;
+    }
+
+    /**
+     * Sets the box on which this move acts.  The box itself can be changed
+     * via this method, if desired.
+     */
+    public void setBox(Box p) {
+        box = p;
+    }
+
+    /**
+     * @return the box(s) on which this move acts.
+     */
+    public Box getBox() {
+        return box;
+    }
+
+    public AtomIterator affectedAtoms(Box aBox) {
+        if (box == aBox) {
+            return affectedAtoms();
+        }
+        return AtomIteratorNull.INSTANCE;
+    }
+
+    public abstract AtomIterator affectedAtoms();
+    
+    public double energyChange(Box aBox) {
+        if (box == aBox) {
+            return energyChange();
+        }
+        return 0;
+    }
+    
+    public abstract double energyChange();
+
+    /**
+     * Indicates whether this move should nominally be performed at a frequency
+     * proportional to the number of molecules in the box.
+     * 
+     * @see #nominalFrequency
+     */
+    public final boolean isNominallyPerParticleFrequency() {
+        return perParticleFrequency;
+    }
+
+    /**
+     * Flag indicating whether nominal frequency is interpreted as a
+     * perParticleFrequency, or as a full frequency. Default is false, but may
+     * be given a different value by subclasses.
+     */
+    protected boolean perParticleFrequency;
+    
+    protected Box box;
+}

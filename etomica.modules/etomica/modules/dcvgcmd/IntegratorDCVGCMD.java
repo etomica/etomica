@@ -8,7 +8,7 @@ package etomica.modules.dcvgcmd;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
@@ -25,7 +25,7 @@ import etomica.util.IRandom;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class IntegratorDCVGCMD extends IntegratorPhase {
+public class IntegratorDCVGCMD extends IntegratorBox {
 	
 	IntegratorMC integratormc;
 	IntegratorMD integratormd;
@@ -81,7 +81,7 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
                 integratormc.doStep();
             }
             potentialMasterHybrid.setUseNbrLists(true);
-            potentialMasterHybrid.getNeighborManager(phase).reset();
+            potentialMasterHybrid.getNeighborManager(box).reset();
             try {
                 integratormd.reset();
             } catch(ConfigurationOverlapException e) {
@@ -121,8 +121,8 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
 		integratormd = intmd;
         integratormc.setTemperature(temperature);
         integratormd.setTemperature(temperature);
-		integratormd.setPhase(phase);
-		integratormc.setPhase(phase);
+		integratormd.setBox(box);
+		integratormc.setBox(box);
 		mcMove1 = new MyMCMove(this, random, -zFraction);
 		mcMove2 = new MyMCMove(this, random, +zFraction);
         MCMoveManager moveManager = integratormc.getMoveManager();
@@ -146,7 +146,7 @@ public class IntegratorDCVGCMD extends IntegratorPhase {
     }
 		
 	/**
-	 * @see etomica.integrator.IntegratorPhase#doReset()
+	 * @see etomica.integrator.IntegratorBox#doReset()
 	 */
 	public void reset() throws ConfigurationOverlapException {
         if(!initialized) return;

@@ -1,6 +1,6 @@
 package etomica.simulation.prototypes;
 import etomica.action.Action;
-import etomica.action.PhaseImposePbc;
+import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
@@ -12,12 +12,12 @@ import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DisplayBoxesCAE;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
@@ -41,7 +41,7 @@ public class HSMD2D_noNbr extends Simulation {
     public AccumulatorHistory pressureHistory;
     public AccumulatorAverage temperatureAverage;
     public AccumulatorHistory temperatureHistory;
-    public Phase phase;
+    public Box box;
     public SpeciesSpheresMono species;
     public IntegratorHard integrator;
 
@@ -58,10 +58,10 @@ public class HSMD2D_noNbr extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-	    phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(64);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(phase);
+	    box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(64);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
 	    P2HardSphere potential = new P2HardSphere(space);
 	    potentialMaster.addPotential(potential,new Species[]{species,species});
         P1HardBoundary potentialBoundary = new P1HardBoundary(space);
@@ -71,13 +71,13 @@ public class HSMD2D_noNbr extends Simulation {
 //        potentialBoundary.setActive(0,false,true);
 //        potentialBoundary.setActive(1,false,true);
         
-        integrator.addIntervalAction(new PhaseImposePbc(phase));
-        integrator.setPhase(phase);
+        integrator.addIntervalAction(new BoxImposePbc(box));
+        integrator.setBox(box);
         integrator.setNullPotential(new P1HardPeriodic(space));
 //        integrator.setIsothermal(true);
         
 //        MeterPressureHard meterPressure = new MeterPressureHard(integrator);
-//        meterPressure.setPhase(phase);
+//        meterPressure.setBox(box);
 //        pressureAverage = new AccumulatorAverage();
 //        DataPump pressurePump = new DataPump(meterPressure, pressureAverage);
 //        IntervalActionAdapter pressureAction = new IntervalActionAdapter(pressurePump, integrator);
@@ -88,7 +88,7 @@ public class HSMD2D_noNbr extends Simulation {
 //                                      addDataSink(pressureHistory);
         
         MeterTemperature meterTemperature = new MeterTemperature();
-        meterTemperature.setPhase(phase);
+        meterTemperature.setBox(box);
         temperatureAverage = new AccumulatorAverage();
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
         integrator.addIntervalAction(temperaturePump);
@@ -112,19 +112,19 @@ public class HSMD2D_noNbr extends Simulation {
         final HSMD2D_noNbr sim = new HSMD2D_noNbr();
         final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
         sim.activityIntegrate.setDoSleep(true);
-//        DisplayBoxesCAE pressureDisplay = new DisplayBoxesCAE();
+//        DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
 //        pressureDisplay.setAccumulator(sim.pressureAverage);
 //        DisplayPlot pressurePlot = new DisplayPlot();
 //        sim.pressureHistory.addDataSink(pressurePlot.makeDataSink());
-        DisplayBoxesCAE temperatureDisplay = new DisplayBoxesCAE();
+        DisplayTextBoxesCAE temperatureDisplay = new DisplayTextBoxesCAE();
         temperatureDisplay.setAccumulator(sim.temperatureAverage);
         DisplayPlot temperaturePlot = new DisplayPlot();
         temperaturePlot.setLabel("Temp");
         sim.temperatureHistory.setDataSink(temperaturePlot.getDataSet().makeDataSink());
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpeciesAgent(sim.phase.getAgent(sim.species));
-        Action repaintAction = graphic.getDisplayPhasePaintAction(sim.phase);
+        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
+        Action repaintAction = graphic.getDisplayBoxPaintAction(sim.box);
 
         nSelector.setPostAction(repaintAction);
         graphic.getController().getReinitButton().setPostAction(repaintAction);

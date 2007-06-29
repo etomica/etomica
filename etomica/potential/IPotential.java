@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 import etomica.units.Dimension;
 
@@ -21,12 +21,12 @@ public interface IPotential {
     public Dimension getRangeDimension();
 
     /**
-     * Informs the potential of the phase on which it acts. Typically this
+     * Informs the potential of the box on which it acts. Typically this
      * requires at least that it update the nearestImageTransformer of its
      * coordinatePair (if it uses one), e.g.:
-     * cPair.setNearestImageTransformer(phase.boundary());
+     * cPair.setNearestImageTransformer(box.boundary());
      */
-    public void setPhase(Phase phase);
+    public void setBox(Box box);
 
     /**
      * The number of atoms on which the potential depends.

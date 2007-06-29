@@ -9,7 +9,7 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
@@ -34,9 +34,9 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         
         Species[] species = sim.getSpeciesManager().getSpecies();
 
-        phaseTest(sim.getPhases()[0], species);
-        phaseTest(sim.getPhases()[1], species);
-        phaseTest(sim.getPhases()[2], species);
+        boxTest(sim.getBoxs()[0], species);
+        boxTest(sim.getBoxs()[1], species);
+        boxTest(sim.getBoxs()[2], species);
         
         ApiIntraspecies1A api = new ApiIntraspecies1A(new Species[] {species[0], species[0]});
         
@@ -83,27 +83,27 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
     }
     
     /**
-     * Performs tests on different species combinations in a particular phase.
+     * Performs tests on different species combinations in a particular box.
      */
-    private void phaseTest(Phase phase, Species[] species) {
-        speciesTestForward(phase, species[0]);
-        speciesTestForward(phase, species[1]);
-        speciesTestForward(phase, species[2]);
+    private void boxTest(Box box, Species[] species) {
+        speciesTestForward(box, species[0]);
+        speciesTestForward(box, species[1]);
+        speciesTestForward(box, species[2]);
     }
 
     /**
      * Test iteration in various directions with different targets.  Iterator constructed with
      * index of first species less than index of second.
      */
-    private void speciesTestForward(Phase phase, Species species) {
+    private void speciesTestForward(Box box, Species species) {
 
         ApiIntraspecies1A api = new ApiIntraspecies1A(new Species[] {species, species});
         AtomsetAction speciesTest = new SpeciesTestAction(species, species);
         IAtom target = null;
         IAtom targetMolecule = null;
         //test no iterates if no target
-        api.setPhase(phase);
-        IAtom[] molecules0 = ((AtomArrayList)phase.getAgent(species).getChildList()).toArray();
+        api.setBox(box);
+        IAtom[] molecules0 = ((AtomArrayList)box.getAgent(species).getChildList()).toArray();
         int[] nMolecules = new int[] {molecules0.length};
         testNoIterates(api);
         
@@ -111,14 +111,14 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
 
         //species0 target; any direction
         
-        target = phase.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
+        target = box.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         testApiIterates(api,targetMolecule,upMolecules(targetMolecule,molecules0), dnMolecules(targetMolecule, molecules0));
         api.allAtoms(speciesTest);
 
         //species0 target; up
-        target = phase.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
+        target = box.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(UP);
@@ -126,7 +126,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         api.allAtoms(speciesTest);
 
         //species0 target; down
-        target = phase.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
+        target = box.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(DOWN);
@@ -134,7 +134,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         
         //species0 leafAtom target; any direction
         if(species instanceof SpeciesSpheres) {
-            target = ((IAtomGroup)phase.getAgent(species).getChildList().getAtom(nMolecules[0]/2)).getChildList().getAtom(1);
+            target = ((IAtomGroup)box.getAgent(species).getChildList().getAtom(nMolecules[0]/2)).getChildList().getAtom(1);
             targetMolecule = target.getParentGroup();
             api.setTarget(target);
             api.setDirection(UP);
@@ -144,7 +144,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
 
         boolean exceptionThrown = false;
         try {
-            api.setPhase(null);
+            api.setBox(null);
         }
         catch (RuntimeException e) {
             exceptionThrown = true;

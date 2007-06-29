@@ -7,16 +7,16 @@ import etomica.atom.AtomType;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DisplayTextBox;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayBoxesCAE;
-import etomica.graphics.DisplayPhase;
-import etomica.graphics.DisplayPhaseSpin2D;
+import etomica.graphics.DisplayBoxSpin2D;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.nbr.site.NeighborSiteManager;
 import etomica.nbr.site.PotentialMasterSite;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -46,13 +46,13 @@ public class Heisenberg extends Simulation {
     public Heisenberg(Space space, int nCells) {
         super(space, false);
         potentialMaster = new PotentialMasterSite(this, nCells);
-        phase = new Phase(this);
-        addPhase(phase);
+        box = new Box(this);
+        addBox(box);
         int numAtoms = space.powerD(nCells);
         spins = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(spins);
-        phase.getAgent(spins).setNMolecules(numAtoms);
-        new ConfigurationAligned().initializeCoordinates(phase);
+        box.getAgent(spins).setNMolecules(numAtoms);
+        new ConfigurationAligned().initializeCoordinates(box);
         
         potential = new P2Spin(space);
         field = new P1MagneticField(space);
@@ -69,10 +69,10 @@ public class Heisenberg extends Simulation {
         potentialMaster.addPotential(field, new AtomType[] {type});
         potentialMaster.addPotential(potential, new AtomType[] {type, type});
         
-        integrator.setPhase(phase);
+        integrator.setBox(box);
         
         meter = new MeterSpin(space);
-        meter.setPhase(phase);
+        meter.setBox(box);
         dAcc = new AccumulatorAverage(10);
         pump = new DataPump(meter, dAcc);
         dAcc.setPushInterval(10);
@@ -82,7 +82,7 @@ public class Heisenberg extends Simulation {
 
     private static final long serialVersionUID = 2L;
     public PotentialMasterSite potentialMaster;
-    public Phase phase;
+    public Box box;
     public Species spins;
     public P2Spin potential;
     public P1MagneticField field;
@@ -96,14 +96,14 @@ public class Heisenberg extends Simulation {
         Heisenberg sim = new Heisenberg(Space2D.getInstance(), 60);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         ((SimulationRestart)simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
-		Action repaintAction = simGraphic.getDisplayPhasePaintAction(sim.phase);
-        DisplayPhase displayPhase = simGraphic.getDisplayPhase(sim.phase);
+		Action repaintAction = simGraphic.getDisplayBoxPaintAction(sim.box);
+        DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
 
-        simGraphic.remove(displayPhase);
-        PhaseAgentManager phaseAgentManager = sim.potentialMaster.getCellAgentManager();
-        NeighborSiteManager neighborSiteManager = (NeighborSiteManager)phaseAgentManager.getAgent(sim.phase);
-        displayPhase.setPhaseCanvas(new DisplayPhaseSpin2D(displayPhase,neighborSiteManager));
-        simGraphic.add(displayPhase);
+        simGraphic.remove(displayBox);
+        BoxAgentManager boxAgentManager = sim.potentialMaster.getCellAgentManager();
+        NeighborSiteManager neighborSiteManager = (NeighborSiteManager)boxAgentManager.getAgent(sim.box);
+        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox,neighborSiteManager));
+        simGraphic.add(displayBox);
         DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator,"temperature");
         temperatureSlider.setMinimum(0.5);
         temperatureSlider.setMaximum(10.0);
@@ -121,10 +121,10 @@ public class Heisenberg extends Simulation {
         fieldSlider.setLabel("Magnetic field");
         simGraphic.add(fieldSlider);
         
-        DisplayBoxesCAE boxes = new DisplayBoxesCAE();
+        DisplayTextBoxesCAE boxes = new DisplayTextBoxesCAE();
         boxes.setAccumulator(sim.dAcc);
         boxes.setLabel("Magnetization");
-        boxes.setLabelType(DisplayBox.LabelType.BORDER);
+        boxes.setLabelType(DisplayTextBox.LabelType.BORDER);
         simGraphic.add(boxes);
 
         simGraphic.getController().getReinitButton().setPostAction(repaintAction);

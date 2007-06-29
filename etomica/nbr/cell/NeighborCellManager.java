@@ -10,18 +10,18 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorTreePhase;
+import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.integrator.mcmove.MCMoveEvent;
 import etomica.integrator.mcmove.MCMoveListener;
-import etomica.integrator.mcmove.MCMovePhase;
+import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
-import etomica.phase.Phase;
-import etomica.phase.PhaseCellManager;
-import etomica.phase.PhaseEvent;
-import etomica.phase.PhaseInflateEvent;
-import etomica.phase.PhaseListener;
+import etomica.box.Box;
+import etomica.box.BoxCellManager;
+import etomica.box.BoxEvent;
+import etomica.box.BoxInflateEvent;
+import etomica.box.BoxListener;
 import etomica.space.Boundary;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -36,48 +36,48 @@ import etomica.util.Debug;
 //no need for index when assigning cell
 //different iterator needed
 
-public class NeighborCellManager implements PhaseCellManager, AgentSource, PhaseListener, java.io.Serializable {
+public class NeighborCellManager implements BoxCellManager, AgentSource, BoxListener, java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final CellLattice lattice;
     protected final Space space;
-    protected final AtomIteratorTreePhase atomIterator;
+    protected final AtomIteratorTreeBox atomIterator;
     protected final AtomPositionDefinition positionDefinition;
-    protected final Phase phase;
+    protected final Box box;
     protected int cellRange = 2;
     protected double range;
     protected final AtomAgentManager agentManager;
     
     /**
-     * Constructs manager for neighbor cells in the given phase.  The number of
+     * Constructs manager for neighbor cells in the given box.  The number of
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(Phase phase, double potentialRange) {
-        this(phase, potentialRange, null);
+    public NeighborCellManager(Box box, double potentialRange) {
+        this(box, potentialRange, null);
     }
     
     /**
-     * Construct manager for neighbor cells in the given phase.  The number
+     * Construct manager for neighbor cells in the given box.  The number
      * of cells in each dimension is given by nCells.  Position definition is
      * used to determine the cell a given atom is in; if null, the position
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(final Phase phase, double potentialRange, AtomPositionDefinition positionDefinition) {
+    public NeighborCellManager(final Box box, double potentialRange, AtomPositionDefinition positionDefinition) {
         this.positionDefinition = positionDefinition;
-        this.phase = phase;
-        space = phase.getSpace();
-        atomIterator = new AtomIteratorTreePhase();
+        this.box = box;
+        space = box.getSpace();
+        atomIterator = new AtomIteratorTreeBox();
         atomIterator.setDoAllNodes(true);
-        atomIterator.setPhase(phase);
+        atomIterator.setBox(box);
 
-        lattice = new CellLattice(phase.getBoundary().getDimensions(), Cell.FACTORY);
+        lattice = new CellLattice(box.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
 
         //force lattice to be sized so the Cells will exist
         checkDimensions();
-        agentManager = new AtomAgentManager(this,phase);
+        agentManager = new AtomAgentManager(this,box);
     }
 
     public CellLattice getLattice() {
@@ -117,7 +117,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     }
     
     /**
-     * Checks the phase's dimensions to make sure the number of cells is 
+     * Checks the box's dimensions to make sure the number of cells is 
      * appropriate.
      */
     protected void checkDimensions() {
@@ -127,7 +127,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         }
     	int D = space.D();
         int[] nCells = new int[D];
-        IVector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getDimensions();
         lattice.setDimensions(dimensions);
         for (int i=0; i<D; i++) {
             nCells[i] = (int)Math.floor(cellRange*dimensions.x(i)/range);
@@ -143,7 +143,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     }
     
     /**
-     * Assigns cells to all interacting atoms in the phase.  Interacting atoms
+     * Assigns cells to all interacting atoms in the box.  Interacting atoms
      * are those that have one or more potentials that act on them.  
      */
     public void assignCellAll() {
@@ -190,7 +190,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
     }
     
     public MCMoveListener makeMCMoveListener() {
-        return new MyMCMoveListener(space,phase,this);
+        return new MyMCMoveListener(space,box,this);
     }
     
     public Class getAgentClass() {
@@ -223,20 +223,20 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         ((Cell)cell).removeAtom(atom);
     }
     
-    public void actionPerformed(PhaseEvent event) {
-        if (event instanceof PhaseInflateEvent) {
-            lattice.setDimensions(phase.getBoundary().getDimensions());
+    public void actionPerformed(BoxEvent event) {
+        if (event instanceof BoxInflateEvent) {
+            lattice.setDimensions(box.getBoundary().getDimensions());
         }
     }
     
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
-        public MyMCMoveListener(Space space, Phase phase, NeighborCellManager manager) {
+        public MyMCMoveListener(Space space, Box box, NeighborCellManager manager) {
             treeIterator = new AtomIteratorTreeRoot();
             treeIterator.setDoAllNodes(true);
             moleculePosition = new AtomPositionCOM(space);
             translator = new AtomActionTranslateBy(space);
             moleculeTranslator = new AtomGroupAction(translator);
-            this.phase = phase;
+            this.box = box;
             neighborCellManager = manager;
         }
         
@@ -244,7 +244,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
             if (evt instanceof MCMoveTrialCompletedEvent && ((MCMoveTrialCompletedEvent)evt).isAccepted()) {
                 return;
             }
-            MCMovePhase move = (MCMovePhase)evt.getMCMove();
+            MCMoveBox move = (MCMoveBox)evt.getMCMove();
             AtomIterator iterator = move.affectedAtoms();
             iterator.reset();
             for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
@@ -262,7 +262,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
 
         private void updateCell(IAtom atom) {
             if (atom.getType().isInteracting()) {
-                Boundary boundary = phase.getBoundary();
+                Boundary boundary = box.getBoundary();
                 Cell cell = neighborCellManager.getCell(atom);
                 // we only need to remove the atom from the cell's list and
                 // not de-associate the atom from the cell.  assignCell below
@@ -287,7 +287,7 @@ public class NeighborCellManager implements PhaseCellManager, AgentSource, Phase
         private final AtomPositionDefinition moleculePosition;
         private final AtomActionTranslateBy translator;
         private final AtomGroupAction moleculeTranslator;
-        private final Phase phase;
+        private final Box box;
         private final NeighborCellManager neighborCellManager;
     }
 }

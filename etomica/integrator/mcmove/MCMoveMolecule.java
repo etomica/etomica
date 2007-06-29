@@ -44,7 +44,7 @@ public class MCMoveMolecule extends MCMoveAtom {
     
 
     public boolean doTrial() {
-        if(phase.moleculeCount()==0) return false;
+        if(box.moleculeCount()==0) return false;
         
         atom = atomSource.getAtom();
 

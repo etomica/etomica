@@ -2,7 +2,7 @@ package etomica.potential;
 
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -23,20 +23,20 @@ public class PotentialMasterLrc extends PotentialMaster {
     
     /**
      * Performs given PotentialCalculation on all LRC potentials added to this group.
-     * Checks that group is enabled, phase is not null, that it has lrcEnabled,
+     * Checks that group is enabled, box is not null, that it has lrcEnabled,
      * and that the given IteratorDirective has includeLrc set to true; if all
      * are so, calculation is performed.
      */
-    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
-        if(!enabled || phase == null || !phase.isLrcEnabled() || !id.includeLrc) return;
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+        if(!enabled || box == null || !box.isLrcEnabled() || !id.includeLrc) return;
         IAtom targetAtom = id.getTargetAtom();
-        boolean phaseChanged = (phase != mostRecentPhase);
-        mostRecentPhase = phase;
+        boolean boxChanged = (box != mostRecentBox);
+        mostRecentBox = box;
         for(PotentialLinker link=first; link!=null; link=link.next) {
             if(!link.enabled) continue;
-            if(phaseChanged) {
-                link.iterator.setPhase(phase);
-                link.potential.setPhase(phase);
+            if(boxChanged) {
+                link.iterator.setBox(box);
+                link.potential.setBox(box);
             }
             link.iterator.setTarget(targetAtom);
             ((Potential0Lrc)link.potential).setTargetAtoms(targetAtom);

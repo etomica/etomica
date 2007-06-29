@@ -3,7 +3,7 @@ package etomica.potential;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomsetIterator;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -45,18 +45,18 @@ public class PotentialCalculationForcePressureSum extends PotentialCalculationFo
 			IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
 			switch(nBody) {
 				case 1:
-					((IntegratorPhase.Forcible)integratorAgentManager.getAgent((IAtom)atoms)).force().ME(f[0]);
+					((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtom)atoms)).force().ME(f[0]);
 					break;
 				case 2:
-                    ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
-                    ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
+                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
+                    ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(1))).force().ME(f[1]);
 			 		break;
                 default:
                     //XXX atoms.count might not equal f.length.  The potential might size its 
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
                     for (int i=0; i<atoms.getAtomCount(); i++) {
-                        ((IntegratorPhase.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
+                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
                     }
 			}
 		}

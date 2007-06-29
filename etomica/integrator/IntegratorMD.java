@@ -9,7 +9,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.units.Dimension;
@@ -23,7 +23,7 @@ import etomica.util.IRandom;
  * set the time step.
  */
 
-public abstract class IntegratorMD extends IntegratorPhase {
+public abstract class IntegratorMD extends IntegratorBox {
     
     public IntegratorMD(PotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature) {
@@ -48,10 +48,10 @@ public abstract class IntegratorMD extends IntegratorPhase {
     public final double getTimeStep() {return timeStep;}
     public Dimension getTimeStepDimension() {return Time.DIMENSION;}
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        meterTemperature.setPhase(p);
-        meterKE.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        meterTemperature.setBox(p);
+        meterKE.setBox(p);
     }
 
     protected void setup() {
@@ -60,7 +60,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
         }
         catch (ConfigurationOverlapException e) {}
         thermostatCount = 1;
-        meterKE.setPhase(phase);
+        meterKE.setBox(box);
         doThermostat();
     }
     
@@ -68,7 +68,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
      * reset the integrator's kinetic energy tracker
      */
     public void reset() throws ConfigurationOverlapException {
-        meterKE.setPhase(phase);
+        meterKE.setBox(box);
         currentKineticEnergy = meterKE.getDataAsScalar();
         super.reset();
     }
@@ -176,7 +176,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
             }
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
-                    AtomSet atomList = phase.getSpeciesMaster().getLeafList();
+                    AtomSet atomList = box.getSpeciesMaster().getLeafList();
                     int index = random.nextInt(atomList.getAtomCount());
                     IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();
@@ -193,15 +193,15 @@ public abstract class IntegratorMD extends IntegratorPhase {
     }
     
     /**
-     * randomizes the velocities for the given phase using velocities
+     * randomizes the velocities for the given box using velocities
      * chosen form a Maxwell-Boltzmann distribution as in the Andersen 
      * thermostat.  The state of the integrator needs to be updated 
      * after calling this method.
-     * @param aPhase phase whose atomic momenta are to be randomized
+     * @param aBox box whose atomic momenta are to be randomized
      */
     protected void randomizeMomenta() {
         atomActionRandomizeVelocity.setTemperature(temperature);
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             atomActionRandomizeVelocity.actionPerformed(leafList.getAtom(iLeaf));
@@ -209,7 +209,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
     }
     
     /**
-     * randomizes the velocity of an atom in the given phase using velocities
+     * randomizes the velocity of an atom in the given box using velocities
      * chosen form a Maxwell-Boltzmann distribution as in the Andersen 
      * thermostat.  The state of the integrator needs to be updated 
      * after calling this method.
@@ -223,13 +223,13 @@ public abstract class IntegratorMD extends IntegratorPhase {
     /**
      * Crude method to enforce constant-temperature constraint
      * Scales momenta of all atoms by a constant factor so that 
-     * phase adheres to setpoint temperature.  The state of the 
+     * box adheres to setpoint temperature.  The state of the 
      * integrator may need to be updated after calling this method.
      * @return the factor velocities were scaled by 
      */
     protected double scaleMomenta() {
         momentum.E(0);
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
@@ -295,7 +295,7 @@ public abstract class IntegratorMD extends IntegratorPhase {
      */
     public void setMeterTemperature(MeterTemperature meter) {
         meterTemperature = meter;
-        meter.setPhase(phase);
+        meter.setBox(box);
     }
     
     private static final long serialVersionUID = 2L;

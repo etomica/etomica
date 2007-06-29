@@ -13,7 +13,7 @@ import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.list.NeighborListManager;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
@@ -203,10 +203,10 @@ public class PotentialMasterListWorker extends Thread {
 	        arrayList.clear();
     }
     
-    public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, Phase phase){
+    public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, Box box){
         
         // Make reference to neighbor lists
-        AtomSet list = ((IAtomGroup)phase.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
+        AtomSet list = ((IAtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
         int size = list.getAtomCount();
         
         int startAtom = (threadNumber*size)/numThreads;

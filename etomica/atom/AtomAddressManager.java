@@ -35,7 +35,7 @@ public class AtomAddressManager implements java.io.Serializable {
      *            indicates whether the atom is in the tree or not (0 means it
      *            is not, 1 means it is, so if the index is read as an integer
      *            it will be negative if the atom is in the tree hierarchy);
-     *            subsequent bits indicate the species master (phase), species
+     *            subsequent bits indicate the species master (box), species
      *            agent, molecule, then groups/atoms in the molecule as
      *            appropriate to the system being simulated.
      * @param depth
@@ -145,10 +145,10 @@ public class AtomAddressManager implements java.io.Serializable {
     }
 
 //    /**
-//     * Decodes an atom's address to determine the index of the phase it is in.
+//     * Decodes an atom's address to determine the index of the box it is in.
 //     */
-//    public int getPhaseIndex(int atomAddress) {
-//        return ((atomAddress & phaseOrdinalMask) >>> bitShift[1]) - 1;
+//    public int getBoxIndex(int atomAddress) {
+//        return ((atomAddress & boxOrdinalMask) >>> bitShift[1]) - 1;
 //    }
 //
     /**
@@ -169,13 +169,13 @@ public class AtomAddressManager implements java.io.Serializable {
 
 //    /**
 //     * Returns true if the given addresses correspond to atoms that are in the 
-//     * same phase.
+//     * same box.
 //     * @param address0 address of an atom, as given by the index() method of its node.
 //     * @param address1 address of another atom, as given by the index() method of its node.
-//     * @return true if atoms are in the same phase (or are the same atom).
+//     * @return true if atoms are in the same box (or are the same atom).
 //     */
-//    public boolean samePhase(int address0, int address1) {
-//        return ((address0 ^ address1) & samePhaseMask) == 0;
+//    public boolean sameBox(int address0, int address1) {
+//        return ((address0 ^ address1) & sameBoxMask) == 0;
 //    }
 //
     /**

@@ -1,7 +1,7 @@
 package etomica.virial;
 
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.util.IRandom;
@@ -24,13 +24,13 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
         setName("MCMoveClusterMolecule");
     }
     
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        weightMeter.setPhase(p);
+    public void setBox(Box p) {
+        super.setBox(p);
+        weightMeter.setBox(p);
     }
     
     public boolean doTrial() {
-        if(phase.moleculeCount()==1) return false;
+        if(box.moleculeCount()==1) return false;
         
         atom = atomSource.getAtom();
         while (atom.getIndex() == 0) {
@@ -42,8 +42,8 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
         groupTranslationVector.TE(stepSize);
         moveMoleculeAction.actionPerformed(atom);
         uNew = Double.NaN;
-//        System.out.println(((AtomTreeNodeGroup)((AtomTreeNodeGroup)phases[0].speciesMaster.node.childList.getFirst().node).childList.getLast().node).childList.getFirst().coord.position());
-        ((PhaseCluster)phase).trialNotify();
+//        System.out.println(((AtomTreeNodeGroup)((AtomTreeNodeGroup)boxs[0].speciesMaster.node.childList.getFirst().node).childList.getLast().node).childList.getFirst().coord.position());
+        ((BoxCluster)box).trialNotify();
         return true;
     }
     
@@ -59,13 +59,13 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     
     public void acceptNotify() {
         super.acceptNotify();
-        ((PhaseCluster)phase).acceptNotify();
+        ((BoxCluster)box).acceptNotify();
 //        System.out.println(atom+" accepted => "+atom.type.getPositionDefinition().position(atom));
     }
     
     public void rejectNotify() {
         super.rejectNotify();
-        ((PhaseCluster)phase).rejectNotify();
+        ((BoxCluster)box).rejectNotify();
 //        System.out.println(atom+" rejected => "+atom.type.getPositionDefinition().position(atom));
     }
         

@@ -3,9 +3,9 @@ import etomica.units.Dimension;
 import etomica.units.Quantity;
 
 /**
- * The SpeciesAgent is a representative of the species in each phase.
+ * The SpeciesAgent is a representative of the species in each box.
  * The agent handles addition, deletion, link-list ordering, counting, etc. of 
- * molecules in a phase.  Each phase has an agent from every species instance.
+ * molecules in a box.  Each box has an agent from every species instance.
  * 
  * @author David Kofke
  */
@@ -22,8 +22,8 @@ public final class SpeciesAgent extends AtomGroup implements ISpeciesAgent {
     }
     
     public String signature() {
-        return (atomManager != null) ? atomManager.getPhase().toString() + " " +getIndex()
-                : "SpeciesAgent without phase";
+        return (atomManager != null) ? atomManager.getBox().toString() + " " +getIndex()
+                : "SpeciesAgent without box";
     }
     
     public int getNMolecules() {return childList.getAtomCount();}

@@ -1,13 +1,13 @@
 package etomica.atom.iterator;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 
 /**
  * Iterator that returns all pairs that can be formed from all leaf atoms of a
- * given phase. Wraps an ApiIntraList instance.
+ * given box. Wraps an ApiIntraList instance.
  */
 public class ApiLeafAtoms extends AtomsetIteratorAdapter implements
-        AtomsetIteratorPhaseDependent {
+        AtomsetIteratorBoxDependent {
 
     /**
      * Creates new pair iterator that requires reset() before beginning
@@ -18,11 +18,11 @@ public class ApiLeafAtoms extends AtomsetIteratorAdapter implements
     }
 
     /**
-     * Conditions iterator to return all leaf-atom pairs from the given phase.
-     * @throws a NullPointerException if the Phase is null
+     * Conditions iterator to return all leaf-atom pairs from the given box.
+     * @throws a NullPointerException if the Box is null
      */
-    public void setPhase(Phase phase) {
-        ((ApiIntraArrayList)iterator).setList(phase.getSpeciesMaster().getLeafList());
+    public void setBox(Box box) {
+        ((ApiIntraArrayList)iterator).setList(box.getSpeciesMaster().getLeafList());
     }
 
     private static final long serialVersionUID = 1L;

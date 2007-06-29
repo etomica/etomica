@@ -15,16 +15,16 @@ import etomica.util.Debug;
 
 /**
  * Potential that places hard repulsive walls coinciding with the
- * boundary of the phase, which is assumed to be rectangular in shape.
+ * boundary of the box, which is assumed to be rectangular in shape.
  *
  * @author David Kofke
  */
  
  //extends PotentialAbstract instead of Potential1HardAbstract because potential depends
- //on property (boundary.dimensions) of phase, and this is more readily available to
+ //on property (boundary.dimensions) of box, and this is more readily available to
  //the Agent than to the parent potential.  
  //perhaps Potential1HardAbstract should be redesigned to permit easier access to features
- //of the phase by the parent potential, since this is probably a common situation for
+ //of the box by the parent potential, since this is probably a common situation for
  //one-body potentials
  
 public class P1HardBoundary extends Potential1 implements PotentialHard, Drawable {
@@ -56,7 +56,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Hard repulsive potential at the phase boundaries");
+        EtomicaInfo info = new EtomicaInfo("Hard repulsive potential at the box boundaries");
         return info;
     }
     

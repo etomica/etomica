@@ -56,7 +56,7 @@ import etomica.units.systems.UnitSystem;
      * Accessor method for the meter that generates the displayed value.
      */
     public DataSourceScalar getMeter() {
-        System.out.println("DisplayBox.getMeter value = "+meter);
+        System.out.println("DisplayTextBox.getMeter value = "+meter);
         return meter;
     }
 

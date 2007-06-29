@@ -2,7 +2,7 @@
 package etomica.models.propane;
 
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
@@ -150,8 +150,8 @@ public class P2UAPropane extends Potential2 {
         epsilonCH2X4 = 4*epsilonCH2;
     }
 
-    public void setPhase(Phase phase) {
-        nearestImageTransformer = phase.getBoundary();
+    public void setBox(Box box) {
+        nearestImageTransformer = box.getBoundary();
     }
 
     private static final long serialVersionUID = 1L;

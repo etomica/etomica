@@ -6,7 +6,7 @@ import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 
@@ -17,18 +17,18 @@ import etomica.space.IVector;
  */
 public class CheckCBMCHexane implements Action {
 
-    public CheckCBMCHexane(Phase p, PotentialMaster potentialMaster) {
-        phase = p;
+    public CheckCBMCHexane(Box p, PotentialMaster potentialMaster) {
+        box = p;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
-        energyMeter.setPhase(phase);
+        energyMeter.setBox(box);
 
-        moleculeIterator = new AtomIteratorAllMolecules(phase);
+        moleculeIterator = new AtomIteratorAllMolecules(box);
         moleculeIterator.reset();
 
-        vex = phase.getSpace().makeVector();
-        temp = phase.getSpace().makeVector();
-        axial = phase.getSpace().makeVector();
-        radial = phase.getSpace().makeVector();
+        vex = box.getSpace().makeVector();
+        temp = box.getSpace().makeVector();
+        axial = box.getSpace().makeVector();
+        radial = box.getSpace().makeVector();
         booink = 0;
 
         phi = 109.47 * 2.0 * Math.PI / 360.0;
@@ -162,7 +162,7 @@ public class CheckCBMCHexane implements Action {
 
     MeterPotentialEnergy energyMeter;
 
-    Phase phase;
+    Box box;
 
     AtomIteratorAllMolecules moleculeIterator;
 

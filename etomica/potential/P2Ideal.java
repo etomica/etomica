@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -26,7 +26,7 @@ public class P2Ideal extends Potential2 implements Potential2Soft,
     /**
      * Does nothing.
      */
-    public void setPhase(Phase phase) {
+    public void setBox(Box box) {
     }
 
     /**

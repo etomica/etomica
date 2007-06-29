@@ -1,7 +1,7 @@
 package etomica.data.meter;
 
 import etomica.data.DataSourceScalar;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.units.Energy;
 
 /**
@@ -13,16 +13,16 @@ public class MeterPotentialEnergyFromIntegrator extends DataSourceScalar {
         super("Potential Energy",Energy.DIMENSION);
     }
     
-    public MeterPotentialEnergyFromIntegrator(IntegratorPhase aIntegrator) {
+    public MeterPotentialEnergyFromIntegrator(IntegratorBox aIntegrator) {
         this();
         setIntegrator(aIntegrator);
     }
     
-    public void setIntegrator(IntegratorPhase newIntegrator) {
+    public void setIntegrator(IntegratorBox newIntegrator) {
         integrator = newIntegrator;
     }
     
-    public IntegratorPhase getIntegrator() {
+    public IntegratorBox getIntegrator() {
         return integrator;
     }
     
@@ -31,5 +31,5 @@ public class MeterPotentialEnergyFromIntegrator extends DataSourceScalar {
     }
     
     private static final long serialVersionUID = 1L;
-    private IntegratorPhase integrator;
+    private IntegratorBox integrator;
 }

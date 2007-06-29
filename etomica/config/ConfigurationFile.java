@@ -6,11 +6,11 @@ import java.io.IOException;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 
 /**
- * reads configuration coordinates from a file and assigns them to the leaf atoms in a phase
+ * reads configuration coordinates from a file and assigns them to the leaf atoms in a box
  */
 public class ConfigurationFile extends Configuration {
 
@@ -18,8 +18,8 @@ public class ConfigurationFile extends Configuration {
         confName = aConfName;
     }
     
-    public void initializeCoordinates(Phase phase) {
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+    public void initializeCoordinates(Box box) {
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         String fileName = confName+".pos";
         FileReader fileReader;
         try {

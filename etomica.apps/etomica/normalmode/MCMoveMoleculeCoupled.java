@@ -11,8 +11,8 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.mcmove.MCMovePhaseStep;
-import etomica.phase.Phase;
+import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.box.Box;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVectorRandom;
@@ -24,7 +24,7 @@ import etomica.util.IRandom;
  *
  * @author Nancy Cribbin
  */
-public class MCMoveMoleculeCoupled extends MCMovePhaseStep {
+public class MCMoveMoleculeCoupled extends MCMoveBoxStep {
 
     private static final long serialVersionUID = 1L;
     protected final AtomGroupAction moveMoleculeAction;
@@ -62,10 +62,10 @@ public class MCMoveMoleculeCoupled extends MCMovePhaseStep {
         energyMeter.setIncludeLrc(false);
     }
 
-    public void setPhase(Phase newPhase) {
-        super.setPhase(newPhase);
-        moleculeSource.setPhase(newPhase);
-        energyMeter.setPhase(newPhase);
+    public void setBox(Box newBox) {
+        super.setBox(newBox);
+        moleculeSource.setBox(newBox);
+        energyMeter.setBox(newBox);
     }
     
     public void setPotential(PotentialGroup newPotential){
@@ -103,7 +103,7 @@ public class MCMoveMoleculeCoupled extends MCMovePhaseStep {
         
         
         if(uOld > 1e10){
-            throw new RuntimeException(new ConfigurationOverlapException(phase));
+            throw new RuntimeException(new ConfigurationOverlapException(box));
         }
         
         groupTransVect.setRandomCube(random);

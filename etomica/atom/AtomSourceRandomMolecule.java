@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.util.IRandom;
 
 /**
@@ -22,18 +22,18 @@ public class AtomSourceRandomMolecule implements AtomSource, java.io.Serializabl
         return random;
     }
     
-    public void setPhase(Phase p) {
-        phase = p;
+    public void setBox(Box p) {
+        box = p;
     }
     
     /**
-     * returns a random molecule from the phase
+     * returns a random molecule from the box
      */
     public IAtom getAtom() {
-        return phase.molecule(random.nextInt(phase.moleculeCount()));
+        return box.molecule(random.nextInt(box.moleculeCount()));
     }
     
     private static final long serialVersionUID = 1L;
-    protected Phase phase = null;
+    protected Box box = null;
     protected IRandom random;
 }

@@ -16,7 +16,7 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
@@ -42,9 +42,9 @@ public class SimCalcSLJ extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        phase = new Phase(this);
-        addPhase(phase);
-        phase.getAgent(species).setNMolecules(numAtoms);
+        box = new Box(this);
+        addBox(box);
+        box.getAgent(species).setNMolecules(numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, getRandom());
@@ -80,7 +80,7 @@ public class SimCalcSLJ extends Simulation {
         potentialMaster.addPotential(pTruncated, new AtomType[] {sphereType, sphereType});
         move.setPotential(pTruncated);
 
-        phase.setBoundary(boundary);
+        box.setBoundary(boundary);
 
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange = truncationRadius;
@@ -88,8 +88,8 @@ public class SimCalcSLJ extends Simulation {
             ((PotentialMasterList)potentialMaster).setRange(neighborRange);
             ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
             // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(phase).reset();
-            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(phase).getLattice().getSize()[0];
+            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
+            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
             if (potentialCells < cellRange*2+1) {
                 throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
             }
@@ -98,10 +98,10 @@ public class SimCalcSLJ extends Simulation {
             }
         }
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(phase, primitive, basis);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis);
         coordinateDefinition.initializeCoordinates(nCells);
         
-        integrator.setPhase(phase);
+        integrator.setBox(box);
     }
 
     /**
@@ -163,7 +163,7 @@ public class SimCalcSLJ extends Simulation {
             waveVectorFactory = new WaveVectorFactorySimple(primitive);
         }
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-        meterNormalMode.setPhase(sim.phase);
+        meterNormalMode.setBox(sim.box);
 
         sim.integrator.addIntervalAction(meterNormalMode);
         sim.integrator.setActionInterval(meterNormalMode, nA);
@@ -175,11 +175,11 @@ public class SimCalcSLJ extends Simulation {
         // IntervalActionAdapter comAdapter = new
         // IntervalActionAdapter(comPump);
         // sim.integrator.addListener(comAdapter);
-        // meterCOM.setPhase(sim.phase);
+        // meterCOM.setBox(sim.box);
 
         // start simulation
 //        MeterEnergy m = new MeterEnergy(sim.getPotentialMaster());
-//        m.setPhase(sim.phase);
+//        m.setBox(sim.box);
 //        DataLogger logger = new DataLogger();
 //        logger.setAppending(true);
 //        logger.setCloseFileEachTime(true);
@@ -199,7 +199,7 @@ public class SimCalcSLJ extends Simulation {
         sim.getController().reset();
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
-        PDBWriter pdbWriter = new PDBWriter(sim.phase);
+        PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS.pdb");
         pdbWriter.actionPerformed();
         
@@ -250,7 +250,7 @@ public class SimCalcSLJ extends Simulation {
     private static final long serialVersionUID = 1L;
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
-    public Phase phase;
+    public Box box;
     public Boundary boundary;
     public Primitive primitive;
     public CoordinateDefinition coordinateDefinition;

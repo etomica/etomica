@@ -6,11 +6,11 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.nbr.PotentialGroupNbr;
-import etomica.nbr.cell.PhaseAgentSourceCellManager;
+import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
-import etomica.phase.PhaseAgentManager;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
@@ -43,39 +43,39 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
-			PhaseAgentSourceCellManager phaseAgentSource) {
-		super(sim, range, phaseAgentSource);
+			BoxAgentSourceCellManager boxAgentSource) {
+		super(sim, range, boxAgentSource);
 		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
-			PhaseAgentSourceCellManager phaseAgentSource,
-			PhaseAgentManager agentManager) {
-		super(sim, range, phaseAgentSource, agentManager);
+			BoxAgentSourceCellManager boxAgentSource,
+			BoxAgentManager agentManager) {
+		super(sim, range, boxAgentSource, agentManager);
 		// TODO Auto-generated constructor stub
 	}
 	
-    public void calculate(Phase phase, IteratorDirective id, PotentialCalculation pc) {
+    public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
         if(!enabled) return;
         IAtom targetAtom = id.getTargetAtom();
-        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(phase);
+        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
 
         if (targetAtom == null) {
             //no target atoms specified -- do one-target algorithm to SpeciesMaster
             if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
                 throw new IllegalArgumentException("When there is no target, iterator directive must be up");
             }
-            // invoke setPhase on all potentials
+            // invoke setBox on all potentials
             for (int i=0; i<allPotentials.length; i++) {
-                allPotentials[i].setPhase(phase);
+                allPotentials[i].setBox(box);
             }
             
             if(pc instanceof PotentialCalculationThreaded){
-            	calculateThreaded(phase, id, (PotentialCalculationThreaded)pc, neighborManager);
+            	calculateThreaded(box, id, (PotentialCalculationThreaded)pc, neighborManager);
             }
             else{
             	//method of super class
-            	super.calculate(phase, id, pc);
+            	super.calculate(box, id, pc);
             }
             
         }
@@ -86,7 +86,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
-                    potentials[i].setPhase(phase);
+                    potentials[i].setBox(box);
                     ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
                 }
                 parentAtom = parentAtom.getParentGroup();
@@ -94,20 +94,20 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
             PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
             IPotential[] potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
-                potentials[i].setPhase(phase);
+                potentials[i].setBox(box);
             }
             calculate(targetAtom, id, pc, neighborManager);
         }
        
         if(lrcMaster != null) {
-            lrcMaster.calculate(phase, id, pc);
+            lrcMaster.calculate(box, id, pc);
         }
     }
 
-    protected void calculateThreaded(Phase phase, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
+    protected void calculateThreaded(Box box, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
-        AtomSet list = phase.getSpeciesMaster().getAgentList();
+        AtomSet list = box.getSpeciesMaster().getAgentList();
         int size = list.getAtomCount();
         for (int i=0; i<size; i++) {
             IAtom a = list.getAtom(i);
@@ -160,12 +160,12 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         
     }
 	
-	public void setNumThreads(int t, Phase phase){
+	public void setNumThreads(int t, Box box){
 		threads = new PotentialMasterListWorker[t];
 				
         for (int i=0; i<t; i++){
 			threads[i] = new PotentialMasterListWorker(i, rangedAgentManager, this);
-			threads[i].fillNeighborListArray(i, t, (NeighborListManager)neighborListAgentManager.getAgent(phase), phase);
+			threads[i].fillNeighborListArray(i, t, (NeighborListManager)neighborListAgentManager.getAgent(box), box);
             threads[i].start();
 		}
            

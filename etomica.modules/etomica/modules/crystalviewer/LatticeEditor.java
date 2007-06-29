@@ -23,7 +23,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.Primitive;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.species.Species;
 import etomica.units.Degree;
@@ -41,7 +41,7 @@ public class LatticeEditor {
     protected int size;
     protected BravaisLattice currentLattice;
     private JPanel panel;
-    protected Phase phase;
+    protected Box box;
     protected Species species;
     private DeviceBox[] angleBoxes, sizeBoxes;
     public JPanel anglePanel, sizePanel;
@@ -73,7 +73,7 @@ public class LatticeEditor {
     public LatticeEditor(CrystalViewer viewer, BravaisLattice[] lattices, String[] latticeNames) {
     
         this.viewer = viewer;
-        phase = viewer.phase;
+        box = viewer.box;
         species = viewer.species;
         latticeNameHash = new HashMap();
         for (int i=0; i<lattices.length; i++) {
@@ -100,7 +100,7 @@ public class LatticeEditor {
         selector.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 currentLattice = (BravaisLattice)selector.getSelectedItem();
-                changePhase();
+                changeBox();
                 initBoxes();
                 update();
             }
@@ -277,30 +277,30 @@ public class LatticeEditor {
         if (currentLattice instanceof BravaisLatticeCrystal) {
             numAtoms *= ((BravaisLatticeCrystal)currentLattice).getBasis().getScaledCoordinates().length;
         }
-        IVector dimensions = phase.getBoundary().getDimensions();
+        IVector dimensions = box.getBoundary().getDimensions();
         dimensions.E(currentLattice.getPrimitive().getSize());
         dimensions.TE(size);
-        phase.setDimensions(dimensions);
-        phase.getAgent(species).setNMolecules(numAtoms);
+        box.setDimensions(dimensions);
+        box.getAgent(species).setNMolecules(numAtoms);
         ConfigurationLattice config = new ConfigurationLattice(currentLattice);
-        config.initializeCoordinates(phase);
+        config.initializeCoordinates(box);
         viewer.update(currentLattice);
     }
 
-    protected void changePhase() {
+    protected void changeBox() {
     	
-    	Phase oldPhase = phase;
+    	Box oldBox = box;
         double[]  boxSize = new double[] { 10.0, 10.0, 10.0 };
 
-    	phase = new Phase(new etomica.space.BoundaryDeformableLattice
+    	box = new Box(new etomica.space.BoundaryDeformableLattice
     			                             (currentLattice.getPrimitive(),
     			    	                   	  (etomica.util.IRandom)null,
     			    		                  boxSize));
-    	if(oldPhase != null) {
-    	    viewer.sim.removePhase(oldPhase);
+    	if(oldBox != null) {
+    	    viewer.sim.removeBox(oldBox);
     	}
-    	viewer.sim.addPhase(phase);
-    	viewer.displayPhase.setPhase(phase);
+    	viewer.sim.addBox(box);
+    	viewer.displayBox.setBox(box);
     }
 
     public JPanel getPanel() {return panel;}

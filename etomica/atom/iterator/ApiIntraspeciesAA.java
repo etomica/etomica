@@ -1,14 +1,14 @@
 package etomica.atom.iterator;
 
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 
 /**
- * Gives pairs formed from the molecules of a single species in a phase. Species
+ * Gives pairs formed from the molecules of a single species in a box. Species
  * is specified at construction and cannot be changed afterwards.
  */
 public class ApiIntraspeciesAA extends AtomsetIteratorAdapter implements
-        AtomsetIteratorPhaseDependent {
+        AtomsetIteratorBoxDependent {
 
     /**
      * @param species
@@ -45,11 +45,11 @@ public class ApiIntraspeciesAA extends AtomsetIteratorAdapter implements
 
     /**
      * Configures iterator to return molecules from the set species in the given
-     * phase.
-     * @throws a NullPointerException if the Phase is null
+     * box.
+     * @throws a NullPointerException if the Box is null
      */
-    public void setPhase(Phase phase) {
-        pairIterator.setList(phase.getAgent(species).getChildList());
+    public void setBox(Box box) {
+        pairIterator.setList(box.getAgent(species).getChildList());
     }
 
     private static final long serialVersionUID = 1L;

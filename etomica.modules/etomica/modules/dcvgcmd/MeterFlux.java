@@ -2,7 +2,7 @@ package etomica.modules.dcvgcmd;
 
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.units.Undefined;
 
 public class MeterFlux extends DataSourceScalar implements DataSource {
@@ -17,26 +17,26 @@ public class MeterFlux extends DataSourceScalar implements DataSource {
 		double t1 = integratorMD.getCurrentTime();
         if(t1 == t0) return Double.NaN;
 		int n1 = mcMove.getDeltaN();
-		double rate = (n1 - n0)/(t1 - t0)/(phase.getBoundary().getDimensions().x(0)*phase.getBoundary().getDimensions().x(1));
+		double rate = (n1 - n0)/(t1 - t0)/(box.getBoundary().getDimensions().x(0)*box.getBoundary().getDimensions().x(1));
 		n0 = n1;
 		t0 = t1;
 		return rate;
 	}
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
-    private Phase phase;
+    private Box box;
     private double t0 = 0;
     private int n0 = 0;
     private MyMCMove mcMove;

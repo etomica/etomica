@@ -6,29 +6,29 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorPT.MCMoveSwap;
 import etomica.integrator.IntegratorPT.MCMoveSwapFactory;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 
 
 /**
- * Basic MCMove for swapping coordinates of atoms in two phases.
- * Requires same number of atoms in each phase.
+ * Basic MCMove for swapping coordinates of atoms in two boxs.
+ * Requires same number of atoms in each box.
  */
 public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 
     private static final long serialVersionUID = 1L;
-	private final IntegratorPhase integrator1, integrator2;	
+	private final IntegratorBox integrator1, integrator2;	
 	private final AtomIteratorLeafAtoms affectedAtomIterator = new AtomIteratorLeafAtoms();
 	private final IVector r;
 	private double u1, u2, temp1, temp2, deltaU1;
-	private final Phase[] swappedPhases = new Phase[2];
+	private final Box[] swappedBoxs = new Box[2];
 
-	public MCMoveSwapConfiguration(IntegratorPhase integrator1, IntegratorPhase integrator2) {
+	public MCMoveSwapConfiguration(IntegratorBox integrator1, IntegratorBox integrator2) {
   		super(null);
-		r = integrator1.getPhase().getSpace().makeVector();
+		r = integrator1.getBox().getSpace().makeVector();
 		this.integrator1 = integrator1;
 		this.integrator2 = integrator2;
 	}
@@ -45,7 +45,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
     
     public double getA() {
     	// have to do this here since Integrator won't understand T dependence 
-        deltaU1 = u2 - u1;  //if accepted, energy of phase1 will be u2, and its old energy is u1
+        deltaU1 = u2 - u1;  //if accepted, energy of box1 will be u2, and its old energy is u1
         return Math.exp(-deltaU1*((1/temp1) - (1/temp2)));
     }
     
@@ -54,13 +54,13 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
     }
 	
 	/**
-	 * Swaps positions of molecules in two phases.
+	 * Swaps positions of molecules in two boxs.
      * 
-     * @throws RuntimeException wrapping a ConfigurationOverlapException if overlap is detected in either phase
+     * @throws RuntimeException wrapping a ConfigurationOverlapException if overlap is detected in either box
 	 */
 	public void acceptNotify() {
-        AtomSet leafList1 = integrator1.getPhase().getSpeciesMaster().getLeafList();
-        AtomSet leafList2 = integrator2.getPhase().getSpeciesMaster().getLeafList();
+        AtomSet leafList1 = integrator1.getBox().getSpeciesMaster().getLeafList();
+        AtomSet leafList2 = integrator2.getBox().getSpeciesMaster().getLeafList();
         int nLeaf = leafList1.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a1 = (IAtomPositioned)leafList1.getAtom(iLeaf);
@@ -97,21 +97,21 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	/**
 	 * Implementation of MCMoveSwap interface
 	 */
-	public Phase[] swappedPhases() {
-	    swappedPhases[0] = integrator1.getPhase();
-	    swappedPhases[1] = integrator2.getPhase();
-	    return swappedPhases;
+	public Box[] swappedBoxs() {
+	    swappedBoxs[0] = integrator1.getBox();
+	    swappedBoxs[1] = integrator2.getBox();
+	    return swappedBoxs;
 	}
 
-	public double energyChange(Phase phase) {
-	    if(phase == integrator1.getPhase()) return +deltaU1;
-	    if(phase == integrator2.getPhase()) return -deltaU1;
+	public double energyChange(Box box) {
+	    if(box == integrator1.getBox()) return +deltaU1;
+	    if(box == integrator2.getBox()) return -deltaU1;
 	    return 0.0;
 	}
 	
-	public AtomIterator affectedAtoms(Phase p) {
-	    if(p == integrator1.getPhase() || p == integrator2.getPhase()) {
-	        affectedAtomIterator.setPhase(p);
+	public AtomIterator affectedAtoms(Box p) {
+	    if(p == integrator1.getBox() || p == integrator2.getBox()) {
+	        affectedAtomIterator.setBox(p);
 	        affectedAtomIterator.reset();
 	        return affectedAtomIterator;
 	    }
@@ -121,7 +121,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
     public final static SwapFactory FACTORY = new SwapFactory();
     
 	protected static class SwapFactory implements MCMoveSwapFactory, java.io.Serializable {
-	    public MCMove makeMCMoveSwap(IntegratorPhase integrator1, IntegratorPhase integrator2) {
+	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2) {
 	        return new MCMoveSwapConfiguration(integrator1, integrator2);
 	    }
         private static final long serialVersionUID = 1L;

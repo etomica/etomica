@@ -4,18 +4,18 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiLeafAtoms;
-import etomica.atom.iterator.AtomsetIteratorPhaseDependent;
+import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.math.geometry.coordinate.CoordinateConverter;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Undefined;
 
- /** The Bond Order Parameter Ql provides a metric that indicates the crystallinity of a phase.
+ /** The Bond Order Parameter Ql provides a metric that indicates the crystallinity of a box.
    * Appropriate for 3-dimensional system only.
    * Refer: Journal of Chemical Physics Vol.104 No.24,22nd June,1996__ Rate of crystal nucleation
    *
@@ -36,24 +36,24 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Order parameter used to identify crystallinity of phases (3-D only)");
+        EtomicaInfo info = new EtomicaInfo("Order parameter used to identify crystallinity of boxs (3-D only)");
         return info;
     }
 
     /**
-     * Returns the value of the bond-order parameter for the given phase
+     * Returns the value of the bond-order parameter for the given box
      * in its current configuration.  Returned array has only one element.
      */
     public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+        if (box == null) throw new IllegalStateException("must call setBox before using meter");
         int nbSum = 0;
         for(int m=-L; m<=L; m++) {
             int idx = m+L;
             Qreal[idx] = 0.0;
             Qimag[idx] = 0.0;
         }
-        NearestImageTransformer nearestImageTransformer = phase.getBoundary();
-        pairIterator.setPhase(phase);
+        NearestImageTransformer nearestImageTransformer = box.getBoundary();
+        pairIterator.setBox(box);
         pairIterator.reset();
         for (AtomSet pair = pairIterator.next(); pair != null;
              pair = pairIterator.next()) {
@@ -102,7 +102,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
      * will be calculated.  Default iterator is ApiLeafAtoms.
      * @param iter
      */
-    public void setIterator(AtomsetIteratorPhaseDependent iter) {
+    public void setIterator(AtomsetIteratorBoxDependent iter) {
     	if(iter.nBody() != 2) throw new IllegalArgumentException("Illegal attempt to use a non-pair iterator");
     	pairIterator = iter;
     }
@@ -110,7 +110,7 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
      * @return the iterator giving the atoms over which the order parameter
      * is defined.
      */
-    public AtomsetIteratorPhaseDependent getIterator() {
+    public AtomsetIteratorBoxDependent getIterator() {
     	return pairIterator;
     }
     
@@ -123,23 +123,23 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private Phase phase;
+    private Box box;
     private double[] Qreal, Qimag;
     private int L;
-    private AtomsetIteratorPhaseDependent pairIterator = new ApiLeafAtoms();
+    private AtomsetIteratorBoxDependent pairIterator = new ApiLeafAtoms();
     private double r2Cut;
     private double[] rThetaPhi = new double[3];
     private double coeff;

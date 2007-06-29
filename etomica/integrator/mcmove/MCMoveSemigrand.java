@@ -11,7 +11,7 @@ import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.species.Species;
 import etomica.util.IRandom;
@@ -26,7 +26,7 @@ import etomica.util.IRandom;
  * @author Jhumpa Adhikari
  * @author David Kofke
  */
-public class MCMoveSemigrand extends MCMovePhase {
+public class MCMoveSemigrand extends MCMoveBox {
     
     private static final long serialVersionUID = 2L;
     private Species[] speciesSet;
@@ -61,17 +61,17 @@ public class MCMoveSemigrand extends MCMovePhase {
     }
     
     /**
-     * Extends the superclass method to initialize the exchange-set species agents for the phase.
+     * Extends the superclass method to initialize the exchange-set species agents for the box.
      */
-    public void setPhase(Phase p) {
-        super.setPhase(p);
-        energyMeter.setPhase(phase);
+    public void setBox(Box p) {
+        super.setBox(p);
+        energyMeter.setBox(box);
         if(speciesSet != null) {
             for(int i=0; i<nSpecies; i++) {
-                agentSet[i] = speciesSet[i].getAgent(phase);
+                agentSet[i] = speciesSet[i].getAgent(box);
             }
         }
-    }//end setPhase
+    }//end setBox
     
     /**
      * Mutator method for the set of species that can participate in an exchange move.
@@ -85,7 +85,7 @@ public class MCMoveSemigrand extends MCMovePhase {
         reservoirs = new AtomArrayList[nSpecies];
         for(int i=0; i<nSpecies; i++) {
             speciesSet[i] = species[i];
-            if(phase != null) agentSet[i] = species[i].getAgent(phase);
+            if(box != null) agentSet[i] = species[i].getAgent(box);
             fugacityFraction[i] = 1.0/nSpecies;
             reservoirs[i] = new AtomArrayList();
         }
@@ -180,7 +180,7 @@ public class MCMoveSemigrand extends MCMovePhase {
     }
 
     public void rejectNotify() {
-        //put deleted molecule back into phase
+        //put deleted molecule back into box
         deleteAgent.addChildAtom(deleteMolecule);
         //remove inserted molecule and put in reservoir
         insertAgent.removeChildAtom(insertMolecule);

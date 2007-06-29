@@ -7,7 +7,7 @@ import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.junit.UnitTestUtil;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 
@@ -24,9 +24,9 @@ public class AtomIteratorTreeTest extends IteratorTestAbstract {
         nTree = new int[] { 5, 4, 3 };
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(new int[] { n0a },
                 nAtoms, new int[] { n1a }, new int[] { n2a }, nTree);
-        Phase phase = sim.getPhases()[0];
+        Box box = sim.getBoxs()[0];
         Species[] species = sim.getSpeciesManager().getSpecies();
-        speciesAgent2 = phase.getAgent(species[2]);
+        speciesAgent2 = box.getAgent(species[2]);
 
         treeIterator = new AtomIteratorTreeRoot();
     }

@@ -2,19 +2,19 @@ package etomica.modules.joulethomson;
 
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.modifier.ModifierBoolean;
 import etomica.util.IRandom;
 
 public class IntegratorJT extends IntegratorManagerMC {
     
-    IntegratorPhase integratorNPH;
-    IntegratorPhase integratorNVE;
+    IntegratorBox integratorNPH;
+    IntegratorBox integratorNVE;
     int nveCount;
     boolean doNVE = true;
     boolean wasReset = false;
     
-    public IntegratorJT(IRandom random, IntegratorPhase nph, IntegratorPhase nve) {
+    public IntegratorJT(IRandom random, IntegratorBox nph, IntegratorBox nve) {
         super(random);
         integratorNPH = nph;
         integratorNVE = nve;

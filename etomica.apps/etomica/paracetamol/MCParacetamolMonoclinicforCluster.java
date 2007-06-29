@@ -41,7 +41,7 @@ public class MCParacetamolMonoclinicforCluster {
         }
         
         ConfigurationFile configFile = new ConfigurationFile("abc");
-        configFile.initializeCoordinates(sim.phase);
+        configFile.initializeCoordinates(sim.box);
         
         sim.actionIntegrate.setMaxSteps(maxSteps/10);
         sim.getController().actionPerformed();
@@ -49,7 +49,7 @@ public class MCParacetamolMonoclinicforCluster {
         /*****************************************************************************/    
         
              MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-             meterPE.setPhase(sim.phase);
+             meterPE.setBox(sim.box);
              AccumulatorAverage accumulatorAveragePE = new AccumulatorAverage(1); //Average over 1
              DataPump PEpump = new DataPump(meterPE, accumulatorAveragePE);
              
@@ -72,7 +72,7 @@ public class MCParacetamolMonoclinicforCluster {
              sim.getController().actionPerformed();
       /**********************************************************************/
              
-             PDBWriter pdbWriter = new PDBWriter(sim.phase);
+             PDBWriter pdbWriter = new PDBWriter(sim.box);
              pdbWriter.setFileName("Paracetamol_FormI_T_"+ temperature +"K.pdb");
              pdbWriter.actionPerformed();
              

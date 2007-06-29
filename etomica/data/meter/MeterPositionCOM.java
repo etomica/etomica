@@ -13,14 +13,14 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Length;
 
 /**
  * Returns the instantaneous center-of-mass position, summed over all
- * leaf atoms in a phase, dividing by the number of atoms.
+ * leaf atoms in a box, dividing by the number of atoms.
  *
  */
 public class MeterPositionCOM implements DataSource, java.io.Serializable {
@@ -35,12 +35,12 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
     }
 
     /**
-     * Returns the position of the center of mass of all atoms in the phase.
+     * Returns the position of the center of mass of all atoms in the box.
      */
     public Data getData() {
         positionSum.E(0.0);
         double massSum = 0.0;
-        AtomSet leafList = phase.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
@@ -53,16 +53,16 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
     }
     
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase newPhase) {
-        phase = newPhase;
+    public void setBox(Box newBox) {
+        box = newBox;
     }
     
     public String getName() {
@@ -82,7 +82,7 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private Phase phase;
+    private Box box;
     private final IVector positionSum;
     private final DataVector data;    
     private final DataInfo dataInfo;

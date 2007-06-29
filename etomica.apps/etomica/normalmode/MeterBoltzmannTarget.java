@@ -7,7 +7,7 @@ import etomica.data.IDataInfo;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.units.Null;
 
 /**
@@ -19,7 +19,7 @@ import etomica.units.Null;
  */
 public class MeterBoltzmannTarget implements DataSource {
     
-    public MeterBoltzmannTarget(IntegratorPhase integrator, MeterHarmonicEnergy meterHarmonicEnergy) {
+    public MeterBoltzmannTarget(IntegratorBox integrator, MeterHarmonicEnergy meterHarmonicEnergy) {
         meterEnergy = new MeterPotentialEnergyFromIntegrator(integrator);
         this.integrator = integrator;
         this.meterHarmonicEnergy = meterHarmonicEnergy;
@@ -51,7 +51,7 @@ public class MeterBoltzmannTarget implements DataSource {
 
     protected final MeterPotentialEnergyFromIntegrator meterEnergy;
     protected final MeterHarmonicEnergy meterHarmonicEnergy;
-    protected final IntegratorPhase integrator;
+    protected final IntegratorBox integrator;
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;

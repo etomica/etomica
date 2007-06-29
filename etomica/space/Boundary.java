@@ -5,7 +5,7 @@ import etomica.math.geometry.Polytope;
 
 /**
  * Parent class of boundary objects that describe the size and periodic nature
- * of the phase boundaries. Each Phase has its own instance of this class. It
+ * of the box boundaries. Each Box has its own instance of this class. It
  * may be referenced by a coordinate pair when computing distances between
  * atoms, or by a cell iterator when generating neighbor lists. It is also used
  * by objects that enforce periodic images.

@@ -13,7 +13,7 @@ import etomica.integrator.IntegratorPT;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveAtom;
 import etomica.integrator.mcmove.MCMoveManager;
-import etomica.integrator.mcmove.MCMovePhaseStep;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -28,7 +28,7 @@ import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRotateMolecule3D;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
-import etomica.virial.PhaseCluster;
+import etomica.virial.BoxCluster;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.paralleltempering.MCMoveSwapCluster;
 
@@ -49,20 +49,20 @@ public class SimulationVirialPT extends Simulation {
 		species = speciesFactory.makeSpecies(this);//SpheresMono(this,AtomLinker.FACTORY);
         getSpeciesManager().addSpecies(species);
 
-        phase = new PhaseCluster[temperature.length];
+        box = new BoxCluster[temperature.length];
         integrator = new IntegratorMC[temperature.length];
         meter = new MeterVirial[temperature.length];
         accumulator = new DataAccumulator[temperature.length];
         accumulatorPump = new DataPump[temperature.length];
         mcMoveAtom1 = new MCMoveAtom[temperature.length];
-        mcMoveMulti = new MCMovePhaseStep[temperature.length];
-        mcMoveRotate = new MCMovePhaseStep[temperature.length];
+        mcMoveMulti = new MCMoveBoxStep[temperature.length];
+        mcMoveRotate = new MCMoveBoxStep[temperature.length];
         meterAccept = new DataSource[temperature.length-1];
         meterAcceptP = new DataSource[temperature.length-1];
         
         // Parallel tempering would sorta work without separate instances of the clusters
         // but the value caching based on coordinate pair set ID would be confused because
-        // the coordinate pair sets from different phases could have the same ID and different
+        // the coordinate pair sets from different boxs could have the same ID and different
         // values
         sampleCluster = new ClusterWeight[temperature.length];
         allValueClusters = new ClusterAbstract[temperature.length][targetClusters.length+1];
@@ -82,18 +82,18 @@ public class SimulationVirialPT extends Simulation {
 
             sampleCluster[iTemp] = sampleClusterFactory.makeWeightCluster(allValueClusters[iTemp]);
             sampleCluster[iTemp].setTemperature(temperature[iTemp]);
-            phase[iTemp] = new PhaseCluster(this,sampleCluster[iTemp]);
-            phase[iTemp].getAgent(species).setNMolecules(nMolecules);
+            box[iTemp] = new BoxCluster(this,sampleCluster[iTemp]);
+            box[iTemp].getAgent(species).setNMolecules(nMolecules);
             
             integrator[iTemp] = new IntegratorMC(this, potentialMaster);
             integrator[iTemp].setTemperature(temperature[iTemp]);
-            integrator[iTemp].setPhase(phase[iTemp]);
+            integrator[iTemp].setBox(box[iTemp]);
             integrator[iTemp].getMoveManager().setEquilibrating(false);
             integratorPT.addIntegrator(integrator[iTemp]);
             
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
-            if (!(phase[iTemp].molecule(0) instanceof IAtomGroup)) {
+            if (!(box[iTemp].molecule(0) instanceof IAtomGroup)) {
                 mcMoveAtom1[iTemp] = new MCMoveClusterAtom(this, potentialMaster);
                 mcMoveAtom1[iTemp].setStepSize(1.15);
                 moveManager.addMCMove(mcMoveAtom1[iTemp]);
@@ -116,7 +116,7 @@ public class SimulationVirialPT extends Simulation {
             }
             
             ConfigurationCluster configuration = new ConfigurationCluster(getRandom());
-            configuration.initializeCoordinates(phase[iTemp]);
+            configuration.initializeCoordinates(box[iTemp]);
             
             setMeter(iTemp,new MeterVirial(allValueClusters[iTemp]));
 //            meter[iTemp].getDataInfo().setLabel("Target/Refernce Ratio "+iTemp);
@@ -141,12 +141,12 @@ public class SimulationVirialPT extends Simulation {
 	public Species species;
 	public ActivityIntegrate ai;
 	public IntegratorMC[] integrator;
-	public PhaseCluster[] phase;
+	public BoxCluster[] box;
     public ClusterAbstract[][] allValueClusters;
     public ClusterWeight[] sampleCluster;
     public MCMoveAtom[] mcMoveAtom1;
-    public MCMovePhaseStep[] mcMoveRotate;
-    public MCMovePhaseStep[] mcMoveMulti;
+    public MCMoveBoxStep[] mcMoveRotate;
+    public MCMoveBoxStep[] mcMoveMulti;
     public IntegratorPT integratorPT;
 
 	public void setMeter(int i, MeterVirial newMeter) {
@@ -159,7 +159,7 @@ public class SimulationVirialPT extends Simulation {
 		}
 		meter[i] = newMeter;
 		if (meter[i] != null) {
-			meter[i].setPhase(phase[i]);
+			meter[i].setBox(box[i]);
 		}
 	}
 

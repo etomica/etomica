@@ -35,7 +35,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
 
 		if (lptu == null) {
 			lptu = new LatticePlaneTestUtility();			
-	        lptu.createLatticeAndPhase(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
+	        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
 	        lptu.setDimensions(DEFAULT_SIZE);
 		}
 
@@ -62,7 +62,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	double plane = 2.0;
     	AtomSet leafList = null;
 
-        lptu.createLatticeAndPhase(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
         ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
 
@@ -73,7 +73,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-        leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+        leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -118,7 +118,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	double plane = 1.0;
     	AtomSet leafList = null;
 
-        lptu.createLatticeAndPhase(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER, DEFAULT_BOX);
 
         ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
 
@@ -129,7 +129,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-        leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+        leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -189,7 +189,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
 
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndPhase(lptu.SIMPLE_CUBIC, millerIndices, new int[] {size, size, size});
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, millerIndices, new int[] {size, size, size});
         
         ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
 
@@ -199,7 +199,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -247,7 +247,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	AtomSet leafList = null;
     	int dimensionSize = 8;
 
-        lptu.createLatticeAndPhase(lptu.SIMPLE_CUBIC, DEFAULT_MILLER,
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, DEFAULT_MILLER,
         		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
         ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
@@ -258,7 +258,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -291,7 +291,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	int dimensionSize = 8;
     	int[] millerIndices = new int[] { 0, 1, 0 };
 
-        lptu.createLatticeAndPhase(lptu.SIMPLE_CUBIC, millerIndices,
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, millerIndices,
         		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
         ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
@@ -302,7 +302,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -350,7 +350,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	AtomSet leafList = null;
     	int dimensionSize = 9;
 
-        lptu.createLatticeAndPhase(lptu.SIMPLE_CUBIC, miller,
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, miller,
         		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
         ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
@@ -360,7 +360,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -407,7 +407,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
 
         DoubleTwoDArray dd = new DoubleTwoDArray(actualPlane);
 
-        lptu.createLatticeAndPhase(lptu.SIMPLE_CUBIC, miller,
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, miller,
         		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
         ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
@@ -417,7 +417,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -466,7 +466,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
     	AtomSet leafList = null;
     	int dimensionSize = 9;
 
-        lptu.createLatticeAndPhase(lptu.SIMPLE_CUBIC, miller,
+        lptu.createLatticeAndBox(lptu.SIMPLE_CUBIC, miller,
         		                   new int[] {dimensionSize, dimensionSize, dimensionSize});
 
         ((PrimitiveCubic)lptu.getLattice().getPrimitive()).setSizeABC(cubicSize);
@@ -476,7 +476,7 @@ public class LatticeCubicSimpleLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getPhase().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {

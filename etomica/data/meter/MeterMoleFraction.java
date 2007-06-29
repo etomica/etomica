@@ -2,13 +2,13 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.species.Species;
 import etomica.units.Fraction;
 
 /**
- * Meter for measurement of the species mole fraction in a phase.
- * Mole fraction is defined (number of molecules of species)/(number of molecules in phase).
+ * Meter for measurement of the species mole fraction in a box.
+ * Mole fraction is defined (number of molecules of species)/(number of molecules in box).
  *
  * @author David Kofke
  */
@@ -26,28 +26,28 @@ public class MeterMoleFraction extends DataSourceScalar {
     public Species getSpecies() {return species;}
 
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Species mole fraction in a phase");
+        EtomicaInfo info = new EtomicaInfo("Species mole fraction in a box");
         return info;
     }
 
     public double getDataAsScalar() {
-        if (phase == null) throw new IllegalStateException("must call setPhase before using meter");
+        if (box == null) throw new IllegalStateException("must call setBox before using meter");
     	return (species == null) ? Double.NaN :
-         	(double)phase.getAgent(species).getNMolecules()/(double)phase.moleculeCount();
+         	(double)box.getAgent(species).getNMolecules()/(double)box.moleculeCount();
      }
 
     /**
-     * @return Returns the phase.
+     * @return Returns the box.
      */
-    public Phase getPhase() {
-        return phase;
+    public Box getBox() {
+        return box;
     }
     /**
-     * @param phase The phase to set.
+     * @param box The box to set.
      */
-    public void setPhase(Phase phase) {
-        this.phase = phase;
+    public void setBox(Box box) {
+        this.box = box;
     }
 
-    private Phase phase;
+    private Box box;
 }//end of MeterMoleFraction

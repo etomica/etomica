@@ -13,7 +13,7 @@ import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.math.geometry.Plane;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
@@ -31,10 +31,10 @@ import etomica.species.SpeciesSpheresMono;
  * array is passed to the site method of the lattice which returns the position
  * for placement of the next molecule. Each array index is iterated to a maximum
  * value determined by the number of molecules to be placed, the dimensions of
- * the phase in which they are placed, and the lattice constants of the lattice.
+ * the box in which they are placed, and the lattice constants of the lattice.
  * <p>
  * An instance of this class may be configured to place atoms such that they
- * uniformly fill the volume of the phase. It will attempt this by scaling the
+ * uniformly fill the volume of the box. It will attempt this by scaling the
  * lattice constants of the configuration in an appropriate way. Success in
  * getting a good spatial distribution may vary.
  * <p>
@@ -135,20 +135,20 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
     }
 
     /**
-     * Places the molecules in the given phase on the positions of the
+     * Places the molecules in the given box on the positions of the
      * lattice.  The molecules must be of a species added with addSpecies()
      * or they will not be displayed.
      */
 // Method is assuming plane is in the middle.  Calculations making this
 // assumption are noted.
-    public void initializeCoordinates(Phase phase) {
+    public void initializeCoordinates(Box box) {
 
         int numSpecies = species.size();
         int[] speciesCount = new int[numSpecies];
 
         int sumOfMolecules = 0;
         for (int i = 0; i < numSpecies; i++) {
-            speciesCount[i] = ((Species)species.get(i)).getAgent(phase).getNMolecules();
+            speciesCount[i] = ((Species)species.get(i)).getAgent(box).getNMolecules();
             sumOfMolecules = sumOfMolecules + speciesCount[i];
         }
 
@@ -162,15 +162,15 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         for (int i = 0; i < numSpecies; i++) {
         	Species sp = ((Species)species.get(i));
-            molecules[LEFT][i] =  (int)(sp.getAgent(phase).getNMolecules() * getSpeciesAllocation(sp));
-            molecules[RIGHT][i] = sp.getAgent(phase).getNMolecules() - molecules[LEFT][i];
+            molecules[LEFT][i] =  (int)(sp.getAgent(box).getNMolecules() * getSpeciesAllocation(sp));
+            molecules[RIGHT][i] = sp.getAgent(box).getNMolecules() - molecules[LEFT][i];
             maxMolecules[LEFT] += molecules[LEFT][i];
             maxMolecules[RIGHT] += molecules[RIGHT][i];
         }
 
         // determine scaled shape of simulation volume
-        IVector halfShape = phase.getSpace().makeVector();
-        halfShape.E(phase.getBoundary().getDimensions());
+        IVector halfShape = box.getSpace().makeVector();
+        halfShape.E(box.getBoundary().getDimensions());
 
 	    int planeDimIdx = 0;
 	    if(plane.getA() > plane.epsilon) {
@@ -179,12 +179,12 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 	    else if(plane.getB() > plane.epsilon) {
 	    	planeDimIdx = 1;
 	    }
-	    else if(phase.getSpace().D() == 3 &&
+	    else if(box.getSpace().D() == 3 &&
 	    		plane.getC() > plane.epsilon) {
 	    	planeDimIdx = 2;
 	    }
 
-	    IVector entireShape = phase.getSpace().makeVector();
+	    IVector entireShape = box.getSpace().makeVector();
 	    entireShape.E(halfShape);
 
 	    //  NOTE, JUST DIVIDING BY 2 ASSUMES PLANE DOWN CENTER
@@ -205,14 +205,14 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         AtomIteratorArrayListSimple[] atomIterator = new AtomIteratorArrayListSimple[numSpecies];
         for (int i = 0; i < numSpecies; i++) {
-            atomIterator[i] = new AtomIteratorArrayListSimple(((Species)species.get(i)).getAgent(phase).getChildList());
+            atomIterator[i] = new AtomIteratorArrayListSimple(((Species)species.get(i)).getAgent(box).getChildList());
             atomIterator[i].reset();
         }
 
         for(int side = LEFT; side <= RIGHT; side++) {
 
 	        // determine lattice constant
-	        IVector latticeScaling = phase.getSpace().makeVector();
+	        IVector latticeScaling = box.getSpace().makeVector();
 	        if (rescalingToFitVolume) {
                 latticeScaling.E(halfShape);
 	            latticeScaling.DE(Space.makeVector(latticeDimensions[side]));
@@ -224,16 +224,16 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
             indexIterator.reset();
 
 	        // determine amount to shift lattice so it is centered in volume
-	        IVector offset = phase.getSpace().makeVector();
-	        offset.E(phase.getBoundary().getDimensions());
+	        IVector offset = box.getSpace().makeVector();
+	        offset.E(box.getBoundary().getDimensions());
 
-	        IVector temp3 = phase.getSpace().makeVector();
+	        IVector temp3 = box.getSpace().makeVector();
             temp3.E(entireShape);
             temp3.TE(-0.5);
             temp3.setX(planeDimIdx, halfShape.x(planeDimIdx) * (side-1));
             offset.E(temp3);
 
-	        IVector temp2 = phase.getSpace().makeVector();
+	        IVector temp2 = box.getSpace().makeVector();
 	        temp2.E(latticeScaling);
 	        temp2.TE(0.5);
 	        offset.PE(temp2);
@@ -261,28 +261,28 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
-        Phase phase = new Phase(sim);
-        sim.addPhase(phase);
+        Box box = new Box(sim);
+        sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(5.0);
         int k = 4;
-        phase.getAgent(species).setNMolecules(4 * k * k * k);
+        box.getAgent(species).setNMolecules(4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);
-        integrator.setPhase(phase);
+        integrator.setBox(box);
 //	        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new LatticeCubicFcc();
         // CubicLattice lattice = new LatticeCubicSimple();
         ConfigurationLattice configuration = new ConfigurationLattice(lattice);
-        // phase.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
-        configuration.initializeCoordinates(phase);
-        // etomica.graphics.DisplayPhase display = new
-        // etomica.graphics.DisplayPhase(phase);
+        // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
+        configuration.initializeCoordinates(box);
+        // etomica.graphics.DisplayBox display = new
+        // etomica.graphics.DisplayBox(box);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
                 sim);
-//	        ((ColorSchemeByType) ((DisplayPhase) simGraphic.displayList()
+//	        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
 //	                .getFirst()).getColorScheme()).setColor(species
 //	                .getMoleculeType(), java.awt.Color.red);
         simGraphic.makeAndDisplayFrame();
