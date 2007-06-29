@@ -90,7 +90,8 @@ public class DeviceSlider extends Device {
     private boolean showBorder = false;
     private int nMajor = 3;
     protected Action targetAction;
-    
+    private boolean showMinorTicks = false;
+
     public DeviceSlider(Controller controller) {
         super(controller);
         init();
@@ -225,9 +226,8 @@ public class DeviceSlider extends Device {
         modifyAction = tmpModifier;
     }
     
-    private boolean showMinorValues = false;
-    public void setShowMinorValues(boolean b){
-        showMinorValues = b;
+    public void setShowMinorTicks(boolean b){
+        showMinorTicks = b;
     }
     
     public void setNMajor(int n) {
@@ -238,7 +238,7 @@ public class DeviceSlider extends Device {
     
     private void setTicks() {
         double minorTick = 1.0 ;
-        if(showMinorValues){ minorTick = 2.0;}
+        if(showMinorTicks){ minorTick = 2.0;}
         double spacing = (getMaximum()-getMinimum())/nMajor; 
         if(spacing <= 0) return;
         slider.setDecimalSliderMajorTickSpacing(spacing);
