@@ -37,7 +37,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     public void initializeCoordinates(Phase phase) {
         translator0 = new AtomGroupAction(new AtomActionTranslateBy(phase.getSpace()));
         translator1 = new AtomGroupAction(new AtomActionTranslateBy(phase.getSpace()));
-        AtomSet[] lists = getMoleculeLists(phase); 
+        AtomSet[] lists = getMoleculeLists(phase);
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }
@@ -85,6 +85,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
 
             IAtom a0 = lists[0].getAtom(i);
             IAtom a1 = lists[1].getAtom(i);
+            i++;
             atomActionTranslateTo.actionPerformed(a0);
             atomActionTranslateTo.actionPerformed(a1);
 
@@ -101,6 +102,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
 
         Simulation sim = new Simulation(Space3D.getInstance());
         final Phase phase = new Phase(sim);
+        phase.getBoundary().setDimensions(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
         sim.addPhase(phase);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
@@ -119,6 +121,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         colorScheme.setColor(speciesSpheres0.getMoleculeType(),new java.awt.Color(0,255,0));
         colorScheme.setColor(speciesSpheres1.getMoleculeType(), java.awt.Color.red);
 
+        simGraphic.getController().getSimRestart().setConfiguration(config);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayPhasePaintAction(phase));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
