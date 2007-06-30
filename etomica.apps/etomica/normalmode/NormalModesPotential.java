@@ -131,7 +131,7 @@ public class NormalModesPotential implements NormalModes {
             for(int j=0; j<eDim; j++) {
                 omega2[k][j] = eVals[j];
                 for(int m=0; m<eDim; m++) {
-                    eigenvectors[k][j][m] = eVecs[j][m];//need to check if indexes are right
+                    eigenvectors[k][j][m] = eVecs[m][j];//need to check if indexes are right
                 }
             }
 //            System.out.println(sum[0].toString());
