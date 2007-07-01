@@ -217,7 +217,7 @@ public final class AtomManager implements java.io.Serializable {
     }
 
     public void addAtomNotify(IAtom newAtom) {
-        if (newAtom.getParentGroup() instanceof ISpeciesAgent) {
+        if (newAtom.getType().getDepth() == AtomAddressManager.MOLECULE_DEPTH) {
             moleculeCount++;
         } else if (newAtom instanceof ISpeciesAgent) {
             moleculeCount += ((ISpeciesAgent) newAtom)
@@ -254,7 +254,7 @@ public final class AtomManager implements java.io.Serializable {
     //updating of leaf atomList may not be efficient enough for repeated
     // use, but is probably ok
     public void removeAtomNotify(IAtom oldAtom) {
-        if (oldAtom.getParentGroup() instanceof ISpeciesAgent) {
+        if (oldAtom.getType().getDepth() == AtomAddressManager.MOLECULE_DEPTH) {
             moleculeCount--;
         } else if (oldAtom instanceof ISpeciesAgent) {
             moleculeCount -= ((ISpeciesAgent)oldAtom).getNMolecules();
