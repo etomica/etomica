@@ -74,7 +74,6 @@ public class PotentialMasterList extends PotentialMasterNbr {
             
     public PotentialMasterList(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, BoxAgentManager agentManager, NeighborListAgentSource neighborListAgentSource) {
         super(sim, boxAgentSource, agentManager);
-        boxAgentSource.setRange(range);
         this.neighborListAgentSource = neighborListAgentSource;
         neighborListAgentSource.setPotentialMaster(this);
         neighborListAgentManager = new BoxAgentManager(neighborListAgentSource);
@@ -86,6 +85,12 @@ public class PotentialMasterList extends PotentialMasterNbr {
         allCriteria = new NeighborCriterion[0];
 
         neighborListAgentManager.setSimulation(sim);
+        
+        // setRange last.  that should always be OK since anyone can call
+        // setRange later. if we call it early, member fields won't exist,
+        // if we just set range, our stuff associated with existing boxes
+        // won't get initialized
+        setRange(range);
     }
     
     /**
