@@ -124,7 +124,7 @@ public final class MCMoveMoleculeExchange extends MCMove {
         double T = integrator1.getTemperature();
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return B/T * (dSpecies.getNMolecules()+1)/dBox.volume()
+        return Math.exp(B/T) * (dSpecies.getNMolecules()+1)/dBox.volume()
                * iBox.volume()/iSpecies.getNMolecules(); 
     }
     
