@@ -543,6 +543,9 @@ public class PistonCylinderGraphic extends SimulationPanel {
         }
         pc = sim;
         controlButtons.setSimulation(pc);
+        pc.config.setBoundaryPadding(sigma);
+        pc.config.initializeCoordinates(sim.box);
+        ((SimulationRestart)controlButtons.getReinitButton().getAction()).setConfiguration(sim.config);
         ArrayList dataStreamPumps = controlButtons.getDataStreamPumps();
         
         ((ElementSimple)((AtomTypeLeaf)pc.species.getMoleculeType()).getElement()).setMass(mass);
@@ -570,7 +573,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pressureDisplayTextBox.setLabel("Pressure ("+pUnit.symbol()+")");
 
         // set up GUI
-        displayBox.setPixelUnit(new Pixel(600/pc.box.getBoundary().getDimensions().x(1)));
         pc.ai.setDoSleep(thisSleep > 0);
         pc.ai.setSleepPeriod(thisSleep);
         pc.integrator.removeAllListeners();
@@ -588,6 +590,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         }
         if (D == 2) {
             tabbedPane.insertTab(displayBox.getLabel(), null, displayBoxPanel, "", 0);
+            displayBox.setPixelUnit(new Pixel(600/pc.box.getBoundary().getDimensions().x(1)));
             displayBox.setBox(pc.box);
             displayBox.setAlign(1,DisplayBox.BOTTOM);
             displayBox.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
@@ -674,7 +677,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
 
         if (doNSelector) {
             nSlider.setController(pc.getController());
-            nSlider.setResetAction(new SimulationRestart(pc));
+            nSlider.setResetAction(controlButtons.getReinitButton().getAction());
             nSlider.setSpeciesAgent(pc.box.getAgent(pc.species));
             nSlider.setMinimum(1);
             nSlider.setMaximum(200);
@@ -874,6 +877,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
             pc.wallPotential.setCollisionRadius(0.5*d);
             sigma = d;
             displayBox.repaint();
+            pc.config.setBoundaryPadding(sigma);
         }
 
         public double getValue() {

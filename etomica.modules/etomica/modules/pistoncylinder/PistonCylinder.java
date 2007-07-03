@@ -4,13 +4,12 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
-import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.box.Box;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.P2SquareWell;
@@ -40,12 +39,13 @@ public class PistonCylinder extends Simulation {
     public P1HardMovingBoundary pistonPotential;
     public ActivityIntegrate ai;
     public double lambda;
+    public ConfigurationLattice config;
 
     public PistonCylinder(int D) {
         super(Space.getInstance(D), true);
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        lambda = 1.5;
-        double sigma = 3.0;
+        lambda = 2.0;
+        double sigma = 4.0;
         controller = getController();
         species = new SpeciesSpheresMono(this);
         ((ElementSimple)((AtomTypeLeaf)species.getMoleculeType()).getElement()).setMass(16);
@@ -55,15 +55,15 @@ public class PistonCylinder extends Simulation {
         addBox(box);
         box.getAgent(species).setNMolecules(112);
         IVector newDim;
-        Configuration config;
         if (space.D() == 2) {
             config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
-            newDim = new Vector2D(80,150);
+            newDim = new Vector2D(80,400);
         }
         else {
             config = new ConfigurationLattice(new LatticeCubicFcc());
             newDim = new Vector3D(80,80,80);
         }
+        config.setBoundaryPadding(sigma);
         box.setDimensions(newDim);
         config.initializeCoordinates(box);
         
