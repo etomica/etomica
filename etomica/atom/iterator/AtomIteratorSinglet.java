@@ -86,6 +86,7 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     
     public AtomSet next() {
         atomSetSinglet.atom = nextAtom();
+        if (atomSetSinglet.atom == null) return null;
         return atomSetSinglet;
     }
     
