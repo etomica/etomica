@@ -15,6 +15,7 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
     public HistoryCollapsingAverage() {this(100);}
     public HistoryCollapsingAverage(int n) {
         super(n);
+        tempXBin = 0;
         tempBin = 0;
     }
     
@@ -39,6 +40,12 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
         }
     }
 
+    public void reset() {
+        super.reset();
+        tempXBin = 0;
+        tempBin = 0;
+    }
+    
     protected void collapseData() {
         for (int i=0; i<cursor/2; i++) {
             xValues[i] = (xValues[i*2] + xValues[i*2+1])*0.5;
@@ -52,16 +59,6 @@ public class HistoryCollapsingAverage extends HistoryCollapsing {
         interval *= 2;
     }
 
-    protected double[] temp;
     private double tempBin;
     private double tempXBin;
-
-    /**
-     * Factory that creates an instance of this class.
-     */
-    public static final History.Factory FACTORY = new History.Factory() {
-        public History makeHistory() {return new HistoryCollapsingAverage();}
-        public History makeHistory(int n) {return new HistoryCollapsingAverage(n);}
-    };
-    
 }
