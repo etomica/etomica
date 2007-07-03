@@ -28,7 +28,7 @@ public class PotentialMasterLrc extends PotentialMaster {
      * are so, calculation is performed.
      */
     public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
-        if(!enabled || box == null || !box.isLrcEnabled() || !id.includeLrc) return;
+        if(!enabled || !id.includeLrc) return;
         IAtom targetAtom = id.getTargetAtom();
         boolean boxChanged = (box != mostRecentBox);
         mostRecentBox = box;
