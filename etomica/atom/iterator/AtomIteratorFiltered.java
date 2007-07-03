@@ -156,6 +156,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
      */
     public AtomSet next() {
         atomSetSinglet.atom = nextAtom();
+        if (atomSetSinglet.atom == null) return null;
         return atomSetSinglet;
     }
 
