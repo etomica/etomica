@@ -53,24 +53,18 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         iterator = iteratorUp;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
-        test.clear();
-        test.addEachToList(new AtomSetSinglet(upAtom));
-        assertEquals(list, test.list);
+        assertEquals(list.get(0), new AtomSetSinglet(upAtom).toString());
 
         iterator = iteratorDn;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
-        test.clear();
-        test.addEachToList(new AtomSetSinglet(dnAtom));
-        assertEquals(list, test.list);
+        assertEquals(list.get(0), new AtomSetSinglet(dnAtom).toString());
 
         iterator = iteratorBoth;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 2);
-        test.clear();
-        test.addEachToList(new AtomSetSinglet(upAtom));
-        test.addEachToList(new AtomSetSinglet(dnAtom));
-        assertEquals(list, test.list);
+        assertEquals(list.get(0), new AtomSetSinglet(upAtom).toString());
+        assertEquals(list.get(1), new AtomSetSinglet(dnAtom).toString());
 
         //atom at end of list        
         atom = atomList.getAtom(nAtoms-1);
@@ -86,16 +80,12 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         iterator = iteratorDn;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
-        test.clear();
-        test.addEachToList(new AtomSetSinglet(dnAtom));
-        assertEquals(list, test.list);
+        assertEquals(list.get(0), new AtomSetSinglet(dnAtom).toString());
 
         iterator = iteratorBoth;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
-        test.clear();
-        test.addEachToList(new AtomSetSinglet(dnAtom));
-        assertEquals(list, test.list);
+        assertEquals(list.get(0), new AtomSetSinglet(dnAtom).toString());
 
         //atom at beginning of list        
         atom = atomList.getAtom(0);
@@ -107,9 +97,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         iterator = iteratorUp;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
-        test.clear();
-        test.addEachToList(new AtomSetSinglet(upAtom));
-        assertEquals(list, test.list);
+        assertEquals(list.get(0), new AtomSetSinglet(upAtom).toString());
 
         iterator = iteratorDn;
         list = generalIteratorMethodTests(iterator);
@@ -118,9 +106,7 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         iterator = iteratorBoth;
         list = generalIteratorMethodTests(iterator);
         assertEquals(list.size(), 1);
-        test.clear();
-        test.addEachToList(new AtomSetSinglet(upAtom));
-        assertEquals(list, test.list);
+        assertEquals(list.get(0), new AtomSetSinglet(upAtom).toString());
 
         //short list
         agent.setNMolecules(1);
