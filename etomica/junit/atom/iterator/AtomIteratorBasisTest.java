@@ -160,7 +160,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);
         Lister testLister = new Lister();
-        testLister.actionPerformed(iterate);
+        testLister.actionPerformed(new AtomSetSinglet(iterate));
         assertEquals(list, testLister.list);
         assertTrue(basisIterator.haveTarget(target));//test again to ensure iteration didn't change anything
         return list;
@@ -179,7 +179,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
     }
     
     private void testNoIterates(IAtom basis, IAtom target) {
-        basisIterator.setBasis(new AtomSetSinglet(basis));
+        basisIterator.setBasis(basis == null ? null : new AtomSetSinglet(basis));
         assertFalse(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);
