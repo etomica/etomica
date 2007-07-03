@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.action.AtomActionAdapter;
+import etomica.action.AtomAction;
 import etomica.action.AtomGroupAction;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
@@ -35,7 +35,7 @@ public class AtomPositionGeometricCenter implements AtomPositionDefinition {
         return center;
     }
 
-    private static class MyAction extends AtomActionAdapter {
+    private static class MyAction implements AtomAction {
         public MyAction(IVector v) {
             vectorSum = v;
             nAtoms = 0;

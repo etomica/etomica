@@ -13,7 +13,7 @@ import etomica.atom.IAtomGroup;
  *
  * @author David Kofke
  */
-public class AtomGroupAction extends AtomActionAdapter {
+public class AtomGroupAction implements AtomAction {
 
     /**
      * Constructor takes wrapped action, which is final.

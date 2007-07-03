@@ -15,7 +15,7 @@ import etomica.util.IRandom;
  *
  */
 
-public class AtomActionRandomizeVelocity extends AtomActionAdapter {
+public class AtomActionRandomizeVelocity implements AtomAction {
 
     /**
      * Constructs class to assign velocities according to the given temperature.

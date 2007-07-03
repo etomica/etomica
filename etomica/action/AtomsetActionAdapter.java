@@ -17,19 +17,6 @@ import etomica.atom.AtomSet;
  
 public abstract class AtomsetActionAdapter implements AtomsetAction, java.io.Serializable {
     
-    protected AtomSet atoms;
-
-    public void setAtoms(AtomSet a) {atoms = a;}
-    public AtomSet getAtoms() {return atoms;}
-
-    /**
-     * Performs the defined action using the atom most recently specified by setAtom or by the last call to actionPerformed(Atom a).
-     * Performs no action if the atom is null.
-     */
-    public void actionPerformed() {
-        if(atoms != null) actionPerformed(atoms);
-    }
-    
     /**
      * Method that defines the action to be performed on the atom
      * @param a Atom passed to method by iterator

@@ -5,6 +5,7 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
@@ -19,6 +20,8 @@ public final class AtomIteratorNull implements AtomIterator, Serializable {
     private AtomIteratorNull() {}
     
     public void allAtoms(AtomsetAction action) {}
+
+    public void allAtoms(AtomAction action) {}
 
     public AtomSet next() {return null;}
 

@@ -51,8 +51,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         doTransform();
             
         if (trialCount-- == 0) {
-            relaxAction.setAtom(molecule);
-            relaxAction.actionPerformed();
+            relaxAction.actionPerformed(molecule);
             trialCount = relaxInterval;
         }
 

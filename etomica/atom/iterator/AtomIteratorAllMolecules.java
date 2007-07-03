@@ -39,7 +39,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
     public void setBox(Box box) {
         ((AtomIteratorBoxDependent)iterator).setBox(box);
     }
-
+    
     private static final long serialVersionUID = 1L;
 
     /**

@@ -1,5 +1,5 @@
 package etomica.paracetamol;
-import etomica.action.AtomActionAdapter;
+import etomica.action.AtomAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.space.Space;
@@ -13,7 +13,7 @@ import etomica.space.Tensor;
  * 
  * @author David Kofke
  */
-public class AtomActionTransformed extends AtomActionAdapter {
+public class AtomActionTransformed implements AtomAction {
     
     private static final long serialVersionUID = 1L;
     private final Tensor transformationTensor;

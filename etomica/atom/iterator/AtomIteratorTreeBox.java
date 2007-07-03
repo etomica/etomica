@@ -1,5 +1,6 @@
 package etomica.atom.iterator;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
@@ -97,6 +98,34 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
             if (doAllNodes) {
                 atomSetSinglet.atom = atom;
                 act.actionPerformed(atomSetSinglet);
+            }
+
+            if (treeIterator == null) {
+                treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
+                treeIterator.setDoAllNodes(doAllNodes);
+            }
+            treeIterator.setRootAtom(atom);
+            treeIterator.allAtoms(act);
+        }
+        unset();
+    }
+
+    /**
+     * Performs action on all iterates in current condition.  Unaffected
+     * by reset status. Clobbers iteration state.
+     */
+    public void allAtoms(AtomAction act) {
+        listIterator.setList(box.getSpeciesMaster().getAgentList());
+        listIterator.reset();
+        for (IAtom atom = listIterator.nextAtom(); atom != null;
+             atom = listIterator.nextAtom()) {
+            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
+                act.actionPerformed(atom);
+                continue;
+            }
+            
+            if (doAllNodes) {
+                act.actionPerformed(atom);
             }
 
             if (treeIterator == null) {

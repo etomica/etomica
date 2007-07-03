@@ -1,5 +1,6 @@
 package etomica.atom.iterator;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
@@ -62,6 +63,12 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
             action.actionPerformed(atomSetSinglet);
         }
 	}
+        
+    public void allAtoms(AtomAction action) {
+        if (atom != null) {
+            action.actionPerformed(atom);
+        }
+    }
         
     /**
      * Sets iterator to a state where hasNext() returns false.

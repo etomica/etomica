@@ -1,5 +1,6 @@
 package etomica.nbr.cell;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomArrayList;
@@ -8,10 +9,10 @@ import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.lattice.CellLattice;
-import etomica.lattice.RectangularLattice;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
+import etomica.lattice.CellLattice;
+import etomica.lattice.RectangularLattice;
 
 /**
  * Returns occupants of all cells as iterates.
@@ -44,6 +45,23 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
      * Performs action on all iterates.
      */
     public void allAtoms(AtomsetAction action) {
+        cellIterator.reset();
+        while(cellIterator.hasNext()) {//outer loop over all cells
+            Cell cell = (Cell)cellIterator.next();
+            AtomArrayList list = cell.occupants();
+            
+            //consider pairs formed from molecules in cell
+            if(!list.isEmpty()) {
+                atomIterator.setList(list);
+                atomIterator.allAtoms(action);
+            }
+        }//end of outer loop over cells
+    }//end of allAtoms
+    
+    /**
+     * Performs action on all iterates.
+     */
+    public void allAtoms(AtomAction action) {
         cellIterator.reset();
         while(cellIterator.hasNext()) {//outer loop over all cells
             Cell cell = (Cell)cellIterator.next();

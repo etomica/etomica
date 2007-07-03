@@ -12,7 +12,7 @@ import etomica.space.Space;
  * and adds a constant velocity to all atoms to make the mass-averaged velocity
  * equal a target value.
  */
-public class AtomActionAccelerateTo extends AtomActionAdapter {
+public class AtomActionAccelerateTo implements AtomAction {
     
     private static final long serialVersionUID = 1L;
     private final IVector dr;

@@ -4,6 +4,7 @@
  */
 package etomica.atom.iterator;
 
+import etomica.action.AtomAction;
 import etomica.atom.IAtom;
 
 /**
@@ -31,5 +32,9 @@ public abstract class AtomIteratorAdapter extends AtomsetIteratorAdapter impleme
 	
 	public IAtom nextAtom() {
 		return atomIterator.nextAtom();
+	}
+	
+	public void allAtoms(AtomAction action) {
+	    atomIterator.allAtoms(action);
 	}
 }

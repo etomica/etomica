@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.action.AtomActionAdapter;
+import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomFilter;
@@ -33,6 +33,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
         this.iterator = iterator;
         this.filter = filter;
         actionWrapper = new ActionWrapper(filter);
+        atomsetActionWrapper = new AtomsetActionWrapper(filter);
         atomSetSinglet = new AtomSetSinglet();
     }
 
@@ -165,6 +166,15 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
      * criteria.
      */
     public void allAtoms(AtomsetAction action) {
+        atomsetActionWrapper.action = action;
+        iterator.allAtoms(actionWrapper);
+    }
+
+    /**
+     * Performs the given action on all atoms from iterator that meet the filter
+     * criteria.
+     */
+    public void allAtoms(AtomAction action) {
         actionWrapper.action = action;
         iterator.allAtoms(actionWrapper);
     }
@@ -197,15 +207,16 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
     protected final AtomIterator iterator;
     private final AtomFilter filter;
     private final ActionWrapper actionWrapper;
+    private final AtomsetActionWrapper atomsetActionWrapper;
     protected final AtomSetSinglet atomSetSinglet;
 
     /**
      * Defines a new action that wraps an action such that action is performed
      * only on the atoms meeting the filter's criteria.  Used by allAtoms method.
      */
-    private static class ActionWrapper extends AtomActionAdapter {
+    private static class ActionWrapper implements AtomAction {
 
-        AtomsetAction action;
+        AtomAction action;
         private final AtomFilter myFilter;
         protected final AtomSetSinglet atomSetSinglet;
 
@@ -216,8 +227,27 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
 
         public void actionPerformed(IAtom atom) {
             if (myFilter.accept(atom)) {
-                atomSetSinglet.atom = atom;
-                action.actionPerformed(atomSetSinglet);
+                action.actionPerformed(atom);
+            }
+        }
+    }
+    
+    /**
+     * Defines a new action that wraps an action such that action is performed
+     * only on the atoms meeting the filter's criteria.  Used by allAtoms method.
+     */
+    private static class AtomsetActionWrapper implements AtomsetAction {
+
+        AtomsetAction action;
+        private final AtomFilter myFilter;
+
+        public AtomsetActionWrapper(AtomFilter filter) {
+            myFilter = filter;
+        }
+
+        public void actionPerformed(AtomSet atom) {
+            if (myFilter.accept(atom.getAtom(0))) {
+                action.actionPerformed(atom);
             }
         }
     }

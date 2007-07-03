@@ -1,7 +1,7 @@
 package etomica.nbr.list;
 
 import etomica.action.Action;
-import etomica.action.AtomActionAdapter;
+import etomica.action.AtomAction;
 import etomica.action.BoxImposePbc;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomAgentManager;
@@ -11,12 +11,12 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorTreeBox;
+import etomica.box.Box;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.nbr.NeighborCriterion;
 import etomica.nbr.cell.ApiAACell;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.util.Debug;
@@ -321,7 +321,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * Atom action class that checks if any criteria indicate that the given
      * atom needs to update its neighbor list.
      */
-    private static class NeighborCheck extends AtomActionAdapter {
+    private static class NeighborCheck implements AtomAction {
 
         private static final long serialVersionUID = 1L;
         protected boolean needUpdate = false, unsafe = false;
@@ -364,7 +364,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * and resets the criteria as it applies to the atom (e.g., sets its
      * previous-position vector to its current position).
      */
-    private static class NeighborReset extends AtomActionAdapter {
+    private static class NeighborReset implements AtomAction {
         private static final long serialVersionUID = 1L;
 
         public NeighborReset(NeighborListManager manager, AtomAgentManager agentManager2Body,

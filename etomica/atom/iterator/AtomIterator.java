@@ -1,5 +1,6 @@
 package etomica.atom.iterator;
 
+import etomica.action.AtomAction;
 import etomica.atom.IAtom;
 
 /**
@@ -16,4 +17,6 @@ public interface AtomIterator extends AtomsetIterator {
      * null if hasNext() is false.
 	 */
     public IAtom nextAtom();
+    
+    public void allAtoms(AtomAction action);
 }

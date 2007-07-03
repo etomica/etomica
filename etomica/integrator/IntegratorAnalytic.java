@@ -1,5 +1,6 @@
 package etomica.integrator;
 
+import etomica.action.AtomAction;
 import etomica.atom.AtomSet;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialMaster;
@@ -18,7 +19,7 @@ import etomica.util.IRandom;
 public class IntegratorAnalytic extends IntegratorMD {
     
     private static final long serialVersionUID = 1L;
-    private AtomAction action;
+    private AtomTimeAction action;
     
     public IntegratorAnalytic(ISimulation sim, PotentialMaster potentialMaster) {
         this(potentialMaster, sim.getRandom(), 0.05);
@@ -46,16 +47,16 @@ public class IntegratorAnalytic extends IntegratorMD {
         super.reset();
     }
     
-    public void setAction(AtomAction action) {this.action = action;}
+    public void setAction(AtomTimeAction action) {this.action = action;}
     
-    public AtomAction getAction() {return action;}
+    public AtomTimeAction getAction() {return action;}
     
     private double elapsedTime = 0.0;
     
     /**
      * Extends AtomAction class to add a method to set the time.
      */
-    public static abstract class AtomAction extends etomica.action.AtomActionAdapter {
+    public static abstract class AtomTimeAction implements AtomAction {
         protected double time;
         public void setTime(double t) {time = t;}
     }

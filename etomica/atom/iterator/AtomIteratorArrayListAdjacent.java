@@ -1,5 +1,6 @@
 package etomica.atom.iterator;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
@@ -70,6 +71,19 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
             if (firstCursor > 0) {
                 atomSetSinglet.atom = list.getAtom(firstCursor-1);
                 action.actionPerformed(atomSetSinglet);
+            }
+        }
+    }
+
+    public void allAtoms(AtomAction action) {
+        if(direction != IteratorDirective.Direction.DOWN) {
+            if (firstCursor < list.getAtomCount()-1) {
+                action.actionPerformed(list.getAtom(firstCursor+1));
+            }
+        }
+        if (direction != IteratorDirective.Direction.UP) {
+            if (firstCursor > 0) {
+                action.actionPerformed(list.getAtom(firstCursor-1));
             }
         }
     }

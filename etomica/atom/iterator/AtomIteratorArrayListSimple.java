@@ -1,5 +1,6 @@
 package etomica.atom.iterator;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
@@ -88,6 +89,13 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
  			act.actionPerformed(atomSetSinglet);
  		}
  	}
+    
+    public void allAtoms(AtomAction action) {
+        int arraySize = list.getAtomCount();
+        for (int i=0; i<arraySize; i++) {
+            action.actionPerformed(list.getAtom(i));
+        }
+    }
 
     /**
      * Puts iterator in state ready to begin iteration.

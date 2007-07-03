@@ -94,8 +94,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
     public void allAtoms(AtomsetAction action) {
         reset();
         for (AtomSet atoms = next(); atoms != null; atoms = next()) {
-            action.setAtoms(atoms);
-            action.actionPerformed();
+            action.actionPerformed(atoms);
         }
     }
 

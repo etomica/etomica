@@ -4,6 +4,7 @@
  */
 package etomica.atom.iterator;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
@@ -132,6 +133,21 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * Unaffected by reset status, but will clobber iteration state.
      */
     public void allAtoms(AtomsetAction action) {
+        if (basis == null) {
+            return;
+        }
+        if (needSetupIterator) {
+            setupIterator();
+        }
+        listIterator.setList(list);
+        super.allAtoms(action);
+    }
+
+    /**
+     * Performs action on all iterates given by iterator in its present condition.
+     * Unaffected by reset status, but will clobber iteration state.
+     */
+    public void allAtoms(AtomAction action) {
         if (basis == null) {
             return;
         }

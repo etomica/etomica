@@ -3,14 +3,14 @@
  */
 package etomica.virial;
 
-import etomica.action.AtomActionAdapter;
+import etomica.action.AtomAction;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.models.water.AtomWater3P;
 import etomica.space.IVector;
 import etomica.space.Space;
 
-public class AtomActionRelaxWater3P extends AtomActionAdapter {
+public class AtomActionRelaxWater3P implements AtomAction {
     public AtomActionRelaxWater3P(Space space) {
         work = space.makeVector();
         cosAngle = Math.cos(109.5/180.0*Math.PI);

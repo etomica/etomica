@@ -69,8 +69,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             
             
             if (doRelax && relaxAction != null) {
-                relaxAction.setAtom(molecule);
-                relaxAction.actionPerformed();
+                relaxAction.actionPerformed(molecule);
             }
         }
 

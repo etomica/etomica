@@ -1,5 +1,6 @@
 package etomica.atom.iterator;
 
+import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomSet;
@@ -84,6 +85,33 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
     	unset();
     }
     
+    /**
+     * Performs action on all iterates in current condition.  Unaffected
+     * by reset status. Clobbers iteration state.
+     */
+    public void allAtoms(AtomAction act) {
+        AtomSet list = ((IAtomGroup)rootAtom).getChildList();
+        int nAtoms = list.getAtomCount();
+        for (int iAtom=0; iAtom<nAtoms; iAtom++) {
+            IAtom atom = list.getAtom(iAtom);
+            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
+                act.actionPerformed(atom);
+                continue;
+            }
+            
+            if (doAllNodes) {
+                act.actionPerformed(atom);
+            }
+
+            if (treeIterator == null) {
+                treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
+                treeIterator.setDoAllNodes(doAllNodes);
+            }
+            treeIterator.setRootAtom(atom);
+            treeIterator.allAtoms(act);
+        }
+        unset();
+    }
     /**
      * Puts iterator in state in which hasNext is false.
      */

@@ -12,7 +12,7 @@ import etomica.space.Space;
  * 
  * @author David Kofke
  */
-public class AtomActionTranslateBy extends AtomActionAdapter {
+public class AtomActionTranslateBy implements AtomAction {
     
     private static final long serialVersionUID = 1L;
     private final IVector translationVector;

@@ -2,7 +2,7 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.action.AtomActionAdapter;
+import etomica.action.AtomAction;
 import etomica.action.AtomGroupAction;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -39,7 +39,7 @@ public class AtomPositionCOM implements AtomPositionDefinition, Serializable {
         return center;
     }
 
-    private static class MyAction extends AtomActionAdapter {
+    private static class MyAction implements AtomAction {
         public MyAction(IVector sum) {
             vectorSum = sum;
         }

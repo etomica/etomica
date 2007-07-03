@@ -35,14 +35,6 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
 		list.add(atom.toString());
 	}
 
-	public void setAtom(IAtom atom) {
-		setAtoms(atoms); //AtomSet={atoms});
-	}
-
-	public IAtom getAtom() {
-		return (atoms == null || atoms.getAtomCount() < 1) ? null : atoms.getAtom(0);
-	}
-
 	/**
      * Adds atomSet.toString() to list.
 	 * kmb 4/27/05

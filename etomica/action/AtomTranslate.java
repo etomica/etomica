@@ -8,7 +8,7 @@ import etomica.space.Space;
 /**
  * Moves an atom by an amount specified.
  */
-public class AtomTranslate extends AtomActionAdapter {
+public class AtomTranslate implements AtomAction {
     private static final long serialVersionUID = 1L;
     protected IVector displacement;
         

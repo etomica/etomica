@@ -10,7 +10,7 @@ import etomica.space.Space;
  * atom (which may be an atom group) is determined by an AtomPositionDefinition
  * instance that may be set for this class.
  */
-public class AtomActionTranslateTo extends AtomActionAdapter {
+public class AtomActionTranslateTo implements AtomAction {
     
     private static final long serialVersionUID = 1L;
     private final IVector destination;
