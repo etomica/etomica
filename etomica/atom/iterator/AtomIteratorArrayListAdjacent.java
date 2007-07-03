@@ -86,6 +86,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      */
     public AtomSet next() {
         atomSetSinglet.atom = nextAtom();
+        if (atomSetSinglet.atom == null) return null;
         return atomSetSinglet;
     }
 
