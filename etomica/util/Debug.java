@@ -22,7 +22,7 @@ public final class Debug {
 	public static final boolean ON = false;
         
 	/**
-	 * what step of the integrator deubgging should start from.
+	 * what step of the integrator debugging should start from.
 	 * to get debugging to start before Integrator.run, explicitly
 	 * set DEBUG_NOW to true. 
 	 */
@@ -77,7 +77,7 @@ public final class Debug {
     /**
      * index of box of interest.  -1 indicates no particular box.
      */
-    public static final int PHASE_INDEX = 0;
+    public static final int BOX_INDEX = 0;
     
     /**
      * The minimum allowable distance between Atoms.
@@ -130,11 +130,11 @@ public final class Debug {
 
     /**
      * Checks whether the given box is of debugging interest
-     * @param checkBox box to be checked
+     * @param box to be checked
      * @return true if the box is of interest
      */
-    public static boolean thisBox(Box checkBox) {
-         return checkBox.getIndex() == PHASE_INDEX;
+    public static boolean thisBox(Box box) {
+         return box.getIndex() == BOX_INDEX;
     }
     
     /**
