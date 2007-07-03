@@ -8,6 +8,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomKinetic;
@@ -51,6 +52,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
     //first of a linked list of objects (typically meters) that are called each time a collision is processed
     protected CollisionListenerLinker collisionListenerHead = null;
     private final AtomPair pair;
+    private final AtomSetSinglet singlet;
     private double minDelta;
     private AtomPair debugPair;
 
@@ -78,6 +80,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         super(potentialMaster,random,timeStep,temperature);
         nullPotential = null;
         pair = new AtomPair();
+        singlet = new AtomSetSinglet();
         reverseCollisionHandler = new ReverseCollisionHandler(listToUpdate);
         reverseCollisionHandler.setAgentManager(agentManager);
         collisionHandlerUp = new CollisionHandlerUp();
@@ -131,7 +134,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
                 pair.atom1 = colliderAgent.collisionPartner();
             }
             else {
-                atoms = colliderAgent.atom();
+                atoms = singlet;
+                singlet.atom = colliderAgent.atom();
             }
             if (collisionTimeStep - oldTime < minDelta) {
                 System.out.println("diff "+(collisionTimeStep - oldTime)+" minDelta "+minDelta);
@@ -208,8 +212,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
                 cll.listener.collisionAction(colliderAgent);
             }
             collisionCount++;
-            if (atoms instanceof IAtom) {
-                updateAtom((IAtom)atoms);
+            if (atoms.getAtomCount() == 1) {
+                updateAtom(atoms.getAtom(0));
             }
             else {
                 updateAtoms((AtomPair)atoms);
@@ -695,6 +699,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         public PotentialHard collisionPotential;  //potential governing interaction between collisionPartner and atom containing this Agent
         public TreeLinker eventLinker;
         private final IntegratorHard integrator;
+        protected AtomSetSinglet atomSetSinglet;
         
         public Agent(IAtom a, IntegratorHard integrator) {
             this.integrator = integrator;
@@ -718,7 +723,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
             // events in the tree must have a potential
             collisionPotential = integrator.nullPotential;
             if (collisionPotential != null) {
-                eventLinker.sortKey = collisionPotential.collisionTime(atom,integrator.collisionTimeStep);
+                if (atomSetSinglet == null) {
+                    atomSetSinglet = new AtomSetSinglet();
+                }
+                atomSetSinglet.atom = atom;
+                eventLinker.sortKey = collisionPotential.collisionTime(atomSetSinglet,integrator.collisionTimeStep);
             }
             else {
                 eventLinker.sortKey = Double.POSITIVE_INFINITY;

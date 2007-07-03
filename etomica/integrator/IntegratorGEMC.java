@@ -36,6 +36,7 @@ public class IntegratorGEMC extends IntegratorManagerMC {
                     (IntegratorBox)integrators[0],(IntegratorBox)integrators[1]);
             moleculeExchange = new MCMoveMoleculeExchange(((IntegratorBox)newIntegrator).getPotential(), random,
                     (IntegratorBox)integrators[0],(IntegratorBox)integrators[1]);
+            moveManager.recomputeMoveFrequencies();
             moveManager.addMCMove(volumeExchange);
             moveManager.addMCMove(moleculeExchange);
         }

@@ -5,6 +5,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
@@ -32,6 +33,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
         this.iterator = iterator;
         this.filter = filter;
         actionWrapper = new ActionWrapper(filter);
+        atomSetSinglet = new AtomSetSinglet();
     }
 
     /**
@@ -153,7 +155,8 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
      * Same as nextAtom.
      */
     public AtomSet next() {
-        return nextAtom();
+        atomSetSinglet.atom = nextAtom();
+        return atomSetSinglet;
     }
 
     /**
@@ -193,6 +196,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
     protected final AtomIterator iterator;
     private final AtomFilter filter;
     private final ActionWrapper actionWrapper;
+    protected final AtomSetSinglet atomSetSinglet;
 
     /**
      * Defines a new action that wraps an action such that action is performed
@@ -202,14 +206,18 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
 
         AtomsetAction action;
         private final AtomFilter myFilter;
+        protected final AtomSetSinglet atomSetSinglet;
 
         public ActionWrapper(AtomFilter filter) {
             myFilter = filter;
+            atomSetSinglet = new AtomSetSinglet();
         }
 
         public void actionPerformed(IAtom atom) {
-            if (myFilter.accept(atom))
-                action.actionPerformed(atom);
+            if (myFilter.accept(atom)) {
+                atomSetSinglet.atom = atom;
+                action.actionPerformed(atomSetSinglet);
+            }
         }
     }
     

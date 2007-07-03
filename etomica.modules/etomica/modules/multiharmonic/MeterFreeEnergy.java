@@ -1,10 +1,10 @@
 package etomica.modules.multiharmonic;
 
-import etomica.atom.IAtom;
+import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.box.Box;
 import etomica.potential.P1Harmonic;
 import etomica.units.Energy;
 
@@ -28,7 +28,7 @@ public class MeterFreeEnergy extends DataSourceScalar implements DataSource {
     public double getDataAsScalar() {
         iterator.reset();
         double sum = 0.0;
-        for (IAtom a = iterator.nextAtom(); a != null; a = iterator.nextAtom()) {
+        for (AtomSet a = iterator.next(); a != null; a = iterator.next()) {
             sum += target.energy(a) - reference.energy(a);
         }
         return Math.exp(-sum);

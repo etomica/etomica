@@ -38,5 +38,4 @@ public interface IAtomGroup extends IAtom {
      * @return the children as an AtomArrayList
      */
     public AtomSet getChildList();
-
 }

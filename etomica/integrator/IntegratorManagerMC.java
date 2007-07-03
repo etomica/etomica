@@ -111,7 +111,7 @@ public class IntegratorManagerMC extends Integrator {
 
     /**
      * Performs a Monte Carlo trial that attempts to swap the configurations
-     * between two "adjacent" boxs, or instructs all integrators to perform
+     * between two "adjacent" boxes, or instructs all integrators to perform
      * a single doStep.
      */
     public void doStepInternal() {

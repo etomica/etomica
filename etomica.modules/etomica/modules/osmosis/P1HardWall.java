@@ -42,7 +42,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
 
      
     public double collisionTime(AtomSet a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a;
+        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         IVector r = atom.getPosition();
         IVector v = atom.getVelocity();
         double vx = v.x(0);
@@ -57,7 +57,7 @@ public class P1HardWall extends Potential1 implements PotentialHard {
     }
 
     public void bump(AtomSet a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a;
+        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         IVector v = atom.getVelocity();
 
         v.setX(0,-v.x(0));

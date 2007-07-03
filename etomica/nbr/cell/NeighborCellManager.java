@@ -5,6 +5,7 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
@@ -208,7 +209,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
                         atom.getType().getPositionDefinition().position(atom);
             Cell atomCell = (Cell)lattice.site(position);
             atomCell.addAtom(atom);
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(atom)) {
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
                 System.out.println("assigning new "+atom+" "+atom.getGlobalIndex()+" at "+position+" to "+atomCell);
             }
             return atomCell;

@@ -113,8 +113,10 @@ public class IntegratorMC extends IntegratorBox {
             //notify listeners of outcome
             eventManager.fireEvent(acceptedEvent);
     	}
-
-
+    }
+    
+    public void notifyEnergyChange(double energyChange) {
+        currentPotentialEnergy += energyChange;
     }
 
     /**

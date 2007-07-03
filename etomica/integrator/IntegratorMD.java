@@ -5,11 +5,14 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
+import etomica.box.Box;
+import etomica.box.BoxAtomAddedEvent;
+import etomica.box.BoxEvent;
+import etomica.box.BoxListener;
 import etomica.data.DataSourceScalar;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.units.Dimension;
@@ -23,7 +26,7 @@ import etomica.util.IRandom;
  * set the time step.
  */
 
-public abstract class IntegratorMD extends IntegratorBox {
+public abstract class IntegratorMD extends IntegratorBox implements BoxListener {
     
     public IntegratorMD(PotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature) {
@@ -49,9 +52,13 @@ public abstract class IntegratorMD extends IntegratorBox {
     public Dimension getTimeStepDimension() {return Time.DIMENSION;}
     
     public void setBox(Box p) {
+        if (box != null) {
+            box.getEventManager().removeListener(this);
+        }
         super.setBox(p);
         meterTemperature.setBox(p);
         meterKE.setBox(p);
+        box.getEventManager().addListener(this);
     }
 
     protected void setup() {
@@ -298,6 +305,15 @@ public abstract class IntegratorMD extends IntegratorBox {
         meter.setBox(box);
     }
     
+    public void actionPerformed(BoxEvent event) {
+        if (event instanceof BoxAtomAddedEvent) {
+            IAtom atom = ((BoxAtomAddedEvent)event).getAtom();
+            if (atom instanceof IAtomKinetic) {
+                randomizeMomentum((IAtomKinetic)atom);
+            }
+        }
+    }
+
     private static final long serialVersionUID = 2L;
     /**
      * Elementary time step for the MD simulation

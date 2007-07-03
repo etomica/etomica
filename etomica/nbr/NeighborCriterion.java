@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Sep 22, 2004 by kofke
- */
 package etomica.nbr;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;

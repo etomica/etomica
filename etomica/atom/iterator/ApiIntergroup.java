@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 
 /**
@@ -31,6 +32,7 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
                 .getOuterIterator();
         aiInner = (AtomsetIteratorBasisDependent) pairIterator
                 .getInnerIterator();
+        atomSetSinglet = new AtomSetSinglet();
     }
 
     /**
@@ -80,8 +82,10 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
         if (basisAtoms == null || basisAtoms.getAtomCount() != 2) {
             aiOuter.setBasis(null);
         } else {
-            aiOuter.setBasis(basisAtoms.getAtom(0));
-            aiInner.setBasis(basisAtoms.getAtom(1));
+            atomSetSinglet.atom = basisAtoms.getAtom(0);
+            aiOuter.setBasis(atomSetSinglet);
+            atomSetSinglet.atom = basisAtoms.getAtom(1);
+            aiInner.setBasis(atomSetSinglet);
         }
         needSetupIterators = true;
     }
@@ -133,5 +137,6 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
     protected final AtomsetIteratorBasisDependent aiInner;
     protected IAtom targetAtom;
     protected boolean needSetupIterators = true;
+    protected final AtomSetSinglet atomSetSinglet;
 
 }

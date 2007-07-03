@@ -5,13 +5,15 @@ import java.io.Serializable;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.box.Box;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -19,6 +21,7 @@ import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
+import etomica.util.Debug;
 import etomica.util.IRandom;
 
 public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource {
@@ -71,6 +74,12 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     // assumes one box
     public void doStepInternal() {
         super.doStepInternal();
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box)) {
+            AtomSet atoms = Debug.getAtoms(box);
+            if (atoms.getAtom(0) != null) {
+                System.out.println(atoms.getAtom(0)+" at "+((IAtomPositioned)atoms.getAtom(0)).getPosition()+", v="+((IAtomKinetic)atoms.getAtom(0)).getVelocity());
+            }
+        }
         AtomSet leafList = box.getSpeciesMaster().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
@@ -78,6 +87,9 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             MyAgent agent = (MyAgent)agentManager.getAgent(a);
             IVector r = a.getPosition();
             IVector v = a.getVelocity();
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                System.out.println("first "+a+" r="+r+", v="+v+", f="+agent.force);
+            }
             v.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),agent.force);  // p += f(old)*dt/2
             r.PEa1Tv1(timeStep,v);         // r += p*dt/m
         }
@@ -98,6 +110,9 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
             workTensor.Ev1v2(velocity,velocity);
             workTensor.TE(((AtomTypeLeaf)a.getType()).getMass());
             pressureTensor.PE(workTensor);
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                System.out.println("second "+a+" v="+velocity+", f="+((MyAgent)agentManager.getAgent(a)).force);
+            }
             velocity.PEa1Tv1(0.5*timeStep*((AtomTypeLeaf)a.getType()).rm(),((MyAgent)agentManager.getAgent(a)).force);  //p += f(new)*dt/2
         }
         

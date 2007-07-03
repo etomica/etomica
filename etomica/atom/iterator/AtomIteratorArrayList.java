@@ -80,12 +80,14 @@ public class AtomIteratorArrayList extends AtomIteratorArrayListSimple implement
  		int arraySize = localList.getAtomCount();
         if (upListNow) {
             for (int i=firstCursor+numToSkip; i<arraySize; i++) {
-                act.actionPerformed(localList.getAtom(i));
+                atomSetSinglet.atom = localList.getAtom(i);
+                act.actionPerformed(atomSetSinglet);
             }
         }
         else {
             for (int i=firstCursor-numToSkip; i>-1; i--) {
-                act.actionPerformed(localList.getAtom(i));
+                atomSetSinglet.atom = localList.getAtom(i);
+                act.actionPerformed(atomSetSinglet);
             }
         }
  	}

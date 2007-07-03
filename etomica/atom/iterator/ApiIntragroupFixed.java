@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 /**
@@ -29,6 +29,7 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
      */
     public ApiIntragroupFixed(ApiComposite pairIterator) {
         super(pairIterator);
+        basisAtomSet = new AtomSetSinglet();
     }
 
     /**
@@ -44,14 +45,14 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
     protected void setupIterators() {
         if (direction == null || targetAtom == null) {
             // only need to worry about direction if there's a target
-            aiOuter.setBasis(basisAtom);
-            aiInner.setBasis(basisAtom);
+            aiOuter.setBasis(basisAtomSet);
+            aiInner.setBasis(basisAtomSet);
             super.setupIterators();
         } else {
             if (aiInner.haveTarget(targetAtom)) {
                 if (direction == IteratorDirective.Direction.DOWN) {
-                    aiOuter.setBasis(basisAtom);
-                    aiInner.setBasis(basisAtom);
+                    aiOuter.setBasis(basisAtomSet);
+                    aiInner.setBasis(basisAtomSet);
                     aiOuter.setTarget(null);
                     aiInner.setTarget(targetAtom);
                 } else {
@@ -61,8 +62,8 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
                 }
             } else {
                 if (direction == IteratorDirective.Direction.UP) {
-                    aiOuter.setBasis(basisAtom);
-                    aiInner.setBasis(basisAtom);
+                    aiOuter.setBasis(basisAtomSet);
+                    aiInner.setBasis(basisAtomSet);
                     aiOuter.setTarget(targetAtom);
                     aiInner.setTarget(null);
                 } else {
@@ -87,9 +88,9 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
      */
     public void setBasis(AtomSet basisAtoms) {
         if (basisAtoms == null || basisAtoms.getAtomCount() != 1) {
-            basisAtom = null;
+            basisAtomSet.atom = null;
         } else {
-            basisAtom = basisAtoms.getAtom(0);
+            basisAtomSet.atom = basisAtoms.getAtom(0);
         }
         needSetupIterators = true;
     }
@@ -101,7 +102,7 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
         return 1;
     }
 
-    protected IAtom basisAtom;
+    protected final AtomSetSinglet basisAtomSet;
     protected Direction direction;
     private static final long serialVersionUID = 1L;
 }

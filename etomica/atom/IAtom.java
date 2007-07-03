@@ -1,6 +1,6 @@
 package etomica.atom;
 
-public interface IAtom extends AtomSet {
+public interface IAtom {
 
     /**
      * Returns true if this atom is in the same molecule as the given atom.
@@ -75,5 +75,4 @@ public interface IAtom extends AtomSet {
      * If this node is not descended from the given node, returns null.
      */
     public IAtom getChildWhereDescendedFrom(IAtom atom);
-
 }

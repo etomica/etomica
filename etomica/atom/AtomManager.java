@@ -152,11 +152,11 @@ public final class AtomManager implements java.io.Serializable {
                 // floor.
                 int oldGlobalIndex = a.getGlobalIndex();
                 BoxAtomIndexChangedEvent event = new BoxAtomIndexChangedEvent(box, a, oldGlobalIndex);
-                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(a)) {
+                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                     System.out.println("reassigning global index for "+a);
                 }
                 a.setGlobalIndex(this);
-                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(a)) {
+                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
                     System.out.println("reassigned global index for "+a+" from "+oldGlobalIndex+" to "+a.getGlobalIndex());
                 }
                 leafIndices[a.getGlobalIndex()] = leafIndices[oldGlobalIndex];

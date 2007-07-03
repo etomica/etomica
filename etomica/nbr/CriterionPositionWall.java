@@ -2,6 +2,7 @@ package etomica.nbr;
 
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -137,7 +138,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 
 	public boolean needUpdate(IAtom atom) {
         dr = Math.abs(((IAtomPositioned)atom).getPosition().x(neighborDim) - ((DoubleWrapper)agentManager.getAgent(atom)).x);
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+dr+" "+((IAtomPositioned)atom).getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && dr > rMaxSafe) {

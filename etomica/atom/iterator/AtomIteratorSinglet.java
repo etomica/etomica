@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 
 /**
@@ -18,14 +19,20 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
      * Constructs iterator without defining atom.  No atoms will
      * be given by this iterator until a call to setAtom is performed.
      */
-    public AtomIteratorSinglet() {hasNext = false;}
+    public AtomIteratorSinglet() {
+        hasNext = false;
+        atomSetSinglet = new AtomSetSinglet();
+    }
     
     /**
      * Constructs iterator specifying that it return the given atom.  Call
      * to reset() must be performed before beginning iteration.
      * @param a The atom that will be returned by this iterator upon reset.
      */
-    public AtomIteratorSinglet(IAtom a) {setAtom(a);}
+    public AtomIteratorSinglet(IAtom a) {
+        this();
+        setAtom(a);
+    }
         
     /**
      * Defines atom returned by iterator and leaves iterator unset.
@@ -50,7 +57,10 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     public int size() {return atom != null ? 1 : 0;}
 
 	public void allAtoms(AtomsetAction action) {
-		if (atom != null) action.actionPerformed(atom);
+		if (atom != null) {
+            atomSetSinglet.atom = atom;
+            action.actionPerformed(atomSetSinglet);
+        }
 	}
         
     /**
@@ -75,7 +85,8 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     }
     
     public AtomSet next() {
-        return nextAtom();
+        atomSetSinglet.atom = nextAtom();
+        return atomSetSinglet;
     }
     
     public final int nBody() {return 1;}
@@ -83,4 +94,5 @@ public final class AtomIteratorSinglet implements AtomIteratorAtomDependent, jav
     private static final long serialVersionUID = 1L;
     private boolean hasNext = false;
     private IAtom atom;
+    protected final AtomSetSinglet atomSetSinglet;
 }

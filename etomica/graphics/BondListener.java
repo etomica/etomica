@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.ISpeciesAgent;
@@ -51,6 +52,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         bondIteratorsHash = new HashMap();
         atomAgentManager = new AtomAgentManager(this, box, isBackend);
         this.bondManager = bondManager;
+        atomSetSinglet = new AtomSetSinglet();
     }
 
     /**
@@ -84,7 +86,8 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                 else {
                     System.err.println("iterator wasn't directable, strange things may happen");
                 }
-                iterator.setBasis(molecule);
+                atomSetSinglet.atom = molecule;
+                iterator.setBasis(atomSetSinglet);
                 iterator.setTarget(null);
                 iterator.reset();
                 for  (AtomSet bondedPair = iterator.next(); bondedPair != null;
@@ -158,7 +161,8 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     else {
                         System.err.println("iterator wasn't directable, strange things may happen");
                     }
-                    iterator.setBasis(molecule);
+                    atomSetSinglet.atom = molecule;
+                    iterator.setBasis(atomSetSinglet);
                     iterator.setTarget(newAtom);
                     iterator.reset();
                     for (AtomSet bondedAtoms = iterator.next(); bondedAtoms != null;
@@ -190,4 +194,5 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     protected final AtomAgentManager atomAgentManager;
     protected final HashMap bondIteratorsHash;
     protected BondManager bondManager;
+    protected final AtomSetSinglet atomSetSinglet;
 }

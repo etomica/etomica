@@ -6,6 +6,7 @@ import etomica.action.BoxImposePbc;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -371,6 +372,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
             neighborListManager = manager;
             this.agentManager2Body = agentManager2Body;
             this.agentManager1Body = agentManager1Body;
+            atomSetSinglet = new AtomSetSinglet();
         }
         
         public void actionPerformed(IAtom atom) {
@@ -392,13 +394,15 @@ public class NeighborListManager implements IntegratorNonintervalListener,
                 if (potentials[i].nBody() != 1) {
                     continue;
                 }
-                ((AtomPotentialList)agentManager1Body.getAgent(atom)).setIsInteracting(criteria[i].accept(atom),i);
+                atomSetSinglet.atom = atom;
+                ((AtomPotentialList)agentManager1Body.getAgent(atom)).setIsInteracting(criteria[i].accept(atomSetSinglet),i);
             }
         }
         
         private NeighborListManager neighborListManager;
         private AtomAgentManager agentManager2Body;
         private AtomAgentManager agentManager1Body;
+        protected final AtomSetSinglet atomSetSinglet;
     }
     
     public Class getAgentClass() {

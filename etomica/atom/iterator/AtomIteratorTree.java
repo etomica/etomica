@@ -3,6 +3,7 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 
@@ -50,6 +51,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
         }
         setDoAllNodes(doAllNodes);
         counter = new AtomsetCount();
+        atomSetSinglet = new AtomSetSinglet();
     }
     
     /**
@@ -62,12 +64,14 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
         for (int iAtom=0; iAtom<nAtoms; iAtom++) {
             IAtom atom = list.getAtom(iAtom);
             if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
-                act.actionPerformed(atom);
+                atomSetSinglet.atom = atom;
+                act.actionPerformed(atomSetSinglet);
                 continue;
             }
             
             if (doAllNodes) {
-                act.actionPerformed(atom);
+                atomSetSinglet.atom = atom;
+                act.actionPerformed(atomSetSinglet);
             }
 
             if (treeIterator == null) {
@@ -143,7 +147,11 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      * Returns the next atom in the iteration sequence.  Same as nextAtom().
      */
     public AtomSet next() {
-        return nextAtom();
+        atomSetSinglet.atom = nextAtom();
+        if (atomSetSinglet.atom == null) {
+            return null;
+        }
+        return atomSetSinglet;
     }
 
     /**
@@ -231,5 +239,6 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
     protected IAtom next;
     protected boolean doAllNodes = false;
     protected final AtomsetCount counter;
+    protected final AtomSetSinglet atomSetSinglet;
         
 }//end of AtomIteratorTree

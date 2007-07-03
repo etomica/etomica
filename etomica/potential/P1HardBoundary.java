@@ -62,7 +62,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     
     public double energy(AtomSet a) {
         IVector dimensions = boundary.getDimensions();
-        IVector pos = ((IAtomPositioned)a).getPosition();
+        IVector pos = ((IAtomPositioned)a.getAtom(0)).getPosition();
         for (int i=0; i<work.getD(); i++) {
             if (!isActiveDim[i][1]) {
                 continue;
@@ -79,8 +79,9 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
     public double energyChange() {return 0.0;}
     
     public double collisionTime(AtomSet a, double falseTime) {
-        work.E(((IAtomKinetic)a).getPosition());
-        IVector v = ((IAtomKinetic)a).getVelocity();
+        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
+        work.E(atom.getPosition());
+        IVector v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);
         IVector dimensions = boundary.getDimensions();
         double tmin = Double.POSITIVE_INFINITY;
@@ -108,7 +109,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
         }
         if (ignoreOverlap && tmin<0.0) tmin = 0.0;
         if (Debug.ON && tmin < 0.0) {
-            System.out.println("t "+tmin+" "+a+" "+work+" "+v+" "+boundary.getDimensions());
+            System.out.println("t "+tmin+" "+atom+" "+work+" "+v+" "+boundary.getDimensions());
             throw new RuntimeException("you screwed up");
         }
         return tmin + falseTime;
@@ -117,7 +118,7 @@ public class P1HardBoundary extends Potential1 implements PotentialHard, Drawabl
 //    public void bump(IntegratorHard.Agent agent) {
 //        Atom a = agent.atom();
     public void bump(AtomSet a, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)a;
+        IAtomKinetic atom = (IAtomKinetic)a.getAtom(0);
         work.E(atom.getPosition());
         IVector v = atom.getVelocity();
         work.PEa1Tv1(falseTime,v);

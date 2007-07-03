@@ -1,6 +1,7 @@
 package etomica.modules.pistoncylinder;
 
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
@@ -21,6 +22,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     public IntegratorHardPiston(ISimulation sim, PotentialMaster potentialMaster, P1HardMovingBoundary potential) {
         super(sim, potentialMaster);
         pistonPotential = potential;
+        atomSetSinglet = new AtomSetSinglet();
     }
 
     public void setup() {
@@ -57,12 +59,13 @@ public class IntegratorHardPiston extends IntegratorHard {
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom1 = leafList.getAtom(iLeaf);
+            atomSetSinglet.atom = atom1;
             PotentialHard atom1Potential = ((Agent)agentManager.getAgent(atom1)).collisionPotential;
-            if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atom1) && Debug.LEVEL > 1) || (Debug.anyAtom(atom1) && Debug.LEVEL > 2))) {
+            if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atomSetSinglet) && Debug.LEVEL > 1) || (Debug.anyAtom(atomSetSinglet) && Debug.LEVEL > 2))) {
                 System.out.println(atom1+" thought it would collide with the piston");
             }
             if(atom1Potential == pistonPotential) {
-                if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(atom1) || Debug.LEVEL > 1)) {
+                if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(new AtomSetSinglet(atom1)) || Debug.LEVEL > 1)) {
                     System.out.println("Will update "+atom1+" because it wanted to collide with the piston");
                 }
                 listToUpdate.add(atom1);
@@ -70,14 +73,14 @@ public class IntegratorHardPiston extends IntegratorHard {
 
             
             // recalculate collision time for every atom with the wall
-            double collisionTime = pistonPotential.collisionTime(atom1,collisionTimeStep);
-            if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atom1)))) {
+            double collisionTime = pistonPotential.collisionTime(atomSetSinglet,collisionTimeStep);
+            if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atomSetSinglet)))) {
                 System.out.println("collision down time "+collisionTime+" for atom "+atom1+" with null "+pistonPotential.getClass());
             }
             if(collisionTime < Double.POSITIVE_INFINITY) {
                 Agent aia = (Agent)agentManager.getAgent(atom1);
                 if(collisionTime < aia.collisionTime()) {
-                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atom1))) {
+                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomSetSinglet))) {
                         System.out.println("setting down time "+collisionTime+" for atom "+atom1+" with null");
                     }
                     if (aia.collisionPotential != null) {
@@ -111,4 +114,5 @@ public class IntegratorHardPiston extends IntegratorHard {
     private static final long serialVersionUID = 1L;
     private final P1HardMovingBoundary pistonPotential;
     private boolean pistonUpdateRequested = false;
+    protected final AtomSetSinglet atomSetSinglet;
 }

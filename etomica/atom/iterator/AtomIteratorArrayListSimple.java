@@ -3,6 +3,7 @@ package etomica.atom.iterator;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 
  /**
@@ -24,6 +25,7 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      */
  	public AtomIteratorArrayListSimple(AtomSet atomList) {
  		list = atomList;
+        atomSetSinglet = new AtomSetSinglet();
  	}
     
     /**
@@ -62,7 +64,10 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
      * Same as nextAtom().
      */
  	public AtomSet next() {
- 		return nextAtom();
+        IAtom atom = nextAtom();
+        if (atom == null) return null;
+        atomSetSinglet.atom = atom;
+ 		return atomSetSinglet;
  	}
  
     /**
@@ -79,7 +84,8 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
  	public void allAtoms(AtomsetAction act) {
  		int arraySize = list.getAtomCount();
  		for (int i=0; i<arraySize; i++) {
- 			act.actionPerformed(list.getAtom(i));
+            atomSetSinglet.atom = list.getAtom(i);
+ 			act.actionPerformed(atomSetSinglet);
  		}
  	}
 
@@ -98,4 +104,5 @@ public class AtomIteratorArrayListSimple implements AtomIterator, java.io.Serial
     protected int cursor = 0;
 
     protected AtomSet list;
+    protected final AtomSetSinglet atomSetSinglet;
  }

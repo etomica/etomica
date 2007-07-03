@@ -48,6 +48,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
     public PotentialMasterCell(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
             BoxAgentManager agentManager) {
         super(sim, boxAgentSource, agentManager, new Api1ACell(sim.getSpace().D(),range,agentManager));
+        setRange(range);
     }
     
     public double getRange() {

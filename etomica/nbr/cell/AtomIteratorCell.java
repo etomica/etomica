@@ -4,6 +4,7 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -30,6 +31,7 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         cellIterator = new RectangularLattice.Iterator(D);
         atomIterator = new AtomIteratorArrayListSimple();
         boxAgentManager = agentManager;
+        atomSetSinglet = new AtomSetSinglet();
 	}
 
 	public void setBox(Box box) {
@@ -70,7 +72,8 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
     }
     
     public final AtomSet next() {
-        return nextAtom();
+        atomSetSinglet.atom = nextAtom();
+        return atomSetSinglet;
     }
     
     public IAtom nextAtom() {
@@ -108,4 +111,5 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
     private final AtomIteratorArrayListSimple atomIterator;
     private final RectangularLattice.Iterator cellIterator;
     private final BoxAgentManager boxAgentManager;
+    protected final AtomSetSinglet atomSetSinglet;
 }

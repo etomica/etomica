@@ -239,10 +239,24 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		int nLeaf = leafList.getAtomCount();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-			IAtomPositioned a = (IAtomPositioned) leafList.getAtom(iLeaf);
-			if (a == null || !(a.getType() instanceof AtomTypeSphere))
-				continue;
-			Ball ball = (Ball) aam.getAgent(a);
+		    IAtomPositioned a = null;
+		    Ball ball = null;
+		    try {
+		        a = (IAtomPositioned) leafList.getAtom(iLeaf);
+	            if (a == null || !(a.getType() instanceof AtomTypeSphere))
+	                continue;
+	            ball = (Ball) aam.getAgent(a);
+		    }
+		    catch (ArrayIndexOutOfBoundsException e) {
+		        System.out.println("oops, array index out of bounds");
+		        //atoms might have been removed on another thread
+		        break;
+		    }
+            catch (IndexOutOfBoundsException e) {
+                System.out.println("oops, index out of bounds");
+                //atoms might have been removed on another thread
+                break;
+            }
 			if (ball == null) {
 				continue;
 			}

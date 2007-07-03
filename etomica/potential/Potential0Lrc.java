@@ -1,7 +1,6 @@
 package etomica.potential;
 
-import etomica.action.AtomsetCount;
-import etomica.atom.AtomSet;
+import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.ISpeciesAgent;
@@ -93,64 +92,42 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
             AtomIteratorTreeRoot treeIterator = new AtomIteratorTreeRoot();
             for (int i=0; i<2; i++) {
                 if (lrcAtomsPerMolecule[i] == 0) {
-                    final AtomType typei = types[i];
-                    AtomsetCount counter = new AtomsetCount() {
-                        public void actionPerformed(AtomSet atom) {
-                            if (((IAtom)atom).getType() == typei) {
-                                super.actionPerformed(atom);
-                            }
+                    if (types[i].getDepth() == AtomAddressManager.MOLECULE_DEPTH) {
+                        lrcAtomsPerMolecule[i] = 1;
+                    }
+                    else if (agents[i].getNMolecules() > 0) {
+                        treeIterator.setRootAtom(agents[i].getChildList().getAtom(0));
+                        treeIterator.setIterationDepth(types[i].getDepth());
+                        treeIterator.reset();
+                        int numAtoms = 0;
+                        for (IAtom atom = treeIterator.nextAtom(); atom != null;
+                             atom = treeIterator.nextAtom()) {
+                            if (atom.getType() == types[i]) numAtoms++;
                         }
-                    };
-                    treeIterator.setRootAtom(agents[i]);
-                    treeIterator.setIterationDepth(types[i].getDepth());
-                    treeIterator.allAtoms(counter);
-                    lrcAtomsPerMolecule[i] = counter.callCount()/agents[i].getNMolecules();
+                        lrcAtomsPerMolecule[i] = numAtoms;
+                    }
                 }
             }
         }
         box = p;
     }
     
-    public void setTargetAtoms(AtomSet targetAtoms) {
-        if (targetAtoms == null) {
+    public void setTargetAtoms(IAtom targetAtom) {
+        if (targetAtom == null) {
             divisor = 1;
             return;
         }
-        switch (targetAtoms.getAtomCount()) {
-            case 0:
-                divisor = 1;
-                break;
-            case 1:
-                int typeIndex = 1;
-                if (types[0].isDescendedFrom(targetAtoms.getAtom(0).getType())) {
-                    typeIndex = 0;
-                }
-                else if (!types[1].isDescendedFrom(targetAtoms.getAtom(0).getType())) {
-                    divisor = 0;
-                    return;
-                }
-                divisor = agents[typeIndex].getNMolecules() * lrcAtomsPerMolecule[typeIndex];
-                if (!interType) {
-                    divisor = (divisor - 1)/2.0;
-                }
-                break;
-            case 2:
-                if ((!types[0].isDescendedFrom(targetAtoms.getAtom(0).getType()) &&
-                        !types[0].isDescendedFrom(targetAtoms.getAtom(1).getType())) ||
-                        (!types[1].isDescendedFrom(targetAtoms.getAtom(1).getType()) &&
-                        !types[1].isDescendedFrom(targetAtoms.getAtom(0).getType()))) {
-                    divisor = 0;
-                    return;
-                }
-                divisor = agents[0].getNMolecules() * lrcAtomsPerMolecule[0];
-                if (interType) {
-                    divisor *= agents[1].getNMolecules() * lrcAtomsPerMolecule[1]; 
-                }
-                else {
-                    divisor *= (divisor - 1)/2.0;
-                }
-                break;
-            default: throw new IllegalArgumentException("LRC not developed to handle three target atoms");
+        int typeIndex = 1;
+        if (types[0].isDescendedFrom(targetAtom.getType())) {
+            typeIndex = 0;
+        }
+        else if (!types[1].isDescendedFrom(targetAtom.getType())) {
+            divisor = 0;
+            return;
+        }
+        divisor = agents[typeIndex].getNMolecules() * lrcAtomsPerMolecule[typeIndex];
+        if (!interType) {
+            divisor = (divisor - 1)/2.0;
         }
     }
      

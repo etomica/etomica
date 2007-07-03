@@ -89,12 +89,14 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
         for (IAtom atom = listIterator.nextAtom(); atom != null;
              atom = listIterator.nextAtom()) {
             if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
-                act.actionPerformed(atom);
+                atomSetSinglet.atom = atom;
+                act.actionPerformed(atomSetSinglet);
                 continue;
             }
             
             if (doAllNodes) {
-                act.actionPerformed(atom);
+                atomSetSinglet.atom = atom;
+                act.actionPerformed(atomSetSinglet);
             }
 
             if (treeIterator == null) {

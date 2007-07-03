@@ -6,6 +6,7 @@ import etomica.atom.AtomGroup;
 import etomica.atom.AtomManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
@@ -57,7 +58,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         nonAdjacentPairTests(api);
         
         setup2();
-        api.setBasis(parent);
+        api.setBasis(new AtomSetSinglet(parent));
         
         //target matches basis, no direction, two iterates
         api.setDirection(null);
@@ -229,7 +230,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         
         //************ test basis is leaf
         setup2();
-        api.setBasis(parent);
+        api.setBasis(new AtomSetSinglet(parent));
         
         //target matches basis, no direction, two iterates
         api.setDirection(null);
@@ -352,7 +353,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
      */
     private void adjacentPairTests(ApiIntragroup api) {
         
-        api.setBasis(parent);
+        api.setBasis(new AtomSetSinglet(parent));
 
         //target, no direction, two iterates
         api.setDirection(null);
@@ -423,7 +424,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
      */
     private void nonAdjacentPairTests(ApiIntragroup api) {
         
-        api.setBasis(parent);
+        api.setBasis(new AtomSetSinglet(parent));
 
         //target, no direction, two iterates
         api.setDirection(null);

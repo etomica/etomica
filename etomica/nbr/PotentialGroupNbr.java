@@ -1,5 +1,6 @@
 package etomica.nbr;
 
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
@@ -14,6 +15,7 @@ public class PotentialGroupNbr extends PotentialGroup {
 
     protected PotentialGroupNbr(int nBody, Space space) {
         super(nBody, space);
+        atomSetSinglet = new AtomSetSinglet();
     }
 
     /**
@@ -36,7 +38,8 @@ public class PotentialGroupNbr extends PotentialGroup {
         }
         for (PotentialLinker link=firstRangeIndependent; link!= null; link=link.next) {
             if(!link.enabled) continue;
-            link.iterator.setBasis(atom);
+            atomSetSinglet.atom = atom;
+            link.iterator.setBasis(atomSetSinglet);
             pc.doCalculation(link.iterator, id, link.potential);
         }
     }
@@ -66,4 +69,5 @@ public class PotentialGroupNbr extends PotentialGroup {
     
     private static final long serialVersionUID = 1L;
     protected PotentialLinker firstRangeIndependent;
+    protected final AtomSetSinglet atomSetSinglet;
 }

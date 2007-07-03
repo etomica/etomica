@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomToAtomSet;
 import etomica.atom.AtomToIndex;
 import etomica.atom.AtomToIndexChild;
@@ -36,6 +37,7 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
         this.atomToIndex = atomToIndex;
         this.atomToAtomSet = atomToAtomSet;
         unset();
+        atomSetSinglet = new AtomSetSinglet();
     }
 
     /**
@@ -60,12 +62,14 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     public void allAtoms(AtomsetAction action) {
         if(direction != IteratorDirective.Direction.DOWN) {
             if (firstCursor < list.getAtomCount()-1) {
-                action.actionPerformed(list.getAtom(firstCursor+1));
+                atomSetSinglet.atom = list.getAtom(firstCursor+1);
+                action.actionPerformed(atomSetSinglet);
             }
         }
         if (direction != IteratorDirective.Direction.UP) {
             if (firstCursor > 0) {
-                action.actionPerformed(list.getAtom(firstCursor-1));
+                atomSetSinglet.atom = list.getAtom(firstCursor-1);
+                action.actionPerformed(atomSetSinglet);
             }
         }
     }
@@ -81,7 +85,8 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
      * Same as nextAtom.
      */
     public AtomSet next() {
-        return nextAtom();
+        atomSetSinglet.atom = nextAtom();
+        return atomSetSinglet;
     }
 
     /**
@@ -132,4 +137,5 @@ public class AtomIteratorArrayListAdjacent implements AtomIteratorAtomDependent,
     private AtomSet list;
     private final AtomToIndex atomToIndex;
     private final AtomToAtomSet atomToAtomSet;
+    protected final AtomSetSinglet atomSetSinglet;
 }

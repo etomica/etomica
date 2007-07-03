@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import junit.framework.TestCase;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomsetArray;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
@@ -101,16 +102,7 @@ public abstract class IteratorTestAbstract extends TestCase {
         int j=0;
         for (AtomSet nextAtom = iterator.next(); nextAtom != null;
                nextAtom = iterator.next()) {
-            if (nextAtom instanceof IAtom) {
-                atoms[j] = nextAtom;
-                if (!nextAtom.toString().equals(lister[0].list.get(j))) {
-                    System.out.println(j+" "+nextAtom+" "+lister[0].list.get(j));
-                }
-                assertTrue(nextAtom.toString().equals(lister[0].list.get(j)));
-            }
-            else {
-                atoms[j] = new AtomsetArray(nextAtom);
-            }
+            atoms[j] = new AtomsetArray(nextAtom);
             lister[1].actionPerformed(nextAtom);
             j++;
         }
@@ -121,7 +113,7 @@ public abstract class IteratorTestAbstract extends TestCase {
             int i = 0;
             for (IAtom next = ((AtomIterator)iterator).nextAtom(); next != null;
                  next = ((AtomIterator)iterator).nextAtom()) {
-                assertEquals(next, atoms[i++]);
+                assertEquals(next, atoms[i++].getAtom(0));
             }
         }
         
@@ -179,7 +171,7 @@ public abstract class IteratorTestAbstract extends TestCase {
         LinkedList list = generalIteratorMethodTests(iterator);
         Lister test = new Lister();
         for(int i=0; i<iterates.length; i++) {
-            test.actionPerformed(iterates[i]);
+            test.actionPerformed(new AtomSetSinglet(iterates[i]));
         }
         assertEquals(list, test.list);
         return list;

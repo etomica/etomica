@@ -1,6 +1,7 @@
 package etomica.action;
 
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 
 /**
@@ -18,11 +19,15 @@ import etomica.atom.IAtom;
  
 public abstract class AtomActionAdapter extends AtomsetActionAdapter implements AtomAction {
     
-    public void setAtom(IAtom a) {atoms = a;}
-    public IAtom getAtom() {return (IAtom)atoms;}
+    public AtomActionAdapter() {
+        atoms = new AtomSetSinglet();
+    }
+    
+    public void setAtom(IAtom a) {((AtomSetSinglet)atoms).atom = a;}
+    public IAtom getAtom() {return ((AtomSetSinglet)atoms).atom;}
 
     public void actionPerformed(AtomSet a) {
-        actionPerformed((IAtom)a);
+        actionPerformed(a.getAtom(0));
     }
     
     /**

@@ -2,6 +2,7 @@ package etomica.potential;
 
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomPositioned;
@@ -121,7 +122,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     }
     
     public double energy(AtomSet a) {
-        double dx = ((IAtomPositioned)a).getPosition().x(wallD) - wallPosition;
+        double dx = ((IAtomPositioned)a.getAtom(0)).getPosition().x(wallD) - wallPosition;
         if (dx*dx < collisionRadius*collisionRadius) {
             return Double.POSITIVE_INFINITY;
         }
@@ -131,7 +132,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     public double energyChange() {return 0.0;}
     
     public double collisionTime(AtomSet atoms, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)atoms;
+        IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
         double dr = atom.getPosition().x(wallD) - wallPosition;
         double dv = atom.getVelocity().x(wallD) - wallVelocity;
         dr += dv*falseTime;
@@ -150,7 +151,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         double a = -force/wallMass;   // atom acceleration - wall acceleration
         dv += a*falseTime;
         dr += 0.5*a*falseTime*falseTime;
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(atom)) {
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom))) {
             System.out.println(dr+" "+dv+" "+falseTime+" "+atom);
             System.out.println(atom.getVelocity().x(wallD));
             System.out.println(atom.getPosition().x(wallD));
@@ -187,7 +188,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
             }
         }
         if (ignoreOverlap && t<0.0) t = 0.0;
-        if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(atom))) {
+        if (Debug.ON && (t<0.0 || Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(atom)))) {
             System.out.println(atom+" "+a+" "+dr+" "+dv+" "+discr+" "+t+" "+(t+falseTime)+" "+(atom.getPosition().x(wallD)+atom.getVelocity().x(wallD)*(t+falseTime))+" "+(wallPosition+wallVelocity*(t+falseTime)-0.5*a*(t+falseTime)*(t+falseTime)));
             if (t<0) throw new RuntimeException("foo");
         }
@@ -195,7 +196,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     }
                 
     public void bump(AtomSet atoms, double falseTime) {
-        IAtomKinetic atom = (IAtomKinetic)atoms;
+        IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
         double r = atom.getPosition().x(wallD);
         IVector v = atom.getVelocity();
         if (pressure >= 0.0) {

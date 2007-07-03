@@ -4,11 +4,12 @@ import java.util.LinkedList;
 
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorBasis;
-import etomica.junit.UnitTestUtil;
 import etomica.box.Box;
+import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
 
 
@@ -154,7 +155,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
     }
     
     private LinkedList testOneIterate(IAtom basis, IAtom target, IAtom iterate) {
-        basisIterator.setBasis(basis);
+        basisIterator.setBasis(new AtomSetSinglet(basis));
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);
@@ -166,7 +167,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
     }
     
     private LinkedList testListIterates(IAtom basis, IAtom target, AtomArrayList iterates) {
-        basisIterator.setBasis(basis);
+        basisIterator.setBasis(new AtomSetSinglet(basis));
         assertTrue(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);
@@ -178,7 +179,7 @@ public class AtomIteratorBasisTest extends IteratorTestAbstract {
     }
     
     private void testNoIterates(IAtom basis, IAtom target) {
-        basisIterator.setBasis(basis);
+        basisIterator.setBasis(new AtomSetSinglet(basis));
         assertFalse(basisIterator.haveTarget(target));
         basisIterator.setTarget(target);
         LinkedList list = generalIteratorMethodTests(basisIterator);

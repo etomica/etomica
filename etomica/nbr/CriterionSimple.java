@@ -2,6 +2,7 @@ package etomica.nbr;
 
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -81,14 +82,14 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
             throw new IllegalStateException("Interaction range ("+interactionRange+") must be less than neighborRange ("+Math.sqrt(neighborRadius2)+")");
         }
 		r2 = ((IAtomPositioned)atom).getPosition().Mv1Squared((IVector)agentManager.getAgent(atom));
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(atom)) {
+        if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.allAtoms(new AtomSetSinglet(atom))) {
             System.out.println("atom "+atom+" displacement "+r2+" "+((IAtomPositioned)atom).getPosition());
         }
 		if (Debug.ON && Debug.DEBUG_NOW && r2 > displacementLimit2 / (4.0*safetyFactor*safetyFactor)) {
 			System.out.println("atom "+atom+" exceeded safe limit ("+r2+" > "+displacementLimit2 / (4.0*safetyFactor*safetyFactor)+")");
 			System.out.println("old position "+agentManager.getAgent(atom));
 			System.out.println("new position "+((IAtomPositioned)atom).getPosition());
-            throw new RuntimeException("stop that");
+//            throw new RuntimeException("stop that");
 		}
 		return r2 > displacementLimit2;
 	}
