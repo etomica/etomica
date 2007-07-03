@@ -113,17 +113,6 @@ public class Box implements java.io.Serializable {
         return "Box"+getIndex();
     }
     
-    /**
-     * Mutator method for flag that enables or disables application of long-range
-     * correction to truncated potentials.  Enabled by default.
-     */
-    public void setLrcEnabled(boolean b) {lrcEnabled = b;}
-    /**
-     * Accessor method for flag that enables or disables application of long-range
-     * correction to truncated potentials.  Enabled by default.
-     */
-    public boolean isLrcEnabled() {return lrcEnabled;}
-    
     public final Space getSpace() {return space;}
     
     /**
@@ -146,33 +135,6 @@ public class Box implements java.io.Serializable {
             i -= count;
         }
         throw new IllegalStateException("how can this be?!?!?!");
-    }
-    
-    /**
-     * Finds and returns the atom nearest to each of one or more given
-     * positions, using the boundary associated with this box.
-     * @param r a positions in the box.  Point may be outside the box, as
-     * minimum-image separations are used in accordance with box's boundary.
-     * @return Atom the (leaf) atoms in the box nearest to each position. A
-     * given atom can appear more than once in this list, if it is nearest to
-     * more than one of the positions.
-     */
-    public IAtom[] nearestAtom(IVector[] r) {
-        AtomSet leafList = atomManager.getLeafList();
-        int nLeaf = leafList.getAtomCount();
-    	IAtom[] nearest = new IAtom[r.length];
-    	for(int i=0; i<r.length; i++) {
-	    	double r2Min = Double.MAX_VALUE;
-            for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-                IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
-	    		double r2 = Space.r2(a.getPosition(), r[i], boundary);
-	    		if(r2 < r2Min) {
-	    			r2Min = r2;
-	    			nearest[i] = a;
-	    		}
-	    	}
-    	}
-    	return nearest;
     }
     
     /**
@@ -308,7 +270,6 @@ public class Box implements java.io.Serializable {
     private static final long serialVersionUID = 2L;
     private Boundary boundary;
     private AtomManager atomManager;
-    private boolean lrcEnabled = true;
     protected final Space space;
     private final BoxEventManager eventManager;
     private final BoxEvent inflateEvent;
