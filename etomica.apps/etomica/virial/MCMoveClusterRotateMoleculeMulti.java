@@ -25,7 +25,6 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             IRandom random, int numMolecules) {
         super(potentialMaster, random);
         weightMeter = new MeterClusterWeight(potential);
-        setName("MCMoveClusterMolecule");
         nMolecules = numMolecules;
         selectedMolecules = new IAtomGroup[nMolecules];
         oldPositions = new IVector[nMolecules][];

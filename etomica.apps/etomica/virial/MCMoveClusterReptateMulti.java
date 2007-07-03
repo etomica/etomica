@@ -54,7 +54,6 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
         forward = new boolean[nAtoms];
         weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
-        setName("MCMoveClusterReptate");
         work1 = new Vector3D();
     }
 

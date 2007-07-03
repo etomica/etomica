@@ -49,7 +49,6 @@ public class MCMoveAtom extends MCMoveBoxStep {
         setStepSize(stepSize);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
-        setName("MCMoveAtom");
         this.fixOverlap = fixOverlap;
     }
     

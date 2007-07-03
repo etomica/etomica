@@ -110,36 +110,6 @@ public abstract class MCMove implements java.io.Serializable {
 		return nominalFrequency;
 	}
 
-	/**
-	 * Accessor method of the name of this object
-	 * 
-	 * @return The given name
-	 */
-	public final String getName() {
-		return name;
-	}
-
-	/**
-	 * Method to set the name of this object
-	 * 
-	 * @param name
-	 *            The name string to be associated with this object
-	 */
-	public final void setName(String name) {
-		this.name = name;
-	}
-
-	/**
-	 * Overrides the Object class toString method to have it return the output
-	 * of getName
-	 * 
-	 * @return The name given to the object
-	 */
-	public String toString() {
-		return getName();
-	}
-
-    private String name;
     protected final PotentialMaster potential;
 
     /**

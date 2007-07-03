@@ -36,7 +36,6 @@ public class MCMoveMolecule extends MCMoveAtom {
         //       iteratorDirective.addCriterion(new IteratorDirective.PotentialCriterion() {
  //           public boolean excludes(Potential p) {return (p instanceof Potential1.Intramolecular);}
  //       });
-        setName("MCMoveMolecule");
         AtomSourceRandomMolecule randomMoleculeSource = new AtomSourceRandomMolecule();
         randomMoleculeSource.setRandom(random);
         setAtomSource(randomMoleculeSource);

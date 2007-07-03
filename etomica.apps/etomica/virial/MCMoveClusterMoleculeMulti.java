@@ -41,7 +41,6 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
             translationVectors[i] = (IVectorRandom)potential.getSpace().makeVector();
         }
         weightMeter = new MeterClusterWeight(potential);
-        setName("MCMoveClusterMolecule");
     }
 
     public void setBox(Box p) {

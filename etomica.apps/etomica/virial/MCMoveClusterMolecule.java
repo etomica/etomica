@@ -21,7 +21,6 @@ public class MCMoveClusterMolecule extends MCMoveMolecule {
     public MCMoveClusterMolecule(PotentialMaster potentialMaster, IRandom random, double stepSize) {
         super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
         weightMeter = new MeterClusterWeight(potential);
-        setName("MCMoveClusterMolecule");
     }
     
     public void setBox(Box p) {

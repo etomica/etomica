@@ -30,8 +30,6 @@ public class MCMoveSpinFlip extends MCMoveBox {
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
-        setName("MCMoveSpinFlip");
-
     }
 
     public void setBox(Box p) {

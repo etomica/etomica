@@ -58,7 +58,6 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         }
         weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
-        setName("MCMoveClusterMolecule");
         work1 = new Vector3D();
         work2 = new Vector3D();
         work3 = new Vector3D();

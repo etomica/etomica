@@ -50,7 +50,6 @@ public class MCMoveAtomCoupled extends MCMoveBoxStep {
         setStepSize(0.1);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
-        setName("MCMoveAtom");
         affectedAtomList = new AtomArrayList(2);
         affectedAtomIterator = new AtomIteratorArrayListSimple(affectedAtomList);
         pair = new AtomPair();

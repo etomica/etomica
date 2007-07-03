@@ -39,7 +39,6 @@ public class MCMoveReptate extends MCMoveBoxStep {
         setStepSize(stepSize);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
-        setName("MCMoveReptate");
         this.fixOverlap = fixOverlap;
 
         

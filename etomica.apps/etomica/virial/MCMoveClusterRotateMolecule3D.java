@@ -15,7 +15,6 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
             IRandom random) {
         super(potentialMaster, random);
         weightMeter = new MeterClusterWeight(potential);
-        setName("MCMoveClusterMolecule");
     }
     
     public void setBox(Box p) {

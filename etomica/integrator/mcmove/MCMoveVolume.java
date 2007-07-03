@@ -47,8 +47,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
         setStepSize(0.10);
         setPressure(pressure);
         energyMeter.setIncludeLrc(true);
-        setName("MCMoveVolume");
-        
     }
     
     public void setBox(Box p) {
