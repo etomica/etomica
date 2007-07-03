@@ -7,6 +7,7 @@ import etomica.action.AtomAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 
@@ -55,7 +56,7 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
      */
     public void addEachToList(AtomSet a) {
         for(int i=0; i<a.getAtomCount(); i++) {
-            actionPerformed(a.getAtom(i));
+            actionPerformed(new AtomSetSinglet(a.getAtom(i)));
         }
     }
 
@@ -67,7 +68,7 @@ class Lister extends AtomsetActionAdapter implements AtomAction {
         iterator.reset();
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
-            actionPerformed(atom);
+            actionPerformed(new AtomSetSinglet(atom));
         }
     }
     
