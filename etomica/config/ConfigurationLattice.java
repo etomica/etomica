@@ -73,52 +73,12 @@ public class ConfigurationLattice extends Configuration {
     public double getBoundaryPadding() {
         return boundaryPadding;
     }
-    
-    /**
-     * Specifies whether indices used to place each atom should be remembered.
-     * Default is false.
-     */
-    public void setRememberingIndices(boolean b) {
-        indices = b ? new int[0][] : null;
-    }
-
-    /**
-     * Indicates of instance is set to remember indices used to place each atom.
-     */
-    public boolean isRememberingIndices() {
-        return indices != null;
-    }
-
-    /**
-     * Returns an array of integer arrays, each corresponding to the indexes
-     * used to place a molecule in the last call to initializePositions. The
-     * index for each atom is obtained from the returned array using the atom's
-     * global index; that is, <code>getIndices()[atom.getGlobalIndex()]</code>
-     * gives the index array for <code>atom</code>.  A new instance of this
-     * array is made with each call to initializeCoordinates.
-     * 
-     * @throws IllegalStateException
-     *             if isRememberingIndices if false, or if initializeCoordinates has not previously been called.
-     */
-    public int[][] getIndices() {
-        if (indices == null) {
-            throw new IllegalStateException(
-                    "ConfigurationLattice is not set to remember the indices.");
-        }
-        if (indices[0].length == 0) {
-            throw new IllegalStateException("initializeCoordinates has not been called for this box");
-        }
-        return indices;
-    }
 
     /**
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
     public void initializeCoordinates(Box box) {
-        if (indices != null) {
-            indices = new int[box.getSpeciesMaster().getMaxGlobalIndex()+1][];
-        }
         AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
         int sumOfMolecules = atomIterator.size();
         if (sumOfMolecules == 0) {
@@ -204,9 +164,6 @@ public class ConfigurationLattice extends Configuration {
             }
 
             int[] ii = indexIterator.next();
-            if (indices != null) {
-                indices[a.getGlobalIndex()] = (int[]) ii.clone();
-            }
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
             atomActionTranslateTo.actionPerformed(a);
         }
@@ -262,7 +219,6 @@ public class ConfigurationLattice extends Configuration {
     protected boolean rescalingToFitVolume = true;
     protected final AtomActionTranslateTo atomActionTranslateTo;
     protected MyLattice myLat;
-    private int[][] indices = null;
     protected double boundaryPadding;
     private static final long serialVersionUID = 3L;
 
