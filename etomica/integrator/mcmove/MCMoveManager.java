@@ -149,6 +149,40 @@ public class MCMoveManager implements Serializable {
         }
     }
 
+    /**
+     * Returns the trial frequency set for the given move, over and above the
+     * move's nominal frequency.  The frequency is 1.0 by default.
+     * 
+     * This method should not be called with a move not contained by this
+     * manager.
+     */
+    public double getFrequency(MCMove move) {
+        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
+            if (link.move == move) {
+                return link.frequency;
+            }
+        }
+        throw new IllegalArgumentException("I don't have "+move);
+    }
+
+    /**
+     * Sets the trial frequency for the given move to the given frequency.  The
+     * frequency is used in conjunction with the move's own nominal frequency.
+     * 
+     * This method should not be called with a move not contained by this
+     * manager.
+     */
+    public void setFrequency(MCMove move, double newFrequency) {
+        for (MCMoveLinker link = firstMoveLink; link != null; link = link.nextLink) {
+            if (link.move == move) {
+                link.frequency = newFrequency;
+                recomputeMoveFrequencies();
+                return;
+            }
+        }
+        throw new IllegalArgumentException("I don't have "+move);
+    }
+
     private static final long serialVersionUID = 1L;
     private Box box;
     private MCMoveLinker firstMoveLink, lastMoveLink;
@@ -163,16 +197,15 @@ public class MCMoveManager implements Serializable {
      */
     private static class MCMoveLinker implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
-        int frequency, fullFrequency;
+        int fullFrequency;
+        double frequency;
         final MCMove move;
-        boolean perParticleFrequency;
         int selectionCount;
         MCMoveLinker nextLink;
 
         MCMoveLinker(MCMove move) {
             this.move = move;
-            frequency = move.getNominalFrequency();
-            perParticleFrequency = (move instanceof MCMoveBox) && ((MCMoveBox)move).isNominallyPerParticleFrequency();
+            frequency = 1.0;
         }
 
         /**
@@ -181,8 +214,9 @@ public class MCMoveManager implements Serializable {
          * current number of molecules in the boxs affected by the move.
          */
         void resetFullFrequency() {
-            fullFrequency = frequency;
-            if (perParticleFrequency && ((MCMoveBox)move).getBox() != null) {
+            fullFrequency = (int)(frequency * move.getNominalFrequency());
+            if ((move instanceof MCMoveBox) && ((MCMoveBox)move).getBox() != null
+                    && ((MCMoveBox)move).isNominallyPerParticleFrequency() ) {
                 fullFrequency *= ((MCMoveBox)move).getBox().moleculeCount();
             }
         }
