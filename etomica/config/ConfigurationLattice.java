@@ -63,8 +63,17 @@ public class ConfigurationLattice extends Configuration {
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
+        setBoundaryPadding(0);
     }
 
+    public void setBoundaryPadding(double newBoundaryPadding) {
+        boundaryPadding = newBoundaryPadding;
+    }
+    
+    public double getBoundaryPadding() {
+        return boundaryPadding;
+    }
+    
     /**
      * Specifies whether indices used to place each atom should be remembered.
      * Default is false.
@@ -125,6 +134,7 @@ public class ConfigurationLattice extends Configuration {
         // determine scaled shape of simulation volume
         IVector shape = box.getSpace().makeVector();
         shape.E(box.getBoundary().getDimensions());
+        shape.PE(-boundaryPadding);
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
 
@@ -147,6 +157,7 @@ public class ConfigurationLattice extends Configuration {
             // in favorable situations, this should be approximately equal
             // to 1.0
             latticeScaling.E(box.getBoundary().getDimensions());
+            latticeScaling.PE(-boundaryPadding);
             latticeScaling.DE(latticeConstantV);
             latticeScaling.DE(Space.makeVector(latticeDimensions));
         } else {
@@ -252,7 +263,8 @@ public class ConfigurationLattice extends Configuration {
     protected final AtomActionTranslateTo atomActionTranslateTo;
     protected MyLattice myLat;
     private int[][] indices = null;
-    private static final long serialVersionUID = 2L;
+    protected double boundaryPadding;
+    private static final long serialVersionUID = 3L;
 
     public static void main(String[] args) {
         Simulation sim = new Simulation(Space3D.getInstance());
