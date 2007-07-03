@@ -77,7 +77,6 @@ public class Species implements java.io.Serializable {
 
     /**
      * Returns the agent of this species in the given box
-     * Hashmap is used to connect box(key)-agent(value) pairs
      * 
      * @param p The box for which this species' agent is requested
      * @return The agent of this species in the box
