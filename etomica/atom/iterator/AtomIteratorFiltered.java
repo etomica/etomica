@@ -167,7 +167,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
      */
     public void allAtoms(AtomsetAction action) {
         atomsetActionWrapper.action = action;
-        iterator.allAtoms(actionWrapper);
+        iterator.allAtoms(atomsetActionWrapper);
     }
 
     /**
