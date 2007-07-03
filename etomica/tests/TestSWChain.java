@@ -1,11 +1,11 @@
 package etomica.tests;
 
 import etomica.action.ActionIntegrate;
-import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiBuilder;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
@@ -21,7 +21,6 @@ import etomica.nbr.CriterionBondedSimple;
 import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2HardBond;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialGroup;
