@@ -6,7 +6,7 @@ import etomica.util.Arrays;
  * Implementation of some semi-empirical equations of state for the
  * Lennard-Jones model.
  * 
- * Equations for the fcc solid box and liquid-fcc saturation conditions are
+ * Equations for the fcc solid phase and liquid-fcc saturation conditions are
  * based on the empirical formulas proposed by van der Hoef:
  * 
  * [1] M.A. van der Hoef, "Free energy of the Lennard-Jones solid", Journal of
@@ -17,7 +17,7 @@ import etomica.util.Arrays;
  * [2] M.S. van der Hoef, "Gas-solid coexistence of the Lennard-Jones system", 
  * Journal of Chemical Physics, vol 117, page 5093 (2002).
  * 
- * No fluid-box equations are (yet) implemented here.
+ * No fluid-phase equations are (yet) implemented here.
  * 
  * This is a library class, containing only static methods, and thus is not
  * intended to be instantiated.
@@ -115,7 +115,7 @@ public final class LennardJones {
     }
     
     /**
-     * Returns the densities of coexisting (saturated) liquid and fcc boxs
+     * Returns the densities of coexisting (saturated) liquid and fcc phases
      * (i.e., melting and freezing densities). Uses Eqs. (25) and (26) of van
      * der Hoef [1].
      * 
@@ -162,7 +162,7 @@ public final class LennardJones {
     
 
     /**
-     * Returns the densities of coexisting (saturated) vapor and fcc boxs
+     * Returns the densities of coexisting (saturated) vapor and fcc phases
      * (sublimation densities). Uses Eqs. (2) and (3) of van der Hoef [2].
      * 
      * @param T
@@ -257,7 +257,7 @@ public final class LennardJones {
     }
     
     public static void main(String[] args) {
-        double T = 1.0;
+        double T = 0.692;
         double rho = 0.962;
         if (args.length > 0) {
             T = Double.parseDouble(args[0]);
@@ -293,13 +293,31 @@ public final class LennardJones {
 //        for(double Tr=0.2; Tr<=1.01; Tr+=0.2) {
             for(double Tr=0.0; Tr<=1.01; Tr+=0.05) {
 //            for(rho=0.9; rho<=1.7; rho+=0.1) {
+                Tm = 5.3;
+                rho = 1.4;
                 T = Tr*Tm;
-                double a = (aResidualFcc(T, rho) + T*(-1 + Math.log(rho)));
+                double a = uStaticFcc(rho) - (aResidualFcc(T, rho) + T*(-1 + Math.log(rho)));
 //                System.out.println(Tr + "\t" + a);
                 System.out.println(a);
-//                System.out.println("T, rho, Uah: "+ T + "\t" + rho + "\t" + Uah(T,rho));
+                
+                double sum = T * Uah(T, rho); //anharmonic contribution
+                double rhon1 = rho;// rho^(n+1)
+                for (int n = 0; n <= 3; n++) {
+                    sum += T * b[n] / (n + 1) * rhon1;
+                    rhon1 *= rho;
+                }
+
+//                System.out.println("T, rho, Uah, sum: "+ T + "\t" + rho + "\t" + T*Uah(T,rho) + "\t" + sum);
 //            }
         }
+            
+//            for(double Tr=0.0; Tr<1.01; Tr+=0.02) {
+//                T = 0.692 + Tr*5;
+//                double[] rhoFreeze = liquidFccCoexDensities(T);
+//                System.out.println(T + "\t" + rhoFreeze[0] + "\t" + rhoFreeze[1]);
+//                //double[] rhoSub = vaporFccCoexDensities(T);
+////                System.out.println(T + "\t" + rhoSub[0] + "\t" + rhoSub[1]);
+//            }
     }
     
     //Constants for van der Hoef's formulas, ref[1]
