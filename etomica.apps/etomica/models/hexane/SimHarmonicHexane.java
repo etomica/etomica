@@ -1,12 +1,19 @@
 package etomica.models.hexane;
 
+import java.util.ArrayList;
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
+import etomica.graphics.DisplayTextBoxesCAE;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
@@ -15,6 +22,7 @@ import etomica.normalmode.BoltzmannProcessor;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveHarmonic;
 import etomica.normalmode.MeterHarmonicEnergy;
+import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
@@ -26,6 +34,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.units.Pixel;
 
 public class SimHarmonicHexane extends Simulation {
 
@@ -41,6 +50,7 @@ public class SimHarmonicHexane extends Simulation {
     public NormalModes normalModes;
     public double fudge;
 
+    private static final String APP_NAME = "Sim Harmonic";
 
     
     public SimHarmonicHexane(Space space, double dens, int xCells, int yCells, 
@@ -101,7 +111,7 @@ public class SimHarmonicHexane extends Simulation {
 
         //set up default values
         int xLng = 4;
-        int yLng = 4;
+        int yLng = 6;
         int zLng = 6;
         long nSteps = 10000;
         // Monson reports data for 0.373773507616 and 0.389566754417
@@ -133,9 +143,16 @@ public class SimHarmonicHexane extends Simulation {
             zLng = Integer.parseInt(args[5]);
         }
 
+        
+        
+        
+        
+        
+        
+        
         System.out.println("Running " + "3D hexane harmonic simulation, " +
                 "measuring hard sphere energy");
-        System.out.println(xLng*yLng*zLng + "molecules in a " + xLng + ", " + 
+        System.out.println(xLng*yLng*zLng + " molecules in a " + xLng + ", " + 
                 yLng + ", " + zLng + " arrangement at density " + density );
         System.out.println("Harmonic fudge: " + fud);
         System.out.println(nSteps + " steps");
@@ -182,7 +199,8 @@ public class SimHarmonicHexane extends Simulation {
         
         //GRAPHIC
         if(graphic){
-            //meter for harmonic system energy, sent to direct and to boltzmann average
+            //meter for harmonic system energy, sent to direct and to 
+            // boltzmann average
             MeterHarmonicEnergy harmonicEnergy = new 
                 MeterHarmonicEnergy(sim.coordinateDefinition, sim.normalModes);
             harmonicEnergy.setBox(sim.box);
@@ -192,13 +210,53 @@ public class SimHarmonicHexane extends Simulation {
             harmonicFork.addDataSink(harmonicAvg);
             sim.integrator.addIntervalAction(pumpHarmonic);
             
+            //set up measurement of S matrix, to check that configurations are
+            // generated as expected
+            MeterNormalMode meterNormalMode = new MeterNormalMode();
+            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
+            WaveVectorFactory waveVectorFactory = 
+                sim.normalModes.getWaveVectorFactory();
+            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
+            meterNormalMode.setBox(sim.box);
             
+            //graphic simulation - set up window
+            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME);
+            ArrayList dataStreamPumps = simG.getController().getDataStreamPumps();
+            dataStreamPumps.add(pump);
+            dataStreamPumps.add(pumpHarmonic);
             
+            DisplayTextBoxesCAE boxesPE = new DisplayTextBoxesCAE();
+            boxesPE.setAccumulator(avgBoltzmann);
+            boxesPE.setPrecision(6);
+            simG.add(boxesPE);
             
+            DisplayTextBoxesCAE harmonicBoxes = new DisplayTextBoxesCAE();
+            harmonicBoxes.setAccumulator(harmonicAvg);
+            simG.add(harmonicBoxes);
             
+            simG.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
+            simG.makeAndDisplayFrame(APP_NAME);
+        } else {
+        //UNGRAPHIC
+            //not graphic, so simulation is run batch & S data is written to file
+            sim.activityIntegrate.setMaxSteps(nSteps);
             
+            sim.getController().actionPerformed();
             
+            DataGroup boltzmannData = (DataGroup)avgBoltzmann.getData();
+            double pNotOverlap = ((DataDouble)boltzmannData.getData(StatType.AVERAGE.index)).x;
+            double pError = ((DataDouble)boltzmannData.getData(StatType.ERROR.index)).x;
+            
+            System.out.println("avg HS Boltzmann factor "
+                    + pNotOverlap + " +/- " + pError);
+            System.out.println("free energy contribution "
+                    + (-Math.log(pNotOverlap)) + " +/- " + (pError/pNotOverlap));
+            System.out.println("free energy contribution per molecule "
+                    + (-Math.log(pNotOverlap)/xLng/yLng/zLng) + " +/- " 
+                    + (pError/pNotOverlap)/xLng/yLng/zLng);
         }
+            
+        
         
         
         PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
