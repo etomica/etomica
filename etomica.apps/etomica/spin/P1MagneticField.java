@@ -30,7 +30,7 @@ public class P1MagneticField extends Potential1 {
      * @see etomica.Potential#energy(etomica.AtomSet)
      */
     public double energy(AtomSet atoms) {
-        IVector r = ((IAtomPositioned)atoms).getPosition();
+        IVector r = ((IAtomPositioned)atoms.getAtom(0)).getPosition();
         return h * r.dot(direction);
     }
     
