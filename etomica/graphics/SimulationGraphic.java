@@ -13,13 +13,12 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
-import etomica.integrator.IIntegrator;
-import etomica.integrator.IntegratorManagerMC;
-import etomica.integrator.IntegratorBox;
-import etomica.math.geometry.Plane;
 import etomica.box.Box;
+import etomica.integrator.IIntegrator;
+import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorManagerMC;
+import etomica.math.geometry.Plane;
 import etomica.simulation.ISimulation;
-import etomica.simulation.Simulation;
 import etomica.simulation.SimulationContainer;
 import etomica.space3d.Vector3D;
 import etomica.units.Pixel;
@@ -174,7 +173,7 @@ public class SimulationGraphic implements SimulationContainer {
         final Component component = display.graphic(null);
         if(component == null) return; //display is not graphic
 
-        if(display instanceof DisplayBox || display instanceof DisplayTextBoxesCAE) {
+        if(display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
             getPanel().controlPanel.add(component, SimulationPanel.getVertGBC());
         }
         else {
