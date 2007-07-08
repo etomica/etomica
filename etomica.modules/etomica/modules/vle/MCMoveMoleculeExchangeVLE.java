@@ -16,9 +16,9 @@ public class MCMoveMoleculeExchangeVLE extends MCMoveMoleculeExchange {
     public boolean doTrial() {
         boolean success = super.doTrial();
         if (!success) return success;
-        meterDensity.setBox(firstBox);
+        meterDensity.setBox(box1);
         double density1 = meterDensity.getDataAsScalar();
-        meterDensity.setBox(secondBox);
+        meterDensity.setBox(box2);
         double density2 = meterDensity.getDataAsScalar();
         if (density2 > density1) {
             rejectNotify();
