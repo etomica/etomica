@@ -19,7 +19,7 @@ public class ActionConfigWindow implements Action {
     private final AtomSet leafList;
     
     public ActionConfigWindow(Box box) {
-        leafList = box.getSpeciesMaster().getLeafList();
+        leafList = box.getLeafList();
     }
     
     public void actionPerformed() {

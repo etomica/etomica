@@ -38,7 +38,7 @@ public class PDBWriter implements Action, Serializable {
     }
 
     public void setBox(Box newBox) {
-        leafList = newBox.getSpeciesMaster().getLeafList();
+        leafList = newBox.getLeafList();
     }
     
     /**

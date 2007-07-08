@@ -75,7 +75,7 @@ public class WriteConfiguration implements Action {
         }
         try {
             IVector writePosition = box.getSpace().makeVector();
-            AtomSet leafList = box.getSpeciesMaster().getLeafList();
+            AtomSet leafList = box.getLeafList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);

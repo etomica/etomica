@@ -45,7 +45,7 @@ public class BoxQuench extends BoxActionAdapter {
 		if(box == null) return;
 		double currentTemperature = meterTemperature.getDataAsScalar();
 		double scale = Math.sqrt(temperature / currentTemperature);
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
 			((IAtomKinetic)leafList.getAtom(iLeaf)).getVelocity().TE(scale);

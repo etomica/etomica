@@ -176,7 +176,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 	public void removeObjectByBox(etomica.box.Box p) {
 
 		// Remove old box atoms
-		AtomSet leafList = p.getSpeciesMaster().getLeafList();
+		AtomSet leafList = p.getLeafList();
 		int nLeaf = leafList.getAtomCount();
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
 			IAtomPositioned a = (IAtomPositioned) leafList.getAtom(iLeaf);
@@ -234,8 +234,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 			((ColorSchemeCollective) colorScheme).colorAllAtoms();
 		}
 
-		AtomSet leafList = displayBox.getBox().getSpeciesMaster()
-				.getLeafList();
+		AtomSet leafList = displayBox.getBox().getLeafList();
 		int nLeaf = leafList.getAtomCount();
 
 		for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {

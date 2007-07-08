@@ -100,7 +100,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         Boundary boundary = box.getBoundary();
         data.E(0);
         double[] y = data.getData();
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);

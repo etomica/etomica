@@ -71,7 +71,7 @@ public final class IntegratorHardField extends IntegratorHard {
         calculateForces();
         
         double t2 = 0.5*tStep*tStep;
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -99,7 +99,7 @@ public final class IntegratorHardField extends IntegratorHard {
     private void calculateForces() {
         
         //Compute all forces
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
@@ -117,7 +117,7 @@ public final class IntegratorHardField extends IntegratorHard {
     */
     public void scaleMomenta(double s) {
         double rs = 1.0/s;
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

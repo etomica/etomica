@@ -19,7 +19,7 @@ public class ActionVelocityWindow implements Action {
     private final AtomSet leafList;
     
     public ActionVelocityWindow(Box box) {
-        leafList = box.getSpeciesMaster().getLeafList();
+        leafList = box.getLeafList();
     }
     
     public void actionPerformed() {

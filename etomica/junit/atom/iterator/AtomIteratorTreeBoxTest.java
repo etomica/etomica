@@ -70,7 +70,7 @@ public class AtomIteratorTreeBoxTest extends IteratorTestAbstract {
         treeIterator.setAsLeafIterator();
         count = n0a*nAtoms + n1a + n2a*nTree[0]*nTree[1]*nTree[2];
         list = testIterateCount(count);
-        list = testListIterates(box.getSpeciesMaster().getLeafList());
+        list = testListIterates(box.getLeafList());
         
         //test re-specifying iteration in different orders
         int depth = 3;

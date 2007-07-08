@@ -58,7 +58,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
         data.E(0.0);
         int count = 0;
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             getData(leafList.getAtom(iLeaf));

@@ -82,7 +82,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
         pressureTensor.E(forceSum.getPressureTensor());
 
         //take step
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
@@ -117,7 +117,7 @@ public final class IntegratorVerlet extends IntegratorMD implements AgentSource 
     }
     
     protected void updateMrLast() {
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

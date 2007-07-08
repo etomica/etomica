@@ -25,7 +25,7 @@ import etomica.box.Box;
 public class XYZWriter implements Action, Serializable {
 
     public XYZWriter(Box aBox) {
-        leafList = aBox.getSpeciesMaster().getLeafList();
+        leafList = aBox.getLeafList();
         elementAtomType = new LinkedList();
     }
 

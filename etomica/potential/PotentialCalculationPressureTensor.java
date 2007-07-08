@@ -44,7 +44,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
 	}
     
     public void setBox(Box newBox) {
-        leafList = newBox.getSpeciesMaster().getLeafList();
+        leafList = newBox.getLeafList();
     }
     
     public void zeroSum() {

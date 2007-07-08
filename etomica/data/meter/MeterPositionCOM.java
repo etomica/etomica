@@ -40,7 +40,7 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
     public Data getData() {
         positionSum.E(0.0);
         double massSum = 0.0;
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);

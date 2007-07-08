@@ -33,7 +33,7 @@ public final class AtomIteratorLeafAtoms extends AtomIteratorAdapter implements
      * @throws a NullPointerException if the Box is null
      */
     public void setBox(Box box) {
-        ((AtomIteratorArrayListSimple)iterator).setList(box.getSpeciesMaster().getLeafList());
+        ((AtomIteratorArrayListSimple)iterator).setList(box.getLeafList());
     }
 
     private static final long serialVersionUID = 1L;

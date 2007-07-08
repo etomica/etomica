@@ -186,6 +186,10 @@ public class Box implements java.io.Serializable {
         return new DimensionRatio("Density",Quantity.DIMENSION,Volume.DIMENSION);
     }
 
+    public AtomSet getLeafList() {
+        return atomManager.getLeafList();
+    }
+    
     /**
      * returns the number of molecules in the box
      */

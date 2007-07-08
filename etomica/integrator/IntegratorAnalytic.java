@@ -35,7 +35,7 @@ public class IntegratorAnalytic extends IntegratorMD {
         if(action == null) return;
         elapsedTime += getTimeStep();
         action.setTime(elapsedTime);
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             action.actionPerformed(leafList.getAtom(iLeaf));

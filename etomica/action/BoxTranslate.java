@@ -46,7 +46,7 @@ public final class BoxTranslate extends BoxActionAdapter implements Undoable {
 	public void actionPerformed() {
 		if (box == null)
 			return;
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);

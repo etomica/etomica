@@ -126,7 +126,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
         }
         
         final double[] y = data.getData();
-	    double norm = 0.5 * callCount * box.getDensity()*(box.getSpeciesMaster().getLeafList().getAtomCount()-1);
+	    double norm = 0.5 * callCount * box.getDensity()*(box.getLeafList().getAtomCount()-1);
 	    double[] r = rData.getData();
 	    double dx2 = 0.5*(xMax - xDataSource.getXMin())/r.length;
 	    for(int i=0;i<r.length; i++) {

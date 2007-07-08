@@ -167,7 +167,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         if(displayBox.getColorScheme() instanceof ColorSchemeCollective) {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
         }
-        AtomSet leafList = displayBox.getBox().getSpeciesMaster().getLeafList();
+        AtomSet leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             drawAtom(g, displayBox.getOrigin(), (IAtomPositioned)leafList.getAtom(iLeaf));

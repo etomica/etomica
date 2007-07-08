@@ -183,7 +183,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
             }
             else if (thermostat == ThermostatType.ANDERSEN_SINGLE) {
                 if (initialized) {
-                    AtomSet atomList = box.getSpeciesMaster().getLeafList();
+                    AtomSet atomList = box.getLeafList();
                     int index = random.nextInt(atomList.getAtomCount());
                     IAtomKinetic a = (IAtomKinetic)atomList.getAtom(index);
                     double m = ((AtomTypeLeaf)a.getType()).getMass();
@@ -208,7 +208,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
      */
     protected void randomizeMomenta() {
         atomActionRandomizeVelocity.setTemperature(temperature);
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             atomActionRandomizeVelocity.actionPerformed(leafList.getAtom(iLeaf));
@@ -236,7 +236,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
      */
     protected double scaleMomenta() {
         momentum.E(0);
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {

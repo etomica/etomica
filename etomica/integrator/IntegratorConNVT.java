@@ -96,7 +96,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
         double k=0.0;
         double chi;
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);

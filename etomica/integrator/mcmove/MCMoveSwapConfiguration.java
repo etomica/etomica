@@ -59,8 +59,8 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
      * @throws RuntimeException wrapping a ConfigurationOverlapException if overlap is detected in either box
 	 */
 	public void acceptNotify() {
-        AtomSet leafList1 = integrator1.getBox().getSpeciesMaster().getLeafList();
-        AtomSet leafList2 = integrator2.getBox().getSpeciesMaster().getLeafList();
+        AtomSet leafList1 = integrator1.getBox().getLeafList();
+        AtomSet leafList2 = integrator2.getBox().getLeafList();
         int nLeaf = leafList1.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomPositioned a1 = (IAtomPositioned)leafList1.getAtom(iLeaf);

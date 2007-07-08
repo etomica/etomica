@@ -19,7 +19,7 @@ public class ConfigurationFile extends Configuration {
     }
     
     public void initializeCoordinates(Box box) {
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         String fileName = confName+".pos";
         FileReader fileReader;
         try {

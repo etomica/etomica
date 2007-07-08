@@ -22,7 +22,7 @@ public class ApiLeafAtoms extends AtomsetIteratorAdapter implements
      * @throws a NullPointerException if the Box is null
      */
     public void setBox(Box box) {
-        ((ApiIntraArrayList)iterator).setList(box.getSpeciesMaster().getLeafList());
+        ((ApiIntraArrayList)iterator).setList(box.getLeafList());
     }
 
     private static final long serialVersionUID = 1L;
