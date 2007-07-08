@@ -11,10 +11,11 @@ import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
-import etomica.box.Box;
+import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -28,12 +29,12 @@ import etomica.util.IRandom;
  * @author David Kofke
  */
  
-public final class MCMoveMoleculeExchange extends MCMove {
+public class MCMoveMoleculeExchange extends MCMove {
     
     private static final long serialVersionUID = 2L;
-    private Box firstBox;
-    private Box secondBox;
-    private final IntegratorBox integrator1, integrator2;
+    protected Box box1;
+    protected Box box2;
+    protected final IntegratorBox integrator1, integrator2;
     private final MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
     private final AtomActionTranslateTo moleculeTranslator;
@@ -62,20 +63,20 @@ public final class MCMoveMoleculeExchange extends MCMove {
         setAtomPositionDefinition(new AtomPositionCOM(space));
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;
-        firstBox = integrator1.getBox();
-        secondBox = integrator2.getBox();
+        box1 = integrator1.getBox();
+        box2 = integrator2.getBox();
         moleculeSource = new AtomSourceRandomMolecule();
         ((AtomSourceRandomMolecule)moleculeSource).setRandom(random);
     }
     
     public boolean doTrial() {
         if(random.nextInt(2) == 0) {
-            iBox = firstBox;
-            dBox = secondBox;
+            iBox = box1;
+            dBox = box2;
         }
         else {
-            iBox = secondBox;
-            dBox = firstBox;
+            iBox = box2;
+            dBox = box1;
         }
         if(dBox.moleculeCount() == 0) { //no molecules to delete; trial is over
             uNew = uOld = 0.0;
@@ -92,10 +93,10 @@ public final class MCMoveMoleculeExchange extends MCMove {
         energyMeter.setTarget(molecule);
         energyMeter.setBox(dBox);
         uOld = energyMeter.getDataAsScalar();
+        dSpecies.removeChildAtom(molecule);
 
         moleculeTranslator.setDestination(iBox.getBoundary().randomPosition());         //place at random in insertion box
         moleculeTranslator.actionPerformed(molecule);
-        dSpecies.removeChildAtom(molecule);
         iSpecies.addChildAtom(molecule);
         uNew = Double.NaN;
         return true;
@@ -134,25 +135,46 @@ public final class MCMoveMoleculeExchange extends MCMove {
     }
     
     public void acceptNotify() {
-        try {
-            //XXX grossly inefficient
-            integrator1.reset();
-            integrator2.reset();
-        } catch(ConfigurationOverlapException e) {
-            throw new RuntimeException(e);
+        IntegratorBox iIntegrator = integrator1;
+        IntegratorBox dIntegrator = integrator2;
+        if (iIntegrator.getBox() == dBox) {
+            iIntegrator = integrator2;
+            dIntegrator = integrator1;
+        }
+        if (iIntegrator instanceof IntegratorMC) {
+            ((IntegratorMC)iIntegrator).notifyEnergyChange(uNew);
+        }
+        else {
+            try {
+                //XXX grossly inefficient
+                iIntegrator.reset();
+            } catch(ConfigurationOverlapException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (dIntegrator instanceof IntegratorMC) {
+            ((IntegratorMC)dIntegrator).notifyEnergyChange(-uOld);
+        }
+        else {
+            try {
+                //XXX grossly inefficient
+                dIntegrator.reset();
+            } catch(ConfigurationOverlapException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     
     public void rejectNotify() {
+        iSpecies.removeChildAtom(molecule);
         translationVector.TE(-1);
         moleculeReplacer.setTranslationVector(translationVector);
         moleculeReplacer.actionPerformed(molecule);
-        iSpecies.removeChildAtom(molecule);
         dSpecies.addChildAtom(molecule);
     }
 
     public final AtomIterator affectedAtoms(Box box) {
-        if(this.firstBox != box && this.secondBox != box) return AtomIteratorNull.INSTANCE;
+        if(this.box1 != box && this.box2 != box) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
