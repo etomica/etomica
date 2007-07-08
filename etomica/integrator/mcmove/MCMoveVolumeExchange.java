@@ -4,10 +4,11 @@ import etomica.action.BoxInflate;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorNull;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
-import etomica.box.Box;
+import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 import etomica.util.IRandom;
@@ -19,12 +20,12 @@ import etomica.util.IRandom;
  *
  * @author David Kofke
  */
-public final class MCMoveVolumeExchange extends MCMoveStep {
+public class MCMoveVolumeExchange extends MCMoveStep {
     
     private static final long serialVersionUID = 1L;
     private final MeterPotentialEnergy energyMeter;
-    private final Box firstBox;
-    private final Box secondBox;
+    protected final Box firstBox;
+    protected final Box secondBox;
     private final IntegratorBox integrator1;
     private final IntegratorBox integrator2;
     private final BoxInflate inflate1;
@@ -48,7 +49,7 @@ public final class MCMoveVolumeExchange extends MCMoveStep {
         ROOT = 1.0/space.D();
         setStepSizeMax(Double.MAX_VALUE);
         setStepSizeMin(Double.MIN_VALUE);
-        setStepSize(0.3);
+        setStepSize(0.1);
         box1AtomIterator = new AtomIteratorAllMolecules();
         box2AtomIterator = new AtomIteratorAllMolecules();
         energyMeter.setIncludeLrc(false);
@@ -65,10 +66,8 @@ public final class MCMoveVolumeExchange extends MCMoveStep {
     }
     
     public boolean doTrial() {
-        energyMeter.setBox(firstBox);
-        uOld1 = energyMeter.getDataAsScalar();
-        energyMeter.setBox(secondBox);
-        uOld2 = energyMeter.getDataAsScalar();
+        uOld1 = integrator1.getPotentialEnergy();
+        uOld2 = integrator2.getPotentialEnergy();
         hOld = uOld1 + uOld2;
         double v1Old = firstBox.volume();
         double v2Old = secondBox.volume();
@@ -105,11 +104,29 @@ public final class MCMoveVolumeExchange extends MCMoveStep {
     }
     
     public void acceptNotify() {
-        try {
-            integrator1.reset();
-            integrator2.reset();
-        } catch(ConfigurationOverlapException e) {
-            throw new RuntimeException(e);
+        ((IntegratorMC)integrator1).notifyEnergyChange(uNew1-uOld1);
+        ((IntegratorMC)integrator2).notifyEnergyChange(uNew2-uOld2);
+        if (integrator1 instanceof IntegratorMC) {
+            ((IntegratorMC)integrator1).notifyEnergyChange(uNew1-uOld1);
+        }
+        else {
+            try {
+                //XXX grossly inefficient
+                integrator1.reset();
+            } catch(ConfigurationOverlapException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (integrator2 instanceof IntegratorMC) {
+            ((IntegratorMC)integrator2).notifyEnergyChange(uNew2-uOld2);
+        }
+        else {
+            try {
+                //XXX grossly inefficient
+                integrator2.reset();
+            } catch(ConfigurationOverlapException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     
