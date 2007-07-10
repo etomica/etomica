@@ -55,6 +55,9 @@ public abstract class CoordinateDefinition {
     
     public void initializeCoordinates(int[] nCells) {
         AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
+        if (atomIterator.size() == 0) {
+            throw new RuntimeException("There are no atoms yet!");
+        }
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
