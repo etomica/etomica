@@ -46,7 +46,6 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
         getController().getDataStreamPumps().add(sim.profile1pump);
         getController().getDataStreamPumps().add(sim.profile2pump);
-        getController().getDataStreamPumps().add(sim.fluxPump);
         
 	    Color colorA = Color.blue;
 	    Color colorB = Color.white;
