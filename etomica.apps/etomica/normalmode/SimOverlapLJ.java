@@ -8,14 +8,15 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -23,9 +24,8 @@ import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncatedShifted;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -93,8 +93,8 @@ public class SimOverlapLJ extends Simulation {
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.5;
-        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
+        double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.45;
+        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
         AtomType sphereType = species.getMoleculeType();
         potentialMasterTarget.addPotential(pTruncated, new AtomType[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
