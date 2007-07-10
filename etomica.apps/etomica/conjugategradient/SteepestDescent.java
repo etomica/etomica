@@ -2,6 +2,12 @@ package etomica.conjugategradient;
 
 import Jama.Matrix;
 
+/**
+ * @author taitan
+ * @author msellers
+ *
+ */
+
 public class SteepestDescent {
 
 	protected int imax;
