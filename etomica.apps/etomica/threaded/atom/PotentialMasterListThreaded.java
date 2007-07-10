@@ -15,7 +15,7 @@ import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.ISimulation;
-import etomica.threaded.PotentialCalculationThreaded;
+import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;
 
 public class PotentialMasterListThreaded extends PotentialMasterList {
@@ -70,8 +70,8 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
                 allPotentials[i].setBox(box);
             }
             
-            if(pc instanceof PotentialCalculationThreaded){
-            	calculateThreaded(box, id, (PotentialCalculationThreaded)pc, neighborManager);
+            if(pc instanceof IPotentialCalculationThreaded){
+            	calculateThreaded(box, id, (IPotentialCalculationThreaded)pc, neighborManager);
             }
             else{
             	//method of super class
@@ -104,7 +104,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
     }
 
-    protected void calculateThreaded(Box box, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
+    protected void calculateThreaded(Box box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
         AtomSet list = box.getSpeciesMaster().getAgentList();
@@ -116,7 +116,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         pc.writeData();
     }
         
-    protected void calculateThreaded(IAtom atom, IteratorDirective id, PotentialCalculationThreaded pc, NeighborListManager neighborManager) {
+    protected void calculateThreaded(IAtom atom, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
            
         AtomSet list = ((IAtomGroup)atom).getChildList();
         int size = list.getAtomCount();
