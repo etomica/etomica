@@ -15,14 +15,12 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
  */
 
 
-public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, AtomsetIterator {
+public class Atomset3IteratorIndexList implements AtomsetIteratorBasisDependent, AtomsetIterator {
 
-	
-	
 	/**
      * Constructs iterator without defining set of atoms.
      */
-    public AtomsetIteratorIndexList(int [][]index) {
+    public Atomset3IteratorIndexList(int [][]index) {
     	atomset = new AtomsetArray(3);
     	atoms = atomset.getArray();
         this.index = index;
@@ -33,6 +31,10 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
     }
     
     public boolean haveTarget(IAtom a){
+        if (parentGroup == null) {
+            return false;
+        }
+        
     	for(int i =0; i < index.length; i++){   //index.length = number of sets
     		
     		if (a == parentGroup.getChildList().getAtom(index[i][0])){
@@ -54,8 +56,13 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
     }
                                 
 
-	public void setBasis(AtomSet moleculeParacetamol) {
-		parentGroup = (AtomGroup)moleculeParacetamol;		
+	public void setBasis(AtomSet parent) {
+	    if (parent == null) {
+	        parentGroup = null;
+	    }
+	    else {
+	        parentGroup = (AtomGroup)parent.getAtom(0);
+	    }
 		unset();
 	}
 
@@ -69,6 +76,9 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
      * Unaffected by and has no effect on the reset/unset state.
      */
     public void allAtoms(AtomsetAction action) {
+    	if (parentGroup == null) {
+    	    return;
+    	}
     	
     	for(int i =0; i < index.length; i++){   //index.length = number of sets
     		
@@ -132,6 +142,9 @@ public class AtomsetIteratorIndexList implements AtomsetIteratorBasisDependent, 
      * not null.
      */
     public void reset() {
+        if (parentGroup == null) {
+            return;
+        }
     	cursor = 0;
     }
 

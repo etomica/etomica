@@ -182,7 +182,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
 
         P3BondAngleDreiding potential120 = new P3BondAngleDreiding(space, 2.094395102, .3354777333e5);
         intramolecularpotential.addPotential(potential120, 
-        		new AtomsetIteratorIndexList(new int[][]{{AtomParacetamol.indexC3,AtomParacetamol.indexC4,AtomParacetamol.indexC5},
+        		new Atomset3IteratorIndexList(new int[][]{{AtomParacetamol.indexC3,AtomParacetamol.indexC4,AtomParacetamol.indexC5},
         											     {AtomParacetamol.indexC4,AtomParacetamol.indexC5,AtomParacetamol.indexC6},
         											     {AtomParacetamol.indexC5,AtomParacetamol.indexC6,AtomParacetamol.indexC1},
         											     {AtomParacetamol.indexC6,AtomParacetamol.indexC1,AtomParacetamol.indexC2},
@@ -192,35 +192,35 @@ public class MDParacetamolOrthorhombic extends Simulation {
         
         P3BondAngleDreiding potentialO1C4C5 = new P3BondAngleDreiding(space, 2.14675498, .3354777333e5); 
         intramolecularpotential.addPotential(potentialO1C4C5, 
-        		new AtomsetIteratorIndexList(new int[][]{{AtomParacetamol.indexO1,AtomParacetamol.indexC4,AtomParacetamol.indexC5}}));
+        		new Atomset3IteratorIndexList(new int[][]{{AtomParacetamol.indexO1,AtomParacetamol.indexC4,AtomParacetamol.indexC5}}));
        
         P3BondAngleDreiding potentialO1C4C3 = new P3BondAngleDreiding(space, 2.042035225, .3354777333e5); 
         intramolecularpotential.addPotential(potentialO1C4C3, 
-        		new AtomsetIteratorIndexList(new int[][]{{AtomParacetamol.indexO1,AtomParacetamol.indexC4,AtomParacetamol.indexC3}}));
+        		new Atomset3IteratorIndexList(new int[][]{{AtomParacetamol.indexO1,AtomParacetamol.indexC4,AtomParacetamol.indexC3}}));
         
         P3BondAngleDreiding potentialC6C1N1 = new P3BondAngleDreiding(space, 2.059488517, .3354777333e5); 
         intramolecularpotential.addPotential(potentialC6C1N1, 
-        		new AtomsetIteratorIndexList(new int[][]{{AtomParacetamol.indexC6,AtomParacetamol.indexC1,AtomParacetamol.indexN }}));
+        		new Atomset3IteratorIndexList(new int[][]{{AtomParacetamol.indexC6,AtomParacetamol.indexC1,AtomParacetamol.indexN }}));
   
         P3BondAngleDreiding potentialC2C1N1 = new P3BondAngleDreiding(space, 2.129301687, .3354777333e5); 
         intramolecularpotential.addPotential(potentialC2C1N1, 
-        		new AtomsetIteratorIndexList(new int[][]{{AtomParacetamol.indexC2,AtomParacetamol.indexC1,AtomParacetamol.indexN }}));
+        		new Atomset3IteratorIndexList(new int[][]{{AtomParacetamol.indexC2,AtomParacetamol.indexC1,AtomParacetamol.indexN }}));
   
         P3BondAngleDreiding potentialN1C7C8 = new P3BondAngleDreiding(space, 1.989675347, .3354777333e5); 
         intramolecularpotential.addPotential(potentialN1C7C8, 
-        		new AtomsetIteratorIndexList(new int[][]{{AtomParacetamol.indexN ,AtomParacetamol.indexC7,AtomParacetamol.indexC8}}));
+        		new Atomset3IteratorIndexList(new int[][]{{AtomParacetamol.indexN ,AtomParacetamol.indexC7,AtomParacetamol.indexC8}}));
   
         P3BondAngleDreiding potentialN1C7O2 = new P3BondAngleDreiding(space, 2.181661565, .3354777333e5); 
         intramolecularpotential.addPotential(potentialN1C7O2, 
-        		new AtomsetIteratorIndexList(new int[][]{{AtomParacetamol.indexN ,AtomParacetamol.indexC7,AtomParacetamol.indexO2}}));
+        		new Atomset3IteratorIndexList(new int[][]{{AtomParacetamol.indexN ,AtomParacetamol.indexC7,AtomParacetamol.indexO2}}));
        
         P3BondAngleDreiding potentialO2C7C8 = new P3BondAngleDreiding(space, 2.111848395, .3354777333e5); 
         intramolecularpotential.addPotential(potentialO2C7C8, 
-        		new AtomsetIteratorIndexList(new int[][]{{AtomParacetamol.indexO2,AtomParacetamol.indexC7,AtomParacetamol.indexC8}}));
+        		new Atomset3IteratorIndexList(new int[][]{{AtomParacetamol.indexO2,AtomParacetamol.indexC7,AtomParacetamol.indexC8}}));
       
         P3BondAngleDreiding potentialC1N1C7 = new P3BondAngleDreiding(space, 2.251474735, .2742552176e5); 
         intramolecularpotential.addPotential(potentialC1N1C7, 
-        		new AtomsetIteratorIndexList(new int[][]{{AtomParacetamol.indexC1,AtomParacetamol.indexN ,AtomParacetamol.indexC7}}));
+        		new Atomset3IteratorIndexList(new int[][]{{AtomParacetamol.indexC1,AtomParacetamol.indexN ,AtomParacetamol.indexC7}}));
   
         /*
          * Torsional Angle Potential

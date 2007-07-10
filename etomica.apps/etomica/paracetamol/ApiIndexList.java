@@ -55,8 +55,13 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
     }
                                 
 
-	public void setBasis(AtomSet moleculeParacetamol) {
-		parentGroup = (AtomGroup)moleculeParacetamol;		
+	public void setBasis(AtomSet parent) {
+	    if (parent == null) {
+	        parentGroup = null;
+	    }
+	    else {
+	        parentGroup = (AtomGroup)parent.getAtom(0);
+	    }
 		unset();
 	}
 
@@ -93,7 +98,9 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
      * not null.
      */
     public void reset() {
-    	cursor = 0;
+        if (parentGroup != null) {
+            cursor = 0;
+        }
     }
 
     /**

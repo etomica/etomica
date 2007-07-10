@@ -32,8 +32,12 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     	return 1;
     }
     
-    public boolean haveTarget(IAtom a){
-    	for(int i =0; i < index.length; i++){   //index.length = number of sets
+    public boolean haveTarget(IAtom a) {
+        if (parentGroup == null) {
+            return false;
+        }
+        
+    	for(int i = 0; i < index.length; i++){   //index.length = number of sets
     		
     		if (a == parentGroup.getChildList().getAtom(index[i][0])){
     			return true;
@@ -57,8 +61,13 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     }
                                 
 
-	public void setBasis(AtomSet moleculeParacetamol) {
-		parentGroup = (AtomGroup)moleculeParacetamol;		
+	public void setBasis(AtomSet parent) {
+	    if (parent == null) {
+	        parentGroup = null;
+	    }
+	    else {
+	        parentGroup = (AtomGroup)parent.getAtom(0);
+	    }
 		unset();
 	}
 
@@ -72,7 +81,10 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
      * Unaffected by and has no effect on the reset/unset state.
      */
     public void allAtoms(AtomsetAction action) {
-    	
+        if (parentGroup == null) {
+            return;
+        }
+        
     	for(int i =0; i < index.length; i++){   //index.length = number of sets
     		
     		atoms[0] = parentGroup.getChildList().getAtom(index[i][0]);
@@ -83,25 +95,6 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
     	}
     }
 
-    /**
-     * Returns true if the given atom set has the same two atoms passed to the
-     * last call to setAtom(Atom).  Returns false if any relevant atoms are null.
-     */
-    /*
-    public boolean contains(AtomSet a) { //T: a equals the set
-    	
-    	for(int i =0; i < index.length; i++){   //index.length = number of pairs
-    		atoms[0] = parentGroup.getChildList().get(index[i][0]);
-    		atoms[1] = parentGroup.getChildList().get(index[i][1]);
-    		atoms[2] = parentGroup.getChildList().get(index[i][2]);
-    		atoms[3] = parentGroup.getChildList().get(index[i][3]);
-    		if (atomset.equals(a)){
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-*/
     /**
      * Returns true if three non-null atoms have set and a call to reset() has
      * been performed, without any subsequent calls to next() or nextPair().
@@ -141,6 +134,10 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
      * not null.
      */
     public void reset() {
+        if (parentGroup == null) {
+            return;
+        }
+        
     	cursor = 0;
     }
 
