@@ -3,7 +3,6 @@ package etomica.nbr;
 
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
 
 /**
  * Filters atoms to match a given AtomType.
@@ -23,7 +22,7 @@ public class CriterionType extends CriterionAdapter {
      * construction and if the wrapped criterion accept also returns true.
      */
     public boolean accept(AtomSet atom) {
-        if (((IAtom)atom).getType() == type) {
+        if (atom.getAtom(0).getType() == type) {
             return subCriterion.accept(atom);
         }
         return false;

@@ -49,7 +49,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     }
 
     public double energy(AtomSet atom) {
-        IVector r = ((IAtomPositioned)atom).getPosition();
+        IVector r = ((IAtomPositioned)atom.getAtom(0)).getPosition();
         double rz = r.x(2);
         double dz2 = (z - rz);
         dz2 *= dz2;
@@ -84,7 +84,7 @@ public class P1WCAPorousWall extends Potential1 implements PotentialSoft {
     }
 
     public IVector[] gradient(AtomSet atom) {
-        IVector r = ((IAtomPositioned)atom).getPosition();
+        IVector r = ((IAtomPositioned)atom.getAtom(0)).getPosition();
         double rz = r.x(2);
         double dz2 = (z - rz);
         dz2 *= dz2;
