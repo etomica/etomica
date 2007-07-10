@@ -63,7 +63,7 @@ public class SimOverlapLJ extends Simulation {
         
         boxTarget = new Box(this);
         addBox(boxTarget);
-        boxTarget.getAgent(species).setNMolecules(numAtoms);
+        boxTarget.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorTarget = new IntegratorMC(potentialMasterTarget, getRandom(), temperature);
         MCMoveAtomCoupled atomMove = new MCMoveAtomCoupled(potentialMasterTarget, getRandom());
@@ -128,7 +128,7 @@ public class SimOverlapLJ extends Simulation {
         boundaryHarmonic = new BoundaryRectangularPeriodic(this);
         boxHarmonic = new Box(boundaryHarmonic);
         addBox(boxHarmonic);
-        boxHarmonic.getAgent(species).setNMolecules(numAtoms);
+        boxHarmonic.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorHarmonic = new IntegratorMC(potentialMasterTarget, random, 1.0);
 

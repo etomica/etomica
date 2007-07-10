@@ -8,15 +8,16 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.IntegratorBox;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -25,7 +26,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
@@ -64,7 +64,7 @@ public class SimOverlap extends Simulation {
         PotentialMasterList potentialMasterTarget = new PotentialMasterList(this);
         boxTarget = new Box(this);
         addBox(boxTarget);
-        boxTarget.getAgent(species).setNMolecules(numAtoms);
+        boxTarget.setNMolecules(species, numAtoms);
 
         IntegratorHard integratorTarget = new IntegratorHard(potentialMasterTarget, getRandom(), 4, 1.0);
 
@@ -124,7 +124,7 @@ public class SimOverlap extends Simulation {
         }
         boxHarmonic = new Box(boundaryHarmonic);
         addBox(boxHarmonic);
-        boxHarmonic.getAgent(species).setNMolecules(numAtoms);
+        boxHarmonic.setNMolecules(species, numAtoms);
 
         IntegratorMC integratorHarmonic = new IntegratorMC(null, random, 1.0);
         integratorHarmonic.setBox(boxHarmonic);

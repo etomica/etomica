@@ -109,7 +109,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
 
         Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), L));
         sim.addBox(box);
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
 
         AtomSet atoms = box.getSpeciesMaster().getLeafList();
         

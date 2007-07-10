@@ -37,7 +37,7 @@ public class SimCalcS extends Simulation {
 
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorHard(potentialMaster, random, 0.04, 1.0);
 

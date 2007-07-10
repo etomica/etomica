@@ -49,7 +49,7 @@ public class SimHarmonic extends Simulation {
 
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(this, null);
 

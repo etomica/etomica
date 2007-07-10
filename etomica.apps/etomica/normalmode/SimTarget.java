@@ -49,7 +49,7 @@ public class SimTarget extends Simulation {
 
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorHard(this, potentialMaster);
 

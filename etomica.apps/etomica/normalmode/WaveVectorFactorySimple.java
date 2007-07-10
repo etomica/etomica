@@ -151,7 +151,7 @@ outer:              for (int i=0; i<3; i++){
         box.setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
         Species species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
-        box.getAgent(species).setNMolecules(nCells[0]*nCells[1]*nCells[2]);
+        box.setNMolecules(species, nCells[0]*nCells[1]*nCells[2]);
         Primitive primitive = new PrimitiveCubic(sim.getSpace(), 1);
         
         WaveVectorFactorySimple foo = new WaveVectorFactorySimple(primitive);
