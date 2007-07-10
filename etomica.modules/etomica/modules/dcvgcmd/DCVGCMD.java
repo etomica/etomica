@@ -12,6 +12,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceGroup;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfile;
+import etomica.data.types.DataDoubleArray;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
@@ -250,12 +251,7 @@ public class DCVGCMD extends Simulation {
         meterFlux1.setBox(box);
         meterFlux2.setBox(box);
         meterFlux3.setBox(box);
-        fluxMeters = new DataSourceGroup(new MeterFlux[] { meterFlux0,
-                meterFlux1, meterFlux2, meterFlux3 });
-//        fluxAccumulator = new AccumulatorAverage();
-//        DataPump fluxPump = new DataPump(fluxMeters, fluxAccumulator);
-//        IntervalActionAdapter fluxInterval = new IntervalActionAdapter(
-//                fluxPump, integratorDCV);
+        fluxMeters = new DataSourceGroup(new MeterFlux[] { meterFlux0, meterFlux1, meterFlux2, meterFlux3 });
 
         thermometer = new MeterTemperature(speciesTube);
         thermometer.setBox(box);
