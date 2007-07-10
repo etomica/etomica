@@ -46,7 +46,6 @@ public class SimCalcJ extends Simulation {
             nCells = new int[]{n,n,n};
             bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
             basis = new BasisCubicFcc();
-            basis = new BasisMonatomic(space);
         }
         box.setBoundary(bdry);
 
