@@ -20,9 +20,9 @@ import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceToggleButton;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
@@ -46,6 +46,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
         getController().getDataStreamPumps().add(sim.profile1pump);
         getController().getDataStreamPumps().add(sim.profile2pump);
+        getController().getDataStreamPumps().add(sim.fluxPump);
         
 	    Color colorA = Color.blue;
 	    Color colorB = Color.white;
@@ -121,7 +122,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 			}
 		});
 
-	    DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV);
+		// Data table tab page
+	    DataTableAverages dataTable = new DataTableAverages(sim.integratorDCV.integratormd);
 	    dataTable.addDataSource(sim.meterFlux0);
 	    dataTable.addDataSource(sim.meterFlux1);
 	    dataTable.addDataSource(sim.meterFlux2);
@@ -132,7 +134,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    table.setTransposed(true);
 	    table.setShowingRowLabels(true);
 	    table.setPrecision(7);
-
+	    
 	    // Density profile tab page
 		DisplayPlot profilePlot = new DisplayPlot();
 	    profilePlot.setLabel("Density profile");
