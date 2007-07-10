@@ -1,13 +1,9 @@
 package etomica.normalmode;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataGroup;
+import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
@@ -15,16 +11,13 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
@@ -57,8 +50,6 @@ public class SimCalcSLJ extends Simulation {
         getController().addAction(activityIntegrate);
         // activityIntegrate.setMaxSteps(nSteps);
 
-        int[] nCells;
-        Basis basis;
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
             boundary = new BoundaryRectangularPeriodic(space, getRandom(), numAtoms/density);
@@ -74,29 +65,13 @@ public class SimCalcSLJ extends Simulation {
         }
 
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
-        double truncationRadius = boundary.getDimensions().x(0) * 0.45;
-        P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
+        double truncationRadius = boundary.getDimensions().x(0) * 0.5;
+        P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
         AtomType sphereType = species.getMoleculeType();
         potentialMaster.addPotential(pTruncated, new AtomType[] {sphereType, sphereType});
         move.setPotential(pTruncated);
 
         box.setBoundary(boundary);
-
-        if (potentialMaster instanceof PotentialMasterList) {
-            double neighborRange = truncationRadius;
-            int cellRange = 7;
-            ((PotentialMasterList)potentialMaster).setRange(neighborRange);
-            ((PotentialMasterList)potentialMaster).setCellRange(cellRange); // insanely high, this lets us have neighborRange close to dimensions/2
-            // find neighbors now.  Don't hook up NeighborListManager (neighbors won't change)
-            ((PotentialMasterList)potentialMaster).getNeighborManager(box).reset();
-            int potentialCells = ((PotentialMasterList)potentialMaster).getNbrCellManager(box).getLattice().getSize()[0];
-            if (potentialCells < cellRange*2+1) {
-                throw new RuntimeException("oops ("+potentialCells+" < "+(cellRange*2+1)+")");
-            }
-            if (potentialCells > cellRange*2+1) {
-                System.out.println("could probably use a larger truncation radius ("+potentialCells+" > "+(cellRange*2+1)+")");
-            }
-        }
 
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis);
         coordinateDefinition.initializeCoordinates(nCells);
@@ -197,54 +172,23 @@ public class SimCalcSLJ extends Simulation {
         System.out.println("equilibrated");
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.getController().reset();
+        meterNormalMode.reset();
+
+        WriteS sWriter = new WriteS();
+        sWriter.setFilename(filename);
+        sWriter.setOverwrite(true);
+        sWriter.setMeter(meterNormalMode);
+        sWriter.setWaveVectorFactory(waveVectorFactory);
+        sWriter.setTemperature(temperature);
+        sim.integrator.addIntervalAction(sWriter);
+        sim.integrator.setActionInterval(sWriter, (int)simSteps/10);
+        
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
         PDBWriter pdbWriter = new PDBWriter(sim.box);
         pdbWriter.setFileName("calcS.pdb");
         pdbWriter.actionPerformed();
         
-        // normalize averages
-        DataGroup normalModeData = (DataGroup) meterNormalMode.getData();
-        normalModeData.TE(1.0 / meterNormalMode.getCallCount());
-
-        // write wave vectors (to filename.k) and simulation results (to
-        // filename.S) to file
-        IVector[] waveVectors = waveVectorFactory.getWaveVectors();
-        double[] coefficients = waveVectorFactory.getCoefficients();
-
-        try {
-            int coordinateDim = meterNormalMode.getCoordinateDefinition()
-                    .getCoordinateDim();
-            FileWriter fileWriterK = new FileWriter(filename + ".k");
-            FileWriter fileWriterS = new FileWriter(filename + ".S");
-            for (int k = 0; k < waveVectors.length; k++) {
-                // write the wavevector with its coefficient
-                fileWriterK.write(Double.toString(coefficients[k]));
-                for (int j = 0; j < waveVectors[k].getD(); j++) {
-                    fileWriterK.write(" " + waveVectors[k].x(j));
-                }
-                fileWriterK.write("\n");
-                if (D == 1) {
-                    System.out.println(NormalModes1DHR.S1DHR(k + 1, nA / density, nA));
-                }
-
-                // write the (coordDim x coordDim) S array for the current
-                // wavevector
-                DataDoubleArray dataS = (DataDoubleArray) normalModeData.getData(k);
-                for (int j = 0; j < coordinateDim; j++) {
-                    fileWriterS.write(Double.toString(dataS.getValue(j * coordinateDim)));
-                    for (int l = 1; l < coordinateDim; l++) {
-                        fileWriterS.write(" " + dataS.getValue(j * coordinateDim + l));
-                    }
-                    fileWriterS.write("\n");
-                }
-            }
-            fileWriterK.close();
-            fileWriterS.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Oops, failed to write data " + e);
-        }
-
     }
 
     private static final long serialVersionUID = 1L;
@@ -253,5 +197,7 @@ public class SimCalcSLJ extends Simulation {
     public Box box;
     public Boundary boundary;
     public Primitive primitive;
+    public Basis basis;
+    public int[] nCells;
     public CoordinateDefinition coordinateDefinition;
 }
