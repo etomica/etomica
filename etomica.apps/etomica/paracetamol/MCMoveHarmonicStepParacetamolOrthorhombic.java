@@ -14,7 +14,7 @@ import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -37,7 +37,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
 
 	private static final long serialVersionUID = 1L;
 	//private final static String APP_NAME = "MC Move Harmonic Step Paracetamol Orthorhombic";
-    public Phase phase;
+    public Box phase;
     public IntegratorMC integrator;
     public SpeciesParacetamol species;
     public P2ElectrostaticDreiding potentialCC , potentialCHy , potentialHyHy;
@@ -86,15 +86,15 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
         ((AtomTypeGroup)species.getMoleculeType()).setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
-        phase = new Phase(this);
-        addPhase(phase);
+        phase = new Box(this);
+        addBox(phase);
         phase.setDimensions(Space.makeVector(new double[] {25,25,25}));
         phase.getAgent(species).setNMolecules(numMolecules);  
         
         WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
         waveVectorFactory.makeWaveVectors(phase);
         
-        moveHarmonicStep.setPhase(phase);
+        moveHarmonicStep.setBox(phase);
         int []num = new int[45];
         for (int i=0; i<45; i++){
         	num[i] = i+3;
@@ -167,7 +167,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (potentialCC, truncationRadiusCC); 
         potentialMaster.addPotential(interpotentialCC, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).cType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).cType} );
         
         // CA-HY
         if(truncationRadiusCHy > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -176,7 +176,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialCHy = new P2SoftSphericalTruncated (potentialCHy, truncationRadiusCHy); 
         potentialMaster.addPotential(interpotentialCHy, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).hyType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hyType} );
         
         // HY-HY
         if(truncationRadiusHyHy > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -185,7 +185,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialHyHy = new P2SoftSphericalTruncated (potentialHyHy, truncationRadiusHyHy); 
         potentialMaster.addPotential(interpotentialHyHy, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).hyType, ((AtomFactoryParacetamol)species.getFactory()).hyType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).hyType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hyType} );
                
         // CA-NI
         if(truncationRadiusCN > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -194,7 +194,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (potentialCN, truncationRadiusCN); 
         potentialMaster.addPotential(interpotentialCN, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
         
         // NI-OX
         if(truncationRadiusNO > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -203,7 +203,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialNO = new P2SoftSphericalTruncated (potentialNO, truncationRadiusNO); 
         potentialMaster.addPotential(interpotentialNO, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).nType, ((AtomFactoryParacetamol)species.getFactory()).oType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).nType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
         
         //NI-NI
         if(truncationRadiusNN > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -212,7 +212,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialNN = new P2SoftSphericalTruncated (potentialNN, truncationRadiusNN); 
         potentialMaster.addPotential(interpotentialNN, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).nType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).nType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
         
         // HY-NI
         if(truncationRadiusHyN > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -221,7 +221,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialHyN = new P2SoftSphericalTruncated (potentialHyN, truncationRadiusHyN); 
         potentialMaster.addPotential(interpotentialHyN, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).hyType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).hyType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
         
         // HY-OX
         if(truncationRadiusHyO > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -230,7 +230,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialHyO = new P2SoftSphericalTruncated (potentialHyO, truncationRadiusHyO); 
         potentialMaster.addPotential(interpotentialHyO, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).hyType, ((AtomFactoryParacetamol)species.getFactory()).oType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).hyType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
              
         // OX-OX
         if(truncationRadiusOO > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -239,7 +239,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (potentialOO, truncationRadiusOO); 
         potentialMaster.addPotential(interpotentialOO, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).oType, ((AtomFactoryParacetamol)species.getFactory()).oType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).oType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
         
         // CA-OX
         if(truncationRadiusCO > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -248,7 +248,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (potentialCO, truncationRadiusCO); 
         potentialMaster.addPotential(interpotentialCO, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).oType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
         
         // HP-HP
         if(truncationRadiusHpHp > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -257,7 +257,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialHpHp = new P2SoftSphericalTruncated (potentialHpHp, truncationRadiusHpHp); 
         potentialMaster.addPotential(interpotentialHpHp, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).hpType, ((AtomFactoryParacetamol)species.getFactory()).hpType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).hpType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hpType} );
         
         // CA-HP
         if(truncationRadiusCHp > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -266,7 +266,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialCHp = new P2SoftSphericalTruncated (potentialCHp, truncationRadiusCHp); 
         potentialMaster.addPotential(interpotentialCHp, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).cType, ((AtomFactoryParacetamol)species.getFactory()).hpType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hpType} );
                
         // HP-NI
         if(truncationRadiusHpN > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -275,7 +275,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialHpN = new P2SoftSphericalTruncated (potentialHpN, truncationRadiusHpN); 
         potentialMaster.addPotential(interpotentialHpN, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).hpType, ((AtomFactoryParacetamol)species.getFactory()).nType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).hpType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
         
         // OX-HP
         if(truncationRadiusOHp > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -284,7 +284,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialOHp = new P2SoftSphericalTruncated (potentialOHp, truncationRadiusOHp); 
         potentialMaster.addPotential(interpotentialOHp, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).oType, ((AtomFactoryParacetamol)species.getFactory()).hpType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).oType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hpType} );
         
         // HY-HP
         if(truncationRadiusHyHp > 0.5*phase.getBoundary().getDimensions().x(0)) {
@@ -293,7 +293,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
             }
         P2SoftSphericalTruncated interpotentialHyHp = new P2SoftSphericalTruncated (potentialHyHp, truncationRadiusHyHp); 
         potentialMaster.addPotential(interpotentialHyHp, new AtomType[]{(
-        		(AtomFactoryParacetamol)species.getFactory()).hyType, ((AtomFactoryParacetamol)species.getFactory()).hpType} );
+        		(AtomFactoryParacetamol)species.getMoleculeFactory()).hyType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hpType} );
   
         potentialMaster.lrcMaster().setEnabled(false);
        /*
@@ -310,7 +310,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
  
         moveHarmonicStep.setCoordinateDefinition(coordDef);
         
-        integrator.setPhase(phase);
+        integrator.setBox(phase);
         
         
     } //end of constructor
@@ -328,13 +328,13 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
    /*****************************************************************************/    
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
-        meterPE.setPhase(sim.phase);
+        meterPE.setBox(sim.phase);
 //        DisplayBox PEbox = new DisplayBox();
 //        DataPump PEpump = new DataPump(meterPE, PEbox);
         
         WriteConfiguration writeConfig = new WriteConfiguration();
         writeConfig.setConfName("Coord_Paracetamol_FormII_Minimum_Energy");
-        writeConfig.setPhase(sim.phase);
+        writeConfig.setBox(sim.phase);
         writeConfig.setDoApplyPBC(false);
         
         sim.integrator.addIntervalAction(writeConfig);
