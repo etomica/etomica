@@ -2,10 +2,10 @@ package etomica.normalmode;
 
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.util.IRandom;
 
@@ -16,9 +16,18 @@ public class MCMoveHarmonic extends MCMoveBox {
         this.random = random;
         iterator = new AtomIteratorAllMolecules();
     }
+
+    public void setRejectable(boolean newIsRejectable) {
+        isRejectable = newIsRejectable;
+    }
+    
+    public boolean isRejectable() {
+        return isRejectable;
+    }
     
     public void setCoordinateDefinition(CoordinateDefinition newCoordinateDefinition) {
         coordinateDefinition = newCoordinateDefinition;
+        uOld = null;
     }
     
     public CoordinateDefinition getCoordinateDefinition() {
@@ -88,7 +97,18 @@ public class MCMoveHarmonic extends MCMoveBox {
                 lastEnergy += 0.5 * (realGauss*realGauss + imaginaryGauss*imaginaryGauss);
             }
         }
+        
+        if (isRejectable) {
+            if (uOld == null || uOld.length != cells.length) {
+                uOld = new double[cells.length][coordinateDim];
+            }
+        }
+        
         for (int iCell = 0; iCell<cells.length; iCell++) {
+            if (isRejectable) {
+                double[] uNow = coordinateDefinition.calcU(cells[iCell].molecules);
+                System.arraycopy(uNow, 0, uOld[iCell], 0, coordinateDim);
+            }
             BasisCell cell = cells[iCell];
             for (int i=0; i<coordinateDim; i++) {
                 u[i] = 0;
@@ -141,7 +161,14 @@ public class MCMoveHarmonic extends MCMoveBox {
     }
 
     public void rejectNotify() {
-        throw new RuntimeException("This move should never be rejected");
+        if (!isRejectable) {
+            throw new RuntimeException("I didn't keep track of the old positions.  You have to call setRejectable.");
+        }
+        BasisCell[] cells = coordinateDefinition.getBasisCells();
+        for (int iCell = 0; iCell<cells.length; iCell++) {
+            BasisCell cell = cells[iCell];
+            coordinateDefinition.setToU(cell.molecules, uOld[iCell]);
+        }
     }
 
     private static final long serialVersionUID = 1L;
@@ -157,4 +184,6 @@ public class MCMoveHarmonic extends MCMoveBox {
     protected final IRandom random;
     protected double lastEnergy;
     protected double temperature;
+    protected boolean isRejectable;
+    protected double[][] uOld;
 }
