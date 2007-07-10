@@ -57,7 +57,7 @@ public class PistonCylinder extends Simulation {
         IVector newDim;
         if (space.D() == 2) {
             config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
-            newDim = new Vector2D(80,400);
+            newDim = new Vector2D(80,150);
         }
         else {
             config = new ConfigurationLattice(new LatticeCubicFcc());
