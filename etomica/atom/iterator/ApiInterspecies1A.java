@@ -133,7 +133,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
      * part of either species.
      */
     private void identifyTargetMolecule() {
-        if (box == null || targetAtom == null) {
+        if (targetAtom == null) {
             targetMolecule = null;
         }
         else {
