@@ -61,7 +61,7 @@ public class RectangularLatticeNbrIteratorSquare extends
         super.setLattice(newLattice);
         for(int i=0; i<D; i++) {
             if(2*range[i]+1 > lattice.getSize()[i])
-                 throw new IllegalArgumentException("Neighbor range exceeds lattice size");
+                 System.err.println("Neighbor range exceeds lattice size");
         }
     }
     /**
@@ -175,7 +175,7 @@ public class RectangularLatticeNbrIteratorSquare extends
             if(newRange[i] < 0) 
                 throw new IllegalArgumentException("Neighbor range cannot be negative");
             if(lattice != null && 2*newRange[i]+1 > lattice.size[i]) 
-                throw new IllegalArgumentException("Neighbor range exceeds lattice site");
+                System.err.println("Neighbor range exceeds lattice site");
         }
         halfNeighborCount = 1;
         for(int i=0; i<D; i++) {
