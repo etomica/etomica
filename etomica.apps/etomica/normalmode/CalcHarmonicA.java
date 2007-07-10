@@ -53,7 +53,7 @@ public class CalcHarmonicA {
         double AHarmonic = 0;
         for(int i=0; i<omega2.length; i++) {
             for(int j=0; j<omega2[0].length; j++) {
-                if (Math.abs(omega2[i][j]) < 1.e15) {
+                if (!Double.isInfinite(omega2[i][j])) {
                     AHarmonic += coeffs[i]*Math.log(omega2[i][j]*coeffs[i]/(temperature*Math.PI));
                 }
             }
