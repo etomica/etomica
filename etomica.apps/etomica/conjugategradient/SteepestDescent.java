@@ -26,9 +26,9 @@ public class SteepestDescent {
    /**  Steepest Descent solution for
     * 	Ax = b
    @param A     Matrix (square, symmetric, and positive-definite/indefinite)
-   @param x		Vector (initial solution guess)
+   @param x		Vector (initial guess for unknown solution)
    @param b		Vector
-   @return x 	Solution (five significant figures)
+   @return x 	Vector (solution)
    */
 	public Matrix SteepestDescentAlgorithm(){
 			
@@ -62,9 +62,6 @@ public class SteepestDescent {
 			alpha =  delta / ((R.transpose()).times(Q)).trace();
 					
 			X.plusEquals(R.times(alpha));
-			
-			System.out.println("delta = "+delta);
-			System.out.println("e2d0 = "+e2d0);
 			
 			//Check for exact residual computation or fast recursive formula.  As default, exact set every 50 iterations.
 			if (i%50 == 0){
