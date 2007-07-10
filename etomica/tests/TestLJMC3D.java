@@ -110,7 +110,7 @@ public class TestLJMC3D extends Simulation {
         Cv *= Cv/numAtoms;
         System.out.println("Cv/k="+Cv);
         
-        if (Double.isNaN(Z) || Math.abs(Z-0.15) > 0.15) {
+        if (Double.isNaN(Z) || Math.abs(Z+0.25) > 0.15) {
             System.exit(1);
         }
         if (Double.isNaN(avgPE) || Math.abs(avgPE+4.56) > 0.03) {
