@@ -17,7 +17,7 @@ public abstract class MCMoveBoxStep extends MCMoveBox implements MCMoveStepDepen
     }
 
     public MCMoveBoxStep(PotentialMaster potentialMaster,
-            MCMoveTracker acceptanceTracker) {
+            MCMoveStepTracker acceptanceTracker) {
         super(potentialMaster, acceptanceTracker);
         ((MCMoveStepTracker)moveTracker).setMCMove(this);
     }
