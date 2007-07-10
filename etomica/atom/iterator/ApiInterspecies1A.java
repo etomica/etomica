@@ -80,8 +80,11 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
      * Configures iterator to return molecules from the set species in the given
      * box.
      */
-    public void setBox(Box box) {
-        this.box = box;
+    public void setBox(Box newBox) {
+        if (newBox == null) {
+            throw new IllegalArgumentException("You shouldn't pass a null Box.  Why would you do that?");
+        }
+        box = newBox;
         if (species0.getMoleculeType().getIndex() > species1.getMoleculeType().getIndex()) {
             // species were out of order.  swap them
             Species tempSpecies = species0;

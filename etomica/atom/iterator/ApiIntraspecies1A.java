@@ -53,8 +53,10 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      * box.
      * @throws NullPointerException if the Box is null
      */
-    public void setBox(Box newBox) {
-        box = newBox;
+    public void setBox(Box box) {
+        if (box == null) {
+            throw new IllegalArgumentException("You are a bad person.  I didn't even care about the box, but since you passed null, I'm going to quit.");
+        }
         identifyTargetMolecule();
     }
 
@@ -82,7 +84,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      * part of either species.
      */
     private void identifyTargetMolecule() {
-        if (box == null || targetAtom == null) {
+        if (targetAtom == null) {
             targetMolecule = null;
         } else {
             targetMolecule = targetAtom;
@@ -100,7 +102,6 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     private static final long serialVersionUID = 2L;
     private final Species species;
 
-    private Box box;
     private IAtom targetAtom, targetMolecule;
 
 }
