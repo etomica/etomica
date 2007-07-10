@@ -152,12 +152,11 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
          * r du/dr using integral of u.
          * @param pairDensity average pairs-per-volume affected by the potential.
          */
-        //not checked carefully
         public double duCorrection(double pairDensity) {
             double rCutoff = potential.getRange();
             double integral = ((Potential2SoftSpherical)truncatedPotential).integral(rCutoff);
             //need potential to be spherical to apply here
-            integral = A*space.powerD(rCutoff)*((Potential2SoftSpherical)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
+            integral = -A*space.powerD(rCutoff)*((Potential2SoftSpherical)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
             return pairDensity*integral;
         }
 
