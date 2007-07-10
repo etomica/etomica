@@ -53,7 +53,8 @@ public abstract class ColorScheme implements java.io.Serializable {
 
       DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
       nSelector.setResetAction(new SimulationRestart(sim));
-      nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
+      nSelector.setSpecies(sim.species);
+      nSelector.setBox(sim.box);
       nSelector.setPostAction(repaintAction);
       simGraphic.add(nSelector);
 

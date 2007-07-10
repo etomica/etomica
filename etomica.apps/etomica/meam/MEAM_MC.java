@@ -121,9 +121,9 @@ public class MEAM_MC extends Simulation {
         
 	    box = new Box(this);
         addBox(box);
-        box.getAgent(sn).setNMolecules(216);
-        box.getAgent(ag).setNMolecules(0);
-        box.getAgent(cu).setNMolecules(0);
+        box.setNMolecules(sn, 216);
+        box.setNMolecules(ag, 0);
+        box.setNMolecules(cu, 0);
 	    
 	    //beta-Sn box
 	    

@@ -32,7 +32,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
 
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
-        return (species == null) ? box.moleculeCount(): box.getAgent(species).getNMolecules();
+        return (species == null) ? box.moleculeCount(): box.getNMolecules(species);
     }
     
     public Data getData(IAtom atom) {

@@ -3,10 +3,9 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
+import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.Null;
@@ -102,8 +101,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
         if (integrator == null) throw new IllegalStateException("must call setBox before using meter");
         Box box = integrator.getBox();
         double sum = 0.0; //sum for local insertion average
-        ISpeciesAgent agent = box.getAgent(species);
-        agent.addChildAtom(testMolecule);
+        box.addMolecule(testMolecule);
         energyMeter.setTarget(testMolecule);
         for (int i = nInsert; i > 0; i--) { //perform nInsert insertions
             atomTranslator.setDestination(box.getBoundary().randomPosition());
@@ -112,11 +110,11 @@ public class MeterWidomInsertion extends DataSourceScalar {
             sum += Math.exp(-u / integrator.getTemperature());
         }
 
-        agent.removeChildAtom(testMolecule);
+        box.removeMolecule(testMolecule);
 
         if (!residual) {
             // multiply by V/N
-            sum *= box.volume() / box.getAgent(species).getNMolecules();
+            sum *= box.volume() / box.getNMolecules(species);
         }
         return sum / nInsert; //return average
     }

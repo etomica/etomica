@@ -53,7 +53,7 @@ public class PistonCylinder extends Simulation {
         getSpeciesManager().addSpecies(species);
         box = new Box(new BoundaryPistonCylinder(space, getRandom()));
         addBox(box);
-        box.getAgent(species).setNMolecules(112);
+        box.setNMolecules(species, 112);
         IVector newDim;
         if (space.D() == 2) {
             config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());

@@ -171,13 +171,13 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         ((AtomTypeSphere)species1.getMoleculeType()).setDiameter(3.0);
         ((AtomTypeSphere)species2.getMoleculeType()).setDiameter(3.0);
 		int k = 4;
-		box.getAgent(species1).setNMolecules(2*k*k*k);
-        box.getAgent(species2).setNMolecules(2*k*k*k);
+		box.setNMolecules(species1, 2*k*k*k);
+        box.setNMolecules(species2, 2*k*k*k);
         SpeciesTube speciesTube = new SpeciesTube(sim, 10, 10);
         sim.getSpeciesManager().addSpecies(speciesTube);
         ((AtomTypeSphere)((AtomTypeGroup)speciesTube.getMoleculeType()).getChildTypes()[0]).setDiameter(3.0);
         
-        box.getAgent(speciesTube).setNMolecules(1);
+        box.setNMolecules(speciesTube, 1);
 //        CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new LatticeCubicFcc();
 //        CubicLattice lattice = new LatticeCubicSimple();

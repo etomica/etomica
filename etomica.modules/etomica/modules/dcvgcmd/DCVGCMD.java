@@ -170,9 +170,9 @@ public class DCVGCMD extends Simulation {
 
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(20);
-        box.getAgent(species1).setNMolecules(20);
-        box.getAgent(speciesTube).setNMolecules(1);
+        box.setNMolecules(species, 20);
+        box.setNMolecules(species1, 20);
+        box.setNMolecules(speciesTube, 1);
         
         double temperature = Kelvin.UNIT.toSim(500.);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature, species,

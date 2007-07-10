@@ -85,7 +85,8 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
         entropyPlot.getPlot().setTitle("Entropy");
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
-        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
+        nSelector.setBox(sim.box);
+        nSelector.setSpecies(sim.species);
         nSelector.setLabel("Number of Balls");
         nSelector.setShowBorder(true);
         
@@ -99,7 +100,7 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
                 double nUrn = nUrnSelector.getValue();
                 double a2p = 300.0/nUrn;
                 getDisplayBox(sim.box).setPixelUnit(new Pixel(a2p));
-                double yScale = nUrn*nUrn/(6*sim.box.getAgent(sim.species).getNMolecules());
+                double yScale = nUrn*nUrn/(6*sim.box.getNMolecules(sim.species));
                 if (yScale > 6) {
                     yScale = 6;
                 }

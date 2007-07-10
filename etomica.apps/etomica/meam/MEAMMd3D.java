@@ -196,9 +196,9 @@ public class MEAMMd3D extends Simulation {
         
         box = new Box(this);
         addBox(box);
-        box.getAgent(sn).setNMolecules(0);
-        box.getAgent(ag).setNMolecules(256);
-        box.getAgent(cu).setNMolecules(0);
+        box.setNMolecules(sn, 0);
+        box.setNMolecules(ag, 256);
+        box.setNMolecules(cu, 0);
         
         // beta-Sn box
         /**

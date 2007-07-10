@@ -1,6 +1,5 @@
 package etomica.atom.iterator;
 
-import etomica.atom.ISpeciesAgent;
 import etomica.box.Box;
 import etomica.species.Species;
 
@@ -52,19 +51,14 @@ public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
      * @throws a NullPointerException if the Box is null
      */
     public void setBox(Box box) {
-        ISpeciesAgent agent0 = box.getAgent(species0);
-        ISpeciesAgent agent1 = box.getAgent(species1);
-        if (agent0.getIndex() > agent1.getIndex()) {
+        if (species0.getMoleculeType().getIndex() > species1.getMoleculeType().getIndex()) {
             // species were out of order.  swap them
             Species tempSpecies = species0;
             species0 = species1;
             species1 = tempSpecies;
-            ISpeciesAgent tempAgent = agent0;
-            agent0 = agent1;
-            agent1 = tempAgent;
         }
-        apiInterList.setOuterList(agent0.getChildList());
-        apiInterList.setInnerList(agent1.getChildList());
+        apiInterList.setOuterList(box.getMoleculeList(species0));
+        apiInterList.setInnerList(box.getMoleculeList(species1));
     }
 
     private static final long serialVersionUID = 1L;

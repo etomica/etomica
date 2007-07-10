@@ -309,7 +309,7 @@ public class ConfigurationOrthorhombicLattice extends Configuration implements A
         
         sim.getSpeciesManager().addSpecies(species);
         int k = 4;
-        box.getAgent(species).setNMolecules(4 * k * k * k);
+        box.setNMolecules(species, 4 * k * k * k);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);

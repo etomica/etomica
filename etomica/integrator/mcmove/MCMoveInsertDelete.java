@@ -5,12 +5,11 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.box.Box;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
 import etomica.species.Species;
 import etomica.util.IRandom;
@@ -30,7 +29,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
     //directive must specify "BOTH" to get energy with all atom pairs
     protected final MeterPotentialEnergy energyMeter;
 	protected Species species;
-    protected ISpeciesAgent speciesAgent;
 	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
 	protected IAtom testMolecule;
 	protected double uOld;
@@ -56,8 +54,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     public void setSpecies(Species s) {
         species = s;
         if(box != null) {
-            speciesAgent = species.getAgent(box);
-            moleculeList = speciesAgent.getChildList();
+            moleculeList = box.getMoleculeList(species);
         }
         moleculeFactory = species.getMoleculeFactory();
     }
@@ -67,8 +64,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
         super.setBox(p);
         energyMeter.setBox(box);
         if(species != null) {
-            speciesAgent = species.getAgent(box);
-            moleculeList = speciesAgent.getChildList();
+            moleculeList = box.getMoleculeList(species);
         }
     }
     
@@ -83,12 +79,12 @@ public class MCMoveInsertDelete extends MCMoveBox {
             
             if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getAtomCount()-1);
             else testMolecule = moleculeFactory.makeAtom();
-            speciesAgent.addChildAtom(testMolecule);
+            box.addMolecule(testMolecule);
 
             atomTranslator.setDestination(box.getBoundary().randomPosition());
             atomTranslator.actionPerformed(testMolecule);
         } else {//delete
-            if(speciesAgent.getNMolecules() == 0) {
+            if(box.getNMolecules(species) == 0) {
                 testMolecule = null;
                 return false;
             }
@@ -102,8 +98,8 @@ public class MCMoveInsertDelete extends MCMoveBox {
     }//end of doTrial
     
     public double getA() {//note that moleculeCount() gives the number of molecules after the trial is attempted
-        return insert ? box.volume()/speciesAgent.getNMolecules() 
-                      : (speciesAgent.getNMolecules()+1)/box.volume();        
+        return insert ? box.volume()/box.getNMolecules(species) 
+                      : (box.getNMolecules(species)+1)/box.volume();        
     }
     
     public double getB() {
@@ -119,7 +115,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     public void acceptNotify() {
         if(!insert) {
             // accepted deletion - remove from box and add to reservoir 
-            speciesAgent.removeChildAtom(testMolecule);
+            box.removeMolecule(testMolecule);
             reservoir.add(testMolecule);
         }
     }
@@ -127,7 +123,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     public void rejectNotify() {
         if(insert) {
             // rejected insertion - remove from box and return to reservoir
-            speciesAgent.removeChildAtom(testMolecule);
+            box.removeMolecule(testMolecule);
             reservoir.add(testMolecule);
             // test molecule is no longer in the simulation and should not be 
             // returned by affectedAtoms

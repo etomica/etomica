@@ -57,7 +57,7 @@ public class LJMD3DThreaded extends Simulation {
         getSpeciesManager().addSpecies(species);
         box = new Box(this);
         addBox(box);
-        species.getAgent(box).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
         box.setDensity(0.65);
         
         

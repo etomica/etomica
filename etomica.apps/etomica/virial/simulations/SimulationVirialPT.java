@@ -83,7 +83,7 @@ public class SimulationVirialPT extends Simulation {
             sampleCluster[iTemp] = sampleClusterFactory.makeWeightCluster(allValueClusters[iTemp]);
             sampleCluster[iTemp].setTemperature(temperature[iTemp]);
             box[iTemp] = new BoxCluster(this,sampleCluster[iTemp]);
-            box[iTemp].getAgent(species).setNMolecules(nMolecules);
+            box[iTemp].setNMolecules(species, nMolecules);
             
             integrator[iTemp] = new IntegratorMC(this, potentialMaster);
             integrator[iTemp].setTemperature(temperature[iTemp]);

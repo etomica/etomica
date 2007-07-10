@@ -3,7 +3,6 @@ package etomica.virial.overlap;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.Data;
 import etomica.data.types.DataDoubleArray;
-import etomica.simulation.Simulation;
 import etomica.util.Debug;
 
 /**
@@ -176,4 +175,5 @@ public class AccumulatorVirialOverlapSingleAverage extends AccumulatorRatioAvera
     private final int nBennetPoints;
     private final double[] expX;
     private final boolean isReference;
+    protected double bennetUDiff;
 }

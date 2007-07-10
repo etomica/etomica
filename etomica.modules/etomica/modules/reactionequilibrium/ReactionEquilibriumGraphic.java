@@ -10,8 +10,8 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -28,15 +28,16 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
+import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
@@ -78,10 +79,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
 
 		//	adjustment of species properties
-		MySpeciesEditor AEditor = new MySpeciesEditor(sim, 
-				sim.speciesA.getAgent(sim.box), "Red");
-		MySpeciesEditor BEditor = new MySpeciesEditor(sim, 
-				sim.speciesB.getAgent(sim.box), "Black");
+		MySpeciesEditor AEditor = new MySpeciesEditor(sim, sim.box, sim.speciesA, "Red");
+		MySpeciesEditor BEditor = new MySpeciesEditor(sim, sim.box, sim.speciesB, "Black");
 		int ms = 10;
 		AEditor.nSlider.getSlider().setMajorTickSpacing(ms);
 		BEditor.nSlider.getSlider().setMajorTickSpacing(ms);
@@ -406,19 +405,20 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		//	public DeviceSlider nSlider;
 		public DeviceNSelector nSlider;
 
-		public ISpeciesAgent species;
+		public Species species;
 
 		public final javax.swing.JTextField mass = new javax.swing.JTextField(
 				"40");
 
 		//    public java.awt.TextField mass = new java.awt.TextField("40");
 
-        public MySpeciesEditor(final ReactionEquilibrium sim, ISpeciesAgent s, String label) {
+        public MySpeciesEditor(final ReactionEquilibrium sim, Box box, Species s, String label) {
             super();
             species = s;
             nSlider = new DeviceNSelector(sim.getController());
             nSlider.setResetAction(new SimulationRestart(sim));
-            nSlider.setSpeciesAgent(species);
+            nSlider.setSpecies(species);
+            nSlider.setBox(box);
             //nSlider.setDisplayBox(DisplayBox1);
             nSlider.setMinimum(0);
             nSlider.setMaximum(40);
@@ -455,7 +455,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 						value = 1000000;
 					final double newMass = value;
 					mass.setText(Integer.toString(value));
-					((ElementSimple)((AtomTypeLeaf)species.getType().getSpecies().getMoleculeType()).getElement()).setMass(newMass);
+					((ElementSimple)((AtomTypeLeaf)species.getMoleculeType()).getElement()).setMass(newMass);
                      try {
                          sim.integratorHard1.reset();
                      } catch(ConfigurationOverlapException e) {}

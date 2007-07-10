@@ -115,6 +115,55 @@ public class Box implements java.io.Serializable {
     
     public final Space getSpace() {return space;}
     
+    public IAtom addNewMolecule(Species species) {
+        IAtom aNew = species.getMoleculeFactory().makeAtom();
+        getAgent(species).addChildAtom(aNew);
+        return aNew;
+    }
+    
+    public void addMolecule(IAtom molecule) {
+        Species species = molecule.getType().getSpecies();
+        getAgent(species).addChildAtom(molecule);
+    }
+
+    public void removeMolecule(IAtom molecule) {
+        Species species = molecule.getType().getSpecies();
+        getAgent(species).removeChildAtom(molecule);
+    }
+    
+    /**
+     * Sets the number of molecules for this species.  Molecules are either
+     * added or removed until the given number is obtained.  Takes no action
+     * at all if the new number of molecules equals the existing number.
+     *
+     * @param n  the new number of molecules for this species
+     */
+    public void setNMolecules(Species species, int n) {
+        ISpeciesAgent agent = getAgent(species);
+        int currentNMolecules = getAgent(species).getNMolecules();
+        atomManager.notifyNewAtoms((n-currentNMolecules)*species.getMoleculeFactory().getNumTreeAtoms(),
+                                     (n-currentNMolecules)*species.getMoleculeFactory().getNumLeafAtoms());
+        if(n > agent.getChildList().getAtomCount()) {
+            for(int i=agent.getChildList().getAtomCount(); i<n; i++) addNewMolecule(species);
+        }
+        else if(n < agent.getChildList().getAtomCount()) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Number of molecules cannot be negative");
+            }
+            for (int i=agent.getChildList().getAtomCount(); i>n; i--) {
+                removeMolecule(agent.getChildList().getAtom(i-1));
+            }
+        }
+    }
+    
+    public int getNMolecules(Species species) {
+        return getAgent(species).getNMolecules();
+    }
+    
+    public AtomSet getMoleculeList(Species species) {
+        return getAgent(species).getChildList();
+    }
+    
     /**
      * Returns the ith molecule in the linked list of molecules.
      * 0 returns the first molecule, and moleculeCount-1 returns the last.
@@ -258,7 +307,7 @@ public class Box implements java.io.Serializable {
                 catch (InvocationTargetException e) {}
             }
             int nMolecules = in.readInt();
-            newBox.getAgent(newSpecies).setNMolecules(nMolecules);
+            newBox.setNMolecules(newSpecies, nMolecules);
         }
 
             //XXX broken

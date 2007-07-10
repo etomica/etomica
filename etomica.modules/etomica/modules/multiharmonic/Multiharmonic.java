@@ -48,13 +48,13 @@ public class Multiharmonic extends Simulation {
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);
         integrator.setTemperature(1.0);
-        species.getAgent(box).setNMolecules(20);
+        box.setNMolecules(species, 20);
         potentialA = new P1Harmonic(space);
         potentialA.setX0(new Vector1D(x0));
         potentialA.setSpringConstant(1.0);
         potentialMaster.addPotential(potentialA, new Species[] {species});
         
-        box.getAgent(species).setNMolecules(20);
+        box.setNMolecules(species, 20);
         
         AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
         iterator.setBox(box);

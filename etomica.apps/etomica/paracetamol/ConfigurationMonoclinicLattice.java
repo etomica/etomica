@@ -285,7 +285,7 @@ public class ConfigurationMonoclinicLattice extends Configuration implements Age
         BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
         sim.getSpeciesManager().addSpecies(species);
         int k = 4;
-        box.getAgent(species).setNMolecules(4 * k * k * k);
+        box.setNMolecules(species, 4 * k * k * k);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);

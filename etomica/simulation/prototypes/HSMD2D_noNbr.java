@@ -60,7 +60,7 @@ public class HSMD2D_noNbr extends Simulation {
         getSpeciesManager().addSpecies(species);
 	    box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(64);
+        box.setNMolecules(species, 64);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
 	    P2HardSphere potential = new P2HardSphere(space);
 	    potentialMaster.addPotential(potential,new Species[]{species,species});
@@ -123,7 +123,8 @@ public class HSMD2D_noNbr extends Simulation {
         sim.temperatureHistory.setDataSink(temperaturePlot.getDataSet().makeDataSink());
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
+        nSelector.setSpecies(sim.species);
+        nSelector.setBox(sim.box);
         Action repaintAction = graphic.getDisplayBoxPaintAction(sim.box);
 
         nSelector.setPostAction(repaintAction);

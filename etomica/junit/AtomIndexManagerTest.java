@@ -38,10 +38,10 @@ public class AtomIndexManagerTest extends TestCase {
         Box box1 = new Box(sim);
         sim.addBox(box0);
         sim.addBox(box1);
-        box0.getAgent(species0).setNMolecules(20);
-        box0.getAgent(species1).setNMolecules(10);
-        box1.getAgent(species0).setNMolecules(20);
-        box1.getAgent(species1).setNMolecules(10);
+        box0.setNMolecules(species0, 20);
+        box0.setNMolecules(species1, 10);
+        box1.setNMolecules(species0, 20);
+        box1.setNMolecules(species1, 10);
         atoms = new IAtom[24];
         int i = 0;
 //        atoms[i++] = master0 = box0.getSpeciesMaster();//0

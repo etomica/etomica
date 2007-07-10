@@ -57,7 +57,7 @@ public class TestYukawaMC3D extends Simulation{
         getSpeciesManager().addSpecies(species);
 		box = new Box(this);
         addBox(box);
-		box.getAgent(species).setNMolecules(numAtoms);
+		box.setNMolecules(species, numAtoms);
 		box.setDensity(0.65);
 		potential = new P2Yukawa(this);
 		double truncationRadius = 3.0*potential.getKappa();
@@ -104,7 +104,8 @@ public class TestYukawaMC3D extends Simulation{
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setPostAction(repaintAction);
-        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
+        nSelector.setSpecies(sim.species);
+        nSelector.setBox(sim.box);
         simGraphic.add(nSelector);
         simGraphic.getController().getReinitButton().setPostAction(repaintAction);
         simGraphic.makeAndDisplayFrame(APP_NAME);

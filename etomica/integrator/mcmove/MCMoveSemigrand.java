@@ -6,12 +6,10 @@ import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
-import etomica.atom.SpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.box.Box;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
 import etomica.species.Species;
 import etomica.util.IRandom;
@@ -30,7 +28,6 @@ public class MCMoveSemigrand extends MCMoveBox {
     
     private static final long serialVersionUID = 2L;
     private Species[] speciesSet;
-    private ISpeciesAgent[] agentSet;
     private AtomArrayList[] reservoirs;
     private double[] fugacityFraction;
     private int nSpecies;
@@ -44,7 +41,6 @@ public class MCMoveSemigrand extends MCMoveBox {
     private transient IAtom deleteMolecule, insertMolecule;
     private transient double uOld;
     private transient double uNew = Double.NaN;
-    private transient ISpeciesAgent deleteAgent, insertAgent;
     private transient int iInsert, iDelete;
 
     public MCMoveSemigrand(PotentialMaster potentialMaster, IRandom random) {
@@ -66,11 +62,6 @@ public class MCMoveSemigrand extends MCMoveBox {
     public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(box);
-        if(speciesSet != null) {
-            for(int i=0; i<nSpecies; i++) {
-                agentSet[i] = speciesSet[i].getAgent(box);
-            }
-        }
     }//end setBox
     
     /**
@@ -80,12 +71,10 @@ public class MCMoveSemigrand extends MCMoveBox {
         nSpecies = species.length;
         if(nSpecies < 2) throw new IllegalArgumentException("Wrong size of species array in MCMoveSemigrand");
         speciesSet = new Species[nSpecies];
-        agentSet = new ISpeciesAgent[nSpecies];
         fugacityFraction = new double[nSpecies];
         reservoirs = new AtomArrayList[nSpecies];
         for(int i=0; i<nSpecies; i++) {
             speciesSet[i] = species[i];
-            if(box != null) agentSet[i] = species[i].getAgent(box);
             fugacityFraction[i] = 1.0/nSpecies;
             reservoirs[i] = new AtomArrayList();
         }
@@ -130,8 +119,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     public boolean doTrial() {
         //select species for deletion
         iDelete = random.nextInt(nSpecies);//System.out.println("Random no. :"+randomNo);
-        deleteAgent = agentSet[iDelete];
-        if(deleteAgent.getNMolecules() == 0) {
+        if(box.getNMolecules(speciesSet[iDelete]) == 0) {
             uNew = uOld = 0.0;
             return false;
         }
@@ -140,21 +128,20 @@ public class MCMoveSemigrand extends MCMoveBox {
         iInsert = iDelete;
         if(nSpecies == 2) iInsert = 1 - iDelete;
         else while(iInsert == iDelete) {iInsert = random.nextInt(nSpecies);}
-        insertAgent = agentSet[iInsert];
   
-        AtomSet moleculeList = deleteAgent.getChildList();
+        AtomSet moleculeList = box.getMoleculeList(speciesSet[iDelete]);
         deleteMolecule = moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();
-        deleteAgent.removeChildAtom(deleteMolecule);
+        box.removeMolecule(deleteMolecule);
         
         int size = reservoirs[iInsert].getAtomCount();
         if(size>0) {
             insertMolecule = reservoirs[iInsert].remove(size-1);
-            insertAgent.addChildAtom(insertMolecule);
+            box.addMolecule(insertMolecule);
         }
         else {
-            insertMolecule = insertAgent.addNewAtom();
+            insertMolecule = box.addNewMolecule(speciesSet[iInsert]);
         }
         moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
         moleculeTranslator.actionPerformed(insertMolecule);
@@ -164,7 +151,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     }//end of doTrial
     
     public double getA() {
-        return (double)(deleteAgent.getNMolecules()+1)/(double)insertAgent.getNMolecules()
+        return (double)(box.getNMolecules(speciesSet[iDelete])+1)/(double)box.getNMolecules(speciesSet[iInsert])
                 *(fugacityFraction[iInsert]/fugacityFraction[iDelete]);
     }
     
@@ -181,9 +168,9 @@ public class MCMoveSemigrand extends MCMoveBox {
 
     public void rejectNotify() {
         //put deleted molecule back into box
-        deleteAgent.addChildAtom(deleteMolecule);
+        box.addMolecule(deleteMolecule);
         //remove inserted molecule and put in reservoir
-        insertAgent.removeChildAtom(insertMolecule);
+        box.removeMolecule(insertMolecule);
         reservoirs[iInsert].add(insertMolecule);
     }
     

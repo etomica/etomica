@@ -173,8 +173,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    ActionGroupSeries reinitActions = new ActionGroupSeries();
 	    reinitActions.addAction(new Action() {
 	        public void actionPerformed() {
-	            sim.box.getAgent(sim.species).setNMolecules(20);
-	            sim.box.getAgent(sim.species1).setNMolecules(20);
+	            sim.box.setNMolecules(sim.species, 20);
+	            sim.box.setNMolecules(sim.species1, 20);
 	            meterAPump.actionPerformed();
 	            meterBPump.actionPerformed();
 	            tpump.actionPerformed();

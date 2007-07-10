@@ -44,7 +44,7 @@ public class SimCalcSParacetamol extends Simulation {
         box = new Box(this);
         addBox(box);
         box.setDimensions(Space.makeVector(new double[] {25,25,25}));
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
         
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setIsothermal(true);

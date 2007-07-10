@@ -12,11 +12,12 @@ import etomica.action.SimulationRestart;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
+import etomica.species.Species;
 
 /**
  * @author Matt Moynihan
@@ -31,17 +32,17 @@ class MySpeciesEditor extends javax.swing.JPanel {
 
 	//	public DeviceSlider nSlider;
 	public DeviceNSelector nSlider;
-	public ISpeciesAgent species;
+	public Species species;
 	boolean initializing;
     ChainEquilibriumSim sim;
 	public final javax.swing.JTextField mass = new javax.swing.JTextField("40");
 
 	
-	public MySpeciesEditor(final ChainEquilibriumGraphic simGraphic, ISpeciesAgent s, String label) {
+	public MySpeciesEditor(final ChainEquilibriumGraphic simGraphic, Box box, Species s, String label) {
 		super();
 		species = s;
         sim = simGraphic.sim;
-		nSlider = new MyNSelector(simGraphic, species);
+		nSlider = new MyNSelector(simGraphic, box, species);
 		
 		//nSlider.setDisplayBox(DisplayBox1);
         int majorSpacing = 50;
@@ -66,7 +67,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 					value = 1000000;
 				final double newMass = value;
 				mass.setText(Integer.toString(value));
-				((ElementSimple)((AtomTypeLeaf)species.getType().getSpecies().getMoleculeType()).getElement()).setMass(newMass);
+				((ElementSimple)((AtomTypeLeaf)species.getMoleculeType()).getElement()).setMass(newMass);
 				try {
                     sim.integratorHard1.reset();
                 } catch (ConfigurationOverlapException e) {
@@ -85,10 +86,11 @@ class MySpeciesEditor extends javax.swing.JPanel {
 	}
     
     class MyNSelector extends DeviceNSelector {
-        MyNSelector(final ChainEquilibriumGraphic simGraphic, ISpeciesAgent species) {
+        MyNSelector(final ChainEquilibriumGraphic simGraphic, Box box, Species species) {
             super(simGraphic.sim.getController());
             setResetAction(new SimulationRestart(simGraphic.sim));
-            setSpeciesAgent(species);
+            setBox(box);
+            setSpecies(species);
             
             Action anotherAction = new Action() {
                 public void actionPerformed() {

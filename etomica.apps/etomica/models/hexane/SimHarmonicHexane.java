@@ -75,7 +75,7 @@ public class SimHarmonicHexane extends Simulation {
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
         box = new Box(bdry);
         addBox(box);
-        box.getAgent(species).setNMolecules(xCells * yCells * zCells);
+        box.setNMolecules(species, xCells * yCells * zCells);
 //        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
 
         integrator = new IntegratorMC(this, null);

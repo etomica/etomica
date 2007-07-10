@@ -66,7 +66,7 @@ public class TestYukawaMD3D extends Simulation{
 		box = new Box(this);
         box.setDimensions(Space.makeVector(new double[]{l,l,l}));
         addBox(box);
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addNonintervalListener(nbrManager);
         integrator.addIntervalAction(nbrManager);
@@ -93,7 +93,8 @@ public class TestYukawaMD3D extends Simulation{
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setPostAction(repaintAction);
-        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
+        nSelector.setSpecies(sim.species);
+        nSelector.setBox(sim.box);
 		simGraphic.add(nSelector);
 		simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 		simGraphic.makeAndDisplayFrame(APP_NAME);

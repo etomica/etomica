@@ -123,7 +123,7 @@ public class ZeoliteSimulation extends Simulation {
         for(int i=0;i<numAtoms.length;i++){
         	species[i] = new SpeciesSpheresMono(this);
             getSpeciesManager().addSpecies(species[i]);
-        	box.getAgent(species[i]).setNMolecules(numAtoms[i]);
+        	box.setNMolecules(species[i], numAtoms[i]);
         	((etomica.atom.AtomTypeSphere)species[i].getMoleculeType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){
                 // all elements except the last (methane) are fixed
@@ -220,7 +220,8 @@ public class ZeoliteSimulation extends Simulation {
         int num = sim.species.length;
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species[num-1]));
+        nSelector.setSpecies(sim.species[num-1]);
+        nSelector.setBox(sim.box);
         simGraphic.add(nSelector);
         
         //Energy

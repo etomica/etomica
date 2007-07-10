@@ -56,7 +56,7 @@ public class TestLJMC3D extends Simulation {
         getSpeciesManager().addSpecies(species);
 	    box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
         box.setDensity(0.65);
         potential = new P2LennardJones(space, sigma, 1.0);
         double truncationRadius = 3.0*sigma;

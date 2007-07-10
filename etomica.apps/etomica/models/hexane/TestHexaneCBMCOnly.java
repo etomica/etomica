@@ -70,7 +70,7 @@ public class TestHexaneCBMCOnly extends Simulation {
             4, 6, 6 });
         box = new Box(bdry);
         addBox(box);
-        box.getAgent(species).setNMolecules(numMolecules);
+        box.setNMolecules(species, numMolecules);
         // config.initializeCoordinates(box);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);

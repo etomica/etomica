@@ -3,9 +3,9 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
+import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
 import etomica.species.Species;
@@ -82,16 +82,11 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
      */
     public void setBox(Box box) {
         this.box = box;
-        agent0 = box.getAgent(species0);
-        agent1 = box.getAgent(species1);
-        if (agent0.getIndex() > agent1.getIndex()) {
+        if (species0.getMoleculeType().getIndex() > species1.getMoleculeType().getIndex()) {
             // species were out of order.  swap them
             Species tempSpecies = species0;
             species0 = species1;
             species1 = tempSpecies;
-            ISpeciesAgent tempAgent = agent0;
-            agent0 = agent1;
-            agent1 = tempAgent;
         }
         identifyTargetMolecule();
     }
@@ -139,22 +134,24 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
             targetMolecule = null;
         }
         else {
-            targetMolecule = targetAtom.getChildWhereDescendedFrom(agent0);
-            if (targetMolecule != null) {
+            targetMolecule = targetAtom;
+            while (targetMolecule.getType().getDepth() > AtomAddressManager.MOLECULE_DEPTH) {
+                targetMolecule = targetMolecule.getParentGroup();
+            }
+            if (targetMolecule.getType().getSpecies() == species0) {
                 //target is species0
                 allowedDirection = IteratorDirective.Direction.UP;
                 iterator = apiUp;
-                aiInner.setList(agent1.getChildList());
+                aiInner.setList(box.getMoleculeList(species1));
+            }
+            else if (targetMolecule.getType().getSpecies() == species1) {
+                //target is species1
+                allowedDirection = IteratorDirective.Direction.DOWN;
+                iterator = apiDown;
+                aiInner.setList(box.getMoleculeList(species0));
             }
             else {
-                //target is not species0, try species1
-                targetMolecule = targetAtom.getChildWhereDescendedFrom(agent1);
-
-                if (targetMolecule != null) {//target is species1
-                    allowedDirection = IteratorDirective.Direction.DOWN;
-                    iterator = apiDown;
-                    aiInner.setList(agent0.getChildList());
-                }
+                targetMolecule = null;
             }
         }
         setupIterators();
@@ -203,7 +200,6 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
     private final ApiInnerFixed apiUp, apiDown;
     private ApiInnerFixed iterator;
     private IteratorDirective.Direction direction, allowedDirection;
-    private ISpeciesAgent agent0, agent1;
     private Box box;
     private IAtom targetAtom, targetMolecule;
 }

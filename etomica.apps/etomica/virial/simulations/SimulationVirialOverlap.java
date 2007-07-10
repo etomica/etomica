@@ -90,7 +90,7 @@ public class SimulationVirialOverlap extends Simulation {
         for (int iBox=0; iBox<sampleClusters.length; iBox++) {
             // integrator for iBox samples based on iBox cluster
             box[iBox] = new BoxCluster(this,sampleClusters[iBox]);
-            box[iBox].getAgent(species).setNMolecules(nMolecules);
+            box[iBox].setNMolecules(species, nMolecules);
             
             integrators[iBox] = new IntegratorMC(this, potentialMaster);
             integrators[iBox].setTemperature(temperature);

@@ -46,7 +46,7 @@ public class SimulationVirial extends Simulation {
         box.getBoundary().setDimensions(Space.makeVector(new double[]{3.0,3.0,3.0}));
 		species = speciesFactory.makeSpecies(this);
         getSpeciesManager().addSpecies(species);
-        box.getAgent(species).setNMolecules(nMolecules);
+        box.setNMolecules(species, nMolecules);
         
         if (refCluster instanceof ClusterCoupled) {
             ((ClusterCoupled)refCluster).setBox(box);

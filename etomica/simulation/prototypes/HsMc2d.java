@@ -45,8 +45,8 @@ public class HsMc2d extends Simulation {
         getSpeciesManager().addSpecies(species2);
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(20);
-        box.getAgent(species2).setNMolecules(20);
+        box.setNMolecules(species, 20);
+        box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
 	    potential = new P2HardSphere(space);
         potentialMaster.addPotential(potential, new Species[] {species, species});

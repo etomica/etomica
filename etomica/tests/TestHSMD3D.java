@@ -59,8 +59,8 @@ public class TestHSMD3D extends Simulation {
         
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(numAtoms);
-        box.getAgent(species2).setNMolecules(numAtoms/100);
+        box.setNMolecules(species, numAtoms);
+        box.setNMolecules(species2, numAtoms/100);
         box.setDimensions(Space.makeVector(new double[]{l,l,l}));
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);

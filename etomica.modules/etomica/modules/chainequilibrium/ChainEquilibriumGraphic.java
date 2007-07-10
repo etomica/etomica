@@ -65,8 +65,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DeviceSlider BBWellSlider = sliders(sim, 5, 95, "BB core", majorSpacing, minorSpacing, sim.BBbonded);
 
         // The Species Editors
-        MySpeciesEditor AEditor = new MySpeciesEditor(this, sim.speciesA.getAgent(sim.box), "Red");
-        MySpeciesEditor BEditor = new MySpeciesEditor(this, sim.speciesB.getAgent(sim.box), "Black");
+        MySpeciesEditor AEditor = new MySpeciesEditor(this, sim.box, sim.speciesA, "Red");
+        MySpeciesEditor BEditor = new MySpeciesEditor(this, sim.box, sim.speciesB, "Black");
 		
         // the Atom Diameter Modifer
         DiameterModifier sizeModifier = new DiameterModifier(sim.AAbonded,sim.ABbonded, sim.BBbonded, sim.speciesA, sim.speciesB);

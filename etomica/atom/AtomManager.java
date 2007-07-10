@@ -349,9 +349,9 @@ public final class AtomManager implements java.io.Serializable {
         sim.getSpeciesManager().addSpecies(species0);
         Box box = new Box(sim);
         sim.addBox(box);
-        box.getAgent(species0).setNMolecules(4);
-        box.getAgent(species1).setNMolecules(2);
-        box.getAgent(species2).setNMolecules(2);
+        box.setNMolecules(species0, 4);
+        box.setNMolecules(species1, 2);
+        box.setNMolecules(species2, 2);
 
         AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();

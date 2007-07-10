@@ -65,7 +65,7 @@ public class ChainHSMD3D extends Simulation {
         box.getBoundary().setDimensions(Space.makeVector(new double[]{l,l,l}));
         addBox(box);
         ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc());
-        species.getAgent(box).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
         config.initializeCoordinates(box);
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
         integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));

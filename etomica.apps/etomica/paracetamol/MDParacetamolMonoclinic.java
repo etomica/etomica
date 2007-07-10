@@ -125,7 +125,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         box.setDimensions(Space.makeVector(new double[] {25,25,25}));
         species = new SpeciesParacetamol(this);
         getSpeciesManager().addSpecies(species);
-        species.getAgent(box).setNMolecules(96);
+        box.setNMolecules(species, 96);
         
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addNonintervalListener(nbrManager);

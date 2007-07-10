@@ -128,7 +128,7 @@ public class LatticePlaneTestUtility {
 
 	    // Set the number of molecules for the box and
 	    // initialze the positions.
-	    box.getAgent(species).setNMolecules(numAtoms);
+	    box.setNMolecules(species, numAtoms);
 	    ConfigurationLattice config = new ConfigurationLattice(lattice);
 	    config.initializeCoordinates(box);
 		

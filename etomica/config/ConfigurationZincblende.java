@@ -109,8 +109,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         sim.getSpeciesManager().addSpecies(speciesSpheres1);
         ((AtomTypeSphere)speciesSpheres0.getMoleculeType()).setDiameter(5.0);
         ((AtomTypeSphere)speciesSpheres1.getMoleculeType()).setDiameter(5.0);
-        box.getAgent(speciesSpheres0).setNMolecules(32);
-        box.getAgent(speciesSpheres1).setNMolecules(32);
+        box.setNMolecules(speciesSpheres0, 32);
+        box.setNMolecules(speciesSpheres1, 32);
         ConfigurationZincblende config = new ConfigurationZincblende(15);
         config.initializeCoordinates(box);
 

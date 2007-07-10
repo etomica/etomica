@@ -7,7 +7,6 @@ import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -19,7 +18,6 @@ import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.species.Species;
 import etomica.util.IRandom;
 
 /**
@@ -45,7 +43,6 @@ public class MCMoveMoleculeExchange extends MCMove {
     
     private transient IAtom molecule;
     private transient Box iBox, dBox;
-    private transient ISpeciesAgent iSpecies, dSpecies;
     private transient double uOld;
     private transient double uNew = Double.NaN;
     
@@ -85,19 +82,15 @@ public class MCMoveMoleculeExchange extends MCMove {
 
         moleculeSource.setBox(dBox);
         molecule = moleculeSource.getAtom();  //select random molecule to delete
-        Species species = molecule.getType().getSpecies();
-        
-        iSpecies = species.getAgent(iBox);  //insertion-box speciesAgent
-        dSpecies = species.getAgent(dBox);  //deletion-box species Agent
         
         energyMeter.setTarget(molecule);
         energyMeter.setBox(dBox);
         uOld = energyMeter.getDataAsScalar();
-        dSpecies.removeChildAtom(molecule);
+        dBox.removeMolecule(molecule);
 
         moleculeTranslator.setDestination(iBox.getBoundary().randomPosition());         //place at random in insertion box
         moleculeTranslator.actionPerformed(molecule);
-        iSpecies.addChildAtom(molecule);
+        iBox.addMolecule(molecule);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
@@ -125,8 +118,8 @@ public class MCMoveMoleculeExchange extends MCMove {
         double T = integrator1.getTemperature();
         //note that dSpecies.nMolecules has been decremented
         //and iSpecies.nMolecules has been incremented
-        return Math.exp(B/T) * (dSpecies.getNMolecules()+1)/dBox.volume()
-               * iBox.volume()/iSpecies.getNMolecules(); 
+        return Math.exp(B/T) * (dBox.getNMolecules(molecule.getType().getSpecies())+1)/dBox.volume()
+               * iBox.volume()/iBox.getNMolecules(molecule.getType().getSpecies()); 
     }
     
     public double getB() {
@@ -166,11 +159,11 @@ public class MCMoveMoleculeExchange extends MCMove {
     }
     
     public void rejectNotify() {
-        iSpecies.removeChildAtom(molecule);
+        iBox.removeMolecule(molecule);
         translationVector.TE(-1);
         moleculeReplacer.setTranslationVector(translationVector);
         moleculeReplacer.actionPerformed(molecule);
-        dSpecies.addChildAtom(molecule);
+        dBox.addMolecule(molecule);
     }
 
     public final AtomIterator affectedAtoms(Box box) {

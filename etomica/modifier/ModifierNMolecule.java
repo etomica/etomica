@@ -1,6 +1,7 @@
 package etomica.modifier;
 
-import etomica.atom.ISpeciesAgent;
+import etomica.box.Box;
+import etomica.species.Species;
 import etomica.units.Dimension;
 import etomica.units.Quantity;
 
@@ -14,22 +15,20 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
      * @param speciesAgent Agent of the affected species in the affected box.
      * Cannot be changed after construction.
      */
-    public ModifierNMolecule(ISpeciesAgent speciesAgent) {
-        this.speciesAgent = speciesAgent;
+    public ModifierNMolecule(Box box, Species species) {
+        this.box = box;
+        this.species = species;
     }
 
     public void setValue(double d) {
         if (d < 0) d = 0;
         previousValue = mostRecentValue;
         mostRecentValue = (int)d;
-        speciesAgent.setNMolecules((int) d);
-//        if (this.selector.display != null)
-//            this.selector.display.repaint();
-//        this.selector.integrator.reset();
+        box.setNMolecules(species, (int) d);
     }
 
     public double getValue() {
-        return (speciesAgent != null) ? (double)speciesAgent.getNMolecules() : 0;
+        return box.getNMolecules(species);
     }
 
     public Dimension getDimension() {
@@ -37,14 +36,15 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
     }
     
     public String getLabel() {
-        return speciesAgent.getType().getSpecies() + " molecules";
+        return species + " molecules";
     }
     
     public String toString() {
-        return "Change number of "+speciesAgent.getType().getSpecies()+
+        return "Change number of "+species+
                 " molecules from " + previousValue + " to " + mostRecentValue;
     }
     private static final long serialVersionUID = 1L;
-    private final ISpeciesAgent speciesAgent;
-    private int mostRecentValue, previousValue;
+    protected final Box box;
+    protected final Species species;
+    protected int mostRecentValue, previousValue;
 }

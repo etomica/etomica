@@ -678,7 +678,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         if (doNSelector) {
             nSlider.setController(pc.getController());
             nSlider.setResetAction(controlButtons.getReinitButton().getAction());
-            nSlider.setSpeciesAgent(pc.box.getAgent(pc.species));
+            nSlider.setBox(pc.box);
+            nSlider.setSpecies(pc.species);
             nSlider.setMinimum(1);
             nSlider.setMaximum(200);
         }

@@ -104,7 +104,7 @@ public class HSMD3D extends Simulation {
 
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
         box.setDensity(params.eta * 6 / Math.PI);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
         //deformed
@@ -144,7 +144,8 @@ public class HSMD3D extends Simulation {
         final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
+        nSelector.setSpecies(sim.species);
+        nSelector.setBox(sim.box);
 
         nSelector.setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
         simGraphic.add(nSelector);

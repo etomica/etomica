@@ -90,7 +90,7 @@ public class TestSWChain extends Simulation {
         box = new Box(this);
         addBox(box);
         box.setDimensions(Space.makeVector(new double[]{l,l,l}));
-        box.getAgent(species).setNMolecules(numMolecules);
+        box.setNMolecules(species, numMolecules);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);
         integrator.addNonintervalListener(nbrManager);

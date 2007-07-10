@@ -5,7 +5,6 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSpeciesAgent;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 
 
@@ -74,14 +73,6 @@ public class Species implements java.io.Serializable {
         atomManager.addSpeciesAgent(agent);
         return agent;
     }
-
-    /**
-     * Returns the agent of this species in the given box
-     * 
-     * @param p The box for which this species' agent is requested
-     * @return The agent of this species in the box
-     */
-    public final ISpeciesAgent getAgent(Box p) {return p.getAgent(this);}
 
     public final AtomType getMoleculeType() {
         return factory.getType();

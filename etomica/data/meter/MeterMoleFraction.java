@@ -33,7 +33,7 @@ public class MeterMoleFraction extends DataSourceScalar {
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
     	return (species == null) ? Double.NaN :
-         	(double)box.getAgent(species).getNMolecules()/(double)box.moleculeCount();
+         	(double)box.getNMolecules(species)/(double)box.moleculeCount();
      }
 
     /**

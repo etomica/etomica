@@ -65,7 +65,7 @@ public class LjMd3D extends Simulation {
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(50);
+        box.setNMolecules(species, 50);
         potential = new P2LennardJones(space, sigma, 1.0);
         potentialMaster.addPotential(potential,new Species[]{species,species});
         

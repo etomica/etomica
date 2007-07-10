@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorArrayListAdjacent;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.junit.UnitTestUtil;
@@ -35,16 +34,14 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         int nAtoms = 11;
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(
                 new int[] {nAtoms},2,new int[] {nAtoms},null,null);
-        ISpeciesAgent agent = sim.getBoxs()[0].getAgent(sim.getSpeciesManager().getSpecies()[0]);
         AtomArrayList atomList = new AtomArrayList();
-        atomList.addAll(agent.getChildList());
+        atomList.addAll(sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[0]));
 
         //atom in middle of list
         IAtom atom = atomList.getAtom(5);
         IAtom dnAtom = atomList.getAtom(4);
         IAtom upAtom = atomList.getAtom(6);
         LinkedList list = null;
-        Lister test = new Lister();
         
         iteratorUp.setAtom(atom);
         iteratorDn.setAtom(atom);
@@ -109,9 +106,9 @@ public class AtomIteratorArrayListAdjacentTest extends IteratorTestAbstract {
         assertEquals(list.get(0), new AtomSetSinglet(upAtom).toString());
 
         //short list
-        agent.setNMolecules(1);
+        sim.getBoxs()[0].setNMolecules(sim.getSpeciesManager().getSpecies()[0], 1);
         atomList = new AtomArrayList();
-        atomList.addAll(agent.getChildList());
+        atomList.addAll(sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[0]));
         assertEquals(atomList.getAtomCount(), 1);
         atom = atomList.getAtom(0);
         iteratorUp.setAtom(atom);

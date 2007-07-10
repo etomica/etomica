@@ -61,8 +61,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         getSpeciesManager().addSpecies(speciesB);
         ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
         ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(diameter);
-        box.getAgent(speciesA).setNMolecules(30);
-        box.getAgent(speciesB).setNMolecules(30);
+        box.setNMolecules(speciesA, 30);
+        box.setNMolecules(speciesB, 30);
 
         agentManager = new AtomLeafAgentManager(this,box);
 

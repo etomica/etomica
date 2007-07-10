@@ -4,9 +4,10 @@ import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.atom.ISpeciesAgent;
+import etomica.box.Box;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
+import etomica.species.Species;
 
 /**
  * Slider that selects the number of atoms of a given species in a box.
@@ -38,15 +39,38 @@ public class DeviceNSelector extends DeviceSlider {
         return resetAction;
     }
 
-    public void setSpeciesAgent(ISpeciesAgent agent) {
+    public void setBox(Box newBox) {
+        box = newBox;
+        if (species != null) {
+            init();
+        }
+    }
+    
+    public void setSpecies(Species newSpecies) {
+        species = newSpecies;
+        if (box != null) {
+            init();
+        }
+    }
+    
+    public Box getBox() {
+        return box;
+    }
+    
+    public Species getSpecies() {
+        return species;
+    }
+    
+    protected void init() {
         setMinimum(0);
         int max = 60;
-        if (agent.getNMolecules() > max) max = agent.getNMolecules();
+        int nMolecules = box.getNMolecules(species);
+        if (nMolecules > max) max = nMolecules;
         setMaximum(max);
         slider.setSnapToTicks(false);
         slider.setMajorTickSpacing(10);
         graphic(null).setSize(new java.awt.Dimension(40,30));
-        setModifier(new ModifierNMolecule(agent));
+        setModifier(new ModifierNMolecule(box, species));
         if (resetAction != null) {
             targetAction = new ActionGroupSeries(new Action[]{modifyAction,resetAction});
         }
@@ -55,6 +79,8 @@ public class DeviceNSelector extends DeviceSlider {
     }
     
     protected Action resetAction;
+    protected Species species;
+    protected Box box;
     
     //main method to demonstrate and test class
     public static void main(String[] args) {
@@ -65,7 +91,8 @@ public class DeviceNSelector extends DeviceSlider {
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species1));
+        nSelector.setBox(sim.box);
+        nSelector.setSpecies(sim.species1);
         nSelector.setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
         graphic.add(nSelector);
 

@@ -148,7 +148,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         int sumOfMolecules = 0;
         for (int i = 0; i < numSpecies; i++) {
-            speciesCount[i] = ((Species)species.get(i)).getAgent(box).getNMolecules();
+            speciesCount[i] = box.getNMolecules((Species)species.get(i));
             sumOfMolecules = sumOfMolecules + speciesCount[i];
         }
 
@@ -162,8 +162,8 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         for (int i = 0; i < numSpecies; i++) {
         	Species sp = ((Species)species.get(i));
-            molecules[LEFT][i] =  (int)(sp.getAgent(box).getNMolecules() * getSpeciesAllocation(sp));
-            molecules[RIGHT][i] = sp.getAgent(box).getNMolecules() - molecules[LEFT][i];
+            molecules[LEFT][i] =  (int)(box.getNMolecules(sp) * getSpeciesAllocation(sp));
+            molecules[RIGHT][i] = box.getNMolecules(sp) - molecules[LEFT][i];
             maxMolecules[LEFT] += molecules[LEFT][i];
             maxMolecules[RIGHT] += molecules[RIGHT][i];
         }
@@ -205,7 +205,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         AtomIteratorArrayListSimple[] atomIterator = new AtomIteratorArrayListSimple[numSpecies];
         for (int i = 0; i < numSpecies; i++) {
-            atomIterator[i] = new AtomIteratorArrayListSimple(((Species)species.get(i)).getAgent(box).getChildList());
+            atomIterator[i] = new AtomIteratorArrayListSimple(box.getMoleculeList((Species)species.get(i)));
             atomIterator[i].reset();
         }
 
@@ -267,7 +267,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         sim.getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(5.0);
         int k = 4;
-        box.getAgent(species).setNMolecules(4 * k * k * k);
+        box.setNMolecules(species, 4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);
         integrator.setBox(box);
 //	        ColorSchemeByType colorScheme = new ColorSchemeByType();

@@ -241,14 +241,14 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 	    nBFixed = (nCellsBx * nCellsBy * 2) * basisB;
 	    nBMobile = nB - nBFixed - nBImpurity - nBVacancy;
 	        
-	    snFixedA.getAgent(box).setNMolecules(nAFixed);
-	    snA.getAgent(box).setNMolecules(nAMobile);
+        box.setNMolecules(snFixedA, nAFixed);
+        box.setNMolecules(snA, nAMobile);
 //	    agA.getAgent(box).setNMolecules(0);
 //	    cuA.getAgent(box).setNMolecules(0);
-	    cuFixedB.getAgent(box).setNMolecules(nBFixed);
+        box.setNMolecules(cuFixedB, nBFixed);
 //	    snB.getAgent(box).setNMolecules(0);
 //	    agB.getAgent(box).setNMolecules(0);
-	    cuB.getAgent(box).setNMolecules(nBMobile);
+        box.setNMolecules(cuB, nBMobile);
 	    
 	        
 	    /** The following values come from either the ASM Handbook or Cullity & Stock's 

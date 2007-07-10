@@ -56,9 +56,9 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
         sim.getSpeciesManager().addSpecies(species0);
         Box box = new Box(sim);
         sim.addBox(box);
-        box.getAgent(species0).setNMolecules(3);
-        box.getAgent(species1).setNMolecules(2);
-        box.getAgent(species2).setNMolecules(3);
+        box.setNMolecules(species0, 3);
+        box.setNMolecules(species1, 2);
+        box.setNMolecules(species2, 3);
 
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules();
 

@@ -74,7 +74,7 @@ public class SWMD3D extends Simulation {
 
     species  = new etomica.species.SpeciesSpheresMono(this);
     getSpeciesManager().addSpecies(species);
-    box.getAgent(species).setNMolecules(108);
+    box.setNMolecules(species, 108);
 
 	
 //	DeviceSlider tControl = new DeviceSlider(integrator, "temperature");

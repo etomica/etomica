@@ -57,7 +57,7 @@ public class TestHC2YukawaMC3D extends Simulation{
         getSpeciesManager().addSpecies(species);
 		box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
 		box.setDensity(0.65);
 		potential = new P2HC2Yukawa(this);
 		double truncationRadius = 3.0*potential.getSigma();
@@ -101,7 +101,8 @@ public class TestHC2YukawaMC3D extends Simulation{
         nSelector.setPostAction(repaintAction);
         simGraphic.getController().getReinitButton().setPostAction(repaintAction);
 
-        nSelector.setSpeciesAgent(sim.box.getAgent(sim.species));
+        nSelector.setSpecies(sim.species);
+        nSelector.setBox(sim.box);
         simGraphic.add(nSelector);
         simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());

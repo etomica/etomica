@@ -3,7 +3,6 @@ package etomica.potential;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.box.Box;
 import etomica.space.Space;
@@ -64,7 +63,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     protected final boolean interType;
     protected final Potential truncatedPotential;
     protected final int[] lrcAtomsPerMolecule = new int[2];
-    protected final ISpeciesAgent[] agents = new ISpeciesAgent[2];
+//    protected final ISpeciesAgent[] agents = new ISpeciesAgent[2];
     
     public Potential0Lrc(Space space, AtomType[] types, Potential truncatedPotential) {
         super(space);
@@ -85,8 +84,6 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     }
 
     public void setBox(Box p) {
-        agents[0] = p.getAgent(types[0].getSpecies());
-        agents[1] = p.getAgent(types[1].getSpecies());
         if (lrcAtomsPerMolecule[0] == 0 || lrcAtomsPerMolecule[1] == 0) {
             // count the number of Atoms of the relevant type in each molecule
             AtomIteratorTreeRoot treeIterator = new AtomIteratorTreeRoot();
@@ -95,8 +92,8 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
                     if (types[i].getDepth() == AtomAddressManager.MOLECULE_DEPTH) {
                         lrcAtomsPerMolecule[i] = 1;
                     }
-                    else if (agents[i].getNMolecules() > 0) {
-                        treeIterator.setRootAtom(agents[i].getChildList().getAtom(0));
+                    else if (p.getNMolecules(types[i].getSpecies()) > 0) {
+                        treeIterator.setRootAtom(p.getMoleculeList(types[i].getSpecies()).getAtom(0));
                         treeIterator.setIterationDepth(types[i].getDepth());
                         treeIterator.reset();
                         int numAtoms = 0;
@@ -125,7 +122,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
             divisor = 0;
             return;
         }
-        divisor = agents[typeIndex].getNMolecules() * lrcAtomsPerMolecule[typeIndex];
+        divisor = box.getNMolecules(types[typeIndex].getSpecies()) * lrcAtomsPerMolecule[typeIndex];
         if (!interType) {
             divisor = (divisor - 1)/2.0;
         }
@@ -140,9 +137,9 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     protected int nPairs() {
         if(divisor == 0) return 0;
         int nPairs = 0;
-        int n0 = agents[0].getNMolecules()*lrcAtomsPerMolecule[0];
+        int n0 = box.getNMolecules(types[0].getSpecies())*lrcAtomsPerMolecule[0];
         if(interType) {
-            int n1 = agents[1].getNMolecules();
+            int n1 = box.getNMolecules(types[1].getSpecies());
             nPairs = n0*n1*lrcAtomsPerMolecule[1];
         }
         else {

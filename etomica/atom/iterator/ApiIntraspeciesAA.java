@@ -49,7 +49,7 @@ public class ApiIntraspeciesAA extends AtomsetIteratorAdapter implements
      * @throws a NullPointerException if the Box is null
      */
     public void setBox(Box box) {
-        pairIterator.setList(box.getAgent(species).getChildList());
+        pairIterator.setList(box.getMoleculeList(species));
     }
 
     private static final long serialVersionUID = 1L;

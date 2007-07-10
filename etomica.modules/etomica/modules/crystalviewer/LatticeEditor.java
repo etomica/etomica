@@ -281,7 +281,7 @@ public class LatticeEditor {
         dimensions.E(currentLattice.getPrimitive().getSize());
         dimensions.TE(size);
         box.setDimensions(dimensions);
-        box.getAgent(species).setNMolecules(numAtoms);
+        box.setNMolecules(species, numAtoms);
         ConfigurationLattice config = new ConfigurationLattice(currentLattice);
         config.initializeCoordinates(box);
         viewer.update(currentLattice);

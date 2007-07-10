@@ -51,7 +51,7 @@ public class Heisenberg extends Simulation {
         int numAtoms = space.powerD(nCells);
         spins = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(spins);
-        box.getAgent(spins).setNMolecules(numAtoms);
+        box.setNMolecules(spins, numAtoms);
         new ConfigurationAligned().initializeCoordinates(box);
         
         potential = new P2Spin(space);

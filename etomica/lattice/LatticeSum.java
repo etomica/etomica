@@ -95,7 +95,7 @@ public class LatticeSum {
 //        sim.addBox(box);
 //        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
 //        sim.getSpeciesManager().addSpecies(species);
-//        species.getAgent(box).setNMolecules(32);
+//        box.setNMolecules(species, 32);
 //        int n = 2;
 //        box.getBoundary().setDimensions(new Vector3D(n*primitive.getSize()[0]*Math.sqrt(2),
 //                n*primitive.getSize()[1]*Math.sqrt(2),n*primitive.getSize()[2]*Math.sqrt(2)));

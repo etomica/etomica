@@ -61,8 +61,8 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         getSpeciesManager().addSpecies(speciesB);
         ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
         ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(diameter);
-        box.getAgent(speciesA).setNMolecules(10);
-        box.getAgent(speciesB).setNMolecules(40);
+        box.setNMolecules(speciesA, 10);
+        box.setNMolecules(speciesB, 40);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
 
         agentManager = new AtomLeafAgentManager(this,box);

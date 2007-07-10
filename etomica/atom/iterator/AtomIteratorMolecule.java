@@ -1,8 +1,8 @@
 package etomica.atom.iterator;
 
+import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
 import etomica.species.Species;
@@ -32,8 +32,8 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * box conditions iterator to give no iterates.
      * @throws a NullPointerException if the Box is null
      */
-    public void setBox(Box box) {
-        speciesAgent = box.getAgent(species);
+    public void setBox(Box newBox) {
+        box = newBox;
     }
     
     public void reset() {
@@ -70,11 +70,17 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      */
     private void setList() {
         if(targetAtom == null) {
-            listIterator.setList(speciesAgent.getChildList());
+            listIterator.setList(box.getMoleculeList(species));
         
         //target specified -- give it as only iterate if descended from species
         } else {
-            IAtom molecule = targetAtom.getChildWhereDescendedFrom(speciesAgent);
+            IAtom molecule = targetAtom;
+            if (molecule.getType().getDepth() > AtomAddressManager.MOLECULE_DEPTH) {
+                molecule = molecule.getParentGroup();
+            }
+            if (molecule.getType().getSpecies() != species) {
+                molecule = null;
+            }
             littleList.clear();
             if(molecule != null) littleList.add(molecule);
             listIterator.setList(littleList);
@@ -85,6 +91,6 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     private final AtomIteratorArrayListSimple listIterator;
     private final Species species;
     private final AtomArrayList littleList = new AtomArrayList();
-    private ISpeciesAgent speciesAgent;
+    private Box box;
     private IAtom targetAtom;
 }

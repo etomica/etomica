@@ -50,7 +50,7 @@ public class SwMd2D extends Simulation {
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(50);
+        box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
         potential = new P2SquareWell(space);
         potential.setCoreDiameter(sigma);

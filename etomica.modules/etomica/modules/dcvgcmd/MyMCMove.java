@@ -47,7 +47,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 			uOld = 0.0;
 			if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getAtomCount()-1);
 			else testMolecule = moleculeFactory.makeAtom();
-            speciesAgent.addChildAtom(testMolecule);
+            box.addMolecule(testMolecule);
 			position = (Vector3D)box.getBoundary().randomPosition();
 			double z = position.x(2);
             z *= zFraction;
@@ -144,6 +144,6 @@ public class MyMCMove extends MCMoveInsertDelete {
 	 */
 	public void setSpecies(Species s) {
 		super.setSpecies(s);
-		moleculeList = speciesAgent.getChildList();
+		moleculeList = box.getMoleculeList(s);
 	}
 }

@@ -386,8 +386,8 @@ public class Osmosis extends SimulationGraphic {
     	    				speciesSoluteTotal = Math.round(((float)total.getValue()) *
     					               (((float)soluteVsSolvent.getValue()) / 100.0f));
     			            speciesSolventTotal = (int)total.getValue() - speciesSoluteTotal;
-    			            sim.box.getAgent(sim.speciesSolvent).setNMolecules(speciesSolventTotal);
-    			            sim.box.getAgent(sim.speciesSolute).setNMolecules(speciesSoluteTotal);
+    			            sim.box.setNMolecules(sim.speciesSolvent, speciesSolventTotal);
+    			            sim.box.setNMolecules(sim.speciesSolute, speciesSoluteTotal);
     	    				simRestart.getDataResetAction().actionPerformed();
     	    				simRestart.actionPerformed();
     	            		getDisplayBox(sim.box).graphic().repaint();

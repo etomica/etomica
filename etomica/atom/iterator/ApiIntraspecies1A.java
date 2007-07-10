@@ -2,8 +2,8 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
+import etomica.atom.AtomAddressManager;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.box.Box;
 import etomica.species.Species;
 
@@ -55,7 +55,6 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      */
     public void setBox(Box newBox) {
         box = newBox;
-        agent = box.getAgent(species);
         identifyTargetMolecule();
     }
 
@@ -86,7 +85,13 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
         if (box == null || targetAtom == null) {
             targetMolecule = null;
         } else {
-            targetMolecule = targetAtom.getChildWhereDescendedFrom(agent);
+            targetMolecule = targetAtom;
+            while (targetMolecule.getType().getDepth() > AtomAddressManager.MOLECULE_DEPTH) {
+                targetMolecule = targetMolecule.getParentGroup();
+            }
+            if (targetMolecule.getType().getSpecies() != species) {
+                targetMolecule = null;
+            }
         }
         //targetMolecule may be null here
         setAtom(targetMolecule);
@@ -95,7 +100,6 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     private static final long serialVersionUID = 2L;
     private final Species species;
 
-    private ISpeciesAgent agent;
     private Box box;
     private IAtom targetAtom, targetMolecule;
 

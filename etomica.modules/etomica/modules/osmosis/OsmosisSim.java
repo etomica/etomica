@@ -93,8 +93,8 @@ public class OsmosisSim extends Simulation {
         else if (space instanceof Space3D) { // 3D
             box.getBoundary().setDimensions(new Vector3D(10.0, 10.0, 10.0));
         }
-        box.getAgent(speciesSolvent).setNMolecules(initialSolvent);
-        box.getAgent(speciesSolute).setNMolecules(initialSolute);
+        box.setNMolecules(speciesSolvent, initialSolvent);
+        box.setNMolecules(speciesSolute, initialSolute);
 
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setBox(box);

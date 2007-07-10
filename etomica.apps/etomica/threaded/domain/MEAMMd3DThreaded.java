@@ -202,9 +202,9 @@ public class MEAMMd3DThreaded extends Simulation {
         
         box = new Box(this);
         addBox(box);
-        box.getAgent(sn).setNMolecules(0);
-        box.getAgent(ag).setNMolecules(numAtoms);
-        box.getAgent(cu).setNMolecules(0);
+        box.setNMolecules(sn, 0);
+        box.setNMolecules(ag, numAtoms);
+        box.setNMolecules(cu, 0);
         
         // beta-Sn box
         /**

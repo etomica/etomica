@@ -5,7 +5,6 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
 import etomica.species.Species;
@@ -60,8 +59,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
         AtomArrayList arrayList = next.getArrayList();
         arrayList.clear();
         for (int i=0; i<species.length; i++) {
-            ISpeciesAgent speciesAgent = box.getAgent(species[i]);
-            arrayList.addAll(speciesAgent.getChildList());
+            arrayList.addAll(box.getMoleculeList(species[i]));
         }
         nextCursor = 0;
     }

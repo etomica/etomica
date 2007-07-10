@@ -60,7 +60,7 @@ public class DensityOfStatesPolynomial extends Simulation{
 		activityIntegrate = new ActivityIntegrate(integrator);
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
-		species.getAgent(box).setNMolecules(numAtoms);
+		box.setNMolecules(species, numAtoms);
 		box = new Box(this);
 		box.setDensity(0.65);
 		potential = new P2Yukawa(this);

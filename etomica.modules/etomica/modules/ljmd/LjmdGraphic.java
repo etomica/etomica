@@ -239,7 +239,8 @@ public class LjmdGraphic extends SimulationGraphic {
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setResetAction(new SimulationRestart(sim));
-        nSlider.setSpeciesAgent(sim.species.getAgent(sim.box));
+        nSlider.setSpecies(sim.species);
+        nSlider.setBox(sim.box);
         nSlider.setMinimum(1);
         nSlider.setMaximum(224);
         nSlider.setLabel("Number of atoms");

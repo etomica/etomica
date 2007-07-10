@@ -89,11 +89,11 @@ public class UnitTestUtil {
             Box box = new Box(sim);
             sim.addBox(box);
             if (species0 != null)
-                box.getAgent(species0).setNMolecules(n0[i]);
+                box.setNMolecules(species0, n0[i]);
             if (species1 != null)
-                box.getAgent(species1).setNMolecules(n1[i]);
+                box.setNMolecules(species1, n1[i]);
             if (species2 != null)
-                box.getAgent(species2).setNMolecules(n2[i]);
+                box.setNMolecules(species2, n2[i]);
         }
         return sim;
     }
@@ -141,7 +141,7 @@ public class UnitTestUtil {
             factory.setChildCount(nAtoms[i]);
             Species species = new Species(factory);
             sim.getSpeciesManager().addSpecies(species);
-            box.getAgent(species).setNMolecules(nMolecules[i]);
+            box.setNMolecules(species, nMolecules[i]);
         }
         return sim;
     }

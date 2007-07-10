@@ -90,7 +90,7 @@ public class TestHexaneHarmonic extends Simulation {
         bdry =  new BoundaryDeformableLattice(primitive, getRandom(), nCells);
         box = new Box(bdry);
         addBox(box);
-        box.getAgent(species).setNMolecules(numMolecules);
+        box.setNMolecules(species, numMolecules);
 //        config.initializeCoordinates(box);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);

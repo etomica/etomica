@@ -67,8 +67,8 @@ public class HSMD2D extends Simulation {
 
         box = new Box(this);
         addBox(box);
-        box.getAgent(species1).setNMolecules(512);
-        box.getAgent(species2).setNMolecules(5);
+        box.setNMolecules(species1, 512);
+        box.setNMolecules(species2, 5);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);
         integrator.addNonintervalListener(nbrManager);

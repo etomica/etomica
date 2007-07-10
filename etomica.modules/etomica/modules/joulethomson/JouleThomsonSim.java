@@ -77,7 +77,7 @@ public class JouleThomsonSim extends Simulation {
         potentialMaster.addPotential(potential, new Species[]{species, species});
 	    box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(nAtoms);
+        box.setNMolecules(species, nAtoms);
         
         SpaceLattice lattice;
         if (space.D() == 2) {

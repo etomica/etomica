@@ -43,7 +43,7 @@ public class LjMd2D extends Simulation {
         getSpeciesManager().addSpecies(species);
         box = new Box(this);
         addBox(box);
-        box.getAgent(species).setNMolecules(50);
+        box.setNMolecules(species, 50);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
         potential = new P2LennardJones(space);
         potentialMaster.addPotential(potential,new Species[]{species,species});

@@ -40,7 +40,7 @@ public class VLESim extends Simulation {
         temperature = 1.0;
         epsilon = 1.0;
         density = 0.3;
-        double cutoff = 3*sigma;
+        double cutoff = 4*sigma;
 
         double initBoxSize = Math.pow(initNumMolecules/density, (1.0/3.0));
         
@@ -51,8 +51,8 @@ public class VLESim extends Simulation {
         addBox(boxLiquid);
         boxVapor = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize));
         addBox(boxVapor);
-        boxLiquid.getAgent(species).setNMolecules(initNumMolecules);
-        boxVapor.getAgent(species).setNMolecules(initNumMolecules);
+        boxLiquid.setNMolecules(species, initNumMolecules);
+        boxVapor.setNMolecules(species, initNumMolecules);
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc());
         config.initializeCoordinates(boxLiquid);
         config.initializeCoordinates(boxVapor);

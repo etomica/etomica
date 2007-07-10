@@ -3,7 +3,6 @@ package etomica.modules.dcvgcmd;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
-import etomica.atom.ISpeciesAgent;
 import etomica.species.Species;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
@@ -26,8 +25,7 @@ public final class MeterTemperature extends etomica.data.meter.MeterTemperature 
 	}
 
 	public double getDataAsScalar() {
-		ISpeciesAgent agent = box.getAgent(species);
-		AtomSet list = agent.getChildList();
+		AtomSet list = box.getMoleculeList(species);
 		int size = list.getAtomCount();
 		int natoms = 0;
 		if(size > 0) {

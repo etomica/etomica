@@ -48,7 +48,7 @@ public class GEMCWithRotation extends Simulation {
 
 	    box1 = new Box(this);
         addBox(box1);
-        box1.getAgent(species).setNMolecules(200);
+        box1.setNMolecules(species, 200);
         
 	    IntegratorMC integratorMC1 = new IntegratorMC(this, potentialMaster);
         integratorMC1.setBox(box1);
@@ -61,7 +61,7 @@ public class GEMCWithRotation extends Simulation {
 
 	    box2 = new Box(this);
         addBox(box2);
-        box2.getAgent(species).setNMolecules(200);
+        box2.setNMolecules(species, 200);
         IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster);
         integratorMC2.setBox(box2);
         integratorMC2.setTemperature(0.420);

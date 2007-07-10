@@ -231,7 +231,7 @@ public class ConfigurationLattice extends Configuration {
         sim.getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(5.0);
         int k = 4;
-        box.getAgent(species).setNMolecules(4 * k * k * k);
+        box.setNMolecules(species, 4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);
         integrator.setBox(box);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();

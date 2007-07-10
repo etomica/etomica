@@ -272,14 +272,10 @@ public class MEAM_3DMDwithGB extends Simulation {
 //        getSpeciesRoot().addSpecies(agB);
 //        getSpeciesRoot().addSpecies(cuB);
         
-	    snFixedA.getAgent(box).setNMolecules(nAFixed);
-	    snA.getAgent(box).setNMolecules(nAMobile);
-//	    agA.getAgent(box).setNMolecules(0);
-//	    cuA.getAgent(box).setNMolecules(0);
-	    snFixedB.getAgent(box).setNMolecules(nBFixed);
-	    snB.getAgent(box).setNMolecules(nBMobile);
-//	    agB.getAgent(box).setNMolecules(0);
-//	    cuB.getAgent(box).setNMolecules(0);
+	    box.setNMolecules(snFixedA, nAFixed);
+        box.setNMolecules(snA, nAMobile);
+        box.setNMolecules(snFixedB, nBFixed);
+        box.setNMolecules(snB, nBMobile);
 	    
 	        
 	    /** The following values come from either the ASM Handbook or Cullity & Stock's 
