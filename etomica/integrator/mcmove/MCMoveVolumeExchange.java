@@ -52,7 +52,7 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         setStepSize(0.1);
         box1AtomIterator = new AtomIteratorAllMolecules();
         box2AtomIterator = new AtomIteratorAllMolecules();
-        energyMeter.setIncludeLrc(false);
+        energyMeter.setIncludeLrc(true);
         inflate1 = new BoxInflate(space);
         inflate2 = new BoxInflate(space);
         this.integrator1 = integrator1;
@@ -104,8 +104,6 @@ public class MCMoveVolumeExchange extends MCMoveStep {
     }
     
     public void acceptNotify() {
-        ((IntegratorMC)integrator1).notifyEnergyChange(uNew1-uOld1);
-        ((IntegratorMC)integrator2).notifyEnergyChange(uNew2-uOld2);
         if (integrator1 instanceof IntegratorMC) {
             ((IntegratorMC)integrator1).notifyEnergyChange(uNew1-uOld1);
         }
