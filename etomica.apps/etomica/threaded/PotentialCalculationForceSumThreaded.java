@@ -14,7 +14,7 @@ import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.space.IVector;
 
-public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements PotentialCalculationThreaded, AgentSource{
+public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements IPotentialCalculationThreaded, AgentSource{
 
 	final protected PotentialCalculationForceSum[] pc;
 	protected AtomLeafAgentManager[] atomAgentManager;

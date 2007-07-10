@@ -2,7 +2,7 @@ package etomica.threaded;
 
 import etomica.potential.PotentialCalculation;
 
-public interface PotentialCalculationThreaded {
+public interface IPotentialCalculationThreaded {
 
 	public PotentialCalculation[] getPotentialCalculations();
 
