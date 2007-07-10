@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Aug 11, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import etomica.atom.AtomSet;
@@ -16,7 +12,7 @@ public interface AtomsetIteratorBasisDependent extends AtomsetIteratorTargetable
 	/**
 	 * Identifies the atoms that form the basis for iteration, such that
 	 * the childList atoms of those given will form the iterates.
-	 * @param atoms The basis atoms; a null or zero-length array will
+	 * @param atoms The basis atoms; a null basis will
 	 * condition the iterator to give no iterates until a valid basis
 	 * is specified via another call to this method.
 	 */

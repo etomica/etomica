@@ -78,8 +78,8 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
 
     /**
      * Specifies the basis, which identifies the atoms subject to iteration. The
-     * given atomSet must be of length 1, otherwise the iterator is unset. The
-     * atom specifies the basis for both the outer-loop and inner-loop
+     * given atomSet must be of length 1. A null basis will unset the iterator.
+     * The atom specifies the basis for both the outer-loop and inner-loop
      * iteration. In each case, if the basis atom is not a leaf atom, its
      * children will be the subject of iteration. If the basis atom is a leaf,
      * it will itself be the iterate. If given atomset is null, or if its length
@@ -87,7 +87,7 @@ public class ApiIntragroupFixed extends ApiIntergroup implements
      * specified via another call to this method.
      */
     public void setBasis(AtomSet basisAtoms) {
-        if (basisAtoms == null || basisAtoms.getAtomCount() != 1) {
+        if (basisAtoms == null) {
             basisAtomSet.atom = null;
         } else {
             basisAtomSet.atom = basisAtoms.getAtom(0);

@@ -1,14 +1,9 @@
-/*
- * History
- * Created on Aug 30, 2004 by kofke
- */
 package etomica.atom.iterator;
 
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
-import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 

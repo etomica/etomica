@@ -75,11 +75,11 @@ public class ApiIntergroup extends AtomsetIteratorAdapter implements
      * basis for the inner-loop iteration. In each case, if the basis atom is
      * not a leaf atom, its children will be the subject of iteration. If the
      * basis atom is a leaf, it will itself be the iterate. If given atomset is
-     * null, or if its length is not equal to 2, iterator will give no iterates
-     * until a proper basis is specified via another call to this method.
+     * null iterator will give no iterates until a proper basis is specified
+     * via another call to this method.
      */
     public void setBasis(AtomSet basisAtoms) {
-        if (basisAtoms == null || basisAtoms.getAtomCount() != 2) {
+        if (basisAtoms == null) {
             aiOuter.setBasis(null);
         } else {
             atomSetSinglet.atom = basisAtoms.getAtom(0);
