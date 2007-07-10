@@ -111,7 +111,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         sim.addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        AtomSet atoms = box.getSpeciesMaster().getLeafList();
+        AtomSet atoms = box.getLeafList();
         
         Primitive primitive = new PrimitiveCubic(sim.getSpace());
 

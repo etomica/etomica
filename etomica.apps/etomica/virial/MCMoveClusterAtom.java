@@ -24,7 +24,7 @@ public class MCMoveClusterAtom extends MCMoveAtom {
     }
     
 	public boolean doTrial() {
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
 		atom = leafList.getAtom(random.nextInt(1+leafList.getAtomCount()-1));
 		uOld = weightMeter.getDataAsScalar();
         translationVector.setRandomCube(random);

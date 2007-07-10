@@ -56,7 +56,7 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     }
     
     public void selectAtoms() {
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int total = leafList.getAtomCount();
     	for(int i=1; i<total; i++) {
     		selectedAtoms[i-1] = (IAtomPositioned)leafList.getAtom(i);

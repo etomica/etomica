@@ -41,7 +41,7 @@ public class MCMoveSpinFlip extends MCMoveBox {
      * @see etomica.integrator.MCMove#doTrial()
      */
     public boolean doTrial() {
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         atom = (IAtomPositioned)leafList.getAtom(random.nextInt(leafList.getAtomCount()));
         energyMeter.setTarget(atom);
         uOld = energyMeter.getDataAsScalar();
