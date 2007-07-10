@@ -128,11 +128,14 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    dataTable.addDataSource(sim.meterFlux2);
 	    dataTable.addDataSource(sim.meterFlux3);
 	    DisplayTable table = new DisplayTable(dataTable);
-		add(table);
-	    table.setRowLabels(new String[] { "Current", "Average", "Error" });
+	    
 	    table.setTransposed(true);
 	    table.setShowingRowLabels(true);
+	    table.setRowLabels(new String[] {"Current","Average","Error"});
+	    
+	    
 	    table.setPrecision(7);
+	    getPanel().tabbedPane.add("Flux Data", table.graphic());
 	    
 	    // Density profile tab page
 		DisplayPlot profilePlot = new DisplayPlot();
