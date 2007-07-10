@@ -74,7 +74,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
         double spacePos = lptu.getLatticePlaneSpacePosition();
 
-    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getLeafList();
 
     	try {
 		    for(idx = 0; idx < leafList.getAtomCount(); idx++) {
@@ -317,7 +317,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getLeafList();
 
 
     	try {
@@ -392,7 +392,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getLeafList();
 
 
     	try {
@@ -482,7 +482,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getLeafList();
 
 
     	try {
@@ -556,7 +556,7 @@ public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {
         // This needs to come after lattice changes
         lptu.getLatticePlane().setPrimitive(lptu.getLattice().getPrimitive());
 
-    	leafList = lptu.getBox().getSpeciesMaster().getLeafList();
+    	leafList = lptu.getBox().getLeafList();
 
 
     	try {

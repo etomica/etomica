@@ -55,7 +55,7 @@ public class IntegratorHardPiston extends IntegratorHard {
     public void updatePiston() {
         listToUpdate.clear();
         // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
-        AtomSet leafList = box.getSpeciesMaster().getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom1 = leafList.getAtom(iLeaf);

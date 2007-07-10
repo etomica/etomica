@@ -56,7 +56,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 	public void writeData(){
        
 		Box box = integratorAgentManager.getBox();
-        AtomSet atomArrayList = box.getSpeciesMaster().getLeafList();
+        AtomSet atomArrayList = box.getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
             IVector force = ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atomArrayList.getAtom(j))).force();
