@@ -275,8 +275,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //************ adjacent/nonadjacent setup -- target is descended from but not direct child of basis
     private void setup3() {
-        AtomManager atomManager = sim.getBoxs()[0].getSpeciesMaster();
-        parent = ((IAtomGroup)atomManager.getAgentList().getAtom(2)).getChildList().getAtom(2); //Descendant(new int[] {2,2});//box0, species2, molecule2
+        parent = sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[2]).getAtom(2);
         AtomSet childList = ((IAtomGroup)parent).getChildList(); 
         target = ((AtomGroup)parent).getDescendant(new int[] {1,0,1});
         targetFirst = ((AtomGroup)parent).getDescendant(new int[] {0,0,2});
@@ -299,8 +298,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
-        AtomManager atomManager = sim.getBoxs()[0].getSpeciesMaster();
-        AtomSet moleculeList = ((IAtomGroup)atomManager.getAgentList().getAtom(1)).getChildList();
+        AtomSet moleculeList = sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[1]);
         parent = moleculeList.getAtom(5);//leaf-atom basis
         target = parent;//atom5 
         targetFirst = moleculeList.getAtom(0);//atom0 
@@ -323,8 +321,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
-        AtomManager atomManager = sim.getBoxs()[0].getSpeciesMaster();
-        parent = ((IAtomGroup)atomManager.getAgentList().getAtom(0)).getChildList().getAtom(2);
+        parent = sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(2);
         AtomSet childList = ((IAtomGroup)parent).getChildList();
         target = childList.getAtom(5);
         targetFirst = childList.getAtom(0);

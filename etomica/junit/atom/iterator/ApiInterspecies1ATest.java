@@ -5,15 +5,14 @@ import java.util.LinkedList;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.junit.UnitTestUtil;
 import etomica.box.Box;
+import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 
@@ -37,8 +36,8 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
 
         Species[] species = sim.getSpeciesManager().getSpecies();
         
-        boxTest(sim.getBoxs()[0].getSpeciesMaster(), species);
-        boxTest(sim.getBoxs()[1].getSpeciesMaster(), species);
+        boxTest(sim.getBoxs()[0], species);
+        boxTest(sim.getBoxs()[1], species);
 
         ApiInterspecies1A api = new ApiInterspecies1A(new Species[] {
                 species[0], species[1] });
@@ -96,21 +95,20 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(AtomManager atomManager, Species[] species) {
-        speciesTestForward(atomManager, species[0], species[1]);
-        speciesTestForward(atomManager, species[0], species[2]);
-        speciesTestForward(atomManager, species[1], species[2]);
+    private void boxTest(Box box, Species[] species) {
+        speciesTestForward(box, species[0], species[1]);
+        speciesTestForward(box, species[0], species[2]);
+        speciesTestForward(box, species[1], species[2]);
     }
 
     /**
      * Test iteration in various directions with different targets. Iterator
      * constructed with index of first species less than index of second.
      */
-    private void speciesTestForward(AtomManager atomManager,
+    private void speciesTestForward(Box box,
             Species species0, Species species1) {
         ApiInterspecies1A api = new ApiInterspecies1A(new Species[] {
                 species0, species1 });
-        Box box = atomManager.getBox();
         AtomsetAction speciesTest = new SpeciesTestAction(
                 species0, species1);
         IAtom target = null;
