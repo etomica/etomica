@@ -218,6 +218,10 @@ public class Box implements java.io.Serializable {
         }
         return null;
     }
+    
+    public void removeSpeciesNotify(Species removedSpecies) {
+        atomManager.removeSpeciesNotify(removedSpecies);
+    }
 
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
     

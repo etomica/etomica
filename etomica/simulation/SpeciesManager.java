@@ -91,7 +91,7 @@ public class SpeciesManager implements java.io.Serializable {
         speciesList = (Species[])Arrays.removeObject(speciesList,removedSpecies);
         Box[] boxList = sim.getBoxs();
         for (int i=0; i<boxList.length; i++) {
-            boxList[i].getSpeciesMaster().removeSpeciesNotify(removedSpecies);
+            boxList[i].removeSpeciesNotify(removedSpecies);
         }
 
         for (int i=0; i<speciesAgentTypes.length; i++) {
