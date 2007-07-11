@@ -311,7 +311,12 @@ public class PistonCylinderGraphic extends SimulationPanel {
         nSlider.getSlider().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
                 int n = (int)nSlider.getValue();
-                pc.integrator.setThermostatInterval(200/n);
+                if(n == 0) {
+                pc.integrator.setThermostatInterval(200);
+                }
+                else {
+                	pc.integrator.setThermostatInterval(200/n);
+                }
             }
         });
 
@@ -679,7 +684,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         nSlider.setResetAction(controlButtons.getReinitButton().getAction());
         nSlider.setBox(pc.box);
         nSlider.setSpecies(pc.species);
-        nSlider.setMinimum(1);
+        nSlider.setMinimum(0);
         nSlider.setMaximum(200);
 
 
@@ -792,6 +797,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pc.integrator.addIntervalAction(pump);
         pc.integrator.setActionInterval(pump, dataInterval);
         densityHistory.addDataSink(plotD.getDataSet().makeDataSink());
+        plotD.setLegend(new DataTag[]{densityMeter.getTag()}, "measured");
         densityDisplayTextBox.setAccumulator(densityAvg);
         densityDisplayTextBox.setUnit(dUnit);
         
@@ -802,12 +808,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         plotP.getPlot().setTitle("Pressure ("+pUnit.symbol()+")");
         plotT.getPlot().setTitle("Temperature ("+tUnit.symbol()+")");
         plotD.getPlot().setTitle("Density ("+dUnit.symbol()+")");
-        
-        plotT.getPlot().setYRange(0, 1000.);
-        plotP.getPlot().setYRange(0, 1000.);
-        
-        plotD.setDoLegend(false);
-
+ 
         java.awt.Dimension d = plotT.getPlot().getPreferredSize();
         d.height = 230;
         plotT.getPlot().setSize(d);
