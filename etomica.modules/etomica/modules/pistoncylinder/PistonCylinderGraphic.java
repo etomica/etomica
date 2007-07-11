@@ -133,9 +133,10 @@ public class PistonCylinderGraphic extends SimulationPanel {
     public int integratorSleep = 10;
     public int integratorSleep3D = 0;
     private boolean initialized;
-    private boolean doConfigButton;
+    private boolean doConfigButton = false;
     private boolean doRDF;
-    private boolean doNSelector;
+    private boolean showTimeControls = false;
+    private JPanel guiPanel;
     
     /**
      * Enable/disable button to show coordinates.  Must be called before init.
@@ -155,16 +156,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
             throw new RuntimeException("Already initialized");
         }
         doRDF = newDoRDF;
-    }
-    
-    /**
-     * Enable/disable # of molecule slider.  Must be called before init.
-     */
-    public void setDoNSelector(boolean newDoNSelector) {
-        if (initialized) {
-            throw new RuntimeException("Already initialized");
-        }
-        doNSelector = newDoNSelector;
     }
     
     public void init() {
@@ -188,8 +179,10 @@ public class PistonCylinderGraphic extends SimulationPanel {
         GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
 
         // Dimension Selection
-        JPanel dimensionPanel = new JPanel(new GridLayout(1,0));
-        ButtonGroup dimensionGroup = new ButtonGroup();
+        // Currently commented out so that user can only run a 2D simulation
+/*
+      JPanel dimensionPanel = new JPanel(new GridLayout(1,0));
+      ButtonGroup dimensionGroup = new ButtonGroup();
         final JRadioButton button2D = new JRadioButton("2D");
         JRadioButton button3D = new JRadioButton("3D");
         button2D.setSelected(true);
@@ -201,11 +194,12 @@ public class PistonCylinderGraphic extends SimulationPanel {
            public void itemStateChanged(ItemEvent evt) {
                if(button2D.isSelected()) {
                    setSimulation(new PistonCylinder(2));
-               } else {
-                   setSimulation(new PistonCylinder(3));
-               }
-           }
-        });
+            } else {
+                 setSimulation(new PistonCylinder(3));
+             }
+         }
+      });
+*/
 
         // Control buttons
         controlButtons = new DeviceTrioControllerButton();
@@ -226,7 +220,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // simulation timebox and config buttons, if requested,
         // onto a panel
         JPanel controlsPanel = new JPanel(new GridBagLayout());
-        controlsPanel.add(dimensionPanel);
+//      controlsPanel.add(dimensionPanel);
         controlsPanel.add(startPanel,vertGBC);
         controlsPanel.add(displayCycles.graphic(),vertGBC);
 
@@ -307,25 +301,26 @@ public class PistonCylinderGraphic extends SimulationPanel {
 
         JPanel nSliderPanel = null;
 
-	    if (doNSelector) {
-            nSlider = new DeviceNSelector();
-            nSlider.setLabel("Number of atoms");
-            nSlider.setShowBorder(true);
-            // add a listener to adjust the thermostat interval for different
-            // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
-            // don't need as much thermostating.
-            nSlider.getSlider().addChangeListener(new ChangeListener() {
-                public void stateChanged(ChangeEvent evt) {
-                    int n = (int)nSlider.getValue();
-                    pc.integrator.setThermostatInterval(200/n);
-                }
-            });
 
-            nSliderPanel = new JPanel(new GridLayout(0,1));
-            nSliderPanel.setBorder(new TitledBorder("Number of Molecules"));
-            nSlider.setShowBorder(false);
-            nSliderPanel.add(nSlider.graphic());
-        }
+        nSlider = new DeviceNSelector();
+        nSlider.setLabel("Number of atoms");
+        nSlider.setShowBorder(true);
+        // add a listener to adjust the thermostat interval for different
+        // system sizes (since we're using ANDERSEN_SINGLE).  Smaller systems 
+        // don't need as much thermostating.
+        nSlider.getSlider().addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent evt) {
+                int n = (int)nSlider.getValue();
+                pc.integrator.setThermostatInterval(200/n);
+            }
+        });
+
+        nSliderPanel = new JPanel(new GridLayout(0,1));
+        nSliderPanel.setBorder(new TitledBorder("Number of Molecules"));
+        nSlider.setShowBorder(false);
+        nSlider.setNMajor(4);
+        nSliderPanel.add(nSlider.graphic());
+
 
         // Add all state page sub panels onto a single panel
         JPanel statePanel = new JPanel(new GridBagLayout());
@@ -334,10 +329,10 @@ public class PistonCylinderGraphic extends SimulationPanel {
         statePanel.add(temperaturePanel, gbc2);
         gbc2.gridx = 0;  gbc2.gridy = 1;
         statePanel.add(pressureSliderPanel, gbc2);
-        if (doNSelector) {
-            gbc2.gridx = 0;  gbc2.gridy = 2;
-            statePanel.add(nSliderPanel, gbc2);
-        }
+
+        gbc2.gridx = 0;  gbc2.gridy = 2;
+        statePanel.add(nSliderPanel, gbc2);
+
 
         //
         // Potential tabbed pane page
@@ -367,62 +362,63 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // Controls tabbed pane page
         //
 
-        // Repaint delay slider
-        DeviceSlider repaintSlider = new DeviceSlider(null);
-        //XXX ugh, see bug 49
-        repaintSlider.setUnit(Time.SIM_UNIT);
-        repaintSlider.setShowValues(false);
-        repaintSlider.setEditValues(true);
-        repaintSlider.setMinimum(0);
-        repaintSlider.setMaximum(1000);
-        repaintSlider.setNMajor(4);
-        repaintSlider.setValue(repaintSleep);
-        repaintSlider.setModifier(new Modifier() {
-            public String getLabel() {return "";}
-            public Dimension getDimension() {return Undefined.DIMENSION;}
-            public void setValue(double v) {
-                repaintSleep = (int)v;
-            }
-            public double getValue() {return repaintSleep;}
-        });
-        JPanel repaintSliderPanel = new JPanel(new GridLayout(0,1));
-        repaintSlider.setShowBorder(false);
-        repaintSliderPanel.setBorder(new TitledBorder("Repaint delay (ms)"));
-        repaintSliderPanel.add(repaintSlider.graphic());
-        
-        // Integrator step delay slider
-        doSleepSlider = new DeviceSlider(null);
-        //XXX ugh, see bug 49
-        doSleepSlider.setUnit(Time.SIM_UNIT);
-        doSleepSlider.setShowValues(false);
-        doSleepSlider.setEditValues(true);
-        doSleepSlider.setMinimum(0);
-        doSleepSlider.setMaximum(100);
-        doSleepSlider.setNMajor(5);
-        JPanel doSleepSliderPanel = new JPanel(new GridLayout(0,1));
-        doSleepSlider.setShowBorder(false);
-        doSleepSliderPanel.setBorder(new TitledBorder("Integrator step delay (ms)"));
-        doSleepSliderPanel.add(doSleepSlider.graphic());
-        
-        // Integrator time step slider
-        integratorTimeStepSlider = new DeviceSlider(null);
-        integratorTimeStepSlider.setShowValues(false);
-        integratorTimeStepSlider.setEditValues(true);
-        integratorTimeStepSlider.setPrecision(2);
-        integratorTimeStepSlider.setMinimum(0.0);
-        integratorTimeStepSlider.setMaximum(5);
-        integratorTimeStepSlider.setNMajor(5);
-        integratorTimeStepSlider.setValue(0.5);
-        JPanel integratorTimeStepSliderPanel = new JPanel(new GridLayout(0,1));
-        repaintSlider.setShowBorder(false);
-        integratorTimeStepSliderPanel.setBorder(new TitledBorder("Integrator time step (ps)"));
-        integratorTimeStepSliderPanel.add(integratorTimeStepSlider.graphic());
-
-        JPanel guiPanel = new JPanel(new GridBagLayout());
-        guiPanel.add(repaintSliderPanel, vertGBC);
-        guiPanel.add(doSleepSliderPanel, vertGBC);
-        guiPanel.add(integratorTimeStepSliderPanel, vertGBC);
-
+        if(showTimeControls == true) {
+	        // Repaint delay slider
+	        DeviceSlider repaintSlider = new DeviceSlider(null);
+	        //XXX ugh, see bug 49
+	        repaintSlider.setUnit(Time.SIM_UNIT);
+	        repaintSlider.setShowValues(false);
+	        repaintSlider.setEditValues(true);
+	        repaintSlider.setMinimum(0);
+	        repaintSlider.setMaximum(1000);
+	        repaintSlider.setNMajor(4);
+	        repaintSlider.setValue(repaintSleep);
+	        repaintSlider.setModifier(new Modifier() {
+	            public String getLabel() {return "";}
+	            public Dimension getDimension() {return Undefined.DIMENSION;}
+	            public void setValue(double v) {
+	                repaintSleep = (int)v;
+	            }
+	            public double getValue() {return repaintSleep;}
+	        });
+	        JPanel repaintSliderPanel = new JPanel(new GridLayout(0,1));
+	        repaintSlider.setShowBorder(false);
+	        repaintSliderPanel.setBorder(new TitledBorder("Repaint delay (ms)"));
+	        repaintSliderPanel.add(repaintSlider.graphic());
+	        
+	        // Integrator step delay slider
+	        doSleepSlider = new DeviceSlider(null);
+	        //XXX ugh, see bug 49
+	        doSleepSlider.setUnit(Time.SIM_UNIT);
+	        doSleepSlider.setShowValues(false);
+	        doSleepSlider.setEditValues(true);
+	        doSleepSlider.setMinimum(0);
+	        doSleepSlider.setMaximum(100);
+	        doSleepSlider.setNMajor(5);
+	        JPanel doSleepSliderPanel = new JPanel(new GridLayout(0,1));
+	        doSleepSlider.setShowBorder(false);
+	        doSleepSliderPanel.setBorder(new TitledBorder("Integrator step delay (ms)"));
+	        doSleepSliderPanel.add(doSleepSlider.graphic());
+	        
+	        // Integrator time step slider
+	        integratorTimeStepSlider = new DeviceSlider(null);
+	        integratorTimeStepSlider.setShowValues(false);
+	        integratorTimeStepSlider.setEditValues(true);
+	        integratorTimeStepSlider.setPrecision(2);
+	        integratorTimeStepSlider.setMinimum(0.0);
+	        integratorTimeStepSlider.setMaximum(5);
+	        integratorTimeStepSlider.setNMajor(5);
+	        integratorTimeStepSlider.setValue(0.5);
+	        JPanel integratorTimeStepSliderPanel = new JPanel(new GridLayout(0,1));
+	        repaintSlider.setShowBorder(false);
+	        integratorTimeStepSliderPanel.setBorder(new TitledBorder("Integrator time step (ps)"));
+	        integratorTimeStepSliderPanel.add(integratorTimeStepSlider.graphic());
+	
+	        guiPanel = new JPanel(new GridBagLayout());
+	        guiPanel.add(repaintSliderPanel, vertGBC);
+	        guiPanel.add(doSleepSliderPanel, vertGBC);
+	        guiPanel.add(integratorTimeStepSliderPanel, vertGBC);
+        }
 
         //
         // Tabbed pane for state, potential, controls pages
@@ -430,7 +426,9 @@ public class PistonCylinderGraphic extends SimulationPanel {
         JTabbedPane setupPanel = new JTabbedPane();
         setupPanel.add(statePanel, "State");
         setupPanel.add(potentialPanel, "Potential");
-        setupPanel.add(guiPanel, "Controls");
+        if(showTimeControls == true) {
+            setupPanel.add(guiPanel, "Controls");
+        }
 
         // Density value display
         densityDisplayTextBox = new DisplayTextBoxesCAE();
@@ -498,7 +496,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // Add plots page to tabbed pane
         tabbedPane.add("Plots",new JScrollPane(myPlotPanel));
         
-        // Default behaviour of a SimulationPanel is to
+        // Default behavior of a SimulationPanel is to
         // show a single graphic.  Switch to show the
         // tabbed page.
         remove(graphicsPanel);
@@ -598,6 +596,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
             displayBox.addDrawable(pc.pistonPotential);
             displayBox.addDrawable(pc.wallPotential);
             displayBoxPanel.add(displayBox.graphic(),BorderLayout.WEST);
+            tabbedPane.setSelectedComponent(displayBoxPanel);
         } else {
             tabbedPane.add("Run Faster", blankPanel);
         }
@@ -675,43 +674,45 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pressureSlider.getSlider().setEnabled(!pc.pistonPotential.isStationary());
         pressureSlider.getTextField().setEnabled(!pc.pistonPotential.isStationary());
 
-        if (doNSelector) {
-            nSlider.setController(pc.getController());
-            nSlider.setResetAction(controlButtons.getReinitButton().getAction());
-            nSlider.setBox(pc.box);
-            nSlider.setSpecies(pc.species);
-            nSlider.setMinimum(1);
-            nSlider.setMaximum(200);
+
+        nSlider.setController(pc.getController());
+        nSlider.setResetAction(controlButtons.getReinitButton().getAction());
+        nSlider.setBox(pc.box);
+        nSlider.setSpecies(pc.species);
+        nSlider.setMinimum(1);
+        nSlider.setMaximum(200);
+
+
+        if(showTimeControls == true) {
+	        doSleepSlider.setModifier(new Modifier() {
+	            public String getLabel() {return "";}
+	            public Dimension getDimension() {return Undefined.DIMENSION;}
+	            public void setValue(double v) {
+	                int mySleep = (int)v;
+	                if (pc.getSpace().D() == 3) {
+	                    integratorSleep3D = mySleep;
+	                }
+	                else {
+	                    integratorSleep = mySleep;
+	                }
+	                pc.ai.setDoSleep(mySleep > 0);
+	                pc.ai.setSleepPeriod(mySleep);
+	            }
+	            public double getValue() {return integratorSleep;}
+	        });
+
+	        pc.integrator.setTimeStep(integratorTimeStepSlider.getValue());
+	        integratorTimeStepSlider.setModifier(new Modifier() {
+	            public String getLabel() {return "";}
+	            public Dimension getDimension() {return Time.DIMENSION;}
+	            public void setValue(double v) {
+	                pc.integrator.setTimeStep(v);
+	            }
+	            public double getValue() {return pc.integrator.getTimeStep();}
+	        });
+	        doSleepSlider.setValue(thisSleep);
         }
-        
-        doSleepSlider.setModifier(new Modifier() {
-            public String getLabel() {return "";}
-            public Dimension getDimension() {return Undefined.DIMENSION;}
-            public void setValue(double v) {
-                int mySleep = (int)v;
-                if (pc.getSpace().D() == 3) {
-                    integratorSleep3D = mySleep;
-                }
-                else {
-                    integratorSleep = mySleep;
-                }
-                pc.ai.setDoSleep(mySleep > 0);
-                pc.ai.setSleepPeriod(mySleep);
-            }
-            public double getValue() {return integratorSleep;}
-        });
-        
-        pc.integrator.setTimeStep(integratorTimeStepSlider.getValue());
-        integratorTimeStepSlider.setModifier(new Modifier() {
-            public String getLabel() {return "";}
-            public Dimension getDimension() {return Time.DIMENSION;}
-            public void setValue(double v) {
-                pc.integrator.setTimeStep(v);
-            }
-            public double getValue() {return pc.integrator.getTimeStep();}
-        });
-        doSleepSlider.setValue(thisSleep);
-        
+
         //  data panel
         // the data channel sending the DataTable should be cut off (and hopefully garbage collected)
         plotD.getDataSet().reset();
@@ -900,9 +901,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
 
     public static void main(String[] args) {
         PistonCylinderGraphic pcg = new PistonCylinderGraphic();
-        pcg.setDoConfigButton(true);
+        pcg.setDoConfigButton(false);
         pcg.setDoRDF(true);
-        pcg.setDoNSelector(true);
         pcg.init();
 		SimulationGraphic.makeAndDisplayFrame(pcg, "Piston Cylinder");
     }
@@ -920,9 +920,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
                 pcg.setDoRDF(Boolean.valueOf(doRDFStr).booleanValue());
             }
             String doNSelectorStr = getParameter("doRDF");
-            if (doNSelectorStr != null) {
-                pcg.setDoNSelector(Boolean.valueOf(doRDFStr).booleanValue());
-            }
+
             pcg.init();
             getContentPane().add(this);
         }

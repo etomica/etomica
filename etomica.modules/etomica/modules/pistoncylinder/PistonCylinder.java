@@ -30,6 +30,7 @@ import etomica.units.Bar;
 public class PistonCylinder extends Simulation {
     
     private static final long serialVersionUID = 1L;
+    private final int INIT_NUM_MOLECULES = 100;
     public IntegratorHardPiston integrator;
     public SpeciesSpheresMono species;
     public Box box;
@@ -53,7 +54,7 @@ public class PistonCylinder extends Simulation {
         getSpeciesManager().addSpecies(species);
         box = new Box(new BoundaryPistonCylinder(space, getRandom()));
         addBox(box);
-        box.setNMolecules(species, 112);
+        box.setNMolecules(species, INIT_NUM_MOLECULES);
         IVector newDim;
         if (space.D() == 2) {
             config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
