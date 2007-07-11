@@ -40,8 +40,6 @@ public class P2Dreiding extends Potential2SoftSpherical {
      */
     public double du(double r2) {
     	double r = Math.sqrt(r2);
-    	//double diff = (r - Re)/Re*100;
-    	//System.out.println(Re + " " + r + " " + diff);
         return 2*alpha*r*(r-Re);
     }
 
@@ -61,11 +59,11 @@ public class P2Dreiding extends Potential2SoftSpherical {
         return 0.0;
     }
     
-    public double setAlpha(){return alpha;}
+    public double getAlpha(){return alpha;}
     public final void setAlpha(double a) {alpha = a;}
     
     
-    public double setBondLength(){return Re;}
+    public double getBondLength(){return Re;}
     public final void setBondLength (double b) {Re = b;}
  
 	private static final long serialVersionUID = 1L; 
