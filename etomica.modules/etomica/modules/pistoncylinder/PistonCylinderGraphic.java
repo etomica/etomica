@@ -274,6 +274,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // tie temperature slider to adiabatic/isothermal buttons
         buttonAdiabatic.setSelected(true);
         temperatureSlider.getSlider().setEnabled(false);
+        temperatureSlider.getTextField().setEnabled(false);
         ToggleButtonListener myListener = new ToggleButtonListener();
         buttonAdiabatic.addActionListener(myListener);
         buttonIsothermal.addActionListener(myListener);
@@ -890,9 +891,11 @@ public class PistonCylinderGraphic extends SimulationPanel {
     	public void actionPerformed(ActionEvent e) {
             if(buttonAdiabatic.isSelected()) {
             	temperatureSlider.getSlider().setEnabled(false);
+            	temperatureSlider.getTextField().setEnabled(false);
             }
             else {
             	temperatureSlider.getSlider().setEnabled(true);
+            	temperatureSlider.getTextField().setEnabled(true);
             }
     	}
     }
