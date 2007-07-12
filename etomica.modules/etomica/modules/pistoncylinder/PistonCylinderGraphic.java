@@ -125,6 +125,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
 	private DisplayTextBoxesCAE densityDisplayTextBox, temperatureDisplayTextBox, pressureDisplayTextBox;
     public JRadioButton buttonAdiabatic, buttonIsothermal;
     public JPanel blankPanel = new JPanel();
+    public JScrollPane plotsPane;
     public int historyLength;
     public DataSourceWallPressure pressureMeter;
     public int dataInterval;
@@ -502,13 +503,14 @@ public class PistonCylinderGraphic extends SimulationPanel {
         plotT = new DisplayPlot();
         plotP = new DisplayPlot();
 
-        JPanel myPlotPanel = new JPanel(new GridLayout(0,1));
+        JPanel myPlotPanel = new JPanel(new GridLayout(0, 1));
         myPlotPanel.add(plotD.graphic());
         myPlotPanel.add(plotT.graphic());
         myPlotPanel.add(plotP.graphic());
+        plotsPane = new JScrollPane(myPlotPanel);
 
         // Add plots page to tabbed pane
-        tabbedPane.add("Plots",new JScrollPane(myPlotPanel));
+        tabbedPane.add("Plots", plotsPane);
         
         // Default behavior of a SimulationPanel is to
         // show a single graphic.  Switch to show the
@@ -602,7 +604,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         }
         if (D == 2) {
             tabbedPane.insertTab(displayBox.getLabel(), null, displayBoxPanel, "", 0);
-            displayBox.setPixelUnit(new Pixel(600/pc.box.getBoundary().getDimensions().x(1)));
+            displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getDimensions().x(1)));
             displayBox.setBox(pc.box);
             displayBox.setAlign(1,DisplayBox.BOTTOM);
             displayBox.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
@@ -818,11 +820,17 @@ public class PistonCylinderGraphic extends SimulationPanel {
         plotT.getPlot().setTitle("Temperature ("+tUnit.symbol()+")");
         plotD.getPlot().setTitle("Density ("+dUnit.symbol()+")");
  
+        // Set the size of the plots and the scoll pane containing the plots.
+        // Want 2 of the 3 plots displayed
         java.awt.Dimension d = plotT.getPlot().getPreferredSize();
         d.height = 230;
         plotT.getPlot().setSize(d);
         plotP.getPlot().setSize(d);
         plotD.getPlot().setSize(d);
+
+        d.width += 40;
+        d.height = d.height * 2 + 40;
+        plotsPane.setPreferredSize(d);
 
         if (doRDF) {
             plotRDF.getDataSet().reset();
