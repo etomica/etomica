@@ -4,6 +4,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -134,7 +136,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
     public int integratorSleep3D = 0;
     private boolean initialized;
     private boolean doConfigButton = false;
-    private boolean doRDF;
+    private boolean doRDF = false;
     private boolean showTimeControls = false;
     private JPanel guiPanel;
     
@@ -246,7 +248,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
         ButtonGroup thermalGroup = new ButtonGroup();
         buttonAdiabatic = new JRadioButton("Adiabatic");
         buttonIsothermal = new JRadioButton("Isothermal");
-        buttonAdiabatic.setSelected(true);
         thermalGroup.add(buttonAdiabatic);
         thermalGroup.add(buttonIsothermal);
         buttonIsothermal.addItemListener(new ItemListener() {
@@ -258,7 +259,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
                 });
             }
         });
-        
+
+
         //temperature selector
         temperatureSlider = new DeviceSlider(null);
         temperatureSlider.setShowValues(true);
@@ -267,6 +269,13 @@ public class PistonCylinderGraphic extends SimulationPanel {
         temperatureSlider.setMaximum(1000);
         temperatureSlider.setNMajor(4);
         temperatureSlider.setValue(300);
+
+        // tie temperature slider to adiabatic/isothermal buttons
+        buttonAdiabatic.setSelected(true);
+        temperatureSlider.getSlider().setEnabled(false);
+        ToggleButtonListener myListener = new ToggleButtonListener();
+        buttonAdiabatic.addActionListener(myListener);
+        buttonIsothermal.addActionListener(myListener);
 
         //
         // panel for the temperature control/display
@@ -457,7 +466,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // Add panels to the control panel
         controlPanel.add(controlsPanel, vertGBC);
         controlPanel.add(setupPanel, vertGBC);
-        controlPanel.add(dataPanel, vertGBC);
+        plotPanel.add(dataPanel, vertGBC);
 
         //
 	    // Configuration tabbed page
@@ -869,6 +878,17 @@ public class PistonCylinderGraphic extends SimulationPanel {
         });
     }
 
+    class ToggleButtonListener implements ActionListener {
+    	public void actionPerformed(ActionEvent e) {
+            if(buttonAdiabatic.isSelected()) {
+            	temperatureSlider.getSlider().setEnabled(false);
+            }
+            else {
+            	temperatureSlider.getSlider().setEnabled(true);
+            }
+    	}
+    }
+
     protected class ModifierAtomDiameter implements Modifier {
 
         public void setValue(double d) {
@@ -902,8 +922,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
 
     public static void main(String[] args) {
         PistonCylinderGraphic pcg = new PistonCylinderGraphic();
-        pcg.setDoConfigButton(false);
-        pcg.setDoRDF(true);
         pcg.init();
 		SimulationGraphic.makeAndDisplayFrame(pcg, "Piston Cylinder");
     }
