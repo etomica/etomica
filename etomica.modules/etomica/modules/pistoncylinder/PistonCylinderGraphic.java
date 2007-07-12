@@ -48,13 +48,14 @@ import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DeviceTrioControllerButton;
+import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayCanvasInterface;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.DisplayCanvasInterface;
-import etomica.graphics.DisplayBox;
-import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.integrator.IIntegrator;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifierFunctionWrapper;
@@ -561,6 +562,19 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pc.config.setBoundaryPadding(sigma);
         pc.config.initializeCoordinates(sim.box);
         ((SimulationRestart)controlButtons.getReinitButton().getAction()).setConfiguration(sim.config);
+        final IIntegrator integrator = pc.integrator;
+        // re-initialize the integrator expclitly.  This resets the piston
+        // position back to the top.
+        controlButtons.getReinitButton().setPostAction(new Action() {
+            public void actionPerformed() {
+                try {
+                    integrator.initialize();
+                }
+                catch (ConfigurationOverlapException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
         ArrayList dataStreamPumps = controlButtons.getDataStreamPumps();
         
         ((ElementSimple)((AtomTypeLeaf)pc.species.getMoleculeType()).getElement()).setMass(mass);
