@@ -171,6 +171,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
     }
 
     public void allAtoms(AtomsetAction action) {
+        reset();
         iterator.allAtoms(action);
     }
     

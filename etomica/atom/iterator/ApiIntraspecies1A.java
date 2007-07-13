@@ -2,6 +2,7 @@ package etomica.atom.iterator;
 
 import java.io.Serializable;
 
+import etomica.action.AtomsetAction;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -74,6 +75,11 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
             throw new NullPointerException("target atom must not be null");
         }
         targetAtom = newTargetAtom;
+    }
+    
+    public void allAtoms(AtomsetAction action) {
+        reset();
+        super.allAtoms(action);
     }
     
     public void reset() {
