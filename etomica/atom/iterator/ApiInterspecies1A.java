@@ -91,7 +91,6 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
             species0 = species1;
             species1 = tempSpecies;
         }
-        identifyTargetMolecule();
     }
 
     /**
@@ -124,7 +123,6 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
             throw new NullPointerException("target atom must not be null");
         }
         targetAtom = newTargetAtom;
-        identifyTargetMolecule();
     }
 
     /**
@@ -185,6 +183,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
     }
     
     public void reset() {
+        identifyTargetMolecule();
         iterator.reset();
     }
 
