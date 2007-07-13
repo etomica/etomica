@@ -144,8 +144,11 @@ public class SimHarmonicHexane extends Simulation {
         }
 
         
-        
-        
+        filename = "normal_modes18_37hexane500000";
+        nSteps = 500000;
+        xLng = 2;
+        yLng = 3;
+        zLng = 3;
         
         
         
