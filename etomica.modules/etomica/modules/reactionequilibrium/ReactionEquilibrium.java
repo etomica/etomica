@@ -10,9 +10,10 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.box.Box;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
-import etomica.box.Box;
+import etomica.potential.P1HardPeriodic;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -49,6 +50,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         //controller and integrator
         integratorHard1 = new IntegratorHard(this, potentialMaster);
         integratorHard1.setIsothermal(true);
+        integratorHard1.setNullPotential(new P1HardPeriodic(space));
 
         //construct box
         box = new Box(this);
