@@ -57,7 +57,6 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
         if (box == null) {
             throw new IllegalArgumentException("You are a bad person.  I didn't even care about the box, but since you passed null, I'm going to quit.");
         }
-        identifyTargetMolecule();
     }
 
     /**
@@ -75,7 +74,11 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
             throw new NullPointerException("target atom must not be null");
         }
         targetAtom = newTargetAtom;
+    }
+    
+    public void reset() {
         identifyTargetMolecule();
+        super.reset();
     }
 
     /**
