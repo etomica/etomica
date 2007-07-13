@@ -71,7 +71,7 @@ public class P2SquareWellBonded extends P2SquareWell {
             IAtomKinetic atom1 = (IAtomKinetic)atoms.getAtom(1);
 
             // ** Makes 2 things, and atomPair pair, 
-            IAtom a1Partner = (IAtom)agentManager.getAgent(atom0);
+            IAtom a0Partner = (IAtom)agentManager.getAgent(atom0);
 
             dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
             
@@ -83,9 +83,10 @@ public class P2SquareWellBonded extends P2SquareWell {
             double bij = dr.dot(dv);
 
             //inside well but not mutually bonded; collide now if approaching
-            if ((a1Partner != atom1 && r2 < wellDiameterSquared)
-             || (a1Partner == atom1 && r2 < coreDiameterSquared)) {
-                return (bij < 0.0) ? falseTime : Double.POSITIVE_INFINITY;
+            if (((a0Partner != atom1 && r2 < wellDiameterSquared)
+              || (a0Partner == atom1 && r2 < coreDiameterSquared))
+             && bij < 0.0) {
+                return falseTime;
             }
         }
         //mutually bonded, or outside well; collide as SW
@@ -126,6 +127,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 
 		boolean a0Saturated = (a0Partner != null);
 		boolean a1Saturated = (a1Partner != null);
+		lastEnergyChange = 0.0;
 
 		if (a0Partner == atom1) {	//atoms are bonded to each
             if (a1Partner != atom0) {
@@ -148,6 +150,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 				{ 				
 					
 				lastCollisionVirial = 0.5 * reduced_m * bij- Math.sqrt(reduced_m * r2 * (ke - epsilon));
+				lastEnergyChange = epsilon;
 
 				// Atoms need to escape, so what needs to happen is, we need to find which cell in 
 				// All Atom Agents array is full, with atom a1, or a0, and set those spaces equal to null. 
@@ -176,6 +179,7 @@ public class P2SquareWellBonded extends P2SquareWell {
 						* reduced_m
 						* (bij + Math.sqrt(bij * bij + 4.0 * r2 * epsilon
 								/ reduced_m));
+                lastEnergyChange = -epsilon;
                 agentManager.setAgent(atom0, atom1);
                 agentManager.setAgent(atom1, atom0);
 				nudge = -eps;
