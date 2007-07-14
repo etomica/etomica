@@ -55,7 +55,7 @@ public final class ApiBuilder {
     /**
      * Returns an intergroup iterator that filters the iterates so that only
      * those having the given type instances are returned. The given types are
-     * applied corresponding to the pair of basis atoms identifed when the
+     * applied corresponding to the pair of basis atoms identified when the
      * iterator's setBasis method is invoked. Child atoms of the first basis
      * atom only having type = types[0] are given, in pairs with child atoms of
      * the second basis atom only having type = types[1].
@@ -77,13 +77,11 @@ public final class ApiBuilder {
 
     /**
      * Returns an intragroup iterator that filters the iterates so that only
-     * those having the given type instances are returned. The given types are
-     * applied correspond to the pair of basis atoms identifed when the
-     * iterator's setBasis method is invoked. Child atoms of the first basis
-     * atom only having type = types[0] are given, in pairs with child atoms of
-     * the second basis atom only having type = types[1]. If the two given types
-     * are different instances, an ApiIntragroupFixed iterator is returned. An
-     * exception is thrown if the types array is not of length 2.
+     * those having the given type instances are returned. Child atoms of the
+     * basis atom only having type = types[0] are given, in pairs with child
+     * atoms of the basis atom only having type = types[1]. If the two given
+     * types are different instances, an ApiIntragroupFixed iterator is
+     * returned. An exception is thrown if the types array is not of length 2.
      */
     public static AtomsetIteratorBasisDependent makeIntragroupTypeIterator(
             AtomType[] types) {
