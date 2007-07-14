@@ -34,10 +34,10 @@ public class IteratorFactory implements java.io.Serializable {
             throw new IllegalArgumentException("null or invalid number of species.  Must specify either 1 or 2 species instances.");
         }
         if (species.length==1) {
-            return new AtomIteratorMolecule(species);
+            return new AtomIteratorMolecule(species[0]);
         }
         if (species[0] == species[1]) {
-            return makeIntraspeciesPairIterator(species);
+            return makeIntraspeciesPairIterator(species[0]);
         }
         return makeInterspeciesPairIterator(species);
     }
@@ -58,9 +58,11 @@ public class IteratorFactory implements java.io.Serializable {
      * within one group
      * @return the pair iterator
      */
-    public AtomsetIteratorPDT makeIntraspeciesPairIterator(Species[] species) {
+    public AtomsetIteratorPDT makeIntraspeciesPairIterator(Species species) {
         AtomsetIteratorPDT api1A = new ApiIntraspecies1A(species);
         AtomsetIteratorBoxDependent apiAA = new ApiIntraspeciesAA(species);
         return new ApiMolecule(api1A, apiAA);
     }
+
+    private static final long serialVersionUID = 1L;
 }

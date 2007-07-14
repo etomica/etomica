@@ -18,13 +18,13 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         AtomsetIteratorPDT, AtomIteratorBoxDependent {
 
     /**
-     * @param species species for which molecules are returned as iterates. Only
-     * species[0] is relevant, and must not be null.
+     * @param species species for which molecules are returned as iterates.
+     * species must not be null.
      */
-    public AtomIteratorMolecule(Species[] species) {
+    public AtomIteratorMolecule(Species species) {
         super(new AtomIteratorArrayListSimple());
         listIterator = (AtomIteratorArrayListSimple)iterator;
-        this.species = species[0];
+        this.species = species;
     }
 
     /**

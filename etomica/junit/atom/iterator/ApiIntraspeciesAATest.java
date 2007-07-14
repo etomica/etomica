@@ -38,31 +38,13 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         
         
         //test new iterator gives no iterates
-        ApiIntraspeciesAA api = new ApiIntraspeciesAA(new Species[] {species[0], species[0]});
+        ApiIntraspeciesAA api = new ApiIntraspeciesAA(species[0]);
         testNoIterates(api);
 
         //test documented exceptions
         boolean exceptionThrown = false;
         try {
-            new ApiIntraspeciesAA(new Species[] {species[0]});
-        } catch(IllegalArgumentException e) {exceptionThrown = true;}
-        assertTrue(exceptionThrown);
-        exceptionThrown = false;
-        try {
-            new ApiIntraspeciesAA(new Species[] {species[0], species[1]});
-        } catch(IllegalArgumentException e) {exceptionThrown = true;}
-        assertTrue(exceptionThrown);
-        exceptionThrown = false;
-        try {
-            new ApiIntraspeciesAA(new Species[] {species[0], null});
-        } catch(NullPointerException e) {exceptionThrown = true;}
-        assertTrue(exceptionThrown);
-        exceptionThrown = false;
-        try {
             new ApiIntraspeciesAA((Species)null);
-        } catch(NullPointerException e) {exceptionThrown = true;}
-        try {
-            new ApiIntraspeciesAA((Species[])null);
         } catch(NullPointerException e) {exceptionThrown = true;}
         assertTrue(exceptionThrown);
 

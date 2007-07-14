@@ -38,7 +38,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         boxTest(sim.getBoxs()[1], species);
         boxTest(sim.getBoxs()[2], species);
         
-        ApiIntraspecies1A api = new ApiIntraspecies1A(new Species[] {species[0], species[0]});
+        ApiIntraspecies1A api = new ApiIntraspecies1A(species[0]);
         
         //test new iterator gives no iterates
         testNoIterates(api);
@@ -57,25 +57,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         assertTrue(exceptionThrown);
         exceptionThrown = false;
         try {
-            new ApiIntraspecies1A(new Species[] {species[0]});
-        } catch(IllegalArgumentException e) {exceptionThrown = true;}
-        assertTrue(exceptionThrown);
-        exceptionThrown = false;
-        try {
-            new ApiIntraspecies1A(new Species[] {species[0], species[1]});
-        } catch(IllegalArgumentException e) {exceptionThrown = true;}
-        assertTrue(exceptionThrown);
-        exceptionThrown = false;
-        try {
-            new ApiIntraspecies1A(new Species[] {species[0], null});
-        } catch(NullPointerException e) {exceptionThrown = true;}
-        assertTrue(exceptionThrown);
-        exceptionThrown = false;
-        try {
             new ApiIntraspecies1A((Species)null);
-        } catch(NullPointerException e) {exceptionThrown = true;}
-        try {
-            new ApiIntraspecies1A((Species[])null);
         } catch(NullPointerException e) {exceptionThrown = true;}
         assertTrue(exceptionThrown);
 
@@ -97,7 +79,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
      */
     private void speciesTestForward(Box box, Species species) {
 
-        ApiIntraspecies1A api = new ApiIntraspecies1A(new Species[] {species, species});
+        ApiIntraspecies1A api = new ApiIntraspecies1A(species);
         AtomsetAction speciesTest = new SpeciesTestAction(species, species);
         IAtom target = null;
         IAtom targetMolecule = null;

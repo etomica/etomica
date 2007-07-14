@@ -22,31 +22,11 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      *            species whose molecules will form the pair iterates
      */
     public ApiIntraspecies1A(Species species) {
-        this(new Species[] { species, species });
-    }
-
-    /**
-     * @param species
-     *            array of two non-null elements referencing the same species
-     *            instance
-     * @throws NullPointerException
-     *             if species or one of its elements is null
-     * @throws IllegalArgumentException
-     *             if species is not a length-2 array or if its elements refer
-     *             to different species instances
-     */
-    public ApiIntraspecies1A(Species[] species) {
         super();
-        if (species.length != 2)
-            throw new IllegalArgumentException(
-                    "Constructor of ApiIntraspecies1A requires two references to the same species instance");
-        if (species == null || species[0] == null || species[1] == null)
-            throw new NullPointerException(
-                    "Constructor of ApiIntraspecies1A requires two non-null species references to the same instance");
-        if (species[0] != species[1])
-            throw new IllegalArgumentException(
-                    "Constructor of ApiIntraspecies1A requires references to the same species instance");
-        this.species = species[0];
+        if (species == null) {
+            throw new NullPointerException("Constructor of ApiIntraspecies1A a non-null species");
+        }
+        this.species = species;
     }
 
     /**

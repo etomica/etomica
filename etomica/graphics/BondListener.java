@@ -69,7 +69,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
 
         // now find bonds for atoms that already exist
         // the ArrayLists (agents) for the Atoms will already exist
-        AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(new Species[]{species});
+        AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(species);
         moleculeIterator.setBox(box);
         moleculeIterator.reset();
         for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
@@ -107,7 +107,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
      */
     public void removeModel(Model model) {
         Species species = model.getSpecies();
-        AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(new Species[]{species});
+        AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(species);
         moleculeIterator.setBox(box);
         moleculeIterator.reset();
         AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
