@@ -66,7 +66,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	//sim.integrator.setTimeStep(0.00);
         	MSDCoordWriter coordWriter = new MSDCoordWriter(sim.getSpace(), filename);
         	coordWriter.setBox(sim.box);
-            coordWriter.setIterator(new AtomIteratorMolecule(sp));
+            coordWriter.setIterator(new AtomIteratorMolecule(sp[0]));
             coordWriter.setIntegrator(sim.integrator);
             coordWriter.setWriteInterval(interval);
             coordWriter.openFile();
