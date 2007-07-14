@@ -72,21 +72,21 @@ public class P2SquareWellBonded extends P2SquareWell {
 
             // ** Makes 2 things, and atomPair pair, 
             IAtom a0Partner = (IAtom)agentManager.getAgent(atom0);
+            if (a0Partner != atom1) {
 
-            dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
-            
-            dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-            dr.PEa1Tv1(falseTime,dv);
-            nearestImageTransformer.nearestImage(dr);
+                dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
 
-            double r2 = dr.squared();
-            double bij = dr.dot(dv);
+                dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
+                dr.PEa1Tv1(falseTime,dv);
+                nearestImageTransformer.nearestImage(dr);
 
-            //inside well but not mutually bonded; collide now if approaching
-            if (((a0Partner != atom1 && r2 < wellDiameterSquared)
-              || (a0Partner == atom1 && r2 < coreDiameterSquared))
-             && bij < 0.0) {
-                return falseTime;
+                double r2 = dr.squared();
+
+                if (r2 < wellDiameterSquared) {
+                    //inside well but not mutually bonded; collide now if approaching, never if not.
+                    double bij = dr.dot(dv);
+                    return bij < 0.0 ? falseTime : Double.POSITIVE_INFINITY;
+                }
             }
         }
         //mutually bonded, or outside well; collide as SW
