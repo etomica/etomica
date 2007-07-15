@@ -57,7 +57,6 @@ public class TestYukawaMD3D extends Simulation{
 		
 		
 		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-		activityIntegrate.setDoSleep(true);
 		activityIntegrate.setSleepPeriod(1);
 		getController().addAction(activityIntegrate);
 		
