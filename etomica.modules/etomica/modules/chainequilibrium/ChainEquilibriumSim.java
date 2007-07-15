@@ -36,6 +36,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 	public P2SquareWellBonded AAbonded;
 	public P2SquareWellBonded ABbonded;
 	public P2SquareWellBonded BBbonded;
+    public ActivityIntegrate activityIntegrate;
     private AtomLeafAgentManager agentManager = null;
     public IAtom[] agents;
 
@@ -88,7 +89,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 		thermometer = new MeterTemperature();
 		thermometer.setBox(box);
         
-		ActivityIntegrate activityIntegrate = new ActivityIntegrate(integratorHard1,true,true);
+		activityIntegrate = new ActivityIntegrate(integratorHard1,true,true);
 		activityIntegrate.setDoSleep(true);
 		activityIntegrate.setSleepPeriod(1);
 		getController().addAction(activityIntegrate);

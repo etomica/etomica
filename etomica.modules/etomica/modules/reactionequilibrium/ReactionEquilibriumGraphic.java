@@ -37,10 +37,12 @@ import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
+import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
+import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.PrefixedUnit;
 import etomica.util.Constants.CompassDirection;
@@ -55,10 +57,12 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 	private static final String APP_NAME = "Reaction Equilibrium";
 	private static final int REPAINT_INTERVAL = 1000;
+    protected final ReactionEquilibrium sim;
 
-	public ReactionEquilibriumGraphic(ReactionEquilibrium sim) {
+	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation) {
 
-		super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+        this.sim = simulation;
 
 		GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
@@ -230,10 +234,29 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
     		dimerfractionhistory.addDataSink (plot.getDataSet().makeDataSink());
     		plot.setLegend(new DataTag[]{dimerfractionhistory.getTag()}, dimerInfo.getRowHeader(i));
         }
+         
+         final DeviceSlider delaySlider = new DeviceSlider(sim.controller1, new Modifier() {
+             public double getValue() {return Math.pow(sim.activityIntegrate.getSleepPeriod(),1./3.);}
+             public void setValue(double d) {sim.activityIntegrate.setSleepPeriod((int)(d*d*d));}
+             public Dimension getDimension() {return Null.DIMENSION;}
+             public String getLabel() {return "Sleep period";}
+         });
+//         delaySlider.setSliderVerticalOrientation(true);
+         delaySlider.setMaximum(10);
+         delaySlider.setMinimum(0);
+         delaySlider.setNMajor(5);
+         delaySlider.setValue(0);
+         delaySlider.setShowMinorTicks(true);
+         JPanel delaySliderPanel = new JPanel();
+         delaySliderPanel.add(delaySlider.graphic());
+         delaySliderPanel.setBorder(new javax.swing.border.TitledBorder("Delay"));
+
 
 		//************* Lay out components ****************//
 
-		//panel for the temperature control/display
+        getPanel().controlPanel.add(delaySliderPanel, vertGBC);
+
+         //panel for the temperature control/display
 		JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
 		temperaturePanel.setBorder(new javax.swing.border.TitledBorder(
 				"Temperature (K)"));

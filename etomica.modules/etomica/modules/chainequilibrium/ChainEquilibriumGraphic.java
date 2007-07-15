@@ -1,6 +1,7 @@
 package etomica.modules.chainequilibrium;
 
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -14,12 +15,15 @@ import etomica.data.DataSinkTable;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.modifier.Modifier;
+import etomica.units.Dimension;
 import etomica.units.Kelvin;
+import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.PrefixedUnit;
 import etomica.util.Constants.CompassDirection;
@@ -33,7 +37,7 @@ import etomica.util.Constants.CompassDirection;
 public class ChainEquilibriumGraphic extends SimulationGraphic {
 
 	private static final String APP_NAME = "Chain Reaction Equilibrium";
-	private static final int REPAINT_INTERVAL = 35;
+	private static final int REPAINT_INTERVAL = 1;
 
     protected ChainEquilibriumSim sim;
 
@@ -53,6 +57,23 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         int eMin = 0, eMax = 1000,  majorSpacing = 15, minorSpacing = 5;
 
         // **** Stuff that Modifies the Simulation
+        
+        final DeviceSlider delaySlider = new DeviceSlider(sim.controller1, new Modifier() {
+            public double getValue() {return Math.pow(sim.activityIntegrate.getSleepPeriod(),1./3.);}
+            public void setValue(double d) {sim.activityIntegrate.setSleepPeriod((int)(d*d*d));}
+            public Dimension getDimension() {return Null.DIMENSION;}
+            public String getLabel() {return "Sleep period";}
+        });
+//        delaySlider.setSliderVerticalOrientation(true);
+        delaySlider.setMaximum(10);
+        delaySlider.setMinimum(0);
+        delaySlider.setNMajor(5);
+        delaySlider.setValue(0);
+        delaySlider.setShowMinorTicks(true);
+        JPanel delaySliderPanel = new JPanel();
+        delaySliderPanel.add(delaySlider.graphic());
+        delaySliderPanel.setBorder(new javax.swing.border.TitledBorder("Delay"));
+        
 
         // Sliders on Well depth page
         final DeviceSlider AASlider = sliders(sim, eMin, eMax, "RR epsilon", sim.AAbonded);
@@ -89,6 +110,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DataPump pump = new DataPump(sim.molecularCount,accumulator);
         dataStreamPumps.add(pump);
         sim.integratorHard1.addIntervalAction(pump);
+        
+        sim.integratorHard1.setTimeStep(0.01);
 
         DataSinkTable dataTable = new DataSinkTable();
         accumulator.addDataSink(dataTable.makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
@@ -108,8 +131,13 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         // Setting up how often it operates. 
         sim.integratorHard1.setActionInterval(tPump, 100);
 
-		DeviceThermoSelector tSelect = setup(sim);
+        DeviceThermoSelector tSelect = new DeviceThermoSelector(sim.controller1, Kelvin.UNIT, true);
+        tSelect.setTemperatures(new double[] { 50., 100., 150., 200., 300.,500., 700., 1000., 1200. });
+        tSelect.setUnit(Kelvin.UNIT);
         tSelect.setIntegrator(sim.integratorHard1);
+        tSelect.setSelected(3);     //sets 150K as selected temperature (0th selection is "Adiabatic")
+        tSelect.getLabel().setText("Set value");
+        
         ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
         colorScheme.setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
         colorScheme.setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
@@ -196,6 +224,12 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 		});
 
         //panel for all the controls
+//        ((JPanel)getPanel().tabbedPane.getComponentAt(0)).add(delaySliderPanel);
+//        JPanel panel1 = new JPanel(new GridBagLayout());
+//        panel1.add(temperaturePanel,vertGBC);
+//        panel1.add(sliderPanel,vertGBC);
+//        getPanel().controlPanel.add(panel1, horizGBC);
+        getPanel().controlPanel.add(delaySliderPanel, vertGBC);
         getPanel().controlPanel.add(temperaturePanel, vertGBC);
         getPanel().controlPanel.add(sliderPanel, vertGBC);
         getPanel().controlPanel.add(speciesEditors, vertGBC);
@@ -216,14 +250,6 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
     }
 
-    public DeviceThermoSelector setup(ChainEquilibriumSim sim){
-        DeviceThermoSelector tSelect = new DeviceThermoSelector(sim.controller1, Kelvin.UNIT, true);
-        tSelect.setTemperatures(new double[] { 50., 100., 150., 200., 300.,500., 700., 1000., 1200. });
-        tSelect.setUnit(Kelvin.UNIT);
-        tSelect.setSelected(3); 	//sets 300K as selected temperature
-        tSelect.getLabel().setText("Set value");
-        return tSelect;
-    }
     public DeviceSlider sliders(ChainEquilibriumSim sim, int eMin, int eMax, String s, P2SquareWellBonded p){
 
         DeviceSlider AASlider = new DeviceSlider(sim.getController(), new WellDepthModifier(p));

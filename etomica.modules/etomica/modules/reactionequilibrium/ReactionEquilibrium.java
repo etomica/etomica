@@ -37,6 +37,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
     public P2SquareWellBonded ABbonded;
     public P2SquareWellBonded BBbonded;
     public MeterDimerFraction meterDimerFraction;
+    public ActivityIntegrate activityIntegrate;
     private AtomLeafAgentManager agentManager = null;
     public IAtom[] agents;
     
@@ -91,7 +92,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         thermometer = new MeterTemperature();
         thermometer.setBox(box);
         
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integratorHard1);
+        activityIntegrate = new ActivityIntegrate(integratorHard1);
         activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
