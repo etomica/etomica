@@ -187,8 +187,7 @@ public class SimOverlapLJ extends Simulation {
         
         setRefPref(1.0, 30);
         
-        // sadly, we have to ignore overlap in both boxs since we expect "overlaps" in the harmonic box.
-        activityIntegrate = new ActivityIntegrate(integratorOverlap, false, true);
+        activityIntegrate = new ActivityIntegrate(integratorOverlap);
         
         getController().addAction(activityIntegrate);
     }

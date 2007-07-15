@@ -109,8 +109,7 @@ public class ZeoliteSimulation extends Simulation {
         integrator.setTemperature(Kelvin.UNIT.toSim(298.0));
         
 
-        activityIntegrate = new ActivityIntegrate(integrator, true, true);
-        activityIntegrate.setSleepPeriod(2);
+        activityIntegrate = new ActivityIntegrate(integrator, 2, true);
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
         

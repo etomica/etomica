@@ -116,7 +116,6 @@ public class MDParacetamolMonoclinic extends Simulation {
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         //activityIntegrate.setMaxSteps(100000);
-        activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         

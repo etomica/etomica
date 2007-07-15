@@ -61,7 +61,7 @@ public class SimCalcSParacetamolMinEnergy extends Simulation {
         ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
         integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
         
-        activityIntegrate = new ActivityIntegrate(integrator, false, false);
+        activityIntegrate = new ActivityIntegrate(integrator, 0, false);
         getController().addAction(activityIntegrate);
 
         

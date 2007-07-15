@@ -106,7 +106,7 @@ public class MCMoveHarmonicStepParacetamolOrthorhombic extends Simulation {
         ((MCMoveStepTracker)moveHarmonicStep.getTracker()).setNoisyAdjustment(true);
         
         
-        actionIntegrate = new ActivityIntegrate(integrator, false, false);
+        actionIntegrate = new ActivityIntegrate(integrator, 0, false);
         actionIntegrate.setMaxSteps(1000000);
         getController().addAction(actionIntegrate);
         

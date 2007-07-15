@@ -34,7 +34,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	
         	//Set Max Steps Based on SimulationParameters.xls
         	sim.activityIntegrate.setMaxSteps(3270000/2);
-        	sim.activityIntegrate.setDoSleep(false);
+        	sim.activityIntegrate.setSleepPeriod(0);
         	((IntegratorMD)integrator).setThermostatInterval(327000);
         	//Keeping another graphic of the total energy drift
         	MeterEnergy eMeter = new MeterEnergy(((IntegratorBox)integrator).getPotential());

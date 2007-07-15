@@ -61,8 +61,6 @@ public class Heisenberg extends Simulation {
         integrator.getMoveManager().addMCMove(mcmove);
         
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setDoSleep(false);
-        activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 
         AtomType type = spins.getMoleculeType();

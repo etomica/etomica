@@ -100,7 +100,7 @@ public class MCMoveHarmonicParacetamolOrthorhombic extends Simulation {
         moveHarmonic.setWaveVectorCoefficients(waveVectorFactory.getCoefficients());
         moveHarmonic.setTemperature(Kelvin.UNIT.toSim(1));
         
-        actionIntegrate = new ActivityIntegrate(integrator, false, false);
+        actionIntegrate = new ActivityIntegrate(integrator, 0, false);
         //actionIntegrate.setMaxSteps(1);
         getController().addAction(actionIntegrate);
         

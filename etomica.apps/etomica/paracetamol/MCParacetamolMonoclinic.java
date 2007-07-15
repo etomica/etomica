@@ -95,7 +95,7 @@ public class MCParacetamolMonoclinic extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveMolecule);
         integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
         
-        actionIntegrate = new ActivityIntegrate(integrator, false, false);
+        actionIntegrate = new ActivityIntegrate(integrator, 0, false);
         //actionIntegrate.setMaxSteps(1000000);
         getController().addAction(actionIntegrate);
         
