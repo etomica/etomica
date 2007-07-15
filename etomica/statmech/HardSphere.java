@@ -53,11 +53,17 @@ public class HardSphere {
     public static void main(String[] args) {
 
         HardSphere hs = new HardSphere();
-        double density = 1.3;
-        double fid = hs.idFreeEnergy(1.04086);
-        double fex = hs.doNumericalIntegration(1.04086,density,100000);
-        System.out.println("Ideal Gas Free Energy = "+fid);
-        System.out.println("Excess Free Energy = "+fex);
-        System.out.println("Absolute Free Energy = "+(fex+fid+5.8644));//Fexcess = 5.8644 for N = 32;5.9117 for N = 108 ;5.9208 for N = 256 JCP81 Pg 3191
+        for(double rho = 1.1; rho < 1.411; rho += 0.01) {
+            double density = rho;
+            double fid = hs.idFreeEnergy(1.04086);
+            double fex = hs.doNumericalIntegration(1.04086,density,100000);
+//            System.out.println("rho: "+rho);
+//            System.out.println("Ideal Gas Free Energy = "+fid);
+//            System.out.println("Excess Free Energy = "+fex);
+//            System.out.println("Absolute Free Energy (N= 32) = "+(fex+fid+5.8644));//Fexcess = 5.8644 for N = 32;5.9117 for N = 108 ;5.9208 for N = 256 JCP81 Pg 3191
+//            System.out.println("Absolute Free Energy (N=108) = "+(fex+fid+5.9117));//N = 108
+//            System.out.println("Absolute Free Energy (N=256) = "+(fex+fid+5.9208));//N = 256
+            System.out.println(rho+"\t"+(fex+fid+5.9208));
+        }
     }
 }

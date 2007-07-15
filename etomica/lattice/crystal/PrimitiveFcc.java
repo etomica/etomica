@@ -3,6 +3,7 @@ import etomica.math.geometry.Polytope;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 
 /**
  * Primitive group for a face-centered-cubic system.
@@ -106,15 +107,43 @@ public class PrimitiveFcc extends Primitive {
     
     public String toString() {return "Fcc";}
 
-    public static void main(String args[]) {
-        PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance(), 1);
-        IVector[] v = primitive.vectors();
-        Primitive reciprocal = primitive.makeReciprocal();
-        IVector[] vr = reciprocal.vectors();
-        for (int i=0; i<v.length; i++) {
-            for (int j=0; j<vr.length; j++) {
-                System.out.println(i+" "+j+" "+v[i].dot(vr[j]));
-            }
-        }
+    
+    public static void main(String[] args) {
+        PrimitiveFcc primitive = new PrimitiveFcc(Space3D.getInstance());
+        PrimitiveBcc reciprocal = (PrimitiveBcc)primitive.makeReciprocal();
+        IVector[] latticeVectors = primitive.vectors();
+        Vector3D a = (Vector3D)latticeVectors[0];
+        Vector3D b = (Vector3D)latticeVectors[1];
+        Vector3D c = (Vector3D)latticeVectors[2];
+        Vector3D ar = (Vector3D)reciprocal.vectors()[0];
+        Vector3D br = (Vector3D)reciprocal.vectors()[1];
+        Vector3D cr = (Vector3D)reciprocal.vectors()[2];
+        System.out.println("Primitive");
+        System.out.println(a);
+        System.out.println(b);
+        System.out.println(c);
+        System.out.println("Reciprocal");
+        //ar.TE(0.5); br.TE(0.5); cr.TE(0.5);
+        System.out.println(ar);
+        System.out.println(br);
+        System.out.println(cr);
+        Vector3D work = new Vector3D();
+        work.E(b);
+        work.XE(c);
+        double norm = a.dot(work);
+        work.TE(2*Math.PI/norm);
+        work.ME(ar);
+        System.out.println("check");
+        System.out.println(work);
+        work.E(c);
+        work.XE(a);
+        work.TE(2*Math.PI/norm);
+        work.ME(br);
+        System.out.println(work);
+        work.E(a);
+        work.XE(b);
+        work.TE(2*Math.PI/norm);
+        work.ME(cr);
+        System.out.println(work);
     }
 }
