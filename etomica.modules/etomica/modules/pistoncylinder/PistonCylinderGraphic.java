@@ -602,7 +602,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pressureDisplayTextBox.setLabel("Pressure ("+pUnit.symbol()+")");
 
         // set up GUI
-        pc.ai.setDoSleep(thisSleep > 0);
         pc.ai.setSleepPeriod(thisSleep);
         pc.integrator.removeAllListeners();
 
@@ -726,7 +725,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
 	                else {
 	                    integratorSleep = mySleep;
 	                }
-	                pc.ai.setDoSleep(mySleep > 0);
 	                pc.ai.setSleepPeriod(mySleep);
 	            }
 	            public double getValue() {return integratorSleep;}

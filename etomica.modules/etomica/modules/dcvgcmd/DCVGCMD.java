@@ -199,7 +199,6 @@ public class DCVGCMD extends Simulation {
         final NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integratorMD.addIntervalAction(nbrManager);
         integratorMD.addNonintervalListener(nbrManager);
-        activityIntegrate.setDoSleep(true);
         box.setBoundary(new BoundaryRectangularSlit(this, 2));
 //        box.setBoundary(new BoundaryRectangularPeriodic(space));
         box.setDimensions(new Vector3D(40, 40, 80));

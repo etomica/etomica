@@ -46,9 +46,7 @@ public class ChainHSMD3D extends Simulation {
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
         
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, false, true);
-        activityIntegrate.setDoSleep(true);
-        activityIntegrate.setSleepPeriod(1);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, 1, true);
         getController().addAction(activityIntegrate);
         
         model = new ModelChain();

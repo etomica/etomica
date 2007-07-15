@@ -22,7 +22,6 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.modifier.ModifierGeneral;
 import etomica.nbr.cell.PotentialMasterCell;
-import etomica.potential.IPotential;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
@@ -78,7 +77,7 @@ public class LSim extends Simulation {
         integratorLiquid.getMoveManager().addMCMove(atomMove);
         ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
         
-        activityIntegrate = new ActivityIntegrate(integratorLiquid, false, false);
+        activityIntegrate = new ActivityIntegrate(integratorLiquid);
         getController().addAction(activityIntegrate);
 
         integratorLiquid.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(boxLiquid).makeMCMoveListener());

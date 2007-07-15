@@ -185,7 +185,6 @@ public class JouleThomson extends SimulationGraphic {
 //		hMeterHistory.setLabel("Enthalpy ("+hUnit.symbol()+")");
 
 
-        sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(1);
 
         //set-pressure history

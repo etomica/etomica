@@ -100,7 +100,7 @@ public class OsmosisSim extends Simulation {
         integrator.setBox(box);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
 
-        activityIntegrate = new ActivityIntegrate(integrator, false, false);
+        activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
     }
 
@@ -126,7 +126,6 @@ public class OsmosisSim extends Simulation {
         config.initializeCoordinates(sim.box);
         simGraphic.getDisplayBox(sim.box).repaint();
         sim.integrator.setTimeStep(0.05);
-        sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(1);
     }
 

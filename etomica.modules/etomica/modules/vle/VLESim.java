@@ -87,7 +87,7 @@ public class VLESim extends Simulation {
         integratorGEMC.getMoveManager().addMCMove(moleculeExchange);
         integratorGEMC.getMoveManager().setFrequency(volumeExchange, 0.01);
         
-        activityIntegrate = new ActivityIntegrate(integratorGEMC, false, false);
+        activityIntegrate = new ActivityIntegrate(integratorGEMC);
         getController().addAction(activityIntegrate);
 
         integratorLiquid.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(boxLiquid).makeMCMoveListener());

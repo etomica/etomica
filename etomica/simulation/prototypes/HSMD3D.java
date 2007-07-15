@@ -92,7 +92,6 @@ public class HSMD3D extends Simulation {
         integrator.setTimeStep(0.01);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         

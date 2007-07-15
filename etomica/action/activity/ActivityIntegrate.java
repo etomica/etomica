@@ -3,7 +3,6 @@ package etomica.action.activity;
 import etomica.action.Activity;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IIntegrator;
-import etomica.simulation.Simulation;
 import etomica.util.Debug;
 
 /**
@@ -17,15 +16,14 @@ public class ActivityIntegrate extends Activity {
 	 * interval = 1, doSleep given by Default class, and sleepPeriod = 10.
 	 */
 	public ActivityIntegrate(IIntegrator integrator) {
-        this(integrator,false,false);
+        this(integrator,0,false);
     }
     
-    public ActivityIntegrate(IIntegrator integrator, boolean doSleep, boolean ignoreOverlap) {
+    public ActivityIntegrate(IIntegrator integrator, int sleepPeriod, boolean ignoreOverlap) {
         super();
         this.integrator = integrator;
-        this.doSleep = doSleep;
         this.ignoreOverlap = ignoreOverlap;
-        sleepPeriod = 10;
+        this.sleepPeriod = sleepPeriod;
         setMaxSteps(Integer.MAX_VALUE);
 	}
     
@@ -51,33 +49,13 @@ public class ActivityIntegrate extends Activity {
             if (Debug.ON && Debug.DEBUG_NOW) System.out.println("*** integrator step "+stepCount);
             if (!doContinue()) break;
             integrator.doStep();
-            if(doSleep) {
+            if(sleepPeriod > 0) {
                 try { Thread.sleep(sleepPeriod); }
                 catch (InterruptedException e) { }
             }
         }
 	}
 
-	/**
-	 * @return flag specifying whether Activity puts thread to sleep briefly after each
-	 * call to integrator's doStep.  This might be desired when performing interactive
-	 * simulations, so the graphical interface is given time to update and respond to
-	 * user input.
-	 */
-	public boolean isDoSleep() {
-		return doSleep;
-	}
-	/**
-	 * Sets flag specifying whether Activity puts thread to sleep briefly after each
-	 * call to integrator's doStep. This might be desired when performing interactive
-	 * simulations, so the graphical interface is given time to update and respond to
-	 * user input.  For any type of production calculation, this should be set to false,
-	 * as it seriously hampers performance.
-	 */
-	public void setDoSleep(boolean doSleep) {
-		this.doSleep = doSleep;
-	}
-	
 	/**
 	 * Amount of time that thread is kept in sleep state after
 	 * each doStep done on integrator.  If doSleep is false, this no sleep
@@ -91,8 +69,7 @@ public class ActivityIntegrate extends Activity {
 	
 	/**
 	 * Sets amount of time that thread is kept in sleep state after
-	 * each doStep done on integrator.  If doSleep is false, this no sleep
-	 * is performed and this parameter has no effect.  Default value is 10.
+	 * each doStep done on integrator.  Default value is 0.
 	 */
 
 	public void setSleepPeriod(int sleepPeriod) {
@@ -130,7 +107,6 @@ public class ActivityIntegrate extends Activity {
     
     private static final long serialVersionUID = 1L;
 	private final IIntegrator integrator;
-	private boolean doSleep;
     private boolean ignoreOverlap;
 	private int sleepPeriod;
 	protected long maxSteps, stepCount;

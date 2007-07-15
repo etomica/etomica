@@ -46,7 +46,6 @@ public class HSMD2D extends Simulation {
         potentialMaster.setRange(sigma*1.6);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species1 = new SpeciesSpheresMono(this);

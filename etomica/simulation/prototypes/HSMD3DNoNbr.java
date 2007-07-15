@@ -44,7 +44,6 @@ public class HSMD3DNoNbr extends Simulation {
         integrator.setTimeStep(0.01);
 
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);

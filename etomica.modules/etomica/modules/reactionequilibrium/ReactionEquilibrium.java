@@ -93,7 +93,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         thermometer.setBox(box);
         
         activityIntegrate = new ActivityIntegrate(integratorHard1);
-        activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         integratorHard1.addIntervalAction(new BoxImposePbc(box));

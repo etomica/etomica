@@ -197,7 +197,6 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	public static void main(String[] arg ){
 		
 		DCVGCMD sim = new DCVGCMD();
-        sim.activityIntegrate.setDoSleep(false);
 		DCVGCMDGraphic graphic = new DCVGCMDGraphic(sim);
 		graphic.makeAndDisplayFrame(APP_NAME);
 	}//end of main

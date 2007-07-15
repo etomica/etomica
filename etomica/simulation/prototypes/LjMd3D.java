@@ -57,7 +57,7 @@ public class LjMd3D extends Simulation {
         double sigma = 1.0;
         integrator = new IntegratorVelocityVerlet(this, potentialMaster);
         integrator.setTimeStep(0.02);
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, true, false);
+        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);

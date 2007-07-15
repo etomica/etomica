@@ -314,7 +314,6 @@ public class Osmosis extends SimulationGraphic {
         	sim = new OsmosisSim(Space2D.getInstance());
         }
 
-        sim.activityIntegrate.setDoSleep(true);
         sim.activityIntegrate.setSleepPeriod(1);
 
         Osmosis osmosis = new Osmosis(sim);
@@ -333,7 +332,6 @@ public class Osmosis extends SimulationGraphic {
 	        	sim = new OsmosisSim(Space2D.getInstance());
 	        }
 
-	        sim.activityIntegrate.setDoSleep(true);
 	        sim.activityIntegrate.setSleepPeriod(1);
 
 		    getContentPane().add(new Osmosis(sim).getPanel());

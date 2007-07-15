@@ -39,7 +39,6 @@ public class GEMCWithRotation extends Simulation {
         integrator.setEventInterval(400);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-	    activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
 	    
 	    species = new SpeciesSpheresRotating(this);

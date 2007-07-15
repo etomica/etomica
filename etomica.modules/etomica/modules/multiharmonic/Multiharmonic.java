@@ -64,7 +64,6 @@ public class Multiharmonic extends Simulation {
             a.getPosition().setX(0,x0);
         }
         activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setDoSleep(true);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
 

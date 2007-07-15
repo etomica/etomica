@@ -89,9 +89,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 		thermometer = new MeterTemperature();
 		thermometer.setBox(box);
         
-		activityIntegrate = new ActivityIntegrate(integratorHard1,true,true);
-		activityIntegrate.setDoSleep(true);
-		activityIntegrate.setSleepPeriod(1);
+		activityIntegrate = new ActivityIntegrate(integratorHard1, 1, true);
 		getController().addAction(activityIntegrate);
 		integratorHard1.addIntervalAction(new BoxImposePbc(box));
 
