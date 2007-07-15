@@ -56,7 +56,7 @@ import etomica.util.Constants.CompassDirection;
 public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 	private static final String APP_NAME = "Reaction Equilibrium";
-	private static final int REPAINT_INTERVAL = 1000;
+	private static final int REPAINT_INTERVAL = 10;
     protected final ReactionEquilibrium sim;
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation) {
@@ -64,6 +64,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
         this.sim = simulation;
 
+        sim.integratorHard1.setTimeStep(0.01);
 		GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
