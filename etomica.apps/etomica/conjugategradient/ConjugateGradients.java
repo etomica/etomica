@@ -112,11 +112,10 @@ public class ConjugateGradients {
 	      b.print(10,3);
 	      x.print(10,3);
 	      
-	      SteepestDescent steepestDescent = new SteepestDescent(A, x, b, 150);
+	      ConjugateGradients conjugateGradient = new ConjugateGradients(A, x, b, 150);
 	      
-	      x = steepestDescent.SteepestDescentAlgorithm();
+	      x = conjugateGradient.ConjugateGradientsAlgorithm();
 	      
 	      x.print(10, 4);
-		
 	}
 }
