@@ -545,10 +545,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
             rdfPanel.add(plotRDF.graphic());
         }
 
-        setSimulation(new PistonCylinder(2));
-    }
-    
-    public void setSimulation(PistonCylinder sim) {
+        PistonCylinder sim = new PistonCylinder(2);
+
         boolean pistonHeld = true;
         if (pc != null) {
             pistonHeld = pc.pistonPotential.isStationary();
@@ -563,18 +561,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pc.config.initializeCoordinates(sim.box);
         ((SimulationRestart)controlButtons.getReinitButton().getAction()).setConfiguration(sim.config);
         final IIntegrator integrator = pc.integrator;
-        // re-initialize the integrator expclitly.  This resets the piston
-        // position back to the top.
-        controlButtons.getReinitButton().setPostAction(new Action() {
-            public void actionPerformed() {
-                try {
-                    integrator.initialize();
-                }
-                catch (ConfigurationOverlapException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+
         ArrayList dataStreamPumps = controlButtons.getDataStreamPumps();
         
         ((ElementSimple)((AtomTypeLeaf)pc.species.getMoleculeType()).getElement()).setMass(mass);
@@ -752,7 +739,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(meterCycles);
         temperatureHistory.getHistory().setHistoryLength(historyLength);
-        AccumulatorAverage temperatureAvg = new AccumulatorAverage(100);
+        final AccumulatorAverage temperatureAvg = new AccumulatorAverage(100);
         temperatureAvg.setPushInterval(10);
         pump = new DataPump(thermometer,new DataFork(new DataSink[]{temperatureHistory,temperatureAvg}));
         dataStreamPumps.add(pump);
@@ -783,7 +770,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
         pressureHistory.getHistory().setHistoryLength(historyLength);
-        AccumulatorAverage pressureAvg = new AccumulatorAverage(100);
+        final AccumulatorAverage pressureAvg = new AccumulatorAverage(100);
         pressureAvg.setPushInterval(10);
         pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
         dataStreamPumps.add(pump);
@@ -814,7 +801,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setTimeDataSource(meterCycles);
         densityHistory.getHistory().setHistoryLength(historyLength);
-        AccumulatorAverage densityAvg = new AccumulatorAverage(100);
+        final AccumulatorAverage densityAvg = new AccumulatorAverage(100);
         densityAvg.setPushInterval(10);
         pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
         dataStreamPumps.add(pump);
@@ -871,6 +858,30 @@ public class PistonCylinderGraphic extends SimulationPanel {
             velocityButton.setController(pc.getController());
             velocityButton.setAction(new ActionVelocityWindow(pc.box));
         }
+
+        // re-initialize the integrator expclitly.  This resets the piston
+        // position back to the top.  Also, force the data into the
+        // display boxes and repaint the boxes.
+        controlButtons.getReinitButton().setPostAction(new Action() {
+            public void actionPerformed() {
+                try {
+                    integrator.initialize();
+
+                    densityDisplayTextBox.putData(densityAvg.getData());
+                    densityDisplayTextBox.repaint();
+
+                    temperatureDisplayTextBox.putData(temperatureAvg.getData());
+                    temperatureDisplayTextBox.repaint();
+
+                    pressureDisplayTextBox.putData(pressureAvg.getData());
+                    pressureDisplayTextBox.repaint();
+                }
+                catch (ConfigurationOverlapException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
     }
     
     public void setPotential(String potentialDesc) {
