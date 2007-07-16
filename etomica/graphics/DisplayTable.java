@@ -461,7 +461,7 @@ public class DisplayTable extends Display implements DataTableListener {
         table.setShowingRowLabels(true);
         table.setPrecision(7);
 
-        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
+        graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
 
         graphic.add(table);
         graphic.makeAndDisplayFrame(APP_NAME);

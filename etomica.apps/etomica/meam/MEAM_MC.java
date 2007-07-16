@@ -73,7 +73,7 @@ public class MEAM_MC extends Simulation {
 	    simgraphic.getPanel().plotPanel.add(plot.graphic(), SimulationPanel.getVertGBC());
 	    //simgraphic.panel().add(plotKE.graphic());
 
-    	simgraphic.getController().getReinitButton().setPostAction(simgraphic.getDisplayBoxPaintAction(sim.box));
+    	simgraphic.getController().getReinitButton().setPostAction(simgraphic.getPaintAction(sim.box));
 
 	    ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simgraphic.displayList().getFirst()).getColorScheme());
 	    colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.blue);

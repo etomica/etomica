@@ -125,7 +125,7 @@ public class HSMD2D_noNbr extends Simulation {
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);
-        Action repaintAction = graphic.getDisplayBoxPaintAction(sim.box);
+        Action repaintAction = graphic.getPaintAction(sim.box);
 
         nSelector.setPostAction(repaintAction);
         graphic.getController().getReinitButton().setPostAction(repaintAction);

@@ -41,7 +41,7 @@ public class LjMd3D extends Simulation {
     	final LjMd3D sim = new LjMd3D();
     	final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 3);
 
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.getController().getDataStreamPumps().add(sim.pump);
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
@@ -92,7 +92,7 @@ public class LjMd3D extends Simulation {
             LjMd3D sim= new LjMd3D();
             final SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, 3);
 
-            simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
+            simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
             simGraphic.getController().getDataStreamPumps().add(sim.pump);
 
             DisplayTextBoxesCAE display = new DisplayTextBoxesCAE();

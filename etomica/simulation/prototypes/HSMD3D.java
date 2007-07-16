@@ -146,10 +146,10 @@ public class HSMD3D extends Simulation {
         nSelector.setSpecies(sim.species);
         nSelector.setBox(sim.box);
 
-        nSelector.setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
+        nSelector.setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.add(nSelector);
 
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(sim.box));
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());

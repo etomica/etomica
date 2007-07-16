@@ -93,10 +93,10 @@ public class DeviceNSelector extends DeviceSlider {
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setBox(sim.box);
         nSelector.setSpecies(sim.species1);
-        nSelector.setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
+        nSelector.setPostAction(graphic.getPaintAction(sim.box));
         graphic.add(nSelector);
 
-        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
+        graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
 
         graphic.makeAndDisplayFrame(APP_NAME);
 

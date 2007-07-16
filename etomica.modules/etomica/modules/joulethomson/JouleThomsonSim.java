@@ -108,7 +108,7 @@ public class JouleThomsonSim extends Simulation {
         final DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
         sim.activityIntegrate.setSleepPeriod(10);
 
-        sim.integratorJT.addIntervalAction(simGraphic.getDisplayBoxPaintAction(sim.box));
+        sim.integratorJT.addIntervalAction(simGraphic.getPaintAction(sim.box));
 
     }
 }

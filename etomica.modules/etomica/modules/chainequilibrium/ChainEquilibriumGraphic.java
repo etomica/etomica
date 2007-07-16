@@ -124,7 +124,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         accumulator.addDataSink(compositionPlot.getDataSet().makeDataSink(),new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
         compositionPlot.setDoLegend(false);
 
-        getController().getReinitButton().setPostAction(getDisplayBoxPaintAction(sim.box));
+        getController().getReinitButton().setPostAction(getPaintAction(sim.box));
 
         // Things to Do while simulation is on (It is adding the DataPumps, which run off the meters)
         sim.integratorHard1.addIntervalAction(tPump);

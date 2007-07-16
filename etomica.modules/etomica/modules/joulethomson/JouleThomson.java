@@ -290,7 +290,7 @@ public class JouleThomson extends SimulationGraphic {
 	    getPanel().add(getPanel().tabbedPane);
 	    getPanel().toolbar.addContributor("Colin Tedlock");
 
-	    getController().getReinitButton().setPostAction(getDisplayBoxPaintAction(sim.box));
+	    getController().getReinitButton().setPostAction(getPaintAction(sim.box));
     }
 
     //inner class the defines a drop-down menu to select LJ parameters to mimic

@@ -121,7 +121,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         colorScheme.setColor(speciesSpheres1.getMoleculeType(), java.awt.Color.red);
 
         simGraphic.getController().getSimRestart().setConfiguration(config);
-        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getDisplayBoxPaintAction(box));
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(box));
 
         simGraphic.makeAndDisplayFrame(APP_NAME);
         simGraphic.getDisplayBox(box).graphic().repaint();

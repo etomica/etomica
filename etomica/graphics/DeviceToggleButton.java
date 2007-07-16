@@ -136,9 +136,9 @@ public class DeviceToggleButton extends DeviceButton {
                 modifier);
         button.setTrueLabel("Red");
         button.setFalseLabel("Blue");
-        button.setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
+        button.setPostAction(graphic.getPaintAction(sim.box));
 
-        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
+        graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
 
         //end of unique part
         graphic.add(button);

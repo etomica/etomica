@@ -73,7 +73,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         config.initializeCoordinates(sim.box);
 
 		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
-        sim.integratorHard1.addIntervalAction(this.getDisplayBoxPaintAction(sim.box));
+        sim.integratorHard1.addIntervalAction(this.getPaintAction(sim.box));
         
 		tSelect.setTemperatures(new double[] { 50., 100., 300., 600., 1000.,
 				1200., 1600., 2000., 2500. });
@@ -338,7 +338,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		add(table);
 
 
-        getController().getReinitButton().setPostAction(getDisplayBoxPaintAction(sim.box));
+        getController().getReinitButton().setPostAction(getPaintAction(sim.box));
 
 		//***************set all the colors******************
 		/*

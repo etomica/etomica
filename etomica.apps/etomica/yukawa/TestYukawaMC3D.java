@@ -99,7 +99,7 @@ public class TestYukawaMC3D extends Simulation{
         sim.integrator.addIntervalAction(energyManager);
 
 		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
-		Action repaintAction = simGraphic.getDisplayBoxPaintAction(sim.box);
+		Action repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));

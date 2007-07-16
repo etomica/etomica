@@ -184,7 +184,7 @@ public class DeviceThermoSelector extends Device {
             }
         }
 
-        graphic.getController().getReinitButton().setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
+        graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
 
         graphic.makeAndDisplayFrame(APP_NAME);
     }//end of main

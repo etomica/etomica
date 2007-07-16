@@ -180,7 +180,7 @@ public class DeviceTrioControllerButton extends Device {
         graphic.getPanel().controlPanel.removeAll();
         graphic.add(button);
 
-        button.getReinitButton().setPostAction(graphic.getDisplayBoxPaintAction(sim.box));
+        button.getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
 
         graphic.makeAndDisplayFrame(APP_NAME);
     }
