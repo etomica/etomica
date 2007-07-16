@@ -105,7 +105,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 	 */
 	public Object makeAgent(IAtom a) {
 		
-		return new IAtom[4];
+		return new IAtom[2];
 	}
     
     public void releaseAgent(Object agent, IAtom atom) {}
