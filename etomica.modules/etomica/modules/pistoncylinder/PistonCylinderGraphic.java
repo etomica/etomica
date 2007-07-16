@@ -90,15 +90,6 @@ import etomica.units.systems.MKS;
 
 public class PistonCylinderGraphic extends SimulationPanel {
     
-    static {
-        try {
-            System.out.println(javax.swing.UIManager.getSystemLookAndFeelClassName());
-            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-            UIManager.put("TitledBorder.font", new Font("SansSerif", Font.BOLD, 12));
-        } catch(Exception e) {}
-    }
-
-    
     public JPanel displayBoxPanel;
     public PistonCylinder pc;
     public Potential2HardSphericalWrapper potentialWrapper;
