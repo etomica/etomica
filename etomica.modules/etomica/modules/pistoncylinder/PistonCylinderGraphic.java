@@ -1,6 +1,5 @@
 package etomica.modules.pistoncylinder;
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -16,7 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -90,6 +88,7 @@ import etomica.units.systems.MKS;
 
 public class PistonCylinderGraphic extends SimulationPanel {
     
+	private static final String APP_NAME = "Piston Cylinder";
     public JPanel displayBoxPanel;
     public PistonCylinder pc;
     public Potential2HardSphericalWrapper potentialWrapper;
@@ -132,7 +131,11 @@ public class PistonCylinderGraphic extends SimulationPanel {
     private boolean doRDF = false;
     private boolean showTimeControls = false;
     private JPanel guiPanel;
-    
+
+    public PistonCylinderGraphic() {
+    	super(APP_NAME);
+    }
+
     /**
      * Enable/disable button to show coordinates.  Must be called before init.
      */
@@ -308,6 +311,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         nSlider = new DeviceNSelector();
         nSlider.setLabel("Number of atoms");
         nSlider.setShowBorder(true);
+        nSlider.setEditValues(true);
+        nSlider.setShowValues(true);
         // add a listener to adjust the thermostat interval for different
         // system sizes (since we're using ANDERSEN_SINGLE).  Smaller systems 
         // don't need as much thermostating.
@@ -948,7 +953,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
     public static void main(String[] args) {
         PistonCylinderGraphic pcg = new PistonCylinderGraphic();
         pcg.init();
-		SimulationGraphic.makeAndDisplayFrame(pcg, "Piston Cylinder");
+		SimulationGraphic.makeAndDisplayFrame(pcg, APP_NAME);
     }
 
     public static class Applet extends javax.swing.JApplet {
