@@ -34,11 +34,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public ISimulation sim;
 	public IVectorRandom [] N, Nstar;
 	public IVector NDelta, NstarDelta;
+	public double deltaT;
 	public double deltaR;
 	public double dTheta, dR;
 	public double deltaTheta;
 	public double curvature;
-	public double VdotFeff;
 	public IVector [] THETA, THETAstar, THETAstar2;
 	public IVector [] F, F1, F2;
 	public IVector [] Fperp, F1perp, F2perp;
@@ -46,6 +46,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public IVector [] Feff, Fr, Fpara;
 	public IVector [] deltaV, V;
 	public IVector workVector1;
+	public IVector workVector2;
 	public double Frot, Fprimerot;
 	public IRandom random1;
 	public PotentialCalculationForceSum force1, force2;
@@ -68,6 +69,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		deltaR = 1E-2;
 		dTheta = 1E-4;
+		dR = 0.1;
+		deltaT = 0.001;
+		
 		
 		sinDtheta = Math.sin(dTheta)*deltaR;
 		cosDtheta = Math.cos(dTheta)*deltaR;
@@ -95,7 +99,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			deltaV[i] = box.getSpace().makeVector();
 			V[i] = box.getSpace().makeVector();
 			workVector1 = box.getSpace().makeVector();
-			
+			workVector2 = box.getSpace().makeVector();
 		}
 		
 	}
@@ -283,6 +287,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		// Move Dimer
 		dimerUpdatePositions();
 		
+		// Calculate new F's
+		dimerForces(F1, F2, F);
+		
 	}
 	
 	// Compute curvature value, C, for the energy surface
@@ -379,7 +386,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	protected void dimerGetVelocity(){
 		// Calculate deltaV
 		for(int i=0; i<Feff.length; i++){
-			deltaV[i].Ea1Tv1(0.001/((AtomTypeLeaf)box.getLeafList().getAtom(i).getType()).getMass(), Feff[i]);
+			deltaV[i].Ea1Tv1(deltaT/((AtomTypeLeaf)box.getLeafList().getAtom(i).getType()).getMass(), Feff[i]);
 		}
 		
 		// Calculate and check new Vi
@@ -407,11 +414,24 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		}
 	}
 	
+	// Update positions according to Verlet algorithm.  Cannot move further than dR.
 	protected void dimerUpdatePositions(){
 		
-		
-		
-		
+		// r(t + dt) = r(t) + dt*v(t) + dt^2 * Feff / m / 2
+		for(int i=0; i<box.atomCount(); i++){
+			IVector workvector;
+			
+			workVector2.Ea1Tv1(deltaT, V[i]);
+			workVector2.PEa1Tv1(deltaT/2.0, deltaV[i]);
+						
+			// Update positions in all three boxes
+			workvector = ((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition();
+			workvector.PE(workVector2);
+			workvector = ((IAtomPositioned)box1.getLeafList().getAtom(i)).getPosition();
+			workvector.PE(workVector2);
+			workvector = ((IAtomPositioned)box2.getLeafList().getAtom(i)).getPosition();
+			workvector.PE(workVector2);
+		}
 		
 	}
 	
