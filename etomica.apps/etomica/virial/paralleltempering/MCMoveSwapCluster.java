@@ -14,7 +14,7 @@ import etomica.space.IVector;
 import etomica.virial.BoxCluster;
 
 /**
- * Swaps configurations and pairSet between boxs for a virial clustering simulation. 
+ * Swaps configurations and pairSet between boxes for a virial clustering simulation. 
  */
 public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap {
 
@@ -27,7 +27,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     private BoxCluster box1, box2;
     private double weightOld1, weightOld2;
     private double weightNew1, weightNew2;
-    private final Box[] swappedBoxs = new Box[2];
+    private final Box[] swappedBoxes = new Box[2];
 
     public MCMoveSwapCluster(IntegratorMC integrator1, IntegratorMC integrator2) {
         super(null);
@@ -63,7 +63,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
             a2.getPosition().E(r);
         }
 
-        //assumes energy will be determined using only pairSets in boxs
+        //assumes energy will be determined using only pairSets in boxes
         box1.trialNotify();
         box2.trialNotify();
 		
@@ -81,7 +81,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     }
 	
     /**
-     * Swaps positions of molecules in two boxs.
+     * Swaps positions of molecules in two boxes.
      */
     public void acceptNotify() {
 //        System.out.println("accepted");
@@ -119,10 +119,10 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     /**
      * Implementation of MCMoveSwap interface
      */
-    public Box[] swappedBoxs() {
-        swappedBoxs[0] = box1;
-        swappedBoxs[1] = box2;
-        return swappedBoxs;
+    public Box[] swappedBoxes() {
+        swappedBoxes[0] = box1;
+        swappedBoxes[1] = box2;
+        return swappedBoxes;
     }
 
     public AtomIterator affectedAtoms(Box p) {
