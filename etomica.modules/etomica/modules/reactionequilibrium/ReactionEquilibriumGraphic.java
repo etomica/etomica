@@ -243,8 +243,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
              public String getLabel() {return "Sleep period";}
          });
 //         delaySlider.setSliderVerticalOrientation(true);
-         delaySlider.setMaximum(10);
          delaySlider.setMinimum(0);
+         delaySlider.setMaximum(10);
          delaySlider.setNMajor(5);
          delaySlider.setValue(0);
          delaySlider.setShowMinorTicks(true);
