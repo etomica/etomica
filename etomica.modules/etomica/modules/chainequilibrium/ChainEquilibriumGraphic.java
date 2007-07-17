@@ -64,9 +64,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
             public Dimension getDimension() {return Null.DIMENSION;}
             public String getLabel() {return "Sleep period";}
         });
-//        delaySlider.setSliderVerticalOrientation(true);
-        delaySlider.setMaximum(10);
         delaySlider.setMinimum(0);
+        delaySlider.setMaximum(10);
         delaySlider.setNMajor(5);
         delaySlider.setValue(0);
         delaySlider.setShowMinorTicks(true);
