@@ -19,13 +19,13 @@ import etomica.util.IRandom;
 
 /**
  * Parallel-tempering integrator.  Oversees other integrators that are defined to perform
- * MC trials (or perhaps molecular dynamics) in different boxs.  These integrators
+ * MC trials (or perhaps molecular dynamics) in different boxes.  These integrators
  * are identified (added) to this integrator, and the simulation runs on this
  * integrator's thread.  When this integrator does a step, it passes on the
  * instruction to each added integrator, causing all to do a step on each's box.
  * Occasionally, this integrator will instead attempt to swap the configurations
- * of two of the boxs.  Acceptance of this move depends on parameters (usually 
- * temperature) of the integrators for the boxs, as well as the configurations
+ * of two of the boxes.  Acceptance of this move depends on parameters (usually 
+ * temperature) of the integrators for the boxes, as well as the configurations
  * in each box.  The swap trial is performed by a MCMove class designed for
  * this purpose.  Such a class is made by a MCMoveSwapConfigurationFactory class
  * that is identified to this integrator (a default is selected if not specified).
@@ -75,32 +75,32 @@ public class IntegratorPT extends IntegratorManagerMC {
 	
 	/**
 	 * Interface for a class that can make a MCMove that will swap
-	 * the configurations of two boxs.  Different MCMove classes
+	 * the configurations of two boxes.  Different MCMove classes
 	 * would do this differently, depending on ensemble of simulation
 	 * and other factors.
 	 */
 	public interface MCMoveSwapFactory {
 	    /**
 	     * @param integratorMC the parent integrator using this move
-	     * @param integrator1 integrator for one of the boxs being swapped
+	     * @param integrator1 integrator for one of the boxes being swapped
 	     * @param integrator2 integrator for the other box
 	     */
 	    public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2);
 	}
 
     /**
-     * Interface for a move that swaps two boxs.  Enables access to
-     * the swapped boxs.
+     * Interface for a move that swaps two boxes.  Enables access to
+     * the swapped boxes.
      */
     public interface MCMoveSwap {
-        public Box[] swappedBoxs();
+        public Box[] swappedBoxes();
     }
 
 
 	/**
-     * Meter that tracks the swapping of the boxs in parallel-tempering
+     * Meter that tracks the swapping of the boxes in parallel-tempering
      * simulation.  Designed for input to a DisplayPlot to provide a graphical
-     * record of how the boxs swap configurations.
+     * record of how the boxes swap configurations.
      */
     public static class BoxTracker implements DataSource, MCMoveListener, java.io.Serializable {
         
@@ -120,28 +120,28 @@ public class IntegratorPT extends IntegratorManagerMC {
         }
         
         /**
-         * Method called when two boxs are successfully exchanged.
+         * Method called when two boxes are successfully exchanged.
          */
         public void actionPerformed(MCMoveEvent evt) {
             if(evt instanceof MCMoveTrialInitiatedEvent || !((MCMoveTrialCompletedEvent)evt).isAccepted()) return;
             if(!(evt.getMCMove() instanceof MCMoveSwap)) return;
-            Box[] boxs = ((MCMoveSwap)evt.getMCMove()).swappedBoxs();
-            int i0 = boxs[0].getIndex()-1;
-            int i1 = boxs[1].getIndex()-1;
+            Box[] boxes = ((MCMoveSwap)evt.getMCMove()).swappedBoxes();
+            int i0 = boxes[0].getIndex()-1;
+            int i1 = boxes[1].getIndex()-1;
             int temp = track[i0];
             track[i0] = track[i1];
             track[i1] = temp;
         }
         
         /**
-         * Specifies the number of boxs that are tracked.
+         * Specifies the number of boxes that are tracked.
          */
-        public void setNumBoxs(int numBoxs) {
-            track = new int[numBoxs];
-            data = new DataDoubleArray(new int[] {numBoxs});
-            dataInfo = new DataInfoDoubleArray("Box Tracker", Null.DIMENSION, new int[]{numBoxs});
+        public void setNumBoxes(int numBoxes) {
+            track = new int[numBoxes];
+            data = new DataDoubleArray(new int[] {numBoxes});
+            dataInfo = new DataInfoDoubleArray("Box Tracker", Null.DIMENSION, new int[]{numBoxes});
             dtrack = data.getData();
-            for(int i=0; i<numBoxs; i++) {
+            for(int i=0; i<numBoxes; i++) {
                 track[i] = i;
             }
         }

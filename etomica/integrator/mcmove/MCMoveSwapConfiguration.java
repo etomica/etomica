@@ -14,7 +14,7 @@ import etomica.space.IVector;
 
 
 /**
- * Basic MCMove for swapping coordinates of atoms in two boxs.
+ * Basic MCMove for swapping coordinates of atoms in two boxes.
  * Requires same number of atoms in each box.
  */
 public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
@@ -24,7 +24,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	private final AtomIteratorLeafAtoms affectedAtomIterator = new AtomIteratorLeafAtoms();
 	private final IVector r;
 	private double u1, u2, temp1, temp2, deltaU1;
-	private final Box[] swappedBoxs = new Box[2];
+	private final Box[] swappedBoxes = new Box[2];
 
 	public MCMoveSwapConfiguration(IntegratorBox integrator1, IntegratorBox integrator2) {
   		super(null);
@@ -54,7 +54,7 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
     }
 	
 	/**
-	 * Swaps positions of molecules in two boxs.
+	 * Swaps positions of molecules in two boxes.
      * 
      * @throws RuntimeException wrapping a ConfigurationOverlapException if overlap is detected in either box
 	 */
@@ -97,10 +97,10 @@ public class MCMoveSwapConfiguration extends MCMove implements MCMoveSwap {
 	/**
 	 * Implementation of MCMoveSwap interface
 	 */
-	public Box[] swappedBoxs() {
-	    swappedBoxs[0] = integrator1.getBox();
-	    swappedBoxs[1] = integrator2.getBox();
-	    return swappedBoxs;
+	public Box[] swappedBoxes() {
+	    swappedBoxes[0] = integrator1.getBox();
+	    swappedBoxes[1] = integrator2.getBox();
+	    return swappedBoxes;
 	}
 
 	public double energyChange(Box box) {
