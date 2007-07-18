@@ -58,6 +58,7 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
         numActions = newPendingActions.length;
         pendingActions = newPendingActions;
         completedActions = new Action[0];
+        urgentCompletedActions = new Action[0];
     }
 	
     /**
@@ -210,4 +211,5 @@ public class ActivityGroupSeries extends Activity implements ActivityGroup {
     protected int numActions;
     protected Action[] pendingActions = new Action[0];
     protected Action[] completedActions = new Action[0];
+    protected Action[] urgentCompletedActions = new Action[0];
 }

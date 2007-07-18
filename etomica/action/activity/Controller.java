@@ -232,7 +232,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         
         urgentAction.actionPerformed();
 
-        completedActions = (Action[])Arrays.addObject(completedActions, urgentAction);
+        urgentCompletedActions = (Action[])Arrays.addObject(urgentCompletedActions, urgentAction);
         eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.END_URGENT_ACTION, urgentAction));
     }
     
