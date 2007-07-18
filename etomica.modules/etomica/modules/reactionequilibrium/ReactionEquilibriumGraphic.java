@@ -237,8 +237,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         }
          
          final DeviceSlider delaySlider = new DeviceSlider(sim.controller1, new Modifier() {
-             public double getValue() {return Math.pow(sim.activityIntegrate.getSleepPeriod(),1./3.);}
-             public void setValue(double d) {sim.activityIntegrate.setSleepPeriod((int)(d*d*d));}
+             public double getValue() {return Math.pow(sim.activityIntegrate.getSleepPeriod(),1./2.);}
+             public void setValue(double d) {sim.activityIntegrate.setSleepPeriod((int)(d*d));}
              public Dimension getDimension() {return Null.DIMENSION;}
              public String getLabel() {return "Sleep period";}
          });
