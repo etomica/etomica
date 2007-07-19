@@ -8,9 +8,9 @@ import etomica.atom.iterator.ApiInterArrayList;
 import etomica.atom.iterator.ApiIntraArrayList;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
-import etomica.box.Box;
 import etomica.space.BoundaryPeriodic;
 
 /**
@@ -90,10 +90,6 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
         return counter.callCount();
 	}
 	
-    public boolean hasNext() {
-        throw new RuntimeException("oops");
-    }
-    
     public AtomSet nextPair() {
         AtomSet nextPair = listIterator.next();
         if (nextPair == null) {
