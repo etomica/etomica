@@ -232,7 +232,6 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
         
         urgentAction.actionPerformed();
 
-        urgentCompletedActions = (Action[])Arrays.addObject(urgentCompletedActions, urgentAction);
         eventManager.fireEvent(new ControllerEvent(this, ControllerEvent.END_URGENT_ACTION, urgentAction));
     }
     
@@ -272,6 +271,7 @@ public class Controller extends ActivityGroupSeries implements java.io.Serializa
     private boolean repeatCurrentAction = false;
 
     protected final UrgentWaitObject urgentWaitObject;
+
     protected static class UrgentWaitObject implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
     }
