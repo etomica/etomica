@@ -49,7 +49,7 @@ public class CellLattice extends RectangularLattice {
         return sites[idx1D];
 
     }
-    
+
     /**
      * Returns the array that specifies the spatial dimensions of the lattice of cells.
      */
@@ -117,6 +117,11 @@ public class CellLattice extends RectangularLattice {
         
         public double getNeighborDistance() {
             return neighborDistance;
+        }
+        
+        public void reset() {
+            checkDimensions();
+            super.reset();
         }
 
         /**
