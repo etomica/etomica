@@ -97,7 +97,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         if(box == null) return;
         IVector dimensions = box.getBoundary().getDimensions();
         dimensions.TE(scaleVector);
-        box.setDimensions(dimensions);
+        box.getBoundary().setDimensions(dimensions);
         moleculeIterator.reset();
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
@@ -113,6 +113,12 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         
         // undo previous subtraction
         scaleVector.PE(1);
+        
+        //XXX pretend we're just setting the dimensions now.  the only effect
+        // here is to fire an event that notifies things (NeighborCellManager)
+        // that the box changed and it should (perhaps) resize the lattice and
+        // reassign atoms to cells
+        box.setDimensions(dimensions);
     }
 
     /**
