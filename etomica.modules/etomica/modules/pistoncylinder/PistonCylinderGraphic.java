@@ -971,7 +971,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
             String doNSelectorStr = getParameter("doRDF");
 
             pcg.init();
-            getContentPane().add(this);
+            getContentPane().add(pcg);
         }
 
         private static final long serialVersionUID = 1L;

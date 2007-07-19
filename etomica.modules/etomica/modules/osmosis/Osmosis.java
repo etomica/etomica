@@ -128,7 +128,7 @@ public class Osmosis extends SimulationGraphic {
         //
 
 	    DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integrator);
-	    tSelect.setTemperatures(new double[] {50.,100.,300.,600.,1000.});
+//	    tSelect.setTemperatures(new double[] {50.,100.,300.,600.,1000.});
 	    tSelect.setUnit(tUnit);
 	    tSelect.setSelected(0); //sets adiabatic as selected temperature
 		MeterTemperature thermometer = new MeterTemperature();
@@ -307,12 +307,7 @@ public class Osmosis extends SimulationGraphic {
 
         OsmosisSim sim = null;
 
-        if(true) { // 3D Case
-    	    sim = new OsmosisSim(Space3D.getInstance());
-        }
-        else { // 2D case
-        	sim = new OsmosisSim(Space2D.getInstance());
-        }
+    	sim = new OsmosisSim(Space3D.getInstance());
 
         sim.activityIntegrate.setSleepPeriod(1);
 
@@ -325,12 +320,7 @@ public class Osmosis extends SimulationGraphic {
 
 	    	OsmosisSim sim = null;
 
-	        if(false) { // 3D Case
-	    	    sim = new OsmosisSim(Space3D.getInstance());
-	        }
-	        else { // 2D case
-	        	sim = new OsmosisSim(Space2D.getInstance());
-	        }
+	    	sim = new OsmosisSim(Space3D.getInstance());
 
 	        sim.activityIntegrate.setSleepPeriod(1);
 

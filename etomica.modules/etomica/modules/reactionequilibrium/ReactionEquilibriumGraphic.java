@@ -503,7 +503,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 					Boolean.TRUE);
 			ReactionEquilibrium sim = new ReactionEquilibrium();
 			ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim);
-			SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
+			getContentPane().add(graphic.getPanel());
 		}
 	}//end of Applet
 

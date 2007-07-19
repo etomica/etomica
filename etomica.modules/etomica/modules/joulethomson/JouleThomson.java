@@ -398,7 +398,9 @@ public class JouleThomson extends SimulationGraphic {
 	    public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-		    getContentPane().add(new JouleThomson().getPanel());
+	        Space space = Space.getInstance(3);
+	        SimulationGraphic simPanel = new JouleThomson(new JouleThomsonSim(space));
+		    getContentPane().add(simPanel.getPanel());
 	    }
     }//end of Applet
 
