@@ -19,8 +19,10 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
+import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSplitter;
+import etomica.data.DataTableAverages;
 import etomica.data.DataTag;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
@@ -37,7 +39,6 @@ import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
-import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
@@ -213,7 +214,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         dimerfractionaccum.setPushInterval(10);
         dimerFork.addDataSink(dimerfractionaccum);
 		DisplayTable table = new DisplayTable();
-		dimerfractionaccum.setDataSink(table.getDataTable().makeDataSink());
+		dimerfractionaccum.addDataSink(table.getDataTable().makeDataSink(),
+		        new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE,
+		        AccumulatorAverage.StatType.ERROR});
 
         DataSplitter splitter = new DataSplitter();
         
