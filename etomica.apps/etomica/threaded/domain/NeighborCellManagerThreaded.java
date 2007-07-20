@@ -22,8 +22,9 @@ public class NeighborCellManagerThreaded extends NeighborCellManager {
     
     
     
-    public void checkDimensions(){
+    public boolean checkDimensions(){
         setNumCells(totalCells);
+        return true;
     }
     
     //Divides up simulation box for threads
