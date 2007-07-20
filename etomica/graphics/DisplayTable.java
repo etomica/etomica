@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 
 import etomica.EtomicaInfo;
@@ -25,6 +24,7 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDoubleArray;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
+import etomica.util.Arrays;
 
 /**
  * Presents data in a tabular form.
@@ -89,6 +89,10 @@ public class DisplayTable extends Display implements DataTableListener {
      * using the default units for new columns.
      */
     public void dataCountChanged(DataSet dummyTable) {
+        int newCount = dataTable.getDataCount();
+        if (newCount > columnHeaderOverrides.length-1) {
+            columnHeaderOverrides = (String[])Arrays.resizeArray(columnHeaderOverrides, newCount);
+        }
         recomputeUnits();
         tableSource.fireTableStructureChanged();
     }
@@ -315,6 +319,13 @@ public class DisplayTable extends Display implements DataTableListener {
     public void setRowLabelColumnHeader(String rowLabelColumnHeader) {
         this.rowLabelColumnHeader = rowLabelColumnHeader;
     }
+    
+    public void setColumnHeader(int i, String newHeader) {
+        if (i > columnHeaderOverrides.length-1) {
+            columnHeaderOverrides = (String[])Arrays.resizeArray(columnHeaderOverrides, i+1);
+        }
+        columnHeaderOverrides[i] = newHeader;
+    }
 
     private final JTable table;
     protected final DataSinkTable dataTable;
@@ -329,6 +340,7 @@ public class DisplayTable extends Display implements DataTableListener {
     protected int c0 = 0;
     protected String[] rowLabels = new String[0];
     protected  String rowLabelColumnHeader = "";
+    protected String[] columnHeaderOverrides = new String[0];
     protected Unit[] units = new Unit[0];
     private LinkedList unitList;
     private Unit defaultUnit;
@@ -385,6 +397,9 @@ public class DisplayTable extends Display implements DataTableListener {
         }
 
         private String columnLabel(int i) {
+            if (columnHeaderOverrides[i] != null) {
+                return columnHeaderOverrides[i];
+            }
             String suffix = "";
             if (showingUnits) {
                 suffix = units[i].symbol();
