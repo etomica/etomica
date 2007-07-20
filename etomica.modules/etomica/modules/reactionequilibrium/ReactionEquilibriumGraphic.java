@@ -217,6 +217,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		dimerfractionaccum.addDataSink(table.getDataTable().makeDataSink(),
 		        new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE,
 		        AccumulatorAverage.StatType.ERROR});
+        table.setColumnHeader(0, "Average");
+		table.setColumnHeader(1, "Error");
+		table.setLabel("Fractions");
 
         DataSplitter splitter = new DataSplitter();
         
