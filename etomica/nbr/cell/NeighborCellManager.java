@@ -138,6 +138,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
         for (int i=0; i<D; i++) {
             if (oldSize[i] != nCells[i]) {
                 lattice.setSize(nCells);
+                assignCellAll();
                 break;
             }
         }
@@ -226,7 +227,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
     
     public void actionPerformed(BoxEvent event) {
         if (event instanceof BoxInflateEvent) {
-            lattice.setDimensions(box.getBoundary().getDimensions());
+            checkDimensions();
         }
     }
     
