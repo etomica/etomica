@@ -54,7 +54,7 @@ public class AccumulatorAverage extends DataAccumulator {
         blockCorrelationTag = new DataTag();
     }
 
-    public Object getTag(StatType statType) {
+    public DataTag getTag(StatType statType) {
         if (statType == StatType.MOST_RECENT) {
             return mostRecentTag;
         }
