@@ -75,9 +75,6 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
 
         lattice = new CellLattice(box.getBoundary().getDimensions(), Cell.FACTORY);
         setPotentialRange(potentialRange);
-
-        //force lattice to be sized so the Cells will exist
-        checkDimensions();
         agentManager = new AtomAgentManager(this,box);
     }
 
@@ -91,7 +88,9 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      */
     public void setPotentialRange(double newRange) {
         range = newRange;
-        checkDimensions();
+        if (checkDimensions() && agentManager == null) {
+            assignCellAll();
+        }
     }
     
     /**
@@ -121,10 +120,10 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * Checks the box's dimensions to make sure the number of cells is 
      * appropriate.
      */
-    protected void checkDimensions() {
+    protected boolean checkDimensions() {
         if (range == 0) {
             // simulation is still being constructed, don't try to do anything useful
-            return;
+            return false;
         }
     	int D = space.D();
         int[] nCells = new int[D];
@@ -138,10 +137,10 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
         for (int i=0; i<D; i++) {
             if (oldSize[i] != nCells[i]) {
                 lattice.setSize(nCells);
-                assignCellAll();
-                break;
+                return true;
             }
         }
+        return false;
     }
     
     /**
@@ -150,7 +149,8 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      */
     public void assignCellAll() {
         // ensure that any changes to cellRange, potentialRange and boundary
-        // dimension take effect
+        // dimension take effect.  checkDimensions can call us, but if that
+        // happens, our call into checkDimensions should 
         checkDimensions();
 
         Object[] allCells = lattice.sites();
@@ -228,6 +228,10 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
     public void actionPerformed(BoxEvent event) {
         if (event instanceof BoxInflateEvent) {
             checkDimensions();
+            // we need to reassign cells even if checkDimensions didn't resize
+            // the lattice.  If the box size changed, the cell size changed,
+            // and the atom assignments need to change too.
+            assignCellAll();
         }
     }
     
