@@ -88,7 +88,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      */
     public void setPotentialRange(double newRange) {
         range = newRange;
-        if (checkDimensions() && agentManager == null) {
+        if (checkDimensions() && agentManager != null) {
             assignCellAll();
         }
     }
