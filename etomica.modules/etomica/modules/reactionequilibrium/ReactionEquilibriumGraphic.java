@@ -210,15 +210,15 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		DataPump dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
         sim.integratorHard1.addIntervalAction(dimerPump);
         sim.integratorHard1.setActionInterval(dimerPump, 100);
-        AccumulatorAverage dimerfractionaccum = new AccumulatorAverage();
-        dimerfractionaccum.setPushInterval(10);
-        dimerFork.addDataSink(dimerfractionaccum);
+        AccumulatorAverage dimerFractionAccum = new AccumulatorAverage();
+        dimerFractionAccum.setPushInterval(10);
+        dimerFork.addDataSink(dimerFractionAccum);
 		DisplayTable table = new DisplayTable();
-		dimerfractionaccum.addDataSink(table.getDataTable().makeDataSink(),
+		dimerFractionAccum.addDataSink(table.getDataTable().makeDataSink(),
 		        new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE,
 		        AccumulatorAverage.StatType.ERROR});
-        table.setColumnHeader(0, "Average");
-		table.setColumnHeader(1, "Error");
+        table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(AccumulatorAverage.StatType.AVERAGE)}, "Average");
+        table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(AccumulatorAverage.StatType.ERROR)}, "Error");
 		table.setLabel("Fractions");
 
         DataSplitter splitter = new DataSplitter();

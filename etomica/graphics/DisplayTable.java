@@ -24,7 +24,6 @@ import etomica.data.meter.MeterPressureHard;
 import etomica.data.types.DataDoubleArray;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
-import etomica.util.Arrays;
 
 /**
  * Presents data in a tabular form.
@@ -48,6 +47,7 @@ public class DisplayTable extends Display implements DataTableListener {
 
         dataTable.addDataListener(this);
         unitList = new LinkedList();
+        columnHeaderList = new LinkedList();
         tableSource = new MyTable(); //inner class, defined below
         table = new JTable(tableSource);
         panel = new javax.swing.JPanel(new java.awt.FlowLayout());
@@ -89,11 +89,8 @@ public class DisplayTable extends Display implements DataTableListener {
      * using the default units for new columns.
      */
     public void dataCountChanged(DataSet dummyTable) {
-        int newCount = dataTable.getDataCount();
-        if (newCount > columnHeaderOverrides.length-1) {
-            columnHeaderOverrides = (String[])Arrays.resizeArray(columnHeaderOverrides, newCount);
-        }
         recomputeUnits();
+        recomputeColumnHeaders();
         tableSource.fireTableStructureChanged();
     }
 
@@ -250,6 +247,31 @@ public class DisplayTable extends Display implements DataTableListener {
     }
     
     /**
+     * Reconstruct the column headers array.  Manually-set headers for columns
+     * are used if they were set and if not, uses the column's own header is used.
+     */
+    protected void recomputeColumnHeaders() {
+        columnHeaders = new String[dataTable.getDataCount()];
+        for (int i=0; i<columnHeaders.length; i++) {
+            IDataInfo columnInfo = dataTable.getDataInfo(i);
+            String header = columnInfo.getLabel();
+            String suffix = "";
+            if (showingUnits) {
+                suffix = units[i].symbol();
+                if (!suffix.equals(""))
+                    suffix = " (" + suffix + ")";
+            }
+            header += suffix;
+
+            DataTagBag tagHeader = DataTagBag.getDataTagBag(columnHeaderList, dataTable.getDataInfo(i).getTags());
+            if (tagHeader != null) {
+                header = (String)tagHeader.object;
+            }
+            columnHeaders[i] = header;
+        }
+    }
+    
+    /**
      * Sets the units of all columns to the given unit.
      */
     public void setAllUnits(Unit newUnit) {
@@ -320,11 +342,18 @@ public class DisplayTable extends Display implements DataTableListener {
         this.rowLabelColumnHeader = rowLabelColumnHeader;
     }
     
-    public void setColumnHeader(int i, String newHeader) {
-        if (i > columnHeaderOverrides.length-1) {
-            columnHeaderOverrides = (String[])Arrays.resizeArray(columnHeaderOverrides, i+1);
+    public void setColumnHeader(DataTag[] tags, String newHeader) {
+        columnHeaderList.add(new DataTagBag(tags, newHeader));
+
+        // now go through and look for a current Data with these tags, but
+        // don't use these tags if a previous set of tags also matches.
+        for(int i=0; i<columnHeaders.length; i++) {
+            // if the user specified a unit for this data specifically, use it.
+            DataTagBag tagHeader = DataTagBag.getDataTagBag(columnHeaderList, dataTable.getDataInfo(i).getTags());
+            if (tagHeader != null) {
+                columnHeaders[i]= (String)tagHeader.object;
+            }
         }
-        columnHeaderOverrides[i] = newHeader;
     }
 
     private final JTable table;
@@ -340,9 +369,10 @@ public class DisplayTable extends Display implements DataTableListener {
     protected int c0 = 0;
     protected String[] rowLabels = new String[0];
     protected  String rowLabelColumnHeader = "";
-    protected String[] columnHeaderOverrides = new String[0];
+    protected String[] columnHeaders = new String[0];
     protected Unit[] units = new Unit[0];
     private LinkedList unitList;
+    private LinkedList columnHeaderList;
     private Unit defaultUnit;
     
 
@@ -397,17 +427,7 @@ public class DisplayTable extends Display implements DataTableListener {
         }
 
         private String columnLabel(int i) {
-            if (columnHeaderOverrides[i] != null) {
-                return columnHeaderOverrides[i];
-            }
-            String suffix = "";
-            if (showingUnits) {
-                suffix = units[i].symbol();
-                if (!suffix.equals(""))
-                    suffix = "(" + suffix + ")";
-            }
-            return dataTable.getDataInfo(i).getLabel()
-                    + (showingUnits ? suffix : "");
+            return columnHeaders[i];
         }
     }
 
