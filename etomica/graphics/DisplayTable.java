@@ -53,13 +53,10 @@ public class DisplayTable extends Display implements DataTableListener {
         panel = new javax.swing.JPanel(new java.awt.FlowLayout());
 
         setLabel("Data");
-        numberRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
         setPrecision(4);
         setTransposed(false);
         setShowingRowLabels(true);
         setShowingColumnHeaders(true);
-        table.setDefaultRenderer(Number.class, numberRenderer);
-        table.setDefaultRenderer(Double.class, numberRenderer);
         panel.add(new JScrollPane(table));
         InputEventHandler listener = new InputEventHandler();
         panel.addKeyListener(listener);
@@ -341,12 +338,6 @@ public class DisplayTable extends Display implements DataTableListener {
     //  private final java.text.NumberFormat formatter =
     // java.text.NumberFormat.getInstance();
     protected final java.text.NumberFormat formatter = new etomica.util.ScientificFormat();
-    private final javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
-
-        public void setValue(Object value) {
-            setText((value == null) ? "" : formatter.format(value));
-        }
-    };
 
     private class MyTable extends AbstractTableModel {
 
@@ -367,7 +358,7 @@ public class DisplayTable extends Display implements DataTableListener {
             if (r < columnData.getLength()) {
                 value = units[c].fromSim(dataTable.getValue(r, c));
             }
-            return new Double(value);
+            return Double.isNaN(value) ? "NaN" : formatter.format(value);
         }
 
         public int getRowCount() {
@@ -403,7 +394,6 @@ public class DisplayTable extends Display implements DataTableListener {
             return dataTable.getDataInfo(i).getLabel()
                     + (showingUnits ? suffix : "");
         }
-
     }
 
     private class InputEventHandler extends MouseAdapter implements KeyListener {
