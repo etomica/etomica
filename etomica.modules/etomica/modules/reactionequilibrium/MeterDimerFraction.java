@@ -3,17 +3,25 @@ package etomica.modules.reactionequilibrium;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
+import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.data.types.DataTable;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
-import etomica.box.Box;
 import etomica.species.Species;
+import etomica.units.CompoundDimension;
+import etomica.units.Dimension;
 import etomica.units.Fraction;
+import etomica.units.Quantity;
+import etomica.units.Volume;
 
 public final class MeterDimerFraction implements DataSource {
     public MeterDimerFraction(AtomAgentManager aam) {
@@ -23,10 +31,14 @@ public final class MeterDimerFraction implements DataSource {
         agentManager = aam;
         tag = new DataTag();
         dataInfo.addTag(tag);
+        dataDensity = new DataDouble();
+        dataGroup = new DataGroup(new Data[] {data, dataDensity});
+        DataDouble.DataInfoDouble dataInfoDouble = new DataInfoDouble("rho", new CompoundDimension(new Dimension[] {Quantity.DIMENSION, Volume.DIMENSION},new double[] {1,-1}));
+        dataInfoGroup = new DataInfoGroup("x and rho", Dimension.MIXED, new IDataInfo[] {dataInfo, dataInfoDouble});
     }
     
     public IDataInfo getDataInfo() {
-        return dataInfo;
+        return dataInfoGroup;
     }
 
     public DataTag getTag() {
@@ -76,7 +88,9 @@ public final class MeterDimerFraction implements DataSource {
         x[2] *= 0.5;
         x[3] *= 0.5;
         x[4] *= 0.5;
-        return data;
+        
+        dataDensity.x = nMole/box.getBoundary().getShape().getVolume();
+        return dataGroup;
     }
     
     /**
@@ -110,4 +124,7 @@ public final class MeterDimerFraction implements DataSource {
     private AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     protected final AtomAgentManager agentManager;
     private final DataTag tag;
+    private final DataGroup dataGroup;
+    private final DataDouble dataDensity;
+    private final DataGroup.DataInfoGroup dataInfoGroup;
 }

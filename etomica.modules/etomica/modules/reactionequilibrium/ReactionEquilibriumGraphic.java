@@ -18,11 +18,10 @@ import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
+import etomica.data.DataGroupFilter;
 import etomica.data.DataPump;
-import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSplitter;
-import etomica.data.DataTableAverages;
 import etomica.data.DataTag;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
@@ -34,6 +33,7 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
@@ -41,6 +41,7 @@ import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Angstrom;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
 import etomica.units.Null;
@@ -210,30 +211,40 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		DataPump dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
         sim.integratorHard1.addIntervalAction(dimerPump);
         sim.integratorHard1.setActionInterval(dimerPump, 100);
+
+        DataGroupFilter filter1 = new DataGroupFilter(0);
+        dimerFork.addDataSink(filter1);
+
         AccumulatorAverage dimerFractionAccum = new AccumulatorAverage();
         dimerFractionAccum.setPushInterval(10);
-        dimerFork.addDataSink(dimerFractionAccum);
-		DisplayTable table = new DisplayTable();
+        filter1.setDataSink(dimerFractionAccum);
+
+        DisplayTable table = new DisplayTable();
 		dimerFractionAccum.addDataSink(table.getDataTable().makeDataSink(),
 		        new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE,
 		        AccumulatorAverage.StatType.ERROR});
+
+
         table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(AccumulatorAverage.StatType.AVERAGE)}, "Average");
         table.setColumnHeader(new DataTag[]{dimerFractionAccum.getTag(AccumulatorAverage.StatType.ERROR)}, "Error");
 		table.setLabel("Fractions");
 
         DataSplitter splitter = new DataSplitter();
-        
-        dimerFork.addDataSink(splitter);
+        DataGroupFilter filter2 = new DataGroupFilter(0);
+        dimerFork.addDataSink(filter2);
+        filter2.setDataSink(splitter);
          
 		//display for history of mole fractions
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integratorHard1);
         DisplayPlot plot = new DisplayPlot();
         plot.setLabel("Composition");
         plot.setDoLegend(true);
-        int nData = sim.meterDimerFraction.getDataInfo().getLength();
-        DataTable.DataInfoTable dimerInfo = (DataTable.DataInfoTable)sim.meterDimerFraction.getDataInfo();
+//        int nData = sim.meterDimerFraction.getDataInfo().getLength();
+//        DataTable.DataInfoTable dimerInfo = (DataTable.DataInfoTable)sim.meterDimerFraction.getDataInfo();
+        int nData = filter1.getDataInfo().getLength();
+        DataTable.DataInfoTable dimerInfo = (DataTable.DataInfoTable)filter1.getDataInfo();
 
-         for (int i=0; i<nData; i++) {
+        for (int i=0; i<nData; i++) {
             AccumulatorHistory dimerfractionhistory = new AccumulatorHistory();
             dimerfractionhistory.setTimeDataSource(timeCounter);
             
@@ -241,6 +252,22 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
     		dimerfractionhistory.addDataSink (plot.getDataSet().makeDataSink());
     		plot.setLegend(new DataTag[]{dimerfractionhistory.getTag()}, dimerInfo.getRowHeader(i));
         }
+        
+        DataGroupFilter filter3 = new DataGroupFilter(1);
+        dimerFork.addDataSink(filter3);
+        AccumulatorAverage densityAccum = new AccumulatorAverage();
+        densityAccum.setPushInterval(10);
+        filter3.setDataSink(densityAccum);
+
+        DisplayTextBoxesCAE densityDisplay = new DisplayTextBoxesCAE();
+        densityAccum.addDataSink(densityDisplay,
+                new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.MOST_RECENT,
+                AccumulatorAverage.StatType.AVERAGE,
+                AccumulatorAverage.StatType.ERROR});
+        densityDisplay.setLabel("Molecular density, " + Angstrom.UNIT.symbol()+"^-3");
+        
+        
+//        filter3.setDataSink(new DataSinkConsole());
          
          final DeviceSlider delaySlider = new DeviceSlider(sim.controller1, new Modifier() {
              public double getValue() {return Math.pow(sim.activityIntegrate.getSleepPeriod(),1./2.);}
@@ -342,60 +369,11 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		getPanel().controlPanel.add(speciesEditors, vertGBC);
 		add(plot);
 		add(table);
+        add(densityDisplay);
 
 
         getController().getReinitButton().setPostAction(getPaintAction(sim.box));
 
-		//***************set all the colors******************
-		/*
-		 * java.awt.Color background = Constants.KHAKI.brighter().brighter();
-		 * java.awt.Color contrast = Constants.DARK_RED; java.awt.Color
-		 * sliderColor = Constants.TAN; // java.awt.Color tabColor =
-		 * java.awt.Color.black; java.awt.Color tabColor = Constants.DARK_RED;
-		 * java.awt.Color tabTextColor = background; java.awt.Color buttonColor =
-		 * tabColor; java.awt.Color buttonTextColor = tabTextColor;
-		 * java.awt.Color panelColor = Constants.TAN;
-		 * panel.setBackground(background);
-		 * devicePanel.setBackground(background);
-		 * displayPanel.setBackground(tabColor);
-		 * displayPanel.setForeground(tabTextColor);
-		 * displayBoxPanel.setBackground(background);
-		 * 
-		 * sliderPanel.setBackground(tabColor);
-		 * sliderPanel.setForeground(tabTextColor);
-		 * sliderPanel.setOpaque(false); epsilonSliders.setOpaque(false);
-		 * lambdaSliders.setOpaque(false);
-		 * AAWellSlider.graphic(null).setBackground(sliderColor);
-		 * ABWellSlider.graphic(null).setBackground(sliderColor);
-		 * BBWellSlider.graphic(null).setBackground(sliderColor);
-		 * AASlider.graphic(null).setBackground(sliderColor);
-		 * ABSlider.graphic(null).setBackground(sliderColor);
-		 * BBSlider.graphic(null).setBackground(sliderColor);
-		 * 
-		 * controlPanel.setBackground(background);
-		 * 
-		 * startPanel.setBackground(contrast); //border color
-		 * startPanel.setOpaque(false);
-		 * 
-		 * temperaturePanel.setBackground(contrast); //border color
-		 * temperaturePanel.setOpaque(false);
-		 * tBox.graphic(null).setBackground(background);
-		 * tSelect.graphic(null).setBackground(background);
-		 * 
-		 * displayBox1.graphic(null).setBackground(panelColor);
-		 * plot.graphic(null).setBackground(panelColor);
-		 * plot.getPlot().setBackground(panelColor); //doesn't have intended
-		 * effect table.graphic(null).setBackground(panelColor);
-		 * speciesA.setColor(Constants.BRIGHT_RED);
-		 * speciesB.setColor(java.awt.Color.black);
-		 * 
-		 * controller1.getButton().graphic(null).setBackground(buttonColor);
-		 * controller1.getButton().graphic(null).setForeground(buttonTextColor);
-		 * restart.graphic(null).setBackground(buttonColor);
-		 * restart.graphic(null).setForeground(buttonTextColor);
-		 * resetAverages.graphic(null).setBackground(buttonColor);
-		 * resetAverages.graphic(null).setForeground(buttonTextColor); //
-		 */
 
 		//set the number of significant figures displayed on the table.
 		javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
