@@ -60,6 +60,10 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 	private static final String APP_NAME = "Reaction Equilibrium";
 	private static final int REPAINT_INTERVAL = 10;
     protected final ReactionEquilibrium sim;
+    protected boolean initializing;
+    protected AccumulatorAverage densityAccum;
+    protected DataPump dimerPump;
+    protected DisplayTextBoxesCAE densityDisplay;
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation) {
 
@@ -208,7 +212,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 // FROM THIS IMPLEMENTATION OF AVERAGE DISPLAY.
 		//display of averages
         DataFork dimerFork = new DataFork();
-		DataPump dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
+		dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
         sim.integratorHard1.addIntervalAction(dimerPump);
         sim.integratorHard1.setActionInterval(dimerPump, 100);
 
@@ -255,16 +259,18 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         
         DataGroupFilter filter3 = new DataGroupFilter(1);
         dimerFork.addDataSink(filter3);
-        AccumulatorAverage densityAccum = new AccumulatorAverage();
+        densityAccum = new AccumulatorAverage();
         densityAccum.setPushInterval(10);
         filter3.setDataSink(densityAccum);
 
-        DisplayTextBoxesCAE densityDisplay = new DisplayTextBoxesCAE();
+        densityDisplay = new DisplayTextBoxesCAE();
         densityAccum.addDataSink(densityDisplay,
                 new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.MOST_RECENT,
                 AccumulatorAverage.StatType.AVERAGE,
                 AccumulatorAverage.StatType.ERROR});
         densityDisplay.setLabel("Molecular density, " + Angstrom.UNIT.symbol()+"^-3");
+        dimerPump.actionPerformed();
+        densityDisplay.putData(densityAccum.getData());
         
         
 //        filter3.setDataSink(new DataSinkConsole());
@@ -443,6 +449,11 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
                     	sim.integratorHard1.reset();
                     } catch(ConfigurationOverlapException e) {}
                     getDisplayBox(sim.box).repaint();
+                    
+                    //yay for a push data model
+                    densityAccum.reset();
+                    dimerPump.actionPerformed();
+                    densityDisplay.putData(densityAccum.getData());
                 }
            });
 
@@ -605,6 +616,5 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 			return currentValue;
 		}
 	}//end of WellModulator
-	boolean initializing;
 
 }
