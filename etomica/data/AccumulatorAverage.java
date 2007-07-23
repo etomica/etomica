@@ -60,9 +60,6 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         if (statType == StatType.STANDARD_DEVIATION) {
             return standardDeviationTag;
         }
-        if (statType == StatType.MOST_RECENT_BLOCK) {
-            return mostRecentBlockTag;
-        }
         if (statType == StatType.BLOCK_CORRELATION) {
             return blockCorrelationTag;
         }
@@ -201,10 +198,9 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         public static final StatType AVERAGE = new StatType("Average", 1);
         public static final StatType ERROR = new StatType("67% Confidence limits", 2);
         public static final StatType STANDARD_DEVIATION = new StatType("Standard deviation", 3);
-        public static final StatType MOST_RECENT_BLOCK = new StatType("Latest block average", 4);
-        public static final StatType BLOCK_CORRELATION = new StatType("Block correlation", 5);
+        public static final StatType BLOCK_CORRELATION = new StatType("Block correlation", 4);
         public static StatType[] choices() {
-            return new StatType[] {MOST_RECENT,AVERAGE,ERROR,STANDARD_DEVIATION,MOST_RECENT_BLOCK,BLOCK_CORRELATION};
+            return new StatType[] {MOST_RECENT,AVERAGE,ERROR,STANDARD_DEVIATION,BLOCK_CORRELATION};
         }
         
         private static final long serialVersionUID = 1L;
