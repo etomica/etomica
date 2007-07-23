@@ -3,7 +3,8 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
@@ -246,16 +247,17 @@ public class PistonCylinderGraphic extends SimulationPanel {
         tempSlider.setSliderMajorValues(4);
         tempSlider.setTemperature(300);
 
-    	tempSlider.setIsothermalButtonListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent evt) {
+    	ActionListener actionListen = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 pc.controller.doActionNow( new Action() {
                     public void actionPerformed() {
                         pc.integrator.setIsothermal(tempSlider.isIsothermal());
                     }
                 });
             }
-        });
+        };
 
+    	tempSlider.addRadioGroupActionListener(actionListen);
 
 		//pressure device
         pressureSlider = new DeviceSlider(null);

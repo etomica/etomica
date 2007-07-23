@@ -1,12 +1,11 @@
 package etomica.modules.ljmd;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import java.util.ArrayList;
 
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -40,11 +39,12 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceThermoSelector;
+import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayPlot;
@@ -69,7 +69,7 @@ public class LjmdGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 20;
-
+    private DeviceThermoSlider temperatureSelect;
     protected Ljmd sim;
     
     private boolean showConfig = false;
@@ -256,6 +256,7 @@ public class LjmdGraphic extends SimulationGraphic {
         nSlider.setMaximum(225);
         nSlider.setLabel("Number of atoms");
         nSlider.setShowBorder(true);
+        nSlider.setShowValues(true);
         // add a listener to adjust the thermostat interval for different
         // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
         // don't need as much thermostating.
@@ -275,33 +276,64 @@ public class LjmdGraphic extends SimulationGraphic {
 
         //************* Lay out components ****************//
 
-        GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
         getDisplayBox(sim.box).setScale(0.7);
 
         //temperature selector
-	    DeviceThermoSelector tSelect = new DeviceThermoSelector(sim,sim.integrator);
-	    tSelect.setTemperatures(new double[] {0.3,0.5,0.7,1.0,1.3,2.0,3.0});
-	    tSelect.setUnit(tUnit);
-	    tSelect.setSelected(0); //sets adiabatic as selected temperature
-	    tSelect.getLabel().setText("Set value");
-		//listner to update Maxwell-Boltzmann plot when temperature is changed
-        tSelect.getSelector().addItemListener(new java.awt.event.ItemListener() {
-		    public void itemStateChanged(java.awt.event.ItemEvent event) {
-		        Object item = event.getItem();
-		        if(item instanceof Double) {
-		            mbDistribution.setTemperature(((Double)item).doubleValue());
-		            mbSource.update();
-		            vPlot.doUpdate();
-		            vPlot.repaint();
-		        }
-		    }
-		});//end of addItemListener
+        temperatureSelect = new DeviceThermoSlider();
+        temperatureSelect.setPrecision(1);
+        temperatureSelect.setMinimum(0.0);
+        temperatureSelect.setMaximum(3.0);
+        temperatureSelect.setSliderMajorValues(3);
+	    temperatureSelect.setUnit(tUnit);
+	    temperatureSelect.setAdiabatic();
+	    temperatureSelect.setController(sim.getController());
+//	    temperatureSelect.setIntegrator(sim.integrator);
 
-        JPanel temperaturePanel = new JPanel(new GridBagLayout());
-        temperaturePanel.setBorder(new TitledBorder("Temperature (\u03B5)"));
-        temperaturePanel.add(tSelect.graphic(null), horizGBC);
+    	ChangeListener integratorCL = new ChangeListener() {
+    		public void stateChanged(ChangeEvent ae) {
+				sim.integrator.setIsothermal(temperatureSelect.isIsothermal());
+			    if(temperatureSelect.isIsothermal()) {
+			        sim.integrator.setTemperature(temperatureSelect.getTemperature());
+			    }
+			    try {
+			        sim.integrator.reset();
+			    }
+			    catch (ConfigurationOverlapException e) {
+			            throw new RuntimeException("overlap in configuration");
+			    }
+    		}
+    	};    	
+
+    	ActionListener integratorAL = new ActionListener() {
+    		public void actionPerformed(ActionEvent ae) {
+				sim.integrator.setIsothermal(temperatureSelect.isIsothermal());
+			    if(temperatureSelect.isIsothermal()) {
+			        sim.integrator.setTemperature(temperatureSelect.getTemperature());
+			    }
+			    try {
+			        sim.integrator.reset();
+			    }
+			    catch (ConfigurationOverlapException e) {
+			            throw new RuntimeException("overlap in configuration");
+			    }
+    		}
+    	};
+
+    	temperatureSelect.addTemperatureSliderListener(integratorCL);
+    	temperatureSelect.addRadioGroupActionListener(integratorAL);
+
+	    ChangeListener temperatureListener = new ChangeListener() {
+		    public void stateChanged(ChangeEvent event) {
+
+		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
+		        mbSource.update();
+		        vPlot.doUpdate();
+		        vPlot.repaint();
+		    }
+		};
+		temperatureSelect.addTemperatureSliderListener(temperatureListener);
 
         // show config button
         DeviceButton configButton = new DeviceButton(sim.getController());
@@ -334,7 +366,7 @@ public class LjmdGraphic extends SimulationGraphic {
         this.getController().getReinitButton().setPostAction(resetAction);
         this.getController().getResetAveragesButton().setPostAction(resetAction);
 
-        getPanel().controlPanel.add(temperaturePanel, vertGBC);
+        getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         add(nSlider);
         if(showConfig == true) {
             add(configButton);

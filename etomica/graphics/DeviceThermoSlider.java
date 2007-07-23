@@ -4,6 +4,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
 
 import etomica.action.Action;
 import etomica.action.activity.Controller;
@@ -15,7 +16,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemListener;
 
 
 public class DeviceThermoSlider extends Device {
@@ -56,7 +56,7 @@ public class DeviceThermoSlider extends Device {
         buttonIsothermal.addActionListener(myListener);
 
         temperaturePanel = new JPanel(new GridBagLayout());
-        temperaturePanel.setBorder(new TitledBorder("Set Temperature (K)"));
+        temperaturePanel.setBorder(new TitledBorder("Set Temperature"));
         GridBagConstraints gbc1 = new GridBagConstraints();
         gbc1.gridx = 0;  gbc1.gridy = 1;
         gbc1.gridwidth = 1;
@@ -85,11 +85,24 @@ public class DeviceThermoSlider extends Device {
 	}
 
 	/**
-	 * Set a listener to the Isothermal button.
+	 * Add the specified listener to the list of listeners that
+	 * will get invoked when the temperature slider  value changes.
+	 * @param listener
 	 */
-	public void setIsothermalButtonListener(ItemListener listener) {
-	    buttonIsothermal.addItemListener(listener);
-    }
+	public void addTemperatureSliderListener(ChangeListener listener) {
+		temperatureSlider.getSlider().addChangeListener(listener);
+	}
+
+	/**
+	 * Add the specified listener to the list of listeners that
+	 * will get invoked when the isothermal or adiabatic radio button
+	 * is pushed.
+	 * @param listener
+	 */
+	public void addRadioGroupActionListener(ActionListener listener) {
+		buttonAdiabatic.addActionListener(listener);
+		buttonIsothermal.addActionListener(listener);
+	}
 
 	/**
 	 * Set the Adiabatic button to its selected state.
@@ -167,6 +180,16 @@ public class DeviceThermoSlider extends Device {
 	 */
     public void setUnit(Unit u) {
     	temperatureSlider.setUnit(u);
+        String suffix = (u.symbol().length() > 0) ? " ("+u.symbol()+")" : "";
+        temperaturePanel.setBorder(new TitledBorder("Set Temperature" + suffix));
+    }
+
+    /**
+     * Set the precision of the scrollbar.
+     * @param prec Number of significant digits after the "dot".
+     */
+    public void setPrecision(int prec) {
+    	temperatureSlider.setPrecision(prec);
     }
 
 	/**
