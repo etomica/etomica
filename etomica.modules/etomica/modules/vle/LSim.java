@@ -6,6 +6,7 @@ import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
@@ -92,7 +93,7 @@ public class LSim extends Simulation {
         DataFork fork = new DataFork();
         DataPump pumpPressureLiquid = new DataPump(meterPressureLiquid, fork);
         simGraphic.getController().getDataStreamPumps().add(pumpPressureLiquid);
-        AccumulatorAverage avgPressureLiquid = new AccumulatorAverage(40);
+        AccumulatorAverage avgPressureLiquid = new AccumulatorAverageCollapsing();
         avgPressureLiquid.setPushInterval(10);
         fork.addDataSink(avgPressureLiquid);
         AccumulatorHistory historyPressureLiquid = new AccumulatorHistory(new HistoryCollapsingAverage(100));

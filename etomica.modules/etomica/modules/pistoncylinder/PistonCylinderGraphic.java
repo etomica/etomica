@@ -23,6 +23,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
@@ -703,7 +704,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(meterCycles);
         temperatureHistory.getHistory().setHistoryLength(historyLength);
-        final AccumulatorAverage temperatureAvg = new AccumulatorAverage(100);
+        final AccumulatorAverage temperatureAvg = new AccumulatorAverageCollapsing(100);
         temperatureAvg.setPushInterval(10);
         pump = new DataPump(thermometer,new DataFork(new DataSink[]{temperatureHistory,temperatureAvg}));
         dataStreamPumps.add(pump);
@@ -734,7 +735,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
         pressureHistory.getHistory().setHistoryLength(historyLength);
-        final AccumulatorAverage pressureAvg = new AccumulatorAverage(100);
+        final AccumulatorAverage pressureAvg = new AccumulatorAverageCollapsing(100);
         pressureAvg.setPushInterval(10);
         pump = new DataPump(pressureMeter, new DataFork(new DataSink[]{pressureHistory,pressureAvg}));
         dataStreamPumps.add(pump);
@@ -765,7 +766,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setTimeDataSource(meterCycles);
         densityHistory.getHistory().setHistoryLength(historyLength);
-        final AccumulatorAverage densityAvg = new AccumulatorAverage(100);
+        final AccumulatorAverage densityAvg = new AccumulatorAverageCollapsing(100);
         densityAvg.setPushInterval(10);
         pump = new DataPump(densityMeter,new DataFork(new DataSink[]{densityAvg, densityHistory}));
         dataStreamPumps.add(pump);

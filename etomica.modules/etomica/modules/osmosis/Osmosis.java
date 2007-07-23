@@ -17,6 +17,7 @@ import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterLocalMoleFraction;
@@ -24,9 +25,9 @@ import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSelector;
+import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayTimer;
 import etomica.graphics.Drawable;
 import etomica.graphics.SimulationGraphic;
@@ -94,8 +95,8 @@ public class Osmosis extends SimulationGraphic {
         	Plane plane = new Plane(sim.getSpace());
         	((etomica.graphics.DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(plane);
             config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(3, 1.0), plane); 
-            config.addSpecies((etomica.species.Species)sim.speciesSolvent);
-            config.addSpecies((etomica.species.Species)sim.speciesSolute);
+            config.addSpecies(sim.speciesSolvent);
+            config.addSpecies(sim.speciesSolute);
         }
 
         config.initializeCoordinates(sim.box);
@@ -114,7 +115,7 @@ public class Osmosis extends SimulationGraphic {
 	    // Right side of membrane osmotic
         osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardA,sim.boundaryHardB}); 
         osmosisPMeter.setIntegrator(sim.integrator);
-        final AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverage();
+        final AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverageCollapsing();
         final DataPump osmosisPump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
         dataStreamPumps.add(osmosisPump);
         sim.integrator.addIntervalAction(osmosisPump);
@@ -162,7 +163,7 @@ public class Osmosis extends SimulationGraphic {
         }
 
         moleFractionRight.setSpecies(sim.speciesSolute);
-        final AccumulatorAverage moleFractionAvgRight = new AccumulatorAverage();
+        final AccumulatorAverage moleFractionAvgRight = new AccumulatorAverageCollapsing();
         final DataPump molePumpRight = new DataPump(moleFractionRight, moleFractionAvgRight);
         dataStreamPumps.add(molePumpRight);
         sim.integrator.addIntervalAction(molePumpRight);
@@ -185,7 +186,7 @@ public class Osmosis extends SimulationGraphic {
         }
 
         moleFractionLeft.setSpecies(sim.speciesSolute);
-        final AccumulatorAverage moleFractionAvgLeft = new AccumulatorAverage();
+        final AccumulatorAverage moleFractionAvgLeft = new AccumulatorAverageCollapsing();
         final DataPump molePumpLeft = new DataPump(moleFractionLeft, moleFractionAvgLeft);
         dataStreamPumps.add(molePumpLeft);
         sim.integrator.addIntervalAction(molePumpLeft);

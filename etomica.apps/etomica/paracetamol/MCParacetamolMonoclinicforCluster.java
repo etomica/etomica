@@ -4,6 +4,7 @@ package etomica.paracetamol;
 import etomica.action.PDBWriter;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataTableWriter;
@@ -50,7 +51,7 @@ public class MCParacetamolMonoclinicforCluster {
         
              MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
              meterPE.setBox(sim.box);
-             AccumulatorAverage accumulatorAveragePE = new AccumulatorAverage(1); //Average over 1
+             AccumulatorAverage accumulatorAveragePE = new AccumulatorAverageFixed(1); //Average over 1
              DataPump PEpump = new DataPump(meterPE, accumulatorAveragePE);
              
              DataLogger dataLoggerPE = new DataLogger();

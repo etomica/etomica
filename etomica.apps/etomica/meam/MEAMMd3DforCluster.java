@@ -1,5 +1,6 @@
 package etomica.meam;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataTableWriter;
@@ -48,8 +49,8 @@ public class MEAMMd3DforCluster {
     	energyMeter.setBox(sim.box);
     	kineticMeter.setBox(sim.box);
         
-        AccumulatorAverage accumulatorAveragePE = new AccumulatorAverage(50);
-    	AccumulatorAverage accumulatorAverageKE = new AccumulatorAverage(50);
+        AccumulatorAverage accumulatorAveragePE = new AccumulatorAverageFixed(50);
+    	AccumulatorAverage accumulatorAverageKE = new AccumulatorAverageFixed(50);
     	
     	DataPump energyManager = new DataPump(energyMeter,accumulatorAveragePE);   	
     	DataPump kineticManager = new DataPump(kineticMeter, accumulatorAverageKE);

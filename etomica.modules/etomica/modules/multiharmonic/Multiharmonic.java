@@ -6,13 +6,14 @@ import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.box.Box;
 import etomica.potential.P1Harmonic;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -72,15 +73,13 @@ public class Multiharmonic extends Simulation {
         potentialB.setSpringConstant(10);
         meter = new MeterFreeEnergy(potentialA, potentialB);
         meter.setBox(box);
-        accumulator = new AccumulatorAverage();
-        accumulator.setBlockSize(100);
+        accumulator = new AccumulatorAverageCollapsing();
         dataPump = new DataPump(meter, accumulator);
         integrator.addIntervalAction(dataPump);
         
         meterEnergy = new MeterEnergy(potentialMaster);
         meterEnergy.setBox(box);
-        accumulatorEnergy = new AccumulatorAverage();
-        accumulatorEnergy.setBlockSize(100);
+        accumulatorEnergy = new AccumulatorAverageCollapsing();
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
         integrator.addIntervalAction(dataPumpEnergy);
         

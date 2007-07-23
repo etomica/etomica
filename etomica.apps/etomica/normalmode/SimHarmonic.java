@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
@@ -18,7 +20,6 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2HardSpherical;
@@ -165,7 +166,7 @@ public class SimHarmonic extends Simulation {
         BoltzmannProcessor bp = new BoltzmannProcessor();
         bp.setTemperature(1);
         DataPump pump = new DataPump(meterPE,bp);
-        AccumulatorAverage avgBoltzmann = new AccumulatorAverage(1);
+        AccumulatorAverage avgBoltzmann = new AccumulatorAverageFixed(1);
         bp.setDataSink(avgBoltzmann);
         avgBoltzmann.setPushInterval(5);
         sim.integrator.addIntervalAction(pump);
@@ -188,7 +189,7 @@ public class SimHarmonic extends Simulation {
             MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(sim.coordinateDefinition, sim.normalModes);
             harmonicEnergy.setBox(sim.box);
             DataFork harmonicFork = new DataFork();
-            AccumulatorAverage harmonicAvg = new AccumulatorAverage(5);
+            AccumulatorAverage harmonicAvg = new AccumulatorAverageFixed(5);
             DataPump pumpHarmonic = new DataPump(harmonicEnergy, harmonicFork);
             harmonicFork.addDataSink(harmonicAvg);
             sim.integrator.addIntervalAction(pumpHarmonic);

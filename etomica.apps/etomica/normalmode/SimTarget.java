@@ -5,7 +5,9 @@ import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
@@ -19,7 +21,6 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveFcc;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
@@ -178,19 +179,19 @@ public class SimTarget extends Simulation {
         boltz.setDataSink(boltzFork);
 //        DataProcessorCorrelationMatrix boltzCorrelation = new DataProcessorCorrelationMatrix();
 //        boltzFork.addDataSink(boltzCorrelation);
-        AccumulatorAverage harmonicSingleAvg = new AccumulatorAverage(10);
+        AccumulatorAverage harmonicSingleAvg = new AccumulatorAverageFixed(10);
         boltzFork.addDataSink(harmonicSingleAvg);
         
         DataProcessorSum summer = new DataProcessorSum();
         harmonicSingleFork.addDataSink(summer);
         DataFork harmonicFork = new DataFork();
         summer.setDataSink(harmonicFork);
-        AccumulatorAverage harmonicAvg = new AccumulatorAverage(10);
+        AccumulatorAverage harmonicAvg = new AccumulatorAverageFixed(10);
         harmonicFork.addDataSink(harmonicAvg);
         boltz = new BoltzmannProcessor();
         boltz.setTemperature(temperature);
         harmonicFork.addDataSink(boltz);
-        AccumulatorAverage harmonicBoltzAvg = new AccumulatorAverage(10);
+        AccumulatorAverage harmonicBoltzAvg = new AccumulatorAverageFixed(10);
         boltz.setDataSink(harmonicBoltzAvg);
 
         //start simulation

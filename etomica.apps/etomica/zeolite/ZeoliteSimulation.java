@@ -2,8 +2,10 @@ package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
@@ -16,7 +18,6 @@ import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2WCA;
@@ -231,7 +232,7 @@ public class ZeoliteSimulation extends Simulation {
         eMeter.setBox(sim.box);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.getHistory().setHistoryLength(history);
-        AccumulatorAverage enAcc = new AccumulatorAverage();
+        AccumulatorAverage enAcc = new AccumulatorAverageCollapsing();
         enAcc.setPushInterval(20);
         DataFork enFork = new DataFork(new DataSink[]{energyHistory, enAcc});
         DataPump energyPump = new DataPump(eMeter, enFork);
