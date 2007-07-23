@@ -68,13 +68,15 @@ import etomica.util.Constants.CompassDirection;
 public class LjmdGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
-    private final static int REPAINT_INTERVAL = 50;
+    private final static int REPAINT_INTERVAL = 20;
 
     protected Ljmd sim;
+    
+    private boolean showConfig = false;
 
     public LjmdGraphic(final Ljmd simulation) {
 
-    	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
         
@@ -105,7 +107,8 @@ public class LjmdGraphic extends SimulationGraphic {
         
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
-		
+        rdfPlot.setLabel("RDF");
+
 		//velocity distribution
         double vMin = 0;
         double vMax = 4;
@@ -121,8 +124,9 @@ public class LjmdGraphic extends SimulationGraphic {
         final DisplayPlot vPlot = new DisplayPlot();
         rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{StatType.AVERAGE});
         vPlot.setDoLegend(false);
-        vPlot.getPlot().setTitle("Velocity distribution");
+        vPlot.getPlot().setTitle("Velocity Distribution");
         vPlot.setDoLegend(true);
+        vPlot.setLabel("Velocity");
 		
 		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(),sim.integrator.getTemperature(),((AtomTypeLeaf)sim.species.getMoleculeType()).getMass());
 		final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann Distribution",
@@ -158,26 +162,31 @@ public class LjmdGraphic extends SimulationGraphic {
 		MeterTemperature thermometer = new MeterTemperature();
         thermometer.setBox(sim.box);
         DataFork temperatureFork = new DataFork();
-        DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
+        final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
         sim.integrator.addIntervalAction(temperaturePump);
         sim.integrator.setActionInterval(temperaturePump, 10);
-        AccumulatorHistory temperatureHistory = new AccumulatorHistory();
+        final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(timeCounter);
-		DisplayTextBox tBox = new DisplayTextBox();
+		final DisplayTextBox tBox = new DisplayTextBox();
 		temperatureFork.setDataSinks(new DataSink[]{tBox,temperatureHistory});
-		tBox.setUnit(tUnit);
-		tBox.setLabel("Measured value");
+        tBox.setUnit(tUnit);
+		tBox.setLabel("Measured Temperature");
+		tBox.setLabelPosition(CompassDirection.NORTH);
+
+		dataStreamPumps.add(temperaturePump);
+        tBox.setUnit(tUnit);
+		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
 		// Number density box
 	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setBox(sim.box);
-	    DisplayTextBox densityBox = new DisplayTextBox();
-        DataPump densityPump = new DataPump(densityMeter, densityBox);
+	    final DisplayTextBox densityBox = new DisplayTextBox();
+        final DataPump densityPump = new DataPump(densityMeter, densityBox);
         sim.integrator.addIntervalAction(densityPump);
         sim.integrator.setActionInterval(densityPump, 10);
         dataStreamPumps.add(densityPump);
-	    densityBox.setLabel("Number density");
+	    densityBox.setLabel("Number Density");
 	    
 		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential());
         eMeter.setBox(sim.box);
@@ -193,7 +202,7 @@ public class LjmdGraphic extends SimulationGraphic {
         peMeter.setBox(sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
-        AccumulatorAverage peAccumulator = new AccumulatorAverage(100);
+        final AccumulatorAverage peAccumulator = new AccumulatorAverage(100);
         peAccumulator.setPushInterval(10);
         DataFork peFork = new DataFork(new DataSink[]{peHistory, peAccumulator});
         DataPump pePump = new DataPump(peMeter, peFork);
@@ -219,30 +228,32 @@ public class LjmdGraphic extends SimulationGraphic {
         ePlot.setLegend(new DataTag[]{peHistory.getTag()}, "Potential");
         keHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setLegend(new DataTag[]{keHistory.getTag()}, "Kinetic");
-		
+
+        ePlot.getPlot().setTitle("Energy History");
 		ePlot.setDoLegend(true);
+		ePlot.setLabel("Energy");
 		
         MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator();
         pMeter.setIntegrator(sim.integrator);
-        AccumulatorAverage pAccumulator = new AccumulatorAverage(100);
+        final AccumulatorAverage pAccumulator = new AccumulatorAverage(100);
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
-        DataPump pPump = new DataPump(pMeter, tracer);
+        final DataPump pPump = new DataPump(pMeter, tracer);
         tracer.setDataSink(pAccumulator);
         sim.integrator.addIntervalAction(pPump);
         pAccumulator.setPushInterval(10);
         dataStreamPumps.add(pPump);
 
-        DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
+        final DisplayTextBoxesCAE pDisplay = new DisplayTextBoxesCAE();
         pDisplay.setAccumulator(pAccumulator);
-        DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
+        final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
 
         final DeviceNSelector nSlider = new DeviceNSelector(sim.getController());
         nSlider.setResetAction(new SimulationRestart(sim));
         nSlider.setSpecies(sim.species);
         nSlider.setBox(sim.box);
-        nSlider.setMinimum(1);
-        nSlider.setMaximum(224);
+        nSlider.setMinimum(0);
+        nSlider.setMaximum(225);
         nSlider.setLabel("Number of atoms");
         nSlider.setShowBorder(true);
         // add a listener to adjust the thermostat interval for different
@@ -251,7 +262,13 @@ public class LjmdGraphic extends SimulationGraphic {
         nSlider.getSlider().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
                 int n = (int)nSlider.getValue();
-                sim.integrator.setThermostatInterval(400/n);
+                if(n == 0) {
+                	sim.integrator.setThermostatInterval(400);
+                }
+                else {
+                  sim.integrator.setThermostatInterval(400/n);
+                }
+
                 getDisplayBox(sim.box).repaint();
             }
         });
@@ -261,36 +278,7 @@ public class LjmdGraphic extends SimulationGraphic {
         GridBagConstraints horizGBC = SimulationPanel.getHorizGBC();
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-        //tabbed pane for the big displays
-        javax.swing.JPanel bigPanel = new javax.swing.JPanel();
-        
-    	final javax.swing.JTabbedPane displayPanel = new javax.swing.JTabbedPane();
-    	try {
-        	((javax.swing.JComponent)getDisplayBox(sim.box).graphic()).setPreferredSize(new java.awt.Dimension(300,300));
-        } catch(ClassCastException e) {}
         getDisplayBox(sim.box).setScale(0.7);
-        bigPanel.add(displayPanel);
-        
-        javax.swing.JPanel thermoPanel = new javax.swing.JPanel();
-        thermoPanel.add(pDisplay.graphic());
-        thermoPanel.add(peDisplay.graphic());
-        
-        displayPanel.add("Thermo",thermoPanel);
-    	displayPanel.add("RDF", rdfPlot.graphic());
-    	displayPanel.add("Velocity",vPlot.graphic());
-    	
-    	javax.swing.JPanel energyPanel = new javax.swing.JPanel(new GridLayout(0,1));
-        ePlot.getPlot().setTitle("Energy History");
-        energyPanel.add(ePlot.graphic());
-    	displayPanel.add("Energy",energyPanel);        
-        
-        displayPanel.addChangeListener(
-            new javax.swing.event.ChangeListener() {
-                public void stateChanged(javax.swing.event.ChangeEvent event) {
-                    displayPanel.invalidate();
-                    displayPanel.validate();
-                }
-        });
 
         //temperature selector
 	    DeviceThermoSelector tSelect = new DeviceThermoSelector(sim,sim.integrator);
@@ -313,20 +301,52 @@ public class LjmdGraphic extends SimulationGraphic {
 
         JPanel temperaturePanel = new JPanel(new GridBagLayout());
         temperaturePanel.setBorder(new TitledBorder("Temperature (\u03B5)"));
-
         temperaturePanel.add(tSelect.graphic(null), horizGBC);
-        temperaturePanel.add(tBox.graphic(null), horizGBC);
 
         // show config button
         DeviceButton configButton = new DeviceButton(sim.getController());
         configButton.setLabel("Show Config");
         configButton.setAction(new ActionConfigWindow(sim.box));
 
+        Action resetAction = new Action() {
+        	public void actionPerformed() {
+        		// Reset density (Density is set and won't change, but
+        		// do this anyway)
+        		densityPump.actionPerformed();
+        		densityBox.repaint();
+
+        		// Reset temperature (THIS IS NOT WORKING)
+                temperaturePump.actionPerformed();
+//                tBox.putData(temperatureHistory.getData());
+                tBox.repaint();
+
+                // IS THIS WORKING?
+                pPump.actionPerformed();
+                pDisplay.putData(pAccumulator.getData());
+                pDisplay.repaint();
+                peDisplay.putData(peAccumulator.getData());
+                peDisplay.repaint();
+
+        		getDisplayBox(sim.box).graphic().repaint();
+        	}
+        };
+
+        this.getController().getReinitButton().setPostAction(resetAction);
+        this.getController().getResetAveragesButton().setPostAction(resetAction);
+
         getPanel().controlPanel.add(temperaturePanel, vertGBC);
         add(nSlider);
-        add(densityBox);
-        add(configButton);
-        getPanel().footerPanel.add(bigPanel, horizGBC);
+        if(showConfig == true) {
+            add(configButton);
+        }
+
+    	add(rdfPlot);
+    	add(vPlot);
+    	add(ePlot);
+    	getPanel().plotPanel.add(densityBox.graphic(), vertGBC);
+    	getPanel().plotPanel.add(tBox.graphic(), vertGBC);
+    	getPanel().plotPanel.add(pDisplay.graphic(), vertGBC);
+    	getPanel().plotPanel.add(peDisplay.graphic(), vertGBC);
 
     }
 
