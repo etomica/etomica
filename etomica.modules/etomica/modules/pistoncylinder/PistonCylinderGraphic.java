@@ -3,16 +3,12 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
@@ -44,6 +40,7 @@ import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
@@ -104,7 +101,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
     public DeviceButton configButton, velocityButton;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
-    public DeviceSlider scaleSlider, pressureSlider, temperatureSlider;
+    DeviceThermoSlider tempSlider;
+    public DeviceSlider scaleSlider, pressureSlider;
     public DeviceNSelector nSlider;
     public JPanel pressureSliderPanel;
     public MeterDensity densityMeter;
@@ -114,7 +112,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
     public Unit tUnit, dUnit, pUnit;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
 	private DisplayTextBoxesCAE densityDisplayTextBox, temperatureDisplayTextBox, pressureDisplayTextBox;
-    public JRadioButton buttonAdiabatic, buttonIsothermal;
     public JPanel blankPanel = new JPanel();
     public JScrollPane plotsPane;
     public int historyLength;
@@ -240,56 +237,25 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // State tabbed pane page
         //
 
-        //adiabatic/isothermal radio button
-        ButtonGroup thermalGroup = new ButtonGroup();
-        buttonAdiabatic = new JRadioButton("Adiabatic");
-        buttonIsothermal = new JRadioButton("Isothermal");
-        thermalGroup.add(buttonAdiabatic);
-        thermalGroup.add(buttonIsothermal);
-        buttonIsothermal.addItemListener(new ItemListener() {
+        tempSlider = new DeviceThermoSlider();
+        tempSlider.setShowValues(true);
+        tempSlider.setEditValues(true);
+        tempSlider.setMinimum(0);
+        tempSlider.setMaximum(1000);
+        tempSlider.setAdiabatic();
+        tempSlider.setSliderMajorValues(4);
+        tempSlider.setTemperature(300);
+
+    	tempSlider.setIsothermalButtonListener(new ItemListener() {
             public void itemStateChanged(ItemEvent evt) {
                 pc.controller.doActionNow( new Action() {
                     public void actionPerformed() {
-                        pc.integrator.setIsothermal(buttonIsothermal.isSelected());
+                        pc.integrator.setIsothermal(tempSlider.isIsothermal());
                     }
                 });
             }
         });
 
-
-        //temperature selector
-        temperatureSlider = new DeviceSlider(null);
-        temperatureSlider.setShowValues(true);
-        temperatureSlider.setEditValues(true);
-        temperatureSlider.setMinimum(0);
-        temperatureSlider.setMaximum(1000);
-        temperatureSlider.setNMajor(4);
-        temperatureSlider.setValue(300);
-
-        // tie temperature slider to adiabatic/isothermal buttons
-        buttonAdiabatic.setSelected(true);
-        temperatureSlider.getSlider().setEnabled(false);
-        temperatureSlider.getTextField().setEnabled(false);
-        ToggleButtonListener myListener = new ToggleButtonListener();
-        buttonAdiabatic.addActionListener(myListener);
-        buttonIsothermal.addActionListener(myListener);
-
-        //
-        // panel for the temperature control/display
-        //
-
-        JPanel temperaturePanel = new JPanel(new GridBagLayout());
-        temperaturePanel.setBorder(new TitledBorder("Set Temperature (K)"));
-        GridBagConstraints gbc1 = new GridBagConstraints();
-        gbc1.gridx = 0;  gbc1.gridy = 1;
-        gbc1.gridwidth = 1;
-        temperaturePanel.add(buttonAdiabatic, gbc1);
-        gbc1.gridx = 1;  gbc1.gridy = 1;
-        gbc1.gridwidth = 1;
-        temperaturePanel.add(buttonIsothermal,gbc1);
-        gbc1.gridx = 0;  gbc1.gridy = 2;
-        gbc1.gridwidth = 2;
-        temperaturePanel.add(temperatureSlider.graphic(),gbc1);
 
 		//pressure device
         pressureSlider = new DeviceSlider(null);
@@ -339,7 +305,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         JPanel statePanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc2 = new GridBagConstraints();
         gbc2.gridx = 0;  gbc2.gridy = 0;
-        statePanel.add(temperaturePanel, gbc2);
+        statePanel.add(tempSlider.graphic(), gbc2);
         gbc2.gridx = 0;  gbc2.gridy = 1;
         statePanel.add(pressureSliderPanel, gbc2);
 
@@ -638,12 +604,12 @@ public class PistonCylinderGraphic extends SimulationPanel {
         displayCycles.setLabel("Simulation time");
         
         //  state panel
-        pc.integrator.setIsothermal(buttonIsothermal.isSelected());
-        pc.integrator.setTemperature(tUnit.toSim(temperatureSlider.getValue()));
-        temperatureSlider.setUnit(tUnit);
-        temperatureSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
-        temperatureSlider.setController(pc.getController());
-        temperatureSlider.setPostAction(new IntegratorReset(pc.integrator,true));
+        pc.integrator.setIsothermal(tempSlider.isIsothermal());
+        pc.integrator.setTemperature(tUnit.toSim(tempSlider.getTemperature()));
+        tempSlider.setUnit(tUnit);
+        tempSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
+        tempSlider.setController(pc.getController());
+        tempSlider.setSliderPostAction(new IntegratorReset(pc.integrator,true));
 
         potentialSW = new P2SquareWell(pc.getSpace(),sigma,lambda,epsilon,true);
         potentialHS = new P2HardSphere(pc.getSpace(),sigma,true);
@@ -748,7 +714,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         
         DataSource targetTemperatureDataSource = new DataSourceScalar("Target Temperature",Temperature.DIMENSION) {
             public double getDataAsScalar() {
-                return temperatureSlider.getModifier().getValue();
+                return tempSlider.getModifier().getValue();
             }
         };
         AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
@@ -904,19 +870,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
                 } catch(ConfigurationOverlapException e) {}
             }
         });
-    }
-
-    class ToggleButtonListener implements ActionListener {
-    	public void actionPerformed(ActionEvent e) {
-            if(buttonAdiabatic.isSelected()) {
-            	temperatureSlider.getSlider().setEnabled(false);
-            	temperatureSlider.getTextField().setEnabled(false);
-            }
-            else {
-            	temperatureSlider.getSlider().setEnabled(true);
-            	temperatureSlider.getTextField().setEnabled(true);
-            }
-    	}
     }
 
     protected class ModifierAtomDiameter implements Modifier {
