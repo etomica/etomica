@@ -53,7 +53,7 @@ public class DataTableAverages extends DataSinkTable {
      * Adds the given data source to those feeding the table.
      */
     public void addDataSource(DataSource newSource) {
-        AccumulatorAverage accumulator = new AccumulatorAverage(blockSize);
+        AccumulatorAverage accumulator = new AccumulatorAverageFixed(blockSize);
         DataPump dataPump = new DataPump(newSource, accumulator);
         actionGroup.addAction(dataPump);
         accumulator.setPushInterval(tableUpdateInterval);

@@ -9,6 +9,7 @@ import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.ConformationLinear;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -110,7 +111,7 @@ public class TestSWChain extends Simulation {
         MeterPressureHard pMeter = new MeterPressureHard(sim.space);
         pMeter.setIntegrator(sim.integrator);
         MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverage();
+        AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
         DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
         energyAccumulator.setBlockSize(50);
         sim.integrator.addIntervalAction(energyManager);

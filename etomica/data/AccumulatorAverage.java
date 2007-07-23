@@ -1,13 +1,8 @@
-/*
- * History
- * Created on Jul 26, 2004 by kofke
- */
 package etomica.data;
 
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.EnumeratedType;
-import etomica.util.Function;
 
 /**
  * Accumulator that keeps statistics for averaging and error analysis. The
@@ -29,10 +24,8 @@ import etomica.util.Function;
  * block are considered to be independent of other block averages, and the
  * confidence limits for the overall average is obtained as the standard error
  * of the mean of these block averages.
- * <p>
- * Incoming Data must implement Data.
  */
-public class AccumulatorAverage extends DataAccumulator {
+public abstract class AccumulatorAverage extends DataAccumulator {
 
     /**
      * Default constructor sets block size to Default value, and sets the
@@ -77,128 +70,20 @@ public class AccumulatorAverage extends DataAccumulator {
     }
 
     /**
-     * Checks that incoming Data implements Data, and returns null if
-     * this is so. Otherwise throws a ClassCastException, as there is no data
-     * caster to Data.
-     */
-    public DataPipe getDataCaster(IDataInfo incomingDataInfo) {
-        return null;
-    }
-
-    /**
-     * Add the given values to the sums and block sums. If any of the given data
-     * values is NaN, method returns with no effect on accumulation sums.
-     */
-    public void addData(Data data) {
-        if (data.isNaN())
-            return;
-
-        mostRecent.E(data);
-        blockSum.PE(data);
-        work.E(data);
-        work.TE(data);
-        blockSumSq.PE(work);
-        if (--blockCountDown == 0) {//count down to zero to determine
-                                    // completion of block
-            doBlockSum();
-        }
-    }
-    
-    /**
-     * Performs the block sum after <tt>blockSize</tt> calls to addData.
-     */
-    protected void doBlockSum() {
-        count++;
-        blockCountDown = blockSize;
-        blockSum.TE(1 / (double) blockSize);//compute block average
-        //XXX should we divide blockSumSq by blockSize too?
-        sum.PE(blockSum);
-        work.E(blockSum);
-        work.TE(blockSum);
-        sumSquare.PE(work);
-        if (!mostRecentBlock.isNaN()) {
-            work.E(blockSum);
-            work.TE(mostRecentBlock);
-            correlationSum.PE(work);
-        }
-        else {
-            firstBlock.E(blockSum);
-        }
-        sumSquareBlock.PE(blockSumSq);
-        //reset blocks
-        mostRecentBlock.E(blockSum);
-        blockSum.E(0.0);
-        blockSumSq.E(0.0);
-    }
-
-    /**
-     * Returns a DataGroup with Data instances holding the statistics kept by
-     * this accumulator (as described in general comments for this class).
-     */
-    public Data getData() {
-        if (sum == null)
-            return null;
-        if (count > 0) {
-            average.E(sum);
-            average.TE(1 / (double) count);
-            work.E(average);
-            work.TE(average);
-            error.E(sumSquare);
-            error.TE(1 / (double) count);
-            error.ME(work);
-
-            // error's intermediate value is useful for calculating block correlation
-            blockCorrelation.E(sum);
-            blockCorrelation.TE(2.0);
-            blockCorrelation.ME(firstBlock);
-            blockCorrelation.ME(mostRecentBlock);
-            blockCorrelation.TE(average);
-            blockCorrelation.ME(correlationSum);
-            blockCorrelation.TE(1.0/(1-count));
-            blockCorrelation.PE(work);
-            blockCorrelation.DE(error);
-            
-            // ok, now finish up with error
-            error.TE(1 / (double) (count - 1));
-            error.map(Function.Sqrt.INSTANCE);
-            standardDeviation.E(sumSquareBlock);
-            standardDeviation.TE(1.0 / (count * blockSize));
-            standardDeviation.ME(work);
-            standardDeviation.map(Function.Sqrt.INSTANCE);
-        }
-        else if (blockSize > blockCountDown) {
-            average.E(blockSum);
-            average.TE(1.0/(blockSize-blockCountDown));
-            error.E(Double.NaN);
-            blockCorrelation.E(Double.NaN);
-            standardDeviation.E(Double.NaN);
-        }
-        return dataGroup;
-    }
-
-    /**
      * Resets all sums to zero. All statistics are cleared.
      */
     public void reset() {
-        if (sum == null) {
+        if (count == 0 && blockCountDown == blockSize) {
             //no data has been added yet, so nothing to reset
             return;
         }
         count = 0;
-        sum.E(0);
-        sumSquare.E(0);
-        sumSquareBlock.E(0);
-        blockSum.E(0);
-        blockSumSq.E(0);
+        blockCountDown = blockSize;
         error.E(Double.NaN);
         mostRecent.E(Double.NaN);
-        mostRecentBlock.E(Double.NaN);
         average.E(Double.NaN);
         standardDeviation.E(Double.NaN);
-        blockCountDown = blockSize;
         blockCorrelation.E(Double.NaN);
-        correlationSum.E(0);
-        firstBlock.E(0);
     }
 
     /**
@@ -229,23 +114,14 @@ public class AccumulatorAverage extends DataAccumulator {
      *            addData
      */
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
-        sum = incomingDataInfo.makeData();
-        sumSquare = incomingDataInfo.makeData();
-        sumSquareBlock = incomingDataInfo.makeData();
         standardDeviation = incomingDataInfo.makeData();
         average = incomingDataInfo.makeData();
         error = incomingDataInfo.makeData();
-        blockSum = incomingDataInfo.makeData();
-        blockSumSq = incomingDataInfo.makeData();
         mostRecent = incomingDataInfo.makeData();
-        mostRecentBlock = incomingDataInfo.makeData();
         blockCorrelation = incomingDataInfo.makeData();
-        firstBlock = incomingDataInfo.makeData();
-        correlationSum = incomingDataInfo.makeData();
-        work = incomingDataInfo.makeData();
 
         dataGroup = new DataGroup(new Data[] { mostRecent, average, error,
-                        standardDeviation, mostRecentBlock, blockCorrelation});
+                        standardDeviation, blockCorrelation});
         
         reset();
         
@@ -337,16 +213,9 @@ public class AccumulatorAverage extends DataAccumulator {
 
 
     private static final long serialVersionUID = 1L;
-    protected Data sum; //sum(blockSum/blkSize) = sum(blockAvg)
-    protected Data sumSquare;//sum(blockAvg^2)
-    protected Data blockSum;//block(value)
-    protected Data blockSumSq;//block(value^2)
-    protected Data sumSquareBlock;//sum(value^2)
     protected Data mostRecent;//most recent value
-    protected Data mostRecentBlock;//most recent blockAvg
     protected Data average, error, standardDeviation;
-    protected Data correlationSum, blockCorrelation, firstBlock;
-    protected Data work;
+    protected Data blockCorrelation;
     protected DataGroup dataGroup;
     protected int count, blockCountDown;
     protected int blockSize;

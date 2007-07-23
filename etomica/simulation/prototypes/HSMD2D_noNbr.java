@@ -3,8 +3,10 @@ import etomica.action.Action;
 import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
@@ -12,12 +14,11 @@ import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSelector;
-import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.DisplayPlot;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.box.Box;
 import etomica.potential.P1HardBoundary;
 import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
@@ -89,7 +90,7 @@ public class HSMD2D_noNbr extends Simulation {
         
         MeterTemperature meterTemperature = new MeterTemperature();
         meterTemperature.setBox(box);
-        temperatureAverage = new AccumulatorAverage();
+        temperatureAverage = new AccumulatorAverageCollapsing();
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
         integrator.addIntervalAction(temperaturePump);
 

@@ -8,7 +8,7 @@ import etomica.util.Function;
 /**
  * Accumulator for calculating ratio between two sums
  */
-public class AccumulatorRatioAverage extends AccumulatorAverage {
+public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
     
     private static final long serialVersionUID = 1L;
     public AccumulatorRatioAverage() {

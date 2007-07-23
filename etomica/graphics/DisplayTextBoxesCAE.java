@@ -6,6 +6,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.Data;
 import etomica.data.DataPipe;
 import etomica.data.DataPump;
@@ -178,7 +179,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         sim.integrator.setIsothermal(true);
         MeterPressureHard pressureMeter = new MeterPressureHard(sim.getSpace());
         pressureMeter.setIntegrator(sim.integrator);
-        AccumulatorAverage accumulator = new AccumulatorAverage();
+        AccumulatorAverage accumulator = new AccumulatorAverageCollapsing();
         DataPump dataPump = new DataPump(pressureMeter, accumulator);
         sim.integrator.addIntervalAction(dataPump);
         graphic.getController().getDataStreamPumps().add(dataPump);

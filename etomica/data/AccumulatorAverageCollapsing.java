@@ -1,34 +1,18 @@
 package etomica.data;
 
-import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.types.DataGroup;
-import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.util.Arrays;
 
 /**
- * Accumulator that keeps statistics for averaging and error analysis. The
- * statisics are incremented with every call to addData. Statistics kept are
- * <ul>
- * <li>the value last given to addData
- * <li>the mean, or average
- * <li>the statistical error (67% confidence limits), obtained by standard
- * error analysis of block averages
- * <li>the standard deviation
- * <li>the most recent block average
- * </ul>
- * Each statistic is recorded by a Data instance of the same type as the
- * incoming data. The output Data is a DataGroup formed from these Data
- * instances (in the order given above).
+ * AccumulatorAverage that adjusts the block size during the simulation.  When
+ * a certain number of blocks of data have been collected, the blocks are
+ * collapsed such that each new block contains the data from two of the old
+ * blocks.  This allows the accumulator to yield reasonable estimates of the
+ * average and uncertainty during the beginning of the simulation and still
+ * produce accurate estimates of the uncertainty for longer simulation runs.
  * <p>
- * A <i>block </i> is a subset of the input data, formed by grouping (for
- * example) 100 or 1000 successive contributions to addData. Averages for each
- * block are considered to be independent of other block averages, and the
- * confidence limits for the overall average is obtained as the standard error
- * of the mean of these block averages.
- * <p>
- * Incoming Data must implement Data.
+ * This accumulator can only operate on Data with a single value.
  */
-public class AccumulatorAverageCollapsing extends DataAccumulator {
+public class AccumulatorAverageCollapsing extends AccumulatorAverage {
 
     /**
      * Default constructor sets block size to Default value, and sets the
@@ -39,40 +23,17 @@ public class AccumulatorAverageCollapsing extends DataAccumulator {
     }
     
     public AccumulatorAverageCollapsing(int maxBlocks) {
-        this(maxBlocks, 10);
+        this(maxBlocks, 1);
     }
     
     public AccumulatorAverageCollapsing(int maxBlocks, int blockSize) {
+        super(blockSize);
         blockSums = new double[0];
         blockSumSqs = new double[0];
         setMaxBlocks(maxBlocks);
         setBlockSize(blockSize);
         setPushInterval(100);
-        mostRecentTag = new DataTag();
-        averageTag = new DataTag();
-        errorTag = new DataTag();
-        standardDeviationTag = new DataTag();
-        blockCorrelationTag = new DataTag();
         
-    }
-
-    public Object getTag(StatType statType) {
-        if (statType == StatType.MOST_RECENT) {
-            return mostRecentTag;
-        }
-        if (statType == StatType.AVERAGE) {
-            return averageTag;
-        }
-        if (statType == StatType.ERROR) {
-            return errorTag;
-        }
-        if (statType == StatType.STANDARD_DEVIATION) {
-            return standardDeviationTag;
-        }
-        if (statType == StatType.BLOCK_CORRELATION) {
-            return blockCorrelationTag;
-        }
-        return null;
     }
 
     public void setMaxBlocks(int newMaxBlocks) {
@@ -254,50 +215,6 @@ public class AccumulatorAverageCollapsing extends DataAccumulator {
     }
 
     /**
-     * Prepares the accumulator for input data.  Discards any previous 
-     * contributions to statistics.
-     * 
-     * @param incomingDataInfo
-     *            the DataInfo instance for the data that will be given to
-     *            addData
-     */
-    public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {
-        standardDeviation = incomingDataInfo.makeData();
-        average = incomingDataInfo.makeData();
-        error = incomingDataInfo.makeData();
-        mostRecent = incomingDataInfo.makeData();
-        blockCorrelation = incomingDataInfo.makeData();
-
-        dataGroup = new DataGroup(new Data[] { mostRecent, average, error,
-                        standardDeviation, blockCorrelation});
-        
-        reset();
-        
-        IDataInfoFactory factory = incomingDataInfo.getFactory();
-        String incomingLabel = incomingDataInfo.getLabel();
-        factory.setLabel(incomingLabel+" most recent");
-        IDataInfo mostRecentInfo = factory.makeDataInfo();
-        mostRecentInfo.addTag(mostRecentTag);
-        factory.setLabel(incomingLabel+" avg");
-        IDataInfo averageInfo = factory.makeDataInfo();
-        averageInfo.addTag(averageTag);
-        factory.setLabel(incomingLabel+" error");
-        IDataInfo errorInfo = factory.makeDataInfo();
-        errorInfo.addTag(errorTag);
-        factory.setLabel(incomingLabel+" stddev");
-        IDataInfo standardDeviationInfo = factory.makeDataInfo();
-        standardDeviationInfo.addTag(standardDeviationTag);
-        factory.setLabel(incomingLabel+" blk correlation");
-        IDataInfo correlationInfo = factory.makeDataInfo();
-        correlationInfo.addTag(blockCorrelationTag);
-        
-        dataInfo = new DataInfoGroup(incomingLabel, incomingDataInfo.getDimension(), new IDataInfo[]{
-            mostRecentInfo, averageInfo, errorInfo, standardDeviationInfo, correlationInfo});
-        dataInfo.addTag(getTag());
-        return dataInfo;
-    }
-
-    /**
      * Adds a new DataSink that will receive a specific subset of the statistics
      * generated by this accumulator. The DataSink will be given a DataGroup
      * that has only the specified statistics in it. The output of this
@@ -329,13 +246,6 @@ public class AccumulatorAverageCollapsing extends DataAccumulator {
     }
 
     private static final long serialVersionUID = 1L;
-    protected Data mostRecent;//most recent value
-    protected Data average, error, standardDeviation;
-    protected Data blockCorrelation;
-    protected DataGroup dataGroup;
-    protected int count, blockCountDown;
-    protected int blockSize;
-    private final DataTag mostRecentTag, averageTag, errorTag, standardDeviationTag, blockCorrelationTag;
     protected int maxBlocks;
     protected double[] blockSums, blockSumSqs;
     protected double currentBlockSum, currentBlockSumSq;
