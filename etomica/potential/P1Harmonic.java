@@ -66,7 +66,7 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     }
 
     public double energy(AtomSet a) {
-        return 0.5*w*((IAtomPositioned)a).getPosition().Mv1Squared(x0);
+        return 0.5*w*((IAtomPositioned)a.getAtom(0)).getPosition().Mv1Squared(x0);
     }
     
     public double virial(AtomSet a) {
