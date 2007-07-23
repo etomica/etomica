@@ -3,7 +3,6 @@ package etomica.modules.ljmd;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import java.util.ArrayList;
 
 import javax.swing.event.ChangeEvent;
@@ -14,6 +13,7 @@ import etomica.action.SimulationRestart;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.Data;
 import etomica.data.DataFork;
@@ -45,9 +45,9 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceThermoSlider;
+import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.space.Space;
@@ -114,7 +114,7 @@ public class LjmdGraphic extends SimulationGraphic {
         double vMax = 4;
 		DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(new HistogramSimple(100,new DoubleRange(0,4)));
         meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.box));
-        AccumulatorAverage rmsAverage = new AccumulatorAverage(10);
+        AccumulatorAverage rmsAverage = new AccumulatorAverageCollapsing();
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
         sim.integrator.addIntervalAction(velocityPump);
         sim.integrator.setActionInterval(velocityPump, 10);
@@ -202,7 +202,7 @@ public class LjmdGraphic extends SimulationGraphic {
         peMeter.setBox(sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
-        final AccumulatorAverage peAccumulator = new AccumulatorAverage(100);
+        final AccumulatorAverage peAccumulator = new AccumulatorAverageCollapsing();
         peAccumulator.setPushInterval(10);
         DataFork peFork = new DataFork(new DataSink[]{peHistory, peAccumulator});
         DataPump pePump = new DataPump(peMeter, peFork);
@@ -235,7 +235,7 @@ public class LjmdGraphic extends SimulationGraphic {
 		
         MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator();
         pMeter.setIntegrator(sim.integrator);
-        final AccumulatorAverage pAccumulator = new AccumulatorAverage(100);
+        final AccumulatorAverage pAccumulator = new AccumulatorAverageCollapsing();
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
         final DataPump pPump = new DataPump(pMeter, tracer);
         tracer.setDataSink(pAccumulator);

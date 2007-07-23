@@ -1,18 +1,18 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
+import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.DataSourceGroup;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfile;
-import etomica.data.types.DataDoubleArray;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
@@ -20,7 +20,6 @@ import etomica.nbr.CriterionPositionWall;
 import etomica.nbr.CriterionType;
 import etomica.nbr.PotentialMasterHybrid;
 import etomica.nbr.list.NeighborListManager;
-import etomica.box.Box;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
@@ -270,11 +269,11 @@ public class DCVGCMD extends Simulation {
         profile2.setBox(box);
         profile2.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
 
-        accumulator1 = new AccumulatorAverage();
+        accumulator1 = new AccumulatorAverageCollapsing();
         profile1pump = new DataPump(profile1, accumulator1);
         integratorDCV.addIntervalAction(profile1pump);
 
-        accumulator2 = new AccumulatorAverage();
+        accumulator2 = new AccumulatorAverageCollapsing();
         profile2pump = new DataPump(profile2, accumulator2);
         integratorDCV.addIntervalAction(profile2pump);
 
