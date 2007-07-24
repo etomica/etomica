@@ -157,6 +157,9 @@ public class PistonCylinderGraphic extends SimulationPanel {
     
     public void init() {
         initialized = true;
+
+        pc = new PistonCylinder(2);
+
         displayBox = new DisplayBox(null);
         displayBox.setColorScheme(new ColorSchemeByType());
 
@@ -239,7 +242,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // State tabbed pane page
         //
 
-        tempSlider = new DeviceThermoSlider();
+        tempSlider = new DeviceThermoSlider(pc.controller);
         tempSlider.setShowValues(true);
         tempSlider.setEditValues(true);
         tempSlider.setMinimum(0);
@@ -247,18 +250,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         tempSlider.setAdiabatic();
         tempSlider.setSliderMajorValues(4);
         tempSlider.setTemperature(300);
-
-    	ActionListener actionListen = new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                pc.controller.doActionNow( new Action() {
-                    public void actionPerformed() {
-                        pc.integrator.setIsothermal(tempSlider.isIsothermal());
-                    }
-                });
-            }
-        };
-
-    	tempSlider.addRadioGroupActionListener(actionListen);
+        tempSlider.setController(pc.getController());
+        tempSlider.setIntegrator(pc.integrator);
 
 		//pressure device
         pressureSlider = new DeviceSlider(null);
@@ -289,7 +282,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
             public void stateChanged(ChangeEvent evt) {
                 int n = (int)nSlider.getValue();
                 if(n == 0) {
-                pc.integrator.setThermostatInterval(200);
+                    pc.integrator.setThermostatInterval(200);
                 }
                 else {
                 	pc.integrator.setThermostatInterval(200/n);
@@ -510,21 +503,13 @@ public class PistonCylinderGraphic extends SimulationPanel {
             rdfPanel.add(plotRDF.graphic());
         }
 
-        PistonCylinder sim = new PistonCylinder(2);
-
         boolean pistonHeld = true;
-        if (pc != null) {
-            pistonHeld = pc.pistonPotential.isStationary();
-            lambda = potentialSW.getLambda();
-            epsilon = potentialSW.getEpsilon();
-            mass = ((AtomTypeLeaf)pc.species.getMoleculeType()).getMass();
-            pc.getController().halt();
-        }
-        pc = sim;
+
         controlButtons.setSimulation(pc);
         pc.config.setBoundaryPadding(sigma);
-        pc.config.initializeCoordinates(sim.box);
-        ((SimulationRestart)controlButtons.getReinitButton().getAction()).setConfiguration(sim.config);
+        pc.config.initializeCoordinates(pc.box);
+
+        ((SimulationRestart)controlButtons.getReinitButton().getAction()).setConfiguration(pc.config);
         final IIntegrator integrator = pc.integrator;
 
         ArrayList dataStreamPumps = controlButtons.getDataStreamPumps();
@@ -611,7 +596,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pc.integrator.setTemperature(tUnit.toSim(tempSlider.getTemperature()));
         tempSlider.setUnit(tUnit);
         tempSlider.setModifier(new ModifierGeneral(pc.integrator,"temperature"));
-        tempSlider.setController(pc.getController());
         tempSlider.setSliderPostAction(new IntegratorReset(pc.integrator,true));
 
         potentialSW = new P2SquareWell(pc.getSpace(),sigma,lambda,epsilon,true);

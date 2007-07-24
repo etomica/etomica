@@ -4,10 +4,15 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import etomica.action.Action;
 import etomica.action.activity.Controller;
+import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorHard;
 import etomica.modifier.Modifier;
 import etomica.units.Unit;
 
@@ -24,11 +29,12 @@ public class DeviceThermoSlider extends Device {
 	private DeviceSlider  temperatureSlider; // Do not make make accessible
 	private JRadioButton  buttonAdiabatic;   // Do not make make accessible
 	private JRadioButton  buttonIsothermal;  // Do not make make accessible
-	
+	private Integrator    integrator;
+
 	private final int DEFAULT_MIN_TEMPERATURE = 0;
 	private final int DEFAULT_MAX_TEMPERATURE = 300;
 
-	public DeviceThermoSlider() {
+	public DeviceThermoSlider(Controller cont) {
 
         //adiabatic/isothermal radio button
         ButtonGroup thermalGroup = new ButtonGroup();
@@ -47,6 +53,8 @@ public class DeviceThermoSlider extends Device {
         temperatureSlider.setValue(300);
         temperatureSlider.getSlider().setEnabled(false);
         temperatureSlider.getTextField().setEnabled(false);
+
+        setController(cont);
 
         // Tie the isothermal/adiabatic setting to the selectable status of
         // temperature slider
@@ -211,6 +219,7 @@ public class DeviceThermoSlider extends Device {
 	 * Set the temperature slider controller.
 	 */
     public void setController(Controller cont) {
+    	super.setController(cont);
         temperatureSlider.setController(cont);
     }
 
@@ -221,13 +230,86 @@ public class DeviceThermoSlider extends Device {
         temperatureSlider.setPostAction(action);
     }
 
+    /**
+     * Sets the integrator for the device.  Adds actions to the device's
+     * controller to inform the integrator when the temperature and
+     * isothermal/adiabatic selection has changed based upon the type
+     * of integrator passed in.
+     * @param i Integrator
+     */
+    public void setIntegrator(etomica.integrator.Integrator i) {
+    	integrator = i;
+
+    	if(i instanceof etomica.integrator.IntegratorBox) {
+
+        	ActionListener actionListen = new ActionListener() {
+                public void actionPerformed(ActionEvent evt) {
+                    Action act = new Action() {
+                        public void actionPerformed() {
+                            ((IntegratorBox)integrator).setIsothermal(isIsothermal());
+                        }
+                    };
+					controller.doActionNow(act);
+                }
+            };
+
+        	addRadioGroupActionListener(actionListen);
+
+    	}
+
+    	if(i instanceof etomica.integrator.IntegratorHard) {
+
+            ChangeListener integratorCL = new ChangeListener() {
+				public void stateChanged(ChangeEvent ae) {
+					Action act = new Action() {
+						public void actionPerformed() {
+						    if(isIsothermal()) {
+						        ((IntegratorHard)integrator).setTemperature(getTemperature());
+						    }
+						    try {
+						        integrator.reset();
+						    }
+						    catch (ConfigurationOverlapException e) {
+						            throw new RuntimeException("overlap in configuration");
+						    }
+			    		}
+					};
+					controller.doActionNow(act);
+				}
+			};
+
+	    	ActionListener integratorAL = new ActionListener() {
+	    		public void actionPerformed(ActionEvent ae) {
+		    		Action act = new Action() {
+		    			public void actionPerformed() {
+						    if(isIsothermal()) {
+						        ((IntegratorHard)integrator).setTemperature(getTemperature());
+						    }
+						    try {
+						        integrator.reset();
+						    }
+						    catch (ConfigurationOverlapException e) {
+						            throw new RuntimeException("overlap in configuration");
+						    }
+			    		}
+		    		};
+	    			controller.doActionNow(act);
+	    		}
+	    	};
+
+	    	addTemperatureSliderListener(integratorCL);
+	    	addRadioGroupActionListener(integratorAL);
+
+    	}
+    }
+
     //
     //main method to test device
     //
     public static void main(String[] args) {
         final String APP_NAME = "Device Thermo Slider";
 
-        DeviceThermoSlider device = new DeviceThermoSlider();
+        DeviceThermoSlider device = new DeviceThermoSlider(new Controller());
         device.setMinimum(100.0);
         device.setMaximum(1000.0);
         device.setTemperature(250.0);

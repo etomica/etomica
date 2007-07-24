@@ -24,7 +24,7 @@ import etomica.data.meter.MeterLocalMoleFraction;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSelector;
+import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
@@ -63,7 +63,8 @@ public class Osmosis extends SimulationGraphic {
     public MeterOsmoticPressure osmosisPMeter;
     public MeterLocalMoleFraction moleFractionRight, moleFractionLeft;
     public OsmosisSim sim;
-    
+    private DeviceThermoSlider temperatureSelect;
+
     public Osmosis(OsmosisSim simulation) {
 
     	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
@@ -128,25 +129,18 @@ public class Osmosis extends SimulationGraphic {
         // temperature panel
         //
 
-	    DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integrator);
-//	    tSelect.setTemperatures(new double[] {50.,100.,300.,600.,1000.});
-	    tSelect.setUnit(tUnit);
-	    tSelect.setSelected(0); //sets adiabatic as selected temperature
+	    temperatureSelect = new DeviceThermoSlider(sim.getController());
+	    temperatureSelect.setUnit(tUnit);
+	    temperatureSelect.setIntegrator(sim.integrator);
 		MeterTemperature thermometer = new MeterTemperature();
 		thermometer.setBox(sim.box);
 		DisplayTextBox tBox = new DisplayTextBox();
         DataPump tempPump = new DataPump(thermometer, tBox);
         sim.integrator.addIntervalAction(tempPump);
 		tBox.setUnit(tUnit);
-		tBox.setLabel("Measured value");
+		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
-	    tSelect.getLabel().setText("Set value");
 
-        JPanel temperaturePanel = new JPanel(new GridBagLayout());
-
-        temperaturePanel.setBorder(new TitledBorder(null, "Temperature (K)", TitledBorder.CENTER, TitledBorder.TOP));
-        temperaturePanel.add(tSelect.graphic(null),SimulationPanel.getHorizGBC());
-        temperaturePanel.add(tBox.graphic(null),SimulationPanel.getHorizGBC());
 
         // Right side of membrane mole fraction
         moleFractionRight = new MeterLocalMoleFraction();
@@ -242,9 +236,10 @@ public class Osmosis extends SimulationGraphic {
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
-        getPanel().controlPanel.add(temperaturePanel, vertGBC);
+        getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         getPanel().controlPanel.add(initPanel.graphic(), vertGBC);
         getPanel().plotPanel.add(displayCycles.graphic(), vertGBC);
+        getPanel().plotPanel.add(tBox.graphic(), vertGBC);
         getPanel().plotPanel.add(osmoticPanel, vertGBC);
         getPanel().plotPanel.add(leftMetricsPanel, vertGBC);
         getPanel().plotPanel.add(rightMetricsPanel, vertGBC);

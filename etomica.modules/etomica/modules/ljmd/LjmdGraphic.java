@@ -281,58 +281,14 @@ public class LjmdGraphic extends SimulationGraphic {
         getDisplayBox(sim.box).setScale(0.7);
 
         //temperature selector
-        temperatureSelect = new DeviceThermoSlider();
+        temperatureSelect = new DeviceThermoSlider(sim.getController());
         temperatureSelect.setPrecision(1);
         temperatureSelect.setMinimum(0.0);
         temperatureSelect.setMaximum(3.0);
         temperatureSelect.setSliderMajorValues(3);
 	    temperatureSelect.setUnit(tUnit);
 	    temperatureSelect.setAdiabatic();
-	    temperatureSelect.setController(sim.getController());
-
-    	ChangeListener integratorCL = new ChangeListener() {
-    		public void stateChanged(ChangeEvent ae) {
-	    		Action act = new Action() {
-	    			public void actionPerformed() {
-
-						sim.integrator.setIsothermal(temperatureSelect.isIsothermal());
-					    if(temperatureSelect.isIsothermal()) {
-					        sim.integrator.setTemperature(temperatureSelect.getTemperature());
-					    }
-					    try {
-					        sim.integrator.reset();
-					    }
-					    catch (ConfigurationOverlapException e) {
-					            throw new RuntimeException("overlap in configuration");
-					    }
-		    		}
-	    		};
-    			sim.getController().doActionNow(act);
-    		}
-    	};    	
-
-    	ActionListener integratorAL = new ActionListener() {
-    		public void actionPerformed(ActionEvent ae) {
-	    		Action act = new Action() {
-	    			public void actionPerformed() {
-						sim.integrator.setIsothermal(temperatureSelect.isIsothermal());
-					    if(temperatureSelect.isIsothermal()) {
-					        sim.integrator.setTemperature(temperatureSelect.getTemperature());
-					    }
-					    try {
-					        sim.integrator.reset();
-					    }
-					    catch (ConfigurationOverlapException e) {
-					            throw new RuntimeException("overlap in configuration");
-					    }
-		    		}
-	    		};
-    			sim.getController().doActionNow(act);
-    		}
-    	};
-
-    	temperatureSelect.addTemperatureSliderListener(integratorCL);
-    	temperatureSelect.addRadioGroupActionListener(integratorAL);
+	    temperatureSelect.setIntegrator(sim.integrator);
 
 	    ChangeListener temperatureListener = new ChangeListener() {
 		    public void stateChanged(ChangeEvent event) {
