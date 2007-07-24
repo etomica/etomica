@@ -14,7 +14,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSelector;
+import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
@@ -40,6 +40,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 	private static final int REPAINT_INTERVAL = 1;
 
     protected ChainEquilibriumSim sim;
+    private DeviceThermoSlider temperatureSelect;
 
     public ChainEquilibriumGraphic(ChainEquilibriumSim simulation) {
 
@@ -97,10 +98,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
-        JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
         JPanel sizeSliders = new JPanel(new java.awt.GridLayout(0, 1));
         JPanel lambdaSliders = new JPanel(new java.awt.GridLayout(0, 1));
-        temperaturePanel.setBorder(new javax.swing.border.TitledBorder("Temperature (K)"));
 
         DataPump tPump = new DataPump (sim.thermometer, tBox);
         dataStreamPumps.add(tPump);
@@ -130,12 +129,11 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         // Setting up how often it operates. 
         sim.integratorHard1.setActionInterval(tPump, 100);
 
-        DeviceThermoSelector tSelect = new DeviceThermoSelector(sim.controller1, Kelvin.UNIT, true);
-        tSelect.setTemperatures(new double[] { 50., 100., 150., 200., 300.,500., 700., 1000., 1200. });
-        tSelect.setUnit(Kelvin.UNIT);
-        tSelect.setIntegrator(sim.integratorHard1);
-        tSelect.setSelected(3);     //sets 150K as selected temperature (0th selection is "Adiabatic")
-        tSelect.getLabel().setText("Set value");
+        temperatureSelect = new DeviceThermoSlider(sim.controller1);
+        temperatureSelect.setUnit(Kelvin.UNIT);
+        temperatureSelect.setIntegrator(sim.integratorHard1);
+        temperatureSelect.setTemperature(150);
+        temperatureSelect.setMaximum(1200);
         
         ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
         colorScheme.setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
@@ -159,7 +157,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         sizeModifier.setDisplay(getDisplayBox(sim.box));
 
         tBox.setUnit(Kelvin.UNIT);
-        tBox.setLabel("Measured value");
+        tBox.setLabel("Measured Temperature");
         tBox.setLabelPosition(CompassDirection.NORTH);
 
         compositionPlot.setLabel("Composition");
@@ -168,9 +166,6 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         getPanel().tabbedPane.add(compositionPlot.getLabel(), compositionPlot.graphic());
         getPanel().tabbedPane.add("Averages", THING.graphic());
 
-        //panel for the temperature control/display 
-        temperaturePanel.add(tSelect.graphic(null), horizGBC);
-        temperaturePanel.add(tBox.graphic(null), horizGBC);
 
         speciesEditors.add(AEditor);
         speciesEditors.add(BEditor);
@@ -229,9 +224,10 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 //        panel1.add(sliderPanel,vertGBC);
 //        getPanel().controlPanel.add(panel1, horizGBC);
         getPanel().controlPanel.add(delaySliderPanel, vertGBC);
-        getPanel().controlPanel.add(temperaturePanel, vertGBC);
+        getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         getPanel().controlPanel.add(sliderPanel, vertGBC);
         getPanel().controlPanel.add(speciesEditors, vertGBC);
+        add(tBox);
 
         //set the number of significant figures displayed on the table.
         javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {

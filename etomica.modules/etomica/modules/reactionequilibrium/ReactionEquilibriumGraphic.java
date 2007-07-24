@@ -29,7 +29,7 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceThermoSelector;
+import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
@@ -65,6 +65,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
     protected AccumulatorAverage densityAccum;
     protected DataPump dimerPump;
     protected DisplayTextBoxesCAE densityDisplay;
+    private DeviceThermoSlider temperatureSelect;
 
 	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation) {
 
@@ -79,14 +80,12 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
         config.initializeCoordinates(sim.box);
 
-		DeviceThermoSelector tSelect = new DeviceThermoSelector(sim, sim.integratorHard1);
+		temperatureSelect = new DeviceThermoSlider(sim.controller1);
         sim.integratorHard1.addIntervalAction(this.getPaintAction(sim.box));
-        
-		tSelect.setTemperatures(new double[] { 50., 100., 300., 600., 1000.,
-				1200., 1600., 2000., 2500. });
-		tSelect.setUnit(Kelvin.UNIT);
-		tSelect.setSelected(3); //sets 300K as selected temperature
-		tSelect.getLabel().setText("Set value");
+        temperatureSelect.setIntegrator(sim.integratorHard1);
+		temperatureSelect.setUnit(Kelvin.UNIT);
+		temperatureSelect.setMaximum(2500);
+		temperatureSelect.setTemperature(300); //sets 300K as selected temperature
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
 
@@ -205,7 +204,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         sim.integratorHard1.addIntervalAction(tPump);
         sim.integratorHard1.setActionInterval(tPump, 100);
         tBox.setUnit(Kelvin.UNIT);
-		tBox.setLabel("Measured value");
+		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
 // NOTE : THE FOLLOWING IMPLEMENTATION IS CAUSING THE GRAPHIC
@@ -297,12 +296,6 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         getPanel().controlPanel.add(delaySliderPanel, vertGBC);
 
-         //panel for the temperature control/display
-		JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
-		temperaturePanel.setBorder(new javax.swing.border.TitledBorder(
-				"Temperature (K)"));
-		temperaturePanel.add(tSelect.graphic(null), SimulationPanel.getHorizGBC());
-		temperaturePanel.add(tBox.graphic(null), SimulationPanel.getHorizGBC());
 
 		//panel for the species editors
 		JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
@@ -371,12 +364,14 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		});
 
 		//top panel for control, temperature, potential adjustment
-		getPanel().controlPanel.add(temperaturePanel, vertGBC);
+		add(temperatureSelect);
 		getPanel().controlPanel.add(sliderPanel, vertGBC);
 		getPanel().controlPanel.add(speciesEditors, vertGBC);
 		add(plot);
 		add(table);
-        add(densityDisplay);
+		add(tBox);
+		add(densityDisplay);
+
 
 
         getController().getReinitButton().setPostAction(getPaintAction(sim.box));
