@@ -16,7 +16,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataGroupFilter;
@@ -220,7 +220,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         DataGroupFilter filter1 = new DataGroupFilter(0);
         dimerFork.addDataSink(filter1);
 
-        AccumulatorAverage dimerFractionAccum = new AccumulatorAverageCollapsing();
+        AccumulatorAverage dimerFractionAccum = new AccumulatorAverageFixed();
         dimerFractionAccum.setPushInterval(10);
         filter1.setDataSink(dimerFractionAccum);
 
@@ -260,7 +260,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         
         DataGroupFilter filter3 = new DataGroupFilter(1);
         dimerFork.addDataSink(filter3);
-        densityAccum = new AccumulatorAverageCollapsing();
+        densityAccum = new AccumulatorAverageFixed();
         densityAccum.setPushInterval(10);
         filter3.setDataSink(densityAccum);
 
