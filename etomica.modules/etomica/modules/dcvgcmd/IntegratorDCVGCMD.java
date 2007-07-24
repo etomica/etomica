@@ -66,6 +66,10 @@ public class IntegratorDCVGCMD extends IntegratorBox {
             integratormd.setTemperature(t);
         }
     }
+    
+    public void setIsothermal(boolean b){
+    	integratormd.setIsothermal(b);
+    }
 	
 	public void doStepInternal() {
         if (potentialMasterHybrid != null) {
