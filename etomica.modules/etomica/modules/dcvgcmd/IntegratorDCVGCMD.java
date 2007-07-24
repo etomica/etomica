@@ -68,6 +68,7 @@ public class IntegratorDCVGCMD extends IntegratorBox {
     }
     
     public void setIsothermal(boolean b){
+    	super.setIsothermal(b);
     	integratormd.setIsothermal(b);
     }
 	
