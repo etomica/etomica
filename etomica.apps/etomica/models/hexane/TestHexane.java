@@ -3,10 +3,23 @@
  */
 package etomica.models.hexane;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
+import etomica.action.BoxInflateDeformable;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.box.Box;
+import etomica.data.AccumulatorAverage;
+import etomica.data.AccumulatorAverageFixed;
+import etomica.data.DataPump;
+import etomica.data.AccumulatorAverage.StatType;
+import etomica.data.meter.MeterPressureByVolumeChange;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -16,13 +29,15 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.box.Box;
+import etomica.normalmode.MeterNormalMode;
+import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 /**
@@ -278,9 +293,9 @@ public class TestHexane extends Simulation {
 
         int xLng = 4;
         int yLng = 4;
-        int zLng = 6;
+        int zLng = 3;
         
-        long nSteps = 10000;
+        long nSteps = 100000;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
 
@@ -313,33 +328,34 @@ public class TestHexane extends Simulation {
             simGraphic.makeAndDisplayFrame();
         } else {
 
-            String filename = "normal_modes_hexane";
+            String filename = "nm_hexane";
 
             PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
-//            // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
-//            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive);
-//            // we need to set this up now even though we don't use it during equilibration so that
-//            // the meter can grab the lattice points
-//            MeterNormalMode meterNormalMode = new MeterNormalMode();
-//            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
-//            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
-//            meterNormalMode.setBox(sim.box);
+            // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
+            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive);
+            // we need to set this up now even though we don't use it during equilibration so that
+            // the meter can grab the lattice points
+            MeterNormalMode meterNormalMode = new MeterNormalMode();
+            meterNormalMode.setWaveVectorFactory(waveVectorFactory);
+            meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
+            meterNormalMode.setBox(sim.box);
 
-//            BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
-////            BoxInflate pid = new BoxInflate(sim.box);
-//            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
-//            meterPressure.setIntegrator(sim.integrator);
-//            AccumulatorAverage pressureAccumulator = new AccumulatorAverage(sim);
-//            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
-//            pressureAccumulator.setBlockSize(50);
+            BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
+//            BoxInflate pid = new BoxInflate(sim.box);
+            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
+            meterPressure.setIntegrator(sim.integrator);
+            AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
+            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
+            pressureAccumulator.setBlockSize(50);
+            sim.integrator.addIntervalAction(pressureManager);
 //            new IntervalActionAdapter(pressureManager, sim.integrator);
 
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
             System.out.println("equilibration finished");
 
-//            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
-//            ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
+            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
+            ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
             
             sim.getController().reset();
             sim.activityIntegrate.setMaxSteps(nSteps);
@@ -348,43 +364,46 @@ public class TestHexane extends Simulation {
 //            adapter.setActionInterval(100);
 //            sim.integrator.addListener(adapter);
 
+            sim.integrator.addIntervalAction(meterNormalMode);
+            sim.integrator.setActionInterval(meterNormalMode, 100);
+            
             sim.getController().actionPerformed();
             
-//            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
-//            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-//            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
-//            
-//            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
-//            double[] coefficients = waveVectorFactory.getCoefficients();
-//            
-//            try {
-//                FileWriter fileWriterQ = new FileWriter(filename+".Q");
-//                FileWriter fileWriterS = new FileWriter(filename+".S");
-//                for (int i=0; i<waveVectors.length; i++) {
-//                    fileWriterQ.write(Double.toString(coefficients[i]));
-//                    for (int j=0; j<waveVectors[i].getD(); j++) {
-//                        fileWriterQ.write(" "+waveVectors[i].x(j));
-//                    }
-//                    fileWriterQ.write("\n");
-//                    DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
-//                    for (int k=0; k<normalDim; k++) {
-//                        fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
-//                        for (int l=1; l<normalDim; l++) {
-//                            fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
-//                        }
-//                        fileWriterS.write("\n");
-//                    }
-//                }
-//                fileWriterQ.close();
-//                fileWriterS.close();
-//            }
-//            catch (IOException e) {
-//                throw new RuntimeException("Oops, failed to write data "+e);
-//            }
+            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
+            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
+            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
             
-//            double avgPressure = ((DataDoubleArray)(((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index))).x;
-//              avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
-//              System.out.println("Avg Pres = "+ avgPressure);
+            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
+            double[] coefficients = waveVectorFactory.getCoefficients();
+            
+            try {
+                FileWriter fileWriterQ = new FileWriter(filename+".Q");
+                FileWriter fileWriterS = new FileWriter(filename+".S");
+                for (int i=0; i<waveVectors.length; i++) {
+                    fileWriterQ.write(Double.toString(coefficients[i]));
+                    for (int j=0; j<waveVectors[i].getD(); j++) {
+                        fileWriterQ.write(" "+waveVectors[i].x(j));
+                    }
+                    fileWriterQ.write("\n");
+                    DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
+                    for (int k=0; k<normalDim; k++) {
+                        fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
+                        for (int l=1; l<normalDim; l++) {
+                            fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
+                        }
+                        fileWriterS.write("\n");
+                    }
+                }
+                fileWriterQ.close();
+                fileWriterS.close();
+            }
+            catch (IOException e) {
+                throw new RuntimeException("Oops, failed to write data "+e);
+            }
+            
+            double avgPressure = ((DataDouble)(((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index))).x;
+            avgPressure = ((DataDouble)((DataGroup)pressureAccumulator.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
+            System.out.println("Avg Pres = "+ avgPressure);
         }
 
         System.out.println("Go look at the data!");
