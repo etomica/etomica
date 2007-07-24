@@ -289,35 +289,45 @@ public class LjmdGraphic extends SimulationGraphic {
 	    temperatureSelect.setUnit(tUnit);
 	    temperatureSelect.setAdiabatic();
 	    temperatureSelect.setController(sim.getController());
-//	    temperatureSelect.setIntegrator(sim.integrator);
 
     	ChangeListener integratorCL = new ChangeListener() {
     		public void stateChanged(ChangeEvent ae) {
-				sim.integrator.setIsothermal(temperatureSelect.isIsothermal());
-			    if(temperatureSelect.isIsothermal()) {
-			        sim.integrator.setTemperature(temperatureSelect.getTemperature());
-			    }
-			    try {
-			        sim.integrator.reset();
-			    }
-			    catch (ConfigurationOverlapException e) {
-			            throw new RuntimeException("overlap in configuration");
-			    }
+	    		Action act = new Action() {
+	    			public void actionPerformed() {
+
+						sim.integrator.setIsothermal(temperatureSelect.isIsothermal());
+					    if(temperatureSelect.isIsothermal()) {
+					        sim.integrator.setTemperature(temperatureSelect.getTemperature());
+					    }
+					    try {
+					        sim.integrator.reset();
+					    }
+					    catch (ConfigurationOverlapException e) {
+					            throw new RuntimeException("overlap in configuration");
+					    }
+		    		}
+	    		};
+    			sim.getController().doActionNow(act);
     		}
     	};    	
 
     	ActionListener integratorAL = new ActionListener() {
     		public void actionPerformed(ActionEvent ae) {
-				sim.integrator.setIsothermal(temperatureSelect.isIsothermal());
-			    if(temperatureSelect.isIsothermal()) {
-			        sim.integrator.setTemperature(temperatureSelect.getTemperature());
-			    }
-			    try {
-			        sim.integrator.reset();
-			    }
-			    catch (ConfigurationOverlapException e) {
-			            throw new RuntimeException("overlap in configuration");
-			    }
+	    		Action act = new Action() {
+	    			public void actionPerformed() {
+						sim.integrator.setIsothermal(temperatureSelect.isIsothermal());
+					    if(temperatureSelect.isIsothermal()) {
+					        sim.integrator.setTemperature(temperatureSelect.getTemperature());
+					    }
+					    try {
+					        sim.integrator.reset();
+					    }
+					    catch (ConfigurationOverlapException e) {
+					            throw new RuntimeException("overlap in configuration");
+					    }
+		    		}
+	    		};
+    			sim.getController().doActionNow(act);
     		}
     	};
 
