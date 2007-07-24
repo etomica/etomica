@@ -339,10 +339,10 @@ public class LjmdGraphic extends SimulationGraphic {
     	add(rdfPlot);
     	add(vPlot);
     	add(ePlot);
-    	getPanel().plotPanel.add(densityBox.graphic(), vertGBC);
-    	getPanel().plotPanel.add(tBox.graphic(), vertGBC);
-    	getPanel().plotPanel.add(pDisplay.graphic(), vertGBC);
-    	getPanel().plotPanel.add(peDisplay.graphic(), vertGBC);
+    	add(densityBox);
+    	add(tBox);
+    	add(pDisplay);
+    	add(peDisplay);
 
     }
 

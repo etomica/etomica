@@ -205,7 +205,7 @@ public class SimulationGraphic implements SimulationContainer {
         if(component == null) return; //display is not graphic
 
         if(display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
-            getPanel().controlPanel.add(component, SimulationPanel.getVertGBC());
+            getPanel().plotPanel.add(component, SimulationPanel.getVertGBC());
         }
         else {
             if(this.graphicType == GRAPHIC_ONLY) {
