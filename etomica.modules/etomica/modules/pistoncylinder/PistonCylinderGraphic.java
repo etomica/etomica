@@ -3,8 +3,6 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
@@ -222,7 +220,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
         JPanel controlsPanel = new JPanel(new GridBagLayout());
 //      controlsPanel.add(dimensionPanel);
         controlsPanel.add(startPanel,vertGBC);
-        controlsPanel.add(displayCycles.graphic(),vertGBC);
 
         // Show buttons (added to panel 
         if (doConfigButton) {
@@ -427,6 +424,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // Add panels to the control panel
         controlPanel.add(controlsPanel, vertGBC);
         controlPanel.add(setupPanel, vertGBC);
+        plotPanel.add(displayCycles.graphic(),vertGBC);
         plotPanel.add(dataPanel, vertGBC);
 
         //
