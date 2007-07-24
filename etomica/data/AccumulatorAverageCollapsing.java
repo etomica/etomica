@@ -145,9 +145,12 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      * this accumulator (as described in general comments for this class).
      */
     public Data getData() {
-        if (count == 0 && blockCountDown == blockSize)
-            return null;
-        if (count > 0) {
+    	Data data = dataGroup;
+
+        if (mostRecent == null) {
+            data = null;
+        }
+        else if (count > 0) {
             double avg = totalSum / count;
             average.E(avg);
             double err = totalSumBlockSq / count - avg * avg;
