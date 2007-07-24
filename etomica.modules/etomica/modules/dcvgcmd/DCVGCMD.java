@@ -8,7 +8,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.DataSourceGroup;
 import etomica.data.meter.MeterNMolecules;
@@ -269,11 +269,11 @@ public class DCVGCMD extends Simulation {
         profile2.setBox(box);
         profile2.setProfileVector(new Vector3D(0.0, 0.0, 1.0));
 
-        accumulator1 = new AccumulatorAverageCollapsing();
+        accumulator1 = new AccumulatorAverageFixed();
         profile1pump = new DataPump(profile1, accumulator1);
         integratorDCV.addIntervalAction(profile1pump);
 
-        accumulator2 = new AccumulatorAverageCollapsing();
+        accumulator2 = new AccumulatorAverageFixed();
         profile2pump = new DataPump(profile2, accumulator2);
         integratorDCV.addIntervalAction(profile2pump);
 
