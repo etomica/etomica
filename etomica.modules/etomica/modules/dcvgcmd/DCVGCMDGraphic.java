@@ -19,6 +19,7 @@ import etomica.data.DataTableAverages;
 import etomica.data.meter.MeterNMolecules;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceSlider;
+import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
@@ -46,9 +47,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
         getController().getDataStreamPumps().add(sim.profile1pump);
         getController().getDataStreamPumps().add(sim.profile2pump);
-        
-	    Color colorA = Color.blue;
-	    Color colorB = Color.white;
+
+	    Color[] speciesColors = new Color [] {Color.BLUE, Color.GREEN};
 
 	    GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
@@ -63,9 +63,9 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    MeterNMolecules meterA = new MeterNMolecules();
 	    MeterNMolecules meterB = new MeterNMolecules();
 	    meterA.setBox(sim.box);
-	    meterA.setSpecies(sim.species);
+	    meterA.setSpecies(sim.species1);
 	    meterB.setBox(sim.box);
-	    meterB.setSpecies(sim.species1);
+	    meterB.setSpecies(sim.species2);
 	    DisplayTextBox boxA = new DisplayTextBox(meterA.getDataInfo());
 	    DisplayTextBox boxB = new DisplayTextBox(meterB.getDataInfo());
 	    boxA.setPrecision(3);
@@ -86,13 +86,13 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    meterBPump.actionPerformed();
 
 	    //Slider to adjust temperature
-		final DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integratorDCV, "temperature");
+	    DeviceThermoSlider temperatureSlider = new DeviceThermoSlider(sim.getController());
 		temperatureSlider.setUnit(Kelvin.UNIT);
-		temperatureSlider.setMinimum(50);
+		temperatureSlider.setMinimum(0);
 		temperatureSlider.setMaximum(500);
-	    temperatureSlider.setLabel("Temperature");
-	    temperatureSlider.setValue(Kelvin.UNIT.fromSim(sim.integratorDCV.getTemperature()));
-	    
+		temperatureSlider.setIntegrator(sim.integratorDCV);
+	    temperatureSlider.setTemperature(Kelvin.UNIT.fromSim(sim.integratorDCV.getTemperature()));
+
 	    //Mu Slider Stuff
 		Modifier mu1Mod = sim.integratorDCV.new Mu1Modulator(); 
 		Modifier mu2Mod = sim.integratorDCV.new Mu2Modulator();
@@ -115,7 +115,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
         sim.integratorDCV.addIntervalAction(tpump);
 		sim.integratorDCV.setActionInterval(tpump, 100);
 	    box1.setUnit((Kelvin.UNIT));
-		temperatureSlider.setPostAction(new Action() {
+	    box1.setLabel("Measured Temperature");
+		temperatureSlider.setSliderPostAction(new Action() {
 			public void actionPerformed() {
 				tpump.actionPerformed();
 			}
@@ -139,9 +140,10 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    
 	    // Density profile tab page
 		DisplayPlot profilePlot = new DisplayPlot();
-	    profilePlot.setLabel("Density profile");
-	    profilePlot.getPlot().setTitle("Density profile");
-		getPanel().tabbedPane.add("Density profile", profilePlot.graphic());
+	    profilePlot.setLabel("Density Profile");
+	    profilePlot.getPlot().setTitle("Density Profile");
+	    profilePlot.getPlot().setColors(speciesColors);
+		getPanel().tabbedPane.add("Density Profile", profilePlot.graphic());
 
 		sim.accumulator1.addDataSink(profilePlot.getDataSet().makeDataSink(),
 	            new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.AVERAGE});
@@ -150,15 +152,10 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
 	    //set color of molecules
 	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayBox(sim.box).getColorScheme());
-		colorScheme.setColor(sim.species.getMoleculeType(),colorA);
-		colorScheme.setColor(sim.species1.getMoleculeType(),colorB);
+		colorScheme.setColor(sim.species1.getMoleculeType(), speciesColors[0]);
+		colorScheme.setColor(sim.species2.getMoleculeType(), speciesColors[1]);
 		colorScheme.setColor(((AtomTypeGroup)sim.speciesTube.getMoleculeType()).getChildTypes()[0],java.awt.Color.cyan);
 
-	    //panel for the temperature control/display
-		JPanel temperaturePanel = new JPanel(new java.awt.GridBagLayout());
-		temperaturePanel.setBorder(new TitledBorder("Temperature (K)"));
-		temperaturePanel.add(box1.graphic(null),vertGBC);
-		temperaturePanel.add(temperatureSlider.graphic(null),vertGBC);
 
 	    //panel for Mu's
 		JPanel muPanel = new JPanel(new java.awt.GridBagLayout());
@@ -169,16 +166,19 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		add(getController());
 		add(cutawayButton);
 	    getPanel().controlPanel.add(nMoleculePanel, vertGBC);
-	    getPanel().controlPanel.add(temperaturePanel,vertGBC);
+		add(temperatureSlider);
 	    getPanel().controlPanel.add(muPanel,vertGBC);
+	    //panel for the temperature control/display
+		add(box1);
+
 		
 	    SimulationRestart simRestart = (SimulationRestart)getController().getReinitButton().getAction();
 	    simRestart.setConfiguration(sim.config);
 	    ActionGroupSeries reinitActions = new ActionGroupSeries();
 	    reinitActions.addAction(new Action() {
 	        public void actionPerformed() {
-	            sim.box.setNMolecules(sim.species, 20);
 	            sim.box.setNMolecules(sim.species1, 20);
+	            sim.box.setNMolecules(sim.species2, 20);
 	            meterAPump.actionPerformed();
 	            meterBPump.actionPerformed();
 	            tpump.actionPerformed();
