@@ -134,6 +134,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         temperatureSelect.setIntegrator(sim.integratorHard1);
         temperatureSelect.setTemperature(150);
         temperatureSelect.setMaximum(1200);
+        temperatureSelect.setIsothermal();
         
         ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
         colorScheme.setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);

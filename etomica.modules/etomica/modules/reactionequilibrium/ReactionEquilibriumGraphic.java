@@ -86,6 +86,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		temperatureSelect.setUnit(Kelvin.UNIT);
 		temperatureSelect.setMaximum(2500);
 		temperatureSelect.setTemperature(300); //sets 300K as selected temperature
+        temperatureSelect.setIsothermal();
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
         ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
 

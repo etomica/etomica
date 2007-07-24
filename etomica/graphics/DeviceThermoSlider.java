@@ -83,6 +83,8 @@ public class DeviceThermoSlider extends Device {
 	 */
 	public void setIsothermal() {
 		buttonIsothermal.setSelected(true);
+		radioButtonChangeByClient();
+		configureSliderAccessibility();
 	}
 
 	/**
@@ -90,6 +92,34 @@ public class DeviceThermoSlider extends Device {
 	 */
 	public boolean isIsothermal() {
 		return buttonIsothermal.isSelected();
+	}
+
+	/**
+	 * Set the Adiabatic button to its selected state.
+	 */
+	public void setAdiabatic() {
+		buttonAdiabatic.setSelected(true);
+		radioButtonChangeByClient();
+		configureSliderAccessibility();
+	}
+
+	/**
+	 * @return State of the adiabatic button
+	 */
+	public boolean isAdiabatic() {
+		return buttonAdiabatic.isSelected();
+	}
+
+	private void radioButtonChangeByClient() {
+		if(integrator != null) {
+
+		    if(integrator instanceof etomica.integrator.IntegratorBox) {
+		        controller.doActionNow(integratorBoxIsoChangeSetIso);
+		    }
+		    if(integrator instanceof etomica.integrator.IntegratorHard) {
+		    	controller.doActionNow(integratorHardIsoChangeSetTemp);
+		    }
+	    }
 	}
 
 	/**
@@ -113,24 +143,15 @@ public class DeviceThermoSlider extends Device {
 	}
 
 	/**
-	 * Set the Adiabatic button to its selected state.
-	 */
-	public void setAdiabatic() {
-		buttonAdiabatic.setSelected(true);
-	}
-
-	/**
-	 * @return State of the adiabatic button
-	 */
-	public boolean isAdiabatic() {
-		return buttonAdiabatic.isSelected();
-	}
-
-	/**
 	 * Set the current value for the temperature slider/text box.
 	 */
     public void setTemperature(double value) {
         temperatureSlider.setValue(value);
+		if(integrator != null) {
+		    if(integrator instanceof etomica.integrator.IntegratorHard) {
+                controller.doActionNow(integratorHardTempChangeSetTemp);
+		    }
+		}
     }
 
 	/**
@@ -244,12 +265,7 @@ public class DeviceThermoSlider extends Device {
 
         	ActionListener actionListen = new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
-                    Action act = new Action() {
-                        public void actionPerformed() {
-                            ((IntegratorBox)integrator).setIsothermal(isIsothermal());
-                        }
-                    };
-					controller.doActionNow(act);
+					controller.doActionNow(integratorBoxIsoChangeSetIso);
                 }
             };
 
@@ -261,39 +277,13 @@ public class DeviceThermoSlider extends Device {
 
             ChangeListener integratorCL = new ChangeListener() {
 				public void stateChanged(ChangeEvent ae) {
-					Action act = new Action() {
-						public void actionPerformed() {
-						    if(isIsothermal()) {
-						        ((IntegratorHard)integrator).setTemperature(getTemperature());
-						    }
-						    try {
-						        integrator.reset();
-						    }
-						    catch (ConfigurationOverlapException e) {
-						            throw new RuntimeException("overlap in configuration");
-						    }
-			    		}
-					};
-					controller.doActionNow(act);
+					controller.doActionNow(integratorHardTempChangeSetTemp);
 				}
 			};
 
 	    	ActionListener integratorAL = new ActionListener() {
 	    		public void actionPerformed(ActionEvent ae) {
-		    		Action act = new Action() {
-		    			public void actionPerformed() {
-						    if(isIsothermal()) {
-						        ((IntegratorHard)integrator).setTemperature(getTemperature());
-						    }
-						    try {
-						        integrator.reset();
-						    }
-						    catch (ConfigurationOverlapException e) {
-						            throw new RuntimeException("overlap in configuration");
-						    }
-			    		}
-		    		};
-	    			controller.doActionNow(act);
+	    			controller.doActionNow(integratorHardIsoChangeSetTemp);
 	    		}
 	    	};
 
@@ -322,25 +312,62 @@ public class DeviceThermoSlider extends Device {
 
     }
 
+    private Action integratorBoxIsoChangeSetIso = new Action() {
+        public void actionPerformed() {
+            ((IntegratorBox)integrator).setIsothermal(isIsothermal());
+        }
+    };
+
+	private Action integratorHardTempChangeSetTemp = new Action() {
+		public void actionPerformed() {
+		    if(isIsothermal()) {
+		        ((IntegratorHard)integrator).setTemperature(getTemperature());
+		    }
+		    try {
+		        integrator.reset();
+		    }
+		    catch (ConfigurationOverlapException e) {
+		            throw new RuntimeException("overlap in configuration");
+		    }
+		}
+	};
+
+	private Action integratorHardIsoChangeSetTemp = new Action() {
+		public void actionPerformed() {
+		    if(isIsothermal()) {
+		        ((IntegratorHard)integrator).setTemperature(getTemperature());
+		    }
+		    try {
+		        integrator.reset();
+		    }
+		    catch (ConfigurationOverlapException e) {
+		            throw new RuntimeException("overlap in configuration");
+		    }
+		}
+	};
+
+	private void configureSliderAccessibility() {
+        if(buttonAdiabatic.isSelected()) {
+        	temperatureSlider.getSlider().setEnabled(false);
+        	temperatureSlider.getTextField().setEnabled(false);
+        }
+        else {
+        	temperatureSlider.getSlider().setEnabled(true);
+        	temperatureSlider.getTextField().setEnabled(true);
+        }		
+	}
+
     /**
      * Private class that toggles the state of the temperature slider and
      * temperature text box based on the adiabatic/isothermal button currently
      * selected.  The slider/text box is selectable under isothermal conditions
      * and unselectable when adiabatic is selected.
-     * @author rrassler
      *
      */
     private class ToggleButtonListener implements ActionListener {
     	public void actionPerformed(ActionEvent e) {
-            if(buttonAdiabatic.isSelected()) {
-            	temperatureSlider.getSlider().setEnabled(false);
-            	temperatureSlider.getTextField().setEnabled(false);
-            }
-            else {
-            	temperatureSlider.getSlider().setEnabled(true);
-            	temperatureSlider.getTextField().setEnabled(true);
-            }
-    	}
+    		configureSliderAccessibility();
+        }
     }
 
 }
