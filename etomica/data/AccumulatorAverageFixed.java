@@ -84,7 +84,6 @@ public class AccumulatorAverageFixed extends AccumulatorAverage {
         if (count > 0) {
             average.E(sum);
             average.TE(1 / (double) count);
-            System.out.println("f "+count+" "+sum+" "+average);
             work.E(average);
             work.TE(average);
             error.E(sumSquare);

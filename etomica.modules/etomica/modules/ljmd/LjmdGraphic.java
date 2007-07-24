@@ -1,8 +1,6 @@
 package etomica.modules.ljmd;
 
 import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.event.ChangeEvent;
@@ -14,6 +12,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.AccumulatorHistory;
 import etomica.data.Data;
 import etomica.data.DataFork;
@@ -39,7 +38,6 @@ import etomica.data.meter.MeterTemperature;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ActionConfigWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceButton;
@@ -114,7 +112,7 @@ public class LjmdGraphic extends SimulationGraphic {
         double vMax = 4;
 		DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(new HistogramSimple(100,new DoubleRange(0,4)));
         meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.box));
-        AccumulatorAverage rmsAverage = new AccumulatorAverageCollapsing();
+        AccumulatorAverage rmsAverage = new AccumulatorAverageFixed(10);
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
         sim.integrator.addIntervalAction(velocityPump);
         sim.integrator.setActionInterval(velocityPump, 10);
