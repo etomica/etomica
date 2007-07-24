@@ -145,10 +145,8 @@ public class AccumulatorAverageCollapsing extends AccumulatorAverage {
      * this accumulator (as described in general comments for this class).
      */
     public Data getData() {
-    	Data data = dataGroup;
-
-        if (mostRecent == null) {
-            data = null;
+    	if (dataGroup == null) {
+            return null;
         }
         else if (count > 0) {
             double avg = totalSum / count;
