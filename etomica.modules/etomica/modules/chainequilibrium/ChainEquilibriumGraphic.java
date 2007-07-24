@@ -9,7 +9,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import etomica.data.AccumulatorAverage;
-import etomica.data.AccumulatorAverageCollapsing;
+import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
 import etomica.graphics.ColorSchemeByType;
@@ -105,7 +105,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         DataPump tPump = new DataPump (sim.thermometer, tBox);
         dataStreamPumps.add(tPump);
 
-        AccumulatorAverage accumulator = new AccumulatorAverageCollapsing();
+        AccumulatorAverage accumulator = new AccumulatorAverageFixed();
         DataPump pump = new DataPump(sim.molecularCount,accumulator);
         dataStreamPumps.add(pump);
         sim.integratorHard1.addIntervalAction(pump);
