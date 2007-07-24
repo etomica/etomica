@@ -1,26 +1,25 @@
 package etomica.graphics;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import etomica.action.Action;
-import etomica.action.activity.Controller;
-import etomica.exception.ConfigurationOverlapException;
-import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorBox;
-import etomica.integrator.IntegratorHard;
-import etomica.modifier.Modifier;
-import etomica.units.Unit;
-
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
+
+import etomica.action.Action;
+import etomica.action.activity.Controller;
+import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorHard;
+import etomica.modifier.Modifier;
+import etomica.modifier.ModifierGeneral;
+import etomica.units.Unit;
 
 
 public class DeviceThermoSlider extends Device {
@@ -29,7 +28,7 @@ public class DeviceThermoSlider extends Device {
 	private DeviceSlider  temperatureSlider; // Do not make make accessible
 	private JRadioButton  buttonAdiabatic;   // Do not make make accessible
 	private JRadioButton  buttonIsothermal;  // Do not make make accessible
-	private Integrator    integrator;
+	protected IntegratorBox    integrator;
 
 	private final int DEFAULT_MIN_TEMPERATURE = 0;
 	private final int DEFAULT_MAX_TEMPERATURE = 300;
@@ -112,13 +111,7 @@ public class DeviceThermoSlider extends Device {
 
 	private void radioButtonChangeByClient() {
 		if(integrator != null) {
-
-		    if(integrator instanceof etomica.integrator.IntegratorBox) {
-		        controller.doActionNow(integratorBoxIsoChangeSetIso);
-		    }
-		    if(integrator instanceof etomica.integrator.IntegratorHard) {
-		    	controller.doActionNow(integratorHardIsoChangeSetTemp);
-		    }
+	        controller.doActionNow(integratorBoxIsoChangeSetIso);
 	    }
 	}
 
@@ -147,11 +140,6 @@ public class DeviceThermoSlider extends Device {
 	 */
     public void setTemperature(double value) {
         temperatureSlider.setValue(value);
-		if(integrator != null) {
-		    if(integrator instanceof etomica.integrator.IntegratorHard) {
-                controller.doActionNow(integratorHardTempChangeSetTemp);
-		    }
-		}
     }
 
 	/**
@@ -242,6 +230,11 @@ public class DeviceThermoSlider extends Device {
     public void setController(Controller cont) {
     	super.setController(cont);
         temperatureSlider.setController(cont);
+        if (integrator != null) {
+            // invoke setIntegartor again so that the isothermal/adiabatic
+            // listener gets updated
+            setIntegrator(integrator);
+        }
     }
 
 	/**
@@ -258,39 +251,17 @@ public class DeviceThermoSlider extends Device {
      * of integrator passed in.
      * @param i Integrator
      */
-    public void setIntegrator(etomica.integrator.Integrator i) {
+    public void setIntegrator(IntegratorBox i) {
     	integrator = i;
+    	temperatureSlider.setModifier(new ModifierGeneral(i, "temperature"));
 
-    	if(i instanceof etomica.integrator.IntegratorBox) {
+    	ActionListener actionListen = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+				controller.doActionNow(integratorBoxIsoChangeSetIso);
+            }
+        };
 
-        	ActionListener actionListen = new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {
-					controller.doActionNow(integratorBoxIsoChangeSetIso);
-                }
-            };
-
-        	addRadioGroupActionListener(actionListen);
-
-    	}
-
-    	if(i instanceof etomica.integrator.IntegratorHard) {
-
-            ChangeListener integratorCL = new ChangeListener() {
-				public void stateChanged(ChangeEvent ae) {
-					controller.doActionNow(integratorHardTempChangeSetTemp);
-				}
-			};
-
-	    	ActionListener integratorAL = new ActionListener() {
-	    		public void actionPerformed(ActionEvent ae) {
-	    			controller.doActionNow(integratorHardIsoChangeSetTemp);
-	    		}
-	    	};
-
-	    	addTemperatureSliderListener(integratorCL);
-	    	addRadioGroupActionListener(integratorAL);
-
-    	}
+    	addRadioGroupActionListener(actionListen);
     }
 
     //
@@ -314,39 +285,11 @@ public class DeviceThermoSlider extends Device {
 
     private Action integratorBoxIsoChangeSetIso = new Action() {
         public void actionPerformed() {
-            ((IntegratorBox)integrator).setIsothermal(isIsothermal());
+            integrator.setIsothermal(isIsothermal());
         }
     };
 
-	private Action integratorHardTempChangeSetTemp = new Action() {
-		public void actionPerformed() {
-		    if(isIsothermal()) {
-		        ((IntegratorHard)integrator).setTemperature(getTemperature());
-		    }
-		    try {
-		        integrator.reset();
-		    }
-		    catch (ConfigurationOverlapException e) {
-		            throw new RuntimeException("overlap in configuration");
-		    }
-		}
-	};
-
-	private Action integratorHardIsoChangeSetTemp = new Action() {
-		public void actionPerformed() {
-		    if(isIsothermal()) {
-		        ((IntegratorHard)integrator).setTemperature(getTemperature());
-		    }
-		    try {
-		        integrator.reset();
-		    }
-		    catch (ConfigurationOverlapException e) {
-		            throw new RuntimeException("overlap in configuration");
-		    }
-		}
-	};
-
-	private void configureSliderAccessibility() {
+    private void configureSliderAccessibility() {
         if(buttonAdiabatic.isSelected()) {
         	temperatureSlider.getSlider().setEnabled(false);
         	temperatureSlider.getTextField().setEnabled(false);
