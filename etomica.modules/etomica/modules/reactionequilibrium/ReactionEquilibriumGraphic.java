@@ -217,6 +217,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		dimerPump = new DataPump (sim.meterDimerFraction, dimerFork);
         sim.integratorHard1.addIntervalAction(dimerPump);
         sim.integratorHard1.setActionInterval(dimerPump, 100);
+        getController().getDataStreamPumps().add(dimerPump);
 
         DataGroupFilter filter1 = new DataGroupFilter(0);
         dimerFork.addDataSink(filter1);
