@@ -3,6 +3,7 @@ package etomica.modules.reactionequilibrium;
 import java.awt.GridBagConstraints;
 
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
@@ -27,6 +28,7 @@ import etomica.data.DataTag;
 import etomica.data.types.DataTable;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
@@ -45,7 +47,6 @@ import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
 import etomica.units.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.PrefixedUnit;
 import etomica.util.Constants.CompassDirection;
@@ -272,38 +273,20 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
         densityDisplay.setLabel("Molecular density, " + Angstrom.UNIT.symbol()+"^-3");
         dimerPump.actionPerformed();
         densityDisplay.putData(densityAccum.getData());
-        
-        
-//        filter3.setDataSink(new DataSinkConsole());
-         
-         final DeviceSlider delaySlider = new DeviceSlider(sim.controller1, new Modifier() {
-             public double getValue() {return Math.pow(sim.activityIntegrate.getSleepPeriod(),1./2.);}
-             public void setValue(double d) {sim.activityIntegrate.setSleepPeriod((int)(d*d));}
-             public Dimension getDimension() {return Null.DIMENSION;}
-             public String getLabel() {return "Sleep period";}
-         });
-//         delaySlider.setSliderVerticalOrientation(true);
-         delaySlider.setMinimum(0);
-         delaySlider.setMaximum(10);
-         delaySlider.setNMajor(5);
-         delaySlider.setValue(0);
-         delaySlider.setShowMinorTicks(true);
-         JPanel delaySliderPanel = new JPanel();
-         delaySliderPanel.add(delaySlider.graphic());
-         delaySliderPanel.setBorder(new javax.swing.border.TitledBorder("Delay"));
 
+//        filter3.setDataSink(new DataSinkConsole());
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
 
 		//************* Lay out components ****************//
 
-        getPanel().controlPanel.add(delaySliderPanel, vertGBC);
-
+        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
 
 		//panel for the species editors
 		JPanel speciesEditors = new JPanel(new java.awt.GridLayout(0, 1));
 		speciesEditors.add(AEditor);
 		speciesEditors.add(BEditor);
-		speciesEditors.setBorder(new javax.swing.border.TitledBorder(
-				"Species Adjustment"));
+		speciesEditors.setBorder(new TitledBorder(
+				null, "Species Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
 
 		//panel of well-depth sliders
 		JPanel epsilonSliders = new JPanel(new java.awt.GridLayout(0, 1));
@@ -323,8 +306,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 		//tabbed pane for both sets of sliders
 		final javax.swing.JTabbedPane sliderPanel = new javax.swing.JTabbedPane();
-		sliderPanel.setBorder(new javax.swing.border.TitledBorder(
-				"Potential Adjustment"));
+		sliderPanel.setBorder(new TitledBorder(
+				null, "Potential Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
 		sliderPanel.add("Well depth (K)", epsilonSliders);
 		sliderPanel.add("Core size (%)", lambdaSliders);
 		sliderPanel.add("Atom size (\u00C5)", sizeSliders);

@@ -13,6 +13,7 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.DataSinkTable;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
@@ -20,10 +21,7 @@ import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
-import etomica.modifier.Modifier;
-import etomica.units.Dimension;
 import etomica.units.Kelvin;
-import etomica.units.Null;
 import etomica.units.Pixel;
 import etomica.units.PrefixedUnit;
 import etomica.util.Constants.CompassDirection;
@@ -58,22 +56,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         int eMin = 0, eMax = 1000,  majorSpacing = 15, minorSpacing = 5;
 
         // **** Stuff that Modifies the Simulation
-        
-        final DeviceSlider delaySlider = new DeviceSlider(sim.controller1, new Modifier() {
-            public double getValue() {return Math.pow(sim.activityIntegrate.getSleepPeriod(),1./2.);}
-            public void setValue(double d) {sim.activityIntegrate.setSleepPeriod((int)(d*d));}
-            public Dimension getDimension() {return Null.DIMENSION;}
-            public String getLabel() {return "Sleep period";}
-        });
-        delaySlider.setMinimum(0);
-        delaySlider.setMaximum(10);
-        delaySlider.setNMajor(5);
-        delaySlider.setValue(0);
-        delaySlider.setShowMinorTicks(true);
-        JPanel delaySliderPanel = new JPanel();
-        delaySliderPanel.add(delaySlider.graphic());
-        delaySliderPanel.setBorder(new javax.swing.border.TitledBorder("Delay"));
-        
+
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
 
         // Sliders on Well depth page
         final DeviceSlider AASlider = sliders(sim, eMin, eMax, "RR epsilon", sim.AAbonded);
@@ -170,7 +154,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
         speciesEditors.add(AEditor);
         speciesEditors.add(BEditor);
-        speciesEditors.setBorder(new TitledBorder("Species Adjustment"));
+        speciesEditors.setBorder(new TitledBorder(
+        		null, "Species Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
         epsilonSliders.add(AASlider.graphic(null));
         epsilonSliders.add(ABSlider.graphic(null));
         epsilonSliders.add(BBSlider.graphic(null));
@@ -180,7 +165,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         sizeSliders.add(sizeSlider.graphic(null));
 
         final JTabbedPane sliderPanel = new JTabbedPane();
-        sliderPanel.setBorder(new TitledBorder("Potential Adjustment"));
+        sliderPanel.setBorder(new TitledBorder(
+        		null, "Potential Adjustment", TitledBorder.CENTER, TitledBorder.TOP));
         sliderPanel.add("Well depth (K)", epsilonSliders);
         sliderPanel.add("Core size (%)", lambdaSliders);
         sliderPanel.add("Monomer size (\u00C5)", sizeSliders);
@@ -219,12 +205,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 		});
 
         //panel for all the controls
-//        ((JPanel)getPanel().tabbedPane.getComponentAt(0)).add(delaySliderPanel);
-//        JPanel panel1 = new JPanel(new GridBagLayout());
-//        panel1.add(temperaturePanel,vertGBC);
-//        panel1.add(sliderPanel,vertGBC);
-//        getPanel().controlPanel.add(panel1, horizGBC);
-        getPanel().controlPanel.add(delaySliderPanel, vertGBC);
+        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         getPanel().controlPanel.add(sliderPanel, vertGBC);
         getPanel().controlPanel.add(speciesEditors, vertGBC);

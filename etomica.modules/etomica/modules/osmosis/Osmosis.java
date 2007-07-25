@@ -22,6 +22,7 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.meter.MeterLocalMoleFraction;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
+import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBox;
@@ -124,6 +125,11 @@ public class Osmosis extends SimulationGraphic {
         osmoticBox.setAccumulator(osmosisPMeterAvg);
         osmoticBox.setPrecision(6);
 
+        //
+        // Delay panel
+        //
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        
         //
         // temperature panel
         //
@@ -235,6 +241,7 @@ public class Osmosis extends SimulationGraphic {
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
+        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         getPanel().controlPanel.add(initPanel.graphic(), vertGBC);
         getPanel().plotPanel.add(displayCycles.graphic(), vertGBC);

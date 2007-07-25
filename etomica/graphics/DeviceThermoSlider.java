@@ -63,7 +63,7 @@ public class DeviceThermoSlider extends Device {
         buttonIsothermal.addActionListener(myListener);
 
         temperaturePanel = new JPanel(new GridBagLayout());
-        temperaturePanel.setBorder(new TitledBorder("Set Temperature"));
+        temperaturePanel.setBorder(new TitledBorder(null, "Set Temperature", TitledBorder.CENTER, TitledBorder.TOP));
         GridBagConstraints gbc1 = new GridBagConstraints();
         gbc1.gridx = 0;  gbc1.gridy = 1;
         gbc1.gridwidth = 1;
@@ -198,7 +198,7 @@ public class DeviceThermoSlider extends Device {
     public void setUnit(Unit u) {
     	temperatureSlider.setUnit(u);
         String suffix = (u.symbol().length() > 0) ? " ("+u.symbol()+")" : "";
-        temperaturePanel.setBorder(new TitledBorder("Set Temperature" + suffix));
+        temperaturePanel.setBorder(new TitledBorder(null, "Set Temperature" + suffix, TitledBorder.CENTER, TitledBorder.TOP));
     }
 
     /**
