@@ -14,7 +14,11 @@ public class DeviceDelaySlider {
 	private DeviceSlider      delaySlider;
 	private JPanel            delayPanel;
 	
-	private static final double  DELAY_MULTIPLIER = 10;
+    //DELAY_EXPONENT affects how sharply the delay increases as slider is moved from zero -- 
+    //a larger value pushes increase off to larger slider values; 1.0 is a linear increase
+    //DELAY_MULTIPLIER is set such that sleep period is 100 when slider is at its maximum value of 10
+    private static final double  DELAY_EXPONENT = 2.0;
+    private static final double  DELAY_MULTIPLIER = 100.0 / Math.pow(10.0,DELAY_EXPONENT);
 
     public DeviceDelaySlider(Controller cont, ActivityIntegrate ai) {
 
@@ -47,11 +51,11 @@ public class DeviceDelaySlider {
         }
 
 	    public double getValue() {
-	    	return activityIntegrate.getSleepPeriod() / DELAY_MULTIPLIER;
+	    	return Math.pow(activityIntegrate.getSleepPeriod() / DELAY_MULTIPLIER, 1.0/DELAY_EXPONENT);
 	    }
 
 	    public void setValue(double d) {
-	    	activityIntegrate.setSleepPeriod((int)(d*DELAY_MULTIPLIER));
+	    	activityIntegrate.setSleepPeriod((int)(Math.pow(d, DELAY_EXPONENT)*DELAY_MULTIPLIER));
 	    }
 
         public Dimension getDimension() {return Null.DIMENSION;}
