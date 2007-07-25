@@ -131,6 +131,7 @@ public class Osmosis extends SimulationGraphic {
 	    temperatureSelect = new DeviceThermoSlider(sim.getController());
 	    temperatureSelect.setUnit(tUnit);
 	    temperatureSelect.setIntegrator(sim.integrator);
+	    temperatureSelect.setTemperature(100);
 		MeterTemperature thermometer = new MeterTemperature();
 		thermometer.setBox(sim.box);
 		DisplayTextBox tBox = new DisplayTextBox();
@@ -139,7 +140,6 @@ public class Osmosis extends SimulationGraphic {
 		tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
-
 
         // Right side of membrane mole fraction
         moleFractionRight = new MeterLocalMoleFraction();

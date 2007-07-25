@@ -43,7 +43,7 @@ public class DeviceThermoSlider extends Device {
         thermalGroup.add(buttonIsothermal);
 
         //temperature selector
-        temperatureSlider = new DeviceSlider(null);
+        temperatureSlider = new DeviceSlider(controller);
         temperatureSlider.setShowValues(true);
         temperatureSlider.setEditValues(true);
         temperatureSlider.setMinimum(DEFAULT_MIN_TEMPERATURE);
