@@ -221,7 +221,7 @@ public class TestHexaneHarmonic extends Simulation {
         MeterHarmonicEnergy harmonicEnergy = new MeterHarmonicEnergy(sim.coordinateDefinition, normalModes);
         harmonicEnergy.setBox(sim.box);
         DataFork harmonicFork = new DataFork();
-        AccumulatorAverage harmonicAvg = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing harmonicAvg = new AccumulatorAverageCollapsing();
         DataPump pump = new DataPump(harmonicEnergy, harmonicFork);
         harmonicFork.addDataSink(harmonicAvg);
         sim.integrator.addIntervalAction(pump);
@@ -229,7 +229,7 @@ public class TestHexaneHarmonic extends Simulation {
         BoltzmannProcessor boltz = new BoltzmannProcessor();
         boltz.setTemperature(1.0);
         harmonicFork.addDataSink(boltz);
-        AccumulatorAverage harmonicBoltzAvg = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing harmonicBoltzAvg = new AccumulatorAverageCollapsing();
         boltz.setDataSink(harmonicBoltzAvg);
         DataProcessorFoo fooer = new DataProcessorFoo();
         harmonicBoltzAvg.addDataSink(fooer, new StatType[]{StatType.AVERAGE});
@@ -241,7 +241,7 @@ public class TestHexaneHarmonic extends Simulation {
         boltz.setTemperature(1);
         DataPump pumpSingle = new DataPump(harmonicSingleEnergy, boltz);
         DataHistogram harmonicSingleHistogram = new DataHistogram(new HistogramSimple.Factory(50, new DoubleRange(0, 1)));
-        AccumulatorAverage harmonicSingleAvg = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing harmonicSingleAvg = new AccumulatorAverageCollapsing();
         boltz.setDataSink(harmonicSingleAvg);
 //        harmonicLog.setDataSink(harmonicSingleHistogram);
 //        harmonicSingleHistogram.setDataSink(harmonicSingleAvg);

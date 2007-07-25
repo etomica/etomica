@@ -6,7 +6,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
@@ -89,7 +88,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		TestHC2YukawaMC3D sim = new TestHC2YukawaMC3D(numAtoms);
 		
 		MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-		AccumulatorAverage energyAccumulator = new AccumulatorAverageCollapsing();
+		AccumulatorAverageCollapsing energyAccumulator = new AccumulatorAverageCollapsing();
 		DataPump energyManager = new DataPump(energyMeter, energyAccumulator);
 		energyAccumulator.setBlockSize(50);
         sim.integrator.addIntervalAction(energyManager);

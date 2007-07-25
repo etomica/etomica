@@ -16,7 +16,6 @@ import etomica.atom.IAtom;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
@@ -239,7 +238,7 @@ public class JouleThomson extends SimulationGraphic {
 	    speciesChooser.setSpecies("Methane");
 	    
         DisplayTable displayTable = new DisplayTable();
-        AccumulatorAverage densityAverage = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing densityAverage = new AccumulatorAverageCollapsing();
         pump = new DataPump(densityMeter, densityAverage);
         sim.integratorJT.addIntervalAction(pump);
         sim.integratorJT.setActionInterval(pump, 20);

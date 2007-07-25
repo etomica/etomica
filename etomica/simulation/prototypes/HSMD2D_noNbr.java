@@ -40,7 +40,7 @@ public class HSMD2D_noNbr extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public AccumulatorAverage pressureAverage;
     public AccumulatorHistory pressureHistory;
-    public AccumulatorAverage temperatureAverage;
+    public AccumulatorAverageCollapsing temperatureAverage;
     public AccumulatorHistory temperatureHistory;
     public Box box;
     public SpeciesSpheresMono species;

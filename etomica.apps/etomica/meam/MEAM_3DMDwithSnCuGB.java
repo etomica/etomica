@@ -7,7 +7,6 @@ import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
 import etomica.chem.elements.Tin;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
@@ -98,8 +97,8 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         AccumulatorHistory kineticAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
         
-        AccumulatorAverage accumulatorAveragePE = new AccumulatorAverageCollapsing();
-    	AccumulatorAverage accumulatorAverageKE = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing accumulatorAverageKE = new AccumulatorAverageCollapsing();
     	
     	DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);   	
     	DataPump kineticPump = new DataPump(kineticMeter, accumulatorAverageKE);

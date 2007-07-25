@@ -179,7 +179,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
         sim.integrator.setIsothermal(true);
         MeterPressureHard pressureMeter = new MeterPressureHard(sim.getSpace());
         pressureMeter.setIntegrator(sim.integrator);
-        AccumulatorAverage accumulator = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing accumulator = new AccumulatorAverageCollapsing();
         DataPump dataPump = new DataPump(pressureMeter, accumulator);
         sim.integrator.addIntervalAction(dataPump);
         graphic.getController().getDataStreamPumps().add(dataPump);

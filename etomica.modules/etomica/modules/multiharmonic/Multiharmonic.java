@@ -93,7 +93,7 @@ public class Multiharmonic extends Simulation {
 
     private static final long serialVersionUID = 1L;
     MeterEnergy meterEnergy;
-    AccumulatorAverage accumulatorEnergy;
+    AccumulatorAverageCollapsing accumulatorEnergy;
     AccumulatorHistory historyEnergy;
     SpeciesSpheresMono species;
     Box box;
@@ -102,7 +102,7 @@ public class Multiharmonic extends Simulation {
     IntegratorVelocityVerlet integrator;
     ActivityIntegrate activityIntegrate;
     MeterFreeEnergy meter;
-    AccumulatorAverage accumulator;
+    AccumulatorAverageCollapsing accumulator;
     DataPump dataPump, dataPumpEnergy;
     SimulationDataAction resetAccumulators;
     DataSourceCountTime timeCounter;

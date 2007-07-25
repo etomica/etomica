@@ -15,7 +15,6 @@ import javax.swing.event.ChangeListener;
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.config.ConfigurationLatticeWithPlane;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountTime;
@@ -116,7 +115,7 @@ public class Osmosis extends SimulationGraphic {
 	    // Right side of membrane osmotic
         osmosisPMeter = new MeterOsmoticPressure(sim.getSpace(), new P1HardBoundary[]{sim.boundaryHardA,sim.boundaryHardB}); 
         osmosisPMeter.setIntegrator(sim.integrator);
-        final AccumulatorAverage osmosisPMeterAvg = new AccumulatorAverageCollapsing();
+        final AccumulatorAverageCollapsing osmosisPMeterAvg = new AccumulatorAverageCollapsing();
         final DataPump osmosisPump = new DataPump(osmosisPMeter, osmosisPMeterAvg);
         dataStreamPumps.add(osmosisPump);
         sim.integrator.addIntervalAction(osmosisPump);
@@ -163,7 +162,7 @@ public class Osmosis extends SimulationGraphic {
         }
 
         moleFractionRight.setSpecies(sim.speciesSolute);
-        final AccumulatorAverage moleFractionAvgRight = new AccumulatorAverageCollapsing();
+        final AccumulatorAverageCollapsing moleFractionAvgRight = new AccumulatorAverageCollapsing();
         final DataPump molePumpRight = new DataPump(moleFractionRight, moleFractionAvgRight);
         dataStreamPumps.add(molePumpRight);
         sim.integrator.addIntervalAction(molePumpRight);
@@ -186,7 +185,7 @@ public class Osmosis extends SimulationGraphic {
         }
 
         moleFractionLeft.setSpecies(sim.speciesSolute);
-        final AccumulatorAverage moleFractionAvgLeft = new AccumulatorAverageCollapsing();
+        final AccumulatorAverageCollapsing moleFractionAvgLeft = new AccumulatorAverageCollapsing();
         final DataPump molePumpLeft = new DataPump(moleFractionLeft, moleFractionAvgLeft);
         dataStreamPumps.add(molePumpLeft);
         sim.integrator.addIntervalAction(molePumpLeft);

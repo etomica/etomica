@@ -6,7 +6,6 @@ import etomica.action.activity.Controller;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -34,7 +33,7 @@ public class LjMd3D extends Simulation {
     public P2LennardJones potential;
     public Controller controller;
     public MeterPotentialEnergy energy;
-    public AccumulatorAverage avgEnergy;
+    public AccumulatorAverageCollapsing avgEnergy;
     public DataPump pump;
 
     public static void main(String[] args) {

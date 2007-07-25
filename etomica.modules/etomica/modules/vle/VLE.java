@@ -1,6 +1,5 @@
 package etomica.modules.vle;
 
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
@@ -32,7 +31,7 @@ public class VLE extends SimulationGraphic {
         DataFork fork = new DataFork();
         DataPump pumpLiquidDensity = new DataPump(meterDensityLiquid, fork);
         getController().getDataStreamPumps().add(pumpLiquidDensity);
-        AccumulatorAverage avgLiquidDensity = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing avgLiquidDensity = new AccumulatorAverageCollapsing();
         fork.addDataSink(avgLiquidDensity);
 //        AccumulatorHistogram histogramLiquidDensity = new AccumulatorHistogram(new HistogramExpanding(0.01));
 //        fork.addDataSink(histogramLiquidDensity);
@@ -48,7 +47,7 @@ public class VLE extends SimulationGraphic {
         fork = new DataFork();
         DataPump pumpVaporDensity = new DataPump(meterDensityVapor, fork);
         getController().getDataStreamPumps().add(pumpVaporDensity);
-        AccumulatorAverage avgVaporDensity = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing avgVaporDensity = new AccumulatorAverageCollapsing();
         fork.addDataSink(avgVaporDensity);
 //        AccumulatorHistogram histogramVaporDensity = new AccumulatorHistogram(new HistogramExpanding(0.001));
 //        fork.addDataSink(histogramVaporDensity);
@@ -120,7 +119,7 @@ public class VLE extends SimulationGraphic {
         fork = new DataFork();
         DataPump pumpPressureLiquid = new DataPump(meterPressureLiquid, fork);
         getController().getDataStreamPumps().add(pumpPressureLiquid);
-        AccumulatorAverage avgPressureLiquid = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing avgPressureLiquid = new AccumulatorAverageCollapsing();
         avgPressureLiquid.setPushInterval(10);
         fork.addDataSink(avgPressureLiquid);
         AccumulatorHistory historyPressureLiquid = new AccumulatorHistory(new HistoryCollapsingAverage(100));
@@ -133,7 +132,7 @@ public class VLE extends SimulationGraphic {
         fork = new DataFork();
         DataPump pumpPressureVapor = new DataPump(meterPressureVapor, fork);
         getController().getDataStreamPumps().add(pumpPressureVapor);
-        AccumulatorAverage avgPressureVapor = new AccumulatorAverageCollapsing();
+        AccumulatorAverageCollapsing avgPressureVapor = new AccumulatorAverageCollapsing();
         avgPressureVapor.setPushInterval(10);
         fork.addDataSink(avgPressureVapor);
         AccumulatorHistory historyPressureVapor = new AccumulatorHistory(new HistoryCollapsingAverage(100));

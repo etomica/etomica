@@ -200,7 +200,7 @@ public class LjmdGraphic extends SimulationGraphic {
         peMeter.setBox(sim.box);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
-        final AccumulatorAverage peAccumulator = new AccumulatorAverageCollapsing();
+        final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
         peAccumulator.setPushInterval(10);
         DataFork peFork = new DataFork(new DataSink[]{peHistory, peAccumulator});
         DataPump pePump = new DataPump(peMeter, peFork);
@@ -233,7 +233,7 @@ public class LjmdGraphic extends SimulationGraphic {
 		
         MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator();
         pMeter.setIntegrator(sim.integrator);
-        final AccumulatorAverage pAccumulator = new AccumulatorAverageCollapsing();
+        final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
         final DataPump pPump = new DataPump(pMeter, tracer);
         tracer.setDataSink(pAccumulator);

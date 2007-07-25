@@ -6,7 +6,6 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.box.BoxAgentManager;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
 import etomica.graphics.DeviceSlider;
@@ -89,7 +88,7 @@ public class Heisenberg extends Simulation {
     public MCMoveSpinFlip mcmove;
     public MeterSpin meter;
     public DataPump pump;
-    public AccumulatorAverage dAcc;
+    public AccumulatorAverageCollapsing dAcc;
     
     public static void main(String[] args) {
         Heisenberg sim = new Heisenberg(Space2D.getInstance(), 60);
