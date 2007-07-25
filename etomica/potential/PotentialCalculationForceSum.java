@@ -45,7 +45,7 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
 			IVector[] f = potentialSoft.gradient(atoms);
 			switch(nBody) {
 				case 1:
-					((IntegratorBox.Forcible)integratorAgentManager.getAgent((IAtom)atoms)).force().ME(f[0]);
+					((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
 					break;
 				case 2:
                     ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(0))).force().ME(f[0]);
