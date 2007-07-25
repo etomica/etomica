@@ -246,9 +246,8 @@ public class PistonCylinderGraphic extends SimulationPanel {
         tempSlider.setMaximum(1000);
         tempSlider.setAdiabatic();
         tempSlider.setSliderMajorValues(4);
-        tempSlider.setTemperature(300);
-        tempSlider.setController(pc.getController());
         tempSlider.setIntegrator(pc.integrator);
+        tempSlider.setTemperature(300);
 
 		//pressure device
         pressureSlider = new DeviceSlider(null);
