@@ -56,7 +56,7 @@ import etomica.util.Constants.CompassDirection;
 public class Osmosis extends SimulationGraphic {
 
 	private final static String APP_NAME = "Osmosis";
-	private final static int REPAINT_INTERVAL = 40;
+	private final static int REPAINT_INTERVAL = 1;
 
     public DataSourceCountTime cycles;
     public DisplayTextBox displayCycles;
@@ -121,6 +121,7 @@ public class Osmosis extends SimulationGraphic {
         dataStreamPumps.add(osmosisPump);
         sim.integrator.addIntervalAction(osmosisPump);
         sim.integrator.setActionInterval(osmosisPump, 40);
+        sim.integrator.setTimeStep(0.01);
         final DisplayTextBoxesCAE osmoticBox = new DisplayTextBoxesCAE();
         osmoticBox.setAccumulator(osmosisPMeterAvg);
         osmoticBox.setPrecision(6);
