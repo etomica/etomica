@@ -115,6 +115,7 @@ public class LatticeEditor {
         nSlider.setPrecision(0);
         nSlider.setMinimum(1);
         nSlider.setMaximum(10);
+        nSlider.setNMajor(9);
         nSlider.getSlider().setValue(DEFAULT_SIZE);
         nSlider.setBorderAlignment(TitledBorder.CENTER);
         nSlider.setLabel("Unit Cells Per Side");

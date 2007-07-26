@@ -1,6 +1,5 @@
 package etomica.modules.crystalviewer;
 
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import etomica.graphics.DisplayBox;
@@ -34,7 +33,6 @@ public class CrystalViewer extends SimulationPanel {
     
 	final static String APP_NAME = "Crystal Viewer";
     protected final ISimulation sim;
-    private JPanel mainPanel;
 
     protected SpeciesSpheresMono species;
     protected Box box;
