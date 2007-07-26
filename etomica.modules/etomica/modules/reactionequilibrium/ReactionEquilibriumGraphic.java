@@ -209,13 +209,13 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 //		tBox.setLabel("Measured Temperature");
 //		tBox.setLabelPosition(CompassDirection.NORTH);
 
-        AccumulatorAverageFixed tempAccum = new AccumulatorAverageFixed();
-        DataPump tPump = new DataPump (sim.thermometer, tempAccum);
+        final AccumulatorAverageFixed tempAccum = new AccumulatorAverageFixed();
+        final DataPump tPump = new DataPump (sim.thermometer, tempAccum);
         sim.integratorHard1.addIntervalAction(tPump);
         sim.integratorHard1.setActionInterval(tPump, 10);
         tempAccum.setPushInterval(10);
         tPump.setDataSink(tempAccum);
-        DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
+        final DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
         tempAccum.addDataSink(tBox,
                         new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.MOST_RECENT,
                         AccumulatorAverage.StatType.AVERAGE,
@@ -375,10 +375,21 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		add(tBox);
 		add(densityDisplay);
 
+        Action reinitDisplayAction = new Action() {
+        	public void actionPerformed() {
+        		tPump.actionPerformed();
+        		tBox.putData(tempAccum.getData());
+        		tBox.repaint();
 
+        		dimerPump.actionPerformed();
+        		densityDisplay.putData(densityAccum.getData());
+        		densityDisplay.repaint();
 
-        getController().getReinitButton().setPostAction(getPaintAction(sim.box));
+        		getDisplayBox(sim.box).graphic().repaint();
+        	}
+        };
 
+        getController().getReinitButton().setPostAction(reinitDisplayAction);
 
 		//set the number of significant figures displayed on the table.
 		javax.swing.table.DefaultTableCellRenderer numberRenderer = new javax.swing.table.DefaultTableCellRenderer() {
