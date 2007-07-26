@@ -173,6 +173,7 @@ public class ClipPlaneEditor {
         // NEED TO SET MIN/MAX PLANE WHICH ARE DYNAMIC ...
         positionSlider.setMinimum(minimumPosition);
         positionSlider.setMaximum(maximumPosition);
+        positionSlider.setNMajor(4);
         positionSlider.getSlider().setValue(0);
         positionSlider.setLabel("Plane Selection");
         positionSlider.setShowBorder(true);
