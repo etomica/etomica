@@ -137,7 +137,9 @@ public class Osmosis extends SimulationGraphic {
 	    temperatureSelect = new DeviceThermoSlider(sim.getController());
 	    temperatureSelect.setUnit(tUnit);
 	    temperatureSelect.setIntegrator(sim.integrator);
-	    temperatureSelect.setTemperature(100);
+	    temperatureSelect.setMaximum(1000);
+	    temperatureSelect.setTemperature(300);
+	    temperatureSelect.setIsothermal();
 		MeterTemperature thermometer = new MeterTemperature();
 		thermometer.setBox(sim.box);
 		DisplayTextBox tBox = new DisplayTextBox();
