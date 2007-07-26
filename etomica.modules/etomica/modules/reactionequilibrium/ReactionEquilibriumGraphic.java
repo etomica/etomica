@@ -35,10 +35,10 @@ import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTable;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
@@ -201,13 +201,30 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		//so that display is updated when slider changes atom sizes
 		sizeModifier.setDisplay(getDisplayBox(sim.box));
         
-		DisplayTextBox tBox = new DisplayTextBox(sim.thermometer.getDataInfo());
-		DataPump tPump = new DataPump (sim.thermometer, tBox);
+//		DisplayTextBox tBox = new DisplayTextBox(sim.thermometer.getDataInfo());
+//		DataPump tPump = new DataPump (sim.thermometer, tBox);
+//        sim.integratorHard1.addIntervalAction(tPump);
+//        sim.integratorHard1.setActionInterval(tPump, 100);
+//        tBox.setUnit(Kelvin.UNIT);
+//		tBox.setLabel("Measured Temperature");
+//		tBox.setLabelPosition(CompassDirection.NORTH);
+
+        AccumulatorAverageFixed tempAccum = new AccumulatorAverageFixed();
+        DataPump tPump = new DataPump (sim.thermometer, tempAccum);
         sim.integratorHard1.addIntervalAction(tPump);
-        sim.integratorHard1.setActionInterval(tPump, 100);
+        sim.integratorHard1.setActionInterval(tPump, 10);
+        tempAccum.setPushInterval(10);
+        tPump.setDataSink(tempAccum);
+        DisplayTextBoxesCAE tBox = new DisplayTextBoxesCAE();
+        tempAccum.addDataSink(tBox,
+                        new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.MOST_RECENT,
+                        AccumulatorAverage.StatType.AVERAGE,
+                        AccumulatorAverage.StatType.ERROR});
+        tBox.setLabel("Measured Temperature (K)");
         tBox.setUnit(Kelvin.UNIT);
-		tBox.setLabel("Measured Temperature");
-		tBox.setLabelPosition(CompassDirection.NORTH);
+        tBox.setLabelPosition(CompassDirection.NORTH);
+        tBox.setLabelType(LabelType.BORDER);
+        getController().getDataStreamPumps().add(tPump);
 
 // NOTE : THE FOLLOWING IMPLEMENTATION IS CAUSING THE GRAPHIC
 // TO BE UPDATED.  NEED TO REMOVE THE UPDATE OF THE GRAPHIC
@@ -271,9 +288,10 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
                 new AccumulatorAverage.StatType[]{AccumulatorAverage.StatType.MOST_RECENT,
                 AccumulatorAverage.StatType.AVERAGE,
                 AccumulatorAverage.StatType.ERROR});
-        densityDisplay.setLabel("Molecular density, " + Angstrom.UNIT.symbol()+"^-3");
+        densityDisplay.setLabel("Molecular density (" + Angstrom.UNIT.symbol()+"^-3)");
         dimerPump.actionPerformed();
         densityDisplay.putData(densityAccum.getData());
+        densityDisplay.setLabelType(LabelType.BORDER);
 
 //        filter3.setDataSink(new DataSinkConsole());
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.controller1, sim.activityIntegrate);
