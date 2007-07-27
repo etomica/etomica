@@ -99,10 +99,14 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 		DeviceSlider mu1Slider = new DeviceSlider(sim.getController(), mu1Mod);
 		mu1Slider.setMinimum(-2500);
 		mu1Slider.setMaximum(2500);
+		mu1Slider.setShowValues(true);
+		mu1Slider.setNMajor(2);
 		DeviceSlider mu2Slider = new DeviceSlider(sim.getController(),mu2Mod);
 		mu2Slider.setMinimum(-2500);
 		mu2Slider.setMaximum(2500);
-	
+		mu2Slider.setShowValues(true);
+		mu2Slider.setNMajor(2);
+
 	    //	TubePanel Slider stuff
 		//Modifier tubePanelMod = sim.integratorDCV.new tubePanelModifier(); 
 		//DeviceSlider tubePanelSlider = new DeviceSlider(sim.getController(), tubePanelMod);
@@ -159,7 +163,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 
 	    //panel for Mu's
 		JPanel muPanel = new JPanel(new java.awt.GridBagLayout());
-	    muPanel.setBorder(new TitledBorder("Mu1 and Mu2"));
+	    muPanel.setBorder(new TitledBorder(null, "Mu1 and Mu2", TitledBorder.CENTER, TitledBorder.TOP));
 		muPanel.add(mu1Slider.graphic(null),vertGBC);
 		muPanel.add(mu2Slider.graphic(null),vertGBC);
 	
