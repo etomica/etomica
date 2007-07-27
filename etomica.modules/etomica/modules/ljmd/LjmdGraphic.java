@@ -252,7 +252,7 @@ public class LjmdGraphic extends SimulationGraphic {
         nSlider.setBox(sim.box);
         nSlider.setMinimum(0);
         nSlider.setMaximum(225);
-        nSlider.setLabel("Number of atoms");
+        nSlider.setLabel("Number of Atoms");
         nSlider.setShowBorder(true);
         nSlider.setShowValues(true);
         // add a listener to adjust the thermostat interval for different
