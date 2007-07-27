@@ -72,8 +72,8 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    boxB.setPrecision(3);
 	    boxA.setIntegerDisplay(true);
 	    boxB.setIntegerDisplay(true);
-	    boxA.setLabel("  Blue  ");
-	    boxB.setLabel(" White  ");
+	    boxA.setLabel("   Blue ");
+	    boxB.setLabel("  Green ");
 	    final DataPump meterAPump = new DataPump(meterA,boxA);
 	    final DataPump meterBPump = new DataPump(meterB,boxB);
         sim.integratorDCV.addIntervalAction(meterAPump);
@@ -81,7 +81,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    JPanel nMoleculePanel = new JPanel();
 	    nMoleculePanel.add(boxA.graphic());
 	    nMoleculePanel.add(boxB.graphic());
-	    nMoleculePanel.setBorder(new TitledBorder("Number of atoms"));
+	    nMoleculePanel.setBorder(new TitledBorder("Number of Atoms"));
 	    meterAPump.actionPerformed();
 	    meterBPump.actionPerformed();
 
