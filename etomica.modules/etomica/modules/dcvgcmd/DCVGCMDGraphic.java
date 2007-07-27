@@ -165,7 +165,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	
 		add(getController());
 		add(cutawayButton);
-	    getPanel().controlPanel.add(nMoleculePanel, vertGBC);
+	    getPanel().plotPanel.add(nMoleculePanel, vertGBC);
 		add(temperatureSlider);
 	    getPanel().controlPanel.add(muPanel,vertGBC);
 	    //panel for the temperature control/display
