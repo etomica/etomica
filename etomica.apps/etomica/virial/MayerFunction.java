@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.atom.AtomSet;
+import etomica.potential.IPotential;
 
 /**
  * @author kofke
@@ -15,5 +16,10 @@ public interface MayerFunction {
      * 1/beta
      */
 	public abstract double f(AtomSet pair, double beta);
+
+	/**
+	 * @return
+	 */
+	public abstract IPotential getPotential();
 	
 }

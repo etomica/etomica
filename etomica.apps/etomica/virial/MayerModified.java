@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.potential.IPotential;
 import etomica.potential.Potential2Spherical;
 import etomica.simulation.ISimulation;
 import etomica.space.Space;
@@ -56,5 +57,12 @@ public class MayerModified extends MayerFunctionSpherical {
 	private final Potential2Spherical potential;
 	private static final double UF1 = -Math.log(2.0); //value of beta*u for which f = +1
 	private double sigma, sigma2;
+	/* (non-Javadoc)
+	 * @see etomica.virial.MayerFunction#getPotential()
+	 */
+	public IPotential getPotential() {
+		// TODO Auto-generated method stub
+		return potential;
+	}
 
 }

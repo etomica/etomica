@@ -2,6 +2,7 @@ package etomica.virial;
 
 import etomica.atom.AtomSet;
 import etomica.potential.IPotential;
+import etomica.potential.Potential;
 
 /**
  * @author kofke
@@ -23,4 +24,12 @@ public class MayerGeneral implements MayerFunction, java.io.Serializable {
 	}
 
 	private final IPotential potential;
+
+	/* (non-Javadoc)
+	 * @see etomica.virial.MayerFunction#getPotential()
+	 */
+	public IPotential getPotential() {
+		// TODO Auto-generated method stub
+		return potential;
+	}
 }

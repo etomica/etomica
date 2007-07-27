@@ -40,6 +40,7 @@ public class MeterVirial implements DataSource, java.io.Serializable {
         double x[] = data.getData();
         for (int i=0; i<clusters.length; i++) {
             x[i] = clusters[i].value(cPairSet,aPairSet)/pi;
+            if (Double.isNaN(x[i])) throw new RuntimeException();
         }
         return data;
     }

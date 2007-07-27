@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.potential.IPotential;
 import etomica.simulation.ISimulation;
 import etomica.space.Space;
 
@@ -12,6 +13,7 @@ public class MayerHardSphere extends MayerFunctionSpherical {
 
     private static final long serialVersionUID = 1L;
 	private double sigma, sigma2;
+	private IPotential potential;
 	/**
 	 * Constructor for MayerHardSphere.
 	 */
@@ -46,5 +48,14 @@ public class MayerHardSphere extends MayerFunctionSpherical {
 		this.sigma = sigma;
 		sigma2 = sigma*sigma;
 	}
+	/* (non-Javadoc)
+	 * @see etomica.virial.MayerFunction#getPotential()
+	 */
+	public IPotential getPotential() {
+		// TODO Auto-generated method stub
+		return potential;
+	}
+	
+	
 
 }

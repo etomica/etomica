@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.potential.IPotential;
 import etomica.space.Space;
 
 /**
@@ -21,5 +22,13 @@ public class MayerFunctionSphericalTemperature extends MayerFunctionSpherical {
 
     private final MayerFunctionSpherical mayerFunction;
     private final double beta;
+	private IPotential potential;
+	/* (non-Javadoc)
+	 * @see etomica.virial.MayerFunction#getPotential()
+	 */
+	public IPotential getPotential() {
+		// TODO Auto-generated method stub
+		return potential;
+	}
 
 }

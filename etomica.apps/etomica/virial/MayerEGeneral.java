@@ -23,4 +23,12 @@ public class MayerEGeneral implements MayerFunction, java.io.Serializable {
 	}
 
 	private final IPotential potential;
+
+	/* (non-Javadoc)
+	 * @see etomica.virial.MayerFunction#getPotential()
+	 */
+	public IPotential getPotential() {
+		// TODO Auto-generated method stub
+		return potential;
+	}
 }
