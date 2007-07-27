@@ -97,10 +97,10 @@ public class SimHarmonicHexane extends Simulation {
         WaveVectorFactory waveFactory = normalModes.getWaveVectorFactory();
         waveFactory.makeWaveVectors(box);
         
-        //nan harm.setOmegaSquared(normalModes.getEigenvectors(box), 
-              //  waveFactory.getCoefficients());
+        harm.setOmegaSquared(normalModes.getOmegaSquared(box), 
+                waveFactory.getCoefficients());
         harm.setEigenVectors(normalModes.getEigenvectors(box));
-//nan        harm.setWaveVectors(waveFactory.getCoefficients());
+        harm.setWaveVectors(waveFactory.getWaveVectors());
         harm.setWaveVectorCoefficients(waveFactory.getCoefficients());
         harm.setCoordinateDefinition(coordinateDefinition);
         harm.setBox(box);
@@ -146,10 +146,10 @@ public class SimHarmonicHexane extends Simulation {
         }
 
         
-        filename = "normal_modes18_37hexane500000";
-        nSteps = 500000;
-        xLng = 2;
-        yLng = 3;
+        filename = "nm_hexane";
+        nSteps = 100000;
+        xLng = 4;
+        yLng = 4;
         zLng = 3;
         
         

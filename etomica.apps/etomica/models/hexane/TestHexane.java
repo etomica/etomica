@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.BoxInflateDeformable;
+import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
@@ -31,6 +32,7 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.WaveVectorFactorySimple;
+import etomica.normalmode.WriteS;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -180,112 +182,12 @@ public class TestHexane extends Simulation {
         coupledMove.setPotential(potentialMaster.getPotential(new AtomType[] {
                 species.getMoleculeType(), species.getMoleculeType() }  ));
 
-        
-        
-//         //INTRAMOLECULAR POTENTIAL STUFF
-//
-//        //This PotentialGroup will hold all the intramolecular potentials.
-//        //We give 1 as the argument because we are using 1 molecule to iterate
-//        // on. The actual interactions between the atoms on the molecules will
-//        // be calculated by a Potential2, but their summation is the molecule's
-//        //effect on itself, which is a Potential1, or a Potential with nBody =
-//        // 1.
-//        PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
-//
-//            //BONDED INTERACTIONS
-//
-//        // This potential simulates the bonds between atoms in a molecule.
-//        // XXX It will be superceded by a set of MC moves at some point in the
-//        // future.
-//        //This potential uses hard sphere interactions to model the bonded
-//        // interactions of the atoms of the molecule.
-//        //We make the bonding length 0.4 * sigma per Malanoski 1999.
-//        potential = new P2HardSphere(space, defaults.atomSize * bondFactor, 
-//                defaults.ignoreOverlap);
-//        
-//        //We will need an atom pair iterator (Api) that runs through the atoms
-//        // on a single molecule.
-//        //The atom pair iterator (Api) runs through the atoms on a single
-//        // molecule.
-//        //  It has an inner loop and an outer loop.
-//        ApiIntragroup bonded = ApiBuilder.makeAdjacentPairIterator();
-//        //We add the Potential and its Iterator to the PotentialGroup, in one
-//        // fell swoop. Yay us!
-//        potentialChainIntra.addPotential(potential, bonded);
-//        
-//            //NONBONDED INTERACTIONS
-//        //This potential describes the basic hard sphere interactions between
-//        // 2 atoms of a molecule.
-//        
-//        //Only the atoms next to each other interact, so we have two criteria:
-//        //		The atoms must be on the same molecule- CriterionMolecular
-//        //		The atoms must be separated by 3 bonds, or 2 other atoms.
-//        ApiIntragroup nonbonded = ApiBuilder.makeNonAdjacentPairIterator(2);
-//        potentialChainIntra.addPotential(potential, nonbonded);
-//        
-//        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
-
-        // //INTRAMOLECULAR POTENTIAL STUFF
-        //
-        // //This PotentialGroup will hold all the intramolecular potentials.
-        // //We give 1 as the argument because we are using 1 molecule to
-        // iterate
-        // // on. The actual interactions between the atoms on the molecules
-        // will
-        // // be calculated by a Potential2, but their summation is the
-        // molecule's
-        // //effect on itself, which is a Potential1, or a Potential with nBody
-        // =
-        // // 1.
-        // PotentialGroup potentialChainIntra =
-        // potentialMaster.makePotentialGroup(1);
-        //
-        // //BONDED INTERACTIONS
-        //
-        // // This potential simulates the bonds between atoms in a molecule.
-        // // XXX It will be superceded by a set of MC moves at some point in
-        // the
-        // // future.
-        // //This potential uses hard sphere interactions to model the bonded
-        // // interactions of the atoms of the molecule.
-        // //We make the bonding length 0.4 * sigma per Malanoski 1999.
-        // potential = new P2HardSphere(space, defaults.atomSize * bondFactor,
-        // defaults.ignoreOverlap);
-        //        
-        // //We will need an atom pair iterator (Api) that runs through the
-        // atoms
-        // // on a single molecule.
-        // //The atom pair iterator (Api) runs through the atoms on a single
-        // // molecule.
-        // // It has an inner loop and an outer loop.
-        // ApiIntragroup bonded = ApiBuilder.makeAdjacentPairIterator();
-        // //We add the Potential and its Iterator to the PotentialGroup, in one
-        // // fell swoop. Yay us!
-        // potentialChainIntra.addPotential(potential, bonded);
-        //        
-        // //NONBONDED INTERACTIONS
-        // //This potential describes the basic hard sphere interactions between
-        // // 2 atoms of a molecule.
-        //        
-        // //Only the atoms next to each other interact, so we have two
-        // criteria:
-        // // The atoms must be on the same molecule- CriterionMolecular
-        // // The atoms must be separated by 3 bonds, or 2 other atoms.
-        // ApiIntragroup nonbonded = ApiBuilder.makeNonAdjacentPairIterator(2);
-        // potentialChainIntra.addPotential(potential, nonbonded);
-        //        
-        // potentialMaster.addPotential(potentialChainIntra, new AtomType[] {
-        // species.getMoleculeType() } );
-
-
         //Initialize the positions of the atoms.
         coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species);
         coordinateDefinition.initializeCoordinates(nCells);
 
         integrator.setBox(box);
-        
-        //nan this will need to be changed
-//        pri = new PairIndexerMolecule(box, new PrimitiveHexane(space));
+
     }
 
     public static void main(String[] args) {
@@ -295,7 +197,7 @@ public class TestHexane extends Simulation {
         int yLng = 4;
         int zLng = 3;
         
-        long nSteps = 100000;
+        long nSteps = 5;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
 
@@ -317,18 +219,20 @@ public class TestHexane extends Simulation {
             zLng = Integer.parseInt(args[5]);
         }
         
+
+        String filename = "nm_hexane";
+
+        
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
         TestHexane sim = new TestHexane(Space3D.getInstance(), density, xLng, yLng, zLng);
 
         System.out.println("Happy Goodness!!");
 
-        if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim);
-            simGraphic.makeAndDisplayFrame();
-        } else {
-
-            String filename = "nm_hexane";
+//        if (graphic) {
+//            SimulationGraphic simGraphic = new SimulationGraphic(sim);
+//            simGraphic.makeAndDisplayFrame();
+//        } else {
 
             PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
             // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
@@ -376,36 +280,38 @@ public class TestHexane extends Simulation {
             IVector[] waveVectors = waveVectorFactory.getWaveVectors();
             double[] coefficients = waveVectorFactory.getCoefficients();
             
-            try {
-                FileWriter fileWriterQ = new FileWriter(filename+".Q");
-                FileWriter fileWriterS = new FileWriter(filename+".S");
-                for (int i=0; i<waveVectors.length; i++) {
-                    fileWriterQ.write(Double.toString(coefficients[i]));
-                    for (int j=0; j<waveVectors[i].getD(); j++) {
-                        fileWriterQ.write(" "+waveVectors[i].x(j));
-                    }
-                    fileWriterQ.write("\n");
-                    DataDoubleArray dataS = (DataDoubleArray)normalModeData.getData(i);
-                    for (int k=0; k<normalDim; k++) {
-                        fileWriterS.write(Double.toString(dataS.getValue(k*normalDim)));
-                        for (int l=1; l<normalDim; l++) {
-                            fileWriterS.write(" "+dataS.getValue(k*normalDim+l));
-                        }
-                        fileWriterS.write("\n");
-                    }
-                }
-                fileWriterQ.close();
-                fileWriterS.close();
-            }
-            catch (IOException e) {
-                throw new RuntimeException("Oops, failed to write data "+e);
-            }
-            
-            double avgPressure = ((DataDouble)(((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index))).x;
-            avgPressure = ((DataDouble)((DataGroup)pressureAccumulator.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
-            System.out.println("Avg Pres = "+ avgPressure);
-        }
+         
+//            double avgPressure = ((DataDouble)(((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index))).x;
+//            avgPressure = ((DataDouble)((DataGroup)pressureAccumulator.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
+//            System.out.println("Avg Pres = "+ avgPressure);
 
+            
+//        }
+
+        
+        
+        
+        
+        
+        WriteS sWriter = new WriteS();
+        sWriter.setFilename(filename);
+        sWriter.setOverwrite(true);
+        sWriter.setMeter(meterNormalMode);
+        sWriter.setWaveVectorFactory(waveVectorFactory);
+        sWriter.setTemperature(sim.integrator.getTemperature());
+        
+        sim.integrator.addIntervalAction(sWriter);
+        sim.integrator.setActionInterval(sWriter, /*(int)nSteps/10*/ 1);
+        
+        sim.activityIntegrate.setMaxSteps(nSteps);
+        sim.getController().actionPerformed();
+        
+//        PDBWriter pdbWriter = new PDBWriter(sim.box);
+//        pdbWriter.setFileName("calcS.pdb");
+//        pdbWriter.actionPerformed();
+        
+               
+        
         System.out.println("Go look at the data!");
     }
 

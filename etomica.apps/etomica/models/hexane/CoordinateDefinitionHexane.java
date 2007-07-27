@@ -287,7 +287,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // atoms is a single molecule; we can grab its childlist for our
         //      AtomArrayList; we're looking at an AtomGroup
         // Put the molecule into its initial conformation
-        confHex.initializePositions(((AtomGroup)atoms).getChildList());
+//        confHex.initializePositions(((AtomGroup)atoms).getChildList());
+        confHex.initializePositions(atoms);
         childlist = ((AtomGroup)atoms).getChildList();
   
         /*
