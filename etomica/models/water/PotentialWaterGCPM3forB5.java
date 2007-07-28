@@ -70,7 +70,20 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         comW2 = space.makeVector();
         comW3 = space.makeVector();
 
+        r12Vector = space.makeVector();
+        T12row1 = space.makeVector();
+        T12row2 = space.makeVector();
+        T12row3 = space.makeVector();
+        T12P1 = space.makeVector();
+        T12P2 = space.makeVector();
+        B1 = space.makeVector();
+        T12Eq2 = space.makeVector();
         
+        Tunit = space.makeTensor();
+        T12 = space.makeTensor();
+        A1 = space.makeTensor();
+        T12T12 = space.makeTensor();
+        inverseA1 = space.makeTensor();
     }   
 
     /* This energy method returns the pair energies with SCF solution for
@@ -84,8 +97,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         //if (atoms.getAtomCount() == 5) return energySCF5(atoms);
     		double sum = 0.0;
         double r2 = 0.0;
-        double rOO = 0.0;
-        int oxygenNumber;
         
         
         AtomWater4P node1 = (AtomWater4P)atoms.getAtom(0);
@@ -149,13 +160,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 */
 
 
-        int counterSCFloop = 0; //1;
-                
-        // These booleans monitor whether the SCF algorithm has iteratively found
-        // a solution given the criterion of Svishchev and Kusalik, J.Chem.Phys. 1996
-        boolean noSCFforP1 = true;
-        boolean noSCFforP2 = true;
-		
         // Need loop to check for configuration overlap between charged particles
         
 //      compute O-O distance to consider bypassing the SCF loop   
@@ -183,7 +187,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         // KMB 8/3/06
         
         r2 = H11r.Mv1Squared(H21r);
-        	sum += chargeH11*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sum += chargeH11*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H11r.Mv1Squared(H22r);
         sum += chargeH11*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
@@ -317,28 +321,15 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
          */
         
         double r12 = Math.sqrt(comW1.Mv1Squared(comW2));
-                
-        Vector3D r12Vector = new Vector3D();
-        
+
         r12Vector.Ev1Mv2(comW2,comW1);  // is this the correct direction? kmb, 8/7/06
         
 
-        // just added these to test whether T12 = T21; IT DOES!
-/*        Vector3D r21Vector = new Vector3D();
-        
-        r21Vector.Ev1Mv2(comW1,comW2);
-*/                
         double f = (1-SpecialFunctions.erfc(r12/(2*sigmaM)))-(r12/(sigmaM*Math.sqrt(Math.PI)) + (r12*r12*r12)/(6*Math.sqrt(Math.PI)*sigmaM*sigmaM*sigmaM))*Math.exp(-r12*r12/(4*sigmaM*sigmaM));
         
         double g = (1-SpecialFunctions.erfc(r12/(2*sigmaM)))-(r12/(sigmaM*Math.sqrt(Math.PI)))*Math.exp(-r12*r12/(4*sigmaM*sigmaM));
         
         // Filling the unit matrix I
-        
-        Tensor3D I = new Tensor3D();
-        
-        I.E(1);
-
-        Tensor3D T12 = new Tensor3D();
         
         T12.PEv1v2(r12Vector,r12Vector);
         
@@ -349,9 +340,9 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 */        
         T12.TE(3*f/(r12*r12));
         
-        I.TE(g);
+        Tunit.E(g);
         
-        T12.ME(I);
+        T12.ME(Tunit);
         T12.TE(1/(r12*r12*r12));
         
         // T12 = T21, so I can get by for now in the case of B2!
@@ -359,10 +350,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         // Now distribute the elements of the tensor into 3 separate "row" vectors
         // so I can do dot products with etomica math methods
         // kmb, 8/7/06
-        
-        Vector3D T12row1 = new Vector3D();
-        Vector3D T12row2 = new Vector3D();
-        Vector3D T12row3 = new Vector3D();
         
         T12row1.setX(0,T12.component(0,0));
         T12row1.setX(1,T12.component(0,1));
@@ -380,21 +367,14 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double alphaPol = 1.444;
         double alphaPol2 = alphaPol*alphaPol;
         
-        I.E(0);
-        I.setComponent(0,0,1);
-        I.setComponent(1,1,1);
-        I.setComponent(2,2,1);
-        Tensor3D A1 = new Tensor3D();
-        Tensor3D T12T12 = new Tensor3D();
-        
-        A1.E(I);
+        A1.E(0);
+        A1.setComponent(0,0,1);
+        A1.setComponent(1,1,1);
+        A1.setComponent(2,2,1);
         T12T12.E(T12);
         T12T12.TE(T12);
         T12T12.TE(alphaPol2);
         A1.ME(T12T12);
-        
-        Vector3D B1 = new Vector3D();
-        Vector3D T12Eq2 = new Vector3D();
         
         T12Eq2.setX(0,T12row1.dot(Eq2));
         T12Eq2.setX(1,T12row2.dot(Eq2));
@@ -404,8 +384,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         B1.E(Eq1);
         B1.TE(alphaPol);
         B1.PE(T12Eq2);
-                        
-        Tensor3D inverseA1 = new Tensor3D();
+
         inverseA1.E(A1);
         inverseA1.inverse();
         
@@ -414,12 +393,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         P1.E(B1);
         inverseA1.transform(P1);
-        
+
         // Now find P2
-        
-        Vector3D T12P1 = new Vector3D();
-        Vector3D T12P2 = new Vector3D();
-        
         T12P1.E(P1);
         T12P1.TE(alphaPol);
         T12.transform(T12P1);
@@ -536,8 +511,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
   //      double alpha = 1.444;
         
-        double uW1, uW2; //, UpolAtkins;
-                
         UpolAtkins = -0.5*(P1.dot(Eq1)+P2.dot(Eq2));
     
 //        double UpolEquation8 = -(P1.dot(Eq1)+P2.dot(Eq2))-0.5*(P1.dot(Ep1)+P2.dot(Ep2))+(1/2/alpha)*(P1.squared()+P2.squared());
@@ -548,10 +521,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         sum += UpolAtkins;
         
-        // Total dipole moments
-        uW1 = 1.855 + Debye.UNIT.fromSim(Math.sqrt(P1.squared()));
-        uW2 = 1.855 + Debye.UNIT.fromSim(Math.sqrt(P2.squared()));
-
         //System.out.println("From iteration: P1 = " + P1 + ", P2 = " + P2);
         //double PolEnergyDiff = UpolAtkinsAnalytical - UpolAtkins;
         //System.out.println("Difference in Analytical and Iterative Energies = " + PolEnergyDiff);
@@ -5024,6 +4993,11 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
     private IVector P1, P2, P3, P4, P5;
     private IVector P1old, P2old, P3old, P4old, P5old;
     private IVector comW1, comW2, comW3, comW4, comW5;
+    private final IVector r12Vector;
+    private final IVector T12P1, T12P2;
+    private final IVector T12row1, T12row2, T12row3;
+    private final IVector B1, T12Eq2;
+    private final Tensor Tunit, T12, A1, T12T12, inverseA1;
     private final double core; // = 4.41; //4.41 = 2.1^2; value according to Cummings
     private final double sigmaM;
     private final double sigmaH;
