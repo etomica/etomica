@@ -71,13 +71,12 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         comW3 = space.makeVector();
 
         r12Vector = space.makeVector();
-        T12row1 = space.makeVector();
-        T12row2 = space.makeVector();
-        T12row3 = space.makeVector();
         T12P1 = space.makeVector();
         T12P2 = space.makeVector();
         B1 = space.makeVector();
         T12Eq2 = space.makeVector();
+        
+        work = space.makeVector();
         
         Tunit = space.makeTensor();
         T12 = space.makeTensor();
@@ -233,88 +232,51 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double massO = 16.0;
         double totalMass = 18.02;
 */ 
-        double comW1Xcomp = 0.0;
-        double comW1Ycomp = 0.0;
-        double comW1Zcomp = 0.0;
-        
-        comW1Xcomp = massH*H11r.x(0) + massO*O1r.x(0) + massH*H12r.x(0);
-        comW1Ycomp = massH*H11r.x(1) + massO*O1r.x(1) + massH*H12r.x(1);
-        comW1Zcomp = massH*H11r.x(2) + massO*O1r.x(2) + massH*H12r.x(2);
-        
-        comW1.setX(0,comW1Xcomp);
-        comW1.setX(1,comW1Ycomp);
-        comW1.setX(2,comW1Zcomp);
-        
-        comW1.Ea1Tv1(1/totalMass,comW1);
-
-        double comW2Xcomp = 0.0;
-        double comW2Ycomp = 0.0;
-        double comW2Zcomp = 0.0;
-        
-        comW2Xcomp = massH*H21r.x(0) + massO*O2r.x(0) + massH*H22r.x(0);
-        comW2Ycomp = massH*H21r.x(1) + massO*O2r.x(1) + massH*H22r.x(1);
-        comW2Zcomp = massH*H21r.x(2) + massO*O2r.x(2) + massH*H22r.x(2);
-        
-        comW2.setX(0,comW2Xcomp);
-        comW2.setX(1,comW2Ycomp);
-        comW2.setX(2,comW2Zcomp);
-        
-        comW2.Ea1Tv1(1/totalMass,comW2);
-
-//      Moved to constructor; KMB, 7/20/07
-/*        double sqrtPiHMsigmas = Math.sqrt(Math.PI*(sigmaH*sigmaH+sigmaM*sigmaM));
-        double sqrtPiMMsigmas = Math.sqrt(Math.PI*(2*sigmaM*sigmaM));
-*/        
-        double Eq1Xcomp = 0.0;
-        double Eq1Ycomp = 0.0;
-        double Eq1Zcomp = 0.0;
+        comW1.Ea1Tv1(massH, H11r);
+        comW1.PEa1Tv1(massO, O1r);
+        comW1.PEa1Tv1(massH, H12r);
+        comW1.TE(1.0/totalMass);
         
         double comW1toH21 = Math.sqrt(comW1.Mv1Squared(H21r));
         double comW1toH22 = Math.sqrt(comW1.Mv1Squared(H22r));
         double comW1toM2 = Math.sqrt(comW1.Mv1Squared(M2r));
 
-        Eq1Xcomp += chargeH21*(comW1.x(0)-H21r.x(0))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1Xcomp += chargeH22*(comW1.x(0)-H22r.x(0))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1Xcomp += chargeM2*(comW1.x(0)-M2r.x(0))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        double fac = chargeH21/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))
+                -Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW1, H21r);
+        Eq1.Ea1Tv1(fac, work);
 
-        Eq1Ycomp += chargeH21*(comW1.x(1)-H21r.x(1))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1Ycomp += chargeH22*(comW1.x(1)-H22r.x(1))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1Ycomp += chargeM2*(comW1.x(1)-M2r.x(1))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        fac = chargeH22/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))
+                -Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW1, H22r);
+        Eq1.PEa1Tv1(fac, work);
 
-        Eq1Zcomp += chargeH21*(comW1.x(2)-H21r.x(2))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1Zcomp += chargeH22*(comW1.x(2)-H22r.x(2))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1Zcomp += chargeM2*(comW1.x(2)-M2r.x(2))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
-
-        Eq1.setX(0,Eq1Xcomp);
-        Eq1.setX(1,Eq1Ycomp);
-        Eq1.setX(2,Eq1Zcomp);
-
-                
-        double Eq2Xcomp = 0.0;
-        double Eq2Ycomp = 0.0;
-        double Eq2Zcomp = 0.0;
+        fac = chargeM2/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))
+                -Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        work.Ev1Mv2(comW1, M2r);
+        Eq1.PEa1Tv1(fac, work);
         
+        comW2.Ea1Tv1(massH, H21r);
+        comW2.PEa1Tv1(massO, O2r);
+        comW2.PEa1Tv1(massH, H22r);
+        comW2.TE(1.0/totalMass);
+
         double comW2toH11 = Math.sqrt(comW2.Mv1Squared(H11r));
         double comW2toH12 = Math.sqrt(comW2.Mv1Squared(H12r));
         double comW2toM1 = Math.sqrt(comW2.Mv1Squared(M1r));
-
-        Eq2Xcomp += chargeH11*(comW2.x(0)-H11r.x(0))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2Xcomp += chargeH12*(comW2.x(0)-H12r.x(0))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2Xcomp += chargeM1*(comW2.x(0)-M1r.x(0))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
-
-        Eq2Ycomp += chargeH11*(comW2.x(1)-H11r.x(1))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2Ycomp += chargeH12*(comW2.x(1)-H12r.x(1))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2Ycomp += chargeM1*(comW2.x(1)-M1r.x(1))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
-
-        Eq2Zcomp += chargeH11*(comW2.x(2)-H11r.x(2))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2Zcomp += chargeH12*(comW2.x(2)-H12r.x(2))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2Zcomp += chargeM1*(comW2.x(2)-M1r.x(2))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
-
-        Eq2.setX(0,Eq2Xcomp);
-        Eq2.setX(1,Eq2Ycomp);
-        Eq2.setX(2,Eq2Zcomp);
-
         
+        fac = chargeH11/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW2, H11r);
+        Eq2.Ea1Tv1(fac, work);
+        
+        fac = chargeH12/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW2, H12r);
+        Eq2.PEa1Tv1(fac, work);
+        
+        fac = chargeM1/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        work.Ev1Mv2(comW2, M1r);
+        Eq2.PEa1Tv1(fac, work);
+
         /*
          * Finding the tensor used to relate the induced dipole moment Pi with the induced electric field Epi.
          * kmb, 8/7/06
@@ -345,23 +307,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         T12.ME(Tunit);
         T12.TE(1/(r12*r12*r12));
         
-        // T12 = T21, so I can get by for now in the case of B2!
-        
-        // Now distribute the elements of the tensor into 3 separate "row" vectors
-        // so I can do dot products with etomica math methods
-        // kmb, 8/7/06
-        
-        T12row1.setX(0,T12.component(0,0));
-        T12row1.setX(1,T12.component(0,1));
-        T12row1.setX(2,T12.component(0,2));
-        T12row2.setX(0,T12.component(1,0));
-        T12row2.setX(1,T12.component(1,1));
-        T12row2.setX(2,T12.component(1,2));
-        T12row3.setX(0,T12.component(2,0));
-        T12row3.setX(1,T12.component(2,1));
-        T12row3.setX(2,T12.component(2,2));
-        
-        
         //Begin analytical solution for Upol for pair energy
         
         double alphaPol = 1.444;
@@ -376,9 +321,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         T12T12.TE(alphaPol2);
         A1.ME(T12T12);
         
-        T12Eq2.setX(0,T12row1.dot(Eq2));
-        T12Eq2.setX(1,T12row2.dot(Eq2));
-        T12Eq2.setX(2,T12row3.dot(Eq2));
+        T12Eq2.E(Eq2);
+        T12.transform(T12Eq2);
         T12Eq2.TE(alphaPol2);
         
         B1.E(Eq1);
@@ -4995,8 +4939,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
     private IVector comW1, comW2, comW3, comW4, comW5;
     private final IVector r12Vector;
     private final IVector T12P1, T12P2;
-    private final IVector T12row1, T12row2, T12row3;
     private final IVector B1, T12Eq2;
+    private final IVector work;
     private final Tensor Tunit, T12, A1, T12T12, inverseA1;
     private final double core; // = 4.41; //4.41 = 2.1^2; value according to Cummings
     private final double sigmaM;
