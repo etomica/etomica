@@ -1,10 +1,8 @@
 package etomica.virial;
 
-import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
 import etomica.potential.Potential;
 import etomica.potential.PotentialPolarizable;
-import etomica.space3d.Vector3D;
 
 
 public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializable {
@@ -33,6 +31,11 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         		binCounts[z] = 0;
         }
 
+        scfAtoms = new AtomArrayList(); // USE THIS LIST FOR ALL ATOMS, WHETHER 3 OR 4; KMB, 8/16/06
+        scfAtoms123 = new AtomArrayList();
+        scfAtoms124 = new AtomArrayList();
+        scfAtoms134 = new AtomArrayList();
+        scfAtoms234 = new AtomArrayList();
     }
 
     // equal point count enforced in constructor 
@@ -63,8 +66,6 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         int nPoints = pointCount();
         
         // kmb added 7/10/06
-        boolean isWater = false;
-        boolean isLJ = false;  // ADDED 6/21/07 for O-O distance check
         double deltaC = 0.0;
         double deltaD = 0.0;
         double u12 = 0.0;
@@ -78,61 +79,48 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         double u134 = 0.0;
         double u234 = 0.0;
         double u1234 = 0.0;
-        Vector3D O1 = new Vector3D();
-        Vector3D O2 = new Vector3D();
-        Vector3D O3 = new Vector3D();
-        Vector3D O4 = new Vector3D();
-        AtomArrayList scfAtoms = new AtomArrayList(); // USE THIS LIST FOR ALL ATOMS, WHETHER 3 OR 4; KMB, 8/16/06
-        AtomArrayList scfAtoms123 = new AtomArrayList();
-        AtomArrayList scfAtoms124 = new AtomArrayList();
-        AtomArrayList scfAtoms134 = new AtomArrayList();
-        AtomArrayList scfAtoms234 = new AtomArrayList();
+        double u12Pol = Double.NaN;
+        double u13Pol = Double.NaN;
+        double u23Pol = Double.NaN;
         // recalculate all f values for all pairs
+        PotentialPolarizable scfPotential = null;
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<f.length; k++) {
-                    if (f[k] instanceof MayerFunctionSpherical) {
-                        fValues[i][j][k] = ((MayerFunctionSpherical)f[k]).f(cPairs.getr2(i,j),beta);
-                        
-                        
-                    }
-                    else {
-                        fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
-                        if (Double.isNaN(fValues[i][j][k])) throw new RuntimeException();
-                        scfPotential = (PotentialPolarizable) f[k].getPotential();
-                        // Here is how I get the individual atoms to pass to the energySCF method; kmb 7/10/06
-                        // Check how this all works with a pairwise potential first!
-                        // Do I grab the right atoms?
-                        // Do they yield a value of 0 for energySCF and deltaC below?; kmb 7/10/06
-                        
-                        // NEED k==0 IN BOOLEAN FOR B4 CALC, TO PREVENT OVERWRITING THE ATOM LISTS FOR THE
-                        // TRIMER AND TETRAMER SCF ENERGY CALCS; KMB, 8/16/06
-                        if (i==0 && j==1 && k==0) {
-                        	scfAtoms.add(aPairs.getAPair(i,j).getAtom(0));
-                        	scfAtoms.add(aPairs.getAPair(i,j).getAtom(1));
+                    fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
+                    scfPotential = (PotentialPolarizable) f[k].getPotential();
+                    // Here is how I get the individual atoms to pass to the energySCF method; kmb 7/10/06
+                    // Check how this all works with a pairwise potential first!
+                    // Do I grab the right atoms?
+                    // Do they yield a value of 0 for energySCF and deltaC below?; kmb 7/10/06
+                    
+                    // NEED k==0 IN BOOLEAN FOR B4 CALC, TO PREVENT OVERWRITING THE ATOM LISTS FOR THE
+                    // TRIMER AND TETRAMER SCF ENERGY CALCS; KMB, 8/16/06
+                    if (nPoints > 2 && i==0 && j==1 && k==0) {
+                    	scfAtoms.add(aPairs.getAPair(i,j).getAtom(0));
+                    	scfAtoms.add(aPairs.getAPair(i,j).getAtom(1));
                         	
 //                        	O1.E(((IAtomGroup)aPairs.getAPair(i,j).getAtom(0)).getChildList()node.l);
   //                              O2.E(aPairs.getAPair(i,j).getAtom(1).node.lastLeafAtom().coord.position());
 
 				// THESE LINES ADDED FOR B4 CASE; KMB, 8/15/06
-                        	scfAtoms123.add(aPairs.getAPair(i,j).getAtom(0));
-                        	scfAtoms123.add(aPairs.getAPair(i,j).getAtom(1));
-                        	
-                        	scfAtoms124.add(aPairs.getAPair(i,j).getAtom(0));
-                        	scfAtoms124.add(aPairs.getAPair(i,j).getAtom(1));
-                        	
-                        	scfAtoms134.add(aPairs.getAPair(i,j).getAtom(0));
-                        	
-                        	scfAtoms234.add(aPairs.getAPair(i,j).getAtom(1));
-                        	
-                        	u12Pol = scfPotential.getPolarizationEnergy();
+                    	scfAtoms123.add(aPairs.getAPair(i,j).getAtom(0));
+                    	scfAtoms123.add(aPairs.getAPair(i,j).getAtom(1));
+                    	
+                    	scfAtoms124.add(aPairs.getAPair(i,j).getAtom(0));
+                    	scfAtoms124.add(aPairs.getAPair(i,j).getAtom(1));
+                    	
+                    	scfAtoms134.add(aPairs.getAPair(i,j).getAtom(0));
+                    	
+                    	scfAtoms234.add(aPairs.getAPair(i,j).getAtom(1));
+                    	
+                    	u12Pol = scfPotential.getPolarizationEnergy();
 
-                        }
-                        if (i==0 && j==2 && k==0) {
-                        	//thirdAtom = aPairs.getAPair(i,j).getAtom(1);  // Does this ensure the third Atom is unique to the other two
-                        												// obtained above? kmb, 7/11/06
-//                        	scfAtoms.add(aPairs.getAPair(i,j).getAtom(1));
-                        	scfAtoms.add(aPairs.getAPair(i,j).getAtom(1));
+                    }
+                    if (i==0 && j==2 && k==0) {
+                    	//thirdAtom = aPairs.getAPair(i,j).getAtom(1);  // Does this ensure the third Atom is unique to the other two
+                    												// obtained above? kmb, 7/11/06
+                    	scfAtoms.add(aPairs.getAPair(i,j).getAtom(1));
 /*                        	u13 = (-1)/beta*Math.log(fValues[0][2][0]+1);
                     		//u13Coulombic = f[k].energyCoul(aPairs.getAPair(i,j));
                     		O1.E(aPairs.getAPair(i,j).getAtom(0).node.lastLeafAtom().coord.position());
@@ -146,16 +134,12 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 //                        	O3.E(aPairs.getAPair(i,j).getAtom(1).node.lastLeafAtom().coord.position());
 
 				// THESE LINES ADDED FOR B4 CASE; KMB, 8/15/06
-                        	scfAtoms123.add(aPairs.getAPair(i,j).getAtom(1));
-                        	
-                        	scfAtoms134.add(aPairs.getAPair(i,j).getAtom(1));
-
-                        	scfAtoms234.add(aPairs.getAPair(i,j).getAtom(1));
-                        
-                        	u13Pol = scfPotential.getPolarizationEnergy();
-                        	
-                        }
-                        if (i==1 && j==2 && k==0) {
+                    	scfAtoms123.add(aPairs.getAPair(i,j).getAtom(1));
+                    	scfAtoms134.add(aPairs.getAPair(i,j).getAtom(1));
+                    	scfAtoms234.add(aPairs.getAPair(i,j).getAtom(1));
+                    	u13Pol = scfPotential.getPolarizationEnergy();
+                    }
+                    if (i==1 && j==2 && k==0) {
 //                        	Atom thirdAtom = aPairs.getAPair(i,j).getAtom(0);
 /*                      	u23 = (-1)/beta*Math.log(fValues[1][2][0]+1);
                       	//u23Coulombic = f[k].energyCoul(aPairs.getAPair(i,j));
@@ -166,10 +150,10 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     //                  		System.out.println("O2-O3 distance = " + rO2O3 + ", u23 = " + u23);
                       	}
 */
-                        	u23Pol = scfPotential.getPolarizationEnergy();
-                        }
-                        
-                        if (i==0 && j==3 && k==0) {
+                    	u23Pol = scfPotential.getPolarizationEnergy();
+                    }
+                    
+                    if (i==0 && j==3 && k==0) {
 //                        	Atom thirdAtom = aPairs.getAPair(i,j).getAtom(0);
 /*                      	u23 = (-1)/beta*Math.log(fValues[1][2][0]+1);
                       	//u23Coulombic = f[k].energyCoul(aPairs.getAPair(i,j));
@@ -183,18 +167,12 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                         	
 //				O4.E(aPairs.getAPair(i,j).getAtom(1).node.lastLeafAtom().coord.position());
 
-				scfAtoms124.add(aPairs.getAPair(i,j).getAtom(1));
-                        	
-                        	scfAtoms134.add(aPairs.getAPair(i,j).getAtom(1));
-
-                        	scfAtoms234.add(aPairs.getAPair(i,j).getAtom(1));
-                        	
-                        	scfAtoms.add(aPairs.getAPair(i,j).getAtom(1));
-                        }
-
-                        
-                        isWater = true;
+                        scfAtoms124.add(aPairs.getAPair(i,j).getAtom(1));
+                    	scfAtoms134.add(aPairs.getAPair(i,j).getAtom(1));
+                    	scfAtoms234.add(aPairs.getAPair(i,j).getAtom(1));
+                    	scfAtoms.add(aPairs.getAPair(i,j).getAtom(1));
                     }
+
                     fValues[j][i][k] = fValues[i][j][k];
                 }
             }
@@ -241,7 +219,6 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         
         // KMB 7/10/06; Presumably, I can call and add the SCF contribution here, after
         // calculation of the f values and multiplying them to get a number for value.
-        if (isWater) {
         		
 /*	        	if (nPoints == 2) {
 		        		
@@ -257,44 +234,44 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 */        	
         	
         	
-        		if (nPoints == 3) {
-	        		if (u12+u13+u23 == Double.POSITIVE_INFINITY) {
-	        			//System.out.println("Sum of pair energies is infinity: u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23);
-	        			deltaC = 0.0;
-	        		}
-	        		else {
-	        		// Get a handle on the list of atoms from the AtomPairSet
-	        			
-	        			u123 = ((Potential)scfPotential).energy(scfAtoms);
-	        			double u123Pol = scfPotential.getPolarizationEnergy();
-	        			 //This conditional handles the case when the triplet energy does
-	        			 //not quite agree with the dimer energy, for the case where the third
-	        			 //water molecule is 1000 angstroms of farther away (see code in 
-	        			 //PotentialWaterPPC8forB3.java).
-	        			 //kmb, 8/3/06
-	        			 
-	        			//if (u123 == -123456789.0) {
-	        			//	u123 = u12 + u13 + u23;
-	        			//}
-	
-	        			//u123 += u12 + u13 + u23;  // for testing TIP4P potential only; kmb, 7/26/06	
+		if (nPoints == 3) {
+    		if (u12+u13+u23 == Double.POSITIVE_INFINITY) {
+    			//System.out.println("Sum of pair energies is infinity: u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23);
+    			deltaC = 0.0;
+    		}
+    		else {
+    		// Get a handle on the list of atoms from the AtomPairSet
+    			
+    			u123 = ((Potential)scfPotential).energy(scfAtoms);
+    			double u123Pol = scfPotential.getPolarizationEnergy();
+    			 //This conditional handles the case when the triplet energy does
+    			 //not quite agree with the dimer energy, for the case where the third
+    			 //water molecule is 1000 angstroms of farther away (see code in 
+    			 //PotentialWaterPPC8forB3.java).
+    			 //kmb, 8/3/06
+    			 
+    			//if (u123 == -123456789.0) {
+    			//	u123 = u12 + u13 + u23;
+    			//}
+
+    			//u123 += u12 + u13 + u23;  // for testing TIP4P potential only; kmb, 7/26/06	
+    		
+    			//deltaC = Math.exp(-beta*u123) - Math.exp(-beta*(u12 + u13 + u23));
+    			double deltau123 = u123Pol-(u12Pol+u13Pol+u23Pol);
+    			deltaC = (Math.exp(-beta*deltau123)-1)*Math.exp(-beta*(u12 + u13 + u23));       
+    			
+    			// kmb added this line 7/18/06
+    			// deltaC has to be multiplied by clusterWeights, just like v was multiplied by
+    			// clusterWeights above to get value
+    			deltaC = deltaC*clusterWeights[0];
+    			
+    			if (Double.isInfinite(deltaC)) {
+    				System.out.println("deltaC = " + deltaC);
+    			}
+    		}
 	        		
-	        			//deltaC = Math.exp(-beta*u123) - Math.exp(-beta*(u12 + u13 + u23));
-	        			double deltau123 = u123Pol-(u12Pol+u13Pol+u23Pol);
-	        			deltaC = (Math.exp(-beta*deltau123)-1)*Math.exp(-beta*(u12 + u13 + u23));       
-	        			
-	        			// kmb added this line 7/18/06
-	        			// deltaC has to be multiplied by clusterWeights, just like v was multiplied by
-	        			// clusterWeights above to get value
-	        			deltaC = deltaC*clusterWeights[0];
-	        			
-	        			if (Double.isInfinite(deltaC)) {
-	        				System.out.println("deltaC = " + deltaC);
-	        			}
-	        		}
-	        		
-	        		//System.out.println("u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23 + ", u123 = " + u123 + ", deltaC = " + deltaC + ", value(before) = " + value);
-	        		value += deltaC;
+    		//System.out.println("u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23 + ", u123 = " + u123 + ", deltaC = " + deltaC + ", value(before) = " + value);
+    		value += deltaC;
 	        		
 /*        			arrayOODistanceIndex = findOORange3(O1,O2,O3);
         			
@@ -305,63 +282,42 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 	            			maxOOPiValues[arrayOODistanceIndex] = value;					
 	                 }
         			}
-*/	        }
-        		
-        		if (nPoints == 4) {
-        			
-        			if (u12+u13+u14+u23+u24+u34 == Double.POSITIVE_INFINITY) {
-	        			//System.out.println("Sum of pair energies is infinity: u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23);
-        				deltaD = 0.0;
-	        		}
-        			else {
-        				u123 = ((Potential)scfPotential).energy(scfAtoms123);
-        				u124 = ((Potential)scfPotential).energy(scfAtoms124);
-        				u134 = ((Potential)scfPotential).energy(scfAtoms134);
-        				u234 = ((Potential)scfPotential).energy(scfAtoms234);
-        				u1234 = ((Potential)scfPotential).energy(scfAtoms);
+*/
+		}
 
-					// Added 6/2/07 to implement cutoff; KMB
-					
-					if (u123 == -123456789.0) {
-                                                u123 = u12 + u13 + u23;
-                                        }
+		if (nPoints == 4) {
+			
+			if (u12+u13+u14+u23+u24+u34 == Double.POSITIVE_INFINITY) {
+    			//System.out.println("Sum of pair energies is infinity: u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23);
+				deltaD = 0.0;
+    		}
+			else {
+				u123 = ((Potential)scfPotential).energy(scfAtoms123);
+				u124 = ((Potential)scfPotential).energy(scfAtoms124);
+				u134 = ((Potential)scfPotential).energy(scfAtoms134);
+				u234 = ((Potential)scfPotential).energy(scfAtoms234);
+				u1234 = ((Potential)scfPotential).energy(scfAtoms);
 
-					if (u124 == -123456789.0) {
-                                                u124 = u12 + u14 + u24;
-                                        }
+				double deltaU123 = u123-u12-u13-u23;
+				double deltaU124 = u124-u12-u14-u24;
+				double deltaU134 = u134-u13-u14-u34;
+				double deltaU234 = u234-u23-u24-u34;
 
-					if (u134 == -123456789.0) {
-                                                u134 = u13 + u14 + u34;
-                                        }
-
-					if (u234 == -123456789.0) {
-                                                u234 = u23 + u24 + u34;
-                                        }
-
-
-
-        				double deltaU123 = u123-u12-u13-u23;
-        				double deltaU124 = u124-u12-u14-u24;
-        				double deltaU134 = u134-u13-u14-u34;
-        				double deltaU234 = u234-u23-u24-u34;
-        				
-					if (u1234 == -123456789.0) {
-                                                u1234 = u12 + u13 + u14 + u23 + u24 + u34 + deltaU123 + deltaU124 + deltaU134 + deltaU234;
-                                        }
-
-
-        				double deltaU1234 = u1234-u12-u13-u14-u23-u24-u34-deltaU123-deltaU124-deltaU134-deltaU234;
-        				
-        				double g12 = Math.exp(-beta*u12);
-        				double g13 = Math.exp(-beta*u13);
-        				double g14 = Math.exp(-beta*u14);
-        				double g23 = Math.exp(-beta*u23);
-        				double g24 = Math.exp(-beta*u24);
-        				double g34 = Math.exp(-beta*u34);
-        				
-        				
-        				deltaD = (Math.exp(-beta*(deltaU123+deltaU124+deltaU134+deltaU234+deltaU1234))-1)*g12*g13*g14*g23*g24*g34-(Math.exp(-beta*deltaU123)-1)*g12*g13*g23*(g14+g24+g34-2)-(Math.exp(-beta*deltaU124)-1)*g12*g14*g24*(g13+g23+g34-2)-(Math.exp(-beta*deltaU134)-1)*g13*g14*g34*(g12+g23+g24-2)-(Math.exp(-beta*deltaU234)-1)*g23*g24*g34*(g12+g13+g14-2);
-
+				double deltaU1234 = u1234-u12-u13-u14-u23-u24-u34-deltaU123-deltaU124-deltaU134-deltaU234;
+				
+				double g12 = Math.exp(-beta*u12);
+				double g13 = Math.exp(-beta*u13);
+				double g14 = Math.exp(-beta*u14);
+				double g23 = Math.exp(-beta*u23);
+				double g24 = Math.exp(-beta*u24);
+				double g34 = Math.exp(-beta*u34);
+				
+				
+				deltaD = (Math.exp(-beta*(deltaU123+deltaU124+deltaU134+deltaU234+deltaU1234))-1)*g12*g13*g14*g23*g24*g34
+				        -(Math.exp(-beta*deltaU123)-1)*g12*g13*g23*(g14+g24+g34-2)
+				        -(Math.exp(-beta*deltaU124)-1)*g12*g14*g24*(g13+g23+g34-2)
+				        -(Math.exp(-beta*deltaU134)-1)*g13*g14*g34*(g12+g23+g24-2)
+				        -(Math.exp(-beta*deltaU234)-1)*g23*g24*g34*(g12+g13+g14-2);
 
         				// Mason and Spurling book deltaD; 5/11/07
 
@@ -387,10 +343,10 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 	        			// deltaD has to be multiplied by weightPrefactor from Standard class, just like deltaC was multiplied by
 	        			// clusterWeights above to get value; note, for B3 clusterWeights = weightPrefactor
         				
-	        			deltaD = deltaD*(-32.0);  //XXX - IS THIS DIFFERENT NOW?; KMB, 7/27/07  -32 is value of weightPrefactor in Standard for a B4 calc
-        			}
+				deltaD = deltaD*(-32.0);  //XXX - IS THIS DIFFERENT NOW?; KMB, 7/27/07  -32 is value of weightPrefactor in Standard for a B4 calc
+			}
         			
-        			value += deltaD;
+			value += deltaD;
 
 /*        			arrayOODistanceIndex = findOORange(O1,O2,O3,O4);
         			
@@ -401,8 +357,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         			}
 */            		
 
-        		}
-        }
+    	}
         
         if (u12 < Double.POSITIVE_INFINITY && u13 < Double.POSITIVE_INFINITY && u23 < Double.POSITIVE_INFINITY) {
         		//System.out.println("u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23);
@@ -410,7 +365,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         }
         
 //        System.out.println("PI (from Cluster Sum) = " + value);
-        	System.out.println(value);
+//        	System.out.println(value);
         
         return value;
     }
@@ -725,9 +680,10 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     private int cPairID = -1, lastCPairID = -1;
     private double value, lastValue;
     private double beta;
-    private PotentialPolarizable scfPotential, testPotential;
-    private Atom firstAtom, secondAtom, thirdAtom;
     private double[] maxOOPiValues, binCounts, maxOOdistances; // final or not?
-    private int arrayOODistanceIndex; //, bin1Count, bin2Count, bin3Count, bin4Count, bin5Count, bin6Count, bin7Count, bin8Count, bin9Count;
-    private double u12Pol, u13Pol, u23Pol;
+    protected final AtomArrayList scfAtoms;
+    protected final AtomArrayList scfAtoms123;
+    protected final AtomArrayList scfAtoms124;
+    protected final AtomArrayList scfAtoms134;
+    protected final AtomArrayList scfAtoms234;
 }
