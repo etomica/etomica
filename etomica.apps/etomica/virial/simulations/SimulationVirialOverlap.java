@@ -202,6 +202,10 @@ public class SimulationVirialOverlap extends Simulation {
         }
         
         if (refPref == -1) {
+            for (int i=0; i<2; i++) {
+                integrators[i].getMoveManager().setEquilibrating(true);
+            }
+
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,false),1);
             setRefPref(10000,15);
@@ -267,6 +271,9 @@ public class SimulationVirialOverlap extends Simulation {
         }
         else {
             dsvo.reset();
+        }
+        for (int i=0; i<2; i++) {
+            integrators[i].getMoveManager().setEquilibrating(false);
         }
     }
     
