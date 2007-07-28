@@ -51,7 +51,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 
         double temperature = Kelvin.UNIT.toSim(350);
 
-        long steps = 10l;
+        long steps = 1000l;
 
         if (args.length > 0) nPoints = Integer.parseInt(args[0]);
 
@@ -162,8 +162,8 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
             ((PhaseCluster)sim.getPhaseList().get(1)).acceptNotify();
 */            
             
-            sim.integratorOS.setStepFreq0(0);
-            sim.integratorOS.setAdjustStepFreq(false);
+//            sim.integratorOS.setStepFreq0(0);
+//            sim.integratorOS.setAdjustStepFreq(false);
             
             for (int i=0; i<2; i++) {
 
@@ -201,14 +201,11 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 
 //            sim.mcMoveMulti.setNoisyAdjustment(true);
 
-            FileReader fileReader = null;
-
-            // refPref = -1 indicates we are searching for an appropriate value
-
-            double refPref = -1.0;
-            
-            sim.initRefPref("refpref",1);
-            sim.equilibrate("refpref",1);
+            // if running interactively, set filename to null so that it doens't read
+            // (or write) to a refpref file
+            String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
+            sim.initRefPref(refFileName,steps/100);
+            sim.equilibrate(refFileName,steps/40);
 
 /*            try { 
 
@@ -388,47 +385,28 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
             
 
             double ratio = sim.dsvo.getDataAsScalar();
-
             double error = sim.dsvo.getError();
-
             System.out.println("ratio average: "+ratio+", error: "+error);
-
             System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
 
             DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-
             System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-
             System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-
                               +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-
             System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-
                               +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 
             allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-
             System.out.println("water ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-
             System.out.println("water average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-
                               +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-
             System.out.println("water overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-
                               +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 
             
