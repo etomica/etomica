@@ -129,13 +129,13 @@ public class AccumulatorRatioAverage extends AccumulatorAverageFixed {
     public static class StatType extends AccumulatorAverage.StatType {
         private static final long serialVersionUID = 1L;
         protected StatType(String label, int index) {super(label,index);}       
-        public static final StatType RATIO = new StatType("Ratio",6);
-        public static final StatType RATIO_ERROR = new StatType("Ratio error",7);
-        public static final StatType RATIO_STANDARD_DEVIATION = new StatType("Ratio standard deviation",8);
+        public static final StatType RATIO = new StatType("Ratio",5);
+        public static final StatType RATIO_ERROR = new StatType("Ratio error",6);
+        public static final StatType RATIO_STANDARD_DEVIATION = new StatType("Ratio standard deviation",7);
         public static AccumulatorAverage.StatType[] choices() {
             AccumulatorAverage.StatType[] choices = AccumulatorAverage.StatType.choices();
             return new AccumulatorAverage.StatType[] {
-                choices[0], choices[1], choices[2], choices[3], choices[4], choices[5],
+                choices[0], choices[1], choices[2], choices[3], choices[4],
                 RATIO, RATIO_ERROR, RATIO_STANDARD_DEVIATION};
         }
     }
