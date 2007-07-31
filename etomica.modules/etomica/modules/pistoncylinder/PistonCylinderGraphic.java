@@ -6,6 +6,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -312,7 +313,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 	    scaleSlider = new DeviceSlider(null, scaleModulator);
 	    scaleSlider.setShowValues(false);
 	    JPanel scaleSliderPanel = new JPanel();
-	    scaleSliderPanel.setBorder(new TitledBorder(null, "Graphic Scale", TitledBorder.CENTER, TitledBorder.TOP));
+	    scaleSliderPanel.setBorder(new TitledBorder(null, "Graphic Size", TitledBorder.CENTER, TitledBorder.TOP));
 	    scaleSliderPanel.add(scaleSlider.graphic());
 	    scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
 	        public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -324,7 +325,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 	    scaleSlider.getSlider().setValue(100);
 	    scaleSlider.setNMajor(0);
 	    scaleSlider.setSliderVerticalOrientation(false);
-//	    scaleSlider.getSlider().setLabelTable(scaleSlider.getSlider().createStandardLabels(10));
+	    java.util.Hashtable scaleLabels = new java.util.Hashtable();
+	    scaleLabels.put(new Integer(10), new JLabel( "min", JLabel.CENTER ));
+	    scaleLabels.put(new Integer(100), new JLabel( "max", JLabel.CENTER ));
+	    scaleSlider.getSlider().setLabelTable(scaleLabels);
 
         // Add panels to the control panel
         getPanel().controlPanel.add(setupPanel, vertGBC);
