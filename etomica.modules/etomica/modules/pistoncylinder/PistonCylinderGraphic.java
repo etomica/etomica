@@ -240,7 +240,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         });
 
         nSliderPanel = new JPanel(new GridLayout(0,1));
-        nSliderPanel.setBorder(new TitledBorder("Number of Molecules"));
+        nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
         nSlider.setShowBorder(false);
         nSlider.setNMajor(4);
         nSliderPanel.add(nSlider.graphic());
@@ -274,7 +274,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
         potentialPanel.add(potentialChooser,vertGBC);
-	    potentialPanel.setBorder(new TitledBorder("Potential selection"));
+	    potentialPanel.setBorder(new TitledBorder(null, "Potential Selection", TitledBorder.CENTER, TitledBorder.TOP));
 	    JPanel parameterPanel = new JPanel(new GridLayout(0,1));
         parameterPanel.add(sigBox.graphic());
         parameterPanel.add(epsBox.graphic());
@@ -487,7 +487,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         massBox.setController(pc.getController());
         
         pressureSlider.setUnit(pUnit);
-        pressureSliderPanel.setBorder(new TitledBorder("Set Pressure ("+pUnit.symbol()+")"));
+        pressureSliderPanel.setBorder(new TitledBorder(null, "Set Pressure ("+pUnit.symbol()+")", TitledBorder.CENTER, TitledBorder.TOP));
         Dimension pDim = Pressure.dimension(D);
         pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
