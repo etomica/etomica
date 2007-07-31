@@ -291,7 +291,7 @@ public class SimulationGraphic implements SimulationContainer {
 
     		repaintAction = new Action() {
     			public void actionPerformed() {
-    			    display.graphic().repaint();
+    			    display.repaint();
     			}
     		};
 

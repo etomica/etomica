@@ -1,5 +1,4 @@
 package etomica.modules.pistoncylinder;
-import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -83,7 +82,8 @@ import etomica.units.systems.MKS;
 public class PistonCylinderGraphic extends SimulationGraphic {
     
 	private static final String APP_NAME = "Piston Cylinder";
-    public JPanel displayBoxPanel;
+	private final static int REPAINT_INTERVAL = 100;
+
     public PistonCylinder pc;
     public Potential2HardSphericalWrapper potentialWrapper;
     public P2HardSphere potentialHS;
@@ -116,17 +116,15 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public Unit eUnit;
     public double lambda, epsilon, mass, sigma;
     public DeviceSlider doSleepSlider, integratorTimeStepSlider;
-    public int repaintSleep = 100;
-    public int integratorSleep = 10;
-    public int integratorSleep3D = 0;
+
     private boolean doConfigButton = false;
     private boolean doRDF = false;
 
     public PistonCylinderGraphic(PistonCylinder sim) {
-    	super(sim, TABBED_PANE, APP_NAME);
+    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
     	pc = sim;
 
-        displayBox = new DisplayBox(null);
+        displayBox = getDisplayBox(pc.box);
         displayBox.setColorScheme(new ColorSchemeByType());
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
@@ -303,19 +301,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pressureDisplayTextBox = new DisplayTextBoxesCAE();
         pressureDisplayTextBox.setLabelType(DisplayTextBox.LabelType.BORDER);
 
-        // Remove graphic from tabbed pane that is automatically added
-        // by SimulationGraphic.  Our configuration tab is a little
-        // different as we add a slider to adjust size of piston-
-        // cylinder.
-        getPanel().tabbedPane.removeAll();
-
-        // Add panels to the control panel
-        getPanel().controlPanel.add(setupPanel, vertGBC);
-        add(displayCycles);
-        add(densityDisplayTextBox);
-        add(temperatureDisplayTextBox);
-        add(pressureDisplayTextBox);
-
 
         //
 	    // Configuration tabbed page
@@ -325,23 +310,29 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 	    ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayBox, "scale");
 	    scaleModulator.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
 	    scaleSlider = new DeviceSlider(null, scaleModulator);
-	    JPanel scaleSliderPanel = new JPanel(new java.awt.GridLayout(0,1));
-	    scaleSliderPanel.add(scaleSlider.graphic());	    
+	    scaleSlider.setShowValues(false);
+	    JPanel scaleSliderPanel = new JPanel();
+	    scaleSliderPanel.setBorder(new TitledBorder(null, "Graphic Scale", TitledBorder.CENTER, TitledBorder.TOP));
+	    scaleSliderPanel.add(scaleSlider.graphic());
 	    scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
 	        public void stateChanged(javax.swing.event.ChangeEvent evt) {
-	            displayBox.repaint();
+	        	displayBox.repaint();
 	        }
 	    });
 	    scaleSlider.setMinimum(10);
 	    scaleSlider.setMaximum(100);
 	    scaleSlider.getSlider().setValue(100);
-	    scaleSlider.getSlider().setMajorTickSpacing(10);
-	    scaleSlider.getSlider().setMinorTickSpacing(5);
-	    scaleSlider.getSlider().setOrientation(1);
-	    scaleSlider.getSlider().setLabelTable(scaleSlider.getSlider().createStandardLabels(10));
-		
-    	displayBoxPanel = new JPanel(new BorderLayout());
-    	displayBoxPanel.add(scaleSliderPanel,BorderLayout.EAST);
+	    scaleSlider.setNMajor(0);
+	    scaleSlider.setSliderVerticalOrientation(false);
+//	    scaleSlider.getSlider().setLabelTable(scaleSlider.getSlider().createStandardLabels(10));
+
+        // Add panels to the control panel
+        getPanel().controlPanel.add(setupPanel, vertGBC);
+        getPanel().controlPanel.add(scaleSliderPanel, vertGBC);
+        add(displayCycles);
+        add(densityDisplayTextBox);
+        add(temperatureDisplayTextBox);
+        add(pressureDisplayTextBox);
 
         //
 	    // Plots tabbed page
@@ -363,20 +354,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 		//add meter and display for current kinetic temperature
 
 		thermometer = new MeterTemperature();
-
-		// Thread that repaints graphic.  Is different than other
-		// applications that extend SimulationGraphic (and I don't
-		// mean in a good way!).
-        Thread repainter = new Thread() {
-            public void run() {
-                while (true) {
-                    getPanel().repaint();
-                    try{Thread.sleep(repaintSleep);}
-                    catch(InterruptedException e){}
-                }
-            }
-        };
-        repainter.start();
 
         if (doRDF) {
             plotRDF = new DisplayPlot();
@@ -402,27 +379,22 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         tUnit = Kelvin.UNIT;
 
-        int thisSleep = -1;
         if (pc.getSpace().D() == 2) {
             dUnit = new UnitRatio(Mole.UNIT, 
                                     new MKS().area());
             Unit[] units = new Unit[] {Bar.UNIT, new PrefixedUnit(Prefix.NANO, Meter.UNIT)};
             double[] exponents = new double[] {1.0, 1.0};
             pUnit = new CompoundUnit(units, exponents);
-            thisSleep = integratorSleep;
+
         }
         else {
             dUnit = new UnitRatio(Mole.UNIT, Liter.UNIT);
             pUnit = Bar.UNIT;
-            thisSleep = integratorSleep3D;
+
         }
         
         densityDisplayTextBox.setLabel("Density ("+dUnit.symbol()+")");
         pressureDisplayTextBox.setLabel("Pressure ("+pUnit.symbol()+")");
-
-        // set up GUI
-        pc.ai.setSleepPeriod(thisSleep);
-        pc.integrator.removeAllListeners();
 
         pc.wallPotential.setLongWall(0,true,true);  // left wall
         pc.wallPotential.setLongWall(0,false,true); // right wall
@@ -432,22 +404,18 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
 /* WILL BE NEEDED IF DIMENSION RADIO BUTTONS USED
         if (displayBox.graphic() != null) {
-            displayBoxPanel.remove(displayBox.graphic());
-            getPanel().tabbedPane.remove(displayBoxPanel);
+            remove(displayBox);
             getPanel().tabbedPane.remove(blankPanel);
         }
 */
+
         if (D == 2) {
-        	getPanel().tabbedPane.insertTab(displayBox.getLabel(), null, displayBoxPanel, "", 0);
             displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getDimensions().x(1)));
-            displayBox.setBox(pc.box);
             displayBox.setAlign(1,DisplayBox.BOTTOM);
             displayBox.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
             displayBox.getDrawables().clear();
             displayBox.addDrawable(pc.pistonPotential);
             displayBox.addDrawable(pc.wallPotential);
-            displayBoxPanel.add(displayBox.graphic(),BorderLayout.WEST);
-            getPanel().tabbedPane.setSelectedComponent(displayBoxPanel);
         } else {
         	getPanel().tabbedPane.add("Run Faster", blankPanel);
         }
