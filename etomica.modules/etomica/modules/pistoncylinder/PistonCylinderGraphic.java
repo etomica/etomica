@@ -42,7 +42,6 @@ import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DeviceToggleButton;
-import etomica.graphics.DeviceTrioControllerButton;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayCanvasInterface;
 import etomica.graphics.DisplayPlot;
@@ -76,14 +75,12 @@ import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.Pressure;
 import etomica.units.Temperature;
-import etomica.units.Time;
-import etomica.units.Undefined;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
 
 
-public class PistonCylinderGraphic extends SimulationPanel {
+public class PistonCylinderGraphic extends SimulationGraphic {
     
 	private static final String APP_NAME = "Piston Cylinder";
     public JPanel displayBoxPanel;
@@ -97,7 +94,6 @@ public class PistonCylinderGraphic extends SimulationPanel {
     public DisplayTextBox displayCycles;
     public MeterTemperature thermometer;
     public DisplayBox displayBox;
-    public DeviceTrioControllerButton controlButtons;
     public DeviceButton configButton, velocityButton;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
@@ -123,40 +119,12 @@ public class PistonCylinderGraphic extends SimulationPanel {
     public int repaintSleep = 100;
     public int integratorSleep = 10;
     public int integratorSleep3D = 0;
-    private boolean initialized;
     private boolean doConfigButton = false;
     private boolean doRDF = false;
-    private boolean showTimeControls = false;
-    private JPanel guiPanel;
 
-    public PistonCylinderGraphic() {
-    	super(APP_NAME);
-    }
-
-    /**
-     * Enable/disable button to show coordinates.  Must be called before init.
-     */
-    public void setDoConfigButton(boolean newDoConfigButton) {
-        if (initialized) {
-            throw new RuntimeException("Already initialized");
-        }
-        doConfigButton = newDoConfigButton;
-    }
-    
-    /**
-     * Enable/disable RDF tab.  Must be called before init.
-     */
-    public void setDoRDF(boolean newDoRDF) {
-        if (initialized) {
-            throw new RuntimeException("Already initialized");
-        }
-        doRDF = newDoRDF;
-    }
-    
-    public void init() {
-        initialized = true;
-
-        pc = new PistonCylinder(2);
+    public PistonCylinderGraphic(PistonCylinder sim) {
+    	super(sim, TABBED_PANE, APP_NAME);
+    	pc = sim;
 
         displayBox = new DisplayBox(null);
         displayBox.setColorScheme(new ColorSchemeByType());
@@ -199,32 +167,17 @@ public class PistonCylinderGraphic extends SimulationPanel {
       });
 */
 
-        // Control buttons
-        controlButtons = new DeviceTrioControllerButton();
+        // Release/Hold piston button
         fixPistonButton = new DeviceToggleButton(null);
-
-        JPanel startPanel = (JPanel)controlButtons.graphic();
-        GridBagConstraints gbc0 = new GridBagConstraints();
-        startPanel.setBorder(new TitledBorder("Control"));
-        gbc0.gridx = 0; gbc0.gridy = 0;
-        gbc0.gridx = 0; gbc0.gridy = 2; gbc0.gridwidth = 2;
-        startPanel.add(fixPistonButton.graphic(null), gbc0);
-        startPanel.setLayout(new GridLayout(2,2));
+        ((JPanel)getController().graphic()).add(fixPistonButton.graphic());
 
         // Simulation Time
         displayCycles = new DisplayTextBox();
 
-        // Add dimension buttons panel, controls panel,
-        // simulation timebox and config buttons, if requested,
-        // onto a panel
-        JPanel controlsPanel = new JPanel(new GridBagLayout());
-//      controlsPanel.add(dimensionPanel);
-        controlsPanel.add(startPanel,vertGBC);
-
         // Show buttons (added to panel 
         if (doConfigButton) {
             JPanel configPanel = new JPanel(new GridBagLayout());
-            controlsPanel.add(configPanel,vertGBC);
+
 
             configButton = new DeviceButton(null);
             configButton.setLabel("Show Config");
@@ -233,6 +186,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
             velocityButton = new DeviceButton(null);
             velocityButton.setLabel("Show Velocities");
             configPanel.add(velocityButton.graphic(),horizGBC);
+            getPanel().controlPanel.add(configPanel,vertGBC);
         }
 
         //
@@ -330,76 +284,11 @@ public class PistonCylinderGraphic extends SimulationPanel {
         potentialPanel.add(parameterPanel,vertGBC);
         
         //
-        // Controls tabbed pane page
-        //
-
-        if(showTimeControls == true) {
-	        // Repaint delay slider
-	        DeviceSlider repaintSlider = new DeviceSlider(null);
-	        //XXX ugh, see bug 49
-	        repaintSlider.setUnit(Time.SIM_UNIT);
-	        repaintSlider.setShowValues(false);
-	        repaintSlider.setEditValues(true);
-	        repaintSlider.setMinimum(0);
-	        repaintSlider.setMaximum(1000);
-	        repaintSlider.setNMajor(4);
-	        repaintSlider.setValue(repaintSleep);
-	        repaintSlider.setModifier(new Modifier() {
-	            public String getLabel() {return "";}
-	            public Dimension getDimension() {return Undefined.DIMENSION;}
-	            public void setValue(double v) {
-	                repaintSleep = (int)v;
-	            }
-	            public double getValue() {return repaintSleep;}
-	        });
-	        JPanel repaintSliderPanel = new JPanel(new GridLayout(0,1));
-	        repaintSlider.setShowBorder(false);
-	        repaintSliderPanel.setBorder(new TitledBorder("Repaint delay (ms)"));
-	        repaintSliderPanel.add(repaintSlider.graphic());
-	        
-	        // Integrator step delay slider
-	        doSleepSlider = new DeviceSlider(null);
-	        //XXX ugh, see bug 49
-	        doSleepSlider.setUnit(Time.SIM_UNIT);
-	        doSleepSlider.setShowValues(false);
-	        doSleepSlider.setEditValues(true);
-	        doSleepSlider.setMinimum(0);
-	        doSleepSlider.setMaximum(100);
-	        doSleepSlider.setNMajor(5);
-	        JPanel doSleepSliderPanel = new JPanel(new GridLayout(0,1));
-	        doSleepSlider.setShowBorder(false);
-	        doSleepSliderPanel.setBorder(new TitledBorder("Integrator step delay (ms)"));
-	        doSleepSliderPanel.add(doSleepSlider.graphic());
-	        
-	        // Integrator time step slider
-	        integratorTimeStepSlider = new DeviceSlider(null);
-	        integratorTimeStepSlider.setShowValues(false);
-	        integratorTimeStepSlider.setEditValues(true);
-	        integratorTimeStepSlider.setPrecision(2);
-	        integratorTimeStepSlider.setMinimum(0.0);
-	        integratorTimeStepSlider.setMaximum(5);
-	        integratorTimeStepSlider.setNMajor(5);
-	        integratorTimeStepSlider.setValue(0.5);
-	        JPanel integratorTimeStepSliderPanel = new JPanel(new GridLayout(0,1));
-	        repaintSlider.setShowBorder(false);
-	        integratorTimeStepSliderPanel.setBorder(new TitledBorder("Integrator time step (ps)"));
-	        integratorTimeStepSliderPanel.add(integratorTimeStepSlider.graphic());
-	
-	        guiPanel = new JPanel(new GridBagLayout());
-	        guiPanel.add(repaintSliderPanel, vertGBC);
-	        guiPanel.add(doSleepSliderPanel, vertGBC);
-	        guiPanel.add(integratorTimeStepSliderPanel, vertGBC);
-        }
-
-        //
         // Tabbed pane for state, potential, controls pages
         //
         JTabbedPane setupPanel = new JTabbedPane();
         setupPanel.add(statePanel, "State");
         setupPanel.add(potentialPanel, "Potential");
-        if(showTimeControls == true) {
-            setupPanel.add(guiPanel, "Controls");
-        }
 
         // Density value display
         densityDisplayTextBox = new DisplayTextBoxesCAE();
@@ -414,17 +303,19 @@ public class PistonCylinderGraphic extends SimulationPanel {
         pressureDisplayTextBox = new DisplayTextBoxesCAE();
         pressureDisplayTextBox.setLabelType(DisplayTextBox.LabelType.BORDER);
 
-        //panel for the density, temperature, and pressure displays
-        JPanel dataPanel = new JPanel(new GridBagLayout());
-        dataPanel.add(densityDisplayTextBox.graphic(),vertGBC);
-        dataPanel.add(temperatureDisplayTextBox.graphic(),vertGBC);
-        dataPanel.add(pressureDisplayTextBox.graphic(),vertGBC);
+        // Remove graphic from tabbed pane that is automatically added
+        // by SimulationGraphic.  Our configuration tab is a little
+        // different as we add a slider to adjust size of piston-
+        // cylinder.
+        getPanel().tabbedPane.removeAll();
 
         // Add panels to the control panel
-        controlPanel.add(controlsPanel, vertGBC);
-        controlPanel.add(setupPanel, vertGBC);
-        plotPanel.add(displayCycles.graphic(),vertGBC);
-        plotPanel.add(dataPanel, vertGBC);
+        getPanel().controlPanel.add(setupPanel, vertGBC);
+        add(displayCycles);
+        add(densityDisplayTextBox);
+        add(temperatureDisplayTextBox);
+        add(pressureDisplayTextBox);
+
 
         //
 	    // Configuration tabbed page
@@ -467,23 +358,19 @@ public class PistonCylinderGraphic extends SimulationPanel {
         plotsPane = new JScrollPane(myPlotPanel);
 
         // Add plots page to tabbed pane
-        tabbedPane.add("Plots", plotsPane);
-        
-        // Default behavior of a SimulationPanel is to
-        // show a single graphic.  Switch to show the
-        // tabbed page.
-        remove(graphicsPanel);
-        add(tabbedPane);
-
+        getPanel().tabbedPane.add("Plots", plotsPane);
 
 		//add meter and display for current kinetic temperature
 
 		thermometer = new MeterTemperature();
 
+		// Thread that repaints graphic.  Is different than other
+		// applications that extend SimulationGraphic (and I don't
+		// mean in a good way!).
         Thread repainter = new Thread() {
             public void run() {
                 while (true) {
-                    repaint();
+                    getPanel().repaint();
                     try{Thread.sleep(repaintSleep);}
                     catch(InterruptedException e){}
                 }
@@ -494,7 +381,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         if (doRDF) {
             plotRDF = new DisplayPlot();
             JPanel rdfPanel = new JPanel();
-            tabbedPane.add("RDF", rdfPanel);
+            getPanel().tabbedPane.add("RDF", rdfPanel);
             plotRDF.setDoLegend(false);
             
             rdfPanel.add(plotRDF.graphic());
@@ -502,18 +389,16 @@ public class PistonCylinderGraphic extends SimulationPanel {
 
         boolean pistonHeld = true;
 
-        controlButtons.setSimulation(pc);
         pc.config.setBoundaryPadding(sigma);
         pc.config.initializeCoordinates(pc.box);
 
-        ((SimulationRestart)controlButtons.getReinitButton().getAction()).setConfiguration(pc.config);
+        ((SimulationRestart)getController().getReinitButton().getAction()).setConfiguration(pc.config);
         final IIntegrator integrator = pc.integrator;
 
-        ArrayList dataStreamPumps = controlButtons.getDataStreamPumps();
+        ArrayList dataStreamPumps = getController().getDataStreamPumps();
         
         ((ElementSimple)((AtomTypeLeaf)pc.species.getMoleculeType()).getElement()).setMass(mass);
         int D = pc.getSpace().D();
-
 
         tUnit = Kelvin.UNIT;
 
@@ -544,14 +429,16 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // skip top wall
         pc.wallPotential.setLongWall(1,false,false);// bottom wall
         pc.wallPotential.setBox(pc.box);  // so it has a boundary
-        
+
+/* WILL BE NEEDED IF DIMENSION RADIO BUTTONS USED
         if (displayBox.graphic() != null) {
             displayBoxPanel.remove(displayBox.graphic());
-            tabbedPane.remove(displayBoxPanel);
-            tabbedPane.remove(blankPanel);
+            getPanel().tabbedPane.remove(displayBoxPanel);
+            getPanel().tabbedPane.remove(blankPanel);
         }
+*/
         if (D == 2) {
-            tabbedPane.insertTab(displayBox.getLabel(), null, displayBoxPanel, "", 0);
+        	getPanel().tabbedPane.insertTab(displayBox.getLabel(), null, displayBoxPanel, "", 0);
             displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getDimensions().x(1)));
             displayBox.setBox(pc.box);
             displayBox.setAlign(1,DisplayBox.BOTTOM);
@@ -560,9 +447,9 @@ public class PistonCylinderGraphic extends SimulationPanel {
             displayBox.addDrawable(pc.pistonPotential);
             displayBox.addDrawable(pc.wallPotential);
             displayBoxPanel.add(displayBox.graphic(),BorderLayout.WEST);
-            tabbedPane.setSelectedComponent(displayBoxPanel);
+            getPanel().tabbedPane.setSelectedComponent(displayBoxPanel);
         } else {
-            tabbedPane.add("Run Faster", blankPanel);
+        	getPanel().tabbedPane.add("Run Faster", blankPanel);
         }
         scaleSlider.setController(pc.controller);
 
@@ -639,41 +526,12 @@ public class PistonCylinderGraphic extends SimulationPanel {
 
 
         nSlider.setController(pc.getController());
-        nSlider.setResetAction(controlButtons.getReinitButton().getAction());
+        nSlider.setResetAction(getController().getReinitButton().getAction());
         nSlider.setBox(pc.box);
         nSlider.setSpecies(pc.species);
         nSlider.setMinimum(0);
         nSlider.setMaximum(200);
 
-
-        if(showTimeControls == true) {
-	        doSleepSlider.setModifier(new Modifier() {
-	            public String getLabel() {return "";}
-	            public Dimension getDimension() {return Undefined.DIMENSION;}
-	            public void setValue(double v) {
-	                int mySleep = (int)v;
-	                if (pc.getSpace().D() == 3) {
-	                    integratorSleep3D = mySleep;
-	                }
-	                else {
-	                    integratorSleep = mySleep;
-	                }
-	                pc.ai.setSleepPeriod(mySleep);
-	            }
-	            public double getValue() {return integratorSleep;}
-	        });
-
-	        pc.integrator.setTimeStep(integratorTimeStepSlider.getValue());
-	        integratorTimeStepSlider.setModifier(new Modifier() {
-	            public String getLabel() {return "";}
-	            public Dimension getDimension() {return Time.DIMENSION;}
-	            public void setValue(double v) {
-	                pc.integrator.setTimeStep(v);
-	            }
-	            public double getValue() {return pc.integrator.getTimeStep();}
-	        });
-	        doSleepSlider.setValue(thisSleep);
-        }
 
         //  data panel
         // the data channel sending the DataTable should be cut off (and hopefully garbage collected)
@@ -790,7 +648,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
             dataStreamPumps.add(pump);
             pc.integrator.addIntervalAction(pump);
             
-            controlButtons.getResetAveragesButton().setPostAction(new Action() {
+            getController().getResetAveragesButton().setPostAction(new Action() {
                 public void actionPerformed() {
                     meterRDF.reset();
                 }
@@ -808,7 +666,7 @@ public class PistonCylinderGraphic extends SimulationPanel {
         // re-initialize the integrator expclitly.  This resets the piston
         // position back to the top.  Also, force the data into the
         // display boxes and repaint the boxes.
-        controlButtons.getReinitButton().setPostAction(new Action() {
+        getController().getReinitButton().setPostAction(new Action() {
             public void actionPerformed() {
                 try {
                     integrator.initialize();
@@ -888,27 +746,18 @@ public class PistonCylinderGraphic extends SimulationPanel {
     }
 
     public static void main(String[] args) {
-        PistonCylinderGraphic pcg = new PistonCylinderGraphic();
-        pcg.init();
-		SimulationGraphic.makeAndDisplayFrame(pcg, APP_NAME);
+        PistonCylinder sim = new PistonCylinder(2);
+        PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
+		SimulationGraphic.makeAndDisplayFrame(pcg.getPanel(), APP_NAME);
     }
 
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            PistonCylinderGraphic pcg = new PistonCylinderGraphic();
-            String doConfigButtonStr = getParameter("doConfigButton");
-            if (doConfigButtonStr != null) {
-                pcg.setDoConfigButton(Boolean.valueOf(doConfigButtonStr).booleanValue());
-            }
-            String doRDFStr = getParameter("doRDF");
-            if (doRDFStr != null) {
-                pcg.setDoRDF(Boolean.valueOf(doRDFStr).booleanValue());
-            }
-            String doNSelectorStr = getParameter("doRDF");
+            PistonCylinder sim = new PistonCylinder(2);
+            PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
 
-            pcg.init();
-            getContentPane().add(pcg);
+            getContentPane().add(pcg.getPanel());
         }
 
         private static final long serialVersionUID = 1L;
