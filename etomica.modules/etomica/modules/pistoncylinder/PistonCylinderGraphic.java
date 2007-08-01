@@ -263,14 +263,21 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         //
         
 	    //combo box to select potentials
+        final String idealGas = "Ideal gas";
+        final String repulsionOnly = "Repulsion only";
+        final String repulsionAttraction = " Repulsion and attraction";
 	    potentialChooser = new javax.swing.JComboBox(new String[] {
-	        "Ideal gas", "Repulsion only", "Repulsion and attraction"});
-	    potentialChooser.setSelectedIndex(0);
+	    		idealGas, repulsionOnly, repulsionAttraction});
+
 
         sigBox = new DeviceBox();
         epsBox = new DeviceBox();
         lamBox = new DeviceBox();
         massBox = new DeviceBox();
+        // Unselectable because "Ideal gas" is selected initially
+	    potentialChooser.setSelectedIndex(0);
+	    epsBox.setEditable(false);
+    	lamBox.setEditable(false);
 
         JPanel potentialPanel = new JPanel(new GridBagLayout());
         potentialPanel.add(potentialChooser,vertGBC);
@@ -464,6 +471,15 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
             if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
+                if((String)evt.getItem() == idealGas ||
+                   (String)evt.getItem() == repulsionOnly) {
+                	epsBox.setEditable(false);
+                	lamBox.setEditable(false);
+                }
+                else {
+                	epsBox.setEditable(true);
+                	lamBox.setEditable(true);	
+                }
             }
         };
         potentialChooser.addItemListener(potentialChooserListener);
