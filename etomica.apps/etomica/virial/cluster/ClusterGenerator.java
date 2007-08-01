@@ -15,6 +15,7 @@ public class ClusterGenerator implements java.io.Serializable {
     private boolean mOnlyDoublyConnected, mOnlyConnected;
     private boolean mExcludeNodalPoint, mExcludeArticulationPoint, mExcludeArticulationPair;
     private boolean mAllPermutations = true;
+    private boolean excludeRootPermutations;
     private boolean mReeHoover;
     private ClusterDiagram mClusterCopy;
     private final int[] mConnectStack;
@@ -28,6 +29,7 @@ public class ClusterGenerator implements java.io.Serializable {
 
     public ClusterGenerator(ClusterDiagram aCluster) {
         mCluster = aCluster;
+        excludeRootPermutations = true;
         mStack = new int[aCluster.mNumBody];
         mMarked = new boolean[aCluster.mNumBody];
         // use an upper bound for # of connections
@@ -102,10 +104,10 @@ public class ClusterGenerator implements java.io.Serializable {
      * Determines whether any cluster permuted from the given one by
      * exchanging points from startPoint to stopPoint (inclusive) has a higher
      * score than that passed in. If such a cluster is located, the method returns
-     * true immeadiately. The method always returns the connections to their
+     * true immediately. The method always returns the connections to their
      * state when the method was called.  If the permutations of the given cluster 
      * do not have a higher score, the cluster's mNumIdenticalPermutations field is 
-     * updated to include the number of identical permuations encountered while 
+     * updated to include the number of identical permutations encountered while 
      * swapping.   
      */
     private boolean swapAllAndCompare(int startPoint, int stopPoint, final ClusterDiagram cluster, int[] score) {
@@ -113,6 +115,9 @@ public class ClusterGenerator implements java.io.Serializable {
         // this is basically the 0th iteration below
         if (startPoint+1 < stopPoint && swapAllAndCompare(startPoint + 1, stopPoint, cluster, score)) {
             return true;
+        }
+        if(cluster.isRootPoint(startPoint) && excludeRootPermutations) {
+            return false;
         }
         // recursively swap startPoint with startPoint+1 to stopPoint
         for (int i = startPoint + 1; i < stopPoint + 1; i++) {
