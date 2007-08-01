@@ -1,5 +1,6 @@
 package etomica.graphics;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
@@ -25,11 +26,17 @@ public class DeviceDelaySlider {
     	DelayModifier mod = new DelayModifier(ai);
 
     	delaySlider = new DeviceSlider(cont, mod);
+    	delaySlider.setShowValues(false);
     	delaySlider.setPrecision(1);
     	delaySlider.setMinimum(0);
     	delaySlider.setMaximum(10);
-    	delaySlider.setNMajor(5);
     	delaySlider.setValue(0);
+    	delaySlider.setNMajor(0);
+	    java.util.Hashtable scaleLabels = new java.util.Hashtable();
+	    scaleLabels.put(new Integer(0), new JLabel( "fast", JLabel.CENTER ));
+	    // slow is 100 : need to know details of DeviceSlider to understand why.
+	    scaleLabels.put(new Integer(100), new JLabel( "slow", JLabel.CENTER ));
+	    delaySlider.getSlider().setLabelTable(scaleLabels);
 
     	delayPanel = new JPanel();
     	delayPanel.setBorder(new TitledBorder(null, "Simulation Delay", TitledBorder.CENTER, TitledBorder.TOP));
