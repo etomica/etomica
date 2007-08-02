@@ -73,7 +73,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
     }
 
     public boolean doTrial() {
-        System.out.println("doTrial() CBMC called"); 
+//        System.out.println("doTrial() CBMC called"); 
 
         // pick a molecule & get its childlist
         atom = moleculeSource.getAtom();
