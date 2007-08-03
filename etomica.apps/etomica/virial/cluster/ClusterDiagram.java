@@ -6,6 +6,7 @@ package etomica.virial.cluster;
  * @author andrew
  */
 public class ClusterDiagram implements java.io.Serializable {
+    
     public final int mNumBody;
     public final int[][] mConnections;
     public int mNumIdenticalPermutations;
@@ -16,12 +17,21 @@ public class ClusterDiagram implements java.io.Serializable {
     public int mReeHooverFactor;
 
     /**
-     * Constructs a cluster having numBody points and numRootPoints root points.
+     * Constructs a cluster having numBody points of which numRootPoints are root points.
      */
     public ClusterDiagram(int numBody, int numRootPoints) {
+        this(numBody, numRootPoints, new int[][] {});
+        makeFullStar();
+    }
+    
+    /**
+     * Constructs a cluster having numBody points of which numRootPoints are root points, 
+     * with bonds as given by the array bonds.  
+     * @param bonds array of integer pairs that specifies nodes that have a bond joining them
+     */
+    public ClusterDiagram(int numBody, int numRootPoints, int[][] bonds) {
         mNumBody = numBody;
         mConnections = new int[mNumBody][mNumBody];
-        makeFullStar();
         mIsRootPoint = new boolean[mNumBody];
         mNumRootPoints = numRootPoints;
         mRootPoints = new int[mNumRootPoints];
@@ -29,7 +39,19 @@ public class ClusterDiagram implements java.io.Serializable {
             mRootPoints[i] = i;
             mIsRootPoint[i] = true;
         }
+        for(int i=0; i<mNumBody; i++) {
+            int[] connections = mConnections[i];
+            for(int j=0; j<connections.length; j++) {
+                connections[j] = -1;
+            }
+        }
         mReeHooverFactor = 1;
+        for(int i=0; i<bonds.length; i++) {
+            int node1 = bonds[i][0];
+            int node2 = bonds[i][1];
+            addConnection(node1, node2);
+            addConnection(node2, node1);
+        }
     }
 
     /**
@@ -91,12 +113,12 @@ public class ClusterDiagram implements java.io.Serializable {
 
     /**
      * Swaps point1 and point2.  Point1 points to everything point2 pointed
-     * to and vica-versa.  Also, everything that pointed to point1 points to 
-     * point2 and vica-versa.  Don't swap root and non-root points.
+     * to and vice-versa.  Also, everything that pointed to point1 points to 
+     * point2 and vice-versa.  Don't swap root and non-root points.
      */
     public void swap(int point1, int point2) {
         // first have things pointing at point1 to point at point2
-        // and vica-versa
+        // and vice-versa
         for (int i = 0; i < mNumBody; i++) {
             boolean foundPoint1, foundPoint2;
             foundPoint1 = false;
@@ -161,7 +183,7 @@ public class ClusterDiagram implements java.io.Serializable {
         int[] connections1 = mConnections[node1];
         for (int i = 0;; i++) {
             if (connections1[i] == node2) {
-                throw new RuntimeException("attempted to add already-existing connection");
+                throw new RuntimeException("attempted to add already-existing connection: ("+node1+", "+node2+")");
             }
             if (connections1[i] == -1) {
                 connections1[i] = node2;
@@ -283,4 +305,18 @@ public class ClusterDiagram implements java.io.Serializable {
         }
     }
 
+    public static void main(String[] args) {
+        int n = 4;
+        ClusterDiagram cluster = new ClusterDiagram(n,0);
+        cluster.deleteConnection(1, 3);
+        cluster.deleteConnection(3, 1);
+        cluster.deleteConnection(0, 2);
+        cluster.deleteConnection(2, 0);
+        int[] score = new int[n];
+        cluster.calcScore(score);
+        System.out.println(etomica.util.Arrays.toString(score));
+        ClusterGenerator cg = new ClusterGenerator(cluster);
+        cg.isMaximumScore();
+        System.out.println(cluster.mNumIdenticalPermutations);
+    }
 }
