@@ -4,29 +4,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 
-
 /**
  * Generates all clusters matching certain criteria.
  * @author andrew
  */
 public class ClusterGenerator implements java.io.Serializable {
-    private final boolean[] mMarked;
-    private final int[] mStack;
-    private boolean mOnlyDoublyConnected, mOnlyConnected;
-    private boolean mExcludeNodalPoint, mExcludeArticulationPoint, mExcludeArticulationPair;
-    private boolean mAllPermutations = true;
-    private boolean excludeRootPermutations;
-    private boolean mReeHoover;
-    private ClusterDiagram mClusterCopy;
-    private final int[] mConnectStack;
-    private int mStartConnection, mStopConnection;
-    private final int[][] mConnectList;
-    private int mConnectStackLen;
-    private int mTotalNumConnections;
-    private int mCurrentConnection;
-    public final ClusterDiagram mCluster;
-    private ClusterGenerator mReeHooverGenerator;
-
+    
     public ClusterGenerator(ClusterDiagram aCluster) {
         mCluster = aCluster;
         excludeRootPermutations = true;
@@ -104,7 +87,7 @@ public class ClusterGenerator implements java.io.Serializable {
      * Determines whether any cluster permuted from the given one by
      * exchanging points from startPoint to stopPoint (inclusive) has a higher
      * score than that passed in. If such a cluster is located, the method returns
-     * true immediately. The method always returns the connections to their
+     * true immediately. The method always restores the connections to their
      * state when the method was called.  If the permutations of the given cluster 
      * do not have a higher score, the cluster's mNumIdenticalPermutations field is 
      * updated to include the number of identical permutations encountered while 
@@ -475,24 +458,17 @@ public class ClusterGenerator implements java.io.Serializable {
      */
     public boolean advance() {
         for (; mCurrentConnection < mTotalNumConnections || mConnectStackLen > 0; mCurrentConnection++) {
-            boolean success = true;
             if (mCurrentConnection == mTotalNumConnections) {
                 // we made it through the whole list. pop a connection off the
                 // mStack and go through the list again from there.
                 mCurrentConnection = mConnectStack[mConnectStackLen - 1];
+                mConnectStackLen--;
                 int node1 = mConnectList[mCurrentConnection][0];
                 int node2 = mConnectList[mCurrentConnection][1];
 //                System.out.println("adding back connection between "+node1+" and "+node2);
-                mConnectStackLen--;
                 mCluster.addConnection(node1, node2);
                 mCluster.addConnection(node2, node1);
                 continue;
-            }
-            for (int l = 0; l < mConnectStackLen; l++) {
-                if (mConnectStack[l] == mCurrentConnection) {
-                    // the connection has already been deleted
-                    continue;
-                }
             }
             int node1 = mConnectList[mCurrentConnection][0];
             int node2 = mConnectList[mCurrentConnection][1];
@@ -510,44 +486,8 @@ public class ClusterGenerator implements java.io.Serializable {
                 throw new RuntimeException(
                         "failed to delete a connection that should have existed");
             }
-            if (mExcludeNodalPoint) {
-                for (int i = mCluster.mNumBody - 1; i >= 0; i--) {
-                    if (isNodalPoint(i)) {
-                        success = false;
-                        break;
-                    }
-                }
-            }
-            if (success && mExcludeArticulationPoint) {
-                for (int i = mCluster.mNumBody - 1; i >= 0; i--) {
-                    if (isArticulationPoint(i)) {
-                        success = false;
-                        break;
-                    }
-                }
-            }
-            if (success && mExcludeArticulationPair) {
-                for (int i = mCluster.mNumBody - 1; i >= 0; i--) {
-                    for (int j = i - 1; j >= 0; j--) {
-                        if (isArticulationPair(i, j)) {
-                            success = false;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (success && mOnlyDoublyConnected) {
-                for (int i = mCluster.mNumBody - 1; i >= 0; i--) {
-                    if (!isConnected(i)) {
-                        success = false;
-                        break;
-                    }
-                }
-            }
-            if (success && mOnlyConnected) {
-                success = isConnected();
-            }
-            if (success) {
+            
+            if (meetsAllCriteria()) {
                 mConnectStack[mConnectStackLen] = mCurrentConnection;
                 mConnectStackLen++;
                 if (mAllPermutations || isMaximumScore()) {
@@ -571,6 +511,45 @@ public class ClusterGenerator implements java.io.Serializable {
         return false;
     }
 
+    //returns true if the current cluster meets all indicated topological criteria
+    private boolean meetsAllCriteria() {
+        if (mExcludeNodalPoint) {
+            for (int i = mCluster.mNumBody - 1; i >= 0; i--) {
+                if (isNodalPoint(i)) {
+                    return false;
+                }
+            }
+        }
+        if (mExcludeArticulationPoint) {
+            for (int i = mCluster.mNumBody - 1; i >= 0; i--) {
+                if (isArticulationPoint(i)) {
+                    return false;
+                }
+            }
+        }
+        if (mExcludeArticulationPair) {
+            for (int i = mCluster.mNumBody - 1; i >= 0; i--) {
+                for (int j = i - 1; j >= 0; j--) {
+                    if (isArticulationPair(i, j)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        if (mOnlyDoublyConnected) {
+            for (int i = mCluster.mNumBody - 1; i >= 0; i--) {
+                if (!isConnected(i)) {
+                    return false;
+                }
+            }
+        }
+        if (mOnlyConnected) {
+            if(!isConnected()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Demonstrates how to use this class.
@@ -649,5 +628,36 @@ public class ClusterGenerator implements java.io.Serializable {
         }
         System.out.println("total time " + (System.currentTimeMillis() - startTime) / 1000 + " seconds");
     }
+    
+    
+    //work arrays used by methods that detect topology of cluster
+    private final boolean[] mMarked;
+    private final int[] mStack;
+    
+    //fields that flag types of clusters to be generated
+    private boolean mOnlyDoublyConnected, mOnlyConnected;
+    private boolean mExcludeNodalPoint, mExcludeArticulationPoint, mExcludeArticulationPair;
+    private boolean mAllPermutations = true;
+    private boolean excludeRootPermutations;
+    private boolean mReeHoover;
+    
+    //used for Ree-Hoover cluster generation
+    private ClusterDiagram mClusterCopy;
+    
+    
+    private final int[] mConnectStack;
+    private int mStartConnection, mStopConnection;
+    
+    //list of all potential connections in a cluster; effectively assigns index to each pair 
+    private final int[][] mConnectList;
+    private int mConnectStackLen;
+    private int mTotalNumConnections;
+    
+    //cursor that holds the state between iterations
+    private int mCurrentConnection;
+    
+    public final ClusterDiagram mCluster;
+    private ClusterGenerator mReeHooverGenerator;
+
 
 }
