@@ -26,8 +26,8 @@ import etomica.species.SpeciesSpheresMono;
 public class Dimer2D extends Simulation {
 
 	private static final long serialVersionUID = 1L;
-	public ActivityIntegrate activityIntegrateDimer;
-	public IntegratorDimerRT integratorDimer;
+	public ActivityIntegrate activityIntegrateDimerRT, activityIntegrateDimerMEP;
+	public IntegratorDimerRT integratorDimerRT, integratorDimerMEP;
 	public SpeciesSpheresMono species;
 	public Box box;
 	public P1LepsHarmonic potential;
@@ -40,7 +40,7 @@ public class Dimer2D extends Simulation {
 		final String APP_NAME = "Dimer2D";
 		final Dimer2D sim = new Dimer2D();
 
-		sim.activityIntegrateDimer.setMaxSteps(1000);
+		sim.activityIntegrateDimerRT.setMaxSteps(500);
 
 		// Write initial configuration
 		WriteConfiguration writeConfig = new WriteConfiguration();
@@ -61,21 +61,21 @@ public class Dimer2D extends Simulation {
 		
 		DataPump pump = new DataPump(energy, elog);
 		
-		sim.integratorDimer.addIntervalAction(pump);
-		sim.integratorDimer.setActionInterval(pump, 1);
+		sim.integratorDimerRT.addIntervalAction(pump);
+		sim.integratorDimerRT.setActionInterval(pump, 1);
 		
 		sim.getController().actionPerformed();
 		
 		
 		System.out.println("---- Saddle Point Data ----");
-		System.out.println("Steps: "+sim.integratorDimer.counter);
+		System.out.println("Steps: "+sim.integratorDimerRT.counter);
 		System.out.println("Dimer Energy: "+energy.getDataAsScalar());
-		System.out.println("Dimer Force Array Magnitude: "+sim.integratorDimer.saddleT);
-		System.out.println("Dimer Rotational Force Magnitude: "+sim.integratorDimer.Frot);
+		System.out.println("Dimer Force Array Magnitude: "+sim.integratorDimerRT.saddleT);
+		System.out.println("Dimer Rotational Force Magnitude: "+sim.integratorDimerRT.Frot);
 		
 		double Fmag = 0;
-		for(int i=0;i<sim.integratorDimer.Feff.length;i++){
-			Fmag += sim.integratorDimer.Feff[i].squared();
+		for(int i=0;i<sim.integratorDimerRT.Feff.length;i++){
+			Fmag += sim.integratorDimerRT.Feff[i].squared();
 		}
 		Fmag = Math.sqrt(Fmag);
 		
@@ -103,18 +103,16 @@ public class Dimer2D extends Simulation {
 		BoxImposePbc imposepbc = new BoxImposePbc();
 		imposepbc.setBox(box);
 		
-		double startx = 0.8;
-		double starty = 0.8;
+		double startx = 0.60;
+		double starty = 0.80;
 		
 		((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().setX(0, startx);
 		((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().setX(1, starty);
 		
 		
+		integratorDimerRT = new IntegratorDimerRT(this, potentialMaster);
 		
-		integratorDimer = new IntegratorDimerRT(this, potentialMaster);
-		
-		activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
-		getController().addAction(activityIntegrateDimer);
-		
+		activityIntegrateDimerRT = new ActivityIntegrate(integratorDimerRT);
+		getController().addAction(activityIntegrateDimerRT);
 	}
 }
