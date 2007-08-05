@@ -1,5 +1,7 @@
 package etomica.virial.cluster;
 
+import java.util.Arrays;
+
 /**
  * Holds information about a cluster diagram, including the bonds, root points,
  * and score.
@@ -304,10 +306,44 @@ public class ClusterDiagram implements java.io.Serializable {
             }
         }
     }
+    
+    //returns true if all pairs in this cluster are bonded as in the other cluster.
+    public boolean equals(ClusterDiagram anotherCluster) {
+        if(this.mNumBody != anotherCluster.mNumBody) return false;
+        if(this.mNumRootPoints != anotherCluster.mNumRootPoints) return false;
+        this.sortConnections();//could use sort
+        anotherCluster.sortConnections();
+        for(int i=0; i<mConnections.length; i++) {
+            if(!Arrays.equals(mConnections[i], anotherCluster.mConnections[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private void sortConnections() {
+        for(int i=0; i<mConnections.length; i++) {
+            mySort(mConnections[i]);
+        }
+    }
 
+    //sorts the given array in decreasing order, so that the -1 entries are (still) last
+    private void mySort(int[] array) {
+        Arrays.sort(array);
+        for(int i=0, j=array.length-1; i<j; i++, j--) {
+            int t = array[i];
+            array[i] = array[j];
+            array[j] = t;
+        }
+    }
+    
     public static void main(String[] args) {
         int n = 4;
         ClusterDiagram cluster = new ClusterDiagram(n,0);
+//        int[] array = new int[] {};
+//        cluster.mySort(array);
+//        System.out.println(etomica.util.Arrays.toString(array));
+//        System.exit(1);
         cluster.deleteConnection(1, 3);
         cluster.deleteConnection(3, 1);
         cluster.deleteConnection(0, 2);
