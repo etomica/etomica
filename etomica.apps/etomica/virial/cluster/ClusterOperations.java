@@ -3,7 +3,7 @@ package etomica.virial.cluster;
 import javax.swing.JPanel;
 
 import etomica.graphics.SimulationGraphic;
-import etomica.virial.junk.MyApplet;
+//import etomica.virial.junk.MyApplet;
 
 public class ClusterOperations {
 
@@ -47,12 +47,12 @@ public class ClusterOperations {
         ClusterDiagram cluster2 = new ClusterDiagram(5,2);
         cluster2 = new ClusterDiagram(5, 2, Standard.ring(5));
         ClusterDiagram product = ClusterOperations.product(cluster1, cluster2);
-        MyApplet applet = new MyApplet();
-        applet.init();
-        applet.starter.addCluster(cluster1);
-        applet.starter.addCluster(cluster2);
-        applet.starter.addCluster(product);
-        JPanel panel = applet.myPanel;
-        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
+//        MyApplet applet = new MyApplet();
+//        applet.init();
+//        applet.starter.addCluster(cluster1);
+//        applet.starter.addCluster(cluster2);
+//        applet.starter.addCluster(product);
+//        JPanel panel = applet.myPanel;
+//        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
     }
 }
