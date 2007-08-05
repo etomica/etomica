@@ -40,7 +40,7 @@ import etomica.virial.cluster.ClusterGenerator;
  */
 
 public class MyApplet extends javax.swing.JApplet {
-    protected JPanel myPanel;
+    public JPanel myPanel;
     protected ClusterDiagram cluster;
     protected ClusterGenerator generator;
     protected int nBody;
@@ -55,7 +55,7 @@ public class MyApplet extends javax.swing.JApplet {
     protected Checkbox reeHooverCB;
     protected boolean running = false;
     protected JButton goButton;
-    protected Starter starter = new Starter();
+    public Starter starter = new Starter();
     protected Stopper stopper = new Stopper();
     protected GraphicsToggler graphicsToggler = new GraphicsToggler();
     protected boolean stopNow;
