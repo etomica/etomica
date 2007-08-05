@@ -40,8 +40,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public double Frot, Fprimerot, dFrot;
 	public double sinDtheta, cosDtheta;
 	public double saddleT;
-	public double dF;
-	public int counter, counter2;
+	public double dFsq;
+	public int counter, rotCounter;
 	public boolean rotate;
 	public IVector [] THETA, THETAstar;
 	public IVector [] F, F1, F2;
@@ -72,16 +72,17 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		this.force2 = new PotentialCalculationForceSum();
 		this.allatoms = new IteratorDirective();
 		this.box = abox;
+		this.deltaT = timeStep;
 		
-		deltaR = 5E-2;
+		deltaR = 1E-2;
 		dTheta = 1E-4;
-		dF = 1E-6;
+		dFsq = 0.00000001;
 		dR = 0.1;
 		dRsquared = dR*dR;
-		deltaT = 0.01;
-		dFrot = 0.001;
+		dFrot = 0.01;
 		counter = 0;
-		counter2 = 0;
+		rotCounter = 0;
+		Frot = 1;
 		rotate = true;
 		
 		sinDtheta = Math.sin(dTheta)*deltaR;
@@ -140,18 +141,21 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		rotateDimerNewton();
 		
-		//System.out.println(counter2);
-		counter2=0;
+		rotCounter=0;
 		
 		translateDimerQuickmin();
 		
-		if(counter%10==0){ 
-			dimerSaddleTolerance();
+		if(counter%10==0){
 			System.out.println(((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(1)
-			+"     "+((IAtomPositioned)box1.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box1.getLeafList().getAtom(0)).getPosition().x(1)
-			+"     "+((IAtomPositioned)box2.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box2.getLeafList().getAtom(0)).getPosition().x(1));
+					+"     "+((IAtomPositioned)box1.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box1.getLeafList().getAtom(0)).getPosition().x(1)
+					+"     "+((IAtomPositioned)box2.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box2.getLeafList().getAtom(0)).getPosition().x(1));
+		
+			dimerSaddleTolerance();
+		
 		}
+		
 		counter++;
+	
 	}
 			
 	// Takes in a current configuration of atoms (Rc) and creates a dimer of their positions (R1 and R2).
@@ -159,8 +163,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	protected void setup() throws ConfigurationOverlapException{
 		super.setup();
 		
-		//Use random unit array for N to generate dimer.
-				
+		// Use random unit array for N to generate dimer.
+
 		// Normalize N
 		double mag = 0;
 		for (int i=0; i<N.length; i++){ 
@@ -208,6 +212,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		}
 		
 		// Write out initial configuration
+		System.out.println(N[0].x(0)+"     "+N[0].x(1));
+		
+		
+		System.out.println(((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(1)
+				+"     "+((IAtomPositioned)box1.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box1.getLeafList().getAtom(0)).getPosition().x(1)
+				+"     "+((IAtomPositioned)box2.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box2.getLeafList().getAtom(0)).getPosition().x(1));
 		
 		// Calculate F's
 		dimerForces(F1, F2, F);
@@ -216,6 +226,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	// Rotate the dimer to align it with the lowest curvature mode of the potential energy surface, NEWTON STYLE.
 	public void rotateDimerNewton(){
 	
+		if(Frot<dFrot){rotate=false;}
+		
 		while(rotate){
 			
 			// Calculate F|_
@@ -277,20 +289,27 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			Fprimerot = 0;
 			for(int i=0; i<Fperp.length; i++){
 				Frot += Fperp[i].dot(THETA[i]);
+				Frot += Fstarperp[i].dot(THETAstar[i]);
 			}
+			Frot = Frot/2.0;
 			
 			for(int i=0; i<Fstar.length; i++){
-				Fprimerot += Fstar[i].dot(THETAstar[i]);
+				Fprimerot += Fstarperp[i].dot(THETAstar[i]);
 			}
 			for(int i=0; i<Fstar.length; i++){
-				Fprimerot -= F[i].dot(THETA[i]);
+				Fprimerot -= Fperp[i].dot(THETA[i]);
 			}
 			
 			Fprimerot = Fprimerot / dTheta;
-			//Frot = Frot/deltaR;
+			
 			
 			// Find actual rotation angle to minimize energy
-			deltaTheta = -0.5 * Math.atan2(2.0*Frot,Fprimerot);
+			
+			// Adatom on surface 
+			deltaTheta = -0.5 * Math.atan2(2.0*Frot,Fprimerot) - dTheta/2.0;
+			
+			
+			if(Fprimerot<0){deltaTheta = deltaTheta + Math.PI/2.0;}
 			
 			// Rotate dimer to new positions and set new N
 			double sindeltaTheta = Math.sin(deltaTheta) * deltaR;
@@ -319,11 +338,13 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			// Calculate new Normal
 			dimerNormal();
 			
-			counter2++;
+			rotCounter++;
 			
 			if(Frot<dFrot){rotate=false;}
+			if(rotCounter>3){rotate=false;}
 		}
-		//rotate=true;
+		//Reset rotate
+		rotate=true;
 	}
 	
 	// Moves the dimer along the lowest curvature mode of the energy surface, Quickmin style.  Runs after rotateDimer[X]().
@@ -333,10 +354,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		dimerCurvature(N, F1, F2);
 		
 		// Calculate F||
-		dimerForcePara(N, F1, F2, Fpara);
+		dimerForcePara(N, F, Fpara);
 		
 		// Calculate Feff
-		dimerForceEff(F1, F2, Feff);
+		dimerForceEff(Fpara, Feff);
 		
 		// Calculate Velocity
 		dimerGetVelocity();
@@ -396,12 +417,13 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		for(int i=0; i<box.atomCount(); i++){
 			aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent1.getAgent(box1.getLeafList().getAtom(i))).force());
 			aF2[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent2.getAgent(box2.getLeafList().getAtom(i))).force());
-			aF[i].Ev1Mv2(aF1[i], aF2[i]);
+			aF[i].Ev1Pv2(aF1[i], aF2[i]);
+			aF[i].Ea1Tv1(0.5, aF[i]);
 		}
 	}
 	
 	// Calculate the force, aF, perpendicular to dimer orientation N.
-	protected static void dimerForcePerp(IVectorRandom [] aN, IVector [] aF1, IVector [] aF2, IVector [] aFperp){
+	protected void dimerForcePerp(IVectorRandom [] aN, IVector [] aF1, IVector [] aF2, IVector [] aFperp){
 		
 		double mag1 = 0;
 		double mag2 = 0;
@@ -416,39 +438,38 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			aFperp[i].PEa1Tv1(-mag1, aN[i]);	
 			aFperp[i].ME(aF2[i]);
 			aFperp[i].PEa1Tv1(mag2, aN[i]);
+			aFperp[i].TE(1.0/deltaR);
 		}
 
 	}
 	
 	// Calculate the net force, aF, parallel to dimer orientation N.
-	protected static void dimerForcePara(IVectorRandom [] aN, IVector [] aF1, IVector [] aF2, IVector [] aFpara){
+	protected void dimerForcePara(IVectorRandom [] aN, IVector [] aF, IVector [] aFpara){
 		
-		double mag1 = 0;
-		double mag2 = 0;
+		double mag = 0;
+		IVector workvector;
+		workvector = box.getSpace().makeVector();
 		
 		// F|| = (F1[dot]N)*N +  (F2[dot]N)*N
-		for(int i=0; i<aF1.length; i++){
-			mag1 += aF1[i].dot(aN[i]);
-			mag2 += aF2[i].dot(aN[i]);
+		for(int i=0; i<aF.length; i++){
+			workvector.E(aF[i]);
+			mag += workvector.dot(aN[i]);
 		}
 		for (int i=0; i<aFpara.length; i++){
-			aFpara[i].Ea1Tv1(mag1, aN[i]);	
-			aFpara[i].PEa1Tv1(mag2, aN[i]);
+			aFpara[i].Ea1Tv1(mag, aN[i]);
 		}
 
 	}
 	
 	// Calculate the effective force on the dimer using curvature and F1, F2
-	protected void dimerForceEff(IVector [] aF1, IVector [] aF2, IVector [] aFeff){
+	protected void dimerForceEff(IVector [] aF, IVector [] aFeff){
 		
-		// Feff = Fr - 2F||
+		// Feff = F - 2F||
 		if(curvature<0){
 			
-			for(int i=0; i<aF1.length; i++){
-				Fr[i].Ev1Pv2(aF1[i], aF2[i]);
-				Fr[i].TE(0.5);
-				aFeff[i].E(Fr[i]);
-				aFeff[i].PEa1Tv1(-2.0, Fpara[i]);
+			for(int i=0; i<aF.length; i++){
+				aFeff[i].Ea1Tv1(-2.0, Fpara[i]);
+				aFeff[i].PE(F[i]);
 			}
 		}
 		// Feff = -F||
@@ -527,10 +548,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			saddleT += ((IntegratorVelocityVerlet.MyAgent)atomAgent0.getAgent(box.getLeafList().getAtom(i))).force().squared();
 		}
 		
-		saddleT = Math.sqrt(saddleT);
-		
 		// Dimer has reached saddle point, write out relevant data
-	 if(saddleT < dF ){
+	 if(saddleT < dFsq ){
 			System.out.println("Saddle Point Reached");
 			System.out.println(counter+"   "+saddleT);
 			System.exit(1);
