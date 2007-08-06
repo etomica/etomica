@@ -17,7 +17,7 @@ public class fFunction {
 
 	/*
 	 * This class is developed to calculate for the first and second
-	 * derivation of energy function.
+	 * derivative of energy function.
 	 * 
 	 * @author Tai Tan
 	 */
@@ -31,10 +31,10 @@ public class fFunction {
 	protected Activity activity;
 	protected int coordinateDim;
 	
-	public fFunction(Box box, PotentialMaster potentialMaster, int coordinateDim){
+	public fFunction(Box box, PotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
-		this.coordinateDim = coordinateDim;
+		this.coordinateDim = 48;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
 		allAtoms = new IteratorDirective();
 		forceSum = new PotentialCalculationForceSum();
@@ -64,58 +64,45 @@ public class fFunction {
 		
 		double[] fPrime = new double [coordinateDim];
 		
-		int j=6;
+		int j=0;
 		potentialMaster.calculate(box, allAtoms, forceSum);
 		
 		for (int m=0; m<molecules.getAtomCount(); m++){
-			for (int k=0; k<3; k++){
-				fPrime[j] =((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecules.getAtom(m)))
-						.force.x(k);
-				j+=coordinateDim /molecules.getAtomCount();
+			if (m==0){
+				for (int k=0;k<3;k++){
+					fPrime[j+k] = 0;
+				}
+			} else {
+				
+				for (int k=0; k<3; k++){
+					fPrime[j+k] =((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecules.getAtom(m)))
+							.force.x(k);
+				}
 			}
+			j+=coordinateDim /molecules.getAtomCount();
 		}
 		return fPrime;
 	}
 	
-	public double[] fPrimeMode(AtomSet molecules, double[] newU){
+	/*
+	 * There are 6 modes; with 8 molecules within a cell
+	 * for 2-D array, it will be a 48 X 48 matrix
+	 * 
+	 */
+
+	
+	public double[][] fDoublePrime(AtomSet molecules, double[] newU){
+		double[][] fDoublePrime = new double [coordinateDim][coordinateDim]; 
 		
-		forceSum.reset();
-		/*
-		 * Index is assigned to be the number of molecules in a box
-		 * fPrimeMode[number]; number equals 6-times Index, 
-		 * 	where we have 6 modes: 3 modes on translation and 3 on rotation for each molecule
-		 */
-		int index = box.getLeafList().getAtomCount();
-		double[] fPrimeMode = new double [6*index];
-		
-		int j=0;
-		potentialMaster.calculate(box, allAtoms, forceSum);
+		//loop over the molecules within the cell
 		
 		for (int p=0; p<molecules.getAtomCount(); p++){
-			IAtom molecule = molecules.getAtom(p);
-			
-		}
 		
-		
-		
-		
-		
-		for (int i=0; i<index; i++){
-			for (int k=0; k<3; k++){
-				fPrimeMode[j] =((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(box.getLeafList().getAtom(i)))
-						.force.x(k);
-				j++;
+			for(int q=0; q<coordinateDim; q++){
+				
+				fDoublePrime[p][q] = fPrime(molecules)[q];
 			}
 		}
-		return fPrimeMode;
-	}
-	
-	public double[][] fDoublePrime(){
-		int index = box.getLeafList().getAtomCount();
-		double[][] fDoublePrime = new double [9*index][9*index]; 
-		
-		
-		
 		return fDoublePrime;
 	}
 	
