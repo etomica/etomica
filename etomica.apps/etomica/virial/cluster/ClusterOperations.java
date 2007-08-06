@@ -1,6 +1,7 @@
 package etomica.virial.cluster;
 
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 import javax.swing.JPanel;
 
@@ -18,7 +19,8 @@ public class ClusterOperations {
     /**
      * Returns a new cluster that is the product of the given clusters.  Input clusters must have the
      * same number of root points and my not both have bonds between the same root points.
-     * The weight of the returned cluster is the product of the weights of the given clusters.
+     * The weight of the returned cluster is the product of the weights of the given clusters.  The
+     * input clusters are not changed.
      */
     public static ClusterDiagram product(ClusterDiagram cluster1, ClusterDiagram cluster2) {
         int numRoot = cluster1.getNumRootPoints();
@@ -54,7 +56,8 @@ public class ClusterOperations {
     
     /**
      * Returns the product of all the given clusters.  Length of input array must
-     * be at least 1, and no null elements are permitted.
+     * be at least 1, and no null elements are permitted.  The input array and
+     * the clusters it contains are unchanged.
      */
     public static ClusterDiagram product(ClusterDiagram[] clusters) {
         ClusterDiagram productDiagram = clusters[0];
@@ -66,7 +69,8 @@ public class ClusterOperations {
     
     /**
      * Returns an array of clusters formed from taking the product of each of the diagrams
-     * of the first set with each of the diagrams of the second set.
+     * of the first set with each of the diagrams of the second set.  The given arrays and
+     * the clusters in them are not changed.
      */
     public static ClusterDiagram[] product(ClusterDiagram[] set1, ClusterDiagram[] set2) {
         LinkedList list = new LinkedList();
@@ -78,7 +82,36 @@ public class ClusterOperations {
                 list.add(product(set1[i],set2[j]));
             }
         }
+        addEquivalents(list);
         return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+    }
+    
+    /**
+     * Replaces all isomorphic clusters in the given list by a single cluster with weight
+     * given by their sum.  Both the list and the the weights of the clusters it contains
+     * may be altered by this method.
+     */
+    public static void addEquivalents(LinkedList list) {
+        ListIterator outer = list.listIterator(0);
+        int j = 0;
+        while(outer.hasNext()) {
+            ClusterDiagram cluster1 = (ClusterDiagram)outer.next();
+            ListIterator inner = list.listIterator(++j);
+            while(inner.hasNext()) {
+                ClusterDiagram cluster2 = (ClusterDiagram)inner.next();
+                if(cluster1.equals(cluster2)) {
+                    cluster1.setWeight(cluster1.getWeight().plus(cluster2.getWeight()));
+                    cluster2.setWeight(Rational.ZERO);
+                }
+            }
+        }
+        //removed clusters having zero weight
+        while(outer.hasPrevious()) {
+            ClusterDiagram cluster = (ClusterDiagram)outer.previous();
+            if(cluster.getWeight().numerator() == 0) {
+                outer.remove();
+            }
+        }
     }
 
     
@@ -131,6 +164,26 @@ public class ClusterOperations {
     }
     
     /**
+     * Generates the set of diagrams obtained by subtracting the second set from the first set.
+     * The returned array contains all diagrams from the first set, with weights modified by subtracting
+     * the weights of matching diagrams from the second set (if present), and all unmatched diagrams from
+     * the seconds set with their weights negated.
+     */
+    public static ClusterDiagram[] difference(ClusterDiagram[] set1, ClusterDiagram[] set2) {
+        LinkedList list = new LinkedList();
+        for(int i=0; i<set1.length; i++) {
+            list.add(new ClusterDiagram(set1[i]));
+        }
+        for(int i=0; i<set2.length; i++) {
+            ClusterDiagram cluster2 = new ClusterDiagram(set2[i]);
+            cluster2.setWeight(cluster2.getWeight().negate());
+            list.add(cluster2);
+        }
+        addEquivalents(list);
+        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+    }
+    
+    /**
      * Returns an array of clusters formed from taking the convolution of each of the diagrams
      * of the first set with each of the diagrams of the second set.
      */
@@ -144,6 +197,7 @@ public class ClusterOperations {
                 list.add(convolution(set1[i],set2[j]));
             }
         }
+        addEquivalents(list);
         return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
     }
     
@@ -180,6 +234,7 @@ public class ClusterOperations {
                 list.add(fCluster);
             }
         }
+        addEquivalents(list);
         return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
     }
     
@@ -237,27 +292,27 @@ public class ClusterOperations {
     }
     
     public static void main(String args[]) {
-//        ClusterDiagram cluster1 = new ClusterDiagram(5, 2, Standard.ring(5));
-//        cluster1.deleteConnection(0, 1);
-//        cluster1.deleteConnection(1, 0);
-//        ClusterDiagram cluster2 = new ClusterDiagram(4,2);
-//        cluster2 = new ClusterDiagram(4, 2, Standard.ring(4));
-//        cluster2.addConnection(0, 2);
-//        cluster2.deleteConnection(0, 1);
-//        cluster2.deleteConnection(1, 0);
-//        ClusterDiagram product = ClusterOperations.convolution(cluster2, cluster1);
-        
+////        ClusterDiagram cluster1 = new ClusterDiagram(5, 2, Standard.ring(5));
+////        cluster1.deleteConnection(0, 1);
+////        cluster1.deleteConnection(1, 0);
+////        ClusterDiagram cluster2 = new ClusterDiagram(4,2);
+////        cluster2 = new ClusterDiagram(4, 2, Standard.ring(4));
+////        cluster2.addConnection(0, 2);
+////        cluster2.deleteConnection(0, 1);
+////        cluster2.deleteConnection(1, 0);
+////        ClusterDiagram product = ClusterOperations.convolution(cluster2, cluster1);
+//        
 //        etomica.virial.junk.MyApplet applet = new etomica.virial.junk.MyApplet();
 //        applet.init();
 //        applet.starter.setDrawNumbersOfBlack(true);
 //        applet.starter.setDrawNumbersOfWhite(true);
-        
-        ClusterOperations ops = new ClusterOperations();
-        ClusterDiagram[] clusters = ops.getH(2);
-//        applet.starter.addCluster(cluster1);
-//        applet.starter.addCluster(cluster2);
-//        applet.starter.addCluster(product);
-        
+//        
+//        ClusterOperations ops = new ClusterOperations();
+//        ClusterDiagram[] clusters = ops.getH(2);
+////        applet.starter.addCluster(cluster1);
+////        applet.starter.addCluster(cluster2);
+////        applet.starter.addCluster(product);
+//        
 //        for(int i=0; i<clusters.length; i++) {
 //            applet.starter.addCluster(clusters[i]);
 //        }
