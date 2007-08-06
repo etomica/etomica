@@ -2,6 +2,8 @@ package etomica.virial.cluster;
 
 import java.util.Arrays;
 
+import etomica.util.Rational;
+
 /**
  * Holds information about a cluster diagram, including the bonds, root points,
  * and score.
@@ -17,9 +19,11 @@ public class ClusterDiagram implements java.io.Serializable {
     private final int[] mRootPoints;
     private final boolean[] mIsRootPoint;
     public int mReeHooverFactor;
+    private Rational weight = new Rational(1,1);
 
     /**
-     * Constructs a cluster having numBody points of which numRootPoints are root points.
+     * Constructs a cluster having numBody points of which numRootPoints are root points, 
+     * with bonds between each pair of points (full star).
      */
     public ClusterDiagram(int numBody, int numRootPoints) {
         this(numBody, numRootPoints, new int[][] {});
@@ -32,6 +36,10 @@ public class ClusterDiagram implements java.io.Serializable {
      * @param bonds array of integer pairs that specifies nodes that have a bond joining them
      */
     public ClusterDiagram(int numBody, int numRootPoints, int[][] bonds) {
+        this(numBody, numRootPoints, bonds, new Rational(1,1));
+    }
+    
+    public ClusterDiagram(int numBody, int numRootPoints, int[][] bonds, Rational weight) {
         mNumBody = numBody;
         mConnections = new int[mNumBody][mNumBody];
         mIsRootPoint = new boolean[mNumBody];
@@ -54,6 +62,7 @@ public class ClusterDiagram implements java.io.Serializable {
             addConnection(node1, node2);
             addConnection(node2, node1);
         }
+        this.weight = weight;
     }
 
     /**
@@ -73,6 +82,7 @@ public class ClusterDiagram implements java.io.Serializable {
         destCluster.mNumConnections = mNumConnections;
         destCluster.mNumIdenticalPermutations = mNumIdenticalPermutations;
         destCluster.mReeHooverFactor = mReeHooverFactor;
+        destCluster.weight = weight;
     }
         
     
@@ -94,6 +104,16 @@ public class ClusterDiagram implements java.io.Serializable {
         return mNumConnections;
     }
     
+    public Rational getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Rational weight) {
+        this.weight = weight;
+        mNumIdenticalPermutations = weight.denominator();
+        mReeHooverFactor = weight.numerator();
+    }
+
     /**
      * Turns this cluster into a full star -- each point in the cluster is
      * connected to every other point in the cluster.
@@ -355,4 +375,7 @@ public class ClusterDiagram implements java.io.Serializable {
         cg.isMaximumScore();
         System.out.println(cluster.mNumIdenticalPermutations);
     }
+    
+    private static final long serialVersionUID = 1L;
+
 }
