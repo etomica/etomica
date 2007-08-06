@@ -27,8 +27,8 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 	protected Activity activity;
 	protected int coordinateDim;
 	
-	public fFunctionParacetamol(Box box, PotentialMaster potentialMaster, int coordinateDim){
-		super(box, potentialMaster, coordinateDim);
+	public fFunctionParacetamol(Box box, PotentialMaster potentialMaster){
+		super(box, potentialMaster);
 		rotationAxis = (IVector3D)box.getSpace().makeVector();
 		a      = (IVector3D)box.getSpace().makeVector();
 		aProj  = (IVector3D)box.getSpace().makeVector();
@@ -41,54 +41,21 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 	}
 	
 	public double f(){
-		
 		return meterEnergy.getDataAsScalar();
-	}
-	
-	public double[] fPrime(){
-		
-		forceSum.reset();
-		/*
-		 * Index is assigned to be the number of molecules in a box
-		 * fPrime[number]; number equals the degree of freedom, 
-		 * 	where dx, dy, and dz to each molecule
-		 */
-		int index = box.getLeafList().getAtomCount();
-		double[] fPrime = new double [coordinateDim];
-		
-		int j=3;
-		potentialMaster.calculate(box, allAtoms, forceSum);
-		
-		
-		for (int m=0; m<index; m++){
-			for (int k=0; k<3; k++){
-				fPrime[j] =((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(box.getLeafList().getAtom(m)))
-						.force.x(k);
-				j+=coordinateDim/box.getLeafList().getAtomCount();
-			}
-		}
-		return fPrime;
 	}
 	
 	public double[] fPrime(AtomSet molecules, double[] newU){
 		
-		super.fPrime(molecules);
+		double[] fPrime = super.fPrime(molecules);
 		
 		forceSum.reset();
 		/*
-		 * Index is assigned to be the number of molecules in a box
 		 * fPrimeMode[number]; number equals 6-times Index, 
 		 * 	where we have 6 modes: 3 modes on translation and 3 on rotation for each molecule
 		 */
 		
-		
-		double[] fPrime = new double [coordinateDim];
-		
 		int j=3;
 		
-		/*
-		 * Picking vectors to define the rotational angle(theta)
-		 */
 		for (int p=0; p<molecules.getAtomCount(); p++){
 			IAtomGroup molecule = (IAtomGroup)molecules.getAtom(p);
 		
@@ -106,29 +73,29 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 			  * To find the rotation axis by taking the cross-product
 			  * of v and delta v
 			  * 
-			  * Creating 3 cases: u[3], u[4], and u[5]
+			  * there are 3 cases: u[3], u[4], and u[5]
 			  * setting the rotation axis correspondingly
 			  */
 			 
 			 //for loop for looping over j
 			 
-			 for (int jay=j; jay<j+3; jay++){
+			 for (int jay=0; jay<3; jay++){
 				 
-				 if(jay%6 ==3){
+				 if(jay==0){
 				 	deltaV.assignTo(new double[]{-newU[j]/Math.sqrt(1-newU[j]*newU[j]-newU[j+1]*newU[j+1]) ,1 ,0});
 				 	rotationAxis.E(v);
 				 	rotationAxis.XE(deltaV);
 				 	rotationAxis.normalize();
 				 } else
 				
-				 if(jay%6 ==4){
+				 if(jay==1){
 					 deltaV.assignTo(new double[]{-newU[j]/Math.sqrt(1-newU[j-1]*newU[j-1]-newU[j]*newU[j]) ,0 ,1});
 					 rotationAxis.E(v);
 					 rotationAxis.XE(deltaV);
 					 rotationAxis.normalize();
 				 }
 				 
-				 if(jay%6 ==5){
+				 if(jay==2){
 					 rotationAxis.E(v);
 				 }
 				 
@@ -145,44 +112,36 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 		    	    	a.Ev1Mv2(((IAtomPositioned)molecule.getChildList().getAtom(q)).getPosition(), leafPos0);
 		    	    	
 		    	    	double dotProd = a.dot(rotationAxis);
-		    	    	aProj.Ea1Tv1(dotProd/rotationAxis.squared(),rotationAxis);
+		    	    	aProj.Ea1Tv1(dotProd,rotationAxis);
 		    	    	
 		    	    	d[q].Ev1Mv2(a, aProj);
-		    	    	d[q].normalize();
 		    	    	
 				 }
 				 
 				 /*
-				  * The forces acting on each invidual atoms within a given p-th molecule
+				  * The forces acting on each individual atoms within a given p-th molecule
 				  *   x-component, y-componet and z-component
 				  *   
 				  *   And summing the torque of all atoms to torqueSum[]
 				  */
 				 for (int q=0; q<molecule.getChildList().getAtomCount(); q++){ 
-					 
-					IVector3D []force = new IVector3D [molecule.getChildList().getAtomCount()];
-				
-					if (jay%6==5){
-						deltaV.E(d[10]);    //distance of atom10 from rotation axis
-						deltaV.XE(rotationAxis);
-						deltaV.normalize();
-					}
 					
-					force[q].E(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecules.getAtom(q))).force());
-					double scalarF = force[q].dot(deltaV);
+					deltaV.E(d[q]);
+					deltaV.XE(rotationAxis);
+					deltaV.normalize();
+				
+					double scalarF = ((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecules.getAtom(q))).force()
+										.dot(deltaV);
 					torqueF[q].Ea1Tv1(scalarF, deltaV);
-					torque[q].E(d[q]);                         // torque = r X F
+					torque[q].E(d[q]);                         // torque = d X F
 					torque[q].XE(torqueF[q]);
 					
-					torqueSum[p].PE(torque[q]);              
+					torqueSum[p].PE(torque[q]);    
 					
 				 }
 				 
-				 
-				 if (jay%6==5){
-					 fPrime[jay] = torqueSum[p].x(0)+torqueSum[p].x(1)+torqueSum[p].x(2); ///********************check torqueSum[p].dot(1,1,1)
-				 } else
-					 fPrime[jay]  = torqueSum[p].dot(deltaV);
+				fPrime[jay+j] = Math.sqrt(torqueSum[p].squared()); 
+				
 			 }
 			 
 			 j += coordinateDim/molecules.getAtomCount();
@@ -190,6 +149,7 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 		
 		return fPrime;
 	}
+	
 	
 	public double[][] fDoublePrime(){
 		int index = box.getLeafList().getAtomCount();
