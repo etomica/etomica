@@ -225,8 +225,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	// Rotate the dimer to align it with the lowest curvature mode of the potential energy surface, NEWTON STYLE.
 	public void rotateDimerNewton(){
-	
-		if(Frot<dFrot){rotate=false;}
 		
 		while(rotate){
 			

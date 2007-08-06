@@ -7,6 +7,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
+import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
@@ -37,7 +38,7 @@ public class IntegratorDimerMEP extends IntegratorBox implements AgentSource {
 	public IteratorDirective allatoms;
 	public IRandom random;
 	public MeterPotentialEnergy energyBox0, energyBoxMin;
-	
+
 	public IVectorRandom [] N, Nstar;
 	public IVector NDelta, NstarDelta;
 	public IVector workVector1;
@@ -79,14 +80,18 @@ public class IntegratorDimerMEP extends IntegratorBox implements AgentSource {
 		dTheta = 1E-4;
 		dFrot = 0.01;
 		rotCounter = 0;
+		counter = 0;
 		Frot = 1;
 		rotate = true;
 		
 		sinDtheta = Math.sin(dTheta)*deltaR;
 		cosDtheta = Math.cos(dTheta)*deltaR;
 		
-		MeterPotentialEnergy energyBox0 = new MeterPotentialEnergy(this.potential);
-		MeterPotentialEnergy energyBoxMin = new MeterPotentialEnergy(this.potential);
+		boxMin = new Box(box.getBoundary());
+		sim.addBox(boxMin);
+		
+		energyBox0 = new MeterPotentialEnergy(this.potential);
+		energyBoxMin = new MeterPotentialEnergy(this.potential);
 		
 		energyBox0.setBox(box);
 		energyBoxMin.setBox(boxMin);
@@ -142,10 +147,8 @@ public class IntegratorDimerMEP extends IntegratorBox implements AgentSource {
 		// Step half-dimer toward the local energy minimum
 		walkDimer();
 		
-		if(counter%10==0){
-			System.out.println(((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(1)
-					+"     "+((IAtomPositioned)boxMin.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)boxMin.getLeafList().getAtom(0)).getPosition().x(1));			
-		}
+		System.out.println(((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(1)
+					+"     "+((IAtomPositioned)boxMin.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)boxMin.getLeafList().getAtom(0)).getPosition().x(1));
 		
 		// Check and see if we're at the minimum energy
 		energyDimer();
@@ -170,11 +173,7 @@ public class IntegratorDimerMEP extends IntegratorBox implements AgentSource {
 			N[i].Ea1Tv1(mag, N[i]);
 		}
 		
-		// Offset Rmin (half-dimer end) from initial configuration, along N.
-		boxMin = new Box(box.getBoundary());
-		
-		sim.addBox(boxMin);
-		
+		// Offset Rmin (half-dimer end) from initial configuration, along N.		
 		atomAgent0 = new AtomAgentManager(this, box);
 		atomAgentMin = new AtomAgentManager(this, boxMin);
 		
@@ -204,8 +203,6 @@ public class IntegratorDimerMEP extends IntegratorBox implements AgentSource {
 	}
 	
 	public void rotateDimerNewton(){
-		
-		if(Frot<dFrot){rotate=false;}
 		
 		while(rotate){
 			
@@ -325,7 +322,8 @@ public class IntegratorDimerMEP extends IntegratorBox implements AgentSource {
 		for(int i=0; i<N.length; i++){
 			workvector.Ea1Tv1(stepLength, N[i]);
 			((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition().PE(workvector);
-			((IAtomPositioned)boxMin.getLeafList().getAtom(i)).getPosition().PE(workvector);
+			((IAtomPositioned)boxMin.getLeafList().getAtom(i)).getPosition().E(((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition());
+			((IAtomPositioned)boxMin.getLeafList().getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
 		}
 		
 		dimerForces(Fmin, F0, Fmin2);
@@ -336,10 +334,12 @@ public class IntegratorDimerMEP extends IntegratorBox implements AgentSource {
 	public void energyDimer(){
 		
 		double eMin, e0;
-		eMin = energyBox0.getDataAsScalar();
-		e0 = energyBoxMin.getDataAsScalar();
+		e0 = energyBox0.getDataAsScalar();
+		eMin = energyBoxMin.getDataAsScalar();
 		
 		if(e0 < eMin){ 
+			System.out.println(((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().x(1)
+					+"     "+((IAtomPositioned)boxMin.getLeafList().getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)boxMin.getLeafList().getAtom(0)).getPosition().x(1));
 			System.out.println("Box0 "+e0);
 			System.out.println("BoxMin "+eMin);
 			System.exit(1);
