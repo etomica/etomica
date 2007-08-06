@@ -22,7 +22,7 @@ package etomica.util;
 //change to compareTo method
 
 public class Rational implements Comparable {
-    private static Rational zero = new Rational(0, 1);
+    public static final Rational ZERO = new Rational(0, 1);
 
     private int num;   // the numerator
     private int den;   // the denominator
@@ -32,7 +32,7 @@ public class Rational implements Comparable {
 
         // deal with x/0
         //if (denominator == 0) {
-        //   throw new RuntimeException("Denominator is zero");
+        //   throw new RuntimeException("Denominator is ZERO");
         //}
 
         // reduce fraction
@@ -120,8 +120,8 @@ public class Rational implements Comparable {
         Rational a = this;
 
         // special cases
-        if (a.compareTo(zero) == 0) return b;
-        if (b.compareTo(zero) == 0) return a;
+        if (a.compareTo(ZERO) == 0) return b;
+        if (b.compareTo(ZERO) == 0) return a;
 
         // Find gcd of numerators and denominators
         int f = gcd(a.num, b.num);
