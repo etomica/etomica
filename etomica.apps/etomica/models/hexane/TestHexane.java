@@ -197,7 +197,7 @@ public class TestHexane extends Simulation {
         int yLng = 4;
         int zLng = 3;
         
-        long nSteps = 5;
+        long nSteps = 10000;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
 
@@ -257,21 +257,17 @@ public class TestHexane extends Simulation {
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
             System.out.println("equilibration finished");
-
+            sim.getController().reset();
+            
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
-            
-            sim.getController().reset();
-            sim.activityIntegrate.setMaxSteps(nSteps);
-            
+                        
 //            IntervalActionAdapter adapter = new IntervalActionAdapter(meterNormalMode);
 //            adapter.setActionInterval(100);
 //            sim.integrator.addListener(adapter);
 
             sim.integrator.addIntervalAction(meterNormalMode);
             sim.integrator.setActionInterval(meterNormalMode, 100);
-            
-            sim.getController().actionPerformed();
             
             DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
             normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
@@ -289,10 +285,6 @@ public class TestHexane extends Simulation {
 //        }
 
         
-        
-        
-        
-        
         WriteS sWriter = new WriteS();
         sWriter.setFilename(filename);
         sWriter.setOverwrite(true);
@@ -301,16 +293,14 @@ public class TestHexane extends Simulation {
         sWriter.setTemperature(sim.integrator.getTemperature());
         
         sim.integrator.addIntervalAction(sWriter);
-        sim.integrator.setActionInterval(sWriter, /*(int)nSteps/10*/ 1);
+        sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
         
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
-        
+
 //        PDBWriter pdbWriter = new PDBWriter(sim.box);
 //        pdbWriter.setFileName("calcS.pdb");
 //        pdbWriter.actionPerformed();
-        
-               
         
         System.out.println("Go look at the data!");
     }
