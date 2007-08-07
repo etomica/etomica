@@ -62,6 +62,14 @@ public class ConfigurationCluster extends Configuration {
         }
         BoxCluster boxCluster = (BoxCluster)box;
         boxCluster.trialNotify();
+     
+        if (boxCluster.getSampleCluster() instanceof ClusterWeightAbs) {
+    		ClusterAbstract innerCluster = ((ClusterWeightAbs)boxCluster.getSampleCluster()).getWeightCluster();
+    		if (innerCluster instanceof ClusterCoupledFlipped) {
+    			((ClusterCoupledFlipped)innerCluster).setPhase(boxCluster);
+    		}
+    }
+        
 		double value = boxCluster.getSampleCluster().value(boxCluster.getCPairSet(), boxCluster.getAPairSet());
         if (value == 0) {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");

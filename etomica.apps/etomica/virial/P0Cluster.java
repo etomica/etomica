@@ -35,6 +35,14 @@ public class P0Cluster extends Potential0 {
 	}
 
     public double weight() {
+    	
+    	if (boxCluster.getSampleCluster() instanceof ClusterWeightAbs) {
+    		ClusterAbstract innerCluster = ((ClusterWeightAbs)boxCluster.getSampleCluster()).getWeightCluster();
+    		if (innerCluster instanceof ClusterCoupledFlipped) {
+    			((ClusterCoupledFlipped)innerCluster).setPhase(boxCluster);
+    		}
+    }
+    	
         return boxCluster.getSampleCluster().value(boxCluster.getCPairSet(), boxCluster.getAPairSet());
     }
 
