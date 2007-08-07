@@ -2,34 +2,26 @@ package etomica.virial.simulations;
 
 
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.exception.ConfigurationOverlapException;
 import etomica.models.water.PotentialWaterGCPM3forB5;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupled;
-import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
+import etomica.virial.ClusterCoupledFlipped;
+import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.SpeciesFactoryWater4P;
+import etomica.virial.SpeciesFactoryWaterGCPM;
 import etomica.virial.cluster.Standard;
-import etomica.virial.overlap.AccumulatorVirialOverlapSingleAverage;
 
 
 
@@ -98,7 +90,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
 
 //        P2WaterSPCE pTarget = new P2WaterSPCE(space);
-//	P2WaterTIP4P pTarget = new P2WaterTIP4P(space);
+	//P2WaterTIP4P pTarget = new P2WaterTIP4P(space);
 //        PotentialWaterPPC2 pTarget = new PotentialWaterPPC2(space);
 //        PotentialWaterPPC9forB3 pTarget = new PotentialWaterPPC9forB3(space);
         //PotentialWaterGCPMforB3 pTarget = new PotentialWaterGCPMforB3(space);
@@ -110,7 +102,6 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
      
 	    MayerGeneral fTarget = new MayerGeneral(pTarget);
 	    MayerEGeneral eTarget = new MayerEGeneral(pTarget);
-//	    ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, nPoints>3, eTarget, temperature);
 	    ClusterSumPolarizable targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, eTarget, false);
 	    //	ClusterCoupled targetClusterCoupled = new ClusterCoupled(targetCluster);
 
@@ -150,7 +141,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 
 //		while (true) {
 
-            SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWater4P(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
+            SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
 //            SimulationVirialOverlap sim = new SimulationVirialOverlap(space,defaults,new SpeciesFactoryWater(), temperature,refCluster,targetCluster);
 
 /*            AtomTreeNodeWater secondWater = (AtomTreeNodeWaterGCPM)((Phase)sim.getPhaseList().get(1)).molecule(1).node;
