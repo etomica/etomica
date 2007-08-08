@@ -86,6 +86,11 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         double u23Pol = Double.NaN;
         // recalculate all f values for all pairs
         PotentialPolarizable scfPotential = null;
+        scfAtoms.clear();
+        scfAtoms123.clear();
+        scfAtoms124.clear();
+        scfAtoms134.clear();
+        scfAtoms234.clear();
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<f.length; k++) {
