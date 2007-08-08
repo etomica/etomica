@@ -15,7 +15,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     }
 
     public ClusterAbstract makeCopy() {
-        return new ClusterCoupled(wrappedCluster);
+        return new ClusterCoupledFlipped(wrappedCluster);
     }
 
     public int pointCount() {
