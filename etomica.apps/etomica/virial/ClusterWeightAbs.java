@@ -8,7 +8,8 @@ package etomica.virial;
  */
 public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
 	
-	protected final ClusterAbstract weightCluster;
+    private static final long serialVersionUID = 1L;
+    protected final ClusterAbstract weightCluster;
 	
 	public ClusterWeightAbs(ClusterAbstract cluster) {
 		weightCluster = cluster;
@@ -41,8 +42,8 @@ public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
 		return weightCluster.pointCount();
 	}
 	
-	public double value(CoordinatePairSet cPairSet, AtomPairSet aPairSet) {
-		return Math.abs(weightCluster.value(cPairSet, aPairSet));
+	public double value(BoxCluster box) {
+		return Math.abs(weightCluster.value(box));
 	}
     
     public void setTemperature(double temp) {

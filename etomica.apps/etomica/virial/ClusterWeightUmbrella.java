@@ -9,7 +9,7 @@ package etomica.virial;
  */
 public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializable {
 	
-	/**
+    /**
 	 * Contructs an umbrella cluster from the given clusters.
 	 */
 	public ClusterWeightUmbrella(ClusterAbstract[] allClusters) {
@@ -31,10 +31,10 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
 		return clusterArray[0].pointCount();
 	}
 
-	public double value(CoordinatePairSet cPairSet, AtomPairSet aPairSet) {
+	public double value(BoxCluster box) {
 		double sum = 0.0;
 		for (int i=0; i<clusterArray.length; i++) {
-			double v = clusterArray[i].value(cPairSet,aPairSet);
+			double v = clusterArray[i].value(box);
 			sum += v*v*weightRatio[i];
 		}
 		return Math.sqrt(sum);
@@ -60,6 +60,7 @@ public class ClusterWeightUmbrella implements ClusterWeight, java.io.Serializabl
         return clusterArray;
     }
     
+    private static final long serialVersionUID = 1L;
     private final ClusterAbstract[] clusterArray;
     private final double[] weightRatio;
 }

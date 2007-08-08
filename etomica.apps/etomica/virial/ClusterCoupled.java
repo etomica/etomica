@@ -22,7 +22,8 @@ public class ClusterCoupled implements ClusterAbstract {
         return wrappedCluster;
     }
     
-    public double value(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    public double value(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
         int thisCPairID = cPairs.getID();
 //      System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) {
@@ -43,13 +44,13 @@ public class ClusterCoupled implements ClusterAbstract {
         lastValue = value;
         cPairID = thisCPairID;
         
-        double v1 = wrappedCluster.value(cPairs,aPairs);
+        double v1 = wrappedCluster.value(box);
         double r = invert(cPairs);
         double v2;
         if (r == -1) {
             return v1;
         }
-        v2 = wrappedCluster.value(cPairs,aPairs);
+        v2 = wrappedCluster.value(box);
         foo += v2/Math.pow(r,3)*v1;
         foo2 += v1*v1;
         double ri = 1/r;

@@ -17,19 +17,19 @@ public class ClusterSumStickyEF extends ClusterSumEF {
         this(cluster.clusters,cluster.clusterWeights,chopF(cluster.f),buddies, random);
     }
     
-    public double value(CoordinatePairLeafSet cPairs, AtomPairSet aPairs) {
+    public double value(BoxCluster box) {
         if (isTrial) {
             //use cached f values, but recalculate the new diagram.
             isTrial = false;
             //forget the old lastValue since we will never go back to it.
             lastValue = value;
             lastCPairID = cPairID;
-            updateF(cPairs,aPairs);
+            updateF(box);
             calcValue();
 //            System.out.println("recalc diagram "+lastValue+" => "+value);
             return value;
         }
-        return super.value(cPairs,aPairs);
+        return super.value(box);
     }
     
     protected void calcValue() {

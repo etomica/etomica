@@ -34,23 +34,10 @@ public class MeterVirial implements DataSource, java.io.Serializable {
     }
     
     public Data getData() {
-        CoordinatePairSet cPairSet = box.getCPairSet();
-        AtomPairSet aPairSet = box.getAPairSet();
-        double pi = box.getSampleCluster().value(cPairSet,aPairSet);
+        double pi = box.getSampleCluster().value(box);
         double x[] = data.getData();
         for (int i=0; i<clusters.length; i++) {
-        	
-    		if (clusters[i] instanceof ClusterCoupledFlipped) {
-    			((ClusterCoupledFlipped)clusters[i]).setPhase(box);
-    		}
-    		else if (clusters[i] instanceof ClusterWeightAbs) {
-    		    ClusterAbstract weightCluster = ((ClusterWeightAbs)clusters[i]).getSubCluster();
-    		    if (weightCluster instanceof ClusterCoupledFlipped) {
-    		        ((ClusterCoupledFlipped)weightCluster).setPhase(box);
-    		    }
-    		}
-        	
-            x[i] = clusters[i].value(cPairSet,aPairSet)/pi;
+            x[i] = clusters[i].value(box)/pi;
             if (Double.isNaN(x[i])) throw new RuntimeException();
         }
         return data;

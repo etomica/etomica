@@ -1,8 +1,5 @@
 package etomica.virial;
 
-import etomica.atom.AtomPair;
-
-
 
 public class ClusterSum implements ClusterAbstract, java.io.Serializable {
 
@@ -34,7 +31,8 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         return copy;
     }
 
-    public double value(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    public double value(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
         int thisCPairID = cPairs.getID();
 //        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) {
@@ -58,7 +56,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         lastValue = value;
         cPairID = thisCPairID;
         
-        updateF(cPairs,aPairs);
+        updateF(box);
 //        checkF(cPairs,aPairs);
         
         calcValue();
@@ -89,8 +87,10 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         oldDirtyAtom = -1;
     }
     
-    protected void updateF(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    protected void updateF(BoxCluster box) {
         int nPoints = pointCount();
+        CoordinatePairSet cPairs = box.getCPairSet();
+        AtomPairSet aPairs = box.getAPairSet();
 
         // recalculate all f values for all pairs
         for(int i=0; i<nPoints-1; i++) {
@@ -108,7 +108,9 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         }
     }
     
-    private void checkF(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    private void checkF(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
+        AtomPairSet aPairs = box.getAPairSet();
         int nPoints = pointCount();
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
@@ -145,6 +147,7 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         beta = 1/temperature;
     }
 
+    private static final long serialVersionUID = 1L;
     protected final ClusterBonds[] clusters;
     protected final double[] clusterWeights;
     protected final MayerFunction[] f;

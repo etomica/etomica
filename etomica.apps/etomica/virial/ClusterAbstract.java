@@ -18,7 +18,7 @@ public interface ClusterAbstract {
      * Value of this cluster for the given pairset at the specified reciprocal
      * temperature.
      */
-    public double value(CoordinatePairSet cPairs, AtomPairSet aPairs);
+    public double value(BoxCluster box);
 
     public void setTemperature(double temperature);
     

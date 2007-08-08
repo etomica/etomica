@@ -34,7 +34,8 @@ public class ClusterTree implements ClusterAbstract {
         return bondsTree.pointCount();
     }
 
-    public double value(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    public double value(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
         int thisCPairID = cPairs.getID();
 //      System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) {
@@ -56,7 +57,7 @@ public class ClusterTree implements ClusterAbstract {
         lastValue = value;
         cPairID = thisCPairID;
       
-        updateF(cPairs,aPairs);
+        updateF(cPairs,box.getAPairSet());
         value = bondsTree.value(fValues);
         return value;
     }

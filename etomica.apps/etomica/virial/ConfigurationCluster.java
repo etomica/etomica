@@ -62,15 +62,8 @@ public class ConfigurationCluster extends Configuration {
         }
         BoxCluster boxCluster = (BoxCluster)box;
         boxCluster.trialNotify();
-     
-        if (boxCluster.getSampleCluster() instanceof ClusterWeightAbs) {
-    		ClusterAbstract innerCluster = ((ClusterWeightAbs)boxCluster.getSampleCluster()).getSubCluster();
-    		if (innerCluster instanceof ClusterCoupledFlipped) {
-    			((ClusterCoupledFlipped)innerCluster).setPhase(boxCluster);
-    		}
-    }
         
-		double value = boxCluster.getSampleCluster().value(boxCluster.getCPairSet(), boxCluster.getAPairSet());
+		double value = boxCluster.getSampleCluster().value(boxCluster);
         if (value == 0) {
             System.out.println("initial cluster value bad... trying to fix it.  don't hold your breath.");
         }
@@ -87,7 +80,7 @@ public class ConfigurationCluster extends Configuration {
                 translator.actionPerformed(a);
 			}
             boxCluster.trialNotify();
-			value = boxCluster.getSampleCluster().value(boxCluster.getCPairSet(),boxCluster.getAPairSet());
+			value = boxCluster.getSampleCluster().value(boxCluster);
             System.out.println("value "+value);
             if (value != 0) {
                 System.out.println("that wasn't so bad.");

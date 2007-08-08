@@ -26,7 +26,9 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         return wrappedCluster;
     }
     
-    public double value(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    public double value(BoxCluster box) {
+        AtomSet atomList = ((AtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
+        CoordinatePairSet cPairs = box.getCPairSet();
         int thisCPairID = cPairs.getID();
 //      System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) {
@@ -48,7 +50,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         cPairID = thisCPairID;
         
         // Calculate original value (neither molecule flipped)
-        double vsum = wrappedCluster.value(cPairs,aPairs);
+        double vsum = wrappedCluster.value(box);
         value = vsum;
 //        if (Math.random() > 0.99) System.out.println("value = " + value);
 //        if (true) return value;
@@ -60,9 +62,9 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
  //       vsum += wrappedCluster.value(cPairs,aPairs);
 
         // Flip molecule 1 and calculate value
-        flip(1);
+        flip((IAtomGroup)atomList.getAtom(1));
         cPairs.reset();
-        vsum += wrappedCluster.value(cPairs,aPairs);
+        vsum += wrappedCluster.value(box);
         
         // Unflip molecule 0 and calculate value
   //      flip(0);
@@ -79,26 +81,21 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
 //        v /= (1 + r2*r2);
         
         // Unflip molecule 1 - back to original configuration
-        flip(1);
+        flip((IAtomGroup)atomList.getAtom(1));
         cPairs.reset();
 //        System.out.println("Original value back again? = " + wrappedCluster.value(cPairs,aPairs));
         cPairID = cPairs.getID();
         return value;
     }
     
-    private void flip(int moleculeNumber) {
-    		IAtomGroup flippedMolecule = (IAtomGroup)atomList.getAtom(moleculeNumber);
-    		IVector COM = flippedMolecule.getType().getPositionDefinition().position(flippedMolecule);
-    		AtomSet childAtoms = flippedMolecule.getChildList();
-    		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
-    			childAtomVector.Ea1Tv1(2,COM);
-    			childAtomVector.ME(((IAtomPositioned)childAtoms.getAtom(i)).getPosition());
-    			((IAtomPositioned)childAtoms.getAtom(i)).getPosition().E(childAtomVector);
-    		}
-     }
-    
-    public void setPhase(BoxCluster box) {
-        atomList = ((AtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
+    private void flip(IAtomGroup flippedMolecule) {
+        IVector COM = flippedMolecule.getType().getPositionDefinition().position(flippedMolecule);
+		AtomSet childAtoms = flippedMolecule.getChildList();
+		for (int i = 0; i < childAtoms.getAtomCount(); i++) {
+		    childAtomVector.Ea1Tv1(2,COM);
+			childAtomVector.ME(((IAtomPositioned)childAtoms.getAtom(i)).getPosition());
+			((IAtomPositioned)childAtoms.getAtom(i)).getPosition().E(childAtomVector);
+		}
     }
 
     public void setTemperature(double temperature) {
@@ -106,7 +103,6 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     }
     
     private final ClusterAbstract wrappedCluster;
-    private AtomSet atomList;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     public double foo, foo2;

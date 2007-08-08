@@ -47,7 +47,9 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         return new ClusterSumPolarizable(clusters,clusterWeights,f);
     }
 
-    public double value(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    public double value(BoxCluster box) {
+        CoordinatePairSet cPairs = box.getCPairSet();
+        AtomPairSet aPairs = box.getAPairSet();
         int thisCPairID = cPairs.getID();
 //        System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
         if (thisCPairID == cPairID) return value;
@@ -673,6 +675,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 
     }
 */    
+    private static final long serialVersionUID = 1L;
     private final ClusterBonds[] clusters;
     private final double[] clusterWeights;
     private final MayerFunction[] f;
