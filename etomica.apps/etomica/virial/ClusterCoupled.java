@@ -45,7 +45,7 @@ public class ClusterCoupled implements ClusterAbstract {
         cPairID = thisCPairID;
         
         double v1 = wrappedCluster.value(box);
-        double r = invert(cPairs);
+        double r = invert(box);
         double v2;
         if (r == -1) {
             return v1;
@@ -61,13 +61,14 @@ public class ClusterCoupled implements ClusterAbstract {
 //            System.out.println(" w "+v+" r "+r);
         }
 //        v /= (1 + r2*r2);
-        invert(cPairs);
+        invert(box);
         return value;
     }
     
-    private double invert(CoordinatePairSet cPairs) {
+    private double invert(BoxCluster box) {
         double minmax = -1;
         IAtomPositioned minMaxAtom = null;
+        AtomSet atomList = ((IAtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
         for (int i=1; i<atomList.getAtomCount(); i++) {
             IAtomPositioned atom = (IAtomPositioned)atomList.getAtom(i);
             double r = atom.getPosition().squared(); // sqrt
@@ -98,20 +99,15 @@ public class ClusterCoupled implements ClusterAbstract {
         minMaxAtom.getPosition().TE(1/r); //(2/r-1);
 //        double rN = Math.sqrt(minMaxAtom.coord.position().squared());
 //        System.out.println("now at "+minMaxAtom.coord.position()+" (r="+rN+")");
-        cPairs.reset();
+        box.getCPairSet().reset();
         return r;
     }
     
-    public void setBox(BoxCluster box) {
-        atomList = ((IAtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
-    }
-
     public void setTemperature(double temperature) {
         wrappedCluster.setTemperature(temperature);
     }
     
     private final ClusterAbstract wrappedCluster;
-    private AtomSet atomList;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
     public double foo, foo2;

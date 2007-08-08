@@ -14,8 +14,8 @@ import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
+import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
-import etomica.virial.ClusterCoupled;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;
 import etomica.virial.MCMoveClusterAtomMulti;
@@ -25,7 +25,6 @@ import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MCMoveClusterWiggleMulti;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
-import etomica.virial.BoxCluster;
 import etomica.virial.SpeciesFactory;
 
 /**
@@ -48,13 +47,6 @@ public class SimulationVirial extends Simulation {
         getSpeciesManager().addSpecies(species);
         box.setNMolecules(species, nMolecules);
         
-        if (refCluster instanceof ClusterCoupled) {
-            ((ClusterCoupled)refCluster).setBox(box);
-        }
-        if (targetClusters[0] instanceof ClusterCoupled) {
-            ((ClusterCoupled)targetClusters[0]).setBox(box);
-        }
-
         integrator = new IntegratorMC(this, potentialMaster);
         // it's unclear what this accomplishes, but let's do it just for fun.
 		integrator.setTemperature(temperature);
