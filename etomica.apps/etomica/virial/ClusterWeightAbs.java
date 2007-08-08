@@ -48,8 +48,4 @@ public class ClusterWeightAbs implements ClusterWeight, java.io.Serializable {
     public void setTemperature(double temp) {
         weightCluster.setTemperature(temp);
     }
-	
-    public ClusterAbstract getWeightCluster() {
-		return weightCluster;
-}
 }

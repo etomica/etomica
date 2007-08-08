@@ -64,7 +64,7 @@ public class ConfigurationCluster extends Configuration {
         boxCluster.trialNotify();
      
         if (boxCluster.getSampleCluster() instanceof ClusterWeightAbs) {
-    		ClusterAbstract innerCluster = ((ClusterWeightAbs)boxCluster.getSampleCluster()).getWeightCluster();
+    		ClusterAbstract innerCluster = ((ClusterWeightAbs)boxCluster.getSampleCluster()).getSubCluster();
     		if (innerCluster instanceof ClusterCoupledFlipped) {
     			((ClusterCoupledFlipped)innerCluster).setPhase(boxCluster);
     		}
