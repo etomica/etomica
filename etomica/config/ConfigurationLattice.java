@@ -5,14 +5,15 @@ import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
@@ -157,15 +158,19 @@ public class ConfigurationLattice extends Configuration {
         indexIterator.reset();
         for (IAtom a = atomIterator.nextAtom(); a != null;
              a = atomIterator.nextAtom()) {
+            int[] ii = indexIterator.next();
             if (a instanceof IAtomGroup) {
                 // initialize coordinates of child atoms
                 Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
                 config.initializePositions(((IAtomGroup)a).getChildList());
+                atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
+                atomActionTranslateTo.actionPerformed(a);
             }
-
-            int[] ii = indexIterator.next();
-            atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
-            atomActionTranslateTo.actionPerformed(a);
+            else{
+                ((IAtomPositioned)a).getPosition().E((IVector)myLat.site(ii));
+            }
+            
+            
         }
     }
 
