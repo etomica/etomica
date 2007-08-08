@@ -12,6 +12,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     public ClusterCoupledFlipped(ClusterAbstract cluster) {
         wrappedCluster = cluster;
         childAtomVector = new Vector3D();
+        flippedAtoms = new boolean[cluster.pointCount()];
     }
 
     public ClusterAbstract makeCopy() {
@@ -48,42 +49,35 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         lastCPairID = cPairID;
         lastValue = value;
         cPairID = thisCPairID;
-        
-        // Calculate original value (neither molecule flipped)
-        double vsum = wrappedCluster.value(box);
-        value = vsum;
-//        if (Math.random() > 0.99) System.out.println("value = " + value);
-//        if (true) return value;
-//        System.out.println("Original value = " + vsum);
-        
-        // Flip molecule 0 and calculate value
- //       flip(0);
- //       cPairs.reset();
- //       vsum += wrappedCluster.value(cPairs,aPairs);
 
-        // Flip molecule 1 and calculate value
-        flip((IAtomGroup)atomList.getAtom(1));
-        cPairs.reset();
-        vsum += wrappedCluster.value(box);
+        final int pointCount = wrappedCluster.pointCount();
         
-        // Unflip molecule 0 and calculate value
-  //      flip(0);
-  //      cPairs.reset();
-  //      vsum += wrappedCluster.value(cPairs,aPairs);
+        for (int i=0; i<pointCount; i++) {
+            flippedAtoms[i] = false;
+        }
         
-//        if (cPairs.getCPair(0,1).r2() > 25 && Math.random() > 0.999) System.out.println("Squrared O-O distance = " + cPairs.getCPair(0,1).r2() + ", v1 = " + v1 + ", v2 = " + v2);
-        value = vsum/2; //4;
-        //if (v1*v2 < 0) {
-//            System.out.println("r "+r+" v "+v1+" v2 "+v2);
-//            System.out.print("v "+v1*(r*r)+" v2 "+v2/(ri*ri));
-//            System.out.println(" w "+v+" r "+r);
-        //}
-//        v /= (1 + r2*r2);
+        double vsum = wrappedCluster.value(box);
+
+        // loop through the atoms, toggling each one until we toggle one "on"
+        // this should generate each combination of flipped/unflipped for all
+        // the molecules
+        while (true) {
+            boolean didFlipTrue = false;
+            for (int i=0; !didFlipTrue && i<pointCount; i++) {
+                flippedAtoms[i] = !flippedAtoms[i];
+                didFlipTrue = flippedAtoms[i];
+                flip((IAtomGroup)atomList.getAtom(i));
+            }
+            if (!didFlipTrue) {
+                // if we flipped every atom from true to false, we must be done
+                break;
+            }
+            cPairs.reset();
+            vsum += wrappedCluster.value(box);
+        }
         
-        // Unflip molecule 1 - back to original configuration
-        flip((IAtomGroup)atomList.getAtom(1));
-        cPairs.reset();
-//        System.out.println("Original value back again? = " + wrappedCluster.value(cPairs,aPairs));
+        value = vsum / Math.pow(2, pointCount);
+        
         cPairID = cPairs.getID();
         return value;
     }
@@ -105,6 +99,6 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     private final ClusterAbstract wrappedCluster;
     protected int cPairID = -1, lastCPairID = -1;
     protected double value, lastValue;
-    public double foo, foo2;
+    protected final boolean[] flippedAtoms;
     private IVector childAtomVector;
 }
