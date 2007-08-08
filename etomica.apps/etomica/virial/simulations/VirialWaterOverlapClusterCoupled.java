@@ -141,7 +141,6 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 //		while (true) {
 
             SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
-//            SimulationVirialOverlap sim = new SimulationVirialOverlap(space,defaults,new SpeciesFactoryWater(), temperature,refCluster,targetCluster);
 
 /*            AtomTreeNodeWater secondWater = (AtomTreeNodeWaterGCPM)((Phase)sim.getPhaseList().get(1)).molecule(1).node;
             secondWater.H1.coord.position().PE(20);
