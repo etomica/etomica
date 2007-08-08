@@ -102,8 +102,8 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
      
 	    MayerGeneral fTarget = new MayerGeneral(pTarget);
 	    MayerEGeneral eTarget = new MayerEGeneral(pTarget);
-	    ClusterSumPolarizable targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, eTarget, false);
-	    //	ClusterCoupled targetClusterCoupled = new ClusterCoupled(targetCluster);
+	    ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, eTarget, false);
+	    targetCluster = new ClusterCoupledFlipped(targetCluster);
 
 // old "trunc" code before flipping molecules; KMB and AJS, 7/25/07
 /*	    if (args.length > 3 && args[3].equals("trunc")) {
@@ -116,7 +116,6 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
         }
         else {
 */        	    sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster.makeCopy());
-  //      	    sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetClusterCoupled.makeCopy());
                              
 //        }
 
@@ -132,7 +131,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
         targetCluster.setTemperature(temperature);
         refCluster.setTemperature(temperature);
         sampleCluster1.setTemperature(temperature);
-        refCluster.setTemperature(temperature);
+        refSample.setTemperature(temperature);
 
 
 //        System.out.println(steps+" steps of size "+defaults.blockSize);
@@ -197,6 +196,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
             String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
             sim.initRefPref(refFileName,steps/100);
             sim.equilibrate(refFileName,steps/40);
+            sim.setRefPref(19.325574333497855);
 
 /*            try { 
 
