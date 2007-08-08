@@ -44,8 +44,8 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
             iterator2.setBox(box2);
         }
 
-        weightOld1 = box1.getSampleCluster().value(box1.getCPairSet(), box1.getAPairSet());
-        weightOld2 = box2.getSampleCluster().value(box2.getCPairSet(), box2.getAPairSet());
+        weightOld1 = box1.getSampleCluster().value(box1);
+        weightOld2 = box2.getSampleCluster().value(box2);
         
 //        System.out.println("in trial "+integrator2.getWeight()+" "+weightOld2);
 //        System.out.println("in trial "+integrator1.getWeight()+" "+weightOld1);
@@ -74,8 +74,8 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     public double getB() {return 0.0;}
     
     public double getA() {
-        weightNew1 = box1.getSampleCluster().value(box1.getCPairSet(), box1.getAPairSet());
-        weightNew2 = box2.getSampleCluster().value(box2.getCPairSet(), box2.getAPairSet());
+        weightNew1 = box1.getSampleCluster().value(box1);
+        weightNew2 = box2.getSampleCluster().value(box2);
 //        System.out.println(weightOld1+" "+weightOld2+" "+weightNew1+" "+weightNew2);
         return  (weightNew1 * weightNew2) / (weightOld1 * weightOld2);
     }
