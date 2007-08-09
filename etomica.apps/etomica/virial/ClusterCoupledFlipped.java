@@ -67,12 +67,12 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
                 flippedAtoms[i] = !flippedAtoms[i];
                 didFlipTrue = flippedAtoms[i];
                 flip((IAtomGroup)atomList.getAtom(i));
+                cPairs.reset();
             }
             if (!didFlipTrue) {
                 // if we flipped every atom from true to false, we must be done
                 break;
             }
-            cPairs.reset();
             vsum += wrappedCluster.value(box);
         }
         
