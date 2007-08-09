@@ -627,106 +627,57 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
          * kmb, 8/7/06
          */
 
-        double comW1Xcomp = 0.0;
-        double comW1Ycomp = 0.0;
-        double comW1Zcomp = 0.0;
-        
-        comW1Xcomp = massH*H11r.x(0) + massO*O1r.x(0) + massH*H12r.x(0);
-        comW1Ycomp = massH*H11r.x(1) + massO*O1r.x(1) + massH*H12r.x(1);
-        comW1Zcomp = massH*H11r.x(2) + massO*O1r.x(2) + massH*H12r.x(2);
-        
-        comW1.setX(0,comW1Xcomp);
-        comW1.setX(1,comW1Ycomp);
-        comW1.setX(2,comW1Zcomp);
-        
-        comW1.Ea1Tv1(1/totalMass,comW1);
+        // Find Eq1
+        comW1.Ea1Tv1(massH, H11r);
+        comW1.PEa1Tv1(massO, O1r);
+        comW1.PEa1Tv1(massH, H12r);
+        comW1.TE(1.0/totalMass);
 
-        double comW2Xcomp = 0.0;
-        double comW2Ycomp = 0.0;
-        double comW2Zcomp = 0.0;
-        
-        comW2Xcomp = massH*H21r.x(0) + massO*O2r.x(0) + massH*H22r.x(0);
-        comW2Ycomp = massH*H21r.x(1) + massO*O2r.x(1) + massH*H22r.x(1);
-        comW2Zcomp = massH*H21r.x(2) + massO*O2r.x(2) + massH*H22r.x(2);
-        
-        comW2.setX(0,comW2Xcomp);
-        comW2.setX(1,comW2Ycomp);
-        comW2.setX(2,comW2Zcomp);
-        
-        comW2.Ea1Tv1(1/totalMass,comW2);
-
-        double comW3Xcomp = 0.0;
-        double comW3Ycomp = 0.0;
-        double comW3Zcomp = 0.0;
-        
-        comW3Xcomp = massH*H31r.x(0) + massO*O3r.x(0) + massH*H32r.x(0);
-        comW3Ycomp = massH*H31r.x(1) + massO*O3r.x(1) + massH*H32r.x(1);
-        comW3Zcomp = massH*H31r.x(2) + massO*O3r.x(2) + massH*H32r.x(2);
-        
-        comW3.setX(0,comW3Xcomp);
-        comW3.setX(1,comW3Ycomp);
-        comW3.setX(2,comW3Zcomp);
-        
-        comW3.Ea1Tv1(1/totalMass,comW3);
-
-        
-        double Eq1XcompW2 = 0.0;
-        double Eq1YcompW2 = 0.0;
-        double Eq1ZcompW2 = 0.0;
-        double Eq1XcompW3 = 0.0;
-        double Eq1YcompW3 = 0.0;
-        double Eq1ZcompW3 = 0.0;
-
-        
         double comW1toH21 = Math.sqrt(comW1.Mv1Squared(H21r));
         double comW1toH22 = Math.sqrt(comW1.Mv1Squared(H22r));
         double comW1toM2 = Math.sqrt(comW1.Mv1Squared(M2r));
-
         double comW1toH31 = Math.sqrt(comW1.Mv1Squared(H31r));
         double comW1toH32 = Math.sqrt(comW1.Mv1Squared(H32r));
         double comW1toM3 = Math.sqrt(comW1.Mv1Squared(M3r));
 
-        // Contributions to sum from water#2
-        Eq1XcompW2 += chargeH21*(comW1.x(0)-H21r.x(0))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW2 += chargeH22*(comW1.x(0)-H22r.x(0))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW2 += chargeM2*(comW1.x(0)-M2r.x(0))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        // Contributions to sum #1 from water molecule#2
+        double fac = chargeH21/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))
+                -Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW1, H21r);
+        Eq1.Ea1Tv1(fac, work);
 
-        Eq1YcompW2 += chargeH21*(comW1.x(1)-H21r.x(1))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW2 += chargeH22*(comW1.x(1)-H22r.x(1))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW2 += chargeM2*(comW1.x(1)-M2r.x(1))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        fac = chargeH22/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))
+                -Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW1, H22r);
+        Eq1.PEa1Tv1(fac, work);
 
-        Eq1ZcompW2 += chargeH21*(comW1.x(2)-H21r.x(2))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW2 += chargeH22*(comW1.x(2)-H22r.x(2))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW2 += chargeM2*(comW1.x(2)-M2r.x(2))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
-
+        fac = chargeM2/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))
+                -Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        work.Ev1Mv2(comW1, M2r);
+        Eq1.PEa1Tv1(fac, work);
         
-        // Contributions to sum from water#3
-        Eq1XcompW3 += chargeH31*(comW1.x(0)-H31r.x(0))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW3 += chargeH32*(comW1.x(0)-H32r.x(0))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW3 += chargeM3*(comW1.x(0)-M3r.x(0))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
+        // Contributions to sum #1 from water molecule#3
+        fac = chargeH31/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))
+                -Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW1, H31r);
+        Eq1.PEa1Tv1(fac, work);
 
-        Eq1YcompW3 += chargeH31*(comW1.x(1)-H31r.x(1))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW3 += chargeH32*(comW1.x(1)-H32r.x(1))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW3 += chargeM3*(comW1.x(1)-M3r.x(1))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
+        fac = chargeH32/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))
+                -Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW1, H32r);
+        Eq1.PEa1Tv1(fac, work);
 
-        Eq1ZcompW3 += chargeH31*(comW1.x(2)-H31r.x(2))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW3 += chargeH32*(comW1.x(2)-H32r.x(2))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW3 += chargeM3*(comW1.x(2)-M3r.x(2))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
-        
-        
-        Eq1.setX(0,Eq1XcompW2+Eq1XcompW3);
-        Eq1.setX(1,Eq1YcompW2+Eq1YcompW3);
-        Eq1.setX(2,Eq1ZcompW2+Eq1ZcompW3);
+        fac = chargeM3/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))
+                -Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
+        work.Ev1Mv2(comW1, M3r);
+        Eq1.PEa1Tv1(fac, work);
 
-                
-        double Eq2XcompW1 = 0.0;
-        double Eq2YcompW1 = 0.0;
-        double Eq2ZcompW1 = 0.0;
-        double Eq2XcompW3 = 0.0;
-        double Eq2YcompW3 = 0.0;
-        double Eq2ZcompW3 = 0.0;
+        // Find Eq2
+        comW2.Ea1Tv1(massH, H21r);
+        comW2.PEa1Tv1(massO, O2r);
+        comW2.PEa1Tv1(massH, H22r);
+        comW2.TE(1.0/totalMass);
 
-        
         double comW2toH11 = Math.sqrt(comW2.Mv1Squared(H11r));
         double comW2toH12 = Math.sqrt(comW2.Mv1Squared(H12r));
         double comW2toM1 = Math.sqrt(comW2.Mv1Squared(M1r));
@@ -734,48 +685,44 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double comW2toH32 = Math.sqrt(comW2.Mv1Squared(H32r));
         double comW2toM3 = Math.sqrt(comW2.Mv1Squared(M3r));
 
-        // Contributions to sum from water molecule#1
-        Eq2XcompW1 += chargeH11*(comW2.x(0)-H11r.x(0))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW1 += chargeH12*(comW2.x(0)-H12r.x(0))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW1 += chargeM1*(comW2.x(0)-M1r.x(0))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        // Contributions to sum #2 from water molecule#1
+        fac = chargeH11/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))
+                -Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW2, H11r);
+        Eq2.Ea1Tv1(fac, work);
 
-        Eq2YcompW1 += chargeH11*(comW2.x(1)-H11r.x(1))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW1 += chargeH12*(comW2.x(1)-H12r.x(1))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW1 += chargeM1*(comW2.x(1)-M1r.x(1))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        fac = chargeH12/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))
+                -Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW2, H12r);
+        Eq2.PEa1Tv1(fac, work);
 
-        Eq2ZcompW1 += chargeH11*(comW2.x(2)-H11r.x(2))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW1 += chargeH12*(comW2.x(2)-H12r.x(2))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW1 += chargeM1*(comW2.x(2)-M1r.x(2))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
-
-
-        // Contributions to sum from water molecule#3
-        Eq2XcompW3 += chargeH31*(comW2.x(0)-H31r.x(0))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW3 += chargeH32*(comW2.x(0)-H32r.x(0))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW3 += chargeM3*(comW2.x(0)-M3r.x(0))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
-
-        Eq2YcompW3 += chargeH31*(comW2.x(1)-H31r.x(1))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW3 += chargeH32*(comW2.x(1)-H32r.x(1))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW3 += chargeM3*(comW2.x(1)-M3r.x(1))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
-
-        Eq2ZcompW3 += chargeH31*(comW2.x(2)-H31r.x(2))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW3 += chargeH32*(comW2.x(2)-H32r.x(2))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW3 += chargeM3*(comW2.x(2)-M3r.x(2))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
+        fac = chargeM1/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))
+                -Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        work.Ev1Mv2(comW2, M1r);
+        Eq2.PEa1Tv1(fac, work);
         
-        
-        Eq2.setX(0,Eq2XcompW1+Eq2XcompW3);
-        Eq2.setX(1,Eq2YcompW1+Eq2YcompW3);
-        Eq2.setX(2,Eq2ZcompW1+Eq2ZcompW3);
+        // Contributions to sum #2 from water molecule#3
+        fac = chargeH31/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))
+                -Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW2, H31r);
+        Eq2.PEa1Tv1(fac, work);
 
+        fac = chargeH32/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))
+                -Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW2, H32r);
+        Eq2.PEa1Tv1(fac, work);
+
+        fac = chargeM3/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))
+                -Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
+        work.Ev1Mv2(comW2, M3r);
+        Eq2.PEa1Tv1(fac, work);
 
         // Find Eq3
-        double Eq3XcompW1	 = 0.0;
-        double Eq3YcompW1 = 0.0;
-        double Eq3ZcompW1 = 0.0;
-        double Eq3XcompW2 = 0.0;
-        double Eq3YcompW2 = 0.0;
-        double Eq3ZcompW2 = 0.0;
+        comW3.Ea1Tv1(massH, H31r);
+        comW3.PEa1Tv1(massO, O3r);
+        comW3.PEa1Tv1(massH, H32r);
+        comW3.TE(1.0/totalMass);
 
-        
         double comW3toH11 = Math.sqrt(comW3.Mv1Squared(H11r));
         double comW3toH12 = Math.sqrt(comW3.Mv1Squared(H12r));
         double comW3toM1 = Math.sqrt(comW3.Mv1Squared(M1r));
@@ -784,38 +731,37 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double comW3toH22 = Math.sqrt(comW3.Mv1Squared(H22r));
         double comW3toM2 = Math.sqrt(comW3.Mv1Squared(M2r));
 
-        // Contributions to sum from water molecule#1       
-        Eq3XcompW1 += chargeH11*(comW3.x(0)-H11r.x(0))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW1 += chargeH12*(comW3.x(0)-H12r.x(0))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW1 += chargeM1*(comW3.x(0)-M1r.x(0))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
+        // Contributions to sum #3 from water molecule#1
+        fac = chargeH11/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))
+                -Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW3, H11r);
+        Eq3.Ea1Tv1(fac, work);
 
-        Eq3YcompW1 += chargeH11*(comW3.x(1)-H11r.x(1))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW1 += chargeH12*(comW3.x(1)-H12r.x(1))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW1 += chargeM1*(comW3.x(1)-M1r.x(1))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
+        fac = chargeH12/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))
+                -Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW3, H12r);
+        Eq3.PEa1Tv1(fac, work);
 
-        Eq3ZcompW1 += chargeH11*(comW3.x(2)-H11r.x(2))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW1 += chargeH12*(comW3.x(2)-H12r.x(2))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW1 += chargeM1*(comW3.x(2)-M1r.x(2))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
-
+        fac = chargeM1/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))
+                -Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
+        work.Ev1Mv2(comW3, M1r);
+        Eq3.PEa1Tv1(fac, work);
         
-        // Contributions to sum from water molecule#2
-        Eq3XcompW2 += chargeH21*(comW3.x(0)-H21r.x(0))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW2 += chargeH22*(comW3.x(0)-H22r.x(0))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW2 += chargeM2*(comW3.x(0)-M2r.x(0))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
+        // Contributions to sum #3 from water molecule#2
+        fac = chargeH21/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))
+                -Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW3, H21r);
+        Eq3.PEa1Tv1(fac, work);
 
-        Eq3YcompW2 += chargeH21*(comW3.x(1)-H21r.x(1))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW2 += chargeH22*(comW3.x(1)-H22r.x(1))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW2 += chargeM2*(comW3.x(1)-M2r.x(1))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
+        fac = chargeH22/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))
+                -Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        work.Ev1Mv2(comW3, H22r);
+        Eq3.PEa1Tv1(fac, work);
 
-        Eq3ZcompW2 += chargeH21*(comW3.x(2)-H21r.x(2))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW2 += chargeH22*(comW3.x(2)-H22r.x(2))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW2 += chargeM2*(comW3.x(2)-M2r.x(2))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
-        
-        
-        Eq3.setX(0,Eq3XcompW1+Eq3XcompW2);
-        Eq3.setX(1,Eq3YcompW1+Eq3YcompW2);
-        Eq3.setX(2,Eq3ZcompW1+Eq3ZcompW2);
-
+        fac = chargeM2/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))
+                -Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
+        work.Ev1Mv2(comW3, M2r);
+        Eq3.PEa1Tv1(fac, work);
         
         /*
          * Finding the tensor used to relate the induced dipole moment Pi with the induced electric field Epi.
@@ -4356,19 +4302,12 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
     public void setBox(Box box) {
     }
 
-/*    public void setPhase(Phase phase) {
-        cPair.setNearestImageTransformer(phase.boundary());
-    }
-*/
-    
     public final double getPolarizationEnergy() {
         return UpolAtkins;
     }
     
     public double sigma , sigma2, sumO2LJ;
     public double epsilon, epsilon4, gamma;
-//    public int counterSCFloop;
-//    public boolean counterSCFloopOK;
     private double chargeH11;
 	private double chargeH12;//= Electron.UNIT.toSim(0.52);
     private double chargeM1; //= Electron.UNIT.toSim(-1.04);
@@ -4415,10 +4354,4 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-
-
-    
-//    private double deltaP1, deltaP2, deltaP3;
-
 }
