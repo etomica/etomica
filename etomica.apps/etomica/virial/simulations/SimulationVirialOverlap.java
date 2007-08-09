@@ -87,6 +87,8 @@ public class SimulationVirialOverlap extends Simulation {
         P0Cluster p0 = new P0Cluster(space);
         potentialMaster.addPotential(p0,new Species[]{});
         
+        blockSize = 1000;
+        
         for (int iBox=0; iBox<sampleClusters.length; iBox++) {
             // integrator for iBox samples based on iBox cluster
             box[iBox] = new BoxCluster(this,sampleClusters[iBox]);
@@ -160,6 +162,7 @@ public class SimulationVirialOverlap extends Simulation {
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
         accumulators[iBox] = newAccumulator;
+        accumulators[iBox].setBlockSize(blockSize);
         if (accumulatorPumps[iBox] == null) {
             accumulatorPumps[iBox] = new DataPump(meters[iBox],newAccumulator);
             integrators[iBox].addIntervalAction(accumulatorPumps[iBox]);
@@ -170,6 +173,13 @@ public class SimulationVirialOverlap extends Simulation {
         if (integratorOS != null) {
             dsvo = new DataSourceVirialOverlap(accumulators[0],accumulators[1]);
             integratorOS.setDSVO(dsvo);
+        }
+    }
+    
+    public void setAccumulatorBlockSize(int newBlockSize) {
+        blockSize = newBlockSize;
+        for (int i=0; i<2; i++) {
+            accumulators[i].setBlockSize(newBlockSize);
         }
     }
 
@@ -293,6 +303,7 @@ public class SimulationVirialOverlap extends Simulation {
     public ActivityIntegrate ai;
     public IntegratorOverlap integratorOS;
     public double refPref;
+    protected int blockSize;
 
 	public static void main(String[] args) {
 
