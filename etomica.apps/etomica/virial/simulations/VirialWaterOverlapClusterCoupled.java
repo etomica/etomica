@@ -12,10 +12,9 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.virial.ClusterAbstract;
+import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
-import etomica.virial.ClusterCoupledFlipped;
-import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
@@ -24,69 +23,37 @@ import etomica.virial.SpeciesFactoryWaterGCPM;
 import etomica.virial.cluster.Standard;
 
 
-
-/**
-
- * Generic simulation using Mayer sampling to evaluate cluster integrals
-
- */
-
 public class VirialWaterOverlapClusterCoupled extends Simulation {
-
-
-
-
 
     public static void main(String[] args) {
 
         int nPoints = 2;
-
         double temperature = Kelvin.UNIT.toSim(350);
-
         long steps = 1000l;
 
         if (args.length > 0) nPoints = Integer.parseInt(args[0]);
-
         if (args.length > 1) temperature = Kelvin.UNIT.toSim(Double.parseDouble(args[1]));
-
         if (args.length > 2) steps = Long.parseLong(args[2]);
 
         double sigmaHSRef = 3.2;
-
         double[] HSB = new double[7];
-
         HSB[2] = Standard.B2HS(sigmaHSRef);
-
         HSB[3] = Standard.B3HS(sigmaHSRef);
-
         HSB[4] = Standard.B4HS(sigmaHSRef);
-
         HSB[5] = Standard.B5HS(sigmaHSRef);
-
         HSB[6] = Standard.B6HS(sigmaHSRef);
 
         System.out.println("sigmaHSRef: "+sigmaHSRef);
-
         System.out.println("B2HS: "+HSB[2]);
-
         System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
-
         System.out.println("B4HS: "+HSB[4]+" = "+(HSB[4]/(HSB[2]*HSB[2]*HSB[2]))+" B2HS^3");
-
         System.out.println("B5HS: "+HSB[5]+" = 0.110252 B2HS^4");
-
         System.out.println("B6HS: "+HSB[6]+" = 0.03881 B2HS^5");
-
         System.out.println("Water Direct sampling B"+nPoints+" at T="+Kelvin.UNIT.fromSim(temperature));
-
-		
 
         Space space = Space3D.getInstance();
 
-        
-
         MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
 
 //        P2WaterSPCE pTarget = new P2WaterSPCE(space);
@@ -95,15 +62,14 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 //        PotentialWaterPPC9forB3 pTarget = new PotentialWaterPPC9forB3(space);
         //PotentialWaterGCPMforB3 pTarget = new PotentialWaterGCPMforB3(space);
         PotentialWaterGCPM3forB5 pTarget = new PotentialWaterGCPM3forB5(space);
-  
         
         // kmb added the code below; 9/23/05
         ClusterWeight sampleCluster1 = null;
      
-	    MayerGeneral fTarget = new MayerGeneral(pTarget);
-	    MayerEGeneral eTarget = new MayerEGeneral(pTarget);
-	    ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, eTarget, false);
-	    targetCluster = new ClusterCoupledFlipped(targetCluster);
+        MayerGeneral fTarget = new MayerGeneral(pTarget);
+        MayerEGeneral eTarget = new MayerEGeneral(pTarget);
+        ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, eTarget, false);
+        targetCluster = new ClusterCoupledFlipped(targetCluster);
 
 // old "trunc" code before flipping molecules; KMB and AJS, 7/25/07
 /*	    if (args.length > 3 && args[3].equals("trunc")) {
@@ -115,7 +81,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
             sampleCluster1 = ClusterWeightAbs.makeWeightCluster(sampleCluster2);
         }
         else {
-*/        	    sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster.makeCopy());
+*/        	    sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
                              
 //        }
 
@@ -125,7 +91,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 
 
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, false, false);
-        ClusterWeight refSample = ClusterWeightAbs.makeWeightCluster(refCluster.makeCopy());
+        ClusterWeight refSample = ClusterWeightAbs.makeWeightCluster(refCluster);
 
        
         targetCluster.setTemperature(temperature);
@@ -141,15 +107,12 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 //		while (true) {
 
             SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
-
-/*            AtomTreeNodeWater secondWater = (AtomTreeNodeWaterGCPM)((Phase)sim.getPhaseList().get(1)).molecule(1).node;
-            secondWater.H1.coord.position().PE(20);
-            secondWater.H2.coord.position().PE(20);
-            secondWater.M.coord.position().PE(20);
-            secondWater.O.coord.position().PE(20);
-            ((PhaseCluster)sim.getPhaseList().get(1)).trialNotify();
-            ((PhaseCluster)sim.getPhaseList().get(1)).acceptNotify();
-*/            
+            
+//            MeterRDFMolecule meterRDF = new MeterRDFMolecule(sim.getSpace(), sim.getSpeciesManager().getSpecies()[0]);
+//            meterRDF.setBox(sim.box[1]);
+//            meterRDF.getXDataSource().setXMax(100);
+//            meterRDF.getXDataSource().setNValues(100);
+            
             
 //            sim.integratorOS.setStepFreq0(0);
 //            sim.integratorOS.setAdjustStepFreq(false);
@@ -195,7 +158,8 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
             String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
             sim.initRefPref(refFileName,steps/100);
             sim.equilibrate(refFileName,steps/40);
-            sim.setRefPref(19.325574333497855);
+//            sim.integrators[1].addIntervalAction(meterRDF);
+//            sim.integrators[1].setActionInterval(meterRDF, 10);
 
 /*            try { 
 
@@ -399,7 +363,11 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
                               +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 
-            
+//            Data rdfData = meterRDF.getData();
+//            double deltaX = meterRDF.getXDataSource().getXMax() / meterRDF.getXDataSource().getNValues();
+//            for (int i=0; i<rdfData.getLength(); i++) {
+//                System.out.println((i+0.5)*deltaX+" "+rdfData.getValue(i));
+//            }
 
 /*		double[] valueArray = targetCluster.getMaxValueArray();
             

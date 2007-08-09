@@ -60,7 +60,7 @@ public class SimulationVirialOverlap extends Simulation {
     public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, 
 			double temperature, ClusterAbstract refCluster, ClusterAbstract targetCluster) {
 		this(aSpace,speciesFactory,temperature,new ClusterAbstract[]{refCluster,targetCluster},
-                new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster.makeCopy()),ClusterWeightAbs.makeWeightCluster(targetCluster.makeCopy())});
+                new ClusterWeight[]{ClusterWeightAbs.makeWeightCluster(refCluster),ClusterWeightAbs.makeWeightCluster(targetCluster)});
 	}
 	
 	public SimulationVirialOverlap(Space aSpace, SpeciesFactory speciesFactory, 
@@ -123,7 +123,7 @@ public class SimulationVirialOverlap extends Simulation {
             
             ConfigurationCluster configuration = new ConfigurationCluster(getRandom());
             configuration.initializeCoordinates(box[iBox]);
-            MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iBox],aSampleClusters[1-iBox]});
+            MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iBox],aSampleClusters[1-iBox].makeCopy()});
             setMeter(meter,iBox);
             AccumulatorVirialOverlapSingleAverage acc = new AccumulatorVirialOverlapSingleAverage(11, iBox==0);
             setAccumulator(acc,iBox);
