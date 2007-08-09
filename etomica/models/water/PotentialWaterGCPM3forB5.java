@@ -29,18 +29,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 	    setSigma(3.69);
 	    setEpsilon(Kelvin.UNIT.toSim(110));
 	    //setGamma(12.75);  Do I want to introduce a method for this, to be addressed in contructor of superclass (or this one)? kmb, 8/7/06
-        chargeH11 = Electron.UNIT.toSim(0.6113);
-        chargeH12 = Electron.UNIT.toSim(0.6113);
-        chargeM1 = Electron.UNIT.toSim(-1.2226);
-        chargeH21 = Electron.UNIT.toSim(0.6113);
-        chargeH22 = Electron.UNIT.toSim(0.6113);
-        chargeM2 = Electron.UNIT.toSim(-1.2226);
-        chargeH31 = Electron.UNIT.toSim(0.6113);
-        chargeH32 = Electron.UNIT.toSim(0.6113);
-        chargeM3 = Electron.UNIT.toSim(-1.2226);
-        chargeH41 = Electron.UNIT.toSim(0.6113);
-        chargeH42 = Electron.UNIT.toSim(0.6113);
-        chargeM4 = Electron.UNIT.toSim(-1.2226);
+        chargeH = Electron.UNIT.toSim(0.6113);
+        chargeM = Electron.UNIT.toSim(-1.2226);
         core = 4.41; //4.41 = 2.1^2; value according to Cummings
         sigmaM = 0.610;
         sigmaH = 0.455;
@@ -211,31 +201,31 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         // KMB 8/3/06
         
         r2 = H11r.Mv1Squared(H21r);
-        sum += chargeH11*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H11r.Mv1Squared(H22r);
-        sum += chargeH11*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H21r);
-        sum += chargeH12*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H22r);
-        sum += chargeH12*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = M1r.Mv1Squared(H21r);
-        sum += chargeH21*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(H22r);
-        sum += chargeH22*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M2r.Mv1Squared(H11r);
-        sum += chargeH11*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M2r.Mv1Squared(H12r);
-        sum += chargeH12*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sum += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(M2r);
-        sum += chargeM1*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sum += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         
         /*
          * Finding the Electric fields at the center of mass of each molecule, Eqi
@@ -266,17 +256,17 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double comW1toH22 = Math.sqrt(comW1.Mv1Squared(H22r));
         double comW1toM2 = Math.sqrt(comW1.Mv1Squared(M2r));
 
-        double fac = chargeH21/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))
+        double fac = chargeH/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))
                 -Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW1, H21r);
         Eq1.Ea1Tv1(fac, work);
 
-        fac = chargeH22/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))
+        fac = chargeH/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))
                 -Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW1, H22r);
         Eq1.PEa1Tv1(fac, work);
 
-        fac = chargeM2/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))
+        fac = chargeM/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))
                 -Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
         work.Ev1Mv2(comW1, M2r);
         Eq1.PEa1Tv1(fac, work);
@@ -290,15 +280,15 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double comW2toH12 = Math.sqrt(comW2.Mv1Squared(H12r));
         double comW2toM1 = Math.sqrt(comW2.Mv1Squared(M1r));
         
-        fac = chargeH11/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        fac = chargeH/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW2, H11r);
         Eq2.Ea1Tv1(fac, work);
         
-        fac = chargeH12/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        fac = chargeH/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW2, H12r);
         Eq2.PEa1Tv1(fac, work);
         
-        fac = chargeM1/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        fac = chargeM/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
         work.Ev1Mv2(comW2, M1r);
         Eq2.PEa1Tv1(fac, work);
 
@@ -474,54 +464,54 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         r2 = H11r.Mv1Squared(H21r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        	sumElecO1O2 += chargeH11*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-        	sumSCF += chargeH11*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        	sumElecO1O2 += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        	sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         	
         r2 = H11r.Mv1Squared(H22r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH11*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-        sumSCF += chargeH11*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumElecO1O2 += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H12r.Mv1Squared(H21r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH12*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-        sumSCF += chargeH12*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumElecO1O2 += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H22r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH12*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-        sumSCF += chargeH12*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumElecO1O2 += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
 //        System.out.println("sum of all O-H terms is " + sum);
         
         r2 = M1r.Mv1Squared(H21r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH21*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        sumSCF += chargeH21*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumElecO1O2 += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M1r.Mv1Squared(H22r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH22*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        sumSCF += chargeH22*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumElecO1O2 += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M2r.Mv1Squared(H11r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH11*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        sumSCF += chargeH11*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumElecO1O2 += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M2r.Mv1Squared(H12r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH12*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        sumSCF += chargeH12*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumElecO1O2 += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M1r.Mv1Squared(M2r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeM1*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
-        sumSCF += chargeM1*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumElecO1O2 += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
 
@@ -532,37 +522,37 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         r2 = H11r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        	sumSCF += chargeH11*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        	sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H11r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
 
 
         r2 = H12r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H21r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H21r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H22r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H22r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
 //        System.out.println("sum of all O-H terms is " + sum);
         
@@ -570,55 +560,55 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         r2 = M1r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M1r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
 
 
         r2 = M2r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M2r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(H11r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M3r.Mv1Squared(H12r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(H21r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M3r.Mv1Squared(H22r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
 
         r2 = M1r.Mv1Squared(M3r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM1*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(M2r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM3*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         
@@ -641,33 +631,33 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double comW1toM3 = Math.sqrt(comW1.Mv1Squared(M3r));
 
         // Contributions to sum #1 from water molecule#2
-        double fac = chargeH21/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))
+        double fac = chargeH/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))
                 -Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW1, H21r);
         Eq1.Ea1Tv1(fac, work);
 
-        fac = chargeH22/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))
+        fac = chargeH/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))
                 -Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW1, H22r);
         Eq1.PEa1Tv1(fac, work);
 
-        fac = chargeM2/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))
+        fac = chargeM/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))
                 -Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
         work.Ev1Mv2(comW1, M2r);
         Eq1.PEa1Tv1(fac, work);
         
         // Contributions to sum #1 from water molecule#3
-        fac = chargeH31/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))
+        fac = chargeH/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))
                 -Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW1, H31r);
         Eq1.PEa1Tv1(fac, work);
 
-        fac = chargeH32/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))
+        fac = chargeH/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))
                 -Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW1, H32r);
         Eq1.PEa1Tv1(fac, work);
 
-        fac = chargeM3/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))
+        fac = chargeM/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))
                 -Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
         work.Ev1Mv2(comW1, M3r);
         Eq1.PEa1Tv1(fac, work);
@@ -686,33 +676,33 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double comW2toM3 = Math.sqrt(comW2.Mv1Squared(M3r));
 
         // Contributions to sum #2 from water molecule#1
-        fac = chargeH11/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))
+        fac = chargeH/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))
                 -Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW2, H11r);
         Eq2.Ea1Tv1(fac, work);
 
-        fac = chargeH12/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))
+        fac = chargeH/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))
                 -Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW2, H12r);
         Eq2.PEa1Tv1(fac, work);
 
-        fac = chargeM1/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))
+        fac = chargeM/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))
                 -Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
         work.Ev1Mv2(comW2, M1r);
         Eq2.PEa1Tv1(fac, work);
         
         // Contributions to sum #2 from water molecule#3
-        fac = chargeH31/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))
+        fac = chargeH/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))
                 -Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW2, H31r);
         Eq2.PEa1Tv1(fac, work);
 
-        fac = chargeH32/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))
+        fac = chargeH/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))
                 -Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW2, H32r);
         Eq2.PEa1Tv1(fac, work);
 
-        fac = chargeM3/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))
+        fac = chargeM/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))
                 -Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
         work.Ev1Mv2(comW2, M3r);
         Eq2.PEa1Tv1(fac, work);
@@ -732,33 +722,33 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double comW3toM2 = Math.sqrt(comW3.Mv1Squared(M2r));
 
         // Contributions to sum #3 from water molecule#1
-        fac = chargeH11/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))
+        fac = chargeH/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))
                 -Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW3, H11r);
         Eq3.Ea1Tv1(fac, work);
 
-        fac = chargeH12/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))
+        fac = chargeH/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))
                 -Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW3, H12r);
         Eq3.PEa1Tv1(fac, work);
 
-        fac = chargeM1/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))
+        fac = chargeM/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))
                 -Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
         work.Ev1Mv2(comW3, M1r);
         Eq3.PEa1Tv1(fac, work);
         
         // Contributions to sum #3 from water molecule#2
-        fac = chargeH21/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))
+        fac = chargeH/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))
                 -Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW3, H21r);
         Eq3.PEa1Tv1(fac, work);
 
-        fac = chargeH22/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))
+        fac = chargeH/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))
                 -Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
         work.Ev1Mv2(comW3, H22r);
         Eq3.PEa1Tv1(fac, work);
 
-        fac = chargeM2/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))
+        fac = chargeM/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))
                 -Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
         work.Ev1Mv2(comW3, M2r);
         Eq3.PEa1Tv1(fac, work);
@@ -1224,18 +1214,18 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         		
         		// need to give some value to these or energy method will return garbage
         		
-	        chargeH11 = Electron.UNIT.toSim(0.6113);
-	        chargeH12 = Electron.UNIT.toSim(0.6113);
-	        chargeM1 = Electron.UNIT.toSim(-1.2226);
-	        chargeH21 = Electron.UNIT.toSim(0.6113);
-	        chargeH22 = Electron.UNIT.toSim(0.6113);
-	        chargeM2 = Electron.UNIT.toSim(-1.2226);
-	        chargeH31 = Electron.UNIT.toSim(0.6113);
-	        chargeH32 = Electron.UNIT.toSim(0.6113);
-	        chargeM3 = Electron.UNIT.toSim(-1.2226);
-	        chargeH41 = Electron.UNIT.toSim(0.6113);
-	        chargeH42 = Electron.UNIT.toSim(0.6113);
-	        chargeM4 = Electron.UNIT.toSim(-1.2226);*/
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeM = Electron.UNIT.toSim(-1.2226);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeM = Electron.UNIT.toSim(-1.2226);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeM = Electron.UNIT.toSim(-1.2226);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeM = Electron.UNIT.toSim(-1.2226);*/
 	        
 	        return Double.POSITIVE_INFINITY;
 
@@ -1285,45 +1275,45 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         r2 = H11r.Mv1Squared(H21r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        	sumSCF += chargeH11*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        	sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H11r.Mv1Squared(H22r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H21r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H22r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
 //        System.out.println("sum of all O-H terms is " + sum);
         
         r2 = M1r.Mv1Squared(H21r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M1r.Mv1Squared(H22r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M2r.Mv1Squared(H11r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M2r.Mv1Squared(H12r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M1r.Mv1Squared(M2r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM1*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         
@@ -1334,37 +1324,37 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         r2 = H11r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        	sumSCF += chargeH11*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        	sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H11r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
 
 
         r2 = H12r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H21r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H21r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H22r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H22r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
 //        System.out.println("sum of all O-H terms is " + sum);
         
@@ -1372,55 +1362,55 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         r2 = M1r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M1r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
 
 
         r2 = M2r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M2r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(H11r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M3r.Mv1Squared(H12r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(H21r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M3r.Mv1Squared(H22r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
 
         r2 = M1r.Mv1Squared(M3r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM1*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(M2r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM3*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         
@@ -1433,113 +1423,113 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         r2 = H11r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H11r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H12r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H12r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H21r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H21r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H22r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H22r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H31r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H31r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H32r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H32r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = M4r.Mv1Squared(H11r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H12r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH41*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH42*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H21r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H22r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M2r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH41*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M2r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH42*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H31r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H32r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M3r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH41*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M3r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH42*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(M4r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM1*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = M4r.Mv1Squared(M2r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM4*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(M4r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM3*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         
@@ -1675,45 +1665,45 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         
         // Contributions to sum from water#2
-        Eq1XcompW2 += chargeH21*(comW1.x(0)-H21r.x(0))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW2 += chargeH22*(comW1.x(0)-H22r.x(0))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW2 += chargeM2*(comW1.x(0)-M2r.x(0))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        Eq1XcompW2 += chargeH*(comW1.x(0)-H21r.x(0))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW2 += chargeH*(comW1.x(0)-H22r.x(0))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW2 += chargeM*(comW1.x(0)-M2r.x(0))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
 
-        Eq1YcompW2 += chargeH21*(comW1.x(1)-H21r.x(1))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW2 += chargeH22*(comW1.x(1)-H22r.x(1))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW2 += chargeM2*(comW1.x(1)-M2r.x(1))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        Eq1YcompW2 += chargeH*(comW1.x(1)-H21r.x(1))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW2 += chargeH*(comW1.x(1)-H22r.x(1))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW2 += chargeM*(comW1.x(1)-M2r.x(1))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
 
-        Eq1ZcompW2 += chargeH21*(comW1.x(2)-H21r.x(2))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW2 += chargeH22*(comW1.x(2)-H22r.x(2))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW2 += chargeM2*(comW1.x(2)-M2r.x(2))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        Eq1ZcompW2 += chargeH*(comW1.x(2)-H21r.x(2))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW2 += chargeH*(comW1.x(2)-H22r.x(2))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW2 += chargeM*(comW1.x(2)-M2r.x(2))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
 
         
         // Contributions to sum from water#3
-        Eq1XcompW3 += chargeH31*(comW1.x(0)-H31r.x(0))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW3 += chargeH32*(comW1.x(0)-H32r.x(0))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW3 += chargeM3*(comW1.x(0)-M3r.x(0))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
+        Eq1XcompW3 += chargeH*(comW1.x(0)-H31r.x(0))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW3 += chargeH*(comW1.x(0)-H32r.x(0))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW3 += chargeM*(comW1.x(0)-M3r.x(0))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
 
-        Eq1YcompW3 += chargeH31*(comW1.x(1)-H31r.x(1))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW3 += chargeH32*(comW1.x(1)-H32r.x(1))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW3 += chargeM3*(comW1.x(1)-M3r.x(1))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
+        Eq1YcompW3 += chargeH*(comW1.x(1)-H31r.x(1))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW3 += chargeH*(comW1.x(1)-H32r.x(1))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW3 += chargeM*(comW1.x(1)-M3r.x(1))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
 
-        Eq1ZcompW3 += chargeH31*(comW1.x(2)-H31r.x(2))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW3 += chargeH32*(comW1.x(2)-H32r.x(2))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW3 += chargeM3*(comW1.x(2)-M3r.x(2))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
+        Eq1ZcompW3 += chargeH*(comW1.x(2)-H31r.x(2))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW3 += chargeH*(comW1.x(2)-H32r.x(2))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW3 += chargeM*(comW1.x(2)-M3r.x(2))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
         
 
         // Contributions to sum from water#4
-        Eq1XcompW4 += chargeH41*(comW1.x(0)-H41r.x(0))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW4 += chargeH42*(comW1.x(0)-H42r.x(0))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW4 += chargeM4*(comW1.x(0)-M4r.x(0))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
+        Eq1XcompW4 += chargeH*(comW1.x(0)-H41r.x(0))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW4 += chargeH*(comW1.x(0)-H42r.x(0))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW4 += chargeM*(comW1.x(0)-M4r.x(0))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
 
-        Eq1YcompW4 += chargeH41*(comW1.x(1)-H41r.x(1))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW4 += chargeH42*(comW1.x(1)-H42r.x(1))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW4 += chargeM4*(comW1.x(1)-M4r.x(1))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
+        Eq1YcompW4 += chargeH*(comW1.x(1)-H41r.x(1))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW4 += chargeH*(comW1.x(1)-H42r.x(1))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW4 += chargeM*(comW1.x(1)-M4r.x(1))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
 
-        Eq1ZcompW4 += chargeH41*(comW1.x(2)-H41r.x(2))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW4 += chargeH42*(comW1.x(2)-H42r.x(2))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW4 += chargeM4*(comW1.x(2)-M4r.x(2))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
+        Eq1ZcompW4 += chargeH*(comW1.x(2)-H41r.x(2))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW4 += chargeH*(comW1.x(2)-H42r.x(2))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW4 += chargeM*(comW1.x(2)-M4r.x(2))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
 
         
         Eq1.setX(0,Eq1XcompW2+Eq1XcompW3+Eq1XcompW4);
@@ -1744,45 +1734,45 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         
         // Contributions to sum from water molecule#1
-        Eq2XcompW1 += chargeH11*(comW2.x(0)-H11r.x(0))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW1 += chargeH12*(comW2.x(0)-H12r.x(0))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW1 += chargeM1*(comW2.x(0)-M1r.x(0))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        Eq2XcompW1 += chargeH*(comW2.x(0)-H11r.x(0))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW1 += chargeH*(comW2.x(0)-H12r.x(0))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW1 += chargeM*(comW2.x(0)-M1r.x(0))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
 
-        Eq2YcompW1 += chargeH11*(comW2.x(1)-H11r.x(1))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW1 += chargeH12*(comW2.x(1)-H12r.x(1))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW1 += chargeM1*(comW2.x(1)-M1r.x(1))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        Eq2YcompW1 += chargeH*(comW2.x(1)-H11r.x(1))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW1 += chargeH*(comW2.x(1)-H12r.x(1))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW1 += chargeM*(comW2.x(1)-M1r.x(1))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
 
-        Eq2ZcompW1 += chargeH11*(comW2.x(2)-H11r.x(2))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW1 += chargeH12*(comW2.x(2)-H12r.x(2))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW1 += chargeM1*(comW2.x(2)-M1r.x(2))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        Eq2ZcompW1 += chargeH*(comW2.x(2)-H11r.x(2))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW1 += chargeH*(comW2.x(2)-H12r.x(2))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW1 += chargeM*(comW2.x(2)-M1r.x(2))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
 
 
         // Contributions to sum from water molecule#3
-        Eq2XcompW3 += chargeH31*(comW2.x(0)-H31r.x(0))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW3 += chargeH32*(comW2.x(0)-H32r.x(0))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW3 += chargeM3*(comW2.x(0)-M3r.x(0))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
+        Eq2XcompW3 += chargeH*(comW2.x(0)-H31r.x(0))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW3 += chargeH*(comW2.x(0)-H32r.x(0))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW3 += chargeM*(comW2.x(0)-M3r.x(0))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
 
-        Eq2YcompW3 += chargeH31*(comW2.x(1)-H31r.x(1))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW3 += chargeH32*(comW2.x(1)-H32r.x(1))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW3 += chargeM3*(comW2.x(1)-M3r.x(1))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
+        Eq2YcompW3 += chargeH*(comW2.x(1)-H31r.x(1))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW3 += chargeH*(comW2.x(1)-H32r.x(1))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW3 += chargeM*(comW2.x(1)-M3r.x(1))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
 
-        Eq2ZcompW3 += chargeH31*(comW2.x(2)-H31r.x(2))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW3 += chargeH32*(comW2.x(2)-H32r.x(2))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW3 += chargeM3*(comW2.x(2)-M3r.x(2))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
+        Eq2ZcompW3 += chargeH*(comW2.x(2)-H31r.x(2))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW3 += chargeH*(comW2.x(2)-H32r.x(2))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW3 += chargeM*(comW2.x(2)-M3r.x(2))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
         
 
         // Contributions to sum from water molecule#4
-        Eq2XcompW4 += chargeH41*(comW2.x(0)-H41r.x(0))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW4 += chargeH42*(comW2.x(0)-H42r.x(0))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW4 += chargeM4*(comW2.x(0)-M4r.x(0))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
+        Eq2XcompW4 += chargeH*(comW2.x(0)-H41r.x(0))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW4 += chargeH*(comW2.x(0)-H42r.x(0))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW4 += chargeM*(comW2.x(0)-M4r.x(0))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
 
-        Eq2YcompW4 += chargeH41*(comW2.x(1)-H41r.x(1))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW4 += chargeH42*(comW2.x(1)-H42r.x(1))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW4 += chargeM4*(comW2.x(1)-M4r.x(1))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
+        Eq2YcompW4 += chargeH*(comW2.x(1)-H41r.x(1))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW4 += chargeH*(comW2.x(1)-H42r.x(1))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW4 += chargeM*(comW2.x(1)-M4r.x(1))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
 
-        Eq2ZcompW4 += chargeH41*(comW2.x(2)-H41r.x(2))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW4 += chargeH42*(comW2.x(2)-H42r.x(2))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW4 += chargeM4*(comW2.x(2)-M4r.x(2))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
+        Eq2ZcompW4 += chargeH*(comW2.x(2)-H41r.x(2))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW4 += chargeH*(comW2.x(2)-H42r.x(2))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW4 += chargeM*(comW2.x(2)-M4r.x(2))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
 
         
         Eq2.setX(0,Eq2XcompW1+Eq2XcompW3+Eq2XcompW4);
@@ -1818,45 +1808,45 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         
         // Contributions to sum from water molecule#1       
-        Eq3XcompW1 += chargeH11*(comW3.x(0)-H11r.x(0))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW1 += chargeH12*(comW3.x(0)-H12r.x(0))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW1 += chargeM1*(comW3.x(0)-M1r.x(0))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
+        Eq3XcompW1 += chargeH*(comW3.x(0)-H11r.x(0))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW1 += chargeH*(comW3.x(0)-H12r.x(0))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW1 += chargeM*(comW3.x(0)-M1r.x(0))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
 
-        Eq3YcompW1 += chargeH11*(comW3.x(1)-H11r.x(1))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW1 += chargeH12*(comW3.x(1)-H12r.x(1))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW1 += chargeM1*(comW3.x(1)-M1r.x(1))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
+        Eq3YcompW1 += chargeH*(comW3.x(1)-H11r.x(1))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW1 += chargeH*(comW3.x(1)-H12r.x(1))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW1 += chargeM*(comW3.x(1)-M1r.x(1))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
 
-        Eq3ZcompW1 += chargeH11*(comW3.x(2)-H11r.x(2))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW1 += chargeH12*(comW3.x(2)-H12r.x(2))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW1 += chargeM1*(comW3.x(2)-M1r.x(2))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
+        Eq3ZcompW1 += chargeH*(comW3.x(2)-H11r.x(2))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW1 += chargeH*(comW3.x(2)-H12r.x(2))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW1 += chargeM*(comW3.x(2)-M1r.x(2))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
 
         
         // Contributions to sum from water molecule#2
-        Eq3XcompW2 += chargeH21*(comW3.x(0)-H21r.x(0))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW2 += chargeH22*(comW3.x(0)-H22r.x(0))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW2 += chargeM2*(comW3.x(0)-M2r.x(0))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
+        Eq3XcompW2 += chargeH*(comW3.x(0)-H21r.x(0))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW2 += chargeH*(comW3.x(0)-H22r.x(0))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW2 += chargeM*(comW3.x(0)-M2r.x(0))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
 
-        Eq3YcompW2 += chargeH21*(comW3.x(1)-H21r.x(1))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW2 += chargeH22*(comW3.x(1)-H22r.x(1))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW2 += chargeM2*(comW3.x(1)-M2r.x(1))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
+        Eq3YcompW2 += chargeH*(comW3.x(1)-H21r.x(1))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW2 += chargeH*(comW3.x(1)-H22r.x(1))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW2 += chargeM*(comW3.x(1)-M2r.x(1))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
 
-        Eq3ZcompW2 += chargeH21*(comW3.x(2)-H21r.x(2))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW2 += chargeH22*(comW3.x(2)-H22r.x(2))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW2 += chargeM2*(comW3.x(2)-M2r.x(2))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
+        Eq3ZcompW2 += chargeH*(comW3.x(2)-H21r.x(2))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW2 += chargeH*(comW3.x(2)-H22r.x(2))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW2 += chargeM*(comW3.x(2)-M2r.x(2))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
         
 
         // Contributions to sum from water molecule#4
-        Eq3XcompW4 += chargeH41*(comW3.x(0)-H41r.x(0))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW4 += chargeH42*(comW3.x(0)-H42r.x(0))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW4 += chargeM4*(comW3.x(0)-M4r.x(0))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
+        Eq3XcompW4 += chargeH*(comW3.x(0)-H41r.x(0))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW4 += chargeH*(comW3.x(0)-H42r.x(0))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW4 += chargeM*(comW3.x(0)-M4r.x(0))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
 
-        Eq3YcompW4 += chargeH41*(comW3.x(1)-H41r.x(1))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW4 += chargeH42*(comW3.x(1)-H42r.x(1))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW4 += chargeM4*(comW3.x(1)-M4r.x(1))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
+        Eq3YcompW4 += chargeH*(comW3.x(1)-H41r.x(1))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW4 += chargeH*(comW3.x(1)-H42r.x(1))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW4 += chargeM*(comW3.x(1)-M4r.x(1))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
 
-        Eq3ZcompW4 += chargeH41*(comW3.x(2)-H41r.x(2))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW4 += chargeH42*(comW3.x(2)-H42r.x(2))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW4 += chargeM4*(comW3.x(2)-M4r.x(2))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
+        Eq3ZcompW4 += chargeH*(comW3.x(2)-H41r.x(2))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW4 += chargeH*(comW3.x(2)-H42r.x(2))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW4 += chargeM*(comW3.x(2)-M4r.x(2))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
 
         
         Eq3.setX(0,Eq3XcompW1+Eq3XcompW2+Eq3XcompW4);
@@ -1895,45 +1885,45 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         
         // Contributions to sum from water molecule#1       
-        Eq4XcompW1 += chargeH11*(comW4.x(0)-H11r.x(0))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW1 += chargeH12*(comW4.x(0)-H12r.x(0))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW1 += chargeM1*(comW4.x(0)-M1r.x(0))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
+        Eq4XcompW1 += chargeH*(comW4.x(0)-H11r.x(0))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW1 += chargeH*(comW4.x(0)-H12r.x(0))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW1 += chargeM*(comW4.x(0)-M1r.x(0))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
 
-        Eq4YcompW1 += chargeH11*(comW4.x(1)-H11r.x(1))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW1 += chargeH12*(comW4.x(1)-H12r.x(1))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW1 += chargeM1*(comW4.x(1)-M1r.x(1))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
+        Eq4YcompW1 += chargeH*(comW4.x(1)-H11r.x(1))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW1 += chargeH*(comW4.x(1)-H12r.x(1))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW1 += chargeM*(comW4.x(1)-M1r.x(1))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
 
-        Eq4ZcompW1 += chargeH11*(comW4.x(2)-H11r.x(2))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW1 += chargeH12*(comW4.x(2)-H12r.x(2))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW1 += chargeM1*(comW4.x(2)-M1r.x(2))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
+        Eq4ZcompW1 += chargeH*(comW4.x(2)-H11r.x(2))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW1 += chargeH*(comW4.x(2)-H12r.x(2))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW1 += chargeM*(comW4.x(2)-M1r.x(2))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
 
         
         // Contributions to sum from water molecule#2
-        Eq4XcompW2 += chargeH21*(comW4.x(0)-H21r.x(0))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW2 += chargeH22*(comW4.x(0)-H22r.x(0))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW2 += chargeM2*(comW4.x(0)-M2r.x(0))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
+        Eq4XcompW2 += chargeH*(comW4.x(0)-H21r.x(0))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW2 += chargeH*(comW4.x(0)-H22r.x(0))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW2 += chargeM*(comW4.x(0)-M2r.x(0))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
 
-        Eq4YcompW2 += chargeH21*(comW4.x(1)-H21r.x(1))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW2 += chargeH22*(comW4.x(1)-H22r.x(1))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW2 += chargeM2*(comW4.x(1)-M2r.x(1))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
+        Eq4YcompW2 += chargeH*(comW4.x(1)-H21r.x(1))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW2 += chargeH*(comW4.x(1)-H22r.x(1))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW2 += chargeM*(comW4.x(1)-M2r.x(1))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
 
-        Eq4ZcompW2 += chargeH21*(comW4.x(2)-H21r.x(2))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW2 += chargeH22*(comW4.x(2)-H22r.x(2))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW2 += chargeM2*(comW4.x(2)-M2r.x(2))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
+        Eq4ZcompW2 += chargeH*(comW4.x(2)-H21r.x(2))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW2 += chargeH*(comW4.x(2)-H22r.x(2))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW2 += chargeM*(comW4.x(2)-M2r.x(2))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
         
 
         // Contributions to sum from water molecule#3
-        Eq4XcompW3 += chargeH31*(comW4.x(0)-H31r.x(0))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW3 += chargeH32*(comW4.x(0)-H32r.x(0))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW3 += chargeM3*(comW4.x(0)-M3r.x(0))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
+        Eq4XcompW3 += chargeH*(comW4.x(0)-H31r.x(0))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW3 += chargeH*(comW4.x(0)-H32r.x(0))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW3 += chargeM*(comW4.x(0)-M3r.x(0))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
 
-        Eq4YcompW3 += chargeH31*(comW4.x(1)-H31r.x(1))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW3 += chargeH32*(comW4.x(1)-H32r.x(1))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW3 += chargeM3*(comW4.x(1)-M3r.x(1))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
+        Eq4YcompW3 += chargeH*(comW4.x(1)-H31r.x(1))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW3 += chargeH*(comW4.x(1)-H32r.x(1))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW3 += chargeM*(comW4.x(1)-M3r.x(1))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
 
-        Eq4ZcompW3 += chargeH31*(comW4.x(2)-H31r.x(2))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW3 += chargeH32*(comW4.x(2)-H32r.x(2))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW3 += chargeM3*(comW4.x(2)-M3r.x(2))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
+        Eq4ZcompW3 += chargeH*(comW4.x(2)-H31r.x(2))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW3 += chargeH*(comW4.x(2)-H32r.x(2))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW3 += chargeM*(comW4.x(2)-M3r.x(2))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
 
         
         Eq4.setX(0,Eq4XcompW1+Eq4XcompW2+Eq4XcompW3);
@@ -2314,18 +2304,18 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 	        		noSCFforP4 = false;
 	        		loopFailures = loopFailures + 1;
 //	        		System.out.println("counterSCFloop = " + counterSCFloop + ", exiting SCF loop due to likely large repulsion");
-    		        chargeH11 = Electron.UNIT.toSim(0.6113);
-    		        chargeH12 = Electron.UNIT.toSim(0.6113);
-    		        chargeM1 = Electron.UNIT.toSim(-1.2226);
-    		        chargeH21 = Electron.UNIT.toSim(0.6113);
-    		        chargeH22 = Electron.UNIT.toSim(0.6113);
-    		        chargeM2 = Electron.UNIT.toSim(-1.2226);
-    		        chargeH31 = Electron.UNIT.toSim(0.6113);
-    		        chargeH32 = Electron.UNIT.toSim(0.6113);
-    		        chargeM3 = Electron.UNIT.toSim(-1.2226);
-    		        chargeH41 = Electron.UNIT.toSim(0.6113);
-    		        chargeH42 = Electron.UNIT.toSim(0.6113);
-    		        chargeM4 = Electron.UNIT.toSim(-1.2226);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeM = Electron.UNIT.toSim(-1.2226);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeM = Electron.UNIT.toSim(-1.2226);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeM = Electron.UNIT.toSim(-1.2226);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeM = Electron.UNIT.toSim(-1.2226);
 	        	}
 	     
 	        // REPEAT LOOP HERE.  RE-EVALUATE CHARGES ON W1 AND THEN REPEAT.
@@ -2587,21 +2577,21 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         		
         		// need to give some value to these or energy method will return garbage
         		
-	        chargeH11 = Electron.UNIT.toSim(0.6113);
-	        chargeH12 = Electron.UNIT.toSim(0.6113);
-	        chargeM1 = Electron.UNIT.toSim(-1.2226);
-	        chargeH21 = Electron.UNIT.toSim(0.6113);
-	        chargeH22 = Electron.UNIT.toSim(0.6113);
-	        chargeM2 = Electron.UNIT.toSim(-1.2226);
-	        chargeH31 = Electron.UNIT.toSim(0.6113);
-	        chargeH32 = Electron.UNIT.toSim(0.6113);
-	        chargeM3 = Electron.UNIT.toSim(-1.2226);
-	        chargeH41 = Electron.UNIT.toSim(0.6113);
-	        chargeH42 = Electron.UNIT.toSim(0.6113);
-	        chargeM4 = Electron.UNIT.toSim(-1.2226);
-	        chargeH51 = Electron.UNIT.toSim(0.6113);
-	        chargeH52 = Electron.UNIT.toSim(0.6113);
-	        chargeM5 = Electron.UNIT.toSim(-1.2226);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeM = Electron.UNIT.toSim(-1.2226);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeM = Electron.UNIT.toSim(-1.2226);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeM = Electron.UNIT.toSim(-1.2226);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeM = Electron.UNIT.toSim(-1.2226);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeH = Electron.UNIT.toSim(0.6113);
+	        chargeM = Electron.UNIT.toSim(-1.2226);
 	        
 	        return Double.POSITIVE_INFINITY;
 
@@ -2662,45 +2652,45 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         r2 = H11r.Mv1Squared(H21r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        	sumSCF += chargeH11*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        	sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H11r.Mv1Squared(H22r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H21r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH21/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H22r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH22/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
 //        System.out.println("sum of all O-H terms is " + sum);
         
         r2 = M1r.Mv1Squared(H21r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M1r.Mv1Squared(H22r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M2r.Mv1Squared(H11r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M2r.Mv1Squared(H12r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M1r.Mv1Squared(M2r); // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM1*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         
@@ -2711,37 +2701,37 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         r2 = H11r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        	sumSCF += chargeH11*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        	sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H11r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
 
 
         r2 = H12r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H12r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H21r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H21r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H22r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH31/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = H22r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH32/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
 //        System.out.println("sum of all O-H terms is " + sum);
         
@@ -2749,55 +2739,55 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         r2 = M1r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M1r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
 
 
         r2 = M2r.Mv1Squared(H31r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M2r.Mv1Squared(H32r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(H11r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M3r.Mv1Squared(H12r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(H21r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         ///System.out.println("sum is " + sum);
         r2 = M3r.Mv1Squared(H22r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
         //System.out.println("sum is " + sum);
 
 
         r2 = M1r.Mv1Squared(M3r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM1*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(M2r);  // COUNTED-2
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM3*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         
@@ -2810,113 +2800,113 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         r2 = H11r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H11r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H12r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H12r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H21r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H21r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H22r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H22r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H31r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H31r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H32r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeH41/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H32r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeH42/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = M4r.Mv1Squared(H11r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H12r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH41*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH42*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H21r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H22r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M2r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH41*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M2r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH42*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H31r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H32r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M3r.Mv1Squared(H41r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH41*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M3r.Mv1Squared(H42r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH42*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(M4r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM1*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = M4r.Mv1Squared(M2r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM4*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(M4r);  // OK FOR B4
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM3*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         
@@ -2929,150 +2919,150 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         r2 = H11r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH51/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H11r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeH52/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H12r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH51/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H12r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeH52/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H21r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH51/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H21r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeH52/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H22r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH51/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H22r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeH52/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H31r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeH51/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H31r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeH52/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H32r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeH51/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H32r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeH52/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = M5r.Mv1Squared(H11r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH11*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M5r.Mv1Squared(H12r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH12*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH51*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH52*chargeM1/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M5r.Mv1Squared(H21r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH21*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M5r.Mv1Squared(H22r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH22*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M2r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH51*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M2r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH52*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M5r.Mv1Squared(H31r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH31*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M5r.Mv1Squared(H32r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH32*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M3r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH51*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M3r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH52*chargeM3/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M1r.Mv1Squared(M5r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM1*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = M5r.Mv1Squared(M2r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM5*chargeM2/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = M3r.Mv1Squared(M5r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM3*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         r2 = H41r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH41*chargeH51/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H41r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH41*chargeH52/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = M5r.Mv1Squared(H41r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH41*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = H42r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH42*chargeH51/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
         r2 = H42r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH42*chargeH52/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
         r2 = M5r.Mv1Squared(H42r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH42*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H51r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH51*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(H52r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH52*chargeM4/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
         r2 = M4r.Mv1Squared(M5r);  // OK FOR B5
         //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeM4*chargeM5/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
         //System.out.println("sum is " + sum);
 
         
@@ -3225,59 +3215,59 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         
         // Contributions to sum from water#2
-        Eq1XcompW2 += chargeH21*(comW1.x(0)-H21r.x(0))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW2 += chargeH22*(comW1.x(0)-H22r.x(0))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW2 += chargeM2*(comW1.x(0)-M2r.x(0))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        Eq1XcompW2 += chargeH*(comW1.x(0)-H21r.x(0))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW2 += chargeH*(comW1.x(0)-H22r.x(0))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW2 += chargeM*(comW1.x(0)-M2r.x(0))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
 
-        Eq1YcompW2 += chargeH21*(comW1.x(1)-H21r.x(1))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW2 += chargeH22*(comW1.x(1)-H22r.x(1))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW2 += chargeM2*(comW1.x(1)-M2r.x(1))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        Eq1YcompW2 += chargeH*(comW1.x(1)-H21r.x(1))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW2 += chargeH*(comW1.x(1)-H22r.x(1))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW2 += chargeM*(comW1.x(1)-M2r.x(1))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
 
-        Eq1ZcompW2 += chargeH21*(comW1.x(2)-H21r.x(2))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW2 += chargeH22*(comW1.x(2)-H22r.x(2))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW2 += chargeM2*(comW1.x(2)-M2r.x(2))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
+        Eq1ZcompW2 += chargeH*(comW1.x(2)-H21r.x(2))/(comW1toH21*comW1toH21*comW1toH21)*((1-SpecialFunctions.erfc(comW1toH21/sqrtHMsigmas))-Math.sqrt(2)*comW1toH21/sqrtPiHMsigmas*Math.exp(-comW1toH21*comW1toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW2 += chargeH*(comW1.x(2)-H22r.x(2))/(comW1toH22*comW1toH22*comW1toH22)*((1-SpecialFunctions.erfc(comW1toH22/sqrtHMsigmas))-Math.sqrt(2)*comW1toH22/sqrtPiHMsigmas*Math.exp(-comW1toH22*comW1toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW2 += chargeM*(comW1.x(2)-M2r.x(2))/(comW1toM2*comW1toM2*comW1toM2)*((1-SpecialFunctions.erfc(comW1toM2/(2*sigmaM)))-Math.sqrt(2)*comW1toM2/sqrtPiMMsigmas*Math.exp(-comW1toM2*comW1toM2/(4*sigmaM*sigmaM)));
 
         
         // Contributions to sum from water#3
-        Eq1XcompW3 += chargeH31*(comW1.x(0)-H31r.x(0))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW3 += chargeH32*(comW1.x(0)-H32r.x(0))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW3 += chargeM3*(comW1.x(0)-M3r.x(0))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
+        Eq1XcompW3 += chargeH*(comW1.x(0)-H31r.x(0))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW3 += chargeH*(comW1.x(0)-H32r.x(0))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW3 += chargeM*(comW1.x(0)-M3r.x(0))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
 
-        Eq1YcompW3 += chargeH31*(comW1.x(1)-H31r.x(1))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW3 += chargeH32*(comW1.x(1)-H32r.x(1))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW3 += chargeM3*(comW1.x(1)-M3r.x(1))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
+        Eq1YcompW3 += chargeH*(comW1.x(1)-H31r.x(1))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW3 += chargeH*(comW1.x(1)-H32r.x(1))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW3 += chargeM*(comW1.x(1)-M3r.x(1))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
 
-        Eq1ZcompW3 += chargeH31*(comW1.x(2)-H31r.x(2))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW3 += chargeH32*(comW1.x(2)-H32r.x(2))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW3 += chargeM3*(comW1.x(2)-M3r.x(2))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
+        Eq1ZcompW3 += chargeH*(comW1.x(2)-H31r.x(2))/(comW1toH31*comW1toH31*comW1toH31)*((1-SpecialFunctions.erfc(comW1toH31/sqrtHMsigmas))-Math.sqrt(2)*comW1toH31/sqrtPiHMsigmas*Math.exp(-comW1toH31*comW1toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW3 += chargeH*(comW1.x(2)-H32r.x(2))/(comW1toH32*comW1toH32*comW1toH32)*((1-SpecialFunctions.erfc(comW1toH32/sqrtHMsigmas))-Math.sqrt(2)*comW1toH32/sqrtPiHMsigmas*Math.exp(-comW1toH32*comW1toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW3 += chargeM*(comW1.x(2)-M3r.x(2))/(comW1toM3*comW1toM3*comW1toM3)*((1-SpecialFunctions.erfc(comW1toM3/(2*sigmaM)))-Math.sqrt(2)*comW1toM3/sqrtPiMMsigmas*Math.exp(-comW1toM3*comW1toM3/(4*sigmaM*sigmaM)));
         
 
         // Contributions to sum from water#4
-        Eq1XcompW4 += chargeH41*(comW1.x(0)-H41r.x(0))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW4 += chargeH42*(comW1.x(0)-H42r.x(0))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW4 += chargeM4*(comW1.x(0)-M4r.x(0))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
+        Eq1XcompW4 += chargeH*(comW1.x(0)-H41r.x(0))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW4 += chargeH*(comW1.x(0)-H42r.x(0))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW4 += chargeM*(comW1.x(0)-M4r.x(0))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
 
-        Eq1YcompW4 += chargeH41*(comW1.x(1)-H41r.x(1))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW4 += chargeH42*(comW1.x(1)-H42r.x(1))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW4 += chargeM4*(comW1.x(1)-M4r.x(1))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
+        Eq1YcompW4 += chargeH*(comW1.x(1)-H41r.x(1))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW4 += chargeH*(comW1.x(1)-H42r.x(1))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW4 += chargeM*(comW1.x(1)-M4r.x(1))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
 
-        Eq1ZcompW4 += chargeH41*(comW1.x(2)-H41r.x(2))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW4 += chargeH42*(comW1.x(2)-H42r.x(2))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW4 += chargeM4*(comW1.x(2)-M4r.x(2))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
+        Eq1ZcompW4 += chargeH*(comW1.x(2)-H41r.x(2))/(comW1toH41*comW1toH41*comW1toH41)*((1-SpecialFunctions.erfc(comW1toH41/sqrtHMsigmas))-Math.sqrt(2)*comW1toH41/sqrtPiHMsigmas*Math.exp(-comW1toH41*comW1toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW4 += chargeH*(comW1.x(2)-H42r.x(2))/(comW1toH42*comW1toH42*comW1toH42)*((1-SpecialFunctions.erfc(comW1toH42/sqrtHMsigmas))-Math.sqrt(2)*comW1toH42/sqrtPiHMsigmas*Math.exp(-comW1toH42*comW1toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW4 += chargeM*(comW1.x(2)-M4r.x(2))/(comW1toM4*comW1toM4*comW1toM4)*((1-SpecialFunctions.erfc(comW1toM4/(2*sigmaM)))-Math.sqrt(2)*comW1toM4/sqrtPiMMsigmas*Math.exp(-comW1toM4*comW1toM4/(4*sigmaM*sigmaM)));
 
 
         // Contributions to sum from water#5
-        Eq1XcompW5 += chargeH51*(comW1.x(0)-H51r.x(0))/(comW1toH51*comW1toH51*comW1toH51)*((1-SpecialFunctions.erfc(comW1toH51/sqrtHMsigmas))-Math.sqrt(2)*comW1toH51/sqrtPiHMsigmas*Math.exp(-comW1toH51*comW1toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW5 += chargeH52*(comW1.x(0)-H52r.x(0))/(comW1toH52*comW1toH52*comW1toH52)*((1-SpecialFunctions.erfc(comW1toH52/sqrtHMsigmas))-Math.sqrt(2)*comW1toH52/sqrtPiHMsigmas*Math.exp(-comW1toH52*comW1toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1XcompW5 += chargeM5*(comW1.x(0)-M5r.x(0))/(comW1toM5*comW1toM5*comW1toM5)*((1-SpecialFunctions.erfc(comW1toM5/(2*sigmaM)))-Math.sqrt(2)*comW1toM5/sqrtPiMMsigmas*Math.exp(-comW1toM5*comW1toM5/(4*sigmaM*sigmaM)));
+        Eq1XcompW5 += chargeH*(comW1.x(0)-H51r.x(0))/(comW1toH51*comW1toH51*comW1toH51)*((1-SpecialFunctions.erfc(comW1toH51/sqrtHMsigmas))-Math.sqrt(2)*comW1toH51/sqrtPiHMsigmas*Math.exp(-comW1toH51*comW1toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW5 += chargeH*(comW1.x(0)-H52r.x(0))/(comW1toH52*comW1toH52*comW1toH52)*((1-SpecialFunctions.erfc(comW1toH52/sqrtHMsigmas))-Math.sqrt(2)*comW1toH52/sqrtPiHMsigmas*Math.exp(-comW1toH52*comW1toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1XcompW5 += chargeM*(comW1.x(0)-M5r.x(0))/(comW1toM5*comW1toM5*comW1toM5)*((1-SpecialFunctions.erfc(comW1toM5/(2*sigmaM)))-Math.sqrt(2)*comW1toM5/sqrtPiMMsigmas*Math.exp(-comW1toM5*comW1toM5/(4*sigmaM*sigmaM)));
 
-        Eq1YcompW5 += chargeH51*(comW1.x(1)-H51r.x(1))/(comW1toH51*comW1toH51*comW1toH51)*((1-SpecialFunctions.erfc(comW1toH51/sqrtHMsigmas))-Math.sqrt(2)*comW1toH51/sqrtPiHMsigmas*Math.exp(-comW1toH51*comW1toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW5 += chargeH52*(comW1.x(1)-H52r.x(1))/(comW1toH52*comW1toH52*comW1toH52)*((1-SpecialFunctions.erfc(comW1toH52/sqrtHMsigmas))-Math.sqrt(2)*comW1toH52/sqrtPiHMsigmas*Math.exp(-comW1toH52*comW1toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1YcompW5 += chargeM5*(comW1.x(1)-M5r.x(1))/(comW1toM5*comW1toM5*comW1toM5)*((1-SpecialFunctions.erfc(comW1toM5/(2*sigmaM)))-Math.sqrt(2)*comW1toM5/sqrtPiMMsigmas*Math.exp(-comW1toM5*comW1toM5/(4*sigmaM*sigmaM)));
+        Eq1YcompW5 += chargeH*(comW1.x(1)-H51r.x(1))/(comW1toH51*comW1toH51*comW1toH51)*((1-SpecialFunctions.erfc(comW1toH51/sqrtHMsigmas))-Math.sqrt(2)*comW1toH51/sqrtPiHMsigmas*Math.exp(-comW1toH51*comW1toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW5 += chargeH*(comW1.x(1)-H52r.x(1))/(comW1toH52*comW1toH52*comW1toH52)*((1-SpecialFunctions.erfc(comW1toH52/sqrtHMsigmas))-Math.sqrt(2)*comW1toH52/sqrtPiHMsigmas*Math.exp(-comW1toH52*comW1toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1YcompW5 += chargeM*(comW1.x(1)-M5r.x(1))/(comW1toM5*comW1toM5*comW1toM5)*((1-SpecialFunctions.erfc(comW1toM5/(2*sigmaM)))-Math.sqrt(2)*comW1toM5/sqrtPiMMsigmas*Math.exp(-comW1toM5*comW1toM5/(4*sigmaM*sigmaM)));
 
-        Eq1ZcompW5 += chargeH51*(comW1.x(2)-H51r.x(2))/(comW1toH51*comW1toH51*comW1toH51)*((1-SpecialFunctions.erfc(comW1toH51/sqrtHMsigmas))-Math.sqrt(2)*comW1toH51/sqrtPiHMsigmas*Math.exp(-comW1toH51*comW1toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW5 += chargeH52*(comW1.x(2)-H52r.x(2))/(comW1toH52*comW1toH52*comW1toH52)*((1-SpecialFunctions.erfc(comW1toH52/sqrtHMsigmas))-Math.sqrt(2)*comW1toH52/sqrtPiHMsigmas*Math.exp(-comW1toH52*comW1toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq1ZcompW5 += chargeM5*(comW1.x(2)-M5r.x(2))/(comW1toM5*comW1toM5*comW1toM5)*((1-SpecialFunctions.erfc(comW1toM5/(2*sigmaM)))-Math.sqrt(2)*comW1toM5/sqrtPiMMsigmas*Math.exp(-comW1toM5*comW1toM5/(4*sigmaM*sigmaM)));
+        Eq1ZcompW5 += chargeH*(comW1.x(2)-H51r.x(2))/(comW1toH51*comW1toH51*comW1toH51)*((1-SpecialFunctions.erfc(comW1toH51/sqrtHMsigmas))-Math.sqrt(2)*comW1toH51/sqrtPiHMsigmas*Math.exp(-comW1toH51*comW1toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW5 += chargeH*(comW1.x(2)-H52r.x(2))/(comW1toH52*comW1toH52*comW1toH52)*((1-SpecialFunctions.erfc(comW1toH52/sqrtHMsigmas))-Math.sqrt(2)*comW1toH52/sqrtPiHMsigmas*Math.exp(-comW1toH52*comW1toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq1ZcompW5 += chargeM*(comW1.x(2)-M5r.x(2))/(comW1toM5*comW1toM5*comW1toM5)*((1-SpecialFunctions.erfc(comW1toM5/(2*sigmaM)))-Math.sqrt(2)*comW1toM5/sqrtPiMMsigmas*Math.exp(-comW1toM5*comW1toM5/(4*sigmaM*sigmaM)));
 
         
         Eq1.setX(0,Eq1XcompW2+Eq1XcompW3+Eq1XcompW4+Eq1XcompW5);
@@ -3315,59 +3305,59 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         
         // Contributions to sum from water molecule#1
-        Eq2XcompW1 += chargeH11*(comW2.x(0)-H11r.x(0))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW1 += chargeH12*(comW2.x(0)-H12r.x(0))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW1 += chargeM1*(comW2.x(0)-M1r.x(0))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        Eq2XcompW1 += chargeH*(comW2.x(0)-H11r.x(0))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW1 += chargeH*(comW2.x(0)-H12r.x(0))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW1 += chargeM*(comW2.x(0)-M1r.x(0))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
 
-        Eq2YcompW1 += chargeH11*(comW2.x(1)-H11r.x(1))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW1 += chargeH12*(comW2.x(1)-H12r.x(1))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW1 += chargeM1*(comW2.x(1)-M1r.x(1))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        Eq2YcompW1 += chargeH*(comW2.x(1)-H11r.x(1))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW1 += chargeH*(comW2.x(1)-H12r.x(1))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW1 += chargeM*(comW2.x(1)-M1r.x(1))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
 
-        Eq2ZcompW1 += chargeH11*(comW2.x(2)-H11r.x(2))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW1 += chargeH12*(comW2.x(2)-H12r.x(2))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW1 += chargeM1*(comW2.x(2)-M1r.x(2))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
+        Eq2ZcompW1 += chargeH*(comW2.x(2)-H11r.x(2))/(comW2toH11*comW2toH11*comW2toH11)*((1-SpecialFunctions.erfc(comW2toH11/sqrtHMsigmas))-Math.sqrt(2)*comW2toH11/sqrtPiHMsigmas*Math.exp(-comW2toH11*comW2toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW1 += chargeH*(comW2.x(2)-H12r.x(2))/(comW2toH12*comW2toH12*comW2toH12)*((1-SpecialFunctions.erfc(comW2toH12/sqrtHMsigmas))-Math.sqrt(2)*comW2toH12/sqrtPiHMsigmas*Math.exp(-comW2toH12*comW2toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW1 += chargeM*(comW2.x(2)-M1r.x(2))/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
 
 
         // Contributions to sum from water molecule#3
-        Eq2XcompW3 += chargeH31*(comW2.x(0)-H31r.x(0))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW3 += chargeH32*(comW2.x(0)-H32r.x(0))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW3 += chargeM3*(comW2.x(0)-M3r.x(0))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
+        Eq2XcompW3 += chargeH*(comW2.x(0)-H31r.x(0))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW3 += chargeH*(comW2.x(0)-H32r.x(0))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW3 += chargeM*(comW2.x(0)-M3r.x(0))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
 
-        Eq2YcompW3 += chargeH31*(comW2.x(1)-H31r.x(1))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW3 += chargeH32*(comW2.x(1)-H32r.x(1))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW3 += chargeM3*(comW2.x(1)-M3r.x(1))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
+        Eq2YcompW3 += chargeH*(comW2.x(1)-H31r.x(1))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW3 += chargeH*(comW2.x(1)-H32r.x(1))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW3 += chargeM*(comW2.x(1)-M3r.x(1))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
 
-        Eq2ZcompW3 += chargeH31*(comW2.x(2)-H31r.x(2))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW3 += chargeH32*(comW2.x(2)-H32r.x(2))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW3 += chargeM3*(comW2.x(2)-M3r.x(2))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
+        Eq2ZcompW3 += chargeH*(comW2.x(2)-H31r.x(2))/(comW2toH31*comW2toH31*comW2toH31)*((1-SpecialFunctions.erfc(comW2toH31/sqrtHMsigmas))-Math.sqrt(2)*comW2toH31/sqrtPiHMsigmas*Math.exp(-comW2toH31*comW2toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW3 += chargeH*(comW2.x(2)-H32r.x(2))/(comW2toH32*comW2toH32*comW2toH32)*((1-SpecialFunctions.erfc(comW2toH32/sqrtHMsigmas))-Math.sqrt(2)*comW2toH32/sqrtPiHMsigmas*Math.exp(-comW2toH32*comW2toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW3 += chargeM*(comW2.x(2)-M3r.x(2))/(comW2toM3*comW2toM3*comW2toM3)*((1-SpecialFunctions.erfc(comW2toM3/(2*sigmaM)))-Math.sqrt(2)*comW2toM3/sqrtPiMMsigmas*Math.exp(-comW2toM3*comW2toM3/(4*sigmaM*sigmaM)));
         
 
         // Contributions to sum from water molecule#4
-        Eq2XcompW4 += chargeH41*(comW2.x(0)-H41r.x(0))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW4 += chargeH42*(comW2.x(0)-H42r.x(0))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW4 += chargeM4*(comW2.x(0)-M4r.x(0))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
+        Eq2XcompW4 += chargeH*(comW2.x(0)-H41r.x(0))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW4 += chargeH*(comW2.x(0)-H42r.x(0))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW4 += chargeM*(comW2.x(0)-M4r.x(0))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
 
-        Eq2YcompW4 += chargeH41*(comW2.x(1)-H41r.x(1))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW4 += chargeH42*(comW2.x(1)-H42r.x(1))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW4 += chargeM4*(comW2.x(1)-M4r.x(1))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
+        Eq2YcompW4 += chargeH*(comW2.x(1)-H41r.x(1))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW4 += chargeH*(comW2.x(1)-H42r.x(1))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW4 += chargeM*(comW2.x(1)-M4r.x(1))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
 
-        Eq2ZcompW4 += chargeH41*(comW2.x(2)-H41r.x(2))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW4 += chargeH42*(comW2.x(2)-H42r.x(2))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW4 += chargeM4*(comW2.x(2)-M4r.x(2))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
+        Eq2ZcompW4 += chargeH*(comW2.x(2)-H41r.x(2))/(comW2toH41*comW2toH41*comW2toH41)*((1-SpecialFunctions.erfc(comW2toH41/sqrtHMsigmas))-Math.sqrt(2)*comW2toH41/sqrtPiHMsigmas*Math.exp(-comW2toH41*comW2toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW4 += chargeH*(comW2.x(2)-H42r.x(2))/(comW2toH42*comW2toH42*comW2toH42)*((1-SpecialFunctions.erfc(comW2toH42/sqrtHMsigmas))-Math.sqrt(2)*comW2toH42/sqrtPiHMsigmas*Math.exp(-comW2toH42*comW2toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW4 += chargeM*(comW2.x(2)-M4r.x(2))/(comW2toM4*comW2toM4*comW2toM4)*((1-SpecialFunctions.erfc(comW2toM4/(2*sigmaM)))-Math.sqrt(2)*comW2toM4/sqrtPiMMsigmas*Math.exp(-comW2toM4*comW2toM4/(4*sigmaM*sigmaM)));
 
         
         // Contributions to sum from water molecule#5
-        Eq2XcompW5 += chargeH51*(comW2.x(0)-H51r.x(0))/(comW2toH51*comW2toH51*comW2toH51)*((1-SpecialFunctions.erfc(comW2toH51/sqrtHMsigmas))-Math.sqrt(2)*comW2toH51/sqrtPiHMsigmas*Math.exp(-comW2toH51*comW2toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW5 += chargeH52*(comW2.x(0)-H52r.x(0))/(comW2toH52*comW2toH52*comW2toH52)*((1-SpecialFunctions.erfc(comW2toH52/sqrtHMsigmas))-Math.sqrt(2)*comW2toH52/sqrtPiHMsigmas*Math.exp(-comW2toH52*comW2toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2XcompW5 += chargeM5*(comW2.x(0)-M5r.x(0))/(comW2toM5*comW2toM5*comW2toM5)*((1-SpecialFunctions.erfc(comW2toM5/(2*sigmaM)))-Math.sqrt(2)*comW2toM5/sqrtPiMMsigmas*Math.exp(-comW2toM5*comW2toM5/(4*sigmaM*sigmaM)));
+        Eq2XcompW5 += chargeH*(comW2.x(0)-H51r.x(0))/(comW2toH51*comW2toH51*comW2toH51)*((1-SpecialFunctions.erfc(comW2toH51/sqrtHMsigmas))-Math.sqrt(2)*comW2toH51/sqrtPiHMsigmas*Math.exp(-comW2toH51*comW2toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW5 += chargeH*(comW2.x(0)-H52r.x(0))/(comW2toH52*comW2toH52*comW2toH52)*((1-SpecialFunctions.erfc(comW2toH52/sqrtHMsigmas))-Math.sqrt(2)*comW2toH52/sqrtPiHMsigmas*Math.exp(-comW2toH52*comW2toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2XcompW5 += chargeM*(comW2.x(0)-M5r.x(0))/(comW2toM5*comW2toM5*comW2toM5)*((1-SpecialFunctions.erfc(comW2toM5/(2*sigmaM)))-Math.sqrt(2)*comW2toM5/sqrtPiMMsigmas*Math.exp(-comW2toM5*comW2toM5/(4*sigmaM*sigmaM)));
 
-        Eq2YcompW5 += chargeH51*(comW2.x(1)-H51r.x(1))/(comW2toH51*comW2toH51*comW2toH51)*((1-SpecialFunctions.erfc(comW2toH51/sqrtHMsigmas))-Math.sqrt(2)*comW2toH51/sqrtPiHMsigmas*Math.exp(-comW2toH51*comW2toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW5 += chargeH52*(comW2.x(1)-H52r.x(1))/(comW2toH52*comW2toH52*comW2toH52)*((1-SpecialFunctions.erfc(comW2toH52/sqrtHMsigmas))-Math.sqrt(2)*comW2toH52/sqrtPiHMsigmas*Math.exp(-comW2toH52*comW2toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2YcompW5 += chargeM5*(comW2.x(1)-M5r.x(1))/(comW2toM5*comW2toM5*comW2toM5)*((1-SpecialFunctions.erfc(comW2toM5/(2*sigmaM)))-Math.sqrt(2)*comW2toM5/sqrtPiMMsigmas*Math.exp(-comW2toM5*comW2toM5/(4*sigmaM*sigmaM)));
+        Eq2YcompW5 += chargeH*(comW2.x(1)-H51r.x(1))/(comW2toH51*comW2toH51*comW2toH51)*((1-SpecialFunctions.erfc(comW2toH51/sqrtHMsigmas))-Math.sqrt(2)*comW2toH51/sqrtPiHMsigmas*Math.exp(-comW2toH51*comW2toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW5 += chargeH*(comW2.x(1)-H52r.x(1))/(comW2toH52*comW2toH52*comW2toH52)*((1-SpecialFunctions.erfc(comW2toH52/sqrtHMsigmas))-Math.sqrt(2)*comW2toH52/sqrtPiHMsigmas*Math.exp(-comW2toH52*comW2toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2YcompW5 += chargeM*(comW2.x(1)-M5r.x(1))/(comW2toM5*comW2toM5*comW2toM5)*((1-SpecialFunctions.erfc(comW2toM5/(2*sigmaM)))-Math.sqrt(2)*comW2toM5/sqrtPiMMsigmas*Math.exp(-comW2toM5*comW2toM5/(4*sigmaM*sigmaM)));
 
-        Eq2ZcompW5 += chargeH51*(comW2.x(2)-H51r.x(2))/(comW2toH51*comW2toH51*comW2toH51)*((1-SpecialFunctions.erfc(comW2toH51/sqrtHMsigmas))-Math.sqrt(2)*comW2toH51/sqrtPiHMsigmas*Math.exp(-comW2toH51*comW2toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW5 += chargeH52*(comW2.x(2)-H52r.x(2))/(comW2toH52*comW2toH52*comW2toH52)*((1-SpecialFunctions.erfc(comW2toH52/sqrtHMsigmas))-Math.sqrt(2)*comW2toH52/sqrtPiHMsigmas*Math.exp(-comW2toH52*comW2toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq2ZcompW5 += chargeM5*(comW2.x(2)-M5r.x(2))/(comW2toM5*comW2toM5*comW2toM5)*((1-SpecialFunctions.erfc(comW2toM5/(2*sigmaM)))-Math.sqrt(2)*comW2toM5/sqrtPiMMsigmas*Math.exp(-comW2toM5*comW2toM5/(4*sigmaM*sigmaM)));
+        Eq2ZcompW5 += chargeH*(comW2.x(2)-H51r.x(2))/(comW2toH51*comW2toH51*comW2toH51)*((1-SpecialFunctions.erfc(comW2toH51/sqrtHMsigmas))-Math.sqrt(2)*comW2toH51/sqrtPiHMsigmas*Math.exp(-comW2toH51*comW2toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW5 += chargeH*(comW2.x(2)-H52r.x(2))/(comW2toH52*comW2toH52*comW2toH52)*((1-SpecialFunctions.erfc(comW2toH52/sqrtHMsigmas))-Math.sqrt(2)*comW2toH52/sqrtPiHMsigmas*Math.exp(-comW2toH52*comW2toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq2ZcompW5 += chargeM*(comW2.x(2)-M5r.x(2))/(comW2toM5*comW2toM5*comW2toM5)*((1-SpecialFunctions.erfc(comW2toM5/(2*sigmaM)))-Math.sqrt(2)*comW2toM5/sqrtPiMMsigmas*Math.exp(-comW2toM5*comW2toM5/(4*sigmaM*sigmaM)));
 
         
         Eq2.setX(0,Eq2XcompW1+Eq2XcompW3+Eq2XcompW4+Eq2XcompW5);
@@ -3411,59 +3401,59 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         
         // Contributions to sum from water molecule#1       
-        Eq3XcompW1 += chargeH11*(comW3.x(0)-H11r.x(0))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW1 += chargeH12*(comW3.x(0)-H12r.x(0))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW1 += chargeM1*(comW3.x(0)-M1r.x(0))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
+        Eq3XcompW1 += chargeH*(comW3.x(0)-H11r.x(0))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW1 += chargeH*(comW3.x(0)-H12r.x(0))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW1 += chargeM*(comW3.x(0)-M1r.x(0))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
 
-        Eq3YcompW1 += chargeH11*(comW3.x(1)-H11r.x(1))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW1 += chargeH12*(comW3.x(1)-H12r.x(1))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW1 += chargeM1*(comW3.x(1)-M1r.x(1))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
+        Eq3YcompW1 += chargeH*(comW3.x(1)-H11r.x(1))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW1 += chargeH*(comW3.x(1)-H12r.x(1))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW1 += chargeM*(comW3.x(1)-M1r.x(1))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
 
-        Eq3ZcompW1 += chargeH11*(comW3.x(2)-H11r.x(2))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW1 += chargeH12*(comW3.x(2)-H12r.x(2))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW1 += chargeM1*(comW3.x(2)-M1r.x(2))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
+        Eq3ZcompW1 += chargeH*(comW3.x(2)-H11r.x(2))/(comW3toH11*comW3toH11*comW3toH11)*((1-SpecialFunctions.erfc(comW3toH11/sqrtHMsigmas))-Math.sqrt(2)*comW3toH11/sqrtPiHMsigmas*Math.exp(-comW3toH11*comW3toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW1 += chargeH*(comW3.x(2)-H12r.x(2))/(comW3toH12*comW3toH12*comW3toH12)*((1-SpecialFunctions.erfc(comW3toH12/sqrtHMsigmas))-Math.sqrt(2)*comW3toH12/sqrtPiHMsigmas*Math.exp(-comW3toH12*comW3toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW1 += chargeM*(comW3.x(2)-M1r.x(2))/(comW3toM1*comW3toM1*comW3toM1)*((1-SpecialFunctions.erfc(comW3toM1/(2*sigmaM)))-Math.sqrt(2)*comW3toM1/sqrtPiMMsigmas*Math.exp(-comW3toM1*comW3toM1/(4*sigmaM*sigmaM)));
 
         
         // Contributions to sum from water molecule#2
-        Eq3XcompW2 += chargeH21*(comW3.x(0)-H21r.x(0))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW2 += chargeH22*(comW3.x(0)-H22r.x(0))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW2 += chargeM2*(comW3.x(0)-M2r.x(0))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
+        Eq3XcompW2 += chargeH*(comW3.x(0)-H21r.x(0))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW2 += chargeH*(comW3.x(0)-H22r.x(0))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW2 += chargeM*(comW3.x(0)-M2r.x(0))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
 
-        Eq3YcompW2 += chargeH21*(comW3.x(1)-H21r.x(1))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW2 += chargeH22*(comW3.x(1)-H22r.x(1))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW2 += chargeM2*(comW3.x(1)-M2r.x(1))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
+        Eq3YcompW2 += chargeH*(comW3.x(1)-H21r.x(1))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW2 += chargeH*(comW3.x(1)-H22r.x(1))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW2 += chargeM*(comW3.x(1)-M2r.x(1))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
 
-        Eq3ZcompW2 += chargeH21*(comW3.x(2)-H21r.x(2))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW2 += chargeH22*(comW3.x(2)-H22r.x(2))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW2 += chargeM2*(comW3.x(2)-M2r.x(2))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
+        Eq3ZcompW2 += chargeH*(comW3.x(2)-H21r.x(2))/(comW3toH21*comW3toH21*comW3toH21)*((1-SpecialFunctions.erfc(comW3toH21/sqrtHMsigmas))-Math.sqrt(2)*comW3toH21/sqrtPiHMsigmas*Math.exp(-comW3toH21*comW3toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW2 += chargeH*(comW3.x(2)-H22r.x(2))/(comW3toH22*comW3toH22*comW3toH22)*((1-SpecialFunctions.erfc(comW3toH22/sqrtHMsigmas))-Math.sqrt(2)*comW3toH22/sqrtPiHMsigmas*Math.exp(-comW3toH22*comW3toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW2 += chargeM*(comW3.x(2)-M2r.x(2))/(comW3toM2*comW3toM2*comW3toM2)*((1-SpecialFunctions.erfc(comW3toM2/(2*sigmaM)))-Math.sqrt(2)*comW3toM2/sqrtPiMMsigmas*Math.exp(-comW3toM2*comW3toM2/(4*sigmaM*sigmaM)));
         
 
         // Contributions to sum from water molecule#4
-        Eq3XcompW4 += chargeH41*(comW3.x(0)-H41r.x(0))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW4 += chargeH42*(comW3.x(0)-H42r.x(0))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW4 += chargeM4*(comW3.x(0)-M4r.x(0))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
+        Eq3XcompW4 += chargeH*(comW3.x(0)-H41r.x(0))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW4 += chargeH*(comW3.x(0)-H42r.x(0))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW4 += chargeM*(comW3.x(0)-M4r.x(0))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
 
-        Eq3YcompW4 += chargeH41*(comW3.x(1)-H41r.x(1))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW4 += chargeH42*(comW3.x(1)-H42r.x(1))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW4 += chargeM4*(comW3.x(1)-M4r.x(1))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
+        Eq3YcompW4 += chargeH*(comW3.x(1)-H41r.x(1))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW4 += chargeH*(comW3.x(1)-H42r.x(1))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW4 += chargeM*(comW3.x(1)-M4r.x(1))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
 
-        Eq3ZcompW4 += chargeH41*(comW3.x(2)-H41r.x(2))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW4 += chargeH42*(comW3.x(2)-H42r.x(2))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW4 += chargeM4*(comW3.x(2)-M4r.x(2))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
+        Eq3ZcompW4 += chargeH*(comW3.x(2)-H41r.x(2))/(comW3toH41*comW3toH41*comW3toH41)*((1-SpecialFunctions.erfc(comW3toH41/sqrtHMsigmas))-Math.sqrt(2)*comW3toH41/sqrtPiHMsigmas*Math.exp(-comW3toH41*comW3toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW4 += chargeH*(comW3.x(2)-H42r.x(2))/(comW3toH42*comW3toH42*comW3toH42)*((1-SpecialFunctions.erfc(comW3toH42/sqrtHMsigmas))-Math.sqrt(2)*comW3toH42/sqrtPiHMsigmas*Math.exp(-comW3toH42*comW3toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW4 += chargeM*(comW3.x(2)-M4r.x(2))/(comW3toM4*comW3toM4*comW3toM4)*((1-SpecialFunctions.erfc(comW3toM4/(2*sigmaM)))-Math.sqrt(2)*comW3toM4/sqrtPiMMsigmas*Math.exp(-comW3toM4*comW3toM4/(4*sigmaM*sigmaM)));
 
 
         // Contributions to sum from water molecule#5
-        Eq3XcompW5 += chargeH51*(comW3.x(0)-H51r.x(0))/(comW3toH51*comW3toH51*comW3toH51)*((1-SpecialFunctions.erfc(comW3toH51/sqrtHMsigmas))-Math.sqrt(2)*comW3toH51/sqrtPiHMsigmas*Math.exp(-comW3toH51*comW3toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW5 += chargeH52*(comW3.x(0)-H52r.x(0))/(comW3toH52*comW3toH52*comW3toH52)*((1-SpecialFunctions.erfc(comW3toH52/sqrtHMsigmas))-Math.sqrt(2)*comW3toH52/sqrtPiHMsigmas*Math.exp(-comW3toH52*comW3toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3XcompW5 += chargeM5*(comW3.x(0)-M5r.x(0))/(comW3toM5*comW3toM5*comW3toM5)*((1-SpecialFunctions.erfc(comW3toM5/(2*sigmaM)))-Math.sqrt(2)*comW3toM5/sqrtPiMMsigmas*Math.exp(-comW3toM5*comW3toM5/(4*sigmaM*sigmaM)));
+        Eq3XcompW5 += chargeH*(comW3.x(0)-H51r.x(0))/(comW3toH51*comW3toH51*comW3toH51)*((1-SpecialFunctions.erfc(comW3toH51/sqrtHMsigmas))-Math.sqrt(2)*comW3toH51/sqrtPiHMsigmas*Math.exp(-comW3toH51*comW3toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW5 += chargeH*(comW3.x(0)-H52r.x(0))/(comW3toH52*comW3toH52*comW3toH52)*((1-SpecialFunctions.erfc(comW3toH52/sqrtHMsigmas))-Math.sqrt(2)*comW3toH52/sqrtPiHMsigmas*Math.exp(-comW3toH52*comW3toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3XcompW5 += chargeM*(comW3.x(0)-M5r.x(0))/(comW3toM5*comW3toM5*comW3toM5)*((1-SpecialFunctions.erfc(comW3toM5/(2*sigmaM)))-Math.sqrt(2)*comW3toM5/sqrtPiMMsigmas*Math.exp(-comW3toM5*comW3toM5/(4*sigmaM*sigmaM)));
 
-        Eq3YcompW5 += chargeH51*(comW3.x(1)-H51r.x(1))/(comW3toH51*comW3toH51*comW3toH51)*((1-SpecialFunctions.erfc(comW3toH51/sqrtHMsigmas))-Math.sqrt(2)*comW3toH51/sqrtPiHMsigmas*Math.exp(-comW3toH51*comW3toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW5 += chargeH52*(comW3.x(1)-H52r.x(1))/(comW3toH52*comW3toH52*comW3toH52)*((1-SpecialFunctions.erfc(comW3toH52/sqrtHMsigmas))-Math.sqrt(2)*comW3toH52/sqrtPiHMsigmas*Math.exp(-comW3toH52*comW3toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3YcompW5 += chargeM5*(comW3.x(1)-M5r.x(1))/(comW3toM5*comW3toM5*comW3toM5)*((1-SpecialFunctions.erfc(comW3toM5/(2*sigmaM)))-Math.sqrt(2)*comW3toM5/sqrtPiMMsigmas*Math.exp(-comW3toM5*comW3toM5/(4*sigmaM*sigmaM)));
+        Eq3YcompW5 += chargeH*(comW3.x(1)-H51r.x(1))/(comW3toH51*comW3toH51*comW3toH51)*((1-SpecialFunctions.erfc(comW3toH51/sqrtHMsigmas))-Math.sqrt(2)*comW3toH51/sqrtPiHMsigmas*Math.exp(-comW3toH51*comW3toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW5 += chargeH*(comW3.x(1)-H52r.x(1))/(comW3toH52*comW3toH52*comW3toH52)*((1-SpecialFunctions.erfc(comW3toH52/sqrtHMsigmas))-Math.sqrt(2)*comW3toH52/sqrtPiHMsigmas*Math.exp(-comW3toH52*comW3toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3YcompW5 += chargeM*(comW3.x(1)-M5r.x(1))/(comW3toM5*comW3toM5*comW3toM5)*((1-SpecialFunctions.erfc(comW3toM5/(2*sigmaM)))-Math.sqrt(2)*comW3toM5/sqrtPiMMsigmas*Math.exp(-comW3toM5*comW3toM5/(4*sigmaM*sigmaM)));
 
-        Eq3ZcompW5 += chargeH51*(comW3.x(2)-H51r.x(2))/(comW3toH51*comW3toH51*comW3toH51)*((1-SpecialFunctions.erfc(comW3toH51/sqrtHMsigmas))-Math.sqrt(2)*comW3toH51/sqrtPiHMsigmas*Math.exp(-comW3toH51*comW3toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW5 += chargeH52*(comW3.x(2)-H52r.x(2))/(comW3toH52*comW3toH52*comW3toH52)*((1-SpecialFunctions.erfc(comW3toH52/sqrtHMsigmas))-Math.sqrt(2)*comW3toH52/sqrtPiHMsigmas*Math.exp(-comW3toH52*comW3toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq3ZcompW5 += chargeM5*(comW3.x(2)-M5r.x(2))/(comW3toM5*comW3toM5*comW3toM5)*((1-SpecialFunctions.erfc(comW3toM5/(2*sigmaM)))-Math.sqrt(2)*comW3toM5/sqrtPiMMsigmas*Math.exp(-comW3toM5*comW3toM5/(4*sigmaM*sigmaM)));
+        Eq3ZcompW5 += chargeH*(comW3.x(2)-H51r.x(2))/(comW3toH51*comW3toH51*comW3toH51)*((1-SpecialFunctions.erfc(comW3toH51/sqrtHMsigmas))-Math.sqrt(2)*comW3toH51/sqrtPiHMsigmas*Math.exp(-comW3toH51*comW3toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW5 += chargeH*(comW3.x(2)-H52r.x(2))/(comW3toH52*comW3toH52*comW3toH52)*((1-SpecialFunctions.erfc(comW3toH52/sqrtHMsigmas))-Math.sqrt(2)*comW3toH52/sqrtPiHMsigmas*Math.exp(-comW3toH52*comW3toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq3ZcompW5 += chargeM*(comW3.x(2)-M5r.x(2))/(comW3toM5*comW3toM5*comW3toM5)*((1-SpecialFunctions.erfc(comW3toM5/(2*sigmaM)))-Math.sqrt(2)*comW3toM5/sqrtPiMMsigmas*Math.exp(-comW3toM5*comW3toM5/(4*sigmaM*sigmaM)));
 
         
         Eq3.setX(0,Eq3XcompW1+Eq3XcompW2+Eq3XcompW4+Eq3XcompW5);
@@ -3509,59 +3499,59 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         
         // Contributions to sum from water molecule#1       
-        Eq4XcompW1 += chargeH11*(comW4.x(0)-H11r.x(0))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW1 += chargeH12*(comW4.x(0)-H12r.x(0))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW1 += chargeM1*(comW4.x(0)-M1r.x(0))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
+        Eq4XcompW1 += chargeH*(comW4.x(0)-H11r.x(0))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW1 += chargeH*(comW4.x(0)-H12r.x(0))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW1 += chargeM*(comW4.x(0)-M1r.x(0))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
 
-        Eq4YcompW1 += chargeH11*(comW4.x(1)-H11r.x(1))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW1 += chargeH12*(comW4.x(1)-H12r.x(1))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW1 += chargeM1*(comW4.x(1)-M1r.x(1))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
+        Eq4YcompW1 += chargeH*(comW4.x(1)-H11r.x(1))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW1 += chargeH*(comW4.x(1)-H12r.x(1))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW1 += chargeM*(comW4.x(1)-M1r.x(1))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
 
-        Eq4ZcompW1 += chargeH11*(comW4.x(2)-H11r.x(2))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW1 += chargeH12*(comW4.x(2)-H12r.x(2))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW1 += chargeM1*(comW4.x(2)-M1r.x(2))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
+        Eq4ZcompW1 += chargeH*(comW4.x(2)-H11r.x(2))/(comW4toH11*comW4toH11*comW4toH11)*((1-SpecialFunctions.erfc(comW4toH11/sqrtHMsigmas))-Math.sqrt(2)*comW4toH11/sqrtPiHMsigmas*Math.exp(-comW4toH11*comW4toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW1 += chargeH*(comW4.x(2)-H12r.x(2))/(comW4toH12*comW4toH12*comW4toH12)*((1-SpecialFunctions.erfc(comW4toH12/sqrtHMsigmas))-Math.sqrt(2)*comW4toH12/sqrtPiHMsigmas*Math.exp(-comW4toH12*comW4toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW1 += chargeM*(comW4.x(2)-M1r.x(2))/(comW4toM1*comW4toM1*comW4toM1)*((1-SpecialFunctions.erfc(comW4toM1/(2*sigmaM)))-Math.sqrt(2)*comW4toM1/sqrtPiMMsigmas*Math.exp(-comW4toM1*comW4toM1/(4*sigmaM*sigmaM)));
 
         
         // Contributions to sum from water molecule#2
-        Eq4XcompW2 += chargeH21*(comW4.x(0)-H21r.x(0))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW2 += chargeH22*(comW4.x(0)-H22r.x(0))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW2 += chargeM2*(comW4.x(0)-M2r.x(0))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
+        Eq4XcompW2 += chargeH*(comW4.x(0)-H21r.x(0))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW2 += chargeH*(comW4.x(0)-H22r.x(0))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW2 += chargeM*(comW4.x(0)-M2r.x(0))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
 
-        Eq4YcompW2 += chargeH21*(comW4.x(1)-H21r.x(1))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW2 += chargeH22*(comW4.x(1)-H22r.x(1))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW2 += chargeM2*(comW4.x(1)-M2r.x(1))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
+        Eq4YcompW2 += chargeH*(comW4.x(1)-H21r.x(1))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW2 += chargeH*(comW4.x(1)-H22r.x(1))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW2 += chargeM*(comW4.x(1)-M2r.x(1))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
 
-        Eq4ZcompW2 += chargeH21*(comW4.x(2)-H21r.x(2))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW2 += chargeH22*(comW4.x(2)-H22r.x(2))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW2 += chargeM2*(comW4.x(2)-M2r.x(2))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
+        Eq4ZcompW2 += chargeH*(comW4.x(2)-H21r.x(2))/(comW4toH21*comW4toH21*comW4toH21)*((1-SpecialFunctions.erfc(comW4toH21/sqrtHMsigmas))-Math.sqrt(2)*comW4toH21/sqrtPiHMsigmas*Math.exp(-comW4toH21*comW4toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW2 += chargeH*(comW4.x(2)-H22r.x(2))/(comW4toH22*comW4toH22*comW4toH22)*((1-SpecialFunctions.erfc(comW4toH22/sqrtHMsigmas))-Math.sqrt(2)*comW4toH22/sqrtPiHMsigmas*Math.exp(-comW4toH22*comW4toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW2 += chargeM*(comW4.x(2)-M2r.x(2))/(comW4toM2*comW4toM2*comW4toM2)*((1-SpecialFunctions.erfc(comW4toM2/(2*sigmaM)))-Math.sqrt(2)*comW4toM2/sqrtPiMMsigmas*Math.exp(-comW4toM2*comW4toM2/(4*sigmaM*sigmaM)));
         
 
         // Contributions to sum from water molecule#3
-        Eq4XcompW3 += chargeH31*(comW4.x(0)-H31r.x(0))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW3 += chargeH32*(comW4.x(0)-H32r.x(0))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW3 += chargeM3*(comW4.x(0)-M3r.x(0))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
+        Eq4XcompW3 += chargeH*(comW4.x(0)-H31r.x(0))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW3 += chargeH*(comW4.x(0)-H32r.x(0))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW3 += chargeM*(comW4.x(0)-M3r.x(0))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
 
-        Eq4YcompW3 += chargeH31*(comW4.x(1)-H31r.x(1))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW3 += chargeH32*(comW4.x(1)-H32r.x(1))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW3 += chargeM3*(comW4.x(1)-M3r.x(1))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
+        Eq4YcompW3 += chargeH*(comW4.x(1)-H31r.x(1))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW3 += chargeH*(comW4.x(1)-H32r.x(1))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW3 += chargeM*(comW4.x(1)-M3r.x(1))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
 
-        Eq4ZcompW3 += chargeH31*(comW4.x(2)-H31r.x(2))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW3 += chargeH32*(comW4.x(2)-H32r.x(2))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW3 += chargeM3*(comW4.x(2)-M3r.x(2))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
+        Eq4ZcompW3 += chargeH*(comW4.x(2)-H31r.x(2))/(comW4toH31*comW4toH31*comW4toH31)*((1-SpecialFunctions.erfc(comW4toH31/sqrtHMsigmas))-Math.sqrt(2)*comW4toH31/sqrtPiHMsigmas*Math.exp(-comW4toH31*comW4toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW3 += chargeH*(comW4.x(2)-H32r.x(2))/(comW4toH32*comW4toH32*comW4toH32)*((1-SpecialFunctions.erfc(comW4toH32/sqrtHMsigmas))-Math.sqrt(2)*comW4toH32/sqrtPiHMsigmas*Math.exp(-comW4toH32*comW4toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW3 += chargeM*(comW4.x(2)-M3r.x(2))/(comW4toM3*comW4toM3*comW4toM3)*((1-SpecialFunctions.erfc(comW4toM3/(2*sigmaM)))-Math.sqrt(2)*comW4toM3/sqrtPiMMsigmas*Math.exp(-comW4toM3*comW4toM3/(4*sigmaM*sigmaM)));
 
 
         // Contributions to sum from water molecule#5
-        Eq4XcompW5 += chargeH51*(comW4.x(0)-H51r.x(0))/(comW4toH51*comW4toH51*comW4toH51)*((1-SpecialFunctions.erfc(comW4toH51/sqrtHMsigmas))-Math.sqrt(2)*comW4toH51/sqrtPiHMsigmas*Math.exp(-comW4toH51*comW4toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW5 += chargeH52*(comW4.x(0)-H52r.x(0))/(comW4toH52*comW4toH52*comW4toH52)*((1-SpecialFunctions.erfc(comW4toH52/sqrtHMsigmas))-Math.sqrt(2)*comW4toH52/sqrtPiHMsigmas*Math.exp(-comW4toH52*comW4toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4XcompW5 += chargeM5*(comW4.x(0)-M5r.x(0))/(comW4toM5*comW4toM5*comW4toM5)*((1-SpecialFunctions.erfc(comW4toM5/(2*sigmaM)))-Math.sqrt(2)*comW4toM5/sqrtPiMMsigmas*Math.exp(-comW4toM5*comW4toM5/(4*sigmaM*sigmaM)));
+        Eq4XcompW5 += chargeH*(comW4.x(0)-H51r.x(0))/(comW4toH51*comW4toH51*comW4toH51)*((1-SpecialFunctions.erfc(comW4toH51/sqrtHMsigmas))-Math.sqrt(2)*comW4toH51/sqrtPiHMsigmas*Math.exp(-comW4toH51*comW4toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW5 += chargeH*(comW4.x(0)-H52r.x(0))/(comW4toH52*comW4toH52*comW4toH52)*((1-SpecialFunctions.erfc(comW4toH52/sqrtHMsigmas))-Math.sqrt(2)*comW4toH52/sqrtPiHMsigmas*Math.exp(-comW4toH52*comW4toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4XcompW5 += chargeM*(comW4.x(0)-M5r.x(0))/(comW4toM5*comW4toM5*comW4toM5)*((1-SpecialFunctions.erfc(comW4toM5/(2*sigmaM)))-Math.sqrt(2)*comW4toM5/sqrtPiMMsigmas*Math.exp(-comW4toM5*comW4toM5/(4*sigmaM*sigmaM)));
 
-        Eq4YcompW5 += chargeH51*(comW4.x(1)-H51r.x(1))/(comW4toH51*comW4toH51*comW4toH51)*((1-SpecialFunctions.erfc(comW4toH51/sqrtHMsigmas))-Math.sqrt(2)*comW4toH51/sqrtPiHMsigmas*Math.exp(-comW4toH51*comW4toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW5 += chargeH52*(comW4.x(1)-H52r.x(1))/(comW4toH52*comW4toH52*comW4toH52)*((1-SpecialFunctions.erfc(comW4toH52/sqrtHMsigmas))-Math.sqrt(2)*comW4toH52/sqrtPiHMsigmas*Math.exp(-comW4toH52*comW4toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4YcompW5 += chargeM5*(comW4.x(1)-M5r.x(1))/(comW4toM5*comW4toM5*comW4toM5)*((1-SpecialFunctions.erfc(comW4toM5/(2*sigmaM)))-Math.sqrt(2)*comW4toM5/sqrtPiMMsigmas*Math.exp(-comW4toM5*comW4toM5/(4*sigmaM*sigmaM)));
+        Eq4YcompW5 += chargeH*(comW4.x(1)-H51r.x(1))/(comW4toH51*comW4toH51*comW4toH51)*((1-SpecialFunctions.erfc(comW4toH51/sqrtHMsigmas))-Math.sqrt(2)*comW4toH51/sqrtPiHMsigmas*Math.exp(-comW4toH51*comW4toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW5 += chargeH*(comW4.x(1)-H52r.x(1))/(comW4toH52*comW4toH52*comW4toH52)*((1-SpecialFunctions.erfc(comW4toH52/sqrtHMsigmas))-Math.sqrt(2)*comW4toH52/sqrtPiHMsigmas*Math.exp(-comW4toH52*comW4toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4YcompW5 += chargeM*(comW4.x(1)-M5r.x(1))/(comW4toM5*comW4toM5*comW4toM5)*((1-SpecialFunctions.erfc(comW4toM5/(2*sigmaM)))-Math.sqrt(2)*comW4toM5/sqrtPiMMsigmas*Math.exp(-comW4toM5*comW4toM5/(4*sigmaM*sigmaM)));
 
-        Eq4ZcompW5 += chargeH51*(comW4.x(2)-H51r.x(2))/(comW4toH51*comW4toH51*comW4toH51)*((1-SpecialFunctions.erfc(comW4toH51/sqrtHMsigmas))-Math.sqrt(2)*comW4toH51/sqrtPiHMsigmas*Math.exp(-comW4toH51*comW4toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW5 += chargeH52*(comW4.x(2)-H52r.x(2))/(comW4toH52*comW4toH52*comW4toH52)*((1-SpecialFunctions.erfc(comW4toH52/sqrtHMsigmas))-Math.sqrt(2)*comW4toH52/sqrtPiHMsigmas*Math.exp(-comW4toH52*comW4toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq4ZcompW5 += chargeM5*(comW4.x(2)-M5r.x(2))/(comW4toM5*comW4toM5*comW4toM5)*((1-SpecialFunctions.erfc(comW4toM5/(2*sigmaM)))-Math.sqrt(2)*comW4toM5/sqrtPiMMsigmas*Math.exp(-comW4toM5*comW4toM5/(4*sigmaM*sigmaM)));
+        Eq4ZcompW5 += chargeH*(comW4.x(2)-H51r.x(2))/(comW4toH51*comW4toH51*comW4toH51)*((1-SpecialFunctions.erfc(comW4toH51/sqrtHMsigmas))-Math.sqrt(2)*comW4toH51/sqrtPiHMsigmas*Math.exp(-comW4toH51*comW4toH51/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW5 += chargeH*(comW4.x(2)-H52r.x(2))/(comW4toH52*comW4toH52*comW4toH52)*((1-SpecialFunctions.erfc(comW4toH52/sqrtHMsigmas))-Math.sqrt(2)*comW4toH52/sqrtPiHMsigmas*Math.exp(-comW4toH52*comW4toH52/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq4ZcompW5 += chargeM*(comW4.x(2)-M5r.x(2))/(comW4toM5*comW4toM5*comW4toM5)*((1-SpecialFunctions.erfc(comW4toM5/(2*sigmaM)))-Math.sqrt(2)*comW4toM5/sqrtPiMMsigmas*Math.exp(-comW4toM5*comW4toM5/(4*sigmaM*sigmaM)));
 
         
         Eq4.setX(0,Eq4XcompW1+Eq4XcompW2+Eq4XcompW3+Eq4XcompW5);
@@ -3606,59 +3596,59 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         
         // Contributions to sum from water molecule#1       
-        Eq5XcompW1 += chargeH11*(comW5.x(0)-H11r.x(0))/(comW5toH11*comW5toH11*comW5toH11)*((1-SpecialFunctions.erfc(comW5toH11/sqrtHMsigmas))-Math.sqrt(2)*comW5toH11/sqrtPiHMsigmas*Math.exp(-comW5toH11*comW5toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5XcompW1 += chargeH12*(comW5.x(0)-H12r.x(0))/(comW5toH12*comW5toH12*comW5toH12)*((1-SpecialFunctions.erfc(comW5toH12/sqrtHMsigmas))-Math.sqrt(2)*comW5toH12/sqrtPiHMsigmas*Math.exp(-comW5toH12*comW5toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5XcompW1 += chargeM1*(comW5.x(0)-M1r.x(0))/(comW5toM1*comW5toM1*comW5toM1)*((1-SpecialFunctions.erfc(comW5toM1/(2*sigmaM)))-Math.sqrt(2)*comW5toM1/sqrtPiMMsigmas*Math.exp(-comW5toM1*comW5toM1/(4*sigmaM*sigmaM)));
+        Eq5XcompW1 += chargeH*(comW5.x(0)-H11r.x(0))/(comW5toH11*comW5toH11*comW5toH11)*((1-SpecialFunctions.erfc(comW5toH11/sqrtHMsigmas))-Math.sqrt(2)*comW5toH11/sqrtPiHMsigmas*Math.exp(-comW5toH11*comW5toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5XcompW1 += chargeH*(comW5.x(0)-H12r.x(0))/(comW5toH12*comW5toH12*comW5toH12)*((1-SpecialFunctions.erfc(comW5toH12/sqrtHMsigmas))-Math.sqrt(2)*comW5toH12/sqrtPiHMsigmas*Math.exp(-comW5toH12*comW5toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5XcompW1 += chargeM*(comW5.x(0)-M1r.x(0))/(comW5toM1*comW5toM1*comW5toM1)*((1-SpecialFunctions.erfc(comW5toM1/(2*sigmaM)))-Math.sqrt(2)*comW5toM1/sqrtPiMMsigmas*Math.exp(-comW5toM1*comW5toM1/(4*sigmaM*sigmaM)));
 
-        Eq5YcompW1 += chargeH11*(comW5.x(1)-H11r.x(1))/(comW5toH11*comW5toH11*comW5toH11)*((1-SpecialFunctions.erfc(comW5toH11/sqrtHMsigmas))-Math.sqrt(2)*comW5toH11/sqrtPiHMsigmas*Math.exp(-comW5toH11*comW5toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5YcompW1 += chargeH12*(comW5.x(1)-H12r.x(1))/(comW5toH12*comW5toH12*comW5toH12)*((1-SpecialFunctions.erfc(comW5toH12/sqrtHMsigmas))-Math.sqrt(2)*comW5toH12/sqrtPiHMsigmas*Math.exp(-comW5toH12*comW5toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5YcompW1 += chargeM1*(comW5.x(1)-M1r.x(1))/(comW5toM1*comW5toM1*comW5toM1)*((1-SpecialFunctions.erfc(comW5toM1/(2*sigmaM)))-Math.sqrt(2)*comW5toM1/sqrtPiMMsigmas*Math.exp(-comW5toM1*comW5toM1/(4*sigmaM*sigmaM)));
+        Eq5YcompW1 += chargeH*(comW5.x(1)-H11r.x(1))/(comW5toH11*comW5toH11*comW5toH11)*((1-SpecialFunctions.erfc(comW5toH11/sqrtHMsigmas))-Math.sqrt(2)*comW5toH11/sqrtPiHMsigmas*Math.exp(-comW5toH11*comW5toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5YcompW1 += chargeH*(comW5.x(1)-H12r.x(1))/(comW5toH12*comW5toH12*comW5toH12)*((1-SpecialFunctions.erfc(comW5toH12/sqrtHMsigmas))-Math.sqrt(2)*comW5toH12/sqrtPiHMsigmas*Math.exp(-comW5toH12*comW5toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5YcompW1 += chargeM*(comW5.x(1)-M1r.x(1))/(comW5toM1*comW5toM1*comW5toM1)*((1-SpecialFunctions.erfc(comW5toM1/(2*sigmaM)))-Math.sqrt(2)*comW5toM1/sqrtPiMMsigmas*Math.exp(-comW5toM1*comW5toM1/(4*sigmaM*sigmaM)));
 
-        Eq5ZcompW1 += chargeH11*(comW5.x(2)-H11r.x(2))/(comW5toH11*comW5toH11*comW5toH11)*((1-SpecialFunctions.erfc(comW5toH11/sqrtHMsigmas))-Math.sqrt(2)*comW5toH11/sqrtPiHMsigmas*Math.exp(-comW5toH11*comW5toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5ZcompW1 += chargeH12*(comW5.x(2)-H12r.x(2))/(comW5toH12*comW5toH12*comW5toH12)*((1-SpecialFunctions.erfc(comW5toH12/sqrtHMsigmas))-Math.sqrt(2)*comW5toH12/sqrtPiHMsigmas*Math.exp(-comW5toH12*comW5toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5ZcompW1 += chargeM1*(comW5.x(2)-M1r.x(2))/(comW5toM1*comW5toM1*comW5toM1)*((1-SpecialFunctions.erfc(comW5toM1/(2*sigmaM)))-Math.sqrt(2)*comW5toM1/sqrtPiMMsigmas*Math.exp(-comW5toM1*comW5toM1/(4*sigmaM*sigmaM)));
+        Eq5ZcompW1 += chargeH*(comW5.x(2)-H11r.x(2))/(comW5toH11*comW5toH11*comW5toH11)*((1-SpecialFunctions.erfc(comW5toH11/sqrtHMsigmas))-Math.sqrt(2)*comW5toH11/sqrtPiHMsigmas*Math.exp(-comW5toH11*comW5toH11/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5ZcompW1 += chargeH*(comW5.x(2)-H12r.x(2))/(comW5toH12*comW5toH12*comW5toH12)*((1-SpecialFunctions.erfc(comW5toH12/sqrtHMsigmas))-Math.sqrt(2)*comW5toH12/sqrtPiHMsigmas*Math.exp(-comW5toH12*comW5toH12/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5ZcompW1 += chargeM*(comW5.x(2)-M1r.x(2))/(comW5toM1*comW5toM1*comW5toM1)*((1-SpecialFunctions.erfc(comW5toM1/(2*sigmaM)))-Math.sqrt(2)*comW5toM1/sqrtPiMMsigmas*Math.exp(-comW5toM1*comW5toM1/(4*sigmaM*sigmaM)));
 
         
         // Contributions to sum from water molecule#2
-        Eq5XcompW2 += chargeH21*(comW5.x(0)-H21r.x(0))/(comW5toH21*comW5toH21*comW5toH21)*((1-SpecialFunctions.erfc(comW5toH21/sqrtHMsigmas))-Math.sqrt(2)*comW5toH21/sqrtPiHMsigmas*Math.exp(-comW5toH21*comW5toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5XcompW2 += chargeH22*(comW5.x(0)-H22r.x(0))/(comW5toH22*comW5toH22*comW5toH22)*((1-SpecialFunctions.erfc(comW5toH22/sqrtHMsigmas))-Math.sqrt(2)*comW5toH22/sqrtPiHMsigmas*Math.exp(-comW5toH22*comW5toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5XcompW2 += chargeM2*(comW5.x(0)-M2r.x(0))/(comW5toM2*comW5toM2*comW5toM2)*((1-SpecialFunctions.erfc(comW5toM2/(2*sigmaM)))-Math.sqrt(2)*comW5toM2/sqrtPiMMsigmas*Math.exp(-comW5toM2*comW5toM2/(4*sigmaM*sigmaM)));
+        Eq5XcompW2 += chargeH*(comW5.x(0)-H21r.x(0))/(comW5toH21*comW5toH21*comW5toH21)*((1-SpecialFunctions.erfc(comW5toH21/sqrtHMsigmas))-Math.sqrt(2)*comW5toH21/sqrtPiHMsigmas*Math.exp(-comW5toH21*comW5toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5XcompW2 += chargeH*(comW5.x(0)-H22r.x(0))/(comW5toH22*comW5toH22*comW5toH22)*((1-SpecialFunctions.erfc(comW5toH22/sqrtHMsigmas))-Math.sqrt(2)*comW5toH22/sqrtPiHMsigmas*Math.exp(-comW5toH22*comW5toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5XcompW2 += chargeM*(comW5.x(0)-M2r.x(0))/(comW5toM2*comW5toM2*comW5toM2)*((1-SpecialFunctions.erfc(comW5toM2/(2*sigmaM)))-Math.sqrt(2)*comW5toM2/sqrtPiMMsigmas*Math.exp(-comW5toM2*comW5toM2/(4*sigmaM*sigmaM)));
 
-        Eq5YcompW2 += chargeH21*(comW5.x(1)-H21r.x(1))/(comW5toH21*comW5toH21*comW5toH21)*((1-SpecialFunctions.erfc(comW5toH21/sqrtHMsigmas))-Math.sqrt(2)*comW5toH21/sqrtPiHMsigmas*Math.exp(-comW5toH21*comW5toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5YcompW2 += chargeH22*(comW5.x(1)-H22r.x(1))/(comW5toH22*comW5toH22*comW5toH22)*((1-SpecialFunctions.erfc(comW5toH22/sqrtHMsigmas))-Math.sqrt(2)*comW5toH22/sqrtPiHMsigmas*Math.exp(-comW5toH22*comW5toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5YcompW2 += chargeM2*(comW5.x(1)-M2r.x(1))/(comW5toM2*comW5toM2*comW5toM2)*((1-SpecialFunctions.erfc(comW5toM2/(2*sigmaM)))-Math.sqrt(2)*comW5toM2/sqrtPiMMsigmas*Math.exp(-comW5toM2*comW5toM2/(4*sigmaM*sigmaM)));
+        Eq5YcompW2 += chargeH*(comW5.x(1)-H21r.x(1))/(comW5toH21*comW5toH21*comW5toH21)*((1-SpecialFunctions.erfc(comW5toH21/sqrtHMsigmas))-Math.sqrt(2)*comW5toH21/sqrtPiHMsigmas*Math.exp(-comW5toH21*comW5toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5YcompW2 += chargeH*(comW5.x(1)-H22r.x(1))/(comW5toH22*comW5toH22*comW5toH22)*((1-SpecialFunctions.erfc(comW5toH22/sqrtHMsigmas))-Math.sqrt(2)*comW5toH22/sqrtPiHMsigmas*Math.exp(-comW5toH22*comW5toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5YcompW2 += chargeM*(comW5.x(1)-M2r.x(1))/(comW5toM2*comW5toM2*comW5toM2)*((1-SpecialFunctions.erfc(comW5toM2/(2*sigmaM)))-Math.sqrt(2)*comW5toM2/sqrtPiMMsigmas*Math.exp(-comW5toM2*comW5toM2/(4*sigmaM*sigmaM)));
 
-        Eq5ZcompW2 += chargeH21*(comW5.x(2)-H21r.x(2))/(comW5toH21*comW5toH21*comW5toH21)*((1-SpecialFunctions.erfc(comW5toH21/sqrtHMsigmas))-Math.sqrt(2)*comW5toH21/sqrtPiHMsigmas*Math.exp(-comW5toH21*comW5toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5ZcompW2 += chargeH22*(comW5.x(2)-H22r.x(2))/(comW5toH22*comW5toH22*comW5toH22)*((1-SpecialFunctions.erfc(comW5toH22/sqrtHMsigmas))-Math.sqrt(2)*comW5toH22/sqrtPiHMsigmas*Math.exp(-comW5toH22*comW5toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5ZcompW2 += chargeM2*(comW5.x(2)-M2r.x(2))/(comW5toM2*comW5toM2*comW5toM2)*((1-SpecialFunctions.erfc(comW5toM2/(2*sigmaM)))-Math.sqrt(2)*comW5toM2/sqrtPiMMsigmas*Math.exp(-comW5toM2*comW5toM2/(4*sigmaM*sigmaM)));
+        Eq5ZcompW2 += chargeH*(comW5.x(2)-H21r.x(2))/(comW5toH21*comW5toH21*comW5toH21)*((1-SpecialFunctions.erfc(comW5toH21/sqrtHMsigmas))-Math.sqrt(2)*comW5toH21/sqrtPiHMsigmas*Math.exp(-comW5toH21*comW5toH21/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5ZcompW2 += chargeH*(comW5.x(2)-H22r.x(2))/(comW5toH22*comW5toH22*comW5toH22)*((1-SpecialFunctions.erfc(comW5toH22/sqrtHMsigmas))-Math.sqrt(2)*comW5toH22/sqrtPiHMsigmas*Math.exp(-comW5toH22*comW5toH22/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5ZcompW2 += chargeM*(comW5.x(2)-M2r.x(2))/(comW5toM2*comW5toM2*comW5toM2)*((1-SpecialFunctions.erfc(comW5toM2/(2*sigmaM)))-Math.sqrt(2)*comW5toM2/sqrtPiMMsigmas*Math.exp(-comW5toM2*comW5toM2/(4*sigmaM*sigmaM)));
         
 
         // Contributions to sum from water molecule#3
-        Eq5XcompW3 += chargeH31*(comW5.x(0)-H31r.x(0))/(comW5toH31*comW5toH31*comW5toH31)*((1-SpecialFunctions.erfc(comW5toH31/sqrtHMsigmas))-Math.sqrt(2)*comW5toH31/sqrtPiHMsigmas*Math.exp(-comW5toH31*comW5toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5XcompW3 += chargeH32*(comW5.x(0)-H32r.x(0))/(comW5toH32*comW5toH32*comW5toH32)*((1-SpecialFunctions.erfc(comW5toH32/sqrtHMsigmas))-Math.sqrt(2)*comW5toH32/sqrtPiHMsigmas*Math.exp(-comW5toH32*comW5toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5XcompW3 += chargeM3*(comW5.x(0)-M3r.x(0))/(comW5toM3*comW5toM3*comW5toM3)*((1-SpecialFunctions.erfc(comW5toM3/(2*sigmaM)))-Math.sqrt(2)*comW5toM3/sqrtPiMMsigmas*Math.exp(-comW5toM3*comW5toM3/(4*sigmaM*sigmaM)));
+        Eq5XcompW3 += chargeH*(comW5.x(0)-H31r.x(0))/(comW5toH31*comW5toH31*comW5toH31)*((1-SpecialFunctions.erfc(comW5toH31/sqrtHMsigmas))-Math.sqrt(2)*comW5toH31/sqrtPiHMsigmas*Math.exp(-comW5toH31*comW5toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5XcompW3 += chargeH*(comW5.x(0)-H32r.x(0))/(comW5toH32*comW5toH32*comW5toH32)*((1-SpecialFunctions.erfc(comW5toH32/sqrtHMsigmas))-Math.sqrt(2)*comW5toH32/sqrtPiHMsigmas*Math.exp(-comW5toH32*comW5toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5XcompW3 += chargeM*(comW5.x(0)-M3r.x(0))/(comW5toM3*comW5toM3*comW5toM3)*((1-SpecialFunctions.erfc(comW5toM3/(2*sigmaM)))-Math.sqrt(2)*comW5toM3/sqrtPiMMsigmas*Math.exp(-comW5toM3*comW5toM3/(4*sigmaM*sigmaM)));
 
-        Eq5YcompW3 += chargeH31*(comW5.x(1)-H31r.x(1))/(comW5toH31*comW5toH31*comW5toH31)*((1-SpecialFunctions.erfc(comW5toH31/sqrtHMsigmas))-Math.sqrt(2)*comW5toH31/sqrtPiHMsigmas*Math.exp(-comW5toH31*comW5toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5YcompW3 += chargeH32*(comW5.x(1)-H32r.x(1))/(comW5toH32*comW5toH32*comW5toH32)*((1-SpecialFunctions.erfc(comW5toH32/sqrtHMsigmas))-Math.sqrt(2)*comW5toH32/sqrtPiHMsigmas*Math.exp(-comW5toH32*comW5toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5YcompW3 += chargeM3*(comW5.x(1)-M3r.x(1))/(comW5toM3*comW5toM3*comW5toM3)*((1-SpecialFunctions.erfc(comW5toM3/(2*sigmaM)))-Math.sqrt(2)*comW5toM3/sqrtPiMMsigmas*Math.exp(-comW5toM3*comW5toM3/(4*sigmaM*sigmaM)));
+        Eq5YcompW3 += chargeH*(comW5.x(1)-H31r.x(1))/(comW5toH31*comW5toH31*comW5toH31)*((1-SpecialFunctions.erfc(comW5toH31/sqrtHMsigmas))-Math.sqrt(2)*comW5toH31/sqrtPiHMsigmas*Math.exp(-comW5toH31*comW5toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5YcompW3 += chargeH*(comW5.x(1)-H32r.x(1))/(comW5toH32*comW5toH32*comW5toH32)*((1-SpecialFunctions.erfc(comW5toH32/sqrtHMsigmas))-Math.sqrt(2)*comW5toH32/sqrtPiHMsigmas*Math.exp(-comW5toH32*comW5toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5YcompW3 += chargeM*(comW5.x(1)-M3r.x(1))/(comW5toM3*comW5toM3*comW5toM3)*((1-SpecialFunctions.erfc(comW5toM3/(2*sigmaM)))-Math.sqrt(2)*comW5toM3/sqrtPiMMsigmas*Math.exp(-comW5toM3*comW5toM3/(4*sigmaM*sigmaM)));
 
-        Eq5ZcompW3 += chargeH31*(comW5.x(2)-H31r.x(2))/(comW5toH31*comW5toH31*comW5toH31)*((1-SpecialFunctions.erfc(comW5toH31/sqrtHMsigmas))-Math.sqrt(2)*comW5toH31/sqrtPiHMsigmas*Math.exp(-comW5toH31*comW5toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5ZcompW3 += chargeH32*(comW5.x(2)-H32r.x(2))/(comW5toH32*comW5toH32*comW5toH32)*((1-SpecialFunctions.erfc(comW5toH32/sqrtHMsigmas))-Math.sqrt(2)*comW5toH32/sqrtPiHMsigmas*Math.exp(-comW5toH32*comW5toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5ZcompW3 += chargeM3*(comW5.x(2)-M3r.x(2))/(comW5toM3*comW5toM3*comW5toM3)*((1-SpecialFunctions.erfc(comW5toM3/(2*sigmaM)))-Math.sqrt(2)*comW5toM3/sqrtPiMMsigmas*Math.exp(-comW5toM3*comW5toM3/(4*sigmaM*sigmaM)));
+        Eq5ZcompW3 += chargeH*(comW5.x(2)-H31r.x(2))/(comW5toH31*comW5toH31*comW5toH31)*((1-SpecialFunctions.erfc(comW5toH31/sqrtHMsigmas))-Math.sqrt(2)*comW5toH31/sqrtPiHMsigmas*Math.exp(-comW5toH31*comW5toH31/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5ZcompW3 += chargeH*(comW5.x(2)-H32r.x(2))/(comW5toH32*comW5toH32*comW5toH32)*((1-SpecialFunctions.erfc(comW5toH32/sqrtHMsigmas))-Math.sqrt(2)*comW5toH32/sqrtPiHMsigmas*Math.exp(-comW5toH32*comW5toH32/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5ZcompW3 += chargeM*(comW5.x(2)-M3r.x(2))/(comW5toM3*comW5toM3*comW5toM3)*((1-SpecialFunctions.erfc(comW5toM3/(2*sigmaM)))-Math.sqrt(2)*comW5toM3/sqrtPiMMsigmas*Math.exp(-comW5toM3*comW5toM3/(4*sigmaM*sigmaM)));
 
 
         // Contributions to sum from water molecule#4
-        Eq5XcompW4 += chargeH41*(comW5.x(0)-H41r.x(0))/(comW5toH41*comW5toH41*comW5toH41)*((1-SpecialFunctions.erfc(comW5toH41/sqrtHMsigmas))-Math.sqrt(2)*comW5toH41/sqrtPiHMsigmas*Math.exp(-comW5toH41*comW5toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5XcompW4 += chargeH42*(comW5.x(0)-H42r.x(0))/(comW5toH42*comW5toH42*comW5toH42)*((1-SpecialFunctions.erfc(comW5toH42/sqrtHMsigmas))-Math.sqrt(2)*comW5toH42/sqrtPiHMsigmas*Math.exp(-comW5toH42*comW5toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5XcompW4 += chargeM4*(comW5.x(0)-M4r.x(0))/(comW5toM4*comW5toM4*comW5toM4)*((1-SpecialFunctions.erfc(comW5toM4/(2*sigmaM)))-Math.sqrt(2)*comW5toM4/sqrtPiMMsigmas*Math.exp(-comW5toM4*comW5toM4/(4*sigmaM*sigmaM)));
+        Eq5XcompW4 += chargeH*(comW5.x(0)-H41r.x(0))/(comW5toH41*comW5toH41*comW5toH41)*((1-SpecialFunctions.erfc(comW5toH41/sqrtHMsigmas))-Math.sqrt(2)*comW5toH41/sqrtPiHMsigmas*Math.exp(-comW5toH41*comW5toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5XcompW4 += chargeH*(comW5.x(0)-H42r.x(0))/(comW5toH42*comW5toH42*comW5toH42)*((1-SpecialFunctions.erfc(comW5toH42/sqrtHMsigmas))-Math.sqrt(2)*comW5toH42/sqrtPiHMsigmas*Math.exp(-comW5toH42*comW5toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5XcompW4 += chargeM*(comW5.x(0)-M4r.x(0))/(comW5toM4*comW5toM4*comW5toM4)*((1-SpecialFunctions.erfc(comW5toM4/(2*sigmaM)))-Math.sqrt(2)*comW5toM4/sqrtPiMMsigmas*Math.exp(-comW5toM4*comW5toM4/(4*sigmaM*sigmaM)));
 
-        Eq5YcompW4 += chargeH41*(comW5.x(1)-H41r.x(1))/(comW5toH41*comW5toH41*comW5toH41)*((1-SpecialFunctions.erfc(comW5toH41/sqrtHMsigmas))-Math.sqrt(2)*comW5toH41/sqrtPiHMsigmas*Math.exp(-comW5toH41*comW5toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5YcompW4 += chargeH42*(comW5.x(1)-H42r.x(1))/(comW5toH42*comW5toH42*comW5toH42)*((1-SpecialFunctions.erfc(comW5toH42/sqrtHMsigmas))-Math.sqrt(2)*comW5toH42/sqrtPiHMsigmas*Math.exp(-comW5toH42*comW5toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5YcompW4 += chargeM4*(comW5.x(1)-M4r.x(1))/(comW5toM4*comW5toM4*comW5toM4)*((1-SpecialFunctions.erfc(comW5toM4/(2*sigmaM)))-Math.sqrt(2)*comW5toM4/sqrtPiMMsigmas*Math.exp(-comW5toM4*comW5toM4/(4*sigmaM*sigmaM)));
+        Eq5YcompW4 += chargeH*(comW5.x(1)-H41r.x(1))/(comW5toH41*comW5toH41*comW5toH41)*((1-SpecialFunctions.erfc(comW5toH41/sqrtHMsigmas))-Math.sqrt(2)*comW5toH41/sqrtPiHMsigmas*Math.exp(-comW5toH41*comW5toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5YcompW4 += chargeH*(comW5.x(1)-H42r.x(1))/(comW5toH42*comW5toH42*comW5toH42)*((1-SpecialFunctions.erfc(comW5toH42/sqrtHMsigmas))-Math.sqrt(2)*comW5toH42/sqrtPiHMsigmas*Math.exp(-comW5toH42*comW5toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5YcompW4 += chargeM*(comW5.x(1)-M4r.x(1))/(comW5toM4*comW5toM4*comW5toM4)*((1-SpecialFunctions.erfc(comW5toM4/(2*sigmaM)))-Math.sqrt(2)*comW5toM4/sqrtPiMMsigmas*Math.exp(-comW5toM4*comW5toM4/(4*sigmaM*sigmaM)));
 
-        Eq5ZcompW4 += chargeH41*(comW5.x(2)-H41r.x(2))/(comW5toH41*comW5toH41*comW5toH41)*((1-SpecialFunctions.erfc(comW5toH41/sqrtHMsigmas))-Math.sqrt(2)*comW5toH41/sqrtPiHMsigmas*Math.exp(-comW5toH41*comW5toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5ZcompW4 += chargeH42*(comW5.x(2)-H42r.x(2))/(comW5toH42*comW5toH42*comW5toH42)*((1-SpecialFunctions.erfc(comW5toH42/sqrtHMsigmas))-Math.sqrt(2)*comW5toH42/sqrtPiHMsigmas*Math.exp(-comW5toH42*comW5toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-        Eq5ZcompW4 += chargeM4*(comW5.x(2)-M4r.x(2))/(comW5toM4*comW5toM4*comW5toM4)*((1-SpecialFunctions.erfc(comW5toM4/(2*sigmaM)))-Math.sqrt(2)*comW5toM4/sqrtPiMMsigmas*Math.exp(-comW5toM4*comW5toM4/(4*sigmaM*sigmaM)));
+        Eq5ZcompW4 += chargeH*(comW5.x(2)-H41r.x(2))/(comW5toH41*comW5toH41*comW5toH41)*((1-SpecialFunctions.erfc(comW5toH41/sqrtHMsigmas))-Math.sqrt(2)*comW5toH41/sqrtPiHMsigmas*Math.exp(-comW5toH41*comW5toH41/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5ZcompW4 += chargeH*(comW5.x(2)-H42r.x(2))/(comW5toH42*comW5toH42*comW5toH42)*((1-SpecialFunctions.erfc(comW5toH42/sqrtHMsigmas))-Math.sqrt(2)*comW5toH42/sqrtPiHMsigmas*Math.exp(-comW5toH42*comW5toH42/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
+        Eq5ZcompW4 += chargeM*(comW5.x(2)-M4r.x(2))/(comW5toM4*comW5toM4*comW5toM4)*((1-SpecialFunctions.erfc(comW5toM4/(2*sigmaM)))-Math.sqrt(2)*comW5toM4/sqrtPiMMsigmas*Math.exp(-comW5toM4*comW5toM4/(4*sigmaM*sigmaM)));
 
         
         Eq5.setX(0,Eq5XcompW1+Eq5XcompW2+Eq5XcompW3+Eq5XcompW4);
@@ -4198,21 +4188,21 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 	        		noSCFforP5 = false;
 	        		loopFailures = loopFailures + 1;
 //	        		System.out.println("counterSCFloop = " + counterSCFloop + ", exiting SCF loop due to likely large repulsion");
-    		        chargeH11 = Electron.UNIT.toSim(0.6113);
-    		        chargeH12 = Electron.UNIT.toSim(0.6113);
-    		        chargeM1 = Electron.UNIT.toSim(-1.2226);
-    		        chargeH21 = Electron.UNIT.toSim(0.6113);
-    		        chargeH22 = Electron.UNIT.toSim(0.6113);
-    		        chargeM2 = Electron.UNIT.toSim(-1.2226);
-    		        chargeH31 = Electron.UNIT.toSim(0.6113);
-    		        chargeH32 = Electron.UNIT.toSim(0.6113);
-    		        chargeM3 = Electron.UNIT.toSim(-1.2226);
-    		        chargeH41 = Electron.UNIT.toSim(0.6113);
-    		        chargeH42 = Electron.UNIT.toSim(0.6113);
-    		        chargeM4 = Electron.UNIT.toSim(-1.2226);
-    		        chargeH51 = Electron.UNIT.toSim(0.6113);
-    		        chargeH52 = Electron.UNIT.toSim(0.6113);
-    		        chargeM5 = Electron.UNIT.toSim(-1.2226);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeM = Electron.UNIT.toSim(-1.2226);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeM = Electron.UNIT.toSim(-1.2226);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeM = Electron.UNIT.toSim(-1.2226);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeM = Electron.UNIT.toSim(-1.2226);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeH = Electron.UNIT.toSim(0.6113);
+    		        chargeM = Electron.UNIT.toSim(-1.2226);
 	        	}
 	     
 	        // REPEAT LOOP HERE.  RE-EVALUATE CHARGES ON W1 AND THEN REPEAT.
@@ -4308,21 +4298,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
     
     public double sigma , sigma2, sumO2LJ;
     public double epsilon, epsilon4, gamma;
-    private double chargeH11;
-	private double chargeH12;//= Electron.UNIT.toSim(0.52);
-    private double chargeM1; //= Electron.UNIT.toSim(-1.04);
-    private double chargeH21;
-    private double chargeH22;//= Electron.UNIT.toSim(0.52);
-    private double chargeM2; //= Electron.UNIT.toSim(-1.04);
-    private double chargeH31;
-    private double chargeH32;
-    private double chargeM3;
-    private double chargeH41;
-    private double chargeH42;
-    private double chargeM4;
-    private double chargeH51;
-    private double chargeH52;
-    private double chargeM5;
+    private double chargeH;
+    private double chargeM;
     private final IVector Eq1, Eq2, Eq3, Eq4, Eq5;
     private final IVector Ep1, Ep2, Ep3, Ep4, Ep5;
     private final IVector P1, P2, P3, P4, P5;
