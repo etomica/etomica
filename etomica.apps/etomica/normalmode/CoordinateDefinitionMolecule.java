@@ -56,6 +56,10 @@ public class CoordinateDefinitionMolecule extends CoordinateDefinition
      */
     public void initNominalU(AtomSet molecules) {
     }
+    
+    public int getULength(){
+        return u.length;
+    }
 
     public void setToU(AtomSet molecules, double[] newU) {
         // sets the center of mass of the molecules to that specified by newU
