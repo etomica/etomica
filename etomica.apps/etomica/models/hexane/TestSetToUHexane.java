@@ -46,7 +46,7 @@ public class TestSetToUHexane extends Simulation {
     public MCMoveMoleculeCoupled coupledMove;
     public MCMoveCombinedCbmcTranslation cctMove;
     
-    double[][] oldLoc;
+    double[] oldLoc;
     
     TestSetToUHexane(Space space){
         super(space, false);
@@ -73,6 +73,7 @@ public class TestSetToUHexane extends Simulation {
         cdHex = new CoordinateDefinitionHexane(box, prim, species);
         cdHex = new CoordinateDefinitionHexane(box, prim, species);
         cdHex.initializeCoordinates(nCells);
+        oldLoc = new double[cdHex.getCoordinateDim()];
         
         PotentialMaster potentialMaster = new PotentialMaster(space);
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
