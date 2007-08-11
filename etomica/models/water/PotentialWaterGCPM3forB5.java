@@ -126,62 +126,10 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         IVector M1r = node1.M.getPosition();
         IVector M2r = node2.M.getPosition();
                 
-// C2v geometry for dimer        
-/*        O2r.setX(2,2.2);
-        O2r.setX(0,0.0);
-        O2r.setX(1,0.0);
-        H21r.setX(2,2.785882276618295);
-        H21r.setX(0,0.0);
-        H21r.setX(1,0.756950327263661);
-        H22r.setX(2,2.785882276618295);
-        H22r.setX(0,0.0);
-        H22r.setX(1,-0.756950327263661);
-        M2r.setX(2,2.47);
-        M2r.setX(0,0.0);
-        M2r.setX(1,0.0);
-*/
-        
-/*// Cs geometry for dimer        
-        O2r.setX(2,1.5921074871731);
-        O2r.setX(0,2.39631440952296);
-        O2r.setX(1,0.0);
-        H21r.setX(2,1.37452965421812);
-        H21r.setX(0,2.94029779958377);
-        H21r.setX(1,0.756950327263661);
-        H22r.setX(2,1.37452965421812);
-        H22r.setX(0,2.94029779958377);
-        H22r.setX(1,-0.756950327263661);
-        M2r.setX(2,1.49183817157454);
-        M2r.setX(0,2.64700558278081);
-        M2r.setX(1,0.0);
-*/
-        
-	// moved to the constructor; KMB, 7/20/07	
-//        final double core = 4.41; //4.41 = 2.1^2; value according to Cummings
-  
-
-        // Initializing vectors below moved to the constructor; KMB, 7/20/07
-/*        Vector Eq1 = new Vector3D();
-        Vector Eq2 = new Vector3D();
-        Vector Ep1 = new Vector3D();
-        Vector Ep2 = new Vector3D();
-
-
-        Vector P1 = new Vector3D();
-        Vector P2 = new Vector3D();
-        Vector P1old = new Vector3D();
-        Vector P2old = new Vector3D();
-*/
-
-
-        // Need loop to check for configuration overlap between charged particles
-        
-//      compute O-O distance to consider bypassing the SCF loop   
-//      compute O-O distance to consider truncation   
         r2 = O1r.Mv1Squared(O2r);
         
         if(r2<=core) {
-        		return Double.POSITIVE_INFINITY;
+            return Double.POSITIVE_INFINITY;
         }
         
         gamma = 12.75;
@@ -192,14 +140,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
    
         sum = epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rOverSigma)) - sigma2OverR2*sigma2OverR2*sigma2OverR2);
 
-// 		Moved to constructor; KMB, 7/20/07        
-/*        double sigmaM = 0.610;
-        double sigmaH = 0.455;
-        double sqrtHMsigmas = Math.sqrt(2*(sigmaH*sigmaH+sigmaM*sigmaM));
-*/        
-        // MUST INCLUDE ERF FUNCTION STUFF TO COULOMBIC ENERGY PART!
-        // KMB 8/3/06
-        
         r2 = H11r.Mv1Squared(H21r);
         sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
@@ -398,7 +338,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double rO2O3 = 0.0;
       
         AtomWater4P node1 = (AtomWater4P)atomsSCF.getAtom(0);
-        AtomWater4P node2 = (AtomWater4P)atomsSCF.getAtom(1);//(AtomTreeNodeWaterPPC)pair.atom1.node;
+        AtomWater4P node2 = (AtomWater4P)atomsSCF.getAtom(1);
         AtomWater4P node3 = (AtomWater4P)atomsSCF.getAtom(2);
 
         
@@ -422,11 +362,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         rO1O3 = Math.sqrt(O1r.Mv1Squared(O3r));
         rO2O3 = Math.sqrt(O3r.Mv1Squared(O2r));
         
-        if(rO1O2 <= 2.1 || rO1O3 <= 2.1 || rO2O3 <= 2.1) { // use to be 2.1 for Cummings cutoff
- 
-	    //    return 0; // this is for = UpolAtkins
-	        return Double.POSITIVE_INFINITY;  // this is for += UpolAtkins
-
+        if(rO1O2 < 2.1 || rO1O3 < 2.1 || rO2O3 < 2.1) { // use to be 2.1 for Cummings cutoff
+	        return Double.POSITIVE_INFINITY;
         }
                 
                 
@@ -444,172 +381,90 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         sumSCF += epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rO1O3OverSigma)) - sigma2OverRO1O3sq*sigma2OverRO1O3sq*sigma2OverRO1O3sq);
         sumSCF += epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rO2O3OverSigma)) - sigma2OverRO2O3sq*sigma2OverRO2O3sq*sigma2OverRO2O3sq);
 
-        
-/*        if (Math.abs(Math.sqrt(Eon1.squared())) >= 0.2083 || Math.abs(Math.sqrt(Eon2.squared())) >= 0.2083 ) {
-    			System.out.println("About to return Double.Positive_Infinity");
-        		System.out.println("Outside core, with bad electric field values: rOO = " + rOO + ", sum = " + sum + ", Eon1(V/A) = " + Math.sqrt(Eon1.squared())*EFconverttoVperA + ", Eon2(V/A) = " + Math.sqrt(Eon2.squared())*EFconverttoVperA);
-        		return Double.POSITIVE_INFINITY;
-        }
-*/
 
-        // moved to constructor; KMB, 7/23/07
-/*        double sigmaM = 0.610;
-        double sigmaH = 0.455;
-        double sqrtHMsigmas = Math.sqrt(2*(sigmaH*sigmaH+sigmaM*sigmaM));
-*/        
-        // MUST INCLUDE ERF FUNCTION STUFF TO COULOMBIC ENERGY PART!
-        // KMB 8/3/06
-        
-        double sumElecO1O2 = 0.0;
-        
-        r2 = H11r.Mv1Squared(H21r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        	sumElecO1O2 += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-        	sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        // 1-2 electrostatics
+        r2 = H11r.Mv1Squared(H21r);
+    	sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         	
-        r2 = H11r.Mv1Squared(H22r); // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        r2 = H11r.Mv1Squared(H22r);
         sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
         
-        r2 = H12r.Mv1Squared(H21r); // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        r2 = H12r.Mv1Squared(H21r);
         sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
-        r2 = H12r.Mv1Squared(H22r); // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+        r2 = H12r.Mv1Squared(H22r);
         sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
-//        System.out.println("sum of all O-H terms is " + sum);
-        
-        r2 = M1r.Mv1Squared(H21r); // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        //System.out.println("sum is " + sum);
-
-        r2 = M1r.Mv1Squared(H22r); // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        //System.out.println("sum is " + sum);
-
-        r2 = M2r.Mv1Squared(H11r); // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        r2 = M1r.Mv1Squared(H21r);
         sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
-        ///System.out.println("sum is " + sum);
-        r2 = M2r.Mv1Squared(H12r); // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+        r2 = M1r.Mv1Squared(H22r);
         sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        //System.out.println("sum is " + sum);
 
-        r2 = M1r.Mv1Squared(M2r); // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumElecO1O2 += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
+        r2 = M2r.Mv1Squared(H11r);
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+
+        r2 = M2r.Mv1Squared(H12r);
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+
+        r2 = M1r.Mv1Squared(M2r);
         sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
-        //System.out.println("sum is " + sum);
 
-
-        
-        // EXTRA TERMS FOR 3 MOLECULE PERMUTATIONS AND COMBINATIONS FOR ELECTROSTATICS HERE
-        
-
-
-        r2 = H11r.Mv1Squared(H31r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        	sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-
-        r2 = H11r.Mv1Squared(H32r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        // 1-3 electrostatics
+        r2 = H11r.Mv1Squared(H31r);
         sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
-
-
-        r2 = H12r.Mv1Squared(H31r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        r2 = H11r.Mv1Squared(H32r);
         sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
-        r2 = H12r.Mv1Squared(H32r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        r2 = H12r.Mv1Squared(H31r);
         sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
-        r2 = H21r.Mv1Squared(H31r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        r2 = H12r.Mv1Squared(H32r);
         sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
-        r2 = H21r.Mv1Squared(H32r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-
-        r2 = H22r.Mv1Squared(H31r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-
-        r2 = H22r.Mv1Squared(H32r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
-
-//        System.out.println("sum of all O-H terms is " + sum);
-        
-
-
-        r2 = M1r.Mv1Squared(H31r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        //System.out.println("sum is " + sum);
-
-        r2 = M1r.Mv1Squared(H32r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        //System.out.println("sum is " + sum);
-
-
-
-        r2 = M2r.Mv1Squared(H31r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        r2 = M1r.Mv1Squared(H31r);
         sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
-        ///System.out.println("sum is " + sum);
-        r2 = M2r.Mv1Squared(H32r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        //System.out.println("sum is " + sum);
-
-        r2 = M3r.Mv1Squared(H11r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        r2 = M1r.Mv1Squared(H32r);
         sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
-        ///System.out.println("sum is " + sum);
-        r2 = M3r.Mv1Squared(H12r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
-        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        //System.out.println("sum is " + sum);
-
-        r2 = M3r.Mv1Squared(H21r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        r2 = M3r.Mv1Squared(H11r);
         sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
 
-        ///System.out.println("sum is " + sum);
-        r2 = M3r.Mv1Squared(H22r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        r2 = M3r.Mv1Squared(H12r);
         sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
-        //System.out.println("sum is " + sum);
 
-
-        r2 = M1r.Mv1Squared(M3r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        r2 = M1r.Mv1Squared(M3r);
         sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
-        //System.out.println("sum is " + sum);
 
-        r2 = M3r.Mv1Squared(M2r);  // COUNTED-2
-        //if(r2<=core) return Double.POSITIVE_INFINITY;
+        // 2-3 electrostatics
+        r2 = H21r.Mv1Squared(H31r);
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+
+        r2 = H21r.Mv1Squared(H32r);
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+
+        r2 = H22r.Mv1Squared(H31r);
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+
+        r2 = H22r.Mv1Squared(H32r);
+        sumSCF += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
+
+        r2 = M2r.Mv1Squared(H31r);
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+
+        r2 = M2r.Mv1Squared(H32r);
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+
+        r2 = M3r.Mv1Squared(H21r);
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+
+        r2 = M3r.Mv1Squared(H22r);
+        sumSCF += chargeH*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/sqrtHMsigmas));
+
+        r2 = M3r.Mv1Squared(M2r);
         sumSCF += chargeM*chargeM/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaM)));
-        //System.out.println("sum is " + sum);
 
         
         /*
@@ -716,7 +571,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double comW3toH11 = Math.sqrt(comW3.Mv1Squared(H11r));
         double comW3toH12 = Math.sqrt(comW3.Mv1Squared(H12r));
         double comW3toM1 = Math.sqrt(comW3.Mv1Squared(M1r));
-
         double comW3toH21 = Math.sqrt(comW3.Mv1Squared(H21r));
         double comW3toH22 = Math.sqrt(comW3.Mv1Squared(H22r));
         double comW3toM2 = Math.sqrt(comW3.Mv1Squared(M2r));
