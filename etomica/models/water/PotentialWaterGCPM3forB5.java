@@ -308,7 +308,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         // Filling the unit matrix I
         
-        T12.PEv1v2(r12Vector,r12Vector);
+        T12.Ev1v2(r12Vector,r12Vector);
         
         // just added these to test whether T12 = T21; IT DOES!
 /*        Tensor3D T21 = new Tensor3D();
@@ -774,7 +774,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double g13 = (1-SpecialFunctions.erfc(r13/(2*sigmaM)))-(r13/(sigmaM*Math.sqrt(Math.PI)))*Math.exp(-r13*r13/(4*sigmaM*sigmaM));
         double g23 = (1-SpecialFunctions.erfc(r23/(2*sigmaM)))-(r23/(sigmaM*Math.sqrt(Math.PI)))*Math.exp(-r23*r23/(4*sigmaM*sigmaM));
         
-        T12.PEv1v2(r12Vector,r12Vector);
+        T12.Ev1v2(r12Vector,r12Vector);
         T12.TE(3*f12/(r12*r12));
         
         Tunit.E(g12);
@@ -785,7 +785,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         // T12 = T21, so I can get by for now in the case of B2!
 
         
-        T13.PEv1v2(r13Vector,r13Vector);
+        T13.Ev1v2(r13Vector,r13Vector);
         T13.TE(3*f13/(r13*r13));
         
         Tunit.E(g13);
@@ -793,7 +793,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         T13.ME(Tunit);
         T13.TE(1/(r13*r13*r13));
         
-        T23.PEv1v2(r23Vector,r23Vector);
+        T23.Ev1v2(r23Vector,r23Vector);
         T23.TE(3*f23/(r23*r23));
         
         Tunit.E(g23);
