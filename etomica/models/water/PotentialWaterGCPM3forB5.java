@@ -71,7 +71,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         r23Vector = space.makeVector();
         T12P1 = space.makeVector();
         T12P2 = space.makeVector();
-                
+
         work = space.makeVector();
         
         Tunit = space.makeTensor();
@@ -81,19 +81,15 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         A2 = new Matrix(6,6);
         b2 = new Matrix(6,1);
-        x2 = new Matrix(6,1);
         
         A3 = new Matrix(9,9);
         b3 = new Matrix(9,1);
-        x3 = new Matrix(9,1);
         
         A4 = new Matrix(12,12);
         b4 = new Matrix(12,1);
-        x4 = new Matrix(12,1);
         
         A5 = new Matrix(15,15);
         b5 = new Matrix(15,1);
-        x5 = new Matrix(15,1);
         
         T13P1 = space.makeVector();
         T13P3 = space.makeVector();
@@ -298,9 +294,9 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         b2.set(4,0,alphaPol*Eq2.x(1));
         b2.set(5,0,alphaPol*Eq2.x(2));
         
-        x2 = A2.solve(b2);
+        Matrix x2 = A2.solve(b2);
        
-        
+       
         P1.setX(0,x2.get(0,0));
         P1.setX(1,x2.get(1,0));
         P1.setX(2,x2.get(2,0));
@@ -308,30 +304,26 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         P2.setX(1,x2.get(4,0));
         P2.setX(2,x2.get(5,0));
         
-        // readjust T12 matrix before calculating Ep1 and Ep2
-        T12.TE(1/alphaPol);
-        
-        T12P1.E(P1);
-        T12.transform(T12P1);
-
-        T12P2.E(P2);
-        T12.transform(T12P2);
-        
-        // Now find Ep1, Ep2
-       
-       	Ep1.E(T12P2);
-        Ep2.E(T12P1);
-                
-/*
- * Here is where I need to add the polarization term to the energy sum.
- * kmb 5/4/06
- */        
-        
         UpolAtkins = -0.5*(P1.dot(Eq1)+P2.dot(Eq2));
-    
-        //double UpolEquation8 = -(P1.dot(Eq1)+P2.dot(Eq2))-0.5*(P1.dot(Ep1)+P2.dot(Ep2))+(0.5/alphaPol)*(P1.squared()+P2.squared());
-        
-        //System.out.println("UpolAtkins = " + UpolAtkins + ", UpolEquation8 = " + UpolEquation8);
+
+        // only needed for more complicated Eq8 from Cummings paper 
+        if (false) {
+            // Now find Ep1, Ep2
+            T12.TE(1/alphaPol);
+            T12P1.E(P1);
+            T12.transform(T12P1);
+            
+            T12P2.E(P2);
+            T12.transform(T12P2);
+            
+            Ep1.E(T12P2);
+            Ep2.E(T12P1);
+            double UpolEquation8 = -(P1.dot(Eq1)+P2.dot(Eq2))-0.5*(P1.dot(Ep1)+P2.dot(Ep2))+(0.5/alphaPol)*(P1.squared()+P2.squared());
+
+            if (Math.abs(UpolAtkins-UpolEquation8) > 1.e-6) {
+                throw new RuntimeException("oops "+UpolAtkins+" "+UpolEquation8);
+            }
+        }
         
         sum += UpolAtkins;
         
@@ -639,10 +631,10 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double g12 = (1-SpecialFunctions.erfc(r12/(2*sigmaM)))-(r12/(sigmaM*Math.sqrt(Math.PI)))*Math.exp(-r12*r12/(4*sigmaM*sigmaM));
         double g13 = (1-SpecialFunctions.erfc(r13/(2*sigmaM)))-(r13/(sigmaM*Math.sqrt(Math.PI)))*Math.exp(-r13*r13/(4*sigmaM*sigmaM));
         double g23 = (1-SpecialFunctions.erfc(r23/(2*sigmaM)))-(r23/(sigmaM*Math.sqrt(Math.PI)))*Math.exp(-r23*r23/(4*sigmaM*sigmaM));
-        
+
         T12.Ev1v2(r12Vector,r12Vector);
         T12.TE(3*f12/(r12*r12));
-        
+
         Tunit.E(g12);
         
         T12.ME(Tunit);
@@ -716,159 +708,169 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         //Try matrix inversion solution with Jama library
         
-		T12.TE(alphaPol);
-		T13.TE(alphaPol);
-		T23.TE(alphaPol);
-		
-		A3.set(0,0,1);
-		A3.set(0,1,0);
-		A3.set(0,2,0);
-		A3.set(0,3,-T12.component(0,0));
-		A3.set(0,4,-T12.component(0,1));
-		A3.set(0,5,-T12.component(0,2));
-		A3.set(0,6,-T13.component(0,0));
-		A3.set(0,7,-T13.component(0,1));
-		A3.set(0,8,-T13.component(0,2));
-		
-		A3.set(1,0,0);
-		A3.set(1,1,1);
-		A3.set(1,2,0);
-		A3.set(1,3,-T12.component(1,0));
-		A3.set(1,4,-T12.component(1,1));
-		A3.set(1,5,-T12.component(1,2));
-		A3.set(1,6,-T13.component(1,0));
-		A3.set(1,7,-T13.component(1,1));
-		A3.set(1,8,-T13.component(1,2));
-		
-		A3.set(2,0,0);
-		A3.set(2,1,0);
-		A3.set(2,2,1);
-		A3.set(2,3,-T12.component(2,0));
-		A3.set(2,4,-T12.component(2,1));
-		A3.set(2,5,-T12.component(2,2));
-		A3.set(2,6,-T13.component(2,0));
-		A3.set(2,7,-T13.component(2,1));
-		A3.set(2,8,-T13.component(2,2));
+        T12.TE(alphaPol);
+        T13.TE(alphaPol);
+        T23.TE(alphaPol);
+        
+        A3.set(0,0,1);
+        A3.set(0,1,0);
+        A3.set(0,2,0);
+        A3.set(0,3,-T12.component(0,0));
+        A3.set(0,4,-T12.component(0,1));
+        A3.set(0,5,-T12.component(0,2));
+        A3.set(0,6,-T13.component(0,0));
+        A3.set(0,7,-T13.component(0,1));
+        A3.set(0,8,-T13.component(0,2));
+        
+        A3.set(1,0,0);
+        A3.set(1,1,1);
+        A3.set(1,2,0);
+        A3.set(1,3,-T12.component(1,0));
+        A3.set(1,4,-T12.component(1,1));
+        A3.set(1,5,-T12.component(1,2));
+        A3.set(1,6,-T13.component(1,0));
+        A3.set(1,7,-T13.component(1,1));
+        A3.set(1,8,-T13.component(1,2));
+        
+        A3.set(2,0,0);
+        A3.set(2,1,0);
+        A3.set(2,2,1);
+        A3.set(2,3,-T12.component(2,0));
+        A3.set(2,4,-T12.component(2,1));
+        A3.set(2,5,-T12.component(2,2));
+        A3.set(2,6,-T13.component(2,0));
+        A3.set(2,7,-T13.component(2,1));
+        A3.set(2,8,-T13.component(2,2));
 
-		A3.set(3,0,-T12.component(0,0));
-		A3.set(3,1,-T12.component(0,1));
-		A3.set(3,2,-T12.component(0,2));
-		A3.set(3,3,1);
-		A3.set(3,4,0);
-		A3.set(3,5,0);
-		A3.set(3,6,-T23.component(0,0));
-		A3.set(3,7,-T23.component(0,1));
-		A3.set(3,8,-T23.component(0,2));
-		
-		A3.set(4,0,-T12.component(1,0));
-		A3.set(4,1,-T12.component(1,1));
-		A3.set(4,2,-T12.component(1,2));
-		A3.set(4,3,0);
-		A3.set(4,4,1);
-		A3.set(4,5,0);
-		A3.set(4,6,-T23.component(1,0));
-		A3.set(4,7,-T23.component(1,1));
-		A3.set(4,8,-T23.component(1,2));
-		
-		A3.set(5,0,-T12.component(2,0));
-		A3.set(5,1,-T12.component(2,1));
-		A3.set(5,2,-T12.component(2,2));
-		A3.set(5,3,0);
-		A3.set(5,4,0);
-		A3.set(5,5,1);
-		A3.set(5,6,-T23.component(2,0));
-		A3.set(5,7,-T23.component(2,1));
-		A3.set(5,8,-T23.component(2,2));
-		
-		A3.set(6,0,-T13.component(0,0));
-		A3.set(6,1,-T13.component(0,1));
-		A3.set(6,2,-T13.component(0,2));
-		A3.set(6,3,-T23.component(0,0));
-		A3.set(6,4,-T23.component(0,1));
-		A3.set(6,5,-T23.component(0,2));
-		A3.set(6,6,1);
-		A3.set(6,7,0);
-		A3.set(6,8,0);
-		
-		A3.set(7,0,-T13.component(1,0));
-		A3.set(7,1,-T13.component(1,1));
-		A3.set(7,2,-T13.component(1,2));
-		A3.set(7,3,-T23.component(1,0));
-		A3.set(7,4,-T23.component(1,1));
-		A3.set(7,5,-T23.component(1,2));
-		A3.set(7,6,0);
-		A3.set(7,7,1);
-		A3.set(7,8,0);
-		
-		A3.set(8,0,-T13.component(2,0));
-		A3.set(8,1,-T13.component(2,1));
-		A3.set(8,2,-T13.component(2,2));
-		A3.set(8,3,-T23.component(2,0));
-		A3.set(8,4,-T23.component(2,1));
-		A3.set(8,5,-T23.component(2,2));
-		A3.set(8,6,0);
-		A3.set(8,7,0);
-		A3.set(8,8,1);
-				
-		b3.set(0,0,alphaPol*Eq1.x(0));
-		b3.set(1,0,alphaPol*Eq1.x(1));
-		b3.set(2,0,alphaPol*Eq1.x(2));
-		b3.set(3,0,alphaPol*Eq2.x(0));
-		b3.set(4,0,alphaPol*Eq2.x(1));
-		b3.set(5,0,alphaPol*Eq2.x(2));
-		b3.set(6,0,alphaPol*Eq3.x(0));
-		b3.set(7,0,alphaPol*Eq3.x(1));
-		b3.set(8,0,alphaPol*Eq3.x(2));
-		
-		x3 = A3.solve(b3);
-		
-		
-		//System.out.println("x element 0,0 = " + x.get(0,0) + ", and x element 0,1 = " + x.get(0,1));
-		P1.setX(0,x3.get(0,0));
-		P1.setX(1,x3.get(1,0));
-		P1.setX(2,x3.get(2,0));
-		P2.setX(0,x3.get(3,0));
-		P2.setX(1,x3.get(4,0));
-		P2.setX(2,x3.get(5,0));
-		P3.setX(0,x3.get(6,0));
-		P3.setX(1,x3.get(7,0));
-		P3.setX(2,x3.get(8,0));
-		
+        A3.set(3,0,-T12.component(0,0));
+        A3.set(3,1,-T12.component(0,1));
+        A3.set(3,2,-T12.component(0,2));
+        A3.set(3,3,1);
+        A3.set(3,4,0);
+        A3.set(3,5,0);
+        A3.set(3,6,-T23.component(0,0));
+        A3.set(3,7,-T23.component(0,1));
+        A3.set(3,8,-T23.component(0,2));
+        
+        A3.set(4,0,-T12.component(1,0));
+        A3.set(4,1,-T12.component(1,1));
+        A3.set(4,2,-T12.component(1,2));
+        A3.set(4,3,0);
+        A3.set(4,4,1);
+        A3.set(4,5,0);
+        A3.set(4,6,-T23.component(1,0));
+        A3.set(4,7,-T23.component(1,1));
+        A3.set(4,8,-T23.component(1,2));
+        
+        A3.set(5,0,-T12.component(2,0));
+        A3.set(5,1,-T12.component(2,1));
+        A3.set(5,2,-T12.component(2,2));
+        A3.set(5,3,0);
+        A3.set(5,4,0);
+        A3.set(5,5,1);
+        A3.set(5,6,-T23.component(2,0));
+        A3.set(5,7,-T23.component(2,1));
+        A3.set(5,8,-T23.component(2,2));
+        
+        A3.set(6,0,-T13.component(0,0));
+        A3.set(6,1,-T13.component(0,1));
+        A3.set(6,2,-T13.component(0,2));
+        A3.set(6,3,-T23.component(0,0));
+        A3.set(6,4,-T23.component(0,1));
+        A3.set(6,5,-T23.component(0,2));
+        A3.set(6,6,1);
+        A3.set(6,7,0);
+        A3.set(6,8,0);
+        
+        A3.set(7,0,-T13.component(1,0));
+        A3.set(7,1,-T13.component(1,1));
+        A3.set(7,2,-T13.component(1,2));
+        A3.set(7,3,-T23.component(1,0));
+        A3.set(7,4,-T23.component(1,1));
+        A3.set(7,5,-T23.component(1,2));
+        A3.set(7,6,0);
+        A3.set(7,7,1);
+        A3.set(7,8,0);
+        
+        A3.set(8,0,-T13.component(2,0));
+        A3.set(8,1,-T13.component(2,1));
+        A3.set(8,2,-T13.component(2,2));
+        A3.set(8,3,-T23.component(2,0));
+        A3.set(8,4,-T23.component(2,1));
+        A3.set(8,5,-T23.component(2,2));
+        A3.set(8,6,0);
+        A3.set(8,7,0);
+        A3.set(8,8,1);
+        
+        b3.set(0,0,alphaPol*Eq1.x(0));
+        b3.set(1,0,alphaPol*Eq1.x(1));
+        b3.set(2,0,alphaPol*Eq1.x(2));
+        b3.set(3,0,alphaPol*Eq2.x(0));
+        b3.set(4,0,alphaPol*Eq2.x(1));
+        b3.set(5,0,alphaPol*Eq2.x(2));
+        b3.set(6,0,alphaPol*Eq3.x(0));
+        b3.set(7,0,alphaPol*Eq3.x(1));
+        b3.set(8,0,alphaPol*Eq3.x(2));
+        
+        Matrix x3 = A3.solve(b3);
+        
+        
+        //System.out.println("x element 0,0 = " + x.get(0,0) + ", and x element 0,1 = " + x.get(0,1));
+        P1.setX(0,x3.get(0,0));
+        P1.setX(1,x3.get(1,0));
+        P1.setX(2,x3.get(2,0));
+        P2.setX(0,x3.get(3,0));
+        P2.setX(1,x3.get(4,0));
+        P2.setX(2,x3.get(5,0));
+        P3.setX(0,x3.get(6,0));
+        P3.setX(1,x3.get(7,0));
+        P3.setX(2,x3.get(8,0));
+        
+        UpolAtkins = -0.5*(P1.dot(Eq1)+P2.dot(Eq2)+P3.dot(Eq3));
+
         // readjust T12, T13, and T23 matrices before calculating Ep1, Ep2, and Ep3
-        T12.TE(1/alphaPol);
-        T13.TE(1/alphaPol);
-        T23.TE(1/alphaPol);
-		
-		T12P1.E(P1);
-		T12.transform(T12P1);
-		
-		T12P2.E(P2);
-		T12.transform(T12P2);
-		
-        T13P1.E(P1);
-        T13.transform(T13P1);
-        
-        T13P3.E(P3);
-        T13.transform(T13P3);
-        
-        T23P2.E(P2);
-        T23.transform(T23P2);
-        
-        T23P3.E(P3);
-        T23.transform(T23P3);
-        
-        
-//        System.out.println("From analytical: P1 = " + P1 + ", P2 = " + P2 + ", P3 = " + P3);
-        
-        // Now find Ep1, Ep2, Ep3
-        
-        Ep1.E(T12P2);
-        Ep1.PE(T13P3);
-        Ep2.E(T12P1);
-        Ep2.PE(T23P3);
-        Ep3.E(T13P1);
-        Ep3.PE(T23P2);
+        // only needed for more complicated Eq8 from Cummings paper 
+        if (false) {
+            // Now find Ep1, Ep2
+            T12.TE(1/alphaPol);
+            T13.TE(1/alphaPol);
+            T23.TE(1/alphaPol);
+            
+            T12P1.E(P1);
+            T12.transform(T12P1);
+            
+            T12P2.E(P2);
+            T12.transform(T12P2);
+            
+            T13P1.E(P1);
+            T13.transform(T13P1);
+            
+            T13P3.E(P3);
+            T13.transform(T13P3);
+            
+            T23P2.E(P2);
+            T23.transform(T23P2);
+            
+            T23P3.E(P3);
+            T23.transform(T23P3);
+            
+            
+//            System.out.println("From analytical: P1 = " + P1 + ", P2 = " + P2 + ", P3 = " + P3);
+            
+            // Now find Ep1, Ep2, Ep3
+            
+            Ep1.E(T12P2);
+            Ep1.PE(T13P3);
+            Ep2.E(T12P1);
+            Ep2.PE(T23P3);
+            Ep3.E(T13P1);
+            Ep3.PE(T23P2);        
+            double UpolEquation8 = -(P1.dot(Eq1)+P2.dot(Eq2)+P3.dot(Eq3))-0.5*(P1.dot(Ep1)+P2.dot(Ep2)+P3.dot(Ep3))+(0.5/alphaPol)*(P1.squared()+P2.squared()+P3.squared());
 
+            if (Math.abs(UpolAtkins-UpolEquation8) > 1.e-6) {
+                throw new RuntimeException("oops "+UpolAtkins+" "+UpolEquation8);
+            }
+        }
         
         
         /*
@@ -876,28 +878,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
          * kmb 5/4/06
          */        
                 
-        UpolAtkins = -0.5*(P1.dot(Eq1)+P2.dot(Eq2)+P3.dot(Eq3));
-                       
-                double UpolEquation8 = -(P1.dot(Eq1)+P2.dot(Eq2)+P3.dot(Eq3))-0.5*(P1.dot(Ep1)+P2.dot(Ep2)+P3.dot(Ep3))+(0.5/alphaPol)*(P1.squared()+P2.squared()+P3.squared());
-                
-        //        System.out.println("UpolAtkins = " + UpolAtkins + ", UpolEquation8 = " + UpolEquation8);
-                
-                
-                sumSCF += UpolAtkins; // used to be += UpolAtkins
-                
-            
-
-        // call energy method, removing the third atom from the picture
-                
-               /* AtomPair twoAtoms = new AtomPair(atomsSCF.get(0), atomsSCF.get(1));
-                AtomSet setTwoAtoms = (AtomSet)twoAtoms;
-                
-                energy(setTwoAtoms);
-*/              
-                //System.out.println("From iteration: P1 = " + P1 + ", P2 = " + P2 + ", P3 = " + P3);
-                //double PolEnergyDiff = UpolAtkinsAnalytical - UpolAtkins;
-                //System.out.println("Difference in Analytical and Iterative Energies = " + PolEnergyDiff);
-                
+        sumSCF += UpolAtkins; // used to be += UpolAtkins
+        
         return sumSCF;
     }
 
@@ -2263,7 +2245,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 		b4.set(10,0,alphaPol*Eq4.x(1));
 		b4.set(11,0,alphaPol*Eq4.x(2));
 		
-		x4 = A4.solve(b4);
+		Matrix x4 = A4.solve(b4);
 		
 		
 		//System.out.println("x element 0,0 = " + x.get(0,0) + ", and x element 0,1 = " + x.get(0,1));
@@ -4480,7 +4462,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
     private final double alphaPol;
     private Matrix A2,A3,A4,A5;
     private Matrix b2,b3,b4,b5;
-    private Matrix x2,x3,x4,x5;
 	/* (non-Javadoc)
 	 * @see etomica.potential.PotentialSoft#gradient(etomica.atom.AtomSet, etomica.space.Tensor)
 	 */
