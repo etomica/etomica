@@ -656,56 +656,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         T23.ME(Tunit);
         T23.TE(1/(r23*r23*r23));
 
-
-        // Now distribute the elements of the tensor into 3 separate "row" vectors
-        // so I can do dot products with etomica math methods
-        // kmb, 8/7/06
-        
-        Vector3D T12row1 = new Vector3D();
-        Vector3D T12row2 = new Vector3D();
-        Vector3D T12row3 = new Vector3D();
-        
-        T12row1.setX(0,T12.component(0,0));
-        T12row1.setX(1,T12.component(0,1));
-        T12row1.setX(2,T12.component(0,2));
-        T12row2.setX(0,T12.component(1,0));
-        T12row2.setX(1,T12.component(1,1));
-        T12row2.setX(2,T12.component(1,2));
-        T12row3.setX(0,T12.component(2,0));
-        T12row3.setX(1,T12.component(2,1));
-        T12row3.setX(2,T12.component(2,2));
-        
-
-        Vector3D T13row1 = new Vector3D();
-        Vector3D T13row2 = new Vector3D();
-        Vector3D T13row3 = new Vector3D();
-        
-        T13row1.setX(0,T13.component(0,0));
-        T13row1.setX(1,T13.component(0,1));
-        T13row1.setX(2,T13.component(0,2));
-        T13row2.setX(0,T13.component(1,0));
-        T13row2.setX(1,T13.component(1,1));
-        T13row2.setX(2,T13.component(1,2));
-        T13row3.setX(0,T13.component(2,0));
-        T13row3.setX(1,T13.component(2,1));
-        T13row3.setX(2,T13.component(2,2));
-
-        
-        Vector3D T23row1 = new Vector3D();
-        Vector3D T23row2 = new Vector3D();
-        Vector3D T23row3 = new Vector3D();
-        
-        T23row1.setX(0,T23.component(0,0));
-        T23row1.setX(1,T23.component(0,1));
-        T23row1.setX(2,T23.component(0,2));
-        T23row2.setX(0,T23.component(1,0));
-        T23row2.setX(1,T23.component(1,1));
-        T23row2.setX(2,T23.component(1,2));
-        T23row3.setX(0,T23.component(2,0));
-        T23row3.setX(1,T23.component(2,1));
-        T23row3.setX(2,T23.component(2,2));
-
-        
         //Try matrix inversion solution with Jama library
         
         T12.TE(alphaPol);
