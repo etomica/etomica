@@ -232,7 +232,7 @@ public class ClusterDiagram implements java.io.Serializable {
 
     /**
      * Determines if the cluster's current configuration has a score greater 
-     * than the previously stored score.  The current score is computed only 
+     * than the given score.  The current score is computed only 
      * enough to determine if it is less than the current cluster.
      */
     public boolean scoreGreaterThan(int[] compareScore) {
