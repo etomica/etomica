@@ -118,6 +118,40 @@ public class ClusterGenerator implements java.io.Serializable {
     }
 
     /**
+     * Determines whether any cluster permuted from the given one by
+     * exchanging points from startPoint to stopPoint (inclusive) has a higher
+     * score than that passed in. If such a cluster is located, the method returns
+     * true immediately. The method always restores the connections to their
+     * state when the method was called.  If the permutations of the given cluster 
+     * do not have a higher score, the cluster's mNumIdenticalPermutations field is 
+     * updated to include the number of identical permutations encountered while 
+     * swapping.   
+     */
+    public void findMaxScore(int startPoint, int stopPoint, final ClusterDiagram cluster, int[] score) {
+        // recursively swap everything between startPoint+1 and stopPoint
+        // this is basically the 0th iteration below
+        if (startPoint+1 < stopPoint) {
+            findMaxScore(startPoint + 1, stopPoint, cluster, score);
+        }
+        if(cluster.isRootPoint(startPoint) && excludeRootPermutations) {
+            return;
+        }
+        // recursively swap startPoint with startPoint+1 to stopPoint
+        for (int i = startPoint + 1; i < stopPoint + 1; i++) {
+            if (cluster.isRootPoint(startPoint) == cluster.isRootPoint(i)) {
+                cluster.swap(startPoint, i);
+                boolean isGreaterThan = cluster.scoreGreaterThan(score);
+                cluster.calcScore(score);
+                isGreaterThan = swapAllAndCompare(startPoint + 1, stopPoint, cluster, score);
+                cluster.swap(startPoint, i);
+                if (isGreaterThan) {
+                    cluster.calcScore(score);
+                }
+            }
+        }
+    }
+
+    /**
      * Determines if the cluster is connected after removal of the
      * given node.
      */
