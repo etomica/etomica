@@ -1,5 +1,6 @@
 package etomica.models.water;
 
+import Jama.Matrix;
 import etomica.atom.AtomSet;
 import etomica.box.Box;
 import etomica.exception.MethodNotImplementedException;
@@ -40,6 +41,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         totalMass = 18.02;
         sqrtPiHMsigmas = Math.sqrt(Math.PI*(sigmaH*sigmaH+sigmaM*sigmaM));
         sqrtPiMMsigmas = Math.sqrt(Math.PI*(2*sigmaM*sigmaM));
+        alphaPol = 1.444;
 
         Eq1 = space.makeVector();
         Eq2 = space.makeVector();
@@ -57,12 +59,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         P3 = space.makeVector();
         P4 = space.makeVector();
         P5 = space.makeVector();
-        P1old = space.makeVector();
-        P2old = space.makeVector();
-        P3old = space.makeVector();
-        P4old = space.makeVector();
-        P5old = space.makeVector();
-
+        
         comW1 = space.makeVector();
         comW2 = space.makeVector();
         comW3 = space.makeVector();
@@ -74,31 +71,42 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         r23Vector = space.makeVector();
         T12P1 = space.makeVector();
         T12P2 = space.makeVector();
-        B1 = space.makeVector();
-        B2 = space.makeVector();
-        T12Eq2 = space.makeVector();
-        
+                
         work = space.makeVector();
         
         Tunit = space.makeTensor();
         T12 = space.makeTensor();
         T13 = space.makeTensor();
         T23 = space.makeTensor();
-        A1 = space.makeTensor();
-        A2 = space.makeTensor();
-        C1 = space.makeTensor();
-        C2 = space.makeTensor();
-        T12T12 = space.makeTensor();
-        T13T13 = space.makeTensor();
-        T13T23 = space.makeTensor();
-        T23T23 = space.makeTensor();
-        inverseA1 = space.makeTensor();
-        inverseA2 = space.makeTensor();
-        inverseA4 = space.makeTensor();
-        C1A2inverse = space.makeTensor();
-        C1A2inverseC2 = space.makeTensor();
-        A2inverseC2 = space.makeTensor();
-    }
+        
+        A2 = new Matrix(6,6);
+        b2 = new Matrix(6,1);
+        x2 = new Matrix(6,1);
+        
+        A3 = new Matrix(9,9);
+        b3 = new Matrix(9,1);
+        x3 = new Matrix(9,1);
+        
+        A4 = new Matrix(12,12);
+        b4 = new Matrix(12,1);
+        x4 = new Matrix(12,1);
+        
+        A5 = new Matrix(15,15);
+        b5 = new Matrix(15,1);
+        x5 = new Matrix(15,1);
+        
+        T13P1 = space.makeVector();
+        T13P3 = space.makeVector();
+        T14P1 = space.makeVector();
+        T14P4 = space.makeVector();
+        T23P2 = space.makeVector();
+        T23P3 = space.makeVector();
+        T24P2 = space.makeVector();
+        T24P4 = space.makeVector();
+        T34P3 = space.makeVector();
+        T34P4 = space.makeVector();
+        
+	}   
 
     /* This energy method returns the pair energies with SCF solution for
 	 * the third virial coefficient.
@@ -125,7 +133,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 
         IVector M1r = node1.M.getPosition();
         IVector M2r = node2.M.getPosition();
-                
+                   
         r2 = O1r.Mv1Squared(O2r);
         
         if(r2<=core) {
@@ -139,7 +147,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double sixOverGamma = 6/gamma;
    
         sum = epsilon/(1 - sixOverGamma)*(sixOverGamma*Math.exp(gamma*(1 - rOverSigma)) - sigma2OverR2*sigma2OverR2*sigma2OverR2);
-
+        
         r2 = H11r.Mv1Squared(H21r);
         sum += chargeH*chargeH/Math.sqrt(r2)*(1-SpecialFunctions.erfc(Math.sqrt(r2)/(2*sigmaH)));
 
@@ -172,21 +180,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
          * kmb, 8/7/06
          */
 
-        // Moved to the constructor; KMB, 7/20/07
-/*        Vector3D comW1 = new Vector3D();
-        Vector3D comW2 = new Vector3D();
-*/        
-        // How to use COM etomica code correctly? kmb, 8/7/06
-/*        DataSourceCOM com = new DataSourceCOM(space);
-        com.actionPerformed(atoms.getAtom(0));
-        com.getCOM();
-*/        
-
-        // Moved to the constructor; KMB, 7/20/07
-/*        double massH = 1.01;
-        double massO = 16.0;
-        double totalMass = 18.02;
-*/ 
         comW1.Ea1Tv1(massH, H11r);
         comW1.PEa1Tv1(massO, O1r);
         comW1.PEa1Tv1(massH, H12r);
@@ -231,7 +224,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         fac = chargeM/(comW2toM1*comW2toM1*comW2toM1)*((1-SpecialFunctions.erfc(comW2toM1/(2*sigmaM)))-Math.sqrt(2)*comW2toM1/sqrtPiMMsigmas*Math.exp(-comW2toM1*comW2toM1/(4*sigmaM*sigmaM)));
         work.Ev1Mv2(comW2, M1r);
         Eq2.PEa1Tv1(fac, work);
-
+        
         /*
          * Finding the tensor used to relate the induced dipole moment Pi with the induced electric field Epi.
          * kmb, 8/7/06
@@ -247,14 +240,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         double g = (1-SpecialFunctions.erfc(r12/(2*sigmaM)))-(r12/(sigmaM*Math.sqrt(Math.PI)))*Math.exp(-r12*r12/(4*sigmaM*sigmaM));
         
         // Filling the unit matrix I
-        
         T12.Ev1v2(r12Vector,r12Vector);
         
-        // just added these to test whether T12 = T21; IT DOES!
-/*        Tensor3D T21 = new Tensor3D();
-        
-        T21.E(r21Vector,r21Vector);
-*/        
         T12.TE(3*f/(r12*r12));
         
         Tunit.E(g);
@@ -262,59 +249,79 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         T12.ME(Tunit);
         T12.TE(1/(r12*r12*r12));
         
-        //Begin analytical solution for Upol for pair energy
+        //Try matrix inversion solution with Jama library
+                
+        T12.TE(alphaPol);
+       
+        A2.set(0,0,1);
+        A2.set(0,1,0);
+        A2.set(0,2,0);
+        A2.set(0,3,-T12.component(0,0));
+        A2.set(0,4,-T12.component(0,1));
+        A2.set(0,5,-T12.component(0,2));
+        A2.set(1,0,0);
+        A2.set(1,1,1);
+        A2.set(1,2,0);
+        A2.set(1,3,-T12.component(1,0));
+        A2.set(1,4,-T12.component(1,1));
+        A2.set(1,5,-T12.component(1,2));
+        A2.set(2,0,0);
+        A2.set(2,1,0);
+        A2.set(2,2,1);
+        A2.set(2,3,-T12.component(2,0));
+        A2.set(2,4,-T12.component(2,1));
+        A2.set(2,5,-T12.component(2,2));
+        A2.set(3,0,-T12.component(0,0));
+        A2.set(3,1,-T12.component(0,1));
+        A2.set(3,2,-T12.component(0,2));
+        A2.set(3,3,1);
+        A2.set(3,4,0);
+        A2.set(3,5,0);
+        A2.set(4,0,-T12.component(1,0));
+        A2.set(4,1,-T12.component(1,1));
+        A2.set(4,2,-T12.component(1,2));
+        A2.set(4,3,0);
+        A2.set(4,4,1);
+        A2.set(4,5,0);
+        A2.set(5,0,-T12.component(2,0));
+        A2.set(5,1,-T12.component(2,1));
+        A2.set(5,2,-T12.component(2,2));
+        A2.set(5,3,0);
+        A2.set(5,4,0);
+        A2.set(5,5,1);
         
-        double alphaPol = 1.444;
-        double alphaPol2 = alphaPol*alphaPol;
+                
+        b2.set(0,0,alphaPol*Eq1.x(0));
+        b2.set(1,0,alphaPol*Eq1.x(1));
+        b2.set(2,0,alphaPol*Eq1.x(2));
+        b2.set(3,0,alphaPol*Eq2.x(0));
+        b2.set(4,0,alphaPol*Eq2.x(1));
+        b2.set(5,0,alphaPol*Eq2.x(2));
         
-        A1.E(0);
-        A1.setComponent(0,0,1);
-        A1.setComponent(1,1,1);
-        A1.setComponent(2,2,1);
-        T12T12.E(T12);
-        T12T12.TE(T12);
-        T12T12.TE(alphaPol2);
-        A1.ME(T12T12);
+        x2 = A2.solve(b2);
+       
         
-        T12Eq2.E(Eq2);
-        T12.transform(T12Eq2);
-        T12Eq2.TE(alphaPol2);
+        P1.setX(0,x2.get(0,0));
+        P1.setX(1,x2.get(1,0));
+        P1.setX(2,x2.get(2,0));
+        P2.setX(0,x2.get(3,0));
+        P2.setX(1,x2.get(4,0));
+        P2.setX(2,x2.get(5,0));
         
-        B1.E(Eq1);
-        B1.TE(alphaPol);
-        B1.PE(T12Eq2);
-
-        inverseA1.E(A1);
-        inverseA1.inverse();
+        // readjust T12 matrix before calculating Ep1 and Ep2
+        T12.TE(1/alphaPol);
         
-        //use transform method in Tensor3D!
-        //inverseA3.transform(P1);
-        
-        P1.E(B1);
-        inverseA1.transform(P1);
-
-        // Now find P2
         T12P1.E(P1);
-        T12P1.TE(alphaPol);
         T12.transform(T12P1);
-        
+
         T12P2.E(P2);
-        T12P2.TE(alphaPol);
         T12.transform(T12P2);
         
-        P2.E(Eq2);
-        P2.TE(alphaPol);
-        P2.PE(T12P1);
-        
-        
-        //System.out.println("From analytical: P1 = " + P1 + ", P2 = " + P2);
-        
         // Now find Ep1, Ep2
-        
-        Ep1.E(T12P2);
+       
+       	Ep1.E(T12P2);
         Ep2.E(T12P1);
-        
-        
+                
 /*
  * Here is where I need to add the polarization term to the energy sum.
  * kmb 5/4/06
@@ -322,8 +329,13 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         
         UpolAtkins = -0.5*(P1.dot(Eq1)+P2.dot(Eq2));
     
+        //double UpolEquation8 = -(P1.dot(Eq1)+P2.dot(Eq2))-0.5*(P1.dot(Ep1)+P2.dot(Ep2))+(0.5/alphaPol)*(P1.squared()+P2.squared());
+        
+        //System.out.println("UpolAtkins = " + UpolAtkins + ", UpolEquation8 = " + UpolEquation8);
+        
         sum += UpolAtkins;
         
+
         return sum;
     }//end of energy
 
@@ -471,8 +483,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
          * Finding the Electric fields at the center of mass of each molecule, Eqi
          * kmb, 8/7/06
          */
-
-        // Find Eq1
+         
+                 // Find Eq1
         comW1.Ea1Tv1(massH, H11r);
         comW1.PEa1Tv1(massO, O1r);
         comW1.PEa1Tv1(massH, H12r);
@@ -636,9 +648,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         T12.ME(Tunit);
         T12.TE(1/(r12*r12*r12));
         
-        // T12 = T21, so I can get by for now in the case of B2!
-
-        
         T13.Ev1v2(r13Vector,r13Vector);
         T13.TE(3*f13/(r13*r13));
         
@@ -705,132 +714,149 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         T23row3.setX(2,T23.component(2,2));
 
         
-        //Begin analytical solution for Upol
+        //Try matrix inversion solution with Jama library
         
-        double alphaPol = 1.444;
-        double alphaPol2 = alphaPol*alphaPol;
-        
-        A1.E(0);
-        A1.setComponent(0,0,1);
-        A1.setComponent(1,1,1);
-        A1.setComponent(2,2,1);
-        T23T23.E(T23);
-        T23T23.TE(T23);
-        T23T23.TE(alphaPol2);
-        T13T13.E(T13);
-        T13T13.TE(T13);
-        T13T13.TE(alphaPol2);
-        T13T23.E(T13);
-        T13T23.TE(T23);
-        T13T23.TE(alphaPol);
-        A2.E(0);
-        A2.setComponent(0,0,1);
-        A2.setComponent(1,1,1);
-        A2.setComponent(2,2,1);
-        
-        A1.ME(T13T13);
-        A2.ME(T23T23);
-        
-        C1.E(T12);
-        C1.TE(alphaPol);
-        C1.PE(T13T23);
-        C2.E(C1);
-        
-        Vector3D T23Eq3 = new Vector3D();
-        Vector3D T13Eq3 = new Vector3D();
-        
-        T23Eq3.setX(0,T23row1.dot(Eq3));
-        T23Eq3.setX(1,T23row2.dot(Eq3));
-        T23Eq3.setX(2,T23row3.dot(Eq3));
-        T23Eq3.TE(alphaPol2);
-                        
-        T13Eq3.setX(0,T13row1.dot(Eq3));
-        T13Eq3.setX(1,T13row2.dot(Eq3));
-        T13Eq3.setX(2,T13row3.dot(Eq3));
-        T13Eq3.TE(alphaPol2);
-        
-        B1.E(Eq1);
-        B1.TE(alphaPol);
-        B1.PE(T13Eq3);
+		T12.TE(alphaPol);
+		T13.TE(alphaPol);
+		T23.TE(alphaPol);
+		
+		A3.set(0,0,1);
+		A3.set(0,1,0);
+		A3.set(0,2,0);
+		A3.set(0,3,-T12.component(0,0));
+		A3.set(0,4,-T12.component(0,1));
+		A3.set(0,5,-T12.component(0,2));
+		A3.set(0,6,-T13.component(0,0));
+		A3.set(0,7,-T13.component(0,1));
+		A3.set(0,8,-T13.component(0,2));
+		
+		A3.set(1,0,0);
+		A3.set(1,1,1);
+		A3.set(1,2,0);
+		A3.set(1,3,-T12.component(1,0));
+		A3.set(1,4,-T12.component(1,1));
+		A3.set(1,5,-T12.component(1,2));
+		A3.set(1,6,-T13.component(1,0));
+		A3.set(1,7,-T13.component(1,1));
+		A3.set(1,8,-T13.component(1,2));
+		
+		A3.set(2,0,0);
+		A3.set(2,1,0);
+		A3.set(2,2,1);
+		A3.set(2,3,-T12.component(2,0));
+		A3.set(2,4,-T12.component(2,1));
+		A3.set(2,5,-T12.component(2,2));
+		A3.set(2,6,-T13.component(2,0));
+		A3.set(2,7,-T13.component(2,1));
+		A3.set(2,8,-T13.component(2,2));
 
-        B2.E(Eq2);
-        B2.TE(alphaPol);
-        B2.PE(T23Eq3);
-        
-        inverseA1.E(A1);
-        inverseA1.inverse();
-        
-        inverseA2.E(A2);
-        inverseA2.inverse();
-        
-        //use transform method in Tensor3D!
-        
-        C1A2inverseC2.E(C2);
-        C1A2inverseC2.TE(inverseA2);
-        C1A2inverseC2.TE(C1);
-        //C2A1inverseC1.TE(alphaPol);
-        
-        Vector3D C1A2inverseB2 = new Vector3D();
-        C1A2inverseB2.E(B2);
-//        C2A1inverseB1.TE(alphaPol);
-        
-        C1A2inverse.E(C1);
-        C1A2inverse.TE(inverseA2);
-        C1A2inverse.transform(C1A2inverseB2);
-        
-        Vector3D D4 = new Vector3D();
-        
-        inverseA4.E(A1);
-        inverseA4.ME(C1A2inverseC2);
-        inverseA4.inverse();
-        
-        D4.E(B1);
-        D4.PE(C1A2inverseB2);
-        
-        P1.E(D4);
-        inverseA4.transform(P1);
-        
-//        double alphaPol = 1.444;
-//        P1.TE(alphaPol);
-        
-        // Now find P2
-        
-        A2inverseC2.E(C2);
-        A2inverseC2.TE(inverseA2);
-        
-        Vector3D B4 = new Vector3D();
-        
-        B4.E(P1);
-        A2inverseC2.transform(B4);
-        
-        Vector3D A4 = new Vector3D();
-        
-        A4.E(B2);
-        inverseA2.transform(A4);
-        
-        P2.E(A4);
-        P2.PE(B4);
-        
-//        P2.TE(alphaPol);
-        
-        // Now get P3
-        
-        Vector3D T13P1 = new Vector3D();
-        Vector3D T13P3 = new Vector3D();
-        Vector3D T23P2 = new Vector3D();
-        Vector3D T23P3 = new Vector3D();
-        
+		A3.set(3,0,-T12.component(0,0));
+		A3.set(3,1,-T12.component(0,1));
+		A3.set(3,2,-T12.component(0,2));
+		A3.set(3,3,1);
+		A3.set(3,4,0);
+		A3.set(3,5,0);
+		A3.set(3,6,-T23.component(0,0));
+		A3.set(3,7,-T23.component(0,1));
+		A3.set(3,8,-T23.component(0,2));
+		
+		A3.set(4,0,-T12.component(1,0));
+		A3.set(4,1,-T12.component(1,1));
+		A3.set(4,2,-T12.component(1,2));
+		A3.set(4,3,0);
+		A3.set(4,4,1);
+		A3.set(4,5,0);
+		A3.set(4,6,-T23.component(1,0));
+		A3.set(4,7,-T23.component(1,1));
+		A3.set(4,8,-T23.component(1,2));
+		
+		A3.set(5,0,-T12.component(2,0));
+		A3.set(5,1,-T12.component(2,1));
+		A3.set(5,2,-T12.component(2,2));
+		A3.set(5,3,0);
+		A3.set(5,4,0);
+		A3.set(5,5,1);
+		A3.set(5,6,-T23.component(2,0));
+		A3.set(5,7,-T23.component(2,1));
+		A3.set(5,8,-T23.component(2,2));
+		
+		A3.set(6,0,-T13.component(0,0));
+		A3.set(6,1,-T13.component(0,1));
+		A3.set(6,2,-T13.component(0,2));
+		A3.set(6,3,-T23.component(0,0));
+		A3.set(6,4,-T23.component(0,1));
+		A3.set(6,5,-T23.component(0,2));
+		A3.set(6,6,1);
+		A3.set(6,7,0);
+		A3.set(6,8,0);
+		
+		A3.set(7,0,-T13.component(1,0));
+		A3.set(7,1,-T13.component(1,1));
+		A3.set(7,2,-T13.component(1,2));
+		A3.set(7,3,-T23.component(1,0));
+		A3.set(7,4,-T23.component(1,1));
+		A3.set(7,5,-T23.component(1,2));
+		A3.set(7,6,0);
+		A3.set(7,7,1);
+		A3.set(7,8,0);
+		
+		A3.set(8,0,-T13.component(2,0));
+		A3.set(8,1,-T13.component(2,1));
+		A3.set(8,2,-T13.component(2,2));
+		A3.set(8,3,-T23.component(2,0));
+		A3.set(8,4,-T23.component(2,1));
+		A3.set(8,5,-T23.component(2,2));
+		A3.set(8,6,0);
+		A3.set(8,7,0);
+		A3.set(8,8,1);
+				
+		b3.set(0,0,alphaPol*Eq1.x(0));
+		b3.set(1,0,alphaPol*Eq1.x(1));
+		b3.set(2,0,alphaPol*Eq1.x(2));
+		b3.set(3,0,alphaPol*Eq2.x(0));
+		b3.set(4,0,alphaPol*Eq2.x(1));
+		b3.set(5,0,alphaPol*Eq2.x(2));
+		b3.set(6,0,alphaPol*Eq3.x(0));
+		b3.set(7,0,alphaPol*Eq3.x(1));
+		b3.set(8,0,alphaPol*Eq3.x(2));
+		
+		x3 = A3.solve(b3);
+		
+		
+		//System.out.println("x element 0,0 = " + x.get(0,0) + ", and x element 0,1 = " + x.get(0,1));
+		P1.setX(0,x3.get(0,0));
+		P1.setX(1,x3.get(1,0));
+		P1.setX(2,x3.get(2,0));
+		P2.setX(0,x3.get(3,0));
+		P2.setX(1,x3.get(4,0));
+		P2.setX(2,x3.get(5,0));
+		P3.setX(0,x3.get(6,0));
+		P3.setX(1,x3.get(7,0));
+		P3.setX(2,x3.get(8,0));
+		
+        // readjust T12, T13, and T23 matrices before calculating Ep1, Ep2, and Ep3
+        T12.TE(1/alphaPol);
+        T13.TE(1/alphaPol);
+        T23.TE(1/alphaPol);
+		
+		T12P1.E(P1);
+		T12.transform(T12P1);
+		
+		T12P2.E(P2);
+		T12.transform(T12P2);
+		
         T13P1.E(P1);
         T13.transform(T13P1);
+        
+        T13P3.E(P3);
+        T13.transform(T13P3);
         
         T23P2.E(P2);
         T23.transform(T23P2);
         
-        P3.E(Eq3);
-        P3.PE(T13P1);
-        P3.PE(T23P2);
+        T23P3.E(P3);
+        T23.transform(T23P3);
         
-        P3.TE(alphaPol);
         
 //        System.out.println("From analytical: P1 = " + P1 + ", P2 = " + P2 + ", P3 = " + P3);
         
@@ -842,6 +868,8 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         Ep2.PE(T23P3);
         Ep3.E(T13P1);
         Ep3.PE(T23P2);
+
+        
         
         /*
          * Here is where I need to add the polarization term to the energy sum.
@@ -850,8 +878,26 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
                 
         UpolAtkins = -0.5*(P1.dot(Eq1)+P2.dot(Eq2)+P3.dot(Eq3));
                        
-        sumSCF += UpolAtkins; // used to be += UpolAtkins
-        
+                double UpolEquation8 = -(P1.dot(Eq1)+P2.dot(Eq2)+P3.dot(Eq3))-0.5*(P1.dot(Ep1)+P2.dot(Ep2)+P3.dot(Ep3))+(0.5/alphaPol)*(P1.squared()+P2.squared()+P3.squared());
+                
+        //        System.out.println("UpolAtkins = " + UpolAtkins + ", UpolEquation8 = " + UpolEquation8);
+                
+                
+                sumSCF += UpolAtkins; // used to be += UpolAtkins
+                
+            
+
+        // call energy method, removing the third atom from the picture
+                
+               /* AtomPair twoAtoms = new AtomPair(atomsSCF.get(0), atomsSCF.get(1));
+                AtomSet setTwoAtoms = (AtomSet)twoAtoms;
+                
+                energy(setTwoAtoms);
+*/              
+                //System.out.println("From iteration: P1 = " + P1 + ", P2 = " + P2 + ", P3 = " + P3);
+                //double PolEnergyDiff = UpolAtkinsAnalytical - UpolAtkins;
+                //System.out.println("Difference in Analytical and Iterative Energies = " + PolEnergyDiff);
+                
         return sumSCF;
     }
 
@@ -2033,7 +2079,267 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
         T34row3.setX(2,T34.component(2,2));
 
         
-        // Set the induced dipole moments equal to 10% of the permanent dipole value
+        //Try matrix inversion solution with Jama library
+        
+		T12.TE(alphaPol);
+		T13.TE(alphaPol);
+		T14.TE(alphaPol);
+		T23.TE(alphaPol);
+		T24.TE(alphaPol);
+		T34.TE(alphaPol);
+		
+		//tensorArray = {{1,0,0,-T12.component(0,0),-T12.component(0,1),-T12.component(0,2)},{0,1,0,-T12.component(1,0),-T12.component(1,1),-T12.component(1,2)},{0,0,1,-T12.component(2,0),-T12.component(2,1),-T12.component(2,2)},{-T12.component(0,0),-T12.component(0,1),-T12.component(0,2),1,0,0},{-T12.component(1,0),-T12.component(1,1),-T12.component(1,2),0,1,0},{-T12.component(2,0),-T12.component(2,1),-T12.component(2,2),0,0,1}};
+		A4.set(0,0,1);
+		A4.set(0,1,0);
+		A4.set(0,2,0);
+		A4.set(0,3,-T12.component(0,0));
+		A4.set(0,4,-T12.component(0,1));
+		A4.set(0,5,-T12.component(0,2));
+		A4.set(0,6,-T13.component(0,0));
+		A4.set(0,7,-T13.component(0,1));
+		A4.set(0,8,-T13.component(0,2));
+		A4.set(0,9,-T14.component(0,0));
+		A4.set(0,10,-T14.component(0,1));
+		A4.set(0,11,-T14.component(0,2));
+		
+		A4.set(1,0,0);
+		A4.set(1,1,1);
+		A4.set(1,2,0);
+		A4.set(1,3,-T12.component(1,0));
+		A4.set(1,4,-T12.component(1,1));
+		A4.set(1,5,-T12.component(1,2));
+		A4.set(1,6,-T13.component(1,0));
+		A4.set(1,7,-T13.component(1,1));
+		A4.set(1,8,-T13.component(1,2));
+		A4.set(1,9,-T14.component(1,0));
+		A4.set(1,10,-T14.component(1,1));
+		A4.set(1,11,-T14.component(1,2));
+		
+		A4.set(2,0,0);
+		A4.set(2,1,0);
+		A4.set(2,2,1);
+		A4.set(2,3,-T12.component(2,0));
+		A4.set(2,4,-T12.component(2,1));
+		A4.set(2,5,-T12.component(2,2));
+		A4.set(2,6,-T13.component(2,0));
+		A4.set(2,7,-T13.component(2,1));
+		A4.set(2,8,-T13.component(2,2));
+		A4.set(2,9,-T14.component(2,0));
+		A4.set(2,10,-T14.component(2,1));
+		A4.set(2,11,-T14.component(2,2));
+
+		A4.set(3,0,-T12.component(0,0));
+		A4.set(3,1,-T12.component(0,1));
+		A4.set(3,2,-T12.component(0,2));
+		A4.set(3,3,1);
+		A4.set(3,4,0);
+		A4.set(3,5,0);
+		A4.set(3,6,-T23.component(0,0));
+		A4.set(3,7,-T23.component(0,1));
+		A4.set(3,8,-T23.component(0,2));
+		A4.set(3,9,-T24.component(0,0));
+		A4.set(3,10,-T24.component(0,1));
+		A4.set(3,11,-T24.component(0,2));
+		
+		A4.set(4,0,-T12.component(1,0));
+		A4.set(4,1,-T12.component(1,1));
+		A4.set(4,2,-T12.component(1,2));
+		A4.set(4,3,0);
+		A4.set(4,4,1);
+		A4.set(4,5,0);
+		A4.set(4,6,-T23.component(1,0));
+		A4.set(4,7,-T23.component(1,1));
+		A4.set(4,8,-T23.component(1,2));
+		A4.set(4,9,-T24.component(1,0));
+		A4.set(4,10,-T24.component(1,1));
+		A4.set(4,11,-T24.component(1,2));
+		
+		A4.set(5,0,-T12.component(2,0));
+		A4.set(5,1,-T12.component(2,1));
+		A4.set(5,2,-T12.component(2,2));
+		A4.set(5,3,0);
+		A4.set(5,4,0);
+		A4.set(5,5,1);
+		A4.set(5,6,-T23.component(2,0));
+		A4.set(5,7,-T23.component(2,1));
+		A4.set(5,8,-T23.component(2,2));
+		A4.set(5,9,-T24.component(2,0));
+		A4.set(5,10,-T24.component(2,1));
+		A4.set(5,11,-T24.component(2,2));
+		
+		A4.set(6,0,-T13.component(0,0));
+		A4.set(6,1,-T13.component(0,1));
+		A4.set(6,2,-T13.component(0,2));
+		A4.set(6,3,-T23.component(0,0));
+		A4.set(6,4,-T23.component(0,1));
+		A4.set(6,5,-T23.component(0,2));
+		A4.set(6,6,1);
+		A4.set(6,7,0);
+		A4.set(6,8,0);
+		A4.set(6,9,-T34.component(0,0));
+		A4.set(6,10,-T34.component(0,1));
+		A4.set(6,11,-T34.component(0,2));
+		
+		A4.set(7,0,-T13.component(1,0));
+		A4.set(7,1,-T13.component(1,1));
+		A4.set(7,2,-T13.component(1,2));
+		A4.set(7,3,-T23.component(1,0));
+		A4.set(7,4,-T23.component(1,1));
+		A4.set(7,5,-T23.component(1,2));
+		A4.set(7,6,0);
+		A4.set(7,7,1);
+		A4.set(7,8,0);
+		A4.set(7,9,-T34.component(1,0));
+		A4.set(7,10,-T34.component(1,1));
+		A4.set(7,11,-T34.component(1,2));
+		
+		A4.set(8,0,-T13.component(2,0));
+		A4.set(8,1,-T13.component(2,1));
+		A4.set(8,2,-T13.component(2,2));
+		A4.set(8,3,-T23.component(2,0));
+		A4.set(8,4,-T23.component(2,1));
+		A4.set(8,5,-T23.component(2,2));
+		A4.set(8,6,0);
+		A4.set(8,7,0);
+		A4.set(8,8,1);
+		A4.set(8,9,-T34.component(2,0));
+		A4.set(8,10,-T34.component(2,1));
+		A4.set(8,11,-T34.component(2,2));
+		
+		// Here's the last 3 rows of the big tensor
+		
+		A4.set(9,0,-T14.component(0,0));
+		A4.set(9,1,-T14.component(0,1));
+		A4.set(9,2,-T14.component(0,2));
+		A4.set(9,3,-T24.component(0,0));
+		A4.set(9,4,-T24.component(0,1));
+		A4.set(9,5,-T24.component(0,2));
+		A4.set(9,6,-T34.component(0,0));
+		A4.set(9,7,-T34.component(0,1));
+		A4.set(9,8,-T34.component(0,2));
+		A4.set(9,9,1);
+		A4.set(9,10,0);
+		A4.set(9,11,0);
+		
+		A4.set(10,0,-T14.component(1,0));
+		A4.set(10,1,-T14.component(1,1));
+		A4.set(10,2,-T14.component(1,2));
+		A4.set(10,3,-T24.component(1,0));
+		A4.set(10,4,-T24.component(1,1));
+		A4.set(10,5,-T24.component(1,2));
+		A4.set(10,6,-T34.component(1,0));
+		A4.set(10,7,-T34.component(1,1));
+		A4.set(10,8,-T34.component(1,2));
+		A4.set(10,9,0);
+		A4.set(10,10,1);
+		A4.set(10,11,0);
+		
+		A4.set(11,0,-T14.component(2,0));
+		A4.set(11,1,-T14.component(2,1));
+		A4.set(11,2,-T14.component(2,2));
+		A4.set(11,3,-T24.component(2,0));
+		A4.set(11,4,-T24.component(2,1));
+		A4.set(11,5,-T24.component(2,2));
+		A4.set(11,6,-T34.component(2,0));
+		A4.set(11,7,-T34.component(2,1));
+		A4.set(11,8,-T34.component(2,2));
+		A4.set(11,9,0);
+		A4.set(11,10,0);
+		A4.set(11,11,1);
+		
+		//double[][] EqArray = {{alphaPol*Eq1.x(0)},{alphaPol*Eq1.x(1)},{alphaPol*Eq1.x(2)},{alphaPol*Eq2.x(0)},{alphaPol*Eq2.x(1)},{alphaPol*Eq2.x(2)}};
+		//      Matrix b = new Matrix(EqArray);
+		
+		b4.set(0,0,alphaPol*Eq1.x(0));
+		b4.set(1,0,alphaPol*Eq1.x(1));
+		b4.set(2,0,alphaPol*Eq1.x(2));
+		b4.set(3,0,alphaPol*Eq2.x(0));
+		b4.set(4,0,alphaPol*Eq2.x(1));
+		b4.set(5,0,alphaPol*Eq2.x(2));
+		b4.set(6,0,alphaPol*Eq3.x(0));
+		b4.set(7,0,alphaPol*Eq3.x(1));
+		b4.set(8,0,alphaPol*Eq3.x(2));
+		b4.set(9,0,alphaPol*Eq4.x(0));
+		b4.set(10,0,alphaPol*Eq4.x(1));
+		b4.set(11,0,alphaPol*Eq4.x(2));
+		
+		x4 = A4.solve(b4);
+		
+		
+		//System.out.println("x element 0,0 = " + x.get(0,0) + ", and x element 0,1 = " + x.get(0,1));
+		P1.setX(0,x4.get(0,0));
+		P1.setX(1,x4.get(1,0));
+		P1.setX(2,x4.get(2,0));
+		P2.setX(0,x4.get(3,0));
+		P2.setX(1,x4.get(4,0));
+		P2.setX(2,x4.get(5,0));
+		P3.setX(0,x4.get(6,0));
+		P3.setX(1,x4.get(7,0));
+		P3.setX(2,x4.get(8,0));
+		P4.setX(0,x4.get(9,0));
+		P4.setX(1,x4.get(10,0));
+		P4.setX(2,x4.get(11,0));
+		
+		T12P1.E(P1);
+		T12.transform(T12P1);
+		
+		T12P2.E(P2);
+		T12.transform(T12P2);
+		
+        T13P1.E(P1);
+        T13.transform(T13P1);
+        
+        T13P3.E(P3);
+        T13.transform(T13P3);
+        
+        T14P1.E(P1);
+        T14.transform(T14P1);
+        
+        T14P4.E(P4);
+        T14.transform(T14P4);
+        
+        T23P2.E(P2);
+        T23.transform(T23P2);
+        
+        T23P3.E(P3);
+        T23.transform(T23P3);
+        
+        T24P2.E(P2);
+        T24.transform(T24P2);
+        
+        T24P4.E(P4);
+        T24.transform(T24P4);
+        
+        T34P3.E(P3);
+        T34.transform(T34P3);
+        
+        T34P4.E(P4);
+        T34.transform(T34P4);
+        
+        
+//        System.out.println("From analytical: P1 = " + P1 + ", P2 = " + P2 + ", P3 = " + P3);
+        
+        // Now find Ep1, Ep2, Ep3, Ep4
+        
+        Ep1.E(T12P2);
+        Ep1.PE(T13P3);
+        Ep1.PE(T14P4);
+        
+        Ep2.E(T12P1);
+        Ep2.PE(T23P3);
+        Ep2.PE(T24P4);
+        
+        Ep3.E(T13P1);
+        Ep3.PE(T23P2);
+        Ep3.PE(T34P4);
+        
+        Ep4.E(T14P1);
+        Ep4.PE(T24P2);
+        Ep4.PE(T34P3);
+        
+        
+        
+/*        // Set the induced dipole moments equal to 10% of the permanent dipole value
         // kmb, 8/7/06
         P1.setX(0,14.3952507082236);
         P1.setX(1,14.3952507082236);
@@ -2173,7 +2479,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
 	        	}
 	     
 	        // REPEAT LOOP HERE.  RE-EVALUATE CHARGES ON W1 AND THEN REPEAT.
-        }
+        }*/
         
         
         /*
@@ -4152,22 +4458,15 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
     
     public double sigma , sigma2, sumO2LJ;
     public double epsilon, epsilon4, gamma;
-    private double chargeH;
-    private double chargeM;
-    private final IVector Eq1, Eq2, Eq3, Eq4, Eq5;
-    private final IVector Ep1, Ep2, Ep3, Ep4, Ep5;
-    private final IVector P1, P2, P3, P4, P5;
-    private final IVector P1old, P2old, P3old, P4old, P5old;
-    private final IVector comW1, comW2, comW3, comW4, comW5;
+    private double chargeH, chargeM;
+    private IVector Eq1, Eq2, Eq3, Eq4, Eq5;
+    private IVector Ep1, Ep2, Ep3, Ep4, Ep5;
+    private IVector P1, P2, P3, P4, P5;
+    private IVector comW1, comW2, comW3, comW4, comW5;
     private final IVector r12Vector, r13Vector, r23Vector;
-    private final IVector T12P1, T12P2;
-    private final IVector B1, B2, T12Eq2;
+    private final IVector T12P1, T12P2, T13P1, T13P3, T23P2, T23P3, T14P1, T14P4, T24P2, T24P4, T34P3, T34P4;
     private final IVector work;
     private final Tensor Tunit, T12, T13, T23;
-    private final Tensor A1, A2, C1, C2;
-    private final Tensor T12T12, T13T13, T13T23, T23T23;
-    private final Tensor inverseA1, inverseA2, inverseA4;
-    private final Tensor C1A2inverse, C1A2inverseC2, A2inverseC2;
     private final double core; // = 4.41; //4.41 = 2.1^2; value according to Cummings
     private final double sigmaM;
     private final double sigmaH;
@@ -4178,6 +4477,10 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
     private final double sqrtPiHMsigmas;
     private final double sqrtPiMMsigmas;
     public double UpolAtkins;
+    private final double alphaPol;
+    private Matrix A2,A3,A4,A5;
+    private Matrix b2,b3,b4,b5;
+    private Matrix x2,x3,x4,x5;
 	/* (non-Javadoc)
 	 * @see etomica.potential.PotentialSoft#gradient(etomica.atom.AtomSet, etomica.space.Tensor)
 	 */
