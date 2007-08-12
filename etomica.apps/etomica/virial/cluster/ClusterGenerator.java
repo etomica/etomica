@@ -127,7 +127,12 @@ public class ClusterGenerator implements java.io.Serializable {
      * updated to include the number of identical permutations encountered while 
      * swapping.   
      */
-    public void findMaxScore(int startPoint, int stopPoint, final ClusterDiagram cluster, int[] score) {
+    public void findMaxScore(final ClusterDiagram cluster, int[] score) {
+        cluster.calcScore(score);
+        findMaxScore(0, cluster.mNumBody-1, cluster, score);
+    }
+    
+    private void findMaxScore(int startPoint, int stopPoint, final ClusterDiagram cluster, int[] score) {
         // recursively swap everything between startPoint+1 and stopPoint
         // this is basically the 0th iteration below
         if (startPoint+1 < stopPoint) {
@@ -140,13 +145,11 @@ public class ClusterGenerator implements java.io.Serializable {
         for (int i = startPoint + 1; i < stopPoint + 1; i++) {
             if (cluster.isRootPoint(startPoint) == cluster.isRootPoint(i)) {
                 cluster.swap(startPoint, i);
-                boolean isGreaterThan = cluster.scoreGreaterThan(score);
-                cluster.calcScore(score);
-                isGreaterThan = swapAllAndCompare(startPoint + 1, stopPoint, cluster, score);
-                cluster.swap(startPoint, i);
-                if (isGreaterThan) {
+                if (cluster.scoreGreaterThan(score)) {
                     cluster.calcScore(score);
                 }
+                findMaxScore(startPoint + 1, stopPoint, cluster, score);
+                cluster.swap(startPoint, i);
             }
         }
     }
