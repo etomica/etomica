@@ -57,7 +57,7 @@ public class ClusterOperations {
     /**
      * Returns the product of all the given clusters.  Length of input array must
      * be at least 1, and no null elements are permitted.  The input array and
-     * the clusters it contains are unchanged.
+     * the clusters it contains are unchanged, and the returned cluster is new.
      */
     public static ClusterDiagram product(ClusterDiagram[] clusters) {
         ClusterDiagram productDiagram = clusters[0];
@@ -70,7 +70,7 @@ public class ClusterOperations {
     /**
      * Returns an array of clusters formed from taking the product of each of the diagrams
      * of the first set with each of the diagrams of the second set.  The given arrays and
-     * the clusters in them are not changed.
+     * the clusters in them are not changed, and all clusters in the returned array are new.
      */
     public static ClusterDiagram[] product(ClusterDiagram[] set1, ClusterDiagram[] set2) {
         LinkedList list = new LinkedList();
@@ -87,38 +87,81 @@ public class ClusterOperations {
     }
     
     /**
+     * Replaces each cluster in the given array with another having the same
+     * topology, but with the highest-index root point converted into a field
+     * point. The resulting set is collapsed to add any newly equivalent
+     * clusters. Weights of each cluster are otherwise unchanged. The given
+     * arrays and the clusters in them are not changed, and all clusters in the
+     * returned array are new.
+     * 
+     * @throws IllegalArgumentException
+     *             if any input cluster has no root points
+     */
+    public static ClusterDiagram[] integrate(ClusterDiagram[] clusters) {
+        LinkedList list = new LinkedList();
+        for(int i=0; i<clusters.length; i++) {
+            if(clusters[i].getNumRootPoints() == 0) {
+                throw new IllegalArgumentException("Cannot integrate a cluster having no root points");
+            }
+            ClusterDiagram newCluster = new ClusterDiagram(clusters[i].mNumBody, 
+                    clusters[i].getNumRootPoints()-1);
+            clusters[i].copyTo(newCluster);
+            list.add(newCluster);
+        }
+        addEquivalents(list);
+        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+    }
+    
+    /**
      * Replaces all isomorphic clusters in the given list by a single cluster with weight
      * given by their sum.  Both the list and the the weights of the clusters it contains
      * may be altered by this method.
      */
     public static void addEquivalents(LinkedList list) {
+        if(list.size() == 0 || list.size() == 1) {
+            return;
+        }
         ListIterator outer = list.listIterator(0);
+        ClusterDiagram cluster1 = null;
         int j = 0;
         while(outer.hasNext()) {
-            ClusterDiagram cluster1 = (ClusterDiagram)outer.next();
+            cluster1 = (ClusterDiagram)outer.next();
             ListIterator inner = list.listIterator(++j);
             while(inner.hasNext()) {
                 ClusterDiagram cluster2 = (ClusterDiagram)inner.next();
-                if(cluster1.equals(cluster2)) {
-                    cluster1.setWeight(cluster1.getWeight().plus(cluster2.getWeight()));
-                    cluster2.setWeight(Rational.ZERO);
+                if(cluster2.getWeight().numerator() == 0) {
+                    continue;
+                }
+                if(cluster1.isIsomorphOf(cluster2)) {
+                    int[] score1 = new int[cluster1.mNumBody/2+1];
+                    cluster1.calcScore(score1);
+                    if(cluster2.scoreGreaterThan(score1)) {
+                        cluster2.setWeight(cluster1.getWeight().plus(cluster2.getWeight()));
+                        cluster1.setWeight(Rational.ZERO);
+                        break;
+                    } else {
+                        cluster1.setWeight(cluster1.getWeight().plus(cluster2.getWeight()));
+                        cluster2.setWeight(Rational.ZERO);
+                    }
                 }
             }
         }
-        //removed clusters having zero weight
-        while(outer.hasPrevious()) {
-            ClusterDiagram cluster = (ClusterDiagram)outer.previous();
+        //remove clusters having zero weight
+        ListIterator iterator = list.listIterator(0);
+        while(iterator.hasNext()) {
+            ClusterDiagram cluster = (ClusterDiagram)iterator.next();
             if(cluster.getWeight().numerator() == 0) {
-                outer.remove();
+                iterator.remove();
             }
         }
     }
 
     
     /**
-     * Returns a cluster that is a convolution of the given cluster, which is obtained by joining a root point
+     * Returns a new cluster that is a convolution of the given cluster, which is obtained by joining a root point
      * from each diagram and turning it into a field point.  Each given cluster must have exactly 2 root points.
-     * The weight of the returned cluster is the product of the weights of the given clusters.
+     * The weight of the returned cluster is the product of the weights of the given clusters.  The input clusters
+     * are unchanged.
      */
     public static ClusterDiagram convolution(ClusterDiagram cluster1, ClusterDiagram cluster2) {
         int numRoot = cluster1.getNumRootPoints();
@@ -167,7 +210,8 @@ public class ClusterOperations {
      * Generates the set of diagrams obtained by subtracting the second set from the first set.
      * The returned array contains all diagrams from the first set, with weights modified by subtracting
      * the weights of matching diagrams from the second set (if present), and all unmatched diagrams from
-     * the seconds set with their weights negated.
+     * the second set with their weights negated.  The returned array and all clusters in it are new
+     * instances.
      */
     public static ClusterDiagram[] difference(ClusterDiagram[] set1, ClusterDiagram[] set2) {
         LinkedList list = new LinkedList();
@@ -182,10 +226,29 @@ public class ClusterOperations {
         addEquivalents(list);
         return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
     }
-    
+
+    /**
+     * Generates the set of diagrams obtained by adding the second set to the first set.
+     * The returned array contains (copies of) all diagrams from the first set, with weights modified by adding
+     * the weights of matching diagrams from the second set (if present), and all unmatched diagrams from
+     * the second set. The returned array and all clusters in it are new instances.
+     */
+    public static ClusterDiagram[] sum(ClusterDiagram[] set1, ClusterDiagram[] set2) {
+        LinkedList list = new LinkedList();
+        for(int i=0; i<set1.length; i++) {
+            list.add(new ClusterDiagram(set1[i]));
+        }
+        for(int i=0; i<set2.length; i++) {
+            list.add(new ClusterDiagram(set2[i]));
+        }
+        addEquivalents(list);
+        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+    }
+
     /**
      * Returns an array of clusters formed from taking the convolution of each of the diagrams
-     * of the first set with each of the diagrams of the second set.
+     * of the first set with each of the diagrams of the second set.  The given arrays and the
+     * clusters they change are unchanged, and all clusters in the returned array are new.
      */
     public static ClusterDiagram[] convolution(ClusterDiagram[] set1, ClusterDiagram[] set2) {
         LinkedList list = new LinkedList();
@@ -195,6 +258,61 @@ public class ClusterOperations {
         for(int i=0; i<set1.length; i++) {
             for(int j=0; j<set2.length; j++) {
                 list.add(convolution(set1[i],set2[j]));
+            }
+        }
+        addEquivalents(list);
+        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+    }
+    
+    /**
+     * Creates a set of Ree-Hoover clusters from the given cluster.  The input cluster is assumed
+     * to be formed from only f bonds.  The set of returned clusters are full stars formed from
+     * f bonds and (implied) e bonds (e = f + 1), and sum to the original cluster. 
+     */
+    public static ClusterDiagram[] makeReeHoover(ClusterDiagram cluster) {
+        int n = cluster.mNumBody;
+        int nUnbonded = n*(n-1)/2 - cluster.getNumConnections();
+        ClusterDiagram[] rhClusters = new ClusterDiagram[1<<nUnbonded];
+        int[][] pairList = new int[nUnbonded][2];
+        int k = -1;
+        //make a list of unbonded pairs
+        for(int i=0; i<n-1; i++) {
+            int[] connections = cluster.mConnections[i];
+            boolean[] bonded = new boolean[cluster.mNumBody];
+            for(int j=0; connections[j]!=-1; j++) {
+                bonded[connections[j]] = true;
+            }
+            for(int j=i+1; j<n; j++) {
+                if(!bonded[j]) {
+                    pairList[++k][0] = i;
+                    pairList[k][1] = j;
+                }
+            }
+        }
+        //bits of i are used to key whether an f (bit = 1) or an e (bit = 0) bond is placed between unbonded pair
+        //k is used to index the bonds
+        for(int i=0; i<rhClusters.length; i++) {
+            rhClusters[i] = new ClusterDiagram(cluster);
+            boolean neg = false;
+            for(k=0; k<nUnbonded; k++) {
+                if((i & (1<<k)) != 0) {//bit for bond k is 1 -- add f-bond
+                    neg = !neg;
+                    rhClusters[i].addConnection(pairList[k][0], pairList[k][1]);
+                }
+            }
+            if(neg) {//odd number of f-bonds introduced
+                rhClusters[i].setWeight(rhClusters[i].getWeight().negate());
+            }
+        }
+        return rhClusters;
+    }
+    
+    public static ClusterDiagram[] makeReeHoover(ClusterDiagram[] clusters) {
+        LinkedList list = new LinkedList();
+        for(int i=0; i<clusters.length; i++) {
+            ClusterDiagram[] rhClusters = makeReeHoover(clusters[i]);
+            for(int j=0; j<rhClusters.length; j++) {
+                list.add(rhClusters[j]);
             }
         }
         addEquivalents(list);
@@ -231,25 +349,34 @@ public class ClusterOperations {
                 list.add(clusters[i]);
                 ClusterDiagram fCluster = new ClusterDiagram(clusters[i]);
                 fCluster.addConnection(0, 1);
+                fCluster.addConnection(1, 0);
                 list.add(fCluster);
             }
         }
         addEquivalents(list);
-        return (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        h[n] =  (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        return h[n];
     }
     
     public ClusterDiagram[] getC(int n) {
         if(n < c.length && c[n] != null) {
             return c[n];
         }
-        return null;
+        if(n >= c.length) {
+            c = (ClusterDiagram[][])Arrays.resizeArray(c, n+1);
+        }
+        c[n] = difference(getH(n), getEta(n));
+        return c[n];
     }
 
     public ClusterDiagram[] getB(int n) {
         if(n < b.length && b[n] != null) {
             return b[n];
         }
-        return null;
+        if(approx == 0) {
+            throw new RuntimeException("getB method not yet implemented without approximation");
+        }
+        return new ClusterDiagram[] {};
     }
 
     /**
@@ -271,7 +398,8 @@ public class ClusterOperations {
                 clusterList.add(conv[k]);
             }
         }
-        return (ClusterDiagram[])clusterList.toArray(new ClusterDiagram[] {});
+        eta[n] = (ClusterDiagram[])clusterList.toArray(new ClusterDiagram[] {});
+        return eta[n];
     }
     
     /**
@@ -288,36 +416,63 @@ public class ClusterOperations {
         if(n >= w.length) {
             w = (ClusterDiagram[][])Arrays.resizeArray(w, n+1);
         }
-        return null;
+        w[n] = sum(getEta(n), getB(n));
+        return w[n];
     }
     
     public static void main(String args[]) {
-////        ClusterDiagram cluster1 = new ClusterDiagram(5, 2, Standard.ring(5));
-////        cluster1.deleteConnection(0, 1);
-////        cluster1.deleteConnection(1, 0);
-////        ClusterDiagram cluster2 = new ClusterDiagram(4,2);
-////        cluster2 = new ClusterDiagram(4, 2, Standard.ring(4));
-////        cluster2.addConnection(0, 2);
-////        cluster2.deleteConnection(0, 1);
-////        cluster2.deleteConnection(1, 0);
-////        ClusterDiagram product = ClusterOperations.convolution(cluster2, cluster1);
-//        
-//        etomica.virial.junk.MyApplet applet = new etomica.virial.junk.MyApplet();
-//        applet.init();
-//        applet.starter.setDrawNumbersOfBlack(true);
-//        applet.starter.setDrawNumbersOfWhite(true);
-//        
-//        ClusterOperations ops = new ClusterOperations();
-//        ClusterDiagram[] clusters = ops.getH(2);
-////        applet.starter.addCluster(cluster1);
-////        applet.starter.addCluster(cluster2);
-////        applet.starter.addCluster(product);
-//        
-//        for(int i=0; i<clusters.length; i++) {
-//            applet.starter.addCluster(clusters[i]);
-//        }
-//        JPanel panel = applet.myPanel;
-//        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
+//        ClusterDiagram cluster1 = new ClusterDiagram(5, 2, Standard.ring(5));
+//        cluster1.deleteConnection(0, 1);
+//        cluster1.deleteConnection(1, 0);
+//        ClusterDiagram cluster2 = new ClusterDiagram(4,2);
+//        cluster2 = new ClusterDiagram(4, 2, Standard.ring(4));
+//        cluster2.addConnection(0, 2);
+//        cluster2.deleteConnection(0, 1);
+//        cluster2.deleteConnection(1, 0);
+//        ClusterDiagram product = ClusterOperations.convolution(cluster2, cluster1);
+        
+        etomica.virial.junk.MyApplet applet = new etomica.virial.junk.MyApplet();
+        applet.init();
+        applet.starter.setDrawNumbersOfBlack(true);
+        applet.starter.setDrawNumbersOfWhite(true);
+        
+        int n = 4;
+        ClusterOperations ops = new ClusterOperations();
+        ClusterDiagram[] approxClusters = ops.getC(n);
+//        applet.starter.addCluster(cluster1);
+//        applet.starter.addCluster(cluster2);
+//        applet.starter.addCluster(product);
+        
+        LinkedList list = new LinkedList();
+        ClusterDiagram cluster = new ClusterDiagram(n+2, 2);
+        ClusterGenerator gen = new ClusterGenerator(cluster);
+        gen.setAllPermutations(false);
+        gen.setOnlyConnected(false);
+        gen.setOnlyDoublyConnected(true);
+        gen.setExcludeArticulationPoint(true);
+        gen.setExcludeArticulationPair(false);
+        gen.setExcludeNodalPoint(true);
+        gen.setMakeReeHover(false);
+        //cluster.reset();
+        gen.reset();
+        cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
+        list.add(new ClusterDiagram(cluster));
+        while(gen.advance()) {
+            cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
+            list.add(new ClusterDiagram(cluster));
+        }
+        addEquivalents(list);
+        ClusterDiagram[] trueClusters = (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+        ClusterDiagram[] xs = difference(trueClusters, approxClusters);
+        ClusterDiagram[] out = xs;
+        out = integrate(out);
+        out = integrate(out);
+        out = makeReeHoover(out);
+        for(int i=0; i<out.length; i++) {
+            applet.starter.addCluster(out[i]);
+        }
+        JPanel panel = applet.myPanel;
+        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
     }
     
     private static final ClusterDiagram zero = new ClusterDiagram(2, 2, new int[][] {}, new Rational(0,1));//cluster with zero weight
