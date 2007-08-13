@@ -74,7 +74,8 @@ public class ClusterDiagram implements java.io.Serializable {
     }
 
     public void copyTo(ClusterDiagram destCluster) {
-        // number of root points must already be equal
+        // number of points must already be equal, but number of root vs field not 
+        // necessarily so (though permutations etc may be incorrect in such a case)
         for (int i = 0; i < mNumBody; i++) {
             System.arraycopy(mConnections[i], 0, destCluster.mConnections[i], 0,
                     mNumBody);
@@ -218,7 +219,7 @@ public class ClusterDiagram implements java.io.Serializable {
     }
 
     public String toString() {
-        String out = "";
+        String out = "("+weight.toString()+") ";
         int i, j;
         for (i = 0; i < mNumBody; i++) {
             for (j = 0; j < mNumBody - 1 && mConnections[i][j] != -1; j++) {
@@ -327,20 +328,27 @@ public class ClusterDiagram implements java.io.Serializable {
         }
     }
     
-    //returns true if all pairs in this cluster are bonded as in the other cluster.
-    public boolean equals(ClusterDiagram anotherCluster) {
+    /**
+     * Returns true if this cluster is an isomorph of the given cluster.  That is,
+     * returns true if the given cluster can be mapped onto this one by some permutation of the
+     * field points.
+     */
+    public boolean isIsomorphOf(ClusterDiagram anotherCluster) {
         if(this.mNumBody != anotherCluster.mNumBody) return false;
         if(this.mNumRootPoints != anotherCluster.mNumRootPoints) return false;
-        this.sortConnections();//could use sort
-        anotherCluster.sortConnections();
-        for(int i=0; i<mConnections.length; i++) {
-            if(!Arrays.equals(mConnections[i], anotherCluster.mConnections[i])) {
+        int[] score = new int[anotherCluster.mNumBody/2+1];
+        int[] anotherScore = new int[score.length];
+        boolean excludeRootPermutations = true;
+        ClusterGenerator.findMaxScore(excludeRootPermutations, this, score);
+        ClusterGenerator.findMaxScore(excludeRootPermutations, anotherCluster, anotherScore);
+        for(int i=0; i<score.length; i++) {
+            if(score[i] != anotherScore[i]) {
                 return false;
             }
         }
         return true;
     }
-    
+
     private void sortConnections() {
         for(int i=0; i<mConnections.length; i++) {
             mySort(mConnections[i]);
