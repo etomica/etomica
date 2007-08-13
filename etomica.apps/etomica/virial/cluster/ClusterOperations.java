@@ -421,59 +421,59 @@ public class ClusterOperations {
     }
     
     public static void main(String args[]) {
-//        ClusterDiagram cluster1 = new ClusterDiagram(5, 2, Standard.ring(5));
-//        cluster1.deleteConnection(0, 1);
-//        cluster1.deleteConnection(1, 0);
-//        ClusterDiagram cluster2 = new ClusterDiagram(4,2);
-//        cluster2 = new ClusterDiagram(4, 2, Standard.ring(4));
-//        cluster2.addConnection(0, 2);
-//        cluster2.deleteConnection(0, 1);
-//        cluster2.deleteConnection(1, 0);
-//        ClusterDiagram product = ClusterOperations.convolution(cluster2, cluster1);
-        
-        etomica.virial.junk.MyApplet applet = new etomica.virial.junk.MyApplet();
-        applet.init();
-        applet.starter.setDrawNumbersOfBlack(true);
-        applet.starter.setDrawNumbersOfWhite(true);
-        
-        int n = 4;
-        ClusterOperations ops = new ClusterOperations();
-        ClusterDiagram[] approxClusters = ops.getC(n);
-//        applet.starter.addCluster(cluster1);
-//        applet.starter.addCluster(cluster2);
-//        applet.starter.addCluster(product);
-        
-        LinkedList list = new LinkedList();
-        ClusterDiagram cluster = new ClusterDiagram(n+2, 2);
-        ClusterGenerator gen = new ClusterGenerator(cluster);
-        gen.setAllPermutations(false);
-        gen.setOnlyConnected(false);
-        gen.setOnlyDoublyConnected(true);
-        gen.setExcludeArticulationPoint(true);
-        gen.setExcludeArticulationPair(false);
-        gen.setExcludeNodalPoint(true);
-        gen.setMakeReeHover(false);
-        //cluster.reset();
-        gen.reset();
-        cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
-        list.add(new ClusterDiagram(cluster));
-        while(gen.advance()) {
-            cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
-            list.add(new ClusterDiagram(cluster));
-        }
-        addEquivalents(list);
-        ClusterDiagram[] trueClusters = (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
-        ClusterDiagram[] xs = difference(trueClusters, approxClusters);
-        ClusterDiagram[] out = xs;
-        out = integrate(out);
-        out = integrate(out);
-        out = makeReeHoover(out);
-        for(int i=0; i<out.length; i++) {
-            applet.starter.addCluster(out[i]);
-        }
-        JPanel panel = applet.myPanel;
-        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
-    }
+////        ClusterDiagram cluster1 = new ClusterDiagram(5, 2, Standard.ring(5));
+////        cluster1.deleteConnection(0, 1);
+////        cluster1.deleteConnection(1, 0);
+////        ClusterDiagram cluster2 = new ClusterDiagram(4,2);
+////        cluster2 = new ClusterDiagram(4, 2, Standard.ring(4));
+////        cluster2.addConnection(0, 2);
+////        cluster2.deleteConnection(0, 1);
+////        cluster2.deleteConnection(1, 0);
+////        ClusterDiagram product = ClusterOperations.convolution(cluster2, cluster1);
+//        
+//        etomica.virial.junk.MyApplet applet = new etomica.virial.junk.MyApplet();
+//        applet.init();
+//        applet.starter.setDrawNumbersOfBlack(true);
+//        applet.starter.setDrawNumbersOfWhite(true);
+//        
+//        int n = 4;
+//        ClusterOperations ops = new ClusterOperations();
+//        ClusterDiagram[] approxClusters = ops.getC(n);
+////        applet.starter.addCluster(cluster1);
+////        applet.starter.addCluster(cluster2);
+////        applet.starter.addCluster(product);
+//        
+//        LinkedList list = new LinkedList();
+//        ClusterDiagram cluster = new ClusterDiagram(n+2, 2);
+//        ClusterGenerator gen = new ClusterGenerator(cluster);
+//        gen.setAllPermutations(false);
+//        gen.setOnlyConnected(false);
+//        gen.setOnlyDoublyConnected(true);
+//        gen.setExcludeArticulationPoint(true);
+//        gen.setExcludeArticulationPair(false);
+//        gen.setExcludeNodalPoint(true);
+//        gen.setMakeReeHover(false);
+//        //cluster.reset();
+//        gen.reset();
+//        cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
+//        list.add(new ClusterDiagram(cluster));
+//        while(gen.advance()) {
+//            cluster.setWeight(new Rational(1, cluster.mNumIdenticalPermutations));
+//            list.add(new ClusterDiagram(cluster));
+//        }
+//        addEquivalents(list);
+//        ClusterDiagram[] trueClusters = (ClusterDiagram[])list.toArray(new ClusterDiagram[] {});
+//        ClusterDiagram[] xs = difference(trueClusters, approxClusters);
+//        ClusterDiagram[] out = xs;
+//        out = integrate(out);
+//        out = integrate(out);
+//        out = makeReeHoover(out);
+//        for(int i=0; i<out.length; i++) {
+//            applet.starter.addCluster(out[i]);
+//        }
+//        JPanel panel = applet.myPanel;
+//        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
+//    }
     
     private static final ClusterDiagram zero = new ClusterDiagram(2, 2, new int[][] {}, new Rational(0,1));//cluster with zero weight
     private static final ClusterDiagram unity = new ClusterDiagram(2, 2, new int[][] {});//two root points with no bonds
