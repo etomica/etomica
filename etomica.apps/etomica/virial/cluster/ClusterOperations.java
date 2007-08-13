@@ -473,7 +473,7 @@ public class ClusterOperations {
 //        }
 //        JPanel panel = applet.myPanel;
 //        SimulationGraphic.makeAndDisplayFrame(panel, "ClusterOperation");
-//    }
+    }
     
     private static final ClusterDiagram zero = new ClusterDiagram(2, 2, new int[][] {}, new Rational(0,1));//cluster with zero weight
     private static final ClusterDiagram unity = new ClusterDiagram(2, 2, new int[][] {});//two root points with no bonds
