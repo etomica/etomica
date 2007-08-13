@@ -191,49 +191,56 @@ public class TestHexane extends Simulation {
     }
 
     public static void main(String[] args) {
-//        int numMolecules = 144; //144
-
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        
-        long nSteps = 10000;
+        long nSteps = 100;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
-
+        double den = 0.37;
         boolean graphic = false;
-
-        //parse arguments
-        //filename is element 0
-        if(args.length > 1){
-            nSteps = Long.parseLong(args[1]);
-        }
-        if(args.length > 2){
-            density = Double.parseDouble(args[2]);
-            if(density == 0.37) {density = 0.373773507616;}
-            if(density == 0.40) {density = 0.389566754417;}
-        }
-        if(args.length > 5){
-            xLng = Integer.parseInt(args[3]);
-            yLng = Integer.parseInt(args[4]);
-            zLng = Integer.parseInt(args[5]);
-        }
-        
-
-        String filename = "nm_hexane";
-
-        
+  
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
         TestHexane sim = new TestHexane(Space3D.getInstance(), density, xLng, yLng, zLng);
-
         System.out.println("Happy Goodness!!");
 
-//        if (graphic) {
-//            SimulationGraphic simGraphic = new SimulationGraphic(sim);
-//            simGraphic.makeAndDisplayFrame();
-//        } else {
-
+        if (graphic) {
+            SimulationGraphic simGraphic = new SimulationGraphic(sim);
+            simGraphic.makeAndDisplayFrame();
+        } else {
+            //parse arguments
+            //filename is element 0
+            String filename = "nm_hex_";
+                
+            if(args.length >0){
+                filename = args[0];
+            }
+            if(args.length > 1){
+                nSteps = Long.parseLong(args[1]);
+            }
+            if(args.length > 2){
+                den = Double.parseDouble(args[2]);
+                if(den == 0.37) {density = 0.373773507616;}
+                if(den == 0.40) {density = 0.389566754417;}
+            }
+            if(args.length > 5){
+                xLng = Integer.parseInt(args[3]);
+                yLng = Integer.parseInt(args[4]);
+                zLng = Integer.parseInt(args[5]);
+            }
+            filename = filename + nSteps + "_" + den*100 + "_" + xLng 
+                + "_" + yLng + "_" + zLng;
+            
+            System.out.println(filename);
+            System.out.println("Hexane simulation");
+            System.out.println("Number of steps = " + nSteps);
+            System.out.println("Density = " + density);
+            System.out.println("Number of cells/molecules in the X direction = " + xLng);
+            System.out.println("Number of cells/molecules in the Y direction = " + yLng);
+            System.out.println("Number of cells/molecules in the Z direction = " + zLng);
+            System.out.println("Total number of molecules = " + xLng*yLng*zLng);
+            
             PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
             // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
             WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive);
@@ -244,16 +251,14 @@ public class TestHexane extends Simulation {
             meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
             meterNormalMode.setBox(sim.box);
 
-            BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
-//            BoxInflate pid = new BoxInflate(sim.box);
-            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
-            meterPressure.setIntegrator(sim.integrator);
-            AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
-            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
-            pressureAccumulator.setBlockSize(50);
-            sim.integrator.addIntervalAction(pressureManager);
-//            new IntervalActionAdapter(pressureManager, sim.integrator);
-
+//            BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
+//            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
+//            meterPressure.setIntegrator(sim.integrator);
+//            AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
+//            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
+//            pressureAccumulator.setBlockSize(50);
+//            sim.integrator.addIntervalAction(pressureManager);
+         
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
             System.out.println("equilibration finished");
@@ -261,11 +266,7 @@ public class TestHexane extends Simulation {
             
             ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
-                        
-//            IntervalActionAdapter adapter = new IntervalActionAdapter(meterNormalMode);
-//            adapter.setActionInterval(100);
-//            sim.integrator.addListener(adapter);
-
+           
             sim.integrator.addIntervalAction(meterNormalMode);
             sim.integrator.setActionInterval(meterNormalMode, 100);
             
@@ -276,33 +277,28 @@ public class TestHexane extends Simulation {
             IVector[] waveVectors = waveVectorFactory.getWaveVectors();
             double[] coefficients = waveVectorFactory.getCoefficients();
             
-         
 //            double avgPressure = ((DataDouble)(((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index))).x;
 //            avgPressure = ((DataDouble)((DataGroup)pressureAccumulator.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
 //            System.out.println("Avg Pres = "+ avgPressure);
 
-            
-//        }
+            WriteS sWriter = new WriteS();
+            sWriter.setFilename(filename);
+            sWriter.setOverwrite(true);
+            sWriter.setMeter(meterNormalMode);
+            sWriter.setWaveVectorFactory(waveVectorFactory);
+            sWriter.setTemperature(sim.integrator.getTemperature());
+        
+            sim.integrator.addIntervalAction(sWriter);
+            sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
+        
+            sim.activityIntegrate.setMaxSteps(nSteps);
+            sim.getController().actionPerformed();
 
+//            PDBWriter pdbWriter = new PDBWriter(sim.box);
+//            pdbWriter.setFileName("calcS.pdb");
+//            pdbWriter.actionPerformed();
         
-        WriteS sWriter = new WriteS();
-        sWriter.setFilename(filename);
-        sWriter.setOverwrite(true);
-        sWriter.setMeter(meterNormalMode);
-        sWriter.setWaveVectorFactory(waveVectorFactory);
-        sWriter.setTemperature(sim.integrator.getTemperature());
-        
-        sim.integrator.addIntervalAction(sWriter);
-        sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
-        
-        sim.activityIntegrate.setMaxSteps(nSteps);
-        sim.getController().actionPerformed();
-
-//        PDBWriter pdbWriter = new PDBWriter(sim.box);
-//        pdbWriter.setFileName("calcS.pdb");
-//        pdbWriter.actionPerformed();
-        
-        System.out.println("Go look at the data!");
+            System.out.println("Go look at the data!");
+        }
     }
-
 }
