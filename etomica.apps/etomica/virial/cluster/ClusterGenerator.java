@@ -82,7 +82,11 @@ public class ClusterGenerator implements java.io.Serializable {
             mReeHooverGenerator.setOnlyDoublyConnected(true);
         }
     }
-    
+
+    public static boolean swapAllAndCompare(boolean excludeRootPermutations, final ClusterDiagram cluster, int[] score) {
+        return swapAllAndCompare(0, cluster.mNumBody-1, excludeRootPermutations, cluster, score);
+    }
+
     /**
      * Determines whether any cluster permuted from the given one by
      * exchanging points from startPoint to stopPoint (inclusive) has a higher
@@ -93,10 +97,11 @@ public class ClusterGenerator implements java.io.Serializable {
      * updated to include the number of identical permutations encountered while 
      * swapping.   
      */
-    private boolean swapAllAndCompare(int startPoint, int stopPoint, final ClusterDiagram cluster, int[] score) {
+    private static boolean swapAllAndCompare(int startPoint, int stopPoint, boolean excludeRootPermutations,
+            final ClusterDiagram cluster, int[] score) {
         // recursively swap everything between startPoint+1 and stopPoint
         // this is basically the 0th iteration below
-        if (startPoint+1 < stopPoint && swapAllAndCompare(startPoint + 1, stopPoint, cluster, score)) {
+        if (startPoint+1 < stopPoint && swapAllAndCompare(startPoint + 1, stopPoint, excludeRootPermutations, cluster, score)) {
             return true;
         }
         if(cluster.isRootPoint(startPoint) && excludeRootPermutations) {
@@ -107,7 +112,7 @@ public class ClusterGenerator implements java.io.Serializable {
             if (cluster.isRootPoint(startPoint) == cluster.isRootPoint(i)) {
                 cluster.swap(startPoint, i);
                 boolean isGreaterThan = cluster.scoreGreaterThan(score);
-                isGreaterThan = isGreaterThan || swapAllAndCompare(startPoint + 1, stopPoint, cluster, score);
+                isGreaterThan = isGreaterThan || swapAllAndCompare(startPoint + 1, stopPoint, excludeRootPermutations, cluster, score);
                 cluster.swap(startPoint, i);
                 if (isGreaterThan) {
                     return true;
@@ -127,16 +132,17 @@ public class ClusterGenerator implements java.io.Serializable {
      * updated to include the number of identical permutations encountered while 
      * swapping.   
      */
-    public void findMaxScore(final ClusterDiagram cluster, int[] score) {
+    public static void findMaxScore(boolean excludeRootPermutations, final ClusterDiagram cluster, int[] score) {
         cluster.calcScore(score);
-        findMaxScore(0, cluster.mNumBody-1, cluster, score);
+        findMaxScore(0, cluster.mNumBody-1, excludeRootPermutations, cluster, score);
     }
     
-    private void findMaxScore(int startPoint, int stopPoint, final ClusterDiagram cluster, int[] score) {
+    private static void findMaxScore(int startPoint, int stopPoint, boolean excludeRootPermutations, 
+            final ClusterDiagram cluster, int[] score) {
         // recursively swap everything between startPoint+1 and stopPoint
         // this is basically the 0th iteration below
         if (startPoint+1 < stopPoint) {
-            findMaxScore(startPoint + 1, stopPoint, cluster, score);
+            findMaxScore(startPoint + 1, stopPoint, excludeRootPermutations, cluster, score);
         }
         if(cluster.isRootPoint(startPoint) && excludeRootPermutations) {
             return;
@@ -148,7 +154,7 @@ public class ClusterGenerator implements java.io.Serializable {
                 if (cluster.scoreGreaterThan(score)) {
                     cluster.calcScore(score);
                 }
-                findMaxScore(startPoint + 1, stopPoint, cluster, score);
+                findMaxScore(startPoint + 1, stopPoint, excludeRootPermutations, cluster, score);
                 cluster.swap(startPoint, i);
             }
         }
@@ -434,7 +440,7 @@ public class ClusterGenerator implements java.io.Serializable {
         int[] score = new int[mCluster.mNumBody/2+1];
         mCluster.calcScore(score);
         mCluster.mNumIdenticalPermutations = 1;
-        return !swapAllAndCompare(0, mCluster.mNumBody - 1, mCluster, score);
+        return !swapAllAndCompare(excludeRootPermutations, mCluster, score);
     }
 
     /**
