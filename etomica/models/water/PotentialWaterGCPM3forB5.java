@@ -4383,9 +4383,19 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
     public void setBox(Box box) {
     }
 
-    public final double getPolarizationEnergy() {
+    public final double getLastPolarizationEnergy() {
         return UpolAtkins;
     }
+
+    /**
+     * Returns the polarization contribution (non pairwise-additive) to the
+     * energy for the given AtomSet.
+     */
+    public double getPolarizationEnergy(AtomSet atoms) {
+        energy(atoms);
+        return UpolAtkins;
+    }
+
     
     public double sigma , sigma2, sumO2LJ;
     public double epsilon, epsilon4, gamma;

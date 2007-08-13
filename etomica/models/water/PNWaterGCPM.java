@@ -6,6 +6,7 @@ import etomica.atom.AtomSet;
 import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.potential.PotentialN;
+import etomica.potential.PotentialPolarizable;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -21,7 +22,7 @@ import etomica.util.Arrays;
  * 
  * @author Ken
  */
-public class PNWaterGCPM extends PotentialN {
+public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
 
     public PNWaterGCPM(Space space) {
 	    super(space);
@@ -249,28 +250,45 @@ public class PNWaterGCPM extends PotentialN {
             
         }
         
-        myEq.timesEquals(alphaPol);
+        //x here represents P (almost).
+        //For x to be P, the A of the Ax=b actually needs an extra factor of
+        //alphaPol.  We'll add that bit in when we calculate UpolAtkins.  
 
-        Matrix x2 = myA.solve(myEq);
+        Matrix x = myA.solve(myEq);
 
-        myEq.timesEquals(1/alphaPol);
-        
-        double UpolAtkins = -0.5*(x2.transpose().times(myEq)).get(0,0);
+        if (false) {
+            // this is (mathematically) what we want.  But Jama is slow.
+            UpolAtkins = -0.5*(x.transpose().times(myEq)).get(0,0)*alphaPol;
+        }
+        else {
+            UpolAtkins = 0;
+            for (int i=0; i<3*atomCount; i++) {
+                UpolAtkins += x.get(i,0)*myEq.get(i,0);
+            }
+            UpolAtkins *= -0.5*alphaPol;
+        }
 
         // only needed for more complicated Eq8 from Cummings paper 
-        if (true) {
+        if (false) {
             
-            Matrix Ep = myA.times(x2).minus(x2);
+            // for the sake of clarity (over perf), just multiply x by alphaPol
+            // (see comment above about A lacking alphaPol)
+            x.timesEquals(alphaPol);
+            Matrix Ep = myA.times(x).minus(x);
             Ep.timesEquals(-1/alphaPol);
 
-            double x2NormF = x2.normF();
-            double UpolEquation8 = 2*UpolAtkins -0.5*(x2.transpose().times(Ep).get(0,0))+(0.5/alphaPol)*(x2NormF*x2NormF);
+            double x2NormF = x.normF();
+            double UpolEquation8 = 2*UpolAtkins -0.5*(x.transpose().times(Ep).get(0,0))+(0.5/alphaPol)*(x2NormF*x2NormF);
 
             if (Math.abs(UpolAtkins-UpolEquation8) > 1.e-6) {
                 throw new RuntimeException("oops "+UpolAtkins+" "+UpolEquation8);
             }
         }
         
+        return UpolAtkins;
+    }
+    
+    public double getLastPolarizationEnergy() {
         return UpolAtkins;
     }
 
@@ -301,4 +319,5 @@ public class PNWaterGCPM extends PotentialN {
     private final double sqrtPiHMsigmas;
     private final double sqrtPiMMsigmas;
     private final double alphaPol;
+    private double UpolAtkins;
 }
