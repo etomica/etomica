@@ -44,7 +44,9 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     }
     
     public ClusterAbstract makeCopy() {
-        return new ClusterSumPolarizable(clusters,clusterWeights,f);
+        ClusterSumPolarizable copy = new ClusterSumPolarizable(clusters,clusterWeights,f);
+        copy.setTemperature(1/beta);
+        return copy;
     }
 
     public double value(BoxCluster box) {
@@ -121,7 +123,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                     	
                     	scfAtoms234.add(aPairs.getAPair(i,j).getAtom(1));
                     	
-                    	u12Pol = scfPotential.getPolarizationEnergy();
+                    	u12Pol = scfPotential.getLastPolarizationEnergy();
 
                     }
                     if (i==0 && j==2 && k==0) {
@@ -144,7 +146,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                     	scfAtoms123.add(aPairs.getAPair(i,j).getAtom(1));
                     	scfAtoms134.add(aPairs.getAPair(i,j).getAtom(1));
                     	scfAtoms234.add(aPairs.getAPair(i,j).getAtom(1));
-                    	u13Pol = scfPotential.getPolarizationEnergy();
+                    	u13Pol = scfPotential.getLastPolarizationEnergy();
                     }
                     if (i==1 && j==2 && k==0) {
 //                        	Atom thirdAtom = aPairs.getAPair(i,j).getAtom(0);
@@ -157,7 +159,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     //                  		System.out.println("O2-O3 distance = " + rO2O3 + ", u23 = " + u23);
                       	}
 */
-                    	u23Pol = scfPotential.getPolarizationEnergy();
+                    	u23Pol = scfPotential.getLastPolarizationEnergy();
                     }
                     
                     if (i==0 && j==3 && k==0) {
@@ -249,8 +251,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     		else {
     		// Get a handle on the list of atoms from the AtomPairSet
     			
-    			u123 = ((Potential)scfPotential).energy(scfAtoms);
-    			double u123Pol = scfPotential.getPolarizationEnergy();
+    			double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
     			 //This conditional handles the case when the triplet energy does
     			 //not quite agree with the dimer energy, for the case where the third
     			 //water molecule is 1000 angstroms of farther away (see code in 
