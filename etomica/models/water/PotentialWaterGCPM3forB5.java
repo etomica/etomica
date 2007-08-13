@@ -226,10 +226,9 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
          * kmb, 8/7/06
          */
         
-        double r12 = Math.sqrt(comW1.Mv1Squared(comW2));
-
         r12Vector.Ev1Mv2(comW2,comW1);  // is this the correct direction? kmb, 8/7/06
         
+        double r12 = Math.sqrt(r12Vector.squared());
 
         double f = (1-SpecialFunctions.erfc(r12/(2*sigmaM)))-(r12/(sigmaM*Math.sqrt(Math.PI)) + (r12*r12*r12)/(6*Math.sqrt(Math.PI)*sigmaM*sigmaM*sigmaM))*Math.exp(-r12*r12/(4*sigmaM*sigmaM));
         
@@ -318,6 +317,7 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
             
             Ep1.E(T12P2);
             Ep2.E(T12P1);
+            
             double UpolEquation8 = -(P1.dot(Eq1)+P2.dot(Eq2))-0.5*(P1.dot(Ep1)+P2.dot(Ep2))+(0.5/alphaPol)*(P1.squared()+P2.squared());
 
             if (Math.abs(UpolAtkins-UpolEquation8) > 1.e-6) {
@@ -616,13 +616,13 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
          * kmb, 8/9/06
          */
         
-        double r12 = Math.sqrt(comW1.Mv1Squared(comW2));
-        double r13 = Math.sqrt(comW1.Mv1Squared(comW3));
-        double r23 = Math.sqrt(comW2.Mv1Squared(comW3));
-        
         r12Vector.Ev1Mv2(comW1,comW2);  // is this the correct direction? kmb, 8/7/06 / Direction doesn't matter; kmb, 8/10/06
         r13Vector.Ev1Mv2(comW1,comW3);  // is this the correct direction? kmb, 8/7/06 / Direction doesn't matter; kmb, 8/10/06
         r23Vector.Ev1Mv2(comW2,comW3);  // is this the correct direction? kmb, 8/7/06 / Direction doesn't matter; kmb, 8/10/06
+        
+        double r12 = Math.sqrt(r12Vector.squared());
+        double r13 = Math.sqrt(r13Vector.squared());
+        double r23 = Math.sqrt(r23Vector.squared());
         
         double f12 = (1-SpecialFunctions.erfc(r12/(2*sigmaM)))-(r12/(sigmaM*Math.sqrt(Math.PI)) + (r12*r12*r12)/(6*Math.sqrt(Math.PI)*sigmaM*sigmaM*sigmaM))*Math.exp(-r12*r12/(4*sigmaM*sigmaM));
         double f13 = (1-SpecialFunctions.erfc(r13/(2*sigmaM)))-(r13/(sigmaM*Math.sqrt(Math.PI)) + (r13*r13*r13)/(6*Math.sqrt(Math.PI)*sigmaM*sigmaM*sigmaM))*Math.exp(-r13*r13/(4*sigmaM*sigmaM));
@@ -821,7 +821,6 @@ public class PotentialWaterGCPM3forB5 extends Potential2 implements Potential2So
                 throw new RuntimeException("oops "+UpolAtkins+" "+UpolEquation8);
             }
         }
-        
         
         /*
          * Here is where I need to add the polarization term to the energy sum.
