@@ -78,6 +78,9 @@ public class MCMoveManager implements Serializable {
         }
         for (MCMoveLinker link = firstMoveLink; link.nextLink != null; link = link.nextLink) {
             if (move == link.nextLink.move) {
+                if (link.nextLink == lastMoveLink) {
+                    lastMoveLink = link;
+                }
                 link.nextLink = link.nextLink.nextLink;
                 moveCount--;
                 recomputeMoveFrequencies();
