@@ -325,6 +325,11 @@ public final class Standard {
         return 0.013046*b0*b0*b0*b0*b0*b0;
     }
     
+    public static double B8HS(double sigma) {
+        double b0 = B2HS(sigma);
+        return 0.004164*b0*b0*b0*b0*b0*b0*b0;
+    }
+    
     public static double B2SW(double sigma, double lambda, double ekT) {
         if (lambda < 1) {
             return B2HS(sigma);
