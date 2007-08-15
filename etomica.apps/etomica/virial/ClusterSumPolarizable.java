@@ -140,10 +140,9 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 
         for(int i=0; i<clusters.length; i++) {
             //System.out.println("clusters.length = " + clusters.length);
-        		// clusters.length = 1 for B3
-        		double v = clusters[i].value(fValues);
+            // clusters.length = 1 for B3
+            double v = clusters[i].value(fValues);
             value += clusterWeights[i] * v;
-            System.out.println("v "+i+" "+value+" " + v+" "+clusterWeights[i]);
             //System.out.println("value = " + value);
             //System.out.println("clusterWeights[i] = " + clusterWeights[i]);
         }
