@@ -222,7 +222,6 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 				        -(Math.exp(-beta*deltaU124)-1)*g12*g14*g24*(g13+g23+g34-2)
 				        -(Math.exp(-beta*deltaU134)-1)*g13*g14*g34*(g12+g23+g24-2)
 				        -(Math.exp(-beta*deltaU234)-1)*g23*g24*g34*(g12+g13+g14-2);
-				System.out.println("deltaD "+deltaD);
 
         				// Mason and Spurling book deltaD; 5/11/07
 
