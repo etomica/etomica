@@ -60,9 +60,9 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
     public double energy(AtomSet atoms){
         double sum = 0;
         for (int i=0; i<atoms.getAtomCount()-1; i++) {
-            pair.atom0 = atoms.getAtom(0);
+            pair.atom0 = atoms.getAtom(i);
             for (int j=i+1; j<atoms.getAtomCount(); j++) {
-                pair.atom1 = atoms.getAtom(1);
+                pair.atom1 = atoms.getAtom(j);
                 sum += getNonPolarizationEnergy(pair);
                 if (Double.isInfinite(sum)) {
                     return sum;
