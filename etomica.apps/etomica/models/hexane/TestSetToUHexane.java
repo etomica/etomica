@@ -4,9 +4,14 @@ package etomica.models.hexane;
  * @author cribbin
  */
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomGroup;
+import etomica.atom.AtomLeaf;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.AtomsetArrayList;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
@@ -24,7 +29,7 @@ import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.action.Action;
+import etomica.space3d.Vector3D;
 
 public class TestSetToUHexane extends Simulation {
 
@@ -46,7 +51,12 @@ public class TestSetToUHexane extends Simulation {
     public MCMoveMoleculeCoupled coupledMove;
     public MCMoveCombinedCbmcTranslation cctMove;
     
-    double[] oldLoc;
+    
+    Vector3D[] oldX;
+    Vector3D[] newX;
+    double[] oldUs;
+    int chainLength;
+    AtomIteratorLeafAtoms iterator;
     
     TestSetToUHexane(Space space){
         super(space, false);
@@ -56,7 +66,7 @@ public class TestSetToUHexane extends Simulation {
         int xCells = 1; 
         int yCells = 1;
         int zCells = 1;
-        int chainLength = 6;
+        chainLength = 6;
         int nA = xCells * yCells * zCells * chainLength;
         double dens = 0.373773507616;
         prim = new PrimitiveHexane(this.getSpace());
@@ -73,7 +83,17 @@ public class TestSetToUHexane extends Simulation {
         cdHex = new CoordinateDefinitionHexane(box, prim, species);
         cdHex = new CoordinateDefinitionHexane(box, prim, species);
         cdHex.initializeCoordinates(nCells);
-        oldLoc = new double[cdHex.getCoordinateDim()];
+        oldUs = new double[cdHex.getCoordinateDim()];
+        
+        oldX = new Vector3D[chainLength];
+        newX = new Vector3D[chainLength];
+        for(int i = 0; i < chainLength; i++){
+            oldX[i] = new Vector3D();
+            newX[i] = new Vector3D();
+        }
+    
+        iterator = new AtomIteratorLeafAtoms(box);
+        iterator.reset();
         
         PotentialMaster potentialMaster = new PotentialMaster(space);
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
@@ -144,6 +164,58 @@ public class TestSetToUHexane extends Simulation {
         integrator.setBox(box);
     }
     
+    
+    public void runit(){
+
+        int nsteps = chainLength * 100;
+            
+        //Store old positions
+        AtomSet aal = ((AtomGroup)box.molecule(0)).getChildList();
+        AtomsetArrayList list = new AtomsetArrayList();
+        list.setAtoms(aal);
+        
+        for(int i = 0; i < chainLength; i++){
+            oldX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
+        }
+           
+        for(int counter = 0; counter < nsteps; counter++){    
+           //Calculate the u's that correspond to the old positions. 
+           oldUs = cdHex.calcU(box.getAgent(species).getChildList());
+            
+            //nan MAKE A BUNCH OF MOVES HERE
+            for(int i = 0; i < chainLength*2; i++){
+                integrator.doStepInternal();
+            }
+            
+            //Store the current positions for later use.
+            for(int i = 0; i < chainLength; i++){
+                newX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
+            }
+            
+            //Move the molecules to the old positions, using u's
+            cdHex.setToU(box.getAgent(species).getChildList(), oldUs);
+        
+            //Compare the old and new positions.
+            double tol = 0.0000005;
+            for(int i = 0; i < chainLength; i++) {
+                newX[i].ME(oldX[i]);
+                newX[i].squared();
+                for(int j = 0; j < 3; j++){
+                    if(newX[i].x(j) > tol){
+                        System.out.println("Not in the tolerance!!");
+                    }
+                }
+            }
+            
+            //Move the new positions to the old positions and repeat. 
+            for(int i = 0; i < chainLength; i++){
+                newX[i].E(oldX[i]);
+            } 
+        }
+                
+        System.out.println("Zoinks!");
+    }
+    
     public static void main(String[] args) {
 
         TestSetToUHexane sim = new TestSetToUHexane(Space3D.getInstance());
@@ -153,24 +225,25 @@ public class TestSetToUHexane extends Simulation {
             SimulationGraphic simGraphic = new SimulationGraphic(sim);
             simGraphic.makeAndDisplayFrame();
         } else {
-        
-            
+            sim.runit();
         }
     }
     
-    
-
-    
-    
-    
 }
-class Compare implements etomica.action.Action {
     
-    Compare(){
-        
-    }
-    
-    public void actionPerformed(){
-        
-    }
-}
+//    
+//
+//    
+//    
+//    
+//
+//class Compare implements etomica.action.Action {
+//    
+//    Compare(){
+//        
+//    }
+//    
+//    public void actionPerformed(){
+//        
+//    }
+//}

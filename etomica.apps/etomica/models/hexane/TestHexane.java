@@ -229,7 +229,7 @@ public class TestHexane extends Simulation {
                 yLng = Integer.parseInt(args[4]);
                 zLng = Integer.parseInt(args[5]);
             }
-            filename = filename + nSteps + "_" + den*100 + "_" + xLng 
+            filename = filename + nSteps + "_" + (int)(den*100) + "_" + xLng 
                 + "_" + yLng + "_" + zLng;
             
             System.out.println(filename);
