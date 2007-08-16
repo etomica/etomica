@@ -144,7 +144,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             double v = clusters[i].value(fValues);
             value += clusterWeights[i] * v;
             //System.out.println("value = " + value);
-            //System.out.println("clusterWeights[i] = " + clusterWeights[i]);
+            //System.out.println("clusterWeights["+i+"] = " + clusterWeights[i]);
         }
         
 		if (nPoints == 3) {
@@ -242,7 +242,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 	        			// deltaD has to be multiplied by weightPrefactor from Standard class, just like deltaC was multiplied by
 	        			// clusterWeights above to get value; note, for B3 clusterWeights = weightPrefactor
         				
-				deltaD = deltaD*(-32.0);  //XXX - IS THIS DIFFERENT NOW?; KMB, 7/27/07  -32 is value of weightPrefactor in Standard for a B4 calc
+				deltaD = -0.125*deltaD;  //XXX - IS THIS DIFFERENT NOW?; KMB, 7/27/07  -32 is value of weightPrefactor in Standard for a B4 calc
 			}
         			
 			value += deltaD;
