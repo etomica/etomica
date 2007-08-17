@@ -193,8 +193,11 @@ public class TestSetToUHexane extends Simulation {
             }
             
             //Move the molecules to the old positions, using u's
-            cdHex.setToU(box.getAgent(species).getChildList(), oldUs);
+//            cdHex.setToU(box.getAgent(species).getAtomManager().getLeafList(), 
+//                    oldUs);
         
+            cdHex.setToU(((AtomGroup)box.getAgent(species).getChildList().getAtom(0)).getChildList(), oldUs);
+            
             //Compare the old and new positions.
             double tol = 0.0000005;
             for(int i = 0; i < chainLength; i++) {
