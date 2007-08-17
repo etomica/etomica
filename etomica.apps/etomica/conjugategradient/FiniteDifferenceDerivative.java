@@ -47,9 +47,10 @@ public class FiniteDifferenceDerivative {
 		forceSum.setAgentManager(agentManager);
 	}
 	
-	public double finiteDerivative(fFunction function, IVector x, double h){
+	public double[] finiteDerivative(fFunction function, double[] u, double h){
 		
-		double dfridr=1; //for the moment
+		int coordinateDim = 48;
+		double[] dfridr = new double[coordinateDim]; 
 		int ntab = 10;
 		double con = 1.4;
 		double con2 = con*con;
@@ -57,33 +58,52 @@ public class FiniteDifferenceDerivative {
 		double safe = 2.0;
 		
 		double errt, fac, hh;
-		double[][] a = new double[ntab][ntab];
-		
+		double[][][] a = new double[ntab][ntab][coordinateDim];
+		double[] uPlus = new double[coordinateDim];
+		double[] uMinus = new double[coordinateDim];
 		
 		hh = h;
-		// a[0][0] = (function(x+hh)-function(x-hh))/(2.0*hh)
-		double err = big;
 		
-		for(int i=1; i<ntab; i++){
-			hh = hh /con;
-			// a[0][i] = (function(x+hh)-function(x-hh))/(2.0*hh)
-			fac = con2;
+		for (int p=0; p<coordinateDim; p++){  //loop over the p-th second derivatives
 			
-			for(int j=1; j<i; j++){
-				a[j][i] = (a[j-1][i]*fac - a[j-1][i-1])/(fac-1);
-				fac = con2*fac;
-				errt = Math.max(Math.abs(a[j][i]-a[j-1][i]), Math.abs(a[j][i]-a[j-1][i-1]));
+			for(int q=0; q<coordinateDim; q++){ // loop over the q-th generalized coordinate
+				if(q==p){
+					uPlus[q] = uPlus[q] + hh;
+					uMinus[q] = uMinus[q] - hh;
+				} else
+					uPlus[q] = u[q];
+					uMinus[q] = u[q];
+			}
+		
+			a[0][0][p]= (function.fPrime(box.getLeafList(), uPlus)[p] - function.fPrime(box.getLeafList(), uMinus)[p])/(2.0*hh);
+		
+			int i, j=1; //caution with j=1!!!!
+			double err = big;
+			
+			for(i=1; i<ntab; i++){
+				hh = hh /con;
+				a[0][i][p] = (function.fPrime(box.getLeafList(), uPlus)[p] - function.fPrime(box.getLeafList(), uMinus)[p])/(2.0*hh);
+				fac = con2;
 				
-				if (errt <= err){
-					err = errt;
-					dfridr = a[j][i];
+				for(j=1; j<i; j++){
+					a[j][i][p] = (a[j-1][i][p]*fac - a[j-1][i-1][p])/(fac-1);
+					fac = con2*fac;
+					errt = Math.max(Math.abs(a[j][i][p]-a[j-1][i][p]), Math.abs(a[j][i][p]-a[j-1][i-1][p]));
+					
+					if (errt <= err){
+						err = errt;
+						dfridr[p] = a[j][i][p];
+					}
+				}
+				
+				if (Math.abs(a[i][i][0]-a[i-1][i-1][0]) >= safe*err){
+					dfridr[p] = a[j][i][p];
 				}
 			}
 			
-			if (Math.abs(a[i][i]-a[i-1][i-1]) >= safe*err){
-				return dfridr;
-			}
-		}
+			dfridr[p] = a[j][i][p];
+		
+		} //end of looping p
 		
 		return dfridr;
 	}

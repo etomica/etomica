@@ -16,8 +16,7 @@ import etomica.space.Space;
 public class fFunction {
 
 	/*
-	 * This class is developed to calculate for the first and second
-	 * derivative of energy function.
+	 * This class is developed to calculate for the first derivative of energy function.
 	 * 
 	 * @author Tai Tan
 	 */
@@ -39,7 +38,6 @@ public class fFunction {
 		allAtoms = new IteratorDirective();
 		forceSum = new PotentialCalculationForceSum();
 		
-		
 		MyAgentSource source = new MyAgentSource(box.getSpace());
 		agentManager = new AtomAgentManager(source, box);
 		forceSum.setAgentManager(agentManager);
@@ -53,14 +51,15 @@ public class fFunction {
 	}
 	
 	
-	public double[] fPrime(AtomSet molecules){
+	public double[] fPrime(AtomSet molecules, double[] newU){
 		
-		forceSum.reset();
 		/*
 		 * Index is assigned to be the number of molecules in a box
 		 * fPrime[number]; number equals the degree of freedom, 
 		 * 	where dx, dy, and dz to each molecule
 		 */
+		
+		forceSum.reset();
 		
 		double[] fPrime = new double [coordinateDim];
 		
@@ -68,43 +67,25 @@ public class fFunction {
 		potentialMaster.calculate(box, allAtoms, forceSum);
 		
 		for (int m=0; m<molecules.getAtomCount(); m++){
+			
 			if (m==0){
 				for (int k=0;k<3;k++){
 					fPrime[j+k] = 0;
 				}
-			} else {
 				
-				for (int k=0; k<3; k++){
-					fPrime[j+k] =((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecules.getAtom(m)))
-							.force.x(k);
-				}
+			} else
+				
+			for (int k=0; k<3; k++){
+				fPrime[j+k] = ((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecules.getAtom(m)))
+							   .force.x(k);
 			}
-			j+=coordinateDim /molecules.getAtomCount();
+		
+			j += coordinateDim /molecules.getAtomCount();
 		}
+		
 		return fPrime;
 	}
 	
-	/*
-	 * There are 6 modes; with 8 molecules within a cell
-	 * for 2-D array, it will be a 48 X 48 matrix
-	 * 
-	 */
-
-	
-	public double[][] fDoublePrime(AtomSet molecules, double[] newU){
-		double[][] fDoublePrime = new double [coordinateDim][coordinateDim]; 
-		
-		//loop over the molecules within the cell
-		
-		for (int p=0; p<molecules.getAtomCount(); p++){
-		
-			for(int q=0; q<coordinateDim; q++){
-				
-				fDoublePrime[p][q] = fPrime(molecules)[q];
-			}
-		}
-		return fDoublePrime;
-	}
 	
 	public static class MyAgentSource implements AgentSource{
 		
