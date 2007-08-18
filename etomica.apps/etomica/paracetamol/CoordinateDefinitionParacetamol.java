@@ -367,6 +367,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         for (int i=0; i < molecules.getAtomCount() ; i++){
         	
         	IAtomGroup molecule = (IAtomGroup)molecules.getAtom(i);
+        	
             IVector3D[] siteOrientation = (IVector3D[])orientationManager.getAgent(molecule);
 	    	
             IVector pos = molecule.getType().getPositionDefinition().position(molecule);
