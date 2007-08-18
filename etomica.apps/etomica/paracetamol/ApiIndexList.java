@@ -21,8 +21,6 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 
 public class ApiIndexList implements AtomsetIteratorBasisDependent {
 
-	
-	
 	/**
      * Constructs iterator without defining atoms in pair.
      */

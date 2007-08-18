@@ -1,5 +1,12 @@
 package etomica.paracetamol;
 
+/*
+ *  This class contains all the atoms for paracetamol molecule
+ *  Each atoms in the paracetamol molecules is assigned with a specific e-charge
+ *  
+ *  @author Tai Tan
+ */
+
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;

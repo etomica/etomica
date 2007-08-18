@@ -11,6 +11,8 @@ import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 
 /**
+ * Atomset Iterator that iterates over set-of-four atoms
+ * 
  * @author Tai Tan
  */
 

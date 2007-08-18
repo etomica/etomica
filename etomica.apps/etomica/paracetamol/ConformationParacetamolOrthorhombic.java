@@ -7,7 +7,7 @@ import etomica.config.Conformation;
 import etomica.space.Space;
 
 /*
- *  Geometry of Published Paracetamol Molecule
+ *  Geometry of Published Paracetamol Molecule (Orthorhombic)
  * 
  * @author Tai Tan
  */

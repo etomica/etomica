@@ -318,7 +318,9 @@ public class MCParacetamolMonoclinic extends Simulation {
     public static void main(String[] args) {
     	int numMolecules = 96;
         etomica.paracetamol.MCParacetamolMonoclinic sim = new etomica.paracetamol.MCParacetamolMonoclinic(numMolecules);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME,1);
+        Pixel pixel = new Pixel(10);
+        simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
         //sim.getController().actionPerformed();
         
    /*****************************************************************************/    

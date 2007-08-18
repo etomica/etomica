@@ -129,12 +129,18 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
             	t.setComponent(i, i, basisOrientation[ii[3]][i]);
             }
         	
+            /*
+             * Take out these 2 lines for MCMoveHarmonic
+             */
         	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
             atomGroupAction.actionPerformed(a);
             
             position.E((IVector)lattice.site(ii));
             position.PE(offset);
             
+            /*
+             * Take out these 2 lines for MCMoveHarmonic
+             */
             atomActionTranslateTo.setDestination(position);
             atomActionTranslateTo.actionPerformed(a);
 
@@ -365,10 +371,6 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	
             IVector pos = molecule.getType().getPositionDefinition().position(molecule);
             
-            for (int k=0; k< molecule.getChildList().getAtomCount(); k++){
-            	((IAtomPositioned)molecule.getChildList().getAtom(k)).getPosition().ME(pos);
-            }
-          
 	    	/*
 	    	 *   STEP 1
 	    	 * 

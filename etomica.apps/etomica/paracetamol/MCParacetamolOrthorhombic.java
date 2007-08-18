@@ -320,7 +320,9 @@ public class MCParacetamolOrthorhombic extends Simulation {
     public static void main(String[] args) {
     	int numMolecules = 192;
         etomica.paracetamol.MCParacetamolOrthorhombic sim = new etomica.paracetamol.MCParacetamolOrthorhombic(numMolecules);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME,1);
+        Pixel pixel = new Pixel(10);
+        simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
         //sim.getController().actionPerformed();
         
    /*****************************************************************************/    

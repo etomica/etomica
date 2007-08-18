@@ -74,9 +74,8 @@ public class SimCalcSParacetamolEquilibration extends Simulation {
         writeConfig.setDoApplyPBC(false);
         writeConfig.actionPerformed();
         
-        
-
     }
+    
     public PotentialMaster potentialMaster;
     private static final long serialVersionUID = 1L;
 }
