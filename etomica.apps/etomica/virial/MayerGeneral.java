@@ -20,7 +20,15 @@ public class MayerGeneral implements MayerFunction, java.io.Serializable {
 	}
 
 	public double f(AtomSet pair, double beta) {
-		return Math.exp(-beta*potential.energy(pair)) - 1.0;
+	    double betaU = beta*potential.energy(pair);
+	    if (Math.abs(betaU) < 1.e-8) {
+	        // for small betaU, exp(-betaU)-1 ~= -betaU
+	        // for betaU < 1E-8, the approximation is value within machine precision
+	        // for betaU < 1E-15, exp(-betaU) is 1, so the approximation is more accurate
+	        //   than simply doing the math.
+	        return -betaU;
+	    }
+		return Math.exp(-betaU) - 1.0;
 	}
 
 	private final IPotential potential;
