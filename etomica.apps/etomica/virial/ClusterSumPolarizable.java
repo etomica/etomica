@@ -163,7 +163,19 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 
     			//deltaC = Math.exp(-beta*u123) - Math.exp(-beta*(u12 + u13 + u23));
     			double deltau123 = u123Pol-(u12Pol+u13Pol+u23Pol);
-    			deltaC = (Math.exp(-beta*deltau123)-1)*Math.exp(-beta*(u12 + u13 + u23));       
+    	        double betaU123 = beta*deltau123;
+    	        double expBetaU123;
+    	        if (Math.abs(betaU123) < 1.e-8) {
+    	            // for small x, exp(-x)-1 ~= -x
+    	            // for x < 1E-8, the approximation is value within machine precision
+    	            // for x < 1E-15, exp(-x) is 1, so the approximation is more accurate
+    	            //   than simply doing the math.
+    	            expBetaU123 = -betaU123;
+    	        }
+    	        else {
+    	            expBetaU123 = Math.exp(-beta*deltau123)-1;
+    	        }
+    			deltaC = expBetaU123*Math.exp(-beta*(u12 + u13 + u23));       
     			
     			// deltaC has to be multiplied by clusterWeights, just like v was multiplied by
     			// clusterWeights above to get value
