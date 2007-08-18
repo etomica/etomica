@@ -2,30 +2,16 @@ package etomica.paracetamol;
 
 import java.io.Serializable;
 
-import etomica.action.Activity;
-import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
-import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntegratorHardField.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space3d.IVector3D;
 
 public class fFunctionParacetamol extends etomica.conjugategradient.fFunction implements Serializable{
-	
-	protected Box box;
-	protected MeterPotentialEnergy meterEnergy;
-	protected PotentialMaster potentialMaster;
-	protected IteratorDirective allAtoms;
-	protected PotentialCalculationForceSum forceSum;
-	protected AtomAgentManager agentManager;
-	protected Activity activity;
-	protected int coordinateDim;
 	
 	public fFunctionParacetamol(Box box, PotentialMaster potentialMaster){
 		super(box, potentialMaster);
@@ -37,7 +23,16 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 		d      = new IVector3D[20];
 		torque = new IVector3D[20];
 		torqueF= new IVector3D[20];
+		for (int i=0; i<20; i++){
+			d[i]      = (IVector3D)box.getSpace().makeVector();
+			torque[i] = (IVector3D)box.getSpace().makeVector();
+			torqueF[i]= (IVector3D)box.getSpace().makeVector();
+		}
 		torqueSum = new IVector3D[8]; // only looking at one cell
+		for (int i=0; i<8; i++){
+			torqueSum[i]= (IVector3D)box.getSpace().makeVector();
+		}
+		
 	}
 	
 	public double f(){
@@ -45,19 +40,22 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 		return meterEnergy.getDataAsScalar();
 	}
 	
-	public double[] fPrime(AtomSet molecules, double[] u){ 
+	public double[] fPrime(double[] u){ 
 		
 		/*
 		 * u is the generalized coordinate
 		 */
 		
-		
 		// u = the position with delta or the specified position
 		// need to call setToU with the u values
 		
-		coordDef.setToU(molecules,u);
+		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
+			
+			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			coordinateDefinition.setToU(molecules,u);
+		}
 		
-		double[] fPrime = super.fPrime(molecules, u);
+		double[] fPrime = super.fPrime(u);
 		
 		forceSum.reset();
 	
@@ -66,6 +64,7 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 		 * 	where we have 6 generalized coordinates: 3 modes on translation and 3 on rotation for each molecule
 		 *  
 		 */
+		AtomSet molecules = coordinateDefinition.getBasisCells()[0].molecules;
 		
 		int j=3;
 		
@@ -146,7 +145,7 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 					deltaV.XE(rotationAxis);
 					deltaV.normalize();
 				
-					double scalarF = ((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecules.getAtom(q))).force()
+					double scalarF = ((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecule.getChildList().getAtom(q))).force()
 										.dot(deltaV);
 					torqueF[q].Ea1Tv1(scalarF, deltaV);
 					torque[q].E(d[q]);                         // torque = d X F
@@ -160,7 +159,7 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 				
 			 }
 			
-			 j += coordinateDim/molecules.getAtomCount();
+			 j += coordinateDefinition.getCoordinateDim()/molecules.getAtomCount();
 		}
 		
 		return fPrime;
@@ -170,6 +169,5 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 	protected final IVector3D a, aProj;
 	protected final IVector3D v, deltaV;
 	protected final IVector3D [] d, torque, torqueF, torqueSum;
-	public CoordinateDefinitionParacetamol coordDef;
 	private static final long serialVersionUID = 1L;
 }

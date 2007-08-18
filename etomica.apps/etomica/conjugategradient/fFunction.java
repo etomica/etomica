@@ -9,7 +9,8 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntegratorHardField.PotentialCalculationForceSum;
+import etomica.normalmode.CoordinateDefinition;
+import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
 
@@ -28,12 +29,12 @@ public class fFunction {
 	protected PotentialCalculationForceSum forceSum;
 	protected AtomAgentManager agentManager;
 	protected Activity activity;
-	protected int coordinateDim;
+	protected CoordinateDefinition coordinateDefinition;
+	protected double[] fPrime;
 	
 	public fFunction(Box box, PotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
-		this.coordinateDim = 48;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
 		allAtoms = new IteratorDirective();
 		forceSum = new PotentialCalculationForceSum();
@@ -41,6 +42,7 @@ public class fFunction {
 		MyAgentSource source = new MyAgentSource(box.getSpace());
 		agentManager = new AtomAgentManager(source, box);
 		forceSum.setAgentManager(agentManager);
+		
 		/*
 		 * Dimensions of a study system is three-times the number of atoms
 		 */
@@ -50,8 +52,16 @@ public class fFunction {
 		return meterEnergy.getDataAsScalar();
 	}
 	
+	public CoordinateDefinition getCoordinateDefinition(){
+		return coordinateDefinition;
+	}
 	
-	public double[] fPrime(AtomSet molecules, double[] newU){
+	public void setCoordinateDefinition (CoordinateDefinition coordinateDefinition){
+		this.coordinateDefinition = coordinateDefinition;
+		fPrime = new double[coordinateDefinition.getCoordinateDim()];
+	}
+	
+	public double[] fPrime(double[] newU){
 		
 		/*
 		 * Index is assigned to be the number of molecules in a box
@@ -61,10 +71,10 @@ public class fFunction {
 		
 		forceSum.reset();
 		
-		double[] fPrime = new double [coordinateDim];
-		
 		int j=0;
 		potentialMaster.calculate(box, allAtoms, forceSum);
+		
+		AtomSet molecules = coordinateDefinition.getBasisCells()[0].molecules;
 		
 		for (int m=0; m<molecules.getAtomCount(); m++){
 			
@@ -80,7 +90,7 @@ public class fFunction {
 							   .force.x(k);
 			}
 		
-			j += coordinateDim /molecules.getAtomCount();
+			j += coordinateDefinition.getCoordinateDim() /molecules.getAtomCount();
 		}
 		
 		return fPrime;

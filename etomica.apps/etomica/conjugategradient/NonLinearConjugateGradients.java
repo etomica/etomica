@@ -30,14 +30,12 @@ public class NonLinearConjugateGradients {
 	protected PotentialCalculationForceSum forceSum;
 	protected AtomAgentManager agentManager;
 	protected Activity activity;
-	protected int coordinateDim;
 	protected FiniteDifferenceDerivative fDoublePrime;
 	
 	
 	public NonLinearConjugateGradients(Box box, PotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
-		this.coordinateDim = 48;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
 		allAtoms = new IteratorDirective();
 		forceSum = new PotentialCalculationForceSum();
@@ -62,11 +60,14 @@ public class NonLinearConjugateGradients {
 		
 		double deltaNew = 0;
 		
+		int coordinateDim = u.length;
+		double[] fPrimeVal = function.fPrime(u);
+		
 		double[] r = new double[coordinateDim]; 
 		double[] d = new double[coordinateDim];
 		
 		for (n=0; n<coordinateDim; n++){
-			r[n] = - function.fPrime(box.getLeafList(), u)[n];
+			r[n] = - fPrimeVal[n];
 			d[n] = r[n];
 			
 			deltaNew += r[n]*r[n];
@@ -81,11 +82,14 @@ public class NonLinearConjugateGradients {
 			double alpha_num = 0;
 			double alpha_denom = 0;
 			
+			fPrimeVal = function.fPrime(u); 
+			double[] fDoublePrimeVal = fDoublePrime.finiteDerivative(function, u, 0.001, false);
+			
 			for(n=0; n<coordinateDim; n++){
 				deltad += d[n]*d[n];
 				
-				alpha_num += - function.fPrime(box.getLeafList(), u)[n]*d[n];
-				alpha_denom += d[n]*fDoublePrime.finiteDerivative(function, u, 0.001)[n]*d[n];
+				alpha_num += - fPrimeVal[n]*d[n];
+				alpha_denom += d[n]*fDoublePrimeVal[n]*d[n];
 			}
 			
 			double alpha = alpha_num /alpha_denom;
@@ -101,8 +105,9 @@ public class NonLinearConjugateGradients {
 			while(j<jmax && alpha2_deltad > epsilon2){
 				double deltaOld=0;
 				
+				fPrimeVal = function.fPrime(u);
 				for(n=0; n<coordinateDim; n++){
-					r[n] = - function.fPrime(box.getLeafList(), u)[n];
+					r[n] = - fPrimeVal[n];
 					deltaOld = deltaNew;
 					
 					deltaNew += r[n]*r[n];

@@ -2,6 +2,7 @@ package etomica.conjugategradient;
 
 import etomica.action.Activity;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -35,6 +36,7 @@ public class FiniteDifferenceDerivative {
 	protected double delta;
 	protected double error;
 	
+	
 	public FiniteDifferenceDerivative(Box box, PotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
@@ -47,7 +49,7 @@ public class FiniteDifferenceDerivative {
 		forceSum.setAgentManager(agentManager);
 	}
 	
-	public double[] finiteDerivative(fFunction function, double[] u, double h){
+	public double[] finiteDerivative(fFunction function, double[] u, double h, boolean hOptimizer){
 		
 		int coordinateDim = 48;
 		double[] dfridr = new double[coordinateDim]; 
@@ -70,22 +72,27 @@ public class FiniteDifferenceDerivative {
 				if(q==p){
 					uPlus[q] = uPlus[q] + hh;
 					uMinus[q] = uMinus[q] - hh;
-				} else
+				} else {
 					uPlus[q] = u[q];
 					uMinus[q] = u[q];
+				}
 			}
 		
-			a[0][0][p]= (function.fPrime(box.getLeafList(), uPlus)[p] - function.fPrime(box.getLeafList(), uMinus)[p])/(2.0*hh);
+			a[0][0][p]= (function.fPrime(uPlus)[p] - function.fPrime(uMinus)[p])/(2.0*hh);
 		
-			int i, j=1; //caution with j=1!!!!
+			if (!hOptimizer) {
+				dfridr[p] = a[0][0][p];
+				continue;
+			}
+			
 			double err = big;
 			
-			for(i=1; i<ntab; i++){
+			for(int i=1; i<ntab; i++){
 				hh = hh /con;
-				a[0][i][p] = (function.fPrime(box.getLeafList(), uPlus)[p] - function.fPrime(box.getLeafList(), uMinus)[p])/(2.0*hh);
+				a[0][i][p] = (function.fPrime(uPlus)[p] - function.fPrime(uMinus)[p])/(2.0*hh);
 				fac = con2;
 				
-				for(j=1; j<i; j++){
+				for(int j=1; j<i; j++){
 					a[j][i][p] = (a[j-1][i][p]*fac - a[j-1][i-1][p])/(fac-1);
 					fac = con2*fac;
 					errt = Math.max(Math.abs(a[j][i][p]-a[j-1][i][p]), Math.abs(a[j][i][p]-a[j-1][i-1][p]));
@@ -97,11 +104,9 @@ public class FiniteDifferenceDerivative {
 				}
 				
 				if (Math.abs(a[i][i][0]-a[i-1][i-1][0]) >= safe*err){
-					dfridr[p] = a[j][i][p];
+					break;
 				}
 			}
-			
-			dfridr[p] = a[j][i][p];
 		
 		} //end of looping p
 		
