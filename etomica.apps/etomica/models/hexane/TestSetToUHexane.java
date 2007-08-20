@@ -182,7 +182,7 @@ public class TestSetToUHexane extends Simulation {
            //Calculate the u's that correspond to the old positions. 
            oldUs = cdHex.calcU(box.getAgent(species).getChildList());
             
-            //nan MAKE A BUNCH OF MOVES HERE
+            //MAKE A BUNCH OF MOVES HERE
             for(int i = 0; i < chainLength*2; i++){
                 integrator.doStepInternal();
             }
@@ -196,7 +196,7 @@ public class TestSetToUHexane extends Simulation {
 //            cdHex.setToU(box.getAgent(species).getAtomManager().getLeafList(), 
 //                    oldUs);
         
-            cdHex.setToU(((AtomGroup)box.getAgent(species).getChildList().getAtom(0)).getChildList(), oldUs);
+            cdHex.setToU(box.getAgent(species).getChildList(), oldUs);
             
             //Compare the old and new positions.
             double tol = 0.0000005;
