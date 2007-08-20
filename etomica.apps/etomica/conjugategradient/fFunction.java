@@ -96,6 +96,11 @@ public class fFunction {
 		return fPrime;
 	}
 	
+	public void getScalarEnergy(){
+		meterEnergy.setBox(box);
+		System.out.println("The energy of the system is: "+meterEnergy.getDataAsScalar());
+	}
+	
 	
 	public static class MyAgentSource implements AgentSource{
 		

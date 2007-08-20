@@ -83,7 +83,7 @@ public class NonLinearConjugateGradients {
 			double alpha_denom = 0;
 			
 			fPrimeVal = function.fPrime(u); 
-			double[] fDoublePrimeVal = fDoublePrime.finiteDerivative(function, u, 0.001, false);
+			double[] fDoublePrimeVal = fDoublePrime.finiteDerivative(function, u, 0.001, coordinateDim, false);
 			
 			for(n=0; n<coordinateDim; n++){
 				deltad += d[n]*d[n];
