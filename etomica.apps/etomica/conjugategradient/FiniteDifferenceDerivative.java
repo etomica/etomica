@@ -34,8 +34,6 @@ public class FiniteDifferenceDerivative {
 	protected IVector orientation ;
 	protected double delta;
 	protected double error;
-	protected int dimension;
-	
 	
 	public FiniteDifferenceDerivative(Box box, PotentialMaster potentialMaster){
 		this.box = box;
