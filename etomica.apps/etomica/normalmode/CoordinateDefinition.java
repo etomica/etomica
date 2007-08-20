@@ -151,14 +151,14 @@ public abstract class CoordinateDefinition {
     protected abstract void initNominalU(AtomSet molecules);
 
     /**
-     * Set the molecule to a position and orientation that corresponds to the
+     * Set all the molecules in a cell to a position and orientation that corresponds to the
      * given generalized coordinate. |u| must be of length getCoordinateDim()
      * 
-     * @param molecule
-     *            The molecule of interest
+     * @param molecules
+     *            The molecules of interest
      * @param newU
      *            The generalized coordinate that defines the position and
-     *            orientation to which the molecule will be set by this method.
+     *            orientation to which the molecules will be set by this method.
      */
     public abstract void setToU(AtomSet molecules, double[] newU);
 
