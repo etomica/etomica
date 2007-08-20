@@ -2,7 +2,6 @@ package etomica.conjugategradient;
 
 import etomica.action.Activity;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
@@ -35,6 +34,7 @@ public class FiniteDifferenceDerivative {
 	protected IVector orientation ;
 	protected double delta;
 	protected double error;
+	protected int dimension;
 	
 	
 	public FiniteDifferenceDerivative(Box box, PotentialMaster potentialMaster){
@@ -49,9 +49,9 @@ public class FiniteDifferenceDerivative {
 		forceSum.setAgentManager(agentManager);
 	}
 	
-	public double[] finiteDerivative(fFunction function, double[] u, double h, boolean hOptimizer){
+	public double[] finiteDerivative(fFunction function, double[] u, double h, int dimension, boolean hOptimizer){
 		
-		int coordinateDim = 48;
+		int coordinateDim = dimension;
 		double[] dfridr = new double[coordinateDim]; 
 		int ntab = 10;
 		double con = 1.4;
