@@ -11,9 +11,9 @@ import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space3d.IVector3D;
 
-public class fFunctionParacetamol extends etomica.conjugategradient.fFunction implements Serializable{
+public class DerivativeFunctionParacetamol extends etomica.conjugategradient.DerivativeFunction implements Serializable{
 	
-	public fFunctionParacetamol(Box box, PotentialMaster potentialMaster){
+	public DerivativeFunctionParacetamol(Box box, PotentialMaster potentialMaster){
 		super(box, potentialMaster);
 		rotationAxis = (IVector3D)box.getSpace().makeVector();
 		a      = (IVector3D)box.getSpace().makeVector();
@@ -28,34 +28,17 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 			torque[i] = (IVector3D)box.getSpace().makeVector();
 			torqueF[i]= (IVector3D)box.getSpace().makeVector();
 		}
-		torqueSum = new IVector3D[8]; // only looking at one cell
-		for (int i=0; i<8; i++){
-			torqueSum[i]= (IVector3D)box.getSpace().makeVector();
-		}
+		torqueSum = box.getSpace().makeVector();
 		
 	}
 	
-	public double f(){
-		super.f();
-		return meterEnergy.getDataAsScalar();
-	}
-	
-	public double[] fPrime(double[] u){ 
+	public double[] dfdx(double[] u){ 
 		
 		/*
 		 * u is the generalized coordinate
 		 */
 		
-		// u = the position with delta or the specified position
-		// need to call setToU with the u values
-		
-		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			
-			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
-			coordinateDefinition.setToU(molecules,u);
-		}
-		
-		double[] fPrime = super.fPrime(u);
+		double[] fPrime = super.dfdx(u);
 		
 		forceSum.reset();
 	
@@ -68,7 +51,7 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 		
 		int j=3;
 		
-		for (int p=0; p<molecules.getAtomCount(); p++){
+		for (int p=0; p<molecules.getAtomCount(); p++){ //loop over the 8 atoms in the basis cell
 			AtomSet molecule = ((IAtomGroup)molecules.getAtom(p)).getChildList();
 		
 			 //leafPos0 is atom C1 in Paracetamol
@@ -90,8 +73,6 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 			 * 
 			 *  having jay to loop over the 3 cases
 			 */
-			 
-			
 			 
 			for (int jay=0; jay<3; jay++){
 				 
@@ -139,6 +120,7 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 		    	    	if (q==0){
 					 		d[q].E(new double[] {0, 0, 0});
 					 	} else {
+					 		
 					 		d[q].Ev1Mv2(a, aProj);
 					 		d[q].normalize();
 					 	}
@@ -152,21 +134,24 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 				  */
 
 				 moleculeForce.E(0); //initialize moleculeForce to zero
+				 torqueSum.E(0);
 				 
 				 for (int q=0; q<molecule.getAtomCount(); q++){ 
 					
 					if (q==0){
 						deltaV.E(new double[] {0, 0, 0});
 					} else {
+						
 					deltaV.E(d[q]);
 					deltaV.XE(rotationAxis);
 					deltaV.normalize();
-					
 					}
-					moleculeForce.PE(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecule.getAtom(q)))
+					
+					moleculeForce.E(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecule.getAtom(q)))
 								   .force);
 					
-					double scalarF = moleculeForce.dot(deltaV);
+					double scalarF = 0;
+					scalarF = moleculeForce.dot(deltaV);
 					torqueF[q].Ea1Tv1(scalarF, deltaV);
 					
 					if (q==0){
@@ -176,11 +161,11 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 						torque[q].XE(torqueF[q]);
 				 	}
 					
-					torqueSum[p].PE(torque[q]);    
+					torqueSum.PE(torque[q]);    
 					// torqueSum all equal to NaN!!!!!!!!!!!!!
 				 }
 				 
-				fPrime[j+jay] = Math.sqrt(torqueSum[p].squared());  //taking the magnitude
+				fPrime[j+jay] = Math.sqrt(torqueSum.squared());  //taking the magnitude
 				
 			 }
 			
@@ -190,9 +175,12 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 		return fPrime;
 	}
 	
+	
+	
 	protected final IVector3D rotationAxis;
 	protected final IVector3D a, aProj;
 	protected final IVector3D v, deltaV;
-	protected final IVector3D [] d, torque, torqueF, torqueSum;
+	protected final IVector3D [] d, torque, torqueF;
+	protected final IVector torqueSum;
 	private static final long serialVersionUID = 1L;
 }
