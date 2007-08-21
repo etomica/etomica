@@ -69,6 +69,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     }
 
     public double[] calcU(AtomSet molecules) {
+        double tol = 0.0000000001;
+        
         // handle center-of-mass part
         // super.calcU fills in the first 3 elements of |u|
         super.calcU(molecules);
@@ -95,7 +97,13 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // Project axis0prime onto axis1 and axis2
         u[3] = axis0prime.dot(axes[1]);
         u[4] = axis0prime.dot(axes[2]);
-
+        //Make these equal zero if they are small enough.
+        if(0 < u[3] && u[3] < tol) {u[3] = 0;}
+        if(-tol < u[3] && u[3] < 0) {u[3] = 0;}
+        if(0 < u[4] && u[4] < tol) {u[4] = 0;}
+        if(-tol < u[4] && u[4] < 0) {u[4] = 0;}
+        
+        
         // we need to rotate pos2 back to the original frame of reference
         midpoint13.Ev1Pv2(leafPos3, leafPos1);
         midpoint13.TE(0.5);
@@ -183,7 +191,6 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         
         
         //Calculate the torsional angles
-      double tol = 0.0000000001;
       for (int i = 0; i < 6 - 3; i++) {
           vex.E(((IAtomPositioned) molecule
                   .getChildList().getAtom(i)).getPosition());
