@@ -70,11 +70,18 @@ public class NonLinearConjugateGradients {
 			r[n] = - fPrimeVal[n];
 			d[n] = r[n];
 			
+			System.out.println("r["+n + "] is: " + r[n]);
 			deltaNew += r[n]*r[n];
 		}
 		
 		double delta0 = deltaNew;
 		double epsilon2_delta0 = epsilon*epsilon*delta0;
+		
+		System.out.println("NonlinearCG before WHILE loop...");
+		System.out.println("imax is: "+ imax+" i is "+ i);
+		System.out.println("DeltaNew: "+ deltaNew);
+		System.out.println("epsilon: "+ epsilon);
+		System.out.println("epsilon2_delta0: "+ epsilon2_delta0);
 		
 		while(i<imax && deltaNew > epsilon2_delta0){
 			int j=0;
@@ -134,7 +141,9 @@ public class NonLinearConjugateGradients {
 				}
 				k=0;
 			}
+			function.getScalarEnergy();
 			
+			System.out.println("NonlinearCG within WHILE loop...");
 			i++;
 		}
 	}

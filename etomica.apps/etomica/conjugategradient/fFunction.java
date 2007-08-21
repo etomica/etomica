@@ -4,6 +4,7 @@ import etomica.action.Activity;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomGroup;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -12,6 +13,7 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
+import etomica.space.IVector;
 import etomica.space.Space;
 
 public class fFunction {
@@ -31,6 +33,7 @@ public class fFunction {
 	protected Activity activity;
 	protected CoordinateDefinition coordinateDefinition;
 	protected double[] fPrime;
+	protected IVector moleculeForce;
 	
 	public fFunction(Box box, PotentialMaster potentialMaster){
 		this.box = box;
@@ -42,6 +45,7 @@ public class fFunction {
 		MyAgentSource source = new MyAgentSource(box.getSpace());
 		agentManager = new AtomAgentManager(source, box);
 		forceSum.setAgentManager(agentManager);
+		moleculeForce = box.getSpace().makeVector();
 		
 		/*
 		 * Dimensions of a study system is three-times the number of atoms
@@ -83,13 +87,22 @@ public class fFunction {
 					fPrime[j+k] = 0;
 				}
 				
-			} else
+			} else {
 				
-			for (int k=0; k<3; k++){
-				fPrime[j+k] = ((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecules.getAtom(m)))
-							   .force.x(k);
+				AtomSet childList = ((IAtomGroup)molecules.getAtom(m)).getChildList();
+				
+				moleculeForce.E(0); //initialize moleculeForce to zero
+				
+				for (int r=0; r<childList.getAtomCount(); r++){
+					moleculeForce.PE(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(childList.getAtom(r)))
+							   .force);
+				}
+				
+			
+				for (int k=0; k<3; k++){
+					fPrime[j+k] = moleculeForce.x(k);
+				}
 			}
-		
 			j += coordinateDefinition.getCoordinateDim() /molecules.getAtomCount();
 		}
 		
