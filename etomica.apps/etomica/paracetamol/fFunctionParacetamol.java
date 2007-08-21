@@ -69,12 +69,12 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 		int j=3;
 		
 		for (int p=0; p<molecules.getAtomCount(); p++){
-			IAtomGroup molecule = (IAtomGroup)molecules.getAtom(p);
+			AtomSet molecule = ((IAtomGroup)molecules.getAtom(p)).getChildList();
 		
 			 //leafPos0 is atom C1 in Paracetamol
 			 //leafPos5 is atom C4 in Paracetamol
-			IVector leafPos0 = ((IAtomPositioned)molecule.getChildList().getAtom(0)).getPosition();
-			IVector leafPos5 = ((IAtomPositioned)molecule.getChildList().getAtom(5)).getPosition();
+			IVector leafPos0 = ((IAtomPositioned)molecule.getAtom(0)).getPosition();
+			IVector leafPos5 = ((IAtomPositioned)molecule.getAtom(5)).getPosition();
 			
 			v.Ev1Mv2(leafPos5, leafPos0);
 			v.normalize();
@@ -107,7 +107,7 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 					 rotationAxis.E(v);
 					 rotationAxis.XE(deltaV);
 					 rotationAxis.normalize();
-				 }
+				 } else
 				 
 				 if(jay==2){
 					 rotationAxis.E(v);
@@ -115,21 +115,33 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 				 
 				 
 				 /*
-				  * To find the distance vector of each atoms within p-th molecule
+				  * To find the distance vector, d[] of each atoms within p-th molecule
 				  * that is perpendicular to the rotation axis
 				  */
-				 for (int q=0; q<molecule.getChildList().getAtomCount(); q++){
+				 for (int q=0; q<molecule.getAtomCount(); q++){
 					 
 		    	    	/*
 		    	    	 * Determine the distance, d, by using Vector Projection
 		    	    	 */
-		    	    	a.Ev1Mv2(((IAtomPositioned)molecule.getChildList().getAtom(q)).getPosition(), leafPos0);
-		    	    	
+					 
+					 	// vector a when q=0
+					 	if (q==0){
+					 		a.E(new double[] {0, 0, 0});
+					 	} else {
+					 	
+			    	    	a.Ev1Mv2(((IAtomPositioned)molecule.getAtom(q)).getPosition(), leafPos0);
+			    	    	a.normalize();
+					 	}
+					 	
 		    	    	double dotProd = a.dot(rotationAxis);
 		    	    	aProj.Ea1Tv1(dotProd,rotationAxis);
 		    	    	
-		    	    	d[q].Ev1Mv2(a, aProj);
-		    	    	d[q].normalize();
+		    	    	if (q==0){
+					 		d[q].E(new double[] {0, 0, 0});
+					 	} else {
+					 		d[q].Ev1Mv2(a, aProj);
+					 		d[q].normalize();
+					 	}
 				 }
 				 
 				 /*
@@ -138,21 +150,34 @@ public class fFunctionParacetamol extends etomica.conjugategradient.fFunction im
 				  *   
 				  *   And summing the torque of all atoms to torqueSum[]
 				  */
+
+				 moleculeForce.E(0); //initialize moleculeForce to zero
 				 
-				 for (int q=0; q<molecule.getChildList().getAtomCount(); q++){ 
+				 for (int q=0; q<molecule.getAtomCount(); q++){ 
 					
+					if (q==0){
+						deltaV.E(new double[] {0, 0, 0});
+					} else {
 					deltaV.E(d[q]);
 					deltaV.XE(rotationAxis);
 					deltaV.normalize();
-				
-					double scalarF = ((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecule.getChildList().getAtom(q))).force()
-										.dot(deltaV);
+					
+					}
+					moleculeForce.PE(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(molecule.getAtom(q)))
+								   .force);
+					
+					double scalarF = moleculeForce.dot(deltaV);
 					torqueF[q].Ea1Tv1(scalarF, deltaV);
-					torque[q].E(d[q]);                         // torque = d X F
-					torque[q].XE(torqueF[q]);
+					
+					if (q==0){
+				 		torque[q].E(new double[] {0, 0, 0});
+				 	} else {
+						torque[q].E(d[q]);                         // torque = d X F
+						torque[q].XE(torqueF[q]);
+				 	}
 					
 					torqueSum[p].PE(torque[q]);    
-					
+					// torqueSum all equal to NaN!!!!!!!!!!!!!
 				 }
 				 
 				fPrime[j+jay] = Math.sqrt(torqueSum[p].squared());  //taking the magnitude
