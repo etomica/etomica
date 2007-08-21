@@ -59,67 +59,7 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDoubl
 	}
 	
 	public double[] dfdx(double[] u){
-		
-		int coordinateDim = u.length;
-		double[] dfdx = new double[coordinateDim]; 
-		int ntab = 10;
-		double con = 1.4;
-		double con2 = con*con;
-		double big = Math.pow(1, 30);
-		double safe = 2.0;
-		
-		double errt, fac, hh;
-		double[][][] a = new double[ntab][ntab][coordinateDim];
-		double[] uPlus = new double[coordinateDim];
-		double[] uMinus = new double[coordinateDim];
-		
-		hh = h;
-		
-		for (int p=0; p<coordinateDim; p++){  //loop over the p-th second derivatives
-			
-			for(int q=0; q<coordinateDim; q++){ // loop over the q-th generalized coordinate
-				if(q==p){
-					uPlus[q] = uPlus[q] + hh;
-					uMinus[q] = uMinus[q] - hh;
-				} else {
-					uPlus[q] = u[q];
-					uMinus[q] = u[q];
-				}
-			}
-		
-			a[0][0][p]= (fFunction.dfdx(uPlus)[p] - fFunction.dfdx(uMinus)[p])/(2.0*hh); //NOTE!!
-		
-			if (!hOptimizer) {
-				dfdx[p] = a[0][0][p];
-				continue;
-			}
-			
-			double err = big;
-			
-			for(int i=1; i<ntab; i++){
-				hh = hh /con;
-				a[0][i][p] = (fFunction.dfdx(uPlus)[p] - fFunction.dfdx(uMinus)[p])/(2.0*hh);
-				fac = con2;
-				
-				for(int j=1; j<i; j++){
-					a[j][i][p] = (a[j-1][i][p]*fac - a[j-1][i-1][p])/(fac-1);
-					fac = con2*fac;
-					errt = Math.max(Math.abs(a[j][i][p]-a[j-1][i][p]), Math.abs(a[j][i][p]-a[j-1][i-1][p]));
-					
-					if (errt <= err){
-						err = errt;
-						dfdx[p] = a[j][i][p];
-					}
-				}
-				
-				if (Math.abs(a[i][i][0]-a[i-1][i-1][0]) >= safe*err){
-					break;
-				}
-			}
-		
-		} //end of looping p
-		
-		return dfdx;
+		return fFunction.dfdx(u);
 	}
 	
 	public double[][] d2fdx2(double[] u){

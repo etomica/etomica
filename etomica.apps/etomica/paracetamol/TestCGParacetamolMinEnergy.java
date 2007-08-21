@@ -12,9 +12,6 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.normalmode.MCMoveMoleculeCoupled;
-import etomica.normalmode.MeterNormalMode;
-import etomica.normalmode.WaveVectorFactory;
-import etomica.normalmode.WaveVectorFactorySimple;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -303,7 +300,7 @@ public class TestCGParacetamolMinEnergy extends Simulation {
 
         sim.activityIntegrate.setMaxSteps(simSteps);
         // set up initial configuration and save nominal positions
-        PrimitiveOrthorhombic primitive = sim.primitive;
+       // PrimitiveOrthorhombic primitive = sim.primitive;
 
         // set up normal-mode meter
         /*
@@ -320,12 +317,13 @@ public class TestCGParacetamolMinEnergy extends Simulation {
         
         // Energy Minimization
         NonLinearConjugateGradients nonLinearCG = new NonLinearConjugateGradients(sim.box, sim.potentialMaster);
-        fFunctionParacetamol function = new fFunctionParacetamol(sim.box, sim.potentialMaster);
+        DerivativeFunctionParacetamol function = new DerivativeFunctionParacetamol(sim.box, sim.potentialMaster);
         
         function.setCoordinateDefinition(sim.coordinateDefinition);
         double[] u = sim.coordinateDefinition.calcU(sim.coordinateDefinition.getBasisCells()[0].molecules);
-        nonLinearCG.NonLinearCG(function, 1, 1, 0.00001, u);
+        nonLinearCG.NonLinearCG(function, 50, 50, 0.00001, u);
         System.out.println("Minimization~~~!!!");
+        function.getScalarEnergy();
         
 /*    NOT PART OF THE CODE
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
@@ -396,5 +394,5 @@ public class TestCGParacetamolMinEnergy extends Simulation {
     public PrimitiveOrthorhombic primitive;
     public CoordinateDefinitionParacetamol coordinateDefinition;
     public NonLinearConjugateGradients nonLinearCG;
-    public fFunctionParacetamol function;
+    public DerivativeFunctionParacetamol function;
 }
