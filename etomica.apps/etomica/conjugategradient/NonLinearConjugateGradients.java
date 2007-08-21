@@ -46,7 +46,7 @@ public class NonLinearConjugateGradients {
 
 	}
 	
-	public void NonLinearCG(fFunction function, int imax, int jmax, double epsilon, double[] u){
+	public void NonLinearCG(DerivativeFunction function, int imax, int jmax, double epsilon, double[] u){
 		
 		/*
 		 *  imax is a maximum number of CG iterations
@@ -61,7 +61,7 @@ public class NonLinearConjugateGradients {
 		double deltaNew = 0;
 		
 		int coordinateDim = u.length;
-		double[] fPrimeVal = function.fPrime(u);
+		double[] fPrimeVal = function.dfdx(u);
 		
 		double[] r = new double[coordinateDim]; 
 		double[] d = new double[coordinateDim];
@@ -78,7 +78,6 @@ public class NonLinearConjugateGradients {
 		double epsilon2_delta0 = epsilon*epsilon*delta0;
 		
 		System.out.println("NonlinearCG before WHILE loop...");
-		System.out.println("imax is: "+ imax+" i is "+ i);
 		System.out.println("DeltaNew: "+ deltaNew);
 		System.out.println("epsilon: "+ epsilon);
 		System.out.println("epsilon2_delta0: "+ epsilon2_delta0);
@@ -89,14 +88,17 @@ public class NonLinearConjugateGradients {
 			double alpha_num = 0;
 			double alpha_denom = 0;
 			
-			fPrimeVal = function.fPrime(u); 
-			double[] fDoublePrimeVal = fDoublePrime.finiteDerivative(function, u, 0.001, coordinateDim, false);
+			fPrimeVal = function.dfdx(u);
+			
+			fDoublePrime.setH(0.00002);
+			double[][] fDoublePrimeVal = fDoublePrime.d2fdx2(u);
+			
 			
 			for(n=0; n<coordinateDim; n++){
 				deltad += d[n]*d[n];
 				
 				alpha_num += - fPrimeVal[n]*d[n];
-				alpha_denom += d[n]*fDoublePrimeVal[n]*d[n];
+				alpha_denom += d[n]*fDoublePrimeVal[n][0]*d[n];/// CAUTION!!! 
 			}
 			
 			double alpha = alpha_num /alpha_denom;
@@ -112,7 +114,7 @@ public class NonLinearConjugateGradients {
 			while(j<jmax && alpha2_deltad > epsilon2){
 				double deltaOld=0;
 				
-				fPrimeVal = function.fPrime(u);
+				fPrimeVal = function.dfdx(u);
 				for(n=0; n<coordinateDim; n++){
 					r[n] = - fPrimeVal[n];
 					deltaOld = deltaNew;
