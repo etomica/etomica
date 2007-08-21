@@ -128,7 +128,8 @@ public class TestSetToUHexane extends Simulation {
         coupledMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom());
         integrator.getMoveManager().addMCMove(coupledMove);
         
-        cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, growMolecule, getRandom());
+        cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, 
+                growMolecule, getRandom());
         cctMove.setBox(box);
         integrator.getMoveManager().addMCMove(cctMove);
         
@@ -168,6 +169,8 @@ public class TestSetToUHexane extends Simulation {
     public void runit(){
 
         int nsteps = chainLength * 100;
+        
+        nsteps = 1;
             
         //Store old positions
         AtomSet aal = ((AtomGroup)box.molecule(0)).getChildList();
@@ -179,24 +182,28 @@ public class TestSetToUHexane extends Simulation {
         }
            
         for(int counter = 0; counter < nsteps; counter++){    
-           //Calculate the u's that correspond to the old positions. 
-           oldUs = cdHex.calcU(box.getAgent(species).getChildList());
+            //Calculate the u's that correspond to the old positions. 
+            oldUs = cdHex.calcU(box.getAgent(species).getChildList());
             
-            //MAKE A BUNCH OF MOVES HERE
-            for(int i = 0; i < chainLength*2; i++){
-                integrator.doStepInternal();
-            }
+            //make a bunch of moves
+//            for(int i = 0; i < chainLength*2; i++){
+//                integrator.doStepInternal();
+//            }
+//            
+//            //Store the current positions for later use.
+//            for(int i = 0; i < chainLength; i++){
+//                newX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
+////                System.out.println("newX  " + newX[i]);
+//            }
             
-            //Store the current positions for later use.
-            for(int i = 0; i < chainLength; i++){
-                newX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
-            }
-            
-            //Move the molecules to the old positions, using u's
-//            cdHex.setToU(box.getAgent(species).getAtomManager().getLeafList(), 
-//                    oldUs);
-        
+            //Move the molecules to the old positions, using u's      
             cdHex.setToU(box.getAgent(species).getChildList(), oldUs);
+            
+            for(int i = 0; i < chainLength; i++){
+                System.out.println("oldX  " + oldX[i]);
+                System.out.println("back  "+ 
+                        (Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
+            }
             
             //Compare the old and new positions.
             double tol = 0.0000005;
@@ -204,16 +211,11 @@ public class TestSetToUHexane extends Simulation {
                 newX[i].ME(oldX[i]);
                 newX[i].squared();
                 for(int j = 0; j < 3; j++){
-                    if(newX[i].x(j) > tol){
-                        System.out.println("Not in the tolerance!!");
-                    }
+//                    if(newX[i].x(j) > tol){
+//                        System.out.println("Not in the tolerance!!  " + newX[i].x(j));
+//                    }
                 }
             }
-            
-            //Move the new positions to the old positions and repeat. 
-            for(int i = 0; i < chainLength; i++){
-                newX[i].E(oldX[i]);
-            } 
         }
                 
         System.out.println("Zoinks!");
