@@ -12,8 +12,10 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.util.FunctionMultiDimensionalDifferentiable;
+import etomica.util.FunctionMultiDimensionalDoubleDifferentiable;
 
-public class FiniteDifferenceDerivative {
+public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDoubleDifferentiable{
 	
 	/*
 	 * Section 5.7 Numerical Derivative by Ridder's Method
@@ -30,27 +32,36 @@ public class FiniteDifferenceDerivative {
 	protected AtomAgentManager agentManager;
 	protected Activity activity;
 	
-	protected fFunction fFunction;
+	protected FunctionMultiDimensionalDifferentiable fFunction;
 	protected IVector orientation ;
 	protected double delta;
 	protected double error;
+	protected double h;
+	protected boolean hOptimizer;
 	
-	public FiniteDifferenceDerivative(Box box, PotentialMaster potentialMaster){
+	public FiniteDifferenceDerivative(Box box, PotentialMaster potentialMaster, FunctionMultiDimensionalDifferentiable fFunction){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
+		this.fFunction = fFunction;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
 		allAtoms = new IteratorDirective();
 		forceSum = new PotentialCalculationForceSum();
+		h = 0.00001;
+		hOptimizer = false;
 		
 		MyAgentSource source = new MyAgentSource(box.getSpace());
 		agentManager = new AtomAgentManager(source, box);
 		forceSum.setAgentManager(agentManager);
 	}
 	
-	public double[] finiteDerivative(fFunction function, double[] u, double h, int dimension, boolean hOptimizer){
+	public double function(double[] u){
+		return fFunction.function(u);
+	}
+	
+	public double[] dfdx(double[] u){
 		
-		int coordinateDim = dimension;
-		double[] dfridr = new double[coordinateDim]; 
+		int coordinateDim = u.length;
+		double[] dfdx = new double[coordinateDim]; 
 		int ntab = 10;
 		double con = 1.4;
 		double con2 = con*con;
@@ -76,10 +87,10 @@ public class FiniteDifferenceDerivative {
 				}
 			}
 		
-			a[0][0][p]= (function.fPrime(uPlus)[p] - function.fPrime(uMinus)[p])/(2.0*hh);
+			a[0][0][p]= (fFunction.dfdx(uPlus)[p] - fFunction.dfdx(uMinus)[p])/(2.0*hh); //NOTE!!
 		
 			if (!hOptimizer) {
-				dfridr[p] = a[0][0][p];
+				dfdx[p] = a[0][0][p];
 				continue;
 			}
 			
@@ -87,7 +98,7 @@ public class FiniteDifferenceDerivative {
 			
 			for(int i=1; i<ntab; i++){
 				hh = hh /con;
-				a[0][i][p] = (function.fPrime(uPlus)[p] - function.fPrime(uMinus)[p])/(2.0*hh);
+				a[0][i][p] = (fFunction.dfdx(uPlus)[p] - fFunction.dfdx(uMinus)[p])/(2.0*hh);
 				fac = con2;
 				
 				for(int j=1; j<i; j++){
@@ -97,7 +108,7 @@ public class FiniteDifferenceDerivative {
 					
 					if (errt <= err){
 						err = errt;
-						dfridr[p] = a[j][i][p];
+						dfdx[p] = a[j][i][p];
 					}
 				}
 				
@@ -108,7 +119,71 @@ public class FiniteDifferenceDerivative {
 		
 		} //end of looping p
 		
-		return dfridr;
+		return dfdx;
+	}
+	
+	public double[][] d2fdx2(double[] u){
+		
+		int coordinateDim = u.length;
+		double[][] d2fdx2 = new double[coordinateDim][coordinateDim]; 
+		int ntab = 10;
+		double con = 1.4;
+		double con2 = con*con;
+		double big = Math.pow(1, 30);
+		double safe = 2.0;
+		
+		double errt, fac, hh;
+		double[][][] a = new double[ntab][ntab][coordinateDim];
+		double[] uPlus = new double[coordinateDim];
+		double[] uMinus = new double[coordinateDim];
+		
+		hh = h;
+		
+		for (int p=0; p<coordinateDim; p++){  //loop over the p-th second derivatives
+			
+			for(int q=0; q<coordinateDim; q++){ // loop over the q-th generalized coordinate
+				if(q==p){
+					uPlus[q] = uPlus[q] + hh;
+					uMinus[q] = uMinus[q] - hh;
+				} else {
+					uPlus[q] = u[q];
+					uMinus[q] = u[q];
+				}
+			}
+		
+			a[0][0][p]= (fFunction.dfdx(uPlus)[p] - fFunction.dfdx(uMinus)[p])/(2.0*hh); //NOTE!!
+		
+			if (!hOptimizer) {
+				d2fdx2[p][0] = a[0][0][p];
+				continue;
+			}
+			
+			double err = big;
+			
+			for(int i=1; i<ntab; i++){
+				hh = hh /con;
+				a[0][i][p] = (fFunction.dfdx(uPlus)[p] - fFunction.dfdx(uMinus)[p])/(2.0*hh);
+				fac = con2;
+				
+				for(int j=1; j<i; j++){
+					a[j][i][p] = (a[j-1][i][p]*fac - a[j-1][i-1][p])/(fac-1);
+					fac = con2*fac;
+					errt = Math.max(Math.abs(a[j][i][p]-a[j-1][i][p]), Math.abs(a[j][i][p]-a[j-1][i-1][p]));
+					
+					if (errt <= err){
+						err = errt;
+						d2fdx2[p][0] = a[j][i][p];
+					}
+				}
+				
+				if (Math.abs(a[i][i][0]-a[i-1][i-1][0]) >= safe*err){
+					break;
+				}
+			}
+		
+		} //end of looping p
+		
+		return d2fdx2;
 	}
 
 	
@@ -126,5 +201,22 @@ public class FiniteDifferenceDerivative {
 			return new IntegratorVelocityVerlet.MyAgent(space);
 		}
 		protected Space space;
+	}
+
+
+	public double getH() {
+		return h;
+	}
+
+	public void setH(double h) {
+		this.h = h;
+	}
+
+	public boolean isHOptimizer() {
+		return hOptimizer;
+	}
+
+	public void setHOptimizer(boolean optimizer) {
+		hOptimizer = optimizer;
 	}
 }
