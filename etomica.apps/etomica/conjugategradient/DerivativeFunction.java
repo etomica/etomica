@@ -15,8 +15,9 @@ import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.util.FunctionMultiDimensionalDifferentiable;
 
-public class fFunction {
+public class DerivativeFunction implements FunctionMultiDimensionalDifferentiable {
 
 	/*
 	 * This class is developed to calculate for the first derivative of energy function.
@@ -35,7 +36,7 @@ public class fFunction {
 	protected double[] fPrime;
 	protected IVector moleculeForce;
 	
-	public fFunction(Box box, PotentialMaster potentialMaster){
+	public DerivativeFunction(Box box, PotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
@@ -52,7 +53,12 @@ public class fFunction {
 		 */
 	}
 	
-	public double f(){
+	public double function(double[] newU){
+		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
+			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			coordinateDefinition.setToU(molecules, newU);
+		}
+		
 		return meterEnergy.getDataAsScalar();
 	}
 	
@@ -65,7 +71,7 @@ public class fFunction {
 		fPrime = new double[coordinateDefinition.getCoordinateDim()];
 	}
 	
-	public double[] fPrime(double[] newU){
+	public double[] dfdx(double[] newU){
 		
 		/*
 		 * Index is assigned to be the number of molecules in a box
@@ -74,6 +80,11 @@ public class fFunction {
 		 */
 		
 		forceSum.reset();
+		
+		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
+			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			coordinateDefinition.setToU(molecules, newU);
+		}
 		
 		int j=0;
 		potentialMaster.calculate(box, allAtoms, forceSum);
@@ -113,6 +124,7 @@ public class fFunction {
 		meterEnergy.setBox(box);
 		System.out.println("The energy of the system is: "+meterEnergy.getDataAsScalar());
 	}
+	
 	
 	
 	public static class MyAgentSource implements AgentSource{
