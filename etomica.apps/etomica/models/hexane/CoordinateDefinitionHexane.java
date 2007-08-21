@@ -1,13 +1,14 @@
 package etomica.models.hexane;
 
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
@@ -288,8 +289,10 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         //      AtomArrayList; we're looking at an AtomGroup
         // Put the molecule into its initial conformation
 //        confHex.initializePositions(((AtomGroup)atoms).getChildList());
-        confHex.initializePositions(atoms);
-        childlist = ((AtomGroup)atoms).getChildList();
+        confHex.initializePositions(((AtomGroup)((AtomArrayList)atoms).getAtom(0)).getChildList());
+        
+        
+        childlist = ((AtomGroup)((AtomArrayList)atoms).getAtom(0)).getChildList();
   
         /*
          * Deal with u[5].  We do this first, and we can do this at all,
