@@ -30,7 +30,7 @@ public class NonLinearConjugateGradients {
 	protected PotentialCalculationForceSum forceSum;
 	protected AtomAgentManager agentManager;
 	protected Activity activity;
-	protected FiniteDifferenceDerivative fDoublePrime;
+	protected FiniteDifferenceSecondDerivative fDoublePrime;
 	
 	
 	public NonLinearConjugateGradients(Box box, PotentialMaster potentialMaster){
@@ -93,12 +93,21 @@ public class NonLinearConjugateGradients {
 			fDoublePrime.setH(0.00002);
 			double[][] fDoublePrimeVal = fDoublePrime.d2fdx2(u);
 			
+			double[] d_DoublePrime = new double[coordinateDim];
 			
 			for(n=0; n<coordinateDim; n++){
+				
+				for(int m=0; m<coordinateDim; m++){
+					d_DoublePrime[n] += d[m]*fDoublePrimeVal[m][n];
+				}
+			}
+			
+			for(n=0; n<coordinateDim; n++){
+				
 				deltad += d[n]*d[n];
 				
 				alpha_num += - fPrimeVal[n]*d[n];
-				alpha_denom += d[n]*fDoublePrimeVal[n][0]*d[n];/// CAUTION!!! 
+				alpha_denom += d_DoublePrime[n]*d[n];
 			}
 			
 			double alpha = alpha_num /alpha_denom;
