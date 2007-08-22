@@ -27,8 +27,16 @@ public interface Function {
             return c;
         }
 
-        public double dfdx(double x) {
-            return 0.0;
+        public double df(int n, double x) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Order of derivative must be non-negative");
+            }
+            switch(n) {
+            case 0:
+                return f(x);
+            default:
+                return 0.0;
+            }
         }
     }
 
@@ -45,8 +53,18 @@ public interface Function {
             return f;
         }
 
-        public double dfdx(double x) {
-            return 1.0;
+        public double df(int n, double x) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Order of derivative must be non-negative");
+            }
+            switch(n) {
+            case 1:
+                return 1.0;
+            case 0:
+                return f(x);
+            default:
+                return 0.0;
+            }
         }
 
         public final static Identity INSTANCE = new Identity();
@@ -61,8 +79,15 @@ public interface Function {
             return 1.0 / x;
         }
 
-        public double dfdx(double x) {
-            return -1.0 / (x * x);
+        public double df(int n, double x) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Order of derivative must be non-negative");
+            }
+            double prod = 1.0/x;
+            for(int i=0; i<n; i++) {
+                prod *= -(i+1)/x;
+            }
+            return prod;
         }
 
         public double inverse(double x) {
@@ -81,8 +106,11 @@ public interface Function {
             return Math.exp(x);
         }
 
-        public double dfdx(double x) {
-            return Math.exp(x);
+        public double df(int n, double x) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Order of derivative must be non-negative");
+            }
+            return f(x);
         }
 
         public double inverse(double x) {
@@ -101,8 +129,22 @@ public interface Function {
             return Math.log(x);
         }
 
-        public double dfdx(double x) {
-            return 1.0 / x;
+        public double df(int n, double x) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Order of derivative must be non-negative");
+            }
+            switch(n) {
+            case 1:
+                return 1.0/x;
+            case 0:
+                return f(x);
+            default:
+                double prod = 1.0/x;
+                for(int i=1; i<n; i++) {
+                    prod *= -i/x;
+                }
+                return prod;
+            }
         }
 
         public double inverse(double x) {
@@ -121,8 +163,22 @@ public interface Function {
             return Math.sqrt(x);
         }
 
-        public double dfdx(double x) {
-            return 0.5 / Math.sqrt(x);
+        public double df(int n, double x) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Order of derivative must be non-negative");
+            }
+            switch(n) {
+            case 1:
+                return 0.5/Math.sqrt(x);
+            case 0:
+                return f(x);
+            default:
+                double prod = 0.5/Math.sqrt(x);
+                for(int i=1; i<n; i++) {
+                    prod *= -(i-0.5)/x;
+                }
+                return prod;
+            }
         }
 
         public double inverse(double x) {
@@ -141,8 +197,18 @@ public interface Function {
             return Math.abs(x);
         }
 
-        public double dfdx(double x) {
-            return x > 0 ? 1 : -1;
+        public double df(int n, double x) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Order of derivative must be non-negative");
+            }
+            switch(n) {
+            case 1:
+                return x > 0 ? 1 : -1;
+            case 0:
+                return f(x);
+            default:
+                return 0.0;
+            }
         }
 
         public final static Abs INSTANCE = new Abs();
@@ -169,8 +235,18 @@ public interface Function {
             return ra * (f - b);
         }
 
-        public double dfdx(double x) {
-            return a;
+        public double df(int n, double x) {
+            if(n < 0) {
+                throw new IllegalArgumentException("Order of derivative must be non-negative");
+            }
+            switch(n) {
+            case 1:
+                return a;
+            case 0:
+                return f(x);
+            default:
+                return 0.0;
+            }
         }
     }
     

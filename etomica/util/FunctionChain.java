@@ -34,11 +34,20 @@ public final class FunctionChain implements Function, java.io.Serializable {
     /**
      * Evaluates derivative via the chain rule.
      */
-    public double dfdx(double x) {
+    public double df(int n, double x) {
         if(head == null) return 1.0;
+        if(n < 0) {
+            throw new IllegalArgumentException("order of derivative must be non-negative");
+        }
+        if(n == 0) {
+            return f(x);
+        }
+        if(n > 1) {
+            throw new IllegalArgumentException("Only first-order derivative available for FunctionChain");
+        }
         double df = 1.0;
         for(Link link=head; link!=null; link=link.next) {
-            df = ((FunctionDifferentiable)link.function).dfdx(x);
+            df = ((FunctionDifferentiable)link.function).df(1, x);
             x = link.function.f(x);
         }
         return df;

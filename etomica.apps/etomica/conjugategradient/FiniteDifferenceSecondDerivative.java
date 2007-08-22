@@ -15,7 +15,7 @@ import etomica.space.Space;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
 import etomica.util.FunctionMultiDimensionalDoubleDifferentiable;
 
-public class FiniteDifferenceSecondDerivative implements FunctionMultiDimensionalDoubleDifferentiable{
+public class FiniteDifferenceSecondDerivative implements FunctionMultiDimensionalDifferentiable{
 	
 	/*
 	 * Section 5.7 Numerical Derivative by Ridder's Method
@@ -54,15 +54,19 @@ public class FiniteDifferenceSecondDerivative implements FunctionMultiDimensiona
 		forceSum.setAgentManager(agentManager);
 	}
 	
-	public double function(double[] u){
-		return fFunction.function(u);
+	public double f(double[] u){
+		return fFunction.f(u);
 	}
+    
+    public double df(int[] d, double[] u) {
+        
+    }
 	
 	public double[] dfdx(double[] u){
 		return fFunction.dfdx(u);
 	}
 	
-	public double[][] d2fdx2(double[] u){
+	public double d2fdx2(int p, int q, double[] u){
 		
 		int coordinateDim = u.length;
 		double[][] d2fdx2 = new double[coordinateDim][coordinateDim]; 
@@ -79,9 +83,6 @@ public class FiniteDifferenceSecondDerivative implements FunctionMultiDimensiona
 		
 		hh = h;
 		
-		for (int p=0; p<coordinateDim; p++){  //loop over the p-th second derivatives
-			
-			for(int q=0; q<coordinateDim; q++){ // loop over the q-th generalized coordinate
 				if(q==p){
 					uPlus[q] = u[q] + hh;
 					uMinus[q] = u[q] - hh;
@@ -89,9 +90,7 @@ public class FiniteDifferenceSecondDerivative implements FunctionMultiDimensiona
 					uPlus[q] = u[q];
 					uMinus[q] = u[q];
 				}
-			}
 			
-			for(int q=0; q<coordinateDim; q++){
 				a[0][0][p][q]= (fFunction.dfdx(uPlus)[q] - fFunction.dfdx(uMinus)[q])/(2.0*hh); //NOTE!!
 			
 				if (!hOptimizer) {
@@ -121,9 +120,6 @@ public class FiniteDifferenceSecondDerivative implements FunctionMultiDimensiona
 						break;
 					}
 				}
-			} //end of q-loop
-		
-		} //end of p-loop
 		
 		return d2fdx2;
 	}

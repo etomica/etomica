@@ -51,8 +51,8 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
 		forceSum.setAgentManager(agentManager);
 	}
 	
-	public double function(double[] u){
-		return fFunction.function(u);
+	public double f(double[] u){
+		return fFunction.f(u);
 	}
 	
 	public double[] dfdx(double[] u){
@@ -84,7 +84,7 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
 				}
 			}
 		
-			a[0][0][p]= (fFunction.function(uPlus) - fFunction.function(uMinus))/(2.0*hh);
+			a[0][0][p]= (fFunction.f(uPlus) - fFunction.f(uMinus))/(2.0*hh);
 		
 			if (!hOptimizer) {
 				dfdx[p] = a[0][0][p];
@@ -95,7 +95,7 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
 			
 			for(int i=1; i<ntab; i++){
 				hh = hh /con;
-				a[0][i][p] = (fFunction.function(uPlus) - fFunction.function(uMinus))/(2.0*hh);
+				a[0][i][p] = (fFunction.f(uPlus) - fFunction.f(uMinus))/(2.0*hh);
 				fac = con2;
 				
 				for(int j=1; j<i; j++){

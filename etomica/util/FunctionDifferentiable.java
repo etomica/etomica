@@ -2,6 +2,6 @@ package etomica.util;
 
 public interface FunctionDifferentiable extends Function {
 
-    public double dfdx(double x);
+    public double df(int n, double x);
 
 }

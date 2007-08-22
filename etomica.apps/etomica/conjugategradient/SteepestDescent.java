@@ -30,7 +30,7 @@ public class SteepestDescent {
    @param b		Vector
    @return x 	Vector (solution)
    */
-	public Matrix SteepestDescentAlgorithm(){
+	public Matrix steepestDescentAlgorithm(){
 			
 		/*
 		 * an error tolerance, 0 <= epsilon < 1
@@ -103,7 +103,7 @@ public class SteepestDescent {
 	      
 	      SteepestDescent steepestDescent = new SteepestDescent(A, x, b, 150);
 	      
-	      x = steepestDescent.SteepestDescentAlgorithm();
+	      x = steepestDescent.steepestDescentAlgorithm();
 	      
 	      x.print(10, 4);
 		

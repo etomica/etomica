@@ -53,7 +53,7 @@ public class DerivativeFunction implements FunctionMultiDimensionalDifferentiabl
 		 */
 	}
 	
-	public double function(double[] newU){
+	public double f(double[] newU){
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
 			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, newU);
