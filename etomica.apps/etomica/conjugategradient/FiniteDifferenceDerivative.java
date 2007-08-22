@@ -10,12 +10,11 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.util.FunctionMultiDimensional;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
-import etomica.util.FunctionMultiDimensionalDoubleDifferentiable;
 
-public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDoubleDifferentiable{
+public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDifferentiable{
 	
 	/*
 	 * Section 5.7 Numerical Derivative by Ridder's Method
@@ -32,14 +31,12 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDoubl
 	protected AtomAgentManager agentManager;
 	protected Activity activity;
 	
-	protected FunctionMultiDimensionalDifferentiable fFunction;
-	protected IVector orientation ;
-	protected double delta;
+	protected FunctionMultiDimensional fFunction;
 	protected double error;
 	protected double h;
 	protected boolean hOptimizer;
 	
-	public FiniteDifferenceDerivative(Box box, PotentialMaster potentialMaster, FunctionMultiDimensionalDifferentiable fFunction){
+	public FiniteDifferenceDerivative(Box box, PotentialMaster potentialMaster, FunctionMultiDimensional fFunction){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		this.fFunction = fFunction;
@@ -59,17 +56,13 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDoubl
 	}
 	
 	public double[] dfdx(double[] u){
-		return fFunction.dfdx(u);
-	}
-	
-	public double[][] d2fdx2(double[] u){
 		
 		int coordinateDim = u.length;
-		double[][] d2fdx2 = new double[coordinateDim][coordinateDim]; 
+		double[] dfdx = new double[coordinateDim]; 
 		int ntab = 10;
 		double con = 1.4;
 		double con2 = con*con;
-		double big = Math.pow(1, 30);
+		double big = Math.pow(10, 30);
 		double safe = 2.0;
 		
 		double errt, fac, hh;
@@ -79,22 +72,22 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDoubl
 		
 		hh = h;
 		
-		for (int p=0; p<coordinateDim; p++){  //loop over the p-th second derivatives
+		for (int p=0; p<coordinateDim; p++){  //loop over the p-times second derivatives
 			
-			for(int q=0; q<coordinateDim; q++){ // loop over the q-th generalized coordinate
+			for(int q=0; q<coordinateDim; q++){ // loop over the q-times generalized coordinate
 				if(q==p){
-					uPlus[q] = uPlus[q] + hh;
-					uMinus[q] = uMinus[q] - hh;
+					uPlus[q] = u[q] + hh;
+					uMinus[q] = u[q] - hh;
 				} else {
 					uPlus[q] = u[q];
 					uMinus[q] = u[q];
 				}
 			}
 		
-			a[0][0][p]= (fFunction.dfdx(uPlus)[p] - fFunction.dfdx(uMinus)[p])/(2.0*hh); //NOTE!!
+			a[0][0][p]= (fFunction.function(uPlus) - fFunction.function(uMinus))/(2.0*hh);
 		
 			if (!hOptimizer) {
-				d2fdx2[p][0] = a[0][0][p];
+				dfdx[p] = a[0][0][p];
 				continue;
 			}
 			
@@ -102,7 +95,7 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDoubl
 			
 			for(int i=1; i<ntab; i++){
 				hh = hh /con;
-				a[0][i][p] = (fFunction.dfdx(uPlus)[p] - fFunction.dfdx(uMinus)[p])/(2.0*hh);
+				a[0][i][p] = (fFunction.function(uPlus) - fFunction.function(uMinus))/(2.0*hh);
 				fac = con2;
 				
 				for(int j=1; j<i; j++){
@@ -112,18 +105,18 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDoubl
 					
 					if (errt <= err){
 						err = errt;
-						d2fdx2[p][0] = a[j][i][p];
+						dfdx[p] = a[j][i][p];
 					}
 				}
 				
-				if (Math.abs(a[i][i][0]-a[i-1][i-1][0]) >= safe*err){
+				if (Math.abs(a[i][i][p]-a[i-1][i-1][p]) >= safe*err){
 					break;
 				}
 			}
 		
 		} //end of looping p
 		
-		return d2fdx2;
+		return dfdx;
 	}
 
 	
