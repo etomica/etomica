@@ -23,15 +23,15 @@ public class TestFiniteDifferenceDerivative implements FunctionMultiDimensional 
 	public static void main(String args[]){
 		
 		
-		double[] u = new double[]{1,20};//rad
+		double[] u = new double[]{1,2};
 		TestFiniteDifferenceDerivative test = new TestFiniteDifferenceDerivative();
 		
 		FiniteDifferenceDerivative differentiate = new FiniteDifferenceDerivative(test);
 		differentiate.setH(0.001);
 		differentiate.setHOptimizer(true);
-		System.out.println("cosine of 45 is "+test.f(u));
-		System.out.println("Differentiated Result is: "+ differentiate.df(new int[] {1,2}, u));
-        System.out.println("analytic: " + 3*u[1]*u[1]);
+		System.out.println("Value for function is: "+test.f(u));
+		System.out.println("Differentiated Result is: "+ differentiate.df(new int[] {1,0}, u));
+        System.out.println("analytic: " + 3*u[1]*u[0]);
 		// -sin(45) should be -0.850903524 rad
 		
 		

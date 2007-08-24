@@ -17,7 +17,7 @@ import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
 
-public class DerivativeFunction implements FunctionMultiDimensionalDifferentiable {
+public class DerivativeEnergyFunction implements FunctionMultiDimensionalDifferentiable{
 
 	/*
 	 * This class is developed to calculate for the first derivative of energy function.
@@ -35,8 +35,9 @@ public class DerivativeFunction implements FunctionMultiDimensionalDifferentiabl
 	protected CoordinateDefinition coordinateDefinition;
 	protected double[] fPrime;
 	protected IVector moleculeForce;
+	protected FunctionMultiDimensionalDifferentiable fFunction;
 	
-	public DerivativeFunction(Box box, PotentialMaster potentialMaster){
+	public DerivativeEnergyFunction(Box box, PotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
@@ -53,14 +54,7 @@ public class DerivativeFunction implements FunctionMultiDimensionalDifferentiabl
 		 */
 	}
 	
-	public double f(double[] newU){
-		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
-			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
-			coordinateDefinition.setToU(molecules, newU);
-		}
-		
-		return meterEnergy.getDataAsScalar();
-	}
+
 	
 	public CoordinateDefinition getCoordinateDefinition(){
 		return coordinateDefinition;
@@ -71,7 +65,16 @@ public class DerivativeFunction implements FunctionMultiDimensionalDifferentiabl
 		fPrime = new double[coordinateDefinition.getCoordinateDim()];
 	}
 	
-	public double[] dfdx(double[] newU){
+	public double f(double[] newU){
+		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
+			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
+			coordinateDefinition.setToU(molecules, newU);
+		}
+		
+		return meterEnergy.getDataAsScalar();
+	}
+	
+	public double df(int[] d, double[] u){
 		
 		/*
 		 * Index is assigned to be the number of molecules in a box
@@ -83,7 +86,28 @@ public class DerivativeFunction implements FunctionMultiDimensionalDifferentiabl
 		
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
 			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
-			coordinateDefinition.setToU(molecules, newU);
+			coordinateDefinition.setToU(molecules, u);
+		}
+		
+		/*
+		 * d only takes in array that compute first-order derivative w.r.t. to corresponding n-th dimension
+		 *  for example, d=new double{1, 0, 0} or {0, 0, 1}, which means first-order differentiation to 
+		 *  first- and third- dimension respectively. 
+		 */
+		
+		int index =0;
+		double check =0;
+		
+		for (int i =0; i <d.length; i++){
+			check += d[i];
+			
+			if (d[i]==1){
+				index = i;
+			}
+		} 
+		
+		if (check != 1){
+			throw new IllegalArgumentException("The function MUST and CAN only compute first-order derivative!!");
 		}
 		
 		int j=0;
@@ -92,12 +116,16 @@ public class DerivativeFunction implements FunctionMultiDimensionalDifferentiabl
 		AtomSet molecules = coordinateDefinition.getBasisCells()[0].molecules;
 		
 		for (int m=0; m<molecules.getAtomCount(); m++){
-			
-			if (m==0){
-				for (int k=0;k<3;k++){
-					fPrime[j+k] = 0;
-				}
 				
+			if (m==0){
+				for (int k=0; k<3; k++){
+					fPrime[j+k] = 0;
+					
+					if (index == j+k){
+						return fPrime[j+k];
+					}
+				}
+					
 			} else {
 				
 				AtomSet childList = ((IAtomGroup)molecules.getAtom(m)).getChildList();
@@ -108,16 +136,24 @@ public class DerivativeFunction implements FunctionMultiDimensionalDifferentiabl
 					moleculeForce.PE(((IntegratorVelocityVerlet.MyAgent)agentManager.getAgent(childList.getAtom(r)))
 							   .force);
 				}
+					
 				
-			
 				for (int k=0; k<3; k++){
 					fPrime[j+k] = moleculeForce.x(k);
+						
+					if (index == j+k){
+						return fPrime[j+k];
+					}
 				}
 			}
 			j += coordinateDefinition.getCoordinateDim() /molecules.getAtomCount();
 		}
 		
-		return fPrime;
+		return fPrime[index];
+	}
+	
+	public int getDimension(){
+		return fFunction.getDimension();
 	}
 	
 	public void getScalarEnergy(){

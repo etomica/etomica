@@ -1,16 +1,7 @@
 package etomica.conjugategradient;
 
-import etomica.action.Activity;
-import etomica.atom.AtomAgentManager;
-import etomica.atom.IAtom;
-import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
-import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.integrator.IntegratorHardField.PotentialCalculationForceSum;
-import etomica.potential.PotentialMaster;
-import etomica.space.Space;
+import etomica.util.numerical.FiniteDifferenceDerivative;
+
 
 public class NonLinearConjugateGradients {
 
@@ -23,30 +14,16 @@ public class NonLinearConjugateGradients {
 	 *  @author Tai Tan
 	 */
 	
-	protected Box box;
-	protected MeterPotentialEnergy meterEnergy;
-	protected PotentialMaster potentialMaster;
-	protected IteratorDirective allAtoms;
-	protected PotentialCalculationForceSum forceSum;
-	protected AtomAgentManager agentManager;
-	protected Activity activity;
-	protected FiniteDifferenceSecondDerivative fDoublePrime;
+	protected FiniteDifferenceDerivative finiteDifferenceDerivative;
 	
 	
-	public NonLinearConjugateGradients(Box box, PotentialMaster potentialMaster){
-		this.box = box;
-		this.potentialMaster = potentialMaster;
-		meterEnergy = new MeterPotentialEnergy(potentialMaster);
-		allAtoms = new IteratorDirective();
-		forceSum = new PotentialCalculationForceSum();
+	public NonLinearConjugateGradients(FiniteDifferenceDerivative finiteDifferenceDerivative){
+		this.finiteDifferenceDerivative = finiteDifferenceDerivative;
 		
-		MyAgentSource source = new MyAgentSource(box.getSpace());
-		agentManager = new AtomAgentManager(source, box);
-		forceSum.setAgentManager(agentManager);
-
 	}
 	
-	public void NonLinearCG(DerivativeFunction function, int imax, int jmax, double epsilon, double[] u){
+	public void NonLinearCG(int imax, int jmax, double epsilon, double[] u){
+		
 		
 		/*
 		 *  imax is a maximum number of CG iterations
@@ -59,15 +36,33 @@ public class NonLinearConjugateGradients {
 		int n;
 		
 		double deltaNew = 0;
-		
 		int coordinateDim = u.length;
-		double[] fPrimeVal = function.dfdx(u);
+		int[] dAssign = new int[coordinateDim];
+		double[] uDerivative = new double[coordinateDim];
+		
+		/*
+		 * To obtain first derivative of a function
+		 */
+		for (int diff1Counter=0; diff1Counter< coordinateDim; diff1Counter++){
+			/*
+			 *  To assign d to differentiate over all the dimensions
+			 */
+			for (int dim=0; dim< coordinateDim; dim++){
+				if (diff1Counter==dim){
+					dAssign[dim] = 1;
+				} else{
+					dAssign[dim] = 0;
+				}
+			}
+			uDerivative[diff1Counter] = finiteDifferenceDerivative.df(dAssign, u);
+		}
+		
 		
 		double[] r = new double[coordinateDim]; 
 		double[] d = new double[coordinateDim];
 		
 		for (n=0; n<coordinateDim; n++){
-			r[n] = - fPrimeVal[n];
+			r[n] = - uDerivative[n];
 			d[n] = r[n];
 			
 			System.out.println("r["+n + "] is: " + r[n]);
@@ -88,17 +83,43 @@ public class NonLinearConjugateGradients {
 			double alpha_num = 0;
 			double alpha_denom = 0;
 			
-			fPrimeVal = function.dfdx(u);
+			/*
+			 * To obtain second derivative of a function
+			 */
+			int[][] d2Assign = new int[coordinateDim][coordinateDim];
+			double[][] u2Derivative = new double[coordinateDim][coordinateDim];
+			//////////////////////
 			
-			fDoublePrime.setH(0.00002);
-			double[][] fDoublePrimeVal = fDoublePrime.d2fdx2(u);
+			for (int diff2Counter =0; diff2Counter< coordinateDim; diff2Counter++){
+				for (int diff1Counter =0; diff1Counter< coordinateDim; diff1Counter++){
+					/*
+					 *  To assign d to differentiate over all the dimensions
+					 */
+					
+					
+					
+					for (int dim =0; dim< coordinateDim; dim++){
+						if (diff2Counter==dim){
+							d2Assign[dim][dim] = 1;
+						} else{
+							d2Assign[dim][dim] = 0;
+						}
+					}
+					
+					u2Derivative[diff2Counter][diff1Counter] = finiteDifferenceDerivative.df(dAssign, uDerivative);
+				}
+				
+			}
+			
+			
+			///////////////////////
 			
 			double[] d_DoublePrime = new double[coordinateDim];
 			
 			for(n=0; n<coordinateDim; n++){
 				
 				for(int m=0; m<coordinateDim; m++){
-					d_DoublePrime[n] += d[m]*fDoublePrimeVal[m][n];
+					d_DoublePrime[n] += d[m]*u2Derivative[m][n];
 				}
 			}
 			
@@ -106,7 +127,7 @@ public class NonLinearConjugateGradients {
 				
 				deltad += d[n]*d[n];
 				
-				alpha_num += - fPrimeVal[n]*d[n];
+				alpha_num += - uDerivative[n]*d[n];
 				alpha_denom += d_DoublePrime[n]*d[n];
 			}
 			
@@ -123,9 +144,8 @@ public class NonLinearConjugateGradients {
 			while(j<jmax && alpha2_deltad > epsilon2){
 				double deltaOld=0;
 				
-				fPrimeVal = function.dfdx(u);
 				for(n=0; n<coordinateDim; n++){
-					r[n] = - fPrimeVal[n];
+					r[n] = - uDerivative[n];
 					deltaOld = deltaNew;
 					
 					deltaNew += r[n]*r[n];
@@ -152,28 +172,11 @@ public class NonLinearConjugateGradients {
 				}
 				k=0;
 			}
-			function.getScalarEnergy();
+			
 			
 			System.out.println("NonlinearCG within WHILE loop...");
 			i++;
 		}
-	}
-	
-	public static class MyAgentSource implements AgentSource{
-		
-		public MyAgentSource(Space space){
-			this.space = space;
-		}
-		
-		public void releaseAgent(Object agent, IAtom atom){}
-		public Class getAgentClass(){
-			return IntegratorVelocityVerlet.MyAgent.class;
-		}
-		public Object makeAgent(IAtom atom){
-			
-			return new IntegratorVelocityVerlet.MyAgent(space);
-			}
-		protected Space space;
 	}
 	
 }
