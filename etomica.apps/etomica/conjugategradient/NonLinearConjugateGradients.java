@@ -1,5 +1,6 @@
 package etomica.conjugategradient;
 
+import etomica.util.FunctionMultiDimensionalDifferentiable;
 import etomica.util.numerical.FiniteDifferenceDerivative;
 
 
@@ -15,15 +16,18 @@ public class NonLinearConjugateGradients {
 	 */
 	
 	protected FiniteDifferenceDerivative finiteDifferenceDerivative;
-	
+	protected int imax;
+	protected int jmax;
+	protected double epsilon;
 	
 	public NonLinearConjugateGradients(FiniteDifferenceDerivative finiteDifferenceDerivative){
 		this.finiteDifferenceDerivative = finiteDifferenceDerivative;
-		
+		imax = 100;
+		jmax = 100;
+		epsilon = 0.00001;
 	}
 	
-	public void NonLinearCG(int imax, int jmax, double epsilon, double[] u){
-		
+	public void NonLinearCG(FunctionMultiDimensionalDifferentiable function, double[] u){
 		
 		/*
 		 *  imax is a maximum number of CG iterations
@@ -34,11 +38,13 @@ public class NonLinearConjugateGradients {
 		int i=0;
 		int k=0;
 		int n;
-		
-		double deltaNew = 0;
 		int coordinateDim = u.length;
+		double deltaNew = 0;
+		
 		int[] dAssign = new int[coordinateDim];
 		double[] uDerivative = new double[coordinateDim];
+		
+		finiteDifferenceDerivative = new FiniteDifferenceDerivative(function);
 		
 		/*
 		 * To obtain first derivative of a function
@@ -54,17 +60,14 @@ public class NonLinearConjugateGradients {
 					dAssign[dim] = 0;
 				}
 			}
-			uDerivative[diff1Counter] = finiteDifferenceDerivative.df(dAssign, u);
+			uDerivative[diff1Counter] = - finiteDifferenceDerivative.df(dAssign, u);
 		}
 		
 		
-		double[] r = new double[coordinateDim]; 
-		double[] d = new double[coordinateDim];
+		double[] r = uDerivative.clone(); 
+		double[] d = r.clone();
 		
-		for (n=0; n<coordinateDim; n++){
-			r[n] = - uDerivative[n];
-			d[n] = r[n];
-			
+		for (n=0; n<coordinateDim; n++){	
 			System.out.println("r["+n + "] is: " + r[n]);
 			deltaNew += r[n]*r[n];
 		}
@@ -86,36 +89,34 @@ public class NonLinearConjugateGradients {
 			/*
 			 * To obtain second derivative of a function
 			 */
-			int[][] d2Assign = new int[coordinateDim][coordinateDim];
 			double[][] u2Derivative = new double[coordinateDim][coordinateDim];
-			//////////////////////
-			
+		
 			for (int diff2Counter =0; diff2Counter< coordinateDim; diff2Counter++){
 				for (int diff1Counter =0; diff1Counter< coordinateDim; diff1Counter++){
+					
 					/*
-					 *  To assign d to differentiate over all the dimensions
+					 *  To assign d to differentiate twice over all the dimensions
 					 */
-					
-					
-					
 					for (int dim =0; dim< coordinateDim; dim++){
-						if (diff2Counter==dim){
-							d2Assign[dim][dim] = 1;
+						if (diff1Counter==dim){
+							dAssign[dim] = 1;
 						} else{
-							d2Assign[dim][dim] = 0;
+							dAssign[dim] = 0;
 						}
+						
+						++ dAssign[diff2Counter];  // determine the next element of the derivative
 					}
 					
-					u2Derivative[diff2Counter][diff1Counter] = finiteDifferenceDerivative.df(dAssign, uDerivative);
+					u2Derivative[diff2Counter][diff1Counter] = finiteDifferenceDerivative.df(dAssign, u);
 				}
-				
 			}
-			
-			
-			///////////////////////
 			
 			double[] d_DoublePrime = new double[coordinateDim];
 			
+			/*
+			 * Computing Matrix-Multiplication of 
+			 * Matrix (1 X CoordinateDim) and Matrix (CoordinateDim X CoordinateDim)
+			 */
 			for(n=0; n<coordinateDim; n++){
 				
 				for(int m=0; m<coordinateDim; m++){
@@ -127,11 +128,11 @@ public class NonLinearConjugateGradients {
 				
 				deltad += d[n]*d[n];
 				
-				alpha_num += - uDerivative[n]*d[n];
+				alpha_num += uDerivative[n]*d[n];
 				alpha_denom += d_DoublePrime[n]*d[n];
 			}
 			
-			double alpha = alpha_num /alpha_denom;
+			double alpha = - alpha_num /alpha_denom;
 			
 			for(n=0; n<coordinateDim; n++){
 				u[n] = u[n] + alpha*d[n];
@@ -142,12 +143,11 @@ public class NonLinearConjugateGradients {
 			double epsilon2 = epsilon*epsilon;
 			
 			while(j<jmax && alpha2_deltad > epsilon2){
-				double deltaOld=0;
+				
+				r = uDerivative.clone();
+				double deltaOld = deltaNew;
 				
 				for(n=0; n<coordinateDim; n++){
-					r[n] = - uDerivative[n];
-					deltaOld = deltaNew;
-					
 					deltaNew += r[n]*r[n];
 				}
 				
@@ -173,10 +173,33 @@ public class NonLinearConjugateGradients {
 				k=0;
 			}
 			
-			
 			System.out.println("NonlinearCG within WHILE loop...");
 			i++;
 		}
+	}
+
+	public int getImax() {
+		return imax;
+	}
+
+	public void setImax(int imax) {
+		this.imax = imax;
+	}
+
+	public int getJmax() {
+		return jmax;
+	}
+
+	public void setJmax(int jmax) {
+		this.jmax = jmax;
+	}
+
+	public double getEpsilon() {
+		return epsilon;
+	}
+
+	public void setEpsilon(double epsilon) {
+		this.epsilon = epsilon;
 	}
 	
 }
