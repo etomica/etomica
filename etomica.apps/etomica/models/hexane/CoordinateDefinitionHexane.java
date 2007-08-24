@@ -40,8 +40,6 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     public CoordinateDefinitionHexane(Box box, Primitive primitive, 
             SpeciesHexane species){
         super(box, primitive, 6);
-
-        //TODO patched the orientation in the previous line
         
         length = species.getBondLength();
         phi = species.getBondAngle();
@@ -69,7 +67,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     }
 
     public double[] calcU(AtomSet molecules) {
-        double tol = 0.0000000001;
+        double tol = 0.0000000001;  //1E-10
         
         // handle center-of-mass part
         // super.calcU fills in the first 3 elements of |u|
@@ -258,6 +256,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         
         // Set up all the axes based on the molecule atom0, the reference
         // molecule
+        
         // Long rotational axis of atom 0
         IVector leafPos1 = ((IAtomPositioned) molecule
                 .getChildList().getAtom(0)).getPosition();
@@ -295,12 +294,9 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // atoms is a single molecule; we can grab its childlist for our
         //      AtomArrayList; we're looking at an AtomGroup
         // Put the molecule into its initial conformation
-//        confHex.initializePositions(((AtomGroup)atoms).getChildList());
-        confHex.initializePositions(((AtomGroup)((AtomArrayList)atoms).getAtom(0)).getChildList());
-        
-        
         childlist = ((AtomGroup)((AtomArrayList)atoms).getAtom(0)).getChildList();
-  
+        confHex.initializePositions(childlist);
+        
         /*
          * Deal with u[5].  We do this first, and we can do this at all,
          * because the initial molecule we are manipulating is in the same 
@@ -380,7 +376,6 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
              rotor.transform(temp);
         }
         
-        
         //Apply the TORSIONAL angles
         for(int i = 0; i < 6-3; i++){
             cosA = Math.cos(u[6+i]);
@@ -416,13 +411,11 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
             temp.TE(length);
 
             ((AtomLeaf)childlist.getAtom(i+3)).getPosition().E(temp);
+            ((AtomLeaf)childlist.getAtom(i+3)).getPosition().PE(((AtomLeaf)childlist.getAtom(i+2)).getPosition());
         }
-        
         //Translate the molecule to its proper place.
         //Uses center of mass/ geometric center.
         super.setToU(atoms, u);
-        
-//        throw new RuntimeException("Don't yet know how to set orientation");
     }
 
     
