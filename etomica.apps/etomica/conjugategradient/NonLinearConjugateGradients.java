@@ -64,10 +64,14 @@ public class NonLinearConjugateGradients {
 		}
 		
 		
-		double[] r = uDerivative.clone(); 
-		double[] d = r.clone();
+		double[] r = new double[coordinateDim]; 
+		double[] d = new double[coordinateDim];
 		
 		for (n=0; n<coordinateDim; n++){	
+			
+			r[n] = uDerivative[n];
+			d[n] = r[n];
+			
 			System.out.println("r["+n + "] is: " + r[n]);
 			deltaNew += r[n]*r[n];
 		}
@@ -144,10 +148,10 @@ public class NonLinearConjugateGradients {
 			
 			while(j<jmax && alpha2_deltad > epsilon2){
 				
-				r = uDerivative.clone();
 				double deltaOld = deltaNew;
 				
 				for(n=0; n<coordinateDim; n++){
+					r[n] = uDerivative[n];
 					deltaNew += r[n]*r[n];
 				}
 				
