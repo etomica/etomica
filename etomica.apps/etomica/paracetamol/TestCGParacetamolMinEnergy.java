@@ -316,6 +316,7 @@ public class TestCGParacetamolMinEnergy extends Simulation {
         */
         
         // Energy Minimization
+        /*
         NonLinearConjugateGradients nonLinearCG = new NonLinearConjugateGradients(sim.box, sim.potentialMaster);
         DerivativeFunctionParacetamol function = new DerivativeFunctionParacetamol(sim.box, sim.potentialMaster);
         
@@ -324,6 +325,7 @@ public class TestCGParacetamolMinEnergy extends Simulation {
         nonLinearCG.NonLinearCG(function, 50, 50, 0.00001, u);
         System.out.println("Minimization~~~!!!");
         function.getScalarEnergy();
+        */
         
 /*    NOT PART OF THE CODE
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
@@ -394,5 +396,5 @@ public class TestCGParacetamolMinEnergy extends Simulation {
     public PrimitiveOrthorhombic primitive;
     public CoordinateDefinitionParacetamol coordinateDefinition;
     public NonLinearConjugateGradients nonLinearCG;
-    public DerivativeFunctionParacetamol function;
+    public DerivativeEnergyFunctionParacetamol function;
 }
