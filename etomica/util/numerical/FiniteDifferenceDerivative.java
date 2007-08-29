@@ -15,12 +15,14 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
 	protected FunctionMultiDimensional fFunction;
 	protected double h;
 	protected boolean hOptimizer;
+	protected int ntab;
 	
 	public FiniteDifferenceDerivative(FunctionMultiDimensional fFunction){
 
 		this.fFunction = fFunction;
 		h = 0.00001;
 		hOptimizer = false;
+		ntab = 10;
 	}
 	
 	public double f(double[] u){
@@ -33,12 +35,16 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
 
 	public double df(int[] d, double[] u) {
 		
+		/*
+		 * 
+		 */
+		
         if(u.length != d.length) {
             throw new IllegalArgumentException("d and u must be the same length");
         }
         
         int index = -1;
-        int[] dCopy = (int[])d.clone();
+        int[] dCopy = d.clone();
         for(int i=0; i<d.length; i++) {
             if(d[i] != 0) {
                 index = i;
@@ -50,7 +56,6 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
             return fFunction.f(u);
         }
         
-		int ntab = 20;
 		double con = 1.4;
 		double con2 = con*con;
 		double big = Double.MAX_VALUE;
@@ -70,7 +75,7 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
             
         a[0][0] = (fPlus - fMinus)/(2.0*hh);
 
-        System.out.println(" a[0][0] is: "+a[0][0]);
+        //System.out.println(" a[0][0] is: "+a[0][0]);
 		if (!hOptimizer) {
             u[index] = uSave;
 			return a[0][0];
@@ -87,12 +92,12 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
             fMinus= df(dCopy, u);
 			
             a[0][i] = (fPlus - fMinus)/(2.0*hh);
-			System.out.println(" a[0]["+i+"] is: "+a[0][i]);
+			//System.out.println(" a[0]["+i+"] is: "+a[0][i]);
 			fac = con2;
 			
 			for(int j=1; j<i; j++){
 				a[j][i] = (a[j-1][i]*fac - a[j-1][i-1])/(fac-1);
-				System.out.println(" a["+j+"]["+i+"] is: "+a[j][i]);
+				//System.out.println(" a["+j+"]["+i+"] is: "+a[j][i]);
 				fac = con2*fac;
 				errt = Math.max(Math.abs(a[j][i]-a[j-1][i]), Math.abs(a[j][i]-a[j-1][i-1]));
 				//System.out.println("errt is: "+errt);
@@ -100,7 +105,7 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
 				if (errt <= err){
 					err = errt;
 					dfdx = a[j][i];
-					System.out.println("in errt<= err, dfdx is: "+a[j][i]);
+					//System.out.println("in errt<= err, dfdx is: "+a[j][i]);
 				}
 			}
 			
@@ -126,5 +131,13 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
 
 	public void setHOptimizer(boolean optimizer) {
 		hOptimizer = optimizer;
+	}
+
+	public int getNtab() {
+		return ntab;
+	}
+
+	public void setNtab(int ntab) {
+		this.ntab = ntab;
 	}
 }
