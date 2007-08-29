@@ -11,6 +11,7 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomsetArrayList;
+import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -27,6 +28,7 @@ import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -167,15 +169,16 @@ public class TestSetToUHexane extends Simulation {
     
     
     public void runit(){
+        System.out.println("Start"  );
 
-        int nsteps = chainLength * 100;
-        
-        nsteps = 1;
+        int nsteps = chainLength * 500;
             
         //Store old positions
         AtomSet aal = ((AtomGroup)box.molecule(0)).getChildList();
         AtomsetArrayList list = new AtomsetArrayList();
         list.setAtoms(aal);
+
+        IVector site = cdHex.getLatticePosition((AtomGroup)box.molecule(0));
         
         for(int i = 0; i < chainLength; i++){
             oldX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
@@ -184,38 +187,44 @@ public class TestSetToUHexane extends Simulation {
         for(int counter = 0; counter < nsteps; counter++){    
             //Calculate the u's that correspond to the old positions. 
             oldUs = cdHex.calcU(box.getAgent(species).getChildList());
+//            for(int i = 0; i < 9; i++){
+//                System.out.println(oldUs[i]);
+//            }
             
             //make a bunch of moves
-//            for(int i = 0; i < chainLength*2; i++){
-//                integrator.doStepInternal();
-//            }
-//            
-//            //Store the current positions for later use.
-//            for(int i = 0; i < chainLength; i++){
-//                newX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
-////                System.out.println("newX  " + newX[i]);
-//            }
+            for(int i = 0; i < chainLength*2; i++){
+                integrator.doStepInternal();
+            }
+            
+            //Store the current positions for later use.
+            for(int i = 0; i < chainLength; i++){
+                newX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
+//                System.out.println("newX  " + newX[i]);
+            }
             
             //Move the molecules to the old positions, using u's      
             cdHex.setToU(box.getAgent(species).getChildList(), oldUs);
+//            for(int i = 0; i < 9; i++){
+//                System.out.println("u "+ i + " + " +oldUs[i]);
+//            }
             
-            for(int i = 0; i < chainLength; i++){
-                System.out.println("oldX  " + oldX[i]);
-                System.out.println("back  "+ 
-                        (Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
-            }
+//            for(int i = 0; i < chainLength; i++){
+//                System.out.println("oldX  " + oldX[i]);
+//                System.out.println("back  "+ 
+//                        (Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
+//            }
             
             //Compare the old and new positions.
             double tol = 0.0000005;
             for(int i = 0; i < chainLength; i++) {
+                newX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
                 newX[i].ME(oldX[i]);
-                newX[i].squared();
-                for(int j = 0; j < 3; j++){
-//                    if(newX[i].x(j) > tol){
-//                        System.out.println("Not in the tolerance!!  " + newX[i].x(j));
-//                    }
+                double test = Math.sqrt(newX[i].squared());
+//                System.out.println(test);
+                if (test > tol){
+                        System.out.println("Not in the tolerance!!  ");
                 }
-            }
+             }
         }
                 
         System.out.println("Zoinks!");
@@ -235,20 +244,3 @@ public class TestSetToUHexane extends Simulation {
     }
     
 }
-    
-//    
-//
-//    
-//    
-//    
-//
-//class Compare implements etomica.action.Action {
-//    
-//    Compare(){
-//        
-//    }
-//    
-//    public void actionPerformed(){
-//        
-//    }
-//}
