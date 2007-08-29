@@ -44,7 +44,7 @@ public class FiniteDifferenceDerivative implements FunctionMultiDimensionalDiffe
         }
         
         int index = -1;
-        int[] dCopy = d.clone();
+        int[] dCopy = (int[])d.clone();
         for(int i=0; i<d.length; i++) {
             if(d[i] != 0) {
                 index = i;
