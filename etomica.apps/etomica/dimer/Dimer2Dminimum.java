@@ -12,22 +12,23 @@ import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.IVector;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * Simulation using Henkelman's Dimer method.
+ * Simulation using Henkelman's Dimer method to find PE minimum from saddle point.
  * 
  * @author msellers
  *
  */
 
-public class Dimer2D extends Simulation {
+public class Dimer2Dminimum extends Simulation {
 
 	private static final long serialVersionUID = 1L;
 	public ActivityIntegrate activityIntegrateDimerRT, activityIntegrateDimerMEP;
-	public IntegratorDimerRT integratorDimerRT, integratorDimerMEP;
+	public IntegratorDimerMEP integratorDimerMEP;
 	public SpeciesSpheresMono species;
 	public Box box;
 	public P1LepsHarmonic potential;
@@ -37,23 +38,23 @@ public class Dimer2D extends Simulation {
 	public DataPump pump;
 	
 	public static void main(String[] args){
-		final String APP_NAME = "Dimer2D";
-		final Dimer2D sim = new Dimer2D();
+		final String APP_NAME = "Dimer2Dminumim";
+		final Dimer2Dminimum sim = new Dimer2Dminimum();
 
-		sim.activityIntegrateDimerRT.setMaxSteps(500);
+		//sim.activityIntegrateDimerMEP.setMaxSteps(500);
 
 		// Write initial configuration
 		WriteConfiguration writeConfig = new WriteConfiguration();
-		writeConfig.setConfName("dimer-config");
+		writeConfig.setConfName("dimer-config-min");
 		writeConfig.setBox(sim.box);
 		writeConfig.actionPerformed();
-		
+
 		MeterPotentialEnergy energy = new MeterPotentialEnergy(sim.potentialMaster);
 		
 		energy.setBox(sim.box);
 
 		DataLogger elog = new DataLogger();
-		elog.setFileName("00_sim-energy");
+		elog.setFileName("dimer-energy-min");
 		elog.setAppending(true);
 		elog.setCloseFileEachTime(true);
 		elog.setDataSink(new DataTableWriter());
@@ -61,31 +62,16 @@ public class Dimer2D extends Simulation {
 		
 		DataPump pump = new DataPump(energy, elog);
 		
-		sim.integratorDimerRT.addIntervalAction(pump);
-		sim.integratorDimerRT.setActionInterval(pump, 1);
+		sim.integratorDimerMEP.addIntervalAction(pump);
+		sim.integratorDimerMEP.setActionInterval(pump, 1);
 		
 		sim.getController().actionPerformed();
-		
-		
-		System.out.println("---- Saddle Point Data ----");
-		System.out.println("Steps: "+sim.integratorDimerRT.counter);
-		System.out.println("Dimer Energy: "+energy.getDataAsScalar());
-		System.out.println("Dimer Force Array Magnitude: "+sim.integratorDimerRT.saddleT);
-		System.out.println("Dimer Rotational Force Magnitude: "+sim.integratorDimerRT.Frot);
-		
-		double Fmag = 0;
-		for(int i=0;i<sim.integratorDimerRT.Feff.length;i++){
-			Fmag += sim.integratorDimerRT.Feff[i].squared();
-		}
-		Fmag = Math.sqrt(Fmag);
-		
-		System.out.println("Dimer Translational Force Magnitude: "+Fmag);
 		
 		System.out.println("X Location: "+((IAtomPositioned)sim.box.getLeafList().getAtom(0)).getPosition().x(0));
 		System.out.println("Y Location: "+((IAtomPositioned)sim.box.getLeafList().getAtom(0)).getPosition().x(1));
 	}
 		
-	public Dimer2D() {
+	public Dimer2Dminimum() {
 		
 		super(Space2D.getInstance());
 		potentialMaster = new PotentialMaster(space);
@@ -103,16 +89,15 @@ public class Dimer2D extends Simulation {
 		BoxImposePbc imposepbc = new BoxImposePbc();
 		imposepbc.setBox(box);
 		
-		double startx = 0.60;
-		double starty = 0.80;
+		// Create saddle point array
+		IVector [] saddle = new IVector[1];
+		saddle[0] = box.getSpace().makeVector();
+		saddle[0].setX(0, 1.9348841569069544);
+		saddle[0].setX(1, -1.2945894438743524);
 		
-		((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().setX(0, startx);
-		((IAtomPositioned)box.getLeafList().getAtom(0)).getPosition().setX(1, starty);
+		integratorDimerMEP = new IntegratorDimerMEP(this, potentialMaster, saddle, -10E-4, -0.05, new Species[]{species});
 		
-		
-		integratorDimerRT = new IntegratorDimerRT(this, potentialMaster);
-		
-		activityIntegrateDimerRT = new ActivityIntegrate(integratorDimerRT);
-		getController().addAction(activityIntegrateDimerRT);
+		activityIntegrateDimerMEP = new ActivityIntegrate(integratorDimerMEP);
+		getController().addAction(activityIntegrateDimerMEP);
 	}
 }
