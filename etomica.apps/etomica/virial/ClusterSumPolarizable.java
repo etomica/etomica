@@ -148,13 +148,9 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         }
         
 		if (nPoints == 3) {
-    		if (u12+u13+u23 == Double.POSITIVE_INFINITY) {
-    			//System.out.println("Sum of pair energies is infinity: u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23);
-    			deltaC = 0.0;
-    		}
-    		else {
-    		// Get a handle on the list of atoms from the AtomPairSet
-    			
+		    // check that no pair of molecules is overlapped (overlap => fij=-1)
+    		if (fValues[1][0][0] != -1 && fValues[2][0][0] != -1 && fValues[2][1][0] == -1) {
+    		    // Get a handle on the list of atoms from the AtomPairSet
     	        scfAtoms.clear();
                 scfAtoms.add(box.molecule(0));
                 scfAtoms.add(box.molecule(1));
