@@ -56,7 +56,6 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         int nPoints = pointCount();
         
         // kmb added 7/10/06
-        double deltaC = 0.0;
         double deltaD = 0.0;
         double u12 = 0.0;
         double u13 = 0.0;
@@ -149,7 +148,11 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         
 		if (nPoints == 3) {
 		    // check that no pair of molecules is overlapped (overlap => fij=-1)
-    		if (fValues[1][0][0] != -1 && fValues[2][0][0] != -1 && fValues[2][1][0] == -1) {
+		    // if any pair is overlapped, then deltaC=0
+            double f12 = fValues[0][1][0];
+            double f13 = fValues[0][2][0];
+            double f23 = fValues[1][2][0];
+    		if (f12 != -1 && f13 != -1 && f23 == -1) {
     		    // Get a handle on the list of atoms from the AtomPairSet
     	        scfAtoms.clear();
                 scfAtoms.add(box.molecule(0));
@@ -172,13 +175,10 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     	            expBetaU123 = Math.exp(-beta*deltau123)-1;
     	        }
                 
-                double f12 = fValues[0][1][0];
-                double f13 = fValues[0][2][0];
-                double f23 = fValues[1][2][0];
                 double g12 = f12+1; //Math.exp(-beta*u12);
                 double g13 = f13+1; //Math.exp(-beta*u13);
                 double g23 = f23+1; //Math.exp(-beta*u23);
-                deltaC = expBetaU123*g12*g13*g23;
+                double deltaC = expBetaU123*g12*g13*g23;
     			
     			// deltaC has to be multiplied by clusterWeights, just like v was multiplied by
     			// clusterWeights above to get value
@@ -187,15 +187,21 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     			if (Double.isInfinite(deltaC)) {
     				System.out.println("deltaC = " + deltaC);
     			}
+                value += deltaC;
+                //System.out.println("u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23 + ", u123 = " + u123 + ", deltaC = " + deltaC + ", value(before) = " + value);
     		}
-	        		
-    		//System.out.println("u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23 + ", u123 = " + u123 + ", deltaC = " + deltaC + ", value(before) = " + value);
-    		value += deltaC;
 		}
 
 		if (nPoints == 4) {
 			
-			if (u12+u13+u14+u23+u24+u34 == Double.POSITIVE_INFINITY) {
+            double f12 = fValues[0][1][0];
+            double f13 = fValues[0][2][0];
+            double f14 = fValues[0][3][0];
+            double f23 = fValues[1][2][0];
+            double f24 = fValues[1][3][0];
+            double f34 = fValues[2][3][0];
+
+            if (u12+u13+u14+u23+u24+u34 == Double.POSITIVE_INFINITY) {
     			//System.out.println("Sum of pair energies is infinity: u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23);
 				deltaD = 0.0;
     		}
@@ -225,12 +231,12 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
 
 				double deltaU1234 = u1234Pol-u12Pol-u13Pol-u14Pol-u23Pol-u24Pol-u34Pol-deltaU123-deltaU124-deltaU134-deltaU234;
 				
-				double g12 = Math.exp(-beta*u12);
-				double g13 = Math.exp(-beta*u13);
-				double g14 = Math.exp(-beta*u14);
-				double g23 = Math.exp(-beta*u23);
-				double g24 = Math.exp(-beta*u24);
-				double g34 = Math.exp(-beta*u34);
+                double g12 = f12+1; //Math.exp(-beta*u12);
+                double g13 = f13+1; //Math.exp(-beta*u13);
+                double g14 = f14+1; //Math.exp(-beta*u14);
+                double g23 = f23+1; //Math.exp(-beta*u23);
+				double g24 = f24+1; //Math.exp(-beta*u24);
+				double g34 = f34+1; //Math.exp(-beta*u34);
 
 				deltaD = (Math.exp(-beta*(deltaU123+deltaU124+deltaU134+deltaU234+deltaU1234))-1)*g12*g13*g14*g23*g24*g34
 				        -(Math.exp(-beta*deltaU123)-1)*g12*g13*g23*(g14+g24+g34-2)
