@@ -56,13 +56,6 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         int nPoints = pointCount();
         
         // kmb added 7/10/06
-        double deltaD = 0.0;
-        double u12 = 0.0;
-        double u13 = 0.0;
-        double u14 = 0.0;
-        double u23 = 0.0;
-        double u24 = 0.0;
-        double u34 = 0.0;
         double u12Pol = Double.NaN;
         double u13Pol = Double.NaN;
         double u23Pol = Double.NaN;
@@ -122,19 +115,6 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
         }
 
-        if (nPoints > 2) {
-	        u12 = (-1)/beta*Math.log(fValues[1][0][0]+1);
-	        u13 = (-1)/beta*Math.log(fValues[2][0][0]+1);
-	        u23 = (-1)/beta*Math.log(fValues[2][1][0]+1);
-        }
-        
-        if (nPoints > 3) {
-	        u14 = (-1)/beta*Math.log(fValues[3][0][0]+1);
-	        u24 = (-1)/beta*Math.log(fValues[3][1][0]+1);
-	        u34 = (-1)/beta*Math.log(fValues[3][2][0]+1);
-        }
-        
-      	
         value = 0.0;
 
         for(int i=0; i<clusters.length; i++) {
@@ -147,12 +127,15 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         }
         
 		if (nPoints == 3) {
-		    // check that no pair of molecules is overlapped (overlap => fij=-1)
+		    // check that no pair of molecules is overlapped (overlap => gij=0)
 		    // if any pair is overlapped, then deltaC=0
             double f12 = fValues[0][1][0];
             double f13 = fValues[0][2][0];
             double f23 = fValues[1][2][0];
-    		if (f12 != -1 && f13 != -1 && f23 == -1) {
+            double g12 = f12+1; //Math.exp(-beta*u12);
+            double g13 = f13+1; //Math.exp(-beta*u13);
+            double g23 = f23+1; //Math.exp(-beta*u23);
+    		if (g12*g13*g23 != 0) {
     		    // Get a handle on the list of atoms from the AtomPairSet
     	        scfAtoms.clear();
                 scfAtoms.add(box.molecule(0));
@@ -175,9 +158,6 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     	            expBetaU123 = Math.exp(-beta*deltau123)-1;
     	        }
                 
-                double g12 = f12+1; //Math.exp(-beta*u12);
-                double g13 = f13+1; //Math.exp(-beta*u13);
-                double g23 = f23+1; //Math.exp(-beta*u23);
                 double deltaC = expBetaU123*g12*g13*g23;
     			
     			// deltaC has to be multiplied by clusterWeights, just like v was multiplied by
@@ -200,74 +180,83 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             double f23 = fValues[1][2][0];
             double f24 = fValues[1][3][0];
             double f34 = fValues[2][3][0];
+            double g12 = f12+1; //Math.exp(-beta*u12);
+            double g13 = f13+1; //Math.exp(-beta*u13);
+            double g14 = f14+1; //Math.exp(-beta*u14);
+            double g23 = f23+1; //Math.exp(-beta*u23);
+            double g24 = f24+1; //Math.exp(-beta*u24);
+            double g34 = f34+1; //Math.exp(-beta*u34);
 
-            if (u12+u13+u14+u23+u24+u34 == Double.POSITIVE_INFINITY) {
-    			//System.out.println("Sum of pair energies is infinity: u12 = " + u12 + ", u13 = " + u13 + ", u23 = " + u23);
-				deltaD = 0.0;
-    		}
-			else {
-			    scfAtoms.clear();
-		        scfAtoms.add(box.molecule(0));
-                scfAtoms.add(box.molecule(1));
-                scfAtoms.add(box.molecule(2));
-                
+		    scfAtoms.clear();
+		    // we need to properly construct these lists even if we don't use them
+		    // (due to overlaps) because the next list is obtained by removing/adding
+		    // atoms from this one.
+	        scfAtoms.add(box.molecule(0));
+            scfAtoms.add(box.molecule(1));
+            scfAtoms.add(box.molecule(2));
+
+            double deltaD = 0;
+            if (g12*g13*g23 != 0) {
 				double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-				scfAtoms.remove(2);
-				scfAtoms.add(box.molecule(3));
+                double deltaU123 = u123Pol-u12Pol-u13Pol-u23Pol;
+                deltaD += -(Math.exp(-beta*deltaU123)-1)*g12*g13*g23*(g14+g24+g34-2);
+            }
+
+			scfAtoms.remove(2);
+			scfAtoms.add(box.molecule(3));
+			if (g12*g14*g24 != 0) {
 				double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                scfAtoms.remove(1);
-                scfAtoms.add(box.molecule(2));
+                double deltaU124 = u124Pol-u12Pol-u14Pol-u24Pol;
+                deltaD +=  -(Math.exp(-beta*deltaU124)-1)*g12*g14*g24*(g13+g23+g34-2);
+			}
+
+            scfAtoms.remove(1);
+            scfAtoms.add(box.molecule(2));
+            if (g13*g14*g34 != 0) {
                 double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                scfAtoms.remove(0);
-                scfAtoms.add(box.molecule(1));
+                double deltaU134 = u134Pol-u13Pol-u14Pol-u34Pol;
+                deltaD += -(Math.exp(-beta*deltaU134)-1)*g13*g14*g34*(g12+g23+g24-2);
+            }
+
+            scfAtoms.remove(0);
+            scfAtoms.add(box.molecule(1));
+            if (g23*g24*g34 != 0) {
                 double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                double deltaU234 = u234Pol-u23Pol-u24Pol-u34Pol;
+                deltaD += -(Math.exp(-beta*deltaU234)-1)*g23*g24*g34*(g12+g13+g14-2);
+            }
+
+            if (g12*g13*g14*g23*g24*g34 != 0) {
                 scfAtoms.add(box.molecule(0));
                 double u1234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
+                // deltaU1234 would have deltaUabc subtracted off, but we'd also add it back
+                // in for expU1234, so just don't subtract in the first place 
+				double deltaU1234 = u1234Pol-u12Pol-u13Pol-u14Pol-u23Pol-u24Pol-u34Pol; //-deltaU123-deltaU124-deltaU134-deltaU234;
+				deltaD += (Math.exp(-beta*(deltaU1234))-1)*g12*g13*g14*g23*g24*g34;
+            }
 
-				double deltaU123 = u123Pol-u12Pol-u13Pol-u23Pol;
-				double deltaU124 = u124Pol-u12Pol-u14Pol-u24Pol;
-				double deltaU134 = u134Pol-u13Pol-u14Pol-u34Pol;
-				double deltaU234 = u234Pol-u23Pol-u24Pol-u34Pol;
+			// Mason and Spurling book deltaD; 5/11/07
 
-				double deltaU1234 = u1234Pol-u12Pol-u13Pol-u14Pol-u23Pol-u24Pol-u34Pol-deltaU123-deltaU124-deltaU134-deltaU234;
-				
-                double g12 = f12+1; //Math.exp(-beta*u12);
-                double g13 = f13+1; //Math.exp(-beta*u13);
-                double g14 = f14+1; //Math.exp(-beta*u14);
-                double g23 = f23+1; //Math.exp(-beta*u23);
-				double g24 = f24+1; //Math.exp(-beta*u24);
-				double g34 = f34+1; //Math.exp(-beta*u34);
+            // deltaU1234 = u1234-u12-u13-u14-u23-u24-u34;
 
-				deltaD = (Math.exp(-beta*(deltaU123+deltaU124+deltaU134+deltaU234+deltaU1234))-1)*g12*g13*g14*g23*g24*g34
-				        -(Math.exp(-beta*deltaU123)-1)*g12*g13*g23*(g14+g24+g34-2)
-				        -(Math.exp(-beta*deltaU124)-1)*g12*g14*g24*(g13+g23+g34-2)
-				        -(Math.exp(-beta*deltaU134)-1)*g13*g14*g34*(g12+g23+g24-2)
-				        -(Math.exp(-beta*deltaU234)-1)*g23*g24*g34*(g12+g13+g14-2);
+//          deltaD = 2*Math.exp(-beta*(u12+u13+u23))*(Math.exp(-beta*deltaU123)-1) + 2*Math.exp(-beta*(u12+u14+u24))*(Math.exp(-beta*deltaU124)-1)
+//					+ 2*Math.exp(-beta*(u13+u14+u34))*(Math.exp(-beta*deltaU134)-1) + 2*Math.exp(-beta*(u23+u24+u34))*(Math.exp(-beta*deltaU234)-1)
+//					+ Math.exp(-beta*(u12+u13+u23-u14))*(1-Math.exp(-beta*deltaU123)) + Math.exp(-beta*(u12+u13+u23-u24))*(1-Math.exp(-beta*deltaU123))
+//					+ Math.exp(-beta*(u12+u13+u23-u34))*(1-Math.exp(-beta*deltaU123)) + Math.exp(-beta*(u12+u14+u24-u13))*(1-Math.exp(-beta*deltaU124))
+//					+ Math.exp(-beta*(u12+u14+u24-u23))*(1-Math.exp(-beta*deltaU124)) + Math.exp(-beta*(u12+u14+u24-u34))*(1-Math.exp(-beta*deltaU124))
+//					+ Math.exp(-beta*(u13+u14+u34-u12))*(1-Math.exp(-beta*deltaU134)) + Math.exp(-beta*(u13+u14+u34-u23))*(1-Math.exp(-beta*deltaU134))
+//					+ Math.exp(-beta*(u13+u14+u34-u24))*(1-Math.exp(-beta*deltaU134)) + Math.exp(-beta*(u23+u24+u34-u12))*(1-Math.exp(-beta*deltaU234))
+//					+ Math.exp(-beta*(u23+u24+u34-u13))*(1-Math.exp(-beta*deltaU234)) + Math.exp(-beta*(u23+u24+u34-u14))*(1-Math.exp(-beta*deltaU234))
+//					+ Math.exp(-beta*(u12+u13+u14+u23+u24+u34))*(Math.exp(-beta*deltaU1234)-1);
 
-        				// Mason and Spurling book deltaD; 5/11/07
-
-//					deltaU1234 = u1234-u12-u13-u14-u23-u24-u34;
-
-/*					deltaD = 2*Math.exp(-beta*(u12+u13+u23))*(Math.exp(-beta*deltaU123)-1) + 2*Math.exp(-beta*(u12+u14+u24))*(Math.exp(-beta*deltaU124)-1)
-						+ 2*Math.exp(-beta*(u13+u14+u34))*(Math.exp(-beta*deltaU134)-1) + 2*Math.exp(-beta*(u23+u24+u34))*(Math.exp(-beta*deltaU234)-1)
-						+ Math.exp(-beta*(u12+u13+u23-u14))*(1-Math.exp(-beta*deltaU123)) + Math.exp(-beta*(u12+u13+u23-u24))*(1-Math.exp(-beta*deltaU123))
-						+ Math.exp(-beta*(u12+u13+u23-u34))*(1-Math.exp(-beta*deltaU123)) + Math.exp(-beta*(u12+u14+u24-u13))*(1-Math.exp(-beta*deltaU124))
-						+ Math.exp(-beta*(u12+u14+u24-u23))*(1-Math.exp(-beta*deltaU124)) + Math.exp(-beta*(u12+u14+u24-u34))*(1-Math.exp(-beta*deltaU124))
-						+ Math.exp(-beta*(u13+u14+u34-u12))*(1-Math.exp(-beta*deltaU134)) + Math.exp(-beta*(u13+u14+u34-u23))*(1-Math.exp(-beta*deltaU134))
-						+ Math.exp(-beta*(u13+u14+u34-u24))*(1-Math.exp(-beta*deltaU134)) + Math.exp(-beta*(u23+u24+u34-u12))*(1-Math.exp(-beta*deltaU234))
-						+ Math.exp(-beta*(u23+u24+u34-u13))*(1-Math.exp(-beta*deltaU234)) + Math.exp(-beta*(u23+u24+u34-u14))*(1-Math.exp(-beta*deltaU234))
-						+ Math.exp(-beta*(u12+u13+u14+u23+u24+u34))*(Math.exp(-beta*deltaU1234)-1);
-*/
 
 //        				 kmb added this line 8/16/06
-	        			// deltaD has to be multiplied by weightPrefactor from Standard class, just like deltaC was multiplied by
-	        			// clusterWeights above to get value; note, for B3 clusterWeights = weightPrefactor
+			// deltaD has to be multiplied by weightPrefactor from Standard class, just like deltaC was multiplied by
+			// clusterWeights above to get value; note, for B3 clusterWeights = weightPrefactor
         				
-				deltaD = -0.125*deltaD;  //XXX - IS THIS DIFFERENT NOW?; KMB, 7/27/07  -32 is value of weightPrefactor in Standard for a B4 calc
-			}
-        			
-			value += deltaD;
-
+            // -(1/8) is the B4 prefactor multiplying all diagrams.
+			deltaD *= -0.125;
+            value += deltaD;
     	}
         
         return value;
