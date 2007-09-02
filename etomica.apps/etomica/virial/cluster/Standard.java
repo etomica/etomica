@@ -6,8 +6,6 @@ import etomica.virial.ClusterBonds;
 import etomica.virial.ClusterSum;
 import etomica.virial.ClusterSumEF;
 import etomica.virial.ClusterSumPolarizable;
-import etomica.virial.ClusterTree;
-import etomica.virial.ClusterTreeEF;
 import etomica.virial.MayerFunction;
 
 /**
@@ -102,124 +100,14 @@ public final class Standard {
 	}
 
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f) {
-        return virialCluster(nBody,f,true,new FTilde(f),true, true);
+        return virialCluster(nBody,f,true,new FTilde(f),true);
     }
     public static ClusterAbstract virialCluster(int nBody, MayerFunction f, 
-            boolean usePermutations, MayerFunction e, boolean useTree, boolean uniqueOnly) {
-        uniqueOnly = uniqueOnly && nBody > 3 && !useTree;
-        if (nBody < 4) {
-            e = null;
-        }
-        if (useTree && e==null) {
-            useTree=false;
-        }
-        if (useTree) {
-            System.out.println("using cluster Tree");
-            //permutations don't make sense with a tree
-            usePermutations = false;
-        }
-        ClusterDiagramTree tree = null;
-        if (useTree) {
-            tree = new ClusterDiagramTree(nBody,2);
-        }
-        int nBondTypes = (e == null) ? 1 : 2;
-        ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
-        ClusterGenerator generator = new ClusterGenerator(clusterD);
-        generator.setAllPermutations(!usePermutations);
-        generator.setOnlyDoublyConnected(true);
-        generator.setExcludeArticulationPoint(false);
-        generator.setExcludeArticulationPair(false);
-        generator.setExcludeNodalPoint(false);
-        generator.setMakeReeHover(e != null);
-        clusterD.reset();
-        generator.reset();
-        if (e != null) {
-            generator.calcReeHoover();
-        }
-        ClusterBonds[] clusters = new ClusterBonds[0];
-        double[] weights = new double[0];
-        int fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
-        double weightPrefactor = (1-nBody)/(double)fullSymmetry;
-        if (useTree) {
-            tree.setPrefactor(weightPrefactor);
-        }
-        do {
-            if (useTree) {
-                tree.addClusterDiagram(clusterD);
-                continue;
-            }
-            int iBond = 0, iEBond = 0;
-            int numBonds = clusterD.getNumConnections();
-            int[][][] bondList = new int[nBondTypes][][];
-            bondList[0] = new int[numBonds][2];
-            if (nBondTypes == 2) {
-                int totalBonds = nBody*(nBody-1)/2;
-                bondList[1] = new int[totalBonds-numBonds][2];
-            }
-            for (int i = 0; i < nBody; i++) {
-                int lastBond = i;
-                int[] iConnections = clusterD.mConnections[i];
-                for (int j=0; j<nBody-1; j++) {
-                    if (iConnections[j] > i) {
-                        if (e != null) {
-                            
-                            for (int k=lastBond+1; k<iConnections[j]; k++) {
-                                bondList[1][iEBond][0] = i;
-                                bondList[1][iEBond++][1] = k;
-                            }
-                        }
-                        bondList[0][iBond][0] = i;
-                        bondList[0][iBond++][1] = iConnections[j];
-                        lastBond = iConnections[j];
-                    }
-                    else if ((lastBond>i || iConnections[j] == -1) && e != null) {
-                        for (int k=lastBond+1; k<nBody; k++) {
-                            bondList[1][iEBond][0] = i;
-                            bondList[1][iEBond++][1] = k;
-                        }
-                    }
-                    if (iConnections[j] == -1) break;
-                }
-            }
-            // only use permutations if the diagram has permutations
-            boolean thisUsePermutations = !uniqueOnly && usePermutations && 
-                                          clusterD.mNumIdenticalPermutations < SpecialFunctions.factorial(nBody);
-            // only use e-bonds if one of the diagrms has some
-            clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, thisUsePermutations));
-            double [] newWeights = new double[weights.length+1];
-            System.arraycopy(weights,0,newWeights,0,weights.length);
-            newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
-            weights = newWeights;
-        } while (generator.advance());
-        if (true) {
-            if (useTree) {
-                tree.collapse();
-                return new ClusterTreeEF(tree,new MayerFunction[]{e});
-            }
-            if (e != null) {
-                return new ClusterSumEF(clusters,weights,new MayerFunction[]{e});
-            }
-            return new ClusterSum(clusters,weights,new MayerFunction[]{f});
-        }
-        MayerFunction[] allF = new MayerFunction[nBondTypes];
-        allF[0] = f;
-        if (e != null) {
-            allF[1] = e;
-        }
-        if (useTree) {
-            tree.collapse();
-            return new ClusterTree(tree,allF);
-        }
-        return new ClusterSum(clusters,weights,allF);
-    }
-    
-    public static ClusterSumPolarizable virialClusterPolarizable(int nBody, MayerFunction f, 
             boolean usePermutations, MayerFunction e, boolean uniqueOnly) {
         uniqueOnly = uniqueOnly && nBody > 3;
         if (nBody < 4) {
             e = null;
         }
-        ClusterDiagramTree tree = null;
         int nBondTypes = (e == null) ? 1 : 2;
         ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
         ClusterGenerator generator = new ClusterGenerator(clusterD);
@@ -282,10 +170,59 @@ public final class Standard {
             newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
             weights = newWeights;
         } while (generator.advance());
-            if (e != null) {
-            		throw new RuntimeException ("I don't know how to do E-bonds with polarizable water"); 
-//                return new ClusterSumEF(clusters,weights,new MayerFunction[]{e});
+        if (e != null) {
+            return new ClusterSumEF(clusters,weights,new MayerFunction[]{e});
+        }
+        return new ClusterSum(clusters,weights,new MayerFunction[]{f});
+    }
+    
+    public static ClusterSumPolarizable virialClusterPolarizable(int nBody, MayerFunction f, 
+            boolean usePermutations, boolean uniqueOnly) {
+        uniqueOnly = uniqueOnly && nBody > 3;
+        int nBondTypes = 1;
+        ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
+        ClusterGenerator generator = new ClusterGenerator(clusterD);
+        generator.setAllPermutations(!usePermutations);
+        generator.setOnlyDoublyConnected(true);
+        generator.setExcludeArticulationPoint(false);
+        generator.setExcludeArticulationPair(false);
+        generator.setExcludeNodalPoint(false);
+        generator.setMakeReeHover(false);
+        clusterD.reset();
+        generator.reset();
+        ClusterBonds[] clusters = new ClusterBonds[0];
+        double[] weights = new double[0];
+        int fullSymmetry = usePermutations ? 1 : SpecialFunctions.factorial(nBody);
+        double weightPrefactor = (1-nBody)/(double)fullSymmetry;
+        do {
+            int iBond = 0;
+            int numBonds = clusterD.getNumConnections();
+            int[][][] bondList = new int[nBondTypes][][];
+            bondList[0] = new int[numBonds][2];
+            if (nBondTypes == 2) {
+                int totalBonds = nBody*(nBody-1)/2;
+                bondList[1] = new int[totalBonds-numBonds][2];
             }
+            for (int i = 0; i < nBody; i++) {
+                int[] iConnections = clusterD.mConnections[i];
+                for (int j=0; j<nBody-1; j++) {
+                    if (iConnections[j] > i) {
+                        bondList[0][iBond][0] = i;
+                        bondList[0][iBond++][1] = iConnections[j];
+                    }
+                    if (iConnections[j] == -1) break;
+                }
+            }
+            // only use permutations if the diagram has permutations
+            boolean thisUsePermutations = !uniqueOnly && usePermutations && 
+                                          clusterD.mNumIdenticalPermutations < SpecialFunctions.factorial(nBody);
+            // only use e-bonds if one of the diagrms has some
+            clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, thisUsePermutations));
+            double [] newWeights = new double[weights.length+1];
+            System.arraycopy(weights,0,newWeights,0,weights.length);
+            newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
+            weights = newWeights;
+        } while (generator.advance());
             return new ClusterSumPolarizable(clusters,weights,new MayerFunction[]{f});
         
     }
