@@ -218,7 +218,7 @@ public class SimulationVirialOverlap extends Simulation {
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,false),1);
-            setRefPref(10000,15);
+            setRefPref(1,30);
             ai.setMaxSteps(initSteps);
             getController().actionPerformed();
 
@@ -228,7 +228,7 @@ public class SimulationVirialOverlap extends Simulation {
             System.out.println("setting ref pref to "+refPref);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
-            setRefPref(refPref,0.2);
+            setRefPref(refPref,10);
             for (int i=0; i<2; i++) {
                 try {
                     integrators[i].reset();
@@ -326,9 +326,9 @@ public class SimulationVirialOverlap extends Simulation {
 		MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
         MayerESpherical eTarget = new MayerESpherical(space,p2LJ);
 		
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints,fRef,true,eRef,true,true);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints,fRef,true,eRef,true);
         refCluster.setTemperature(temperature);
-        ClusterAbstract targetCluster = Standard.virialCluster(nPoints,fTarget,true,eTarget,true,true);
+        ClusterAbstract targetCluster = Standard.virialCluster(nPoints,fTarget,true,eTarget,true);
         targetCluster.setTemperature(temperature);
 
 		int maxSteps = 100000;

@@ -15,7 +15,6 @@ import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
@@ -67,8 +66,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
         ClusterWeight sampleCluster1 = null;
      
         MayerGeneral fTarget = new MayerGeneral(pTarget);
-        MayerEGeneral eTarget = new MayerEGeneral(pTarget);
-        ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, eTarget, false);
+        ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, false);
         targetCluster = new ClusterCoupledFlipped(targetCluster);
 
 // old "trunc" code before flipping molecules; KMB and AJS, 7/25/07
@@ -90,7 +88,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
         
 
 
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, false, false);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, false);
         ClusterWeight refSample = ClusterWeightAbs.makeWeightCluster(refCluster);
 
        

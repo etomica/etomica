@@ -64,9 +64,9 @@ public class SimulationVirialUmbrella extends SimulationVirial {
         MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
         MayerESpherical eTarget = new MayerESpherical(space,p2LJ);
         
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, true, eRef, true, true);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, true, eRef, true);
         refCluster.setTemperature(temperature);
-        ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, true, eTarget, true, true);
+        ClusterAbstract targetCluster = Standard.virialCluster(nPoints, fTarget, true, eTarget, true);
         targetCluster.setTemperature(temperature);
         
 		System.out.println("B"+nPoints);
