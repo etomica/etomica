@@ -176,6 +176,130 @@ public final class Standard {
         return new ClusterSum(clusters,weights,new MayerFunction[]{f});
     }
     
+    public static ClusterAbstract virialClusterMixture(int nBody, MayerFunction[][] f, MayerFunction[][] e, int[] nTypes) {
+        if (nBody < 4) {
+            e = null;
+        }
+        int[] pointType = new int[nBody];
+        int l = 0;
+        // label the first points to be type 1, the next points to be type 2, etc
+        for (int i=0; i<nTypes.length; i++) {
+            for (int j=0; j<nTypes[i]; j++) {
+                pointType[l] = i;
+                l++;
+            }
+        }
+        int nBondTypes = nTypes.length*(nTypes.length+1)/2;
+        // bondType is bond index for the type of bond between points of type i and j
+        int[][] bondType = new int[nTypes.length][nTypes.length];
+        // a linear list of the f and e functions (which come in as 2D, indexed by i and j)
+        MayerFunction[] linearF = new MayerFunction[nBondTypes];
+        MayerFunction[] linearE = null;
+        if (e != null) {
+            linearE = new MayerFunction[nBondTypes];
+        }
+        l=0;
+        for (int i=0; i<nTypes.length; i++) {
+            for (int j=0; j<i+1; j++) {
+                bondType[i][j] = l;
+                // we're symmetric
+                bondType[j][i] = l;
+                linearF[l] = f[i][j];
+                if (e != null) {
+                    linearE[l] = e[i][j];
+                }
+                // we ignore f[j][i] and e[j][i] since e and f should be symmetric.
+                l++;
+            }
+        }
+        int allNumBondTypes = nBondTypes;
+        if (e != null) {
+            allNumBondTypes *= 2;
+        }
+        int[] iBond = new int[allNumBondTypes];
+        ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
+        ClusterGenerator generator = new ClusterGenerator(clusterD);
+        generator.setAllPermutations(true);
+        generator.setOnlyDoublyConnected(true);
+        generator.setExcludeArticulationPoint(false);
+        generator.setExcludeArticulationPair(false);
+        generator.setExcludeNodalPoint(false);
+        generator.setMakeReeHover(e != null);
+        clusterD.reset();
+        generator.reset();
+        if (e != null) {
+            generator.calcReeHoover();
+        }
+        ClusterBonds[] clusters = new ClusterBonds[0];
+        double[] weights = new double[0];
+        int fullSymmetry = SpecialFunctions.factorial(nBody);
+        double weightPrefactor = (1-nBody)/(double)fullSymmetry;
+        do {
+            int numBonds = clusterD.getNumConnections();
+            int[][][] bondList = new int[allNumBondTypes][][];
+            for (l=0; l<nTypes.length; l++) {
+                bondList[l] = new int[numBonds][2];
+            }
+            if (e != null) {
+                int totalBonds = nBody*(nBody-1)/2;
+                for (l=0; l<nTypes.length; l++) {
+                    bondList[nTypes.length+1] = new int[totalBonds-numBonds][2];
+                }
+            }
+            for (int i = 0; i < nBody; i++) {
+                int lastBond = i;
+                int[] iConnections = clusterD.mConnections[i];
+                for (int j=0; j<nBody-1; j++) {
+                    if (iConnections[j] > i) {
+                        if (e != null) {
+                            
+                            for (int k=lastBond+1; k<iConnections[j]; k++) {
+                                // thisBondType is the bond type connecting point i and k
+                                int thisBondType = nBondTypes+bondType[pointType[i]][pointType[k]];
+                                bondList[thisBondType][iBond[thisBondType]][0] = i;
+                                bondList[thisBondType][iBond[thisBondType]++][1] = k;
+                            }
+                        }
+                        
+                        // thisBondType is the bond type connecting point i and iConnections[j]
+                        int thisBondType = bondType[pointType[i]][pointType[iConnections[j]]];
+                        bondList[thisBondType][iBond[thisBondType]][0] = i;
+                        bondList[thisBondType][iBond[thisBondType]++][1] = iConnections[j];
+                        lastBond = iConnections[j];
+                    }
+                    else if ((lastBond>i || iConnections[j] == -1) && e != null) {
+                        for (int k=lastBond+1; k<nBody; k++) {
+                            int thisBondType = nBondTypes+bondType[pointType[i]][pointType[k]];
+                            bondList[thisBondType][iBond[thisBondType]][0] = i;
+                            bondList[thisBondType][iBond[thisBondType]++][1] = k;
+                        }
+                    }
+                    if (iConnections[j] == -1) break;
+                }
+            }
+            // we oversized bondList because we didn't know how much we'd need.
+            // now resize the bondList for each bondType
+            for (int i=0; i<bondList.length; i++) {
+                if (iBond[i] == 0) {
+                    bondList[i] = new int[0][0];
+                    continue;
+                }
+                int[][] newBondList = new int[iBond[i]][2];
+                System.arraycopy(bondList[i], 0, newBondList, 0, iBond[i]);
+                bondList[i] = newBondList;
+            }
+            clusters = (ClusterBonds[])Arrays.addObject(clusters,new ClusterBonds(nBody, bondList, false));
+            double [] newWeights = new double[weights.length+1];
+            System.arraycopy(weights,0,newWeights,0,weights.length);
+            newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
+            weights = newWeights;
+        } while (generator.advance());
+        if (e != null) {
+            return new ClusterSumEF(clusters,weights,linearE);
+        }
+        return new ClusterSum(clusters,weights,linearF);
+    }
+    
     public static ClusterSumPolarizable virialClusterPolarizable(int nBody, MayerFunction f, 
             boolean usePermutations, boolean uniqueOnly) {
         uniqueOnly = uniqueOnly && nBody > 3;
@@ -223,8 +347,7 @@ public final class Standard {
             newWeights[weights.length] = clusterD.mReeHooverFactor*weightPrefactor/clusterD.mNumIdenticalPermutations;
             weights = newWeights;
         } while (generator.advance());
-            return new ClusterSumPolarizable(clusters,weights,new MayerFunction[]{f});
-        
+        return new ClusterSumPolarizable(clusters,weights,new MayerFunction[]{f});
     }
     
 	public static final int[][] B2 = new int[][] {{0,1}};
