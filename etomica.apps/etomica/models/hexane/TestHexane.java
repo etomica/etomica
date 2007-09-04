@@ -268,14 +268,15 @@ public class TestHexane extends Simulation {
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
            
             sim.integrator.addIntervalAction(meterNormalMode);
-            sim.integrator.setActionInterval(meterNormalMode, 100);
+            sim.integrator.setActionInterval(meterNormalMode, (int)nSteps/10);
+            sim.integrator.setIntervalActionPriority(meterNormalMode, 100);
             
-            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
-            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
-            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
-            
-            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
-            double[] coefficients = waveVectorFactory.getCoefficients();
+//            DataGroup normalModeData = (DataGroup)meterNormalMode.getData();
+//            normalModeData.TE(1.0/(sim.box.getSpeciesMaster().moleculeCount()*meterNormalMode.getCallCount()));
+//            int normalDim = meterNormalMode.getCoordinateDefinition().getCoordinateDim();
+//            
+//            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
+//            double[] coefficients = waveVectorFactory.getCoefficients();
             
 //            double avgPressure = ((DataDouble)(((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index))).x;
 //            avgPressure = ((DataDouble)((DataGroup)pressureAccumulator.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
@@ -290,15 +291,15 @@ public class TestHexane extends Simulation {
         
             sim.integrator.addIntervalAction(sWriter);
             sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
-        
+            sim.integrator.setIntervalActionPriority(sWriter, 150);
+            
             sim.activityIntegrate.setMaxSteps(nSteps);
             sim.getController().actionPerformed();
 
-//            PDBWriter pdbWriter = new PDBWriter(sim.box);
-//            pdbWriter.setFileName("calcS.pdb");
-//            pdbWriter.actionPerformed();
-        
-            System.out.println("Go look at the data!");
+            //Write out the final configurations for further use.
+            PDBWriter pdbWriter = new PDBWriter(sim.box);
+            pdbWriter.setFileName("calcHex.pdb");
+            pdbWriter.actionPerformed();
         }
     }
 }
