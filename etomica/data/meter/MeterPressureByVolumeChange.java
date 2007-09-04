@@ -3,6 +3,7 @@ import etomica.EtomicaInfo;
 import etomica.action.BoxInflate;
 import etomica.action.BoxInflateDeformable;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataSourceUniform;
@@ -11,10 +12,10 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
-import etomica.box.Box;
 import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.IVector;
 import etomica.space.Space;
+import etomica.units.Null;
 import etomica.units.Pressure;
 import etomica.units.Volume;
 
@@ -44,6 +45,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
         inflater = new BoxInflate(space);
+        scale = space.makeVector();
     }
     
     public MeterPressureByVolumeChange(Space space, BoxInflateDeformable pid){
@@ -58,7 +60,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         setInflateDimensions(dimensions);
         iteratorDirective = new IteratorDirective();
         inflater = pid;
-        
+        scale = space.makeVector();
     }
     
     public static EtomicaInfo getEtomicaInfo() {
@@ -104,7 +106,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
             inflateDimensions[i] = directions[i];
             if(inflateDimensions[i]) nDimension++;
         }
-        updateScale();
+        vDataSource.reset();
     }
     /**
      * Accessor method for setInflateDimension.
@@ -112,40 +114,21 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     public boolean[] getInflateDimensions() {return inflateDimensions;}
     
     public void setX(double min, double max, int n) {
+        if (n < 1) throw new IllegalArgumentException("n must be greater than 1");
         xDataSource = new DataSourceUniform("x", Volume.dimension(space.D()), n, min, max);
-        data = new DataDoubleArray(n);
-        dataInfo = new DataInfoDoubleArray("Pressure by Volume Change", Pressure.dimension(space.D()), new int[]{n});
+        vDataSource = new DataSourceExp(xDataSource);
+        vDataSource.reset();
+        dataInfo = new DataInfoDoubleArray("Pressure by Volume Change", Pressure.dimension(space.D()), new int[]{vDataSource.getDataInfo().getLength()});
+        data = new DataDoubleArray(dataInfo.getLength());
         dataInfo.addTag(tag);
         dataArray = data.getData();
-        updateScale();
     }
     
-    protected void updateScale() {
-        if (inflateDimensions == null || xDataSource == null) {
-            return;
-        }
-        
-        //x is scaling in volume if isotropic, but is linear scaling if not isotropic
-        double dx = (xDataSource.getXMax()-xDataSource.getXMin())/xDataSource.getNValues();
-        final double[] x = ((DataDoubleArray)xDataSource.getData()).getData();
-        for(int i=0; i<x.length; i++) { //disallow x = 0
-            if(x[i] == 0.0) x[i] = 0.1*dx;
-        }
-        scale = new IVector[x.length];
-        
-        double mult = 1.0/nDimension;
-        for(int i=0; i<x.length; i++) {
-            scale[i] = space.makeVector();
-            scale[i].E(Math.exp(mult*x[i]));
-            for(int j=0; j<space.D(); j++) {
-                if(!inflateDimensions[j]) scale[i].setX(j,1.0);
-            }
-//            System.out.println("scale " + i +" = " + scale[i]);
-        }
-    }
-    
-    public DataSource getXDataSource() {
-        return xDataSource;
+    /**
+     * Returns the data source for volume scalings.
+     */
+    public DataSource getScalingDataSource() {
+        return vDataSource;
     }
     
     public Data getData() {
@@ -155,19 +138,23 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         energy.zeroSum();
         integrator.getPotential().calculate(box, iteratorDirective, energy);
         double uOld = energy.getSum();
-        final double[] x = ((DataDoubleArray)xDataSource.getData()).getData();
-
+        final double[] x = ((DataDoubleArray)vDataSource.getData()).getData();
+        double mult = 1.0/nDimension;
         for(int i=0; i<dataArray.length; i++) {
-            inflater.setVectorScale(scale[i]);
+            scale.E(Math.pow(x[i],mult));
+            for(int j=0; j<space.D(); j++) {
+                if(!inflateDimensions[j]) scale.setX(j,1.0);
+            }
+
+            inflater.setVectorScale(scale);
             inflater.actionPerformed();
             energy.zeroSum();
             integrator.getPotential().calculate(box, iteratorDirective, energy);
             double uNew = energy.getSum();
             dataArray[i] = Math.exp(-(uNew-uOld)/integrator.getTemperature()
-                              + box.moleculeCount()*x[i]);
+                              + box.moleculeCount()*(x[i]-1));
             inflater.undo();
         }
-        
 
         return data;
     }
@@ -178,12 +165,56 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
     private final DataTag tag;
     private double[] dataArray;
     private final BoxInflate inflater;
-    private IVector[] scale;
+    private final IVector scale;
     private final boolean[] inflateDimensions;
     private final IteratorDirective iteratorDirective;
     private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private int nDimension;
     private final Space space;
     private DataSourceUniform xDataSource;
+    protected DataSourceExp vDataSource;
     private IntegratorBox integrator;
+    
+    /**
+     * Transforms the scaling from linear (-s to +s) to exponential (exp(-s) to exp(+s))
+     */
+    protected static class DataSourceExp implements DataSource {
+        public DataSourceExp(DataSourceUniform wrappedDataSource) {
+            this.wrappedDataSource = wrappedDataSource;
+            tag = new DataTag();
+            int n = wrappedDataSource.getDataInfo().getLength();
+            if (n % 2 == 1) n--;
+            data = new DataDoubleArray(n);
+            dataInfo = new DataInfoDoubleArray("something", Null.DIMENSION, new int[]{n});
+        }
+        
+        public DataTag getTag() {
+            return tag;
+        }
+        
+        public IDataInfo getDataInfo() {
+            return dataInfo;
+        }
+        
+        public void reset() {
+            double[] x = ((DataDoubleArray)wrappedDataSource.getData()).getData();
+            double[] scaledX = data.getData();
+            int xIndex = 0;
+            double dx = (wrappedDataSource.getXMax()-wrappedDataSource.getXMin())/wrappedDataSource.getNValues();
+            for (int i=0; i<scaledX.length; i++, xIndex++) {
+                // skip x=0 in the center
+                if (Math.abs(x[xIndex]) < 0.25*dx) xIndex++;
+                scaledX[i] = Math.exp(x[xIndex]);
+            }
+        }
+        
+        public Data getData() {
+            return data;
+        }
+        
+        protected final DataSourceUniform wrappedDataSource;
+        protected final DataTag tag;
+        protected DataInfoDoubleArray dataInfo;
+        protected DataDoubleArray data;
+    }
 }
