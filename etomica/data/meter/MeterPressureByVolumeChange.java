@@ -22,6 +22,11 @@ import etomica.units.Volume;
 /**
  * Evaluates the pressure by examining the change in energy accompanying
  * small changes in volume.
+ *
+ * Pressure is approximately log(<x>)/deltaV
+ * where x is one of the values returned by getData (<x> is that value averaged)
+ * and deltaV is the change in volume associated with that x value.  deltaV = s * V
+ * where s is the scaling factor (available via getScalingDataSource)
  */
 public class MeterPressureByVolumeChange implements DataSource, java.io.Serializable {
     
@@ -108,6 +113,7 @@ public class MeterPressureByVolumeChange implements DataSource, java.io.Serializ
         }
         vDataSource.reset();
     }
+
     /**
      * Accessor method for setInflateDimension.
      */
