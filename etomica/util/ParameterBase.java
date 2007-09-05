@@ -61,37 +61,37 @@ public abstract class ParameterBase {
                 Class subType = type.getComponentType();
                 String[] strings = value.split(" +");
                 if (subType == int.class) {
-                    int[] array = new int[strings.length-1];
+                    int[] array = new int[strings.length];
                     for (int i=0; i<array.length; i++) {
-                        array[i] = Integer.parseInt(strings[i+1]);
+                        array[i] = Integer.parseInt(strings[i]);
                     }
                     field.set(this,array);
                 }
-                if (subType == long.class) {
-                    long[] array = new long[strings.length-1];
+                else if (subType == long.class) {
+                    long[] array = new long[strings.length];
                     for (int i=0; i<array.length; i++) {
-                        array[i] = Long.parseLong(strings[i+1]);
+                        array[i] = Long.parseLong(strings[i]);
                     }
                     field.set(this,array);
                 }
                 else if (subType == float.class) {
-                    float[] array = new float[strings.length-1];
+                    float[] array = new float[strings.length];
                     for (int i=0; i<array.length; i++) {
-                        array[i] = Float.parseFloat(strings[i+1]);
+                        array[i] = Float.parseFloat(strings[i]);
                     }
                     field.set(this,array);
                 }
                 else if (subType == double.class) {
-                    double[] array = new double[strings.length-1];
+                    double[] array = new double[strings.length];
                     for (int i=0; i<array.length; i++) {
-                        array[i] = Double.parseDouble(strings[i+1]);
+                        array[i] = Double.parseDouble(strings[i]);
                     }
                     field.set(this,array);
                 }
                 else if (subType == boolean.class) {
-                    boolean[] array = new boolean[strings.length-1];
+                    boolean[] array = new boolean[strings.length];
                     for (int i=0; i<array.length; i++) {
-                        array[i] = Boolean.valueOf(strings[i+1]).booleanValue();
+                        array[i] = Boolean.valueOf(strings[i]).booleanValue();
                     }
                     field.set(this,array);
                 }
