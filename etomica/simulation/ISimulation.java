@@ -31,7 +31,7 @@ public interface ISimulation {
     public Controller getController();
 
     /**
-     * Returns the Simatulion's random number generator.
+     * Returns the Simulation's random number generator.
      */
     public IRandom getRandom();
 
