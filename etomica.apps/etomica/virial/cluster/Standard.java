@@ -216,7 +216,6 @@ public final class Standard {
         if (e != null) {
             allNumBondTypes *= 2;
         }
-        int[] iBond = new int[allNumBondTypes];
         ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
         ClusterGenerator generator = new ClusterGenerator(clusterD);
         generator.setAllPermutations(true);
@@ -234,10 +233,14 @@ public final class Standard {
         double[] weights = new double[0];
         int fullSymmetry = SpecialFunctions.factorial(nBody);
         double weightPrefactor = (1-nBody)/(double)fullSymmetry;
+        int[] iBond = new int[allNumBondTypes];
         do {
+            for (int i=0; i<allNumBondTypes; i++) {
+                iBond[i] = 0;
+            }
             int numBonds = clusterD.getNumConnections();
             int[][][] bondList = new int[allNumBondTypes][][];
-            for (l=0; l<nTypes.length; l++) {
+            for (l=0; l<allNumBondTypes; l++) {
                 bondList[l] = new int[numBonds][2];
             }
             if (e != null) {
