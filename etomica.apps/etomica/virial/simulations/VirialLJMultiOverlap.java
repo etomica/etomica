@@ -110,7 +110,7 @@ public class VirialLJMultiOverlap {
         MayerESpherical e12Target = new MayerESpherical(space,p12Target);
         MayerESpherical e22Target = new MayerESpherical(space,p22Target);
         ClusterAbstract targetCluster = Standard.virialClusterMixture(nPoints, new MayerFunction[][]{{f11Target,f12Target},{f12Target,f22Target}},
-                                                                               new MayerFunction[][]{{e11Target,e12Target},{e12Target,e22Target}}, new int[]{nPoints-0,0});
+                                                                               new MayerFunction[][]{{e11Target,e12Target},{e12Target,e22Target}}, nTypes);
         targetCluster.setTemperature(temperature);
         ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, true);
         refCluster.setTemperature(temperature);
@@ -184,7 +184,7 @@ public class VirialLJMultiOverlap {
         public long numSubSteps = 1000000;
         public double sigmaHSRef = 1.5;
         public int mixID = 0;
-        public int[] nTypes = new int[]{nPoints};
+        public int[] nTypes = new int[]{nPoints,0};
     }
 }
 
