@@ -1,4 +1,8 @@
 package etomica.action;
+
+
+import java.io.Serializable;
+
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.IAtom;
@@ -10,7 +14,7 @@ import etomica.space.Space;
  * atom (which may be an atom group) is determined by an AtomPositionDefinition
  * instance that may be set for this class.
  */
-public class AtomActionTranslateTo implements AtomAction {
+public class AtomActionTranslateTo implements AtomAction, Serializable {
     
     private static final long serialVersionUID = 1L;
     private final IVector destination;

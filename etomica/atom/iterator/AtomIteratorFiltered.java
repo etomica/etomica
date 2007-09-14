@@ -1,5 +1,7 @@
 package etomica.atom.iterator;
 
+import java.io.Serializable;
+
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
@@ -16,7 +18,7 @@ import etomica.box.Box;
  * created using the static makeIterator method, which attempts to return an
  * iterator that implements interface of wrapped iterator.
  */
-public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable {
+public class AtomIteratorFiltered implements AtomIterator, Serializable {
 
     /**
      * Returns the iterates of the given iterator that meet the critertia of the
@@ -214,7 +216,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
      * Defines a new action that wraps an action such that action is performed
      * only on the atoms meeting the filter's criteria.  Used by allAtoms method.
      */
-    private static class ActionWrapper implements AtomAction {
+    private static class ActionWrapper implements AtomAction, Serializable {
 
         AtomAction action;
         private final AtomFilter myFilter;
@@ -236,7 +238,7 @@ public class AtomIteratorFiltered implements AtomIterator, java.io.Serializable 
      * Defines a new action that wraps an action such that action is performed
      * only on the atoms meeting the filter's criteria.  Used by allAtoms method.
      */
-    private static class AtomsetActionWrapper implements AtomsetAction {
+    private static class AtomsetActionWrapper implements AtomsetAction, Serializable {
 
         AtomsetAction action;
         private final AtomFilter myFilter;

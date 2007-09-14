@@ -1,5 +1,7 @@
 package etomica.action;
 
+import java.io.Serializable;
+
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
@@ -13,7 +15,7 @@ import etomica.atom.IAtomGroup;
  *
  * @author David Kofke
  */
-public class AtomGroupAction implements AtomAction {
+public class AtomGroupAction implements AtomAction, Serializable {
 
     /**
      * Constructor takes wrapped action, which is final.
@@ -43,7 +45,7 @@ public class AtomGroupAction implements AtomAction {
     public AtomAction getAction() {
         return action;
     }
-    
+
     private static final long serialVersionUID = 1L;
     private final AtomAction action;
 }

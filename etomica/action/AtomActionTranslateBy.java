@@ -1,4 +1,7 @@
 package etomica.action;
+
+import java.io.Serializable;
+
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.space.IVector;
@@ -12,7 +15,7 @@ import etomica.space.Space;
  * 
  * @author David Kofke
  */
-public class AtomActionTranslateBy implements AtomAction {
+public class AtomActionTranslateBy implements AtomAction, Serializable {
     
     private static final long serialVersionUID = 1L;
     private final IVector translationVector;

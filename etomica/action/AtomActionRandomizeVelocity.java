@@ -1,5 +1,7 @@
 package etomica.action;
 
+import java.io.Serializable;
+
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
@@ -15,7 +17,7 @@ import etomica.util.IRandom;
  *
  */
 
-public class AtomActionRandomizeVelocity implements AtomAction {
+public class AtomActionRandomizeVelocity implements AtomAction, Serializable {
 
     /**
      * Constructs class to assign velocities according to the given temperature.

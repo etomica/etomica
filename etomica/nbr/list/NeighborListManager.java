@@ -1,5 +1,7 @@
 package etomica.nbr.list;
 
+import java.io.Serializable;
+
 import etomica.action.Action;
 import etomica.action.AtomAction;
 import etomica.action.BoxImposePbc;
@@ -34,7 +36,7 @@ import etomica.util.Debug;
  * PotentialCalculationCellAssign instance as the PotentialCalculation.
  */
 public class NeighborListManager implements IntegratorNonintervalListener,
-        Action, AgentSource, java.io.Serializable {
+        Action, AgentSource, Serializable {
 
     /**
      * Configures instance for use by the given PotentialMaster.
@@ -321,7 +323,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * Atom action class that checks if any criteria indicate that the given
      * atom needs to update its neighbor list.
      */
-    private static class NeighborCheck implements AtomAction {
+    private static class NeighborCheck implements AtomAction, Serializable {
 
         private static final long serialVersionUID = 1L;
         protected boolean needUpdate = false, unsafe = false;
@@ -364,7 +366,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * and resets the criteria as it applies to the atom (e.g., sets its
      * previous-position vector to its current position).
      */
-    private static class NeighborReset implements AtomAction {
+    private static class NeighborReset implements AtomAction, Serializable {
         private static final long serialVersionUID = 1L;
 
         public NeighborReset(NeighborListManager manager, AtomAgentManager agentManager2Body,

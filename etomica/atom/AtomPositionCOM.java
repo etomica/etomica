@@ -39,7 +39,7 @@ public class AtomPositionCOM implements AtomPositionDefinition, Serializable {
         return center;
     }
 
-    private static class MyAction implements AtomAction {
+    private static class MyAction implements AtomAction, Serializable {
         public MyAction(IVector sum) {
             vectorSum = sum;
         }

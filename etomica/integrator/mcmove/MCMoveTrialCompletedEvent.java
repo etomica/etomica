@@ -1,6 +1,6 @@
 package etomica.integrator.mcmove;
 
-public class MCMoveTrialCompletedEvent extends MCMoveEvent {
+public class MCMoveTrialCompletedEvent extends MCMoveEvent implements java.io.Serializable {
 
     public MCMoveTrialCompletedEvent(MCMoveManager moveManager, boolean accepted) {
         super();

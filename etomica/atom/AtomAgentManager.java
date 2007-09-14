@@ -1,5 +1,6 @@
 package etomica.atom;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.atom.iterator.AtomIteratorTreeBox;
@@ -23,7 +24,7 @@ import etomica.util.Arrays;
  * point. 
  * @author andrew
  */
-public class AtomAgentManager implements BoxListener, java.io.Serializable {
+public class AtomAgentManager implements BoxListener, Serializable {
 
     public AtomAgentManager(AgentSource source, Box box) {
         this(source, box, true);
@@ -205,7 +206,7 @@ public class AtomAgentManager implements BoxListener, java.io.Serializable {
     /**
      * Iterator that loops over the agents, skipping null elements
      */
-    public static class AgentIterator {
+    public static class AgentIterator implements Serializable {
         protected AgentIterator(AtomAgentManager agentManager) {
             this.agentManager = agentManager;
         }
