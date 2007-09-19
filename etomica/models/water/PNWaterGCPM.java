@@ -183,7 +183,10 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
                 double comWtoH1 = Math.sqrt(comWi.Mv1Squared(atomj.H1.getPosition()));
                 double comWtoH2 = Math.sqrt(comWi.Mv1Squared(atomj.H2.getPosition()));
                 double comWtoM = Math.sqrt(comWi.Mv1Squared(atomj.M.getPosition()));
-    
+
+                // For molecules that are far apart, fac=chargeX/comWtoX^3, but we add up
+                // facs for H and M, which mostly cancel each other out, so we lose quite 
+                // a bit of precision (~2-3 digits).
                 double fac = chargeH/(comWtoH1*comWtoH1*comWtoH1)*((1-SpecialFunctions.erfc(comWtoH1/sqrtHMsigmas))
                         -Math.sqrt(2)*comWtoH1/sqrtPiHMsigmas*Math.exp(-comWtoH1*comWtoH1/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
                 work.Ev1Mv2(comWi, atomj.H1.getPosition());
