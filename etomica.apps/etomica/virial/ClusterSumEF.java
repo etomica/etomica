@@ -51,9 +51,14 @@ public class ClusterSumEF extends ClusterSum {
         }
     }
     
-    protected void updateF(CoordinatePairSet cPairs, AtomPairSet aPairs) {
+    protected void updateF(BoxCluster box) {
         int nPoints = pointCount();
+        for (int k=0; k<numF; k++) {
+            f[k].setBox(box);
+        }
 
+        CoordinatePairSet cPairs = box.getCPairSet();
+        AtomPairSet aPairs = box.getAPairSet();
         // recalculate all f values for all pairs
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {

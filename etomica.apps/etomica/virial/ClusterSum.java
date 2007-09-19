@@ -92,6 +92,9 @@ public class ClusterSum implements ClusterAbstract, java.io.Serializable {
         CoordinatePairSet cPairs = box.getCPairSet();
         AtomPairSet aPairs = box.getAPairSet();
 
+        for (int k=0; k<f.length; k++) {
+            f[k].setBox(box);
+        }
         // recalculate all f values for all pairs
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {

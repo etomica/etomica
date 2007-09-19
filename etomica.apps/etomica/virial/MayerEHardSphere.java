@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.box.Box;
 import etomica.space.Space;
 
 /**
@@ -45,4 +46,6 @@ public class MayerEHardSphere extends MayerESpherical {
 		sigma2 = sigma*sigma;
 	}
 
+    public void setBox(Box newBox) {
+    }
 }

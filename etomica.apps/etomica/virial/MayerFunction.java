@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.atom.AtomSet;
+import etomica.box.Box;
 import etomica.potential.IPotential;
 
 /**
@@ -15,11 +16,12 @@ public interface MayerFunction {
      * returns Mayer function between atoms in the pair at temperature
      * 1/beta
      */
-	public abstract double f(AtomSet pair, double beta);
+	public double f(AtomSet pair, double beta);
 
 	/**
 	 * @return
 	 */
-	public abstract IPotential getPotential();
+	public IPotential getPotential();
 	
+	public void setBox(Box box);
 }

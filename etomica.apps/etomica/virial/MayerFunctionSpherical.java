@@ -27,6 +27,6 @@ public abstract class MayerFunctionSpherical implements MayerFunction, java.io.S
         dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(),((IAtomPositioned)pair.getAtom(0)).getPosition());
         return f(dr.squared(), beta);
     }
-
+    
     protected final IVector dr;
 }
