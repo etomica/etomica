@@ -20,6 +20,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         }
         f = fArray;
         fValues = new double[pointCount][pointCount][fArray.length];
+        uijPol = new double[pointCount][pointCount];
 
         scfAtoms = new AtomArrayList(); // USE THIS LIST FOR ALL ATOMS, WHETHER 3 OR 4; KMB, 8/16/06
     }
@@ -56,62 +57,15 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
         
         int nPoints = pointCount();
         
-        // kmb added 7/10/06
-        double u12Pol = Double.NaN;
-        double u13Pol = Double.NaN;
-        double u23Pol = Double.NaN;
-        double u14Pol = Double.NaN;
-        double u24Pol = Double.NaN;
-        double u34Pol = Double.NaN;
         // recalculate all f values for all pairs
         PotentialPolarizable scfPotential = null;
         for(int i=0; i<nPoints-1; i++) {
             for(int j=i+1; j<nPoints; j++) {
                 for(int k=0; k<f.length; k++) {
                     fValues[i][j][k] = f[k].f(aPairs.getAPair(i,j),beta);
-                    scfPotential = (PotentialPolarizable) f[k].getPotential();
-                    // NEED k==0 IN BOOLEAN FOR B4 CALC, TO PREVENT OVERWRITING THE ATOM LISTS FOR THE
-                    // TRIMER AND TETRAMER SCF ENERGY CALCS; KMB, 8/16/06
-                    if (nPoints > 2 && k == 0) {
-                        if (i==0) {
-                            if (j==1) {
-                                u12Pol = scfPotential.getLastPolarizationEnergy();
-                            }
-                            else if (j==2) {
-                                u13Pol = scfPotential.getLastPolarizationEnergy();
-                            }
-                            else if (j==3) {
-                                u14Pol = scfPotential.getLastPolarizationEnergy();
-                            }
-                            else {
-                                throw new RuntimeException("Need to add B5 handling");
-                            }
-                        }
-                        else if (i==1) {
-                            if (j==2) {
-                                u23Pol = scfPotential.getLastPolarizationEnergy();
-                            }
-                            else if (j==3) {
-                                u24Pol = scfPotential.getLastPolarizationEnergy();
-                            }
-                            else {
-                                throw new RuntimeException("Need to add B5 handling");
-                            }
-                        }
-                        else if (i==2) {
-                            if (j==3) {
-                                u34Pol = scfPotential.getLastPolarizationEnergy();
-                            }
-                            else {
-                                throw new RuntimeException("Need to add B5 handling");
-                            }
-                        }
-                        else {
-                            throw new RuntimeException("Need to add B5 handling");
-                        }
-                    }
-
                     fValues[j][i][k] = fValues[i][j][k];
+                    scfPotential = (PotentialPolarizable) f[k].getPotential();
+                    if (k==0) uijPol[i][j] = scfPotential.getLastPolarizationEnergy();
                 }
             }
         }
@@ -145,7 +99,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     			double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
 
     			//deltaC = Math.exp(-beta*u123) - Math.exp(-beta*(u12 + u13 + u23));
-    			double deltau123 = u123Pol-(u12Pol+u13Pol+u23Pol);
+    			double deltau123 = u123Pol-(uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
     	        double betaU123 = beta*deltau123;
     	        double expBetaU123;
     	        if (Math.abs(betaU123) < 1.e-8) {
@@ -213,7 +167,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                 // term is 0.
                 if (g12*g13*g23 != 0) {
     				double u123Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                    double deltaU123 = u123Pol-u12Pol-u13Pol-u23Pol;
+                    double deltaU123 = u123Pol - (uijPol[0][1] + uijPol[0][2] + uijPol[1][2]);
                     double beta123 = beta*deltaU123;
                     // for small x, exp(-x)-1 ~= -x
                     // for x < 1E-8, the approximation is value within machine precision
@@ -234,7 +188,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     			scfAtoms.add(box.molecule(3));
     			if (g12*g14*g24 != 0) {
     				double u124Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                    double deltaU124 = u124Pol-u12Pol-u14Pol-u24Pol;
+                    double deltaU124 = u124Pol-(uijPol[0][1]+uijPol[0][3]+uijPol[1][3]);
                     double beta124 = beta*deltaU124;
                     double exp124 = -beta124;
                     if (Math.abs(beta124) > 1E-8) {
@@ -247,7 +201,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                 scfAtoms.add(box.molecule(2));
                 if (g13*g14*g34 != 0) {
                     double u134Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                    double deltaU134 = u134Pol-u13Pol-u14Pol-u34Pol;
+                    double deltaU134 = u134Pol-(uijPol[0][2]+uijPol[0][3]+uijPol[2][3]);
                     double beta134 = beta*deltaU134;
                     double exp134 = -beta134;
                     if (Math.abs(beta134) > 1E-8) {
@@ -260,7 +214,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                 scfAtoms.add(box.molecule(1));
                 if (g23*g24*g34 != 0) {
                     double u234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
-                    double deltaU234 = u234Pol-u23Pol-u24Pol-u34Pol;
+                    double deltaU234 = u234Pol-(uijPol[1][2]+uijPol[1][3]+uijPol[2][3]);
                     double beta234 = beta*deltaU234;
                     double exp234 = -beta234;
                     if (Math.abs(beta234) > 1E-8) {
@@ -269,12 +223,12 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                     deltaD += -exp234*g23*g24*g34*((f12+f13+f14)+1);
                 }
 
+                scfAtoms.add(box.molecule(0));
                 if (g12*g13*g14*g23*g24*g34 != 0) {
-                    scfAtoms.add(box.molecule(0));
                     double u1234Pol = scfPotential.getPolarizationEnergy(scfAtoms);
                     // deltaU1234 would have deltaUabc subtracted off, but we'd also add it back
                     // in for expU1234, so just don't subtract in the first place 
-    				double deltaU1234 = u1234Pol-u12Pol-u13Pol-u14Pol-u23Pol-u24Pol-u34Pol; //-deltaU123-deltaU124-deltaU134-deltaU234;
+    				double deltaU1234 = u1234Pol-(uijPol[0][1]+uijPol[0][2]+uijPol[0][3]+uijPol[1][2]+uijPol[1][3]+uijPol[2][3]); //-deltaU123-deltaU124-deltaU134-deltaU234;
                     double beta1234 = beta*deltaU1234; //deltaU123+deltaU124+deltaU134+deltaU234+deltaU1234);
                     double exp1234 = -beta1234;
                     if (Math.abs(beta1234) > 1E-8) {
@@ -343,4 +297,5 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     private double beta;
     protected final AtomArrayList scfAtoms;
     protected double deltaDCut2 = Double.POSITIVE_INFINITY;
+    protected final double[][] uijPol;
 }
