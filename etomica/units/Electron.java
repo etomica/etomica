@@ -1,6 +1,4 @@
 package etomica.units;
-import java.io.ObjectStreamException;
-
 import etomica.util.Constants;
 
 /**
@@ -25,7 +23,7 @@ public final class Electron extends SimpleUnit {
      * 
      * @return the singleton UNIT
      */
-    private Object readResolve() throws ObjectStreamException {
+    private Object readResolve() {
         return UNIT;
     }
     
