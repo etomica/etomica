@@ -38,22 +38,7 @@ public abstract class Atom implements IAtom, java.io.Serializable {
         newType.setParentType(null);
         return newType;
     }
-    
-    /**
-     * Returns 1, indicating that this AtomSet is an Atom.
-     */
-    public final int getAtomCount() {return 1;}
-    
-    /**
-     * Returns this if i==0, otherwise throws exception.
-     * 
-     * @throws IllegalArgumentException if i != 0
-     */
-    public final IAtom getAtom(int i) {
-        if (i == 0) return this;
-        throw new IllegalArgumentException();
-    }
-    
+
     /**
      * Returns true if this atom is in the same molecule as the given atom.
      * 
