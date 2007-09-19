@@ -100,16 +100,16 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
             final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
 
 
-            if (pushR > 0) {
+//            if (pushR > 0) {
                 //((ClusterSumPolarizable)((ClusterCoupledFlipped)((ClusterWeightAbs)sim.meters[0].getClusters()[1]).getSubCluster()).getSubCluster()).pushR2 = pushR*pushR;
-                System.out.println("pushing to "+pushR);
-                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
-                MCMoveClusterMoleculePushMulti translateMove = new MCMoveClusterMoleculePushMulti(sim.integrators[1].getPotential(), sim.getRandom(), 1.0, nPoints-1);
-                translateMove.setMinRange(pushR);
-                sim.mcMoveTranslate[1] = translateMove;
+//                System.out.println("pushing to "+pushR);
+//                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
+//                MCMoveClusterMoleculePushMulti translateMove = new MCMoveClusterMoleculePushMulti(sim.integrators[1].getPotential(), sim.getRandom(), 1.0, nPoints-1);
+//                translateMove.setMinRange(pushR);
+//                sim.mcMoveTranslate[1] = translateMove;
 //                sim.mcMoveTranslate[1] = new MCMoveClusterPullMulti(translateMove);
 //                ((MCMoveClusterPullMulti)sim.mcMoveTranslate[1]).setMaxRange(200);
-                sim.integrators[1].getMoveManager().addMCMove(sim.mcMoveTranslate[1]);
+//                sim.integrators[1].getMoveManager().addMCMove(sim.mcMoveTranslate[1]);
                 
 //                sim.integratorOS.setAdjustStepFreq(false);
 //                sim.integratorOS.setStepFreq0(0);
@@ -123,7 +123,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 //                pushR = 900;
 //                System.out.println("pushing to "+pushR);
 //                ((MCMoveClusterMoleculePushMulti)sim.mcMoveTranslate[1]).setMinRange(pushR);
-            }
+//            }
             
             sim.integratorOS.setNumSubSteps(numSubSteps);
             sim.setAccumulatorBlockSize((int)(steps/10));
