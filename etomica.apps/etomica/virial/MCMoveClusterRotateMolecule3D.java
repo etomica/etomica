@@ -27,8 +27,6 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     }
 
     public boolean doTrial() {
-        if(box.moleculeCount()==1) {molecule = null; return false;}
-            
         molecule = (IAtomGroup)moleculeSource.getAtom();
         while (molecule.getIndex() == 0) {
             molecule = (IAtomGroup)moleculeSource.getAtom();
@@ -49,13 +47,13 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
         leafAtomIterator.reset();
         r0.E(first.getPosition());
         doTransform();
-            
+
         if (trialCount-- == 0) {
             relaxAction.actionPerformed(molecule);
             trialCount = relaxInterval;
         }
 
-        uNew = Double.NaN;
+        uNew = weightMeter.getDataAsScalar();
         ((BoxCluster)box).trialNotify();
         return true;
     }
@@ -65,8 +63,7 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     }
     
     public double getA() {
-        uNew = weightMeter.getDataAsScalar();
-        return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
+        return uNew/uOld;
     }
     
     public void acceptNotify() {

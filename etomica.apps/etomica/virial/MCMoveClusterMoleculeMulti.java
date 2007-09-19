@@ -59,7 +59,6 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
             moveMoleculeAction.actionPerformed(selectedAtoms[i]);
         }
         ((BoxCluster)box).trialNotify();
-        uNew = Double.NaN;
         return true;
     }
 	
@@ -95,7 +94,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     
     public double getA() {
         uNew = weightMeter.getDataAsScalar();
-        return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
+        return uNew/uOld;
     }
 	
     private final int nAtoms;
