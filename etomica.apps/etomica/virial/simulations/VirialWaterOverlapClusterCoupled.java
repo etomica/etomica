@@ -2,20 +2,23 @@ package etomica.virial.simulations;
 
 
 
+import etomica.action.Action;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.models.water.PotentialWaterGCPM3forB5;
+import etomica.models.water.PNWaterGCPM;
+import etomica.potential.Potential;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
+import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MayerEHardSphere;
+import etomica.virial.MCMoveClusterMoleculePushMulti;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactoryWaterGCPM;
@@ -28,14 +31,22 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 
         int nPoints = 2;
         double temperature = Kelvin.UNIT.toSim(350);
-        long steps = 1000l;
+        long steps = 10000l;
+        int numSubSteps = 1000;
+        double deltaDCut = 100;
+        double pushR = 0;
 
         if (args.length > 0) nPoints = Integer.parseInt(args[0]);
         if (args.length > 1) temperature = Kelvin.UNIT.toSim(Double.parseDouble(args[1]));
         if (args.length > 2) steps = Long.parseLong(args[2]);
+        if (args.length > 3) deltaDCut = Double.parseDouble(args[3]);
+        if (args.length > 4) pushR = Double.parseDouble(args[4]);
 
         double sigmaHSRef = 3.2;
-        double[] HSB = new double[7];
+        if (pushR > 2) {
+            sigmaHSRef = pushR + 2;
+        }
+        final double[] HSB = new double[7];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
         HSB[4] = Standard.B4HS(sigmaHSRef);
@@ -53,42 +64,28 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
         Space space = Space3D.getInstance();
 
         MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
-        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
+//        MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
 
 //        P2WaterSPCE pTarget = new P2WaterSPCE(space);
 	//P2WaterTIP4P pTarget = new P2WaterTIP4P(space);
 //        PotentialWaterPPC2 pTarget = new PotentialWaterPPC2(space);
 //        PotentialWaterPPC9forB3 pTarget = new PotentialWaterPPC9forB3(space);
-        //PotentialWaterGCPMforB3 pTarget = new PotentialWaterGCPMforB3(space);
-        PotentialWaterGCPM3forB5 pTarget = new PotentialWaterGCPM3forB5(space);
+        final Potential pTarget = new PNWaterGCPM(space);
         
         // kmb added the code below; 9/23/05
         ClusterWeight sampleCluster1 = null;
      
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, false);
+        ((ClusterSumPolarizable)targetCluster).setDeltaDCut(deltaDCut);
         targetCluster = new ClusterCoupledFlipped(targetCluster);
-
-// old "trunc" code before flipping molecules; KMB and AJS, 7/25/07
-/*	    if (args.length > 3 && args[3].equals("trunc")) {
-            Potential2Transformed pSample = new Potential2Transformed(space,pTarget);
-            pSample.setAtomPositionDefinition(new AtomPositionFirstAtom());
-            MayerGeneral fSample = new MayerGeneral(pSample);
-            MayerEGeneral eSample = new MayerEGeneral(pSample);
-            ClusterAbstract sampleCluster2 = Standard.virialCluster(nPoints, fSample, true, eSample, temperature); //, true);
-            sampleCluster1 = ClusterWeightAbs.makeWeightCluster(sampleCluster2);
+        if (targetCluster instanceof ClusterCoupledFlipped) {
+            System.out.println("We're flipping");
         }
-        else {
-*/        	    sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
-                             
-//        }
 
-        
+   	    sampleCluster1 = ClusterWeightAbs.makeWeightCluster(targetCluster);
 
-        
-
-
-        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, eRef, false);
+        ClusterAbstract refCluster = Standard.virialCluster(nPoints, fRef, nPoints>3, null, false);
         ClusterWeight refSample = ClusterWeightAbs.makeWeightCluster(refCluster);
 
        
@@ -98,28 +95,50 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
         refSample.setTemperature(temperature);
 
 
-//        System.out.println(steps+" steps of size "+defaults.blockSize);
+        System.out.println(steps+" steps of size "+numSubSteps);
 
-		
+            final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
 
-//		while (true) {
 
-            SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
+            if (pushR > 0) {
+                //((ClusterSumPolarizable)((ClusterCoupledFlipped)((ClusterWeightAbs)sim.meters[0].getClusters()[1]).getSubCluster()).getSubCluster()).pushR2 = pushR*pushR;
+                System.out.println("pushing to "+pushR);
+                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
+                MCMoveClusterMoleculePushMulti translateMove = new MCMoveClusterMoleculePushMulti(sim.integrators[1].getPotential(), sim.getRandom(), 1.0, nPoints-1);
+                translateMove.setMinRange(pushR);
+                sim.mcMoveTranslate[1] = translateMove;
+//                sim.mcMoveTranslate[1] = new MCMoveClusterPullMulti(translateMove);
+//                ((MCMoveClusterPullMulti)sim.mcMoveTranslate[1]).setMaxRange(200);
+                sim.integrators[1].getMoveManager().addMCMove(sim.mcMoveTranslate[1]);
+                
+//                sim.integratorOS.setAdjustStepFreq(false);
+//                sim.integratorOS.setStepFreq0(0);
+                
+//                sim.initRefPref(null,steps/40);
+//                pushR = 500;
+//                System.out.println("pushing to "+pushR);
+//                ((MCMoveClusterMoleculePushMulti)sim.mcMoveTranslate[1]).setMinRange(pushR);
+//                
+//                sim.initRefPref(null,steps/40);
+//                pushR = 900;
+//                System.out.println("pushing to "+pushR);
+//                ((MCMoveClusterMoleculePushMulti)sim.mcMoveTranslate[1]).setMinRange(pushR);
+            }
             
-//            MeterRDFMolecule meterRDF = new MeterRDFMolecule(sim.getSpace(), sim.getSpeciesManager().getSpecies()[0]);
+            sim.integratorOS.setNumSubSteps(numSubSteps);
+            sim.setAccumulatorBlockSize((int)(steps/10));
+            
+//            final MeterDFVirial meterRDF = new MeterDFVirial(sim.getSpace()); //, sim.getSpeciesManager().getSpecies()[0]);
 //            meterRDF.setBox(sim.box[1]);
-//            meterRDF.getXDataSource().setXMax(100);
-//            meterRDF.getXDataSource().setNValues(100);
+//            meterRDF.getXDataSource().setXMax(1000);
+//            meterRDF.getXDataSource().setNValues(500);
             
-            
-//            sim.integratorOS.setStepFreq0(0);
-//            sim.integratorOS.setAdjustStepFreq(false);
             
             for (int i=0; i<2; i++) {
 
                 sim.integrators[i].getMoveManager().setEquilibrating(true);
 
-                sim.mcMoveTranslate[i].setStepSize(1.0);
+                sim.mcMoveTranslate[i].setStepSize(10);
 
 //                sim.mcMoveTranslate[i].setAcceptanceTarget(0.20);
 
@@ -153,166 +172,74 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+temperature : null;
-            sim.initRefPref(refFileName,steps/100);
-            sim.equilibrate(refFileName,steps/40);
+            String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+Kelvin.UNIT.fromSim(temperature) : null;
+            sim.initRefPref(refFileName,steps/40);
+            sim.equilibrate(refFileName,steps/20);
+            if (pushR == 0 && (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
+                throw new RuntimeException("Oops");
+            }
+            //((ClusterSumPolarizable)((ClusterCoupledFlipped)sim.meters[1].getClusters()[0]).getSubCluster()).pushR2 = pushR*pushR;
 //            sim.integrators[1].addIntervalAction(meterRDF);
-//            sim.integrators[1].setActionInterval(meterRDF, 10);
+//            sim.integrators[1].setActionInterval(meterRDF, 5);
+            sim.setAccumulatorBlockSize((int)(steps*10));
 
-/*            try { 
-
-                fileReader = new FileReader("refpref");
-
-                BufferedReader bufReader = new BufferedReader(fileReader);
-
-                String refPrefString = bufReader.readLine();
-
-                refPref = Double.parseDouble(refPrefString);
-
-                bufReader.close();
-
-                fileReader.close();
-
-                System.out.println("setting ref pref to "+refPref);
-
-                sim.setAccumulator(new AccumulatorVirialOverlapSingleAverage(defaults.blockSize,1),0);
-
-                sim.setAccumulator(new AccumulatorVirialOverlapSingleAverage(defaults.blockSize,1),1);
-
-                sim.setRefPref(refPref,1);
-
-            }
-
-            catch (IOException e) {
-
-                // file not there, which is ok.
-
-            }
-
-
-
-            if (refPref == -1) {
-
-                sim.setAccumulator(new AccumulatorVirialOverlapSingleAverage(defaults.blockSize,101),0);
-
-                sim.setAccumulator(new AccumulatorVirialOverlapSingleAverage(defaults.blockSize,101),1);
-
-                sim.setRefPref(10000,15);
-
-                sim.ai.setMaxSteps(steps/100);
-
-                sim.getController().run();
-
-
-
-                int newMinDiffLoc = sim.dsvo.minDiffLocation();
-
-                int nBennetPoints = sim.accumulators[0].getNBennetPoints();
-
-                refPref = sim.accumulators[0].getBennetBias(nBennetPoints-newMinDiffLoc-1);
-
-                System.out.println("setting ref pref to "+refPref);
-
-                sim.setAccumulator(new AccumulatorVirialOverlapSingleAverage(defaults.blockSize,11),0);
-
-                sim.setAccumulator(new AccumulatorVirialOverlapSingleAverage(defaults.blockSize,11),1);
-
-                sim.setRefPref(refPref,0.2);
-
-                // reset to -1 so we know later on we're still searching for the right value
-
-                refPref = -1;
-
-                for (int i=0; i<2; i++) {
-
-                    // call setPhase again so meter can re-synchronize with samplecluster
-
-                    try {
-
-                        sim.integrators[i].reset();
-
-                    }
-
-                    catch (ConfigurationOverlapException e) {}
-
-                    sim.meters[i].setPhase(sim.phase[i]);
-
+            final int n = nPoints;
+//            final ClusterAbstract tc = targetCluster;
+//            Action rdfWriteAction = new Action() {
+//                public void actionPerformed() {
+//                    try {
+//                        BoxCluster box = sim.box[1];
+//                        CoordinatePairSet cPairs = box.getCPairSet();
+//                        //System.out.println("writing xyz "+i);
+//                        for (int j=0; j<n-1; j++) {
+//                            for (int k=j+1; k<n; k++) {
+//                                System.out.print(Math.sqrt(cPairs.getr2(j,k))+" ");
+//                            }
+//                        }
+//                        System.out.println();
+//                        DataGroup data = (DataGroup)meterRDF.getData();
+//                        Data dataDF = data.getData(0);
+//                        Data dataV = data.getData(1);
+//                        Data dataV2 = data.getData(2);
+//                        Data dataPi = data.getData(3);
+//                        double deltaX = meterRDF.getXDataSource().getXMax() / meterRDF.getXDataSource().getNValues();
+//                        int max = -1;
+//                        for (int i=dataDF.getLength()-1; i>-1; i--) {
+//                            if (dataDF.getValue(i) > 0) {
+//                                max = i;
+//                                break;
+//                            }
+//                        }
+//                        if (max == -1) {
+//                            System.out.println("oops nothing there!");
+//                            return;
+//                        }
+//                        System.out.println("writing rdf");
+//                        FileWriter fileWriter = new FileWriter("rdf"+n+(tc instanceof ClusterCoupledFlipped ? "f" : "")+(
+//                                (pTarget instanceof PNWaterGCPM) ? "" : "_old")+".dat");
+//                        for (int i=0; i<max+1; i++) {
+//                            if (dataDF.getValue(i) > 0) {
+//                                fileWriter.write((i+0.5)*deltaX+" "+dataDF.getValue(i)+" "+dataV.getValue(i)+" "+dataV2.getValue(i)+" "+dataPi.getValue(i)+"\n");
+//                            }
+//                        }
+//                        fileWriter.close();
+//                    }
+//                    catch (IOException e) {throw new RuntimeException(e);}
+//                }
+//            };
+            Action progressReport = new Action() {
+                public void actionPerformed() {
+                    System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+                    double ratio = sim.dsvo.getDataAsScalar();
+                    double error = sim.dsvo.getError();
+                    System.out.println("abs average: "+ratio*HSB[n]+", error: "+error*HSB[n]);
                 }
+            };
+//            sim.integrators[1].addIntervalAction(rdfWriteAction);
+//            sim.integrators[1].setActionInterval(rdfWriteAction, (int)(steps*10));
+            sim.integratorOS.addIntervalAction(progressReport);
+            sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 
-                sim.getController().addAction(sim.ai);
-
-            }
-
-
-
-            // run a short simulation to get reasonable MC Move step sizes and
-
-            // (if needed) narrow in on a reference preference
-
-            sim.ai.setMaxSteps(steps/100);
-
-
-
-            sim.getController().run();
-
-
-
-            if (refPref == -1) {
-
-                int newMinDiffLoc = sim.dsvo.minDiffLocation();
-
-                int nBennetPoints = sim.accumulators[0].getNBennetPoints();
-
-                refPref = sim.accumulators[0].getBennetBias(nBennetPoints-newMinDiffLoc-1);
-
-                System.out.println("setting ref pref to "+refPref);
-
-                sim.setAccumulator(new AccumulatorVirialOverlapSingleAverage(defaults.blockSize,1),0);
-
-                sim.setAccumulator(new AccumulatorVirialOverlapSingleAverage(defaults.blockSize,1),1);
-
-                sim.setRefPref(refPref,1);
-
-                try {
-
-                    FileWriter fileWriter = new FileWriter("refpref");
-
-                    BufferedWriter bufWriter = new BufferedWriter(fileWriter);
-
-                    bufWriter.write(String.valueOf(refPref)+"\n");
-
-                    bufWriter.close();
-
-                    fileWriter.close();
-
-                }
-
-                catch (IOException e) {
-
-                    throw new RuntimeException("couldn't write to refpref file");
-
-                }
-
-            }
-
-            for (int i=0; i<2; i++) {
-
-                sim.integrators[i].setEquilibrating(false);
-
-                // call setPhase again so meter can re-synchronize with samplecluster
-
-                try {
-
-                    sim.integrators[i].reset();
-
-                }
-
-                catch (ConfigurationOverlapException e) {}
-
-                sim.meters[i].setPhase(sim.phase[i]);
-
-            }
-*/
             sim.ai.setMaxSteps(steps);
 
             System.out.println("equilibration finished");
@@ -361,12 +288,8 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
                               +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                               +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 
-//            Data rdfData = meterRDF.getData();
-//            double deltaX = meterRDF.getXDataSource().getXMax() / meterRDF.getXDataSource().getNValues();
-//            for (int i=0; i<rdfData.getLength(); i++) {
-//                System.out.println((i+0.5)*deltaX+" "+rdfData.getValue(i));
-//            }
-
+            //rdfWriteAction.actionPerformed();
+            
 /*		double[] valueArray = targetCluster.getMaxValueArray();
             
             	System.out.println("Here are the pi versus log O-O values");
