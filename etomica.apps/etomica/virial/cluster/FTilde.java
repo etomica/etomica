@@ -1,6 +1,7 @@
 package etomica.virial.cluster;
 
 import etomica.atom.AtomSet;
+import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.virial.MayerFunction;
 
@@ -16,5 +17,10 @@ public class FTilde implements MayerFunction, java.io.Serializable {
 	public IPotential getPotential() {
 	    return fWrapped.getPotential();
 	}
+
+    public void setBox(Box newBox) {
+        fWrapped.setBox(newBox);
+	}
+
 	public String toString() {return "f~  ";}
 }
