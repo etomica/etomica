@@ -18,7 +18,6 @@ import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
-import etomica.virial.MCMoveClusterMoleculePushMulti;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.SpeciesFactoryWaterGCPM;
