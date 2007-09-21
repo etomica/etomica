@@ -3,9 +3,6 @@
  */
 package etomica.models.hexane;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.BoxInflateDeformable;
 import etomica.action.PDBWriter;
 import etomica.action.activity.ActivityIntegrate;
@@ -13,12 +10,10 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPressureByVolumeChange;
-import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.graphics.SimulationGraphic;
@@ -26,6 +21,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
+import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition;
@@ -39,9 +35,9 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.virial.MCMoveClusterWiggleMulti;
 /**
  * @author nancycribbin
  *  
@@ -66,15 +62,15 @@ public class TestHexane extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
     
-//    public MCMoveVolume moveVolume;
-//    public MCMoveCrankshaft crank; 
+    public MCMoveVolume moveVolume;
+    public MCMoveClusterWiggleMulti crank; 
 //    public MCMoveReptate snake;
     public MCMoveMolecule moveMolecule;
     public CBMCGrowSolidHexane growMolecule;
     public MCMoveRotateMolecule3D rot;
     public MCMoveMoleculeCoupled coupledMove;
     public MCMoveCombinedCbmcTranslation cctMove;
-
+    
 //    public PairIndexerMolecule pri;
 
     
@@ -117,16 +113,16 @@ public class TestHexane extends Simulation {
         integrator.getMoveManager().addMCMove(moveMolecule);
         ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
         
-        // moveVolume = new MCMoveVolume(potentialMaster, box.space(),
-        // sim.getDefaults().pressure);
-        // moveVolume.setBox(box);
-        // integrator.getMoveManager().addMCMove(moveVolume);
+        moveVolume = new MCMoveVolume(this, potentialMaster);
+//        moveVolume = new MCMoveVolume(potentialMaster, getRandom(), pressure);
+        moveVolume.setBox(box);
+        integrator.getMoveManager().addMCMove(moveVolume);
         
-        // crank = new MCMoveCrankshaft();
-
-        // snake = new MCMoveReptate(this);
-        // snake.setBox(box);
-        // integrator.getMoveManager().addMCMove(snake);
+        crank = new MCMoveClusterWiggleMulti(potentialMaster, getRandom(), 0.20, 6);
+    
+//        snake = new MCMoveReptate(potentialMaster, getRandom(), 0.25, 0.5, true);
+//        snake.setBox(box);
+//        integrator.getMoveManager().addMCMove(snake);
         
         rot = new MCMoveRotateMolecule3D(potentialMaster, getRandom());
         rot.setBox(box);
@@ -187,7 +183,7 @@ public class TestHexane extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
 
         integrator.setBox(box);
-
+       
     }
 
     public static void main(String[] args) {
@@ -251,13 +247,13 @@ public class TestHexane extends Simulation {
             meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
             meterNormalMode.setBox(sim.box);
 
-//            BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
-//            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
-//            meterPressure.setIntegrator(sim.integrator);
-//            AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
-//            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
-//            pressureAccumulator.setBlockSize(50);
-//            sim.integrator.addIntervalAction(pressureManager);
+            BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
+            MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
+            meterPressure.setIntegrator(sim.integrator);
+            AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
+            DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
+            pressureAccumulator.setBlockSize(50);
+            sim.integrator.addIntervalAction(pressureManager);
          
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
@@ -278,10 +274,6 @@ public class TestHexane extends Simulation {
 //            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
 //            double[] coefficients = waveVectorFactory.getCoefficients();
             
-//            double avgPressure = ((DataDouble)(((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index))).x;
-//            avgPressure = ((DataDouble)((DataGroup)pressureAccumulator.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index)).x;
-//            System.out.println("Avg Pres = "+ avgPressure);
-
             WriteS sWriter = new WriteS();
             sWriter.setFilename(filename);
             sWriter.setOverwrite(true);
@@ -300,6 +292,37 @@ public class TestHexane extends Simulation {
             PDBWriter pdbWriter = new PDBWriter(sim.box);
             pdbWriter.setFileName("calcHex.pdb");
             pdbWriter.actionPerformed();
+
+            double avgPressure = 0.0;  
+            int leng = 10;
+            double[] pressies = new double[leng];
+            double[] lnXs = new double[leng];
+            double[] scalingFactors = new double[leng];
+            double[] volumes = new double[leng];
+            double volume = sim.bdry.volume();
+
+            lnXs = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getData();
+            
+            for(int i = 0; i < leng; i++){
+                System.out.println(i);
+                scalingFactors[i] = ((DataDoubleArray)meterPressure.getScalingDataSource().getData()).getValue(i);
+                lnXs[i] = Math.log(lnXs[i]);
+                volumes[i] = volume*scalingFactors[i];
+                pressies[i] = lnXs[i]/volumes[i];
+            }
+            
+            System.out.println("volume =  "+ volume);
+            System.out.println("lnXs");
+            for(int i = 0; i < leng; i++){
+                System.out.println(lnXs[i]);
+            }
+            System.out.println("volumes");
+            for(int i = 0; i < leng; i++){
+                System.out.println(volumes[i]);
+            } 
+            
+            avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getValue(0);
+            System.out.println("Avg Pres = "+ avgPressure);
         }
     }
 }
