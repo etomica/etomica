@@ -120,7 +120,7 @@ public class TestHexane extends Simulation {
         
         crank = new MCMoveClusterWiggleMulti(potentialMaster, getRandom(), 0.20, 6);
     
-//        snake = new MCMoveReptate(potentialMaster, getRandom(), 0.25, 0.5, true);
+//        snake = new MCMoveReptate(potentialMaster, getRandom(), 0.4, 3.0, true);
 //        snake.setBox(box);
 //        integrator.getMoveManager().addMCMove(snake);
         
@@ -304,7 +304,6 @@ public class TestHexane extends Simulation {
             lnXs = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getData();
             
             for(int i = 0; i < leng; i++){
-                System.out.println(i);
                 scalingFactors[i] = ((DataDoubleArray)meterPressure.getScalingDataSource().getData()).getValue(i);
                 lnXs[i] = Math.log(lnXs[i]);
                 volumes[i] = volume*scalingFactors[i];

@@ -25,6 +25,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
     public MCMoveReptate(PotentialMaster potentialMaster, IRandom random, 
             double stepSize, double stepSizeMax, boolean fixOverlap){
         super(potentialMaster);
+       
         this.random = random;
         atomSource = new AtomSourceRandomMolecule();
         ((AtomSourceRandomMolecule)atomSource).setRandom(random);
@@ -41,7 +42,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
         energyMeter.setIncludeLrc(false);
         this.fixOverlap = fixOverlap;
 
-        
+        throw new IllegalStateException("MCMoveReptate is broken.  Abort!  Abort!");
     }
     
     
