@@ -228,7 +228,7 @@ public class SimulationVirialOverlap extends Simulation {
             System.out.println("setting ref pref to "+refPref);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
-            setRefPref(refPref,10);
+            setRefPref(refPref,3);
             for (int i=0; i<2; i++) {
                 try {
                     integrators[i].reset();
