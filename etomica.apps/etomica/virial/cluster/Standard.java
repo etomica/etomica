@@ -189,6 +189,8 @@ public final class Standard {
                 l++;
             }
         }
+        // nTypes.length is the number of components
+        // we need one bond type for each pair of components
         int nBondTypes = nTypes.length*(nTypes.length+1)/2;
         // bondType is bond index for the type of bond between points of type i and j
         int[][] bondType = new int[nTypes.length][nTypes.length];
@@ -214,6 +216,7 @@ public final class Standard {
         }
         int allNumBondTypes = nBondTypes;
         if (e != null) {
+            // with e-bonds, we need an extra bond type for each pair of components
             allNumBondTypes *= 2;
         }
         ClusterDiagram clusterD = new ClusterDiagram(nBody,0);
@@ -239,14 +242,16 @@ public final class Standard {
                 iBond[i] = 0;
             }
             int numBonds = clusterD.getNumConnections();
+            // bondList[i][j][0] is the first point for the jth bond of type i
+            // bondList[i][j][1] is the second point for the jth bond of type i
             int[][][] bondList = new int[allNumBondTypes][][];
             for (l=0; l<allNumBondTypes; l++) {
                 bondList[l] = new int[numBonds][2];
             }
             if (e != null) {
                 int totalBonds = nBody*(nBody-1)/2;
-                for (l=0; l<nTypes.length; l++) {
-                    bondList[nTypes.length+1] = new int[totalBonds-numBonds][2];
+                for (l=0; l<nBondTypes; l++) {
+                    bondList[nBondTypes+l] = new int[totalBonds-numBonds][2];
                 }
             }
             for (int i = 0; i < nBody; i++) {
