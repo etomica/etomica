@@ -1,5 +1,6 @@
 package etomica.statmech;
 
+import etomica.math.SpecialFunctions;
 import etomica.util.Arrays;
 
 /**
@@ -256,6 +257,22 @@ public final class LennardJones {
         return -sum;
     }
     
+    /**
+     * Returns the 2nd virial coefficient. Evaluated using analytic expression for Mayer
+     * integral given in terms of the confluent hypergeometric function.
+     * @param T
+     *            temperature, in units of epsilon/k
+     * @return 2nd virial coefficient, in units of sigma^3
+     */
+    public static double B2(double T) {
+        final double GAMMA14P =  3.625609908221908; // Gamma(+1/4)
+        final double GAMMA14M = -4.901666809860711; // Gamma(-1/4)
+        double result = Math.sqrt(T) * GAMMA14M * SpecialFunctions.confluentHypergeometric1F1(-0.25, 0.5, 1.0/T)
+                               + 2.0 * GAMMA14P * SpecialFunctions.confluentHypergeometric1F1(+0.25, 1.5, 1.0/T);
+        result *= -Math.PI / (3.0 * Math.sqrt(2.0) * Math.pow(T, 0.75));
+        return result;
+    }
+    
     public static void main(String[] args) {
         double T = 0.692;
         double rho = 0.962;
@@ -289,7 +306,9 @@ public final class LennardJones {
         System.out.println("Sublimation pressure: " + psub);
         double[] rhosub = vaporFccCoexDensities(T);
         System.out.println("vapor, fcc coexistence densities: " + Arrays.toString(rhosub));
-        
+        double[] Tarr = {0.625, 0.75, 1.0, 1.2, 1.3, 1.4, 1.5, 2.0, 2.5, 5.0, 10.0};
+        for(int i=0; i<Tarr.length; i++) System.out.println("T, B2(T): " + Tarr[i] + "\t" + B2(Tarr[i])/(2.*Math.PI/3.));
+
 //        for(double Tr=0.2; Tr<=1.01; Tr+=0.2) {
             for(double Tr=0.0; Tr<=1.01; Tr+=0.05) {
 //            for(rho=0.9; rho<=1.7; rho+=0.1) {
@@ -298,7 +317,7 @@ public final class LennardJones {
                 T = Tr*Tm;
                 double a = uStaticFcc(rho) - (aResidualFcc(T, rho) + T*(-1 + Math.log(rho)));
 //                System.out.println(Tr + "\t" + a);
-                System.out.println(a);
+//                System.out.println(a);
                 
                 double sum = T * Uah(T, rho); //anharmonic contribution
                 double rhon1 = rho;// rho^(n+1)
@@ -306,7 +325,6 @@ public final class LennardJones {
                     sum += T * b[n] / (n + 1) * rhon1;
                     rhon1 *= rho;
                 }
-
 //                System.out.println("T, rho, Uah, sum: "+ T + "\t" + rho + "\t" + T*Uah(T,rho) + "\t" + sum);
 //            }
         }
