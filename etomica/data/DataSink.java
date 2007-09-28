@@ -9,12 +9,12 @@ public interface DataSink {
     /**
      * Gives data to DataSink for processing, display, or whatever it does.
      */
-    public abstract void putData(Data data);
+    public void putData(Data data);
 
     /**
      * Informs the DataSink of the type of Data it should expect to receive.
      */
-    public abstract void putDataInfo(IDataInfo dataInfo);
+    public void putDataInfo(IDataInfo dataInfo);
 
     /**
      * Returns a DataProcessor that casts the data that will be given 
