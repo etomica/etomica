@@ -14,7 +14,7 @@ public final class Kelvin extends SimpleUnit {
         super(Temperature.DIMENSION, 
         	Constants.BOLTZMANN_K,//convert to simulation energy units by multiplying by Boltzmann's constant
         	"kelvins", "K", Prefix.ALLOWED
-        	);  
+        	);
     }
     
     /**
@@ -22,7 +22,7 @@ public final class Kelvin extends SimpleUnit {
      * 
      * @return the singleton UNIT
      */
-    private Object readResolve() throws ObjectStreamException {
+    private Object readResolve() {
         return UNIT;
     }
     
