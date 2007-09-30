@@ -66,7 +66,7 @@ public class MCMoveAtom extends MCMoveBoxStep {
         translationVector.setRandomCube(random);
         translationVector.TE(stepSize);
         ((IAtomPositioned)atom).getPosition().PE(translationVector);
-        uNew = Double.NaN;
+        uNew = energyMeter.getDataAsScalar();
         return true;
     }//end of doTrial
     
@@ -86,8 +86,6 @@ public class MCMoveAtom extends MCMoveBoxStep {
      * doTrial.
      */
     public double getB() {
-//        energyMeter.setTarget(atom);
-        uNew = energyMeter.getDataAsScalar();
         return -(uNew - uOld);
     }
     
