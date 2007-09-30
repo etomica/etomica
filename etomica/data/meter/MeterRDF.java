@@ -1,10 +1,10 @@
 package etomica.data.meter;
-import etomica.EtomicaInfo;
 import etomica.action.Action;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
+import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataSourceIndependent;
@@ -16,7 +16,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -53,15 +52,6 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
         dr = space.makeVector();
         tag = new DataTag();
         dataInfo.addTag(tag);
-    }
-    
-    public String getLabel() {
-        throw new RuntimeException("You deserve this");
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Tabulates radial distribution function");
-        return info;
     }
     
     public IDataInfo getDataInfo() {
