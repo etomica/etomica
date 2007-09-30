@@ -53,7 +53,7 @@ public class Orientation3D extends etomica.space.Orientation {
     */
     public void randomRotation(IRandom random, double stepsize) {
         double t = (2.0*random.nextDouble()-1.0)*stepsize;
-        int i = (int)(3.0 *(random.nextDouble()));
+        int i = random.nextInt(3);
         double ct,st;
         
         ct= Math.cos(t);st =Math.sin(t);
