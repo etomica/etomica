@@ -13,7 +13,7 @@ import etomica.data.DataSourceCountTime;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.DeviceNSelector;
-import etomica.graphics.DeviceThermoSelector;
+import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
@@ -133,7 +133,13 @@ public class HSMD2D_noNbr extends Simulation {
 
         sim.integrator.addIntervalAction(repaintAction);
 
-        DeviceThermoSelector thermo = new DeviceThermoSelector(sim, sim.integrator);
+        DeviceThermoSlider thermo = new DeviceThermoSlider(sim.getController());
+        thermo.setIntegrator(sim.integrator);
+        thermo.setMinimum(0.0);
+        thermo.setMaximum(600.0);
+        thermo.setSliderMajorValues(3);
+	    thermo.setAdiabatic();
+
         graphic.add(nSelector);
         graphic.add(thermo);
 //        graphic.add(pressureDisplay);
