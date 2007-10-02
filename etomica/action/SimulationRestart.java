@@ -1,6 +1,7 @@
 package etomica.action;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.exception.ConfigurationOverlapException;
@@ -8,8 +9,8 @@ import etomica.integrator.IIntegrator;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.box.Box;
 import etomica.simulation.ISimulation;
+import etomica.space.Space;
 
 /**
  * Action that invokes reset method of all registered simulation elements,
@@ -30,7 +31,7 @@ public final class SimulationRestart extends SimulationActionAdapter {
             setConfiguration(new ConfigurationLattice(new LatticeOrthorhombicHexagonal()));
         }
         else {
-            setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(1, 1.0)));
+            setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(Space.getInstance(1), 1.0)));
         }
         ignoreOverlap = false;
         accumulatorAction = new SimulationDataAction(new ResetAccumulators());

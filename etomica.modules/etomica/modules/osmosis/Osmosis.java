@@ -89,12 +89,12 @@ public class Osmosis extends SimulationGraphic {
         displayBox.setOriginShift(1, -thickness);
         if (sim.getSpace() instanceof Space2D) {
             displayBox.addDrawable(new MyWall());
-            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(2, 1.0), null);
+            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(sim.getSpace(), 1.0), null);
         }
         else if (sim.getSpace() instanceof Space3D) {
         	Plane plane = new Plane(sim.getSpace());
         	((etomica.graphics.DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(plane);
-            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(3, 1.0), plane); 
+            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(sim.getSpace(), 1.0), plane); 
             config.addSpecies(sim.speciesSolvent);
             config.addSpecies(sim.speciesSolute);
         }

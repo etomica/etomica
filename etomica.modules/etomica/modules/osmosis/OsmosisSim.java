@@ -106,7 +106,7 @@ public class OsmosisSim extends Simulation {
 
     public static void main(String[] args) {
         final OsmosisSim sim = new OsmosisSim(Space3D.getInstance());
-        final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(3, 1.0));
+        final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(sim.getSpace(), 1.0));
         config.initializeCoordinates(sim.box);
     	Plane plane = new Plane(sim.getSpace());
 

@@ -1,6 +1,7 @@
 package etomica.lattice;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.space.Space;
+import etomica.space3d.Space3D;
 
 /**
  * A simple cubic lattice, with one site per cubic unit cell.
@@ -12,20 +13,20 @@ public class LatticeCubicSimple extends BravaisLattice implements CubicLattice {
 	 * Simple 3D cubic lattice with a unit lattice constant. 
 	 */
     public LatticeCubicSimple() {
-        this(3, 1.0);
+        this(Space.getInstance(3), 1.0);
     }
     
     /**
      * Makes a simple cubic lattice of a spatial dimension given by the first
      * argument, and with the given lattice constant.
-     * @param D dimension of space of lattice; values of 2 or 3 are expected, D = 1 might also work
+     * @param space: space of lattice; values of 2D or 3D are expected, 1D might also work
      * @param latticeConstant spacing between adjacent lattice sites
      */
-	public LatticeCubicSimple(int D, double latticeConstant) {
-		super(new PrimitiveCubic(Space.getInstance(D)));
+    public LatticeCubicSimple(Space space, double latticeConstant) {
+        super(new PrimitiveCubic(space));
         this.primitive = (PrimitiveCubic)getPrimitive();
         primitive.setSizeABC(latticeConstant);
-	}
+    }
 
     /**
      * The lattice constant is the size of the cubic primitive vectors.
