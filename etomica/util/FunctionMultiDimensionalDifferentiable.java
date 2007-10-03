@@ -10,7 +10,7 @@ package etomica.util;
 public interface FunctionMultiDimensionalDifferentiable extends FunctionMultiDimensional{
 	
     /**
-     * Returns the indicated by the array d evaluated at the given point x.  The array d
+     * Returns the derivative indicated by the array d evaluated at the given point x.  The array d
      * should be the same length as x. Each entry of d specifies the order of the derivative
      * taken with respect to the corresponding variable in x.  For example, for a function
      * on a 2-dimensional space, d = {2,0}, indicates d2f/dx[0]^2, while d = {1,1}, indicates
