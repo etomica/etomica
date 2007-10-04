@@ -74,9 +74,17 @@ public class DeviceThermoSlider extends Device {
         gbc1.gridx = 0;  gbc1.gridy = 2;
         gbc1.gridwidth = 2;
         temperaturePanel.add(temperatureSlider.graphic(),gbc1);
-
     }
 
+	public void setIsothermalButtonsVisibility(boolean doShowIsothermalButtons) {
+	    buttonIsothermal.setVisible(doShowIsothermalButtons);
+        buttonAdiabatic.setVisible(doShowIsothermalButtons);
+	}
+
+	public boolean getIsothermalButtonsVisibility() {
+	    return buttonIsothermal.isVisible();
+	}
+	
 	/**
 	 * Set the Isothermal button to its selected state.
 	 */
@@ -261,7 +269,13 @@ public class DeviceThermoSlider extends Device {
             }
         };
 
-    	addRadioGroupActionListener(actionListen);
+        addRadioGroupActionListener(actionListen);
+        if (i.isIsothermal()) {
+            setIsothermal();
+        }
+        else {
+            setAdiabatic();
+        }
     }
 
     //
