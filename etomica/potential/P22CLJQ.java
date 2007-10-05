@@ -49,7 +49,6 @@ public class P22CLJQ extends Potential2 {
 
     public double energy(AtomSet pair){
         double ener=0.0;
-        double uqq=0.0;
 
         AtomSet mol1 = ((IAtomGroup)pair.getAtom(0)).getChildList(); 
         AtomSet mol2 = ((IAtomGroup)pair.getAtom(1)).getChildList(); 
@@ -77,7 +76,7 @@ public class P22CLJQ extends Potential2 {
         nearestImageTransformer.nearestImage(dr);
         ener=ener+calculateEnergy(dr.squared());
 
-        if(Q2!=0.0){
+        if(Q2!=0.0 && !Double.isInfinite(ener)){
 
             com1.Ev1Pv2(bead11.getPosition(), bead12.getPosition());
             com1.TE(0.5);
@@ -127,19 +126,17 @@ public class P22CLJQ extends Potential2 {
             az1.normalize();
             az2.normalize();
 
-            double phi12=Math.acos(az1.dot(az2));
+            double c12 = az1.dot(az2);
 
-            double c12=Math.cos(phi12);
-
-            uqq=(3.0*Q2)/(4.0*r2*r2*Math.sqrt(r2));
+            double uqq=(3.0*Q2)/(4.0*r2*r2*Math.sqrt(r2));
             double temp1=s1*s2*c12-4*c1*c2;
-            uqq=(uqq)*(1.0-5.0*(c1*c1+c2*c2+3*c1*c1*c2*c2) +2*(temp1*temp1));
+            ener += uqq*(1.0-5.0*(c1*c1+c2*c2+3*c1*c1*c2*c2) +2*(temp1*temp1));
         }
-        return (ener+uqq);
+        return ener;
     }
 
     protected double calculateEnergy(double r2){
-        if(r2<hsdiasq) {
+        if(r2<hsdiasq*sigma2) {
             return Double.POSITIVE_INFINITY;
         }
         double s2 = sigma2/(r2);
@@ -270,6 +267,7 @@ public class P22CLJQ extends Potential2 {
         Q2=moment;	
     }
 
+    private static final long serialVersionUID = 1L;
     private double sigma , sigma2;
     private double epsilon, epsilon4;
     private double hsdiasq=1.0/Math.sqrt(2);
