@@ -69,7 +69,7 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
 
         api.setBox(box);
-        IAtom[] molecules0 = ((AtomArrayList)box.getAgent(species[species0Index]).getChildList()).toArray();
+        IAtom[] molecules0 = ((AtomArrayList)box.getMoleculeList(species[species0Index])).toArray();
         
         int count = molecules0.length * (molecules0.length - 1) / 2;
         

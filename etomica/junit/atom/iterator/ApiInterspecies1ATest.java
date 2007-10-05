@@ -115,20 +115,20 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         IAtom targetMolecule = null;
         //test no iterates if no target
         api.setBox(box);
-        IAtom[] molecules0 = ((AtomArrayList)box.getAgent(species0).getChildList()).toArray();
-        IAtom[] molecules1 = ((AtomArrayList)box.getAgent(species1).getChildList()).toArray();
+        IAtom[] molecules0 = ((AtomArrayList)box.getMoleculeList(species0)).toArray();
+        IAtom[] molecules1 = ((AtomArrayList)box.getMoleculeList(species1)).toArray();
         int[] nMolecules = new int[] { molecules0.length, molecules1.length };
         testNoIterates(api);
 
         //species0 target; any direction
-        target = box.getAgent(species0).getChildList().getAtom(nMolecules[0] / 2);
+        target = box.getMoleculeList(species0).getAtom(nMolecules[0] / 2);
         targetMolecule = target;
         api.setTarget(target);
         LinkedList list0 = testApiIterates(api, UP, targetMolecule, molecules1);
         api.allAtoms(speciesTest);
 
         //species0 target; up
-        target = box.getAgent(species0).getChildList().getAtom(nMolecules[0] / 2);
+        target = box.getMoleculeList(species0).getAtom(nMolecules[0] / 2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(UP);
@@ -141,7 +141,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         assertEquals(list0, list1);
 
         //species0 target; down
-        target = box.getAgent(species0).getChildList().getAtom(nMolecules[0] / 2);
+        target = box.getMoleculeList(species0).getAtom(nMolecules[0] / 2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(DOWN);
@@ -149,7 +149,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
 
         //species0 leafAtom target; any direction
         if (!(species0.getMoleculeType() instanceof AtomTypeLeaf)) {
-            target = ((IAtomGroup)box.getAgent(species0).getChildList().getAtom(nMolecules[0] / 2)).getChildList().getAtom(1);
+            target = ((IAtomGroup)box.getMoleculeList(species0).getAtom(nMolecules[0] / 2)).getChildList().getAtom(1);
             targetMolecule = target.getParentGroup();
             api.setTarget(target);
             api.setDirection(UP);
@@ -158,7 +158,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         }
 
         //species1 target; both
-        target = box.getAgent(species1).getChildList().getAtom(nMolecules[1] / 2);
+        target = box.getMoleculeList(species1).getAtom(nMolecules[1] / 2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(null);
@@ -166,14 +166,14 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         api.allAtoms(speciesTest);
 
         //species1 target; up
-        target = box.getAgent(species1).getChildList().getAtom(nMolecules[1] / 2);
+        target = box.getMoleculeList(species1).getAtom(nMolecules[1] / 2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(UP);
         testNoIterates(api);
 
         //species1 target; down
-        target = box.getAgent(species1).getChildList().getAtom(nMolecules[1] / 2);
+        target = box.getMoleculeList(species1).getAtom(nMolecules[1] / 2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(DOWN);

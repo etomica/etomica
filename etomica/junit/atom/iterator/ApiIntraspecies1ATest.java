@@ -8,8 +8,8 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.junit.UnitTestUtil;
 import etomica.box.Box;
+import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
@@ -85,7 +85,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         IAtom targetMolecule = null;
         //test no iterates if no target
         api.setBox(box);
-        IAtom[] molecules0 = ((AtomArrayList)box.getAgent(species).getChildList()).toArray();
+        IAtom[] molecules0 = ((AtomArrayList)box.getMoleculeList(species)).toArray();
         int[] nMolecules = new int[] {molecules0.length};
         testNoIterates(api);
         
@@ -93,14 +93,14 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
 
         //species0 target; any direction
         
-        target = box.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
+        target = box.getMoleculeList(species).getAtom(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         testApiIterates(api,targetMolecule,upMolecules(targetMolecule,molecules0), dnMolecules(targetMolecule, molecules0));
         api.allAtoms(speciesTest);
 
         //species0 target; up
-        target = box.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
+        target = box.getMoleculeList(species).getAtom(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(UP);
@@ -108,7 +108,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         api.allAtoms(speciesTest);
 
         //species0 target; down
-        target = box.getAgent(species).getChildList().getAtom(nMolecules[0]/2);
+        target = box.getMoleculeList(species).getAtom(nMolecules[0]/2);
         targetMolecule = target;
         api.setTarget(target);
         api.setDirection(DOWN);
@@ -116,7 +116,7 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         
         //species0 leafAtom target; any direction
         if(species instanceof SpeciesSpheres) {
-            target = ((IAtomGroup)box.getAgent(species).getChildList().getAtom(nMolecules[0]/2)).getChildList().getAtom(1);
+            target = ((IAtomGroup)box.getMoleculeList(species).getAtom(nMolecules[0]/2)).getChildList().getAtom(1);
             targetMolecule = target.getParentGroup();
             api.setTarget(target);
             api.setDirection(UP);
