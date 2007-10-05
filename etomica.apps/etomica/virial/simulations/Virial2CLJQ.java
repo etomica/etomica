@@ -26,7 +26,7 @@ public class Virial2CLJQ {
     public static void main(String[] args) {
 
         int nPoints = 2;
-        double temperature = Kelvin.UNIT.toSim(250);
+        double temperature = 1;
         long steps = 1000000l;
         double sigmaHSRef = 1.5;
         double epsilon = 1.0; // Kelvin.UNIT.toSim(125.317) for CO2
