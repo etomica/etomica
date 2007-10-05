@@ -64,7 +64,8 @@ public class MCMoveVolume extends MCMoveBoxStep {
         double rScale = Math.exp(vScale/D);
         inflate.setScale(rScale);
         inflate.actionPerformed();
-        uNew = Double.NaN;
+        uNew = energyMeter.getDataAsScalar();
+        hNew = uNew + pressure*vNew;
         return true;
     }//end of doTrial
     
@@ -73,8 +74,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
     }
     
     public double getB() {
-        uNew = energyMeter.getDataAsScalar();
-        double hNew = uNew + pressure*vNew;
         return -(hNew - hOld);
     }
     
@@ -95,5 +94,6 @@ public class MCMoveVolume extends MCMoveBoxStep {
     public final double pressure() {return pressure;}
     public Dimension getPressureDimension() {return Pressure.DIMENSION;}
     public final void setLogPressure(int lp) {setPressure(Math.pow(10.,lp));}
+    private double hNew;
     
 }

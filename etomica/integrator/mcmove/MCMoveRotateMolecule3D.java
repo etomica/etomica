@@ -73,8 +73,9 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
         leafAtomIterator.setRootAtom(molecule);
         r0.E(molecule.getType().getPositionDefinition().position(molecule));
         doTransform();
-            
-        uNew = Double.NaN;
+        
+        energyMeter.setTarget(molecule);
+        uNew = energyMeter.getDataAsScalar();
         return true;
     }//end of doTrial
     
@@ -93,8 +94,7 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     public double getA() {return 1.0;}
     
     public double getB() {
-        energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar();
+
         return -(uNew - uOld);
     }
     
