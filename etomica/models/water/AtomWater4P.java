@@ -1,6 +1,7 @@
 package etomica.models.water;
 
 import etomica.atom.AtomGroup;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomPositioned;
 
@@ -18,6 +19,14 @@ public class AtomWater4P extends AtomGroup {
 		super(waterType);
 	}
 	
+	public final static int indexH1 = 0;
+	public final static int indexH2 = 1;
+	public final static int indexO  = 2;
+	public final static int indexM  = 3;
+	
     private static final long serialVersionUID = 1L;
 	public IAtomPositioned H1, H2, O, M;
+	
+	public final static double [] Echarge = new double [4];
+
 }

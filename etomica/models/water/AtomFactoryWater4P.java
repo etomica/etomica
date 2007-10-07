@@ -12,6 +12,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.simulation.ISimulation;
+import etomica.units.ElectronVolt;
 
 /**
  * Factory that constructs a 4-point water molecule, with three child atoms of 
@@ -29,6 +30,11 @@ public class AtomFactoryWater4P extends AtomFactory {
     public AtomFactoryWater4P(ISimulation sim) {
 		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
         
+		AtomWater4P.Echarge[AtomWater4P.indexH1] = ElectronVolt.UNIT.toSim( 0.52);
+		AtomWater4P.Echarge[AtomWater4P.indexH2] = ElectronVolt.UNIT.toSim( 0.52);
+		AtomWater4P.Echarge[AtomWater4P.indexO] = ElectronVolt.UNIT.toSim( 0.00);
+		AtomWater4P.Echarge[AtomWater4P.indexM] = ElectronVolt.UNIT.toSim(-1.04);
+		
         AtomTypeSphere hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
         AtomTypeSphere oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.154);
         AtomTypeSphere mType = new AtomTypeSphere(new ElementSimple("M", 1.0), 2.0);
@@ -52,13 +58,15 @@ public class AtomFactoryWater4P extends AtomFactory {
 	public IAtom makeAtom() {
         isMutable = false;
         AtomWater4P water = new AtomWater4P(atomType);
-		water.O = (IAtomPositioned)oFactory.makeAtom();
+		
         water.H1 = (IAtomPositioned)hFactory.makeAtom();
         water.H2 = (IAtomPositioned)hFactory.makeAtom();
+        water.O = (IAtomPositioned)oFactory.makeAtom();
         water.M = (IAtomPositioned)mFactory.makeAtom();
-        water.addChildAtom(water.O);
+        
         water.addChildAtom(water.H1);
         water.addChildAtom(water.H2);
+        water.addChildAtom(water.O);
         water.addChildAtom(water.M);
         ((AtomTypeGroup)atomType).getConformation().initializePositions(water.getChildList());
 		return water;
