@@ -13,9 +13,12 @@ import etomica.math.SpecialFunctions;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.NeighborCriterion;
 import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.IVector3D;
+import etomica.units.Dimension;
+import etomica.units.Length;
 
-public class EwaldSummation {
+public class EwaldSummation implements IPotential{
 	
 	
 	/*
@@ -39,13 +42,44 @@ public class EwaldSummation {
 	 */
 	
 	
-	public EwaldSummation(Box box, AtomAgentManager atomAgentManager, int nVectorMax, double alpha){
+	public double energy(AtomSet atoms) {
+		double energy = EwaldSum();
+		System.out.println("Energy Ewald Sum: "+ energy);
+		return energy;
+	}
+
+	public double getRange() {
+		// TODO Auto-generated method stub
+		return Double.POSITIVE_INFINITY;
+	}
+
+	public Dimension getRangeDimension() {
+		// TODO Auto-generated method stub
+		return Length.DIMENSION;
+	}
+
+	public Space getSpace() {
+		// TODO Auto-generated method stub
+		return box.getSpace();
+	}
+
+	public int nBody() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void setBox(Box box) {
+		// do nothing
+		
+	}
+
+	public EwaldSummation(Box box, AtomAgentManager atomAgentManager, int nVectorMax){
 		
 		this.box = box;
 		this.atomAgentManager = atomAgentManager;
 		this.moleculeBasis = new AtomSetSinglet();
 		this.nVectorMax = nVectorMax;
-		this.alpha = alpha;
+		this.alpha = 5/Math.pow(box.volume(), 1.0/3.0);
 		atomPair = new AtomPair();
 		
 		setCriterion(new CriterionNone());
@@ -53,12 +87,30 @@ public class EwaldSummation {
 		
 		int numNVector = 0;
 		
-		for (int i=-nVectorMax; i<nVectorMax; i++){
-			for (int j=-nVectorMax; j<nVectorMax; j++){
-				for (int k=-nVectorMax; k<nVectorMax; k++){
+		for (int i=-nVectorMax; i<nVectorMax+1; i++){
+			for (int j=-nVectorMax; j<nVectorMax+1; j++){
+				for (int k=-nVectorMax; k<nVectorMax+1; k++){
 					
+					int ii = Math.abs(i);
+					int jj = Math.abs(j);
+					int kk = Math.abs(k);
+					
+					if (ii > 0){
+						ii--;
+					}
+					
+					if (jj > 0){
+						jj--;
+					}
+					
+					if (kk > 0){
+						kk--;
+					}
+					
+					int check = ii*ii + jj*jj + kk*jj;
 					int sq = i*i + j*j + k*k;
-					if (sq !=0 && sq <= rCut){
+					
+					if (sq !=0 && check <= rCut){
 						
 						numNVector += 1;
 					}
@@ -70,13 +122,31 @@ public class EwaldSummation {
 
 		numNVector = 0;
 		
-		for (int i=-nVectorMax; i<nVectorMax; i++){
-			for (int j=-nVectorMax; j<nVectorMax; j++){
-				for (int k=-nVectorMax; k<nVectorMax; k++){
+		for (int i=-nVectorMax; i<nVectorMax+1; i++){
+			for (int j=-nVectorMax; j<nVectorMax+1; j++){
+				for (int k=-nVectorMax; k<nVectorMax+1; k++){
 					
+					int ii = Math.abs(i);
+					int jj = Math.abs(j);
+					int kk = Math.abs(k);
+					
+					if (ii > 0){
+						ii--;
+					}
+					
+					if (jj > 0){
+						jj--;
+					}
+					
+					if (kk > 0){
+						kk--;
+					}
+					
+					int check = ii*ii + jj*jj + kk*jj;
 					int sq = i*i + j*j + k*k;
-					if (sq !=0 && sq <= rCut){
-						
+					
+					if (sq !=0 && check <= rCut){
+						//System.out.println("[i, j, k]: "+i+" " +j+" " + k);
 						nVector[numNVector] = (IVector3D)box.getSpace().makeVector(new double[] {i,j,k});
 						numNVector += 1;
 					}
@@ -92,48 +162,111 @@ public class EwaldSummation {
 	 */
 	public double EwaldSumReal(){
 		
+		// Get the molecule list of the first species
+		// What you really want is all the lists of the molecules
+		AtomSet moleculeList = ((IAtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
+		//
+		
+		/*
+		 * molecules can be monoatomic or multiatomic
+		 */
+		int numMolecules = moleculeList.getAtomCount();
+		
 		int numNVector = nVector.length;
 		double uReal = 0.0;
 		
-		AtomSet atomList = box.getLeafList();
-		int numAtom = atomList.getAtomCount();
 		IVector rij = box.getSpace().makeVector();
 		IVector rijNv = box.getSpace().makeVector();
 		
 		for (int vecCounter=-1; vecCounter<numNVector; vecCounter++){
 			
-			for (int i=0; i<numAtom; i++){
-				IAtom atomi = atomList.getAtom(i);
-				IVector posAtomi = ((IAtomPositioned)atomi).getPosition();
-				double chargei = ((MyCharge)atomAgentManager.getAgent(atomi)).charge;
-				atomPair.atom0 = atomi;
+			for (int i=0; i<numMolecules; i++){
+				IAtom moleculei = moleculeList.getAtom(i);
 				
+				if (!(moleculei instanceof IAtomGroup)){
+					
+					/*
+					 * Monatomic
+					 */
+					IVector posAtomi = ((IAtomPositioned)moleculei).getPosition();
+					double chargei = ((MyCharge)atomAgentManager.getAgent(moleculei)).charge;
+					
+					for (int j=0; j<numMolecules; j++){
+						IAtom moleculej = moleculeList.getAtom(j);
+							
+						if(moleculei == moleculej && vecCounter==-1){
+							continue;
+						}
+							
+						IVector posAtomj = ((IAtomPositioned)moleculej).getPosition();
+						double chargej = ((MyCharge)atomAgentManager.getAgent(moleculej)).charge;
+						
+						rij.Ev1Mv2(posAtomj, posAtomi);
+						
+						if (vecCounter == -1){
+							rijNv.E(rij);
+						} else {
+							rijNv.Ev1Pv2(rij, nVector[vecCounter]);
+						}
+						double rijNvMagnitude = Math.sqrt(rijNv.squared());
+							
+						uReal += 0.5*chargei*chargej*SpecialFunctions.erfc(alpha*rijNvMagnitude)/ rijNvMagnitude;
+					}
+				} // end of monatomic
+				else {
+					
+					
+					/*
+					 * Multi atomic for Ewald Real
+					 */
+					
+					int numSites = ((IAtomGroup)moleculei).getChildList().getAtomCount();
+						
+					for (int a=0; a<numSites; a++){
+						IAtom sitea = ((IAtomGroup)moleculei).getChildList().getAtom(a);
+						IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
+						double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
+						atomPair.atom0 = sitea;
+						
+						for (int j=0; j<numMolecules; j++){
+							IAtom moleculej = moleculeList.getAtom(j);
+							
+							for (int b=0; b<numSites; b++){
+								IAtom siteb = ((IAtomGroup)moleculej).getChildList().getAtom(b);
+								IVector posAtomb = ((IAtomPositioned)siteb).getPosition();
+								double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
+								atomPair.atom1 = siteb;
+							
+								rij.Ev1Mv2(posAtomb, posAtoma);
+								
+								if (vecCounter == -1){
+									if (i==j && (a==b||criterion.accept(atomPair))){
+										continue;
+									}
+									rijNv.E(rij);
+								} else {
+									rijNv.E(nVector[vecCounter]);
+									rijNv.TE(box.getBoundary().getDimensions());
+									rijNv.PE(rij);
+								}
+								
+								double rijNvMagnitude = Math.sqrt(rijNv.squared());
+								
+								
+								uReal += 0.5*chargea*chargeb*SpecialFunctions.erfc(alpha*rijNvMagnitude)/ rijNvMagnitude;
+								//System.out.println("uReal difference: " + (uReal-uRealBefore));
+								//System.out.println("rijMagnitude: "+ rijNvMagnitude);
+							}	
+						}
+					}
+				} // end of multi atomic
+				//System.out.println("Molecule i: "+ moleculei);
+				//System.out.println("Ureal: "+ uReal);
 				
-				for (int j=0; j<numAtom; j++){
-					IAtom atomj = atomList.getAtom(j);
-					atomPair.atom1 = atomj;
-					
-					if((atomi == atomj || criterion.accept(atomPair))&& i==-1){
-						continue;
-					}
-					
-					IVector posAtomj = ((IAtomPositioned)atomj).getPosition();
-					double chargej = ((MyCharge)atomAgentManager.getAgent(atomj)).charge;
-					
-					rij.Ev1Mv2(posAtomj, posAtomi);
-					
-					if (vecCounter == -1){
-						rijNv.E(rij);
-					} else {
-						rijNv.Ev1Pv2(rij, nVector[vecCounter]);
-					}
-					double rijNvMagnitude = Math.sqrt(rijNv.squared());
-					
-					uReal += 0.5*chargei*chargej*SpecialFunctions.erfc(alpha*rijNvMagnitude)/ rijNvMagnitude;
-				}
-			}
-		}
-		
+			} // loop over the molecules
+			
+		}// nVector Loop
+		//System.exit(1);
 		return uReal;
 	}
 	
@@ -150,7 +283,7 @@ public class EwaldSummation {
 		 */
 		
 		double preFactor = 1/(2*Math.PI*box.volume());
-		double L = Math.pow(box.volume(), 1/3)  ;
+		double L = Math.pow(box.volume(), 1.0/3.0)  ;
 		double b = Math.PI*Math.PI/((alpha*alpha)*(L*L));
 		double sumVectorTerm = 0.0;
 		
@@ -179,7 +312,7 @@ public class EwaldSummation {
 				IVector posAtomi = ((IAtomPositioned)atomi).getPosition();
 				double chargei = ((MyCharge)atomAgentManager.getAgent(atomi)).charge;
 				
-				double Sn = pl*nVector[vecCounter].dot(posAtomi);
+				double Sn = pl*(nVector[vecCounter].dot(posAtomi));
 				
 				realMagnitude += chargei* Math.cos(Sn);
 				imagMagnitude += chargei* Math.sin(Sn);
@@ -260,26 +393,26 @@ public class EwaldSummation {
 					
 					IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
 					IVector posAtomb = ((IAtomPositioned)siteb).getPosition();
-					
+						
 					double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
 					double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
-				
+					
 					dabVector.Ev1Mv2(posAtomb, posAtoma);
 					double dab = Math.sqrt(dabVector.squared());
-					
+						
 					pairTerm += chargea*chargeb*(1-SpecialFunctions.erfc(alpha*dab))/dab;
-					}
-				
+					
 				}
-		
 			}
 		
-		return cancelTerm + 0.5*pairTerm;
+		}
+		// taking the 0.5 out because the AtomPairIterator does not do the double counting
+		return cancelTerm + pairTerm;
 	}
 	
 	public double EwaldSum(){
 		
-		return EwaldSumReal() + EwaldSumFourier() + EwaldSumSelf();
+		return EwaldSumReal(); 
 	}
 	
 	public void setCriterion(NeighborCriterion criterion){
