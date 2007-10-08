@@ -17,8 +17,8 @@ import etomica.data.types.DataGroup;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DisplayPlot;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -26,11 +26,14 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesSpheresRotating;
+import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
 import etomica.virial.ConfigurationCluster;
 import etomica.virial.MCMoveClusterAtomMulti;
+import etomica.virial.MCMoveClusterAtomRotateMulti;
 import etomica.virial.MCMoveClusterMoleculeMulti;
 import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MCMoveClusterWiggleMulti;
@@ -40,7 +43,6 @@ import etomica.virial.MayerGeneralSpherical;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
-import etomica.virial.BoxCluster;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.SpeciesFactorySpheres;
 import etomica.virial.cluster.Standard;
@@ -77,7 +79,7 @@ public class SimulationVirialOverlap extends Simulation {
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
         mcMoveTranslate = new MCMoveBoxStep[sampleClusters.length];
-        if (species.getMoleculeType() instanceof AtomTypeGroup) {
+        if (species.getMoleculeType() instanceof AtomTypeGroup || species instanceof SpeciesSpheresRotating) {
             mcMoveRotate = new MCMoveBoxStep[sampleClusters.length];
         }
         if (species instanceof SpeciesSpheres) {
@@ -106,6 +108,11 @@ public class SimulationVirialOverlap extends Simulation {
                 mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
                 mcMoveTranslate[iBox].setStepSize(0.41);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
+                
+                if (species instanceof SpeciesSpheresRotating) {
+                    mcMoveRotate[iBox] = new MCMoveClusterAtomRotateMulti(random, potentialMaster, nMolecules-1);
+                    moveManager.addMCMove(mcMoveRotate[iBox]);
+                }
             }
             else {
                 mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(),nMolecules-1);
