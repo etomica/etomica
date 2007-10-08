@@ -9,11 +9,11 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
+import etomica.atom.IAtomOriented;
 import etomica.atom.IAtomPositioned;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
-import etomica.space.ICoordinateAngular;
 import etomica.space.IVector;
 
 //Class used to define canvas onto which configuration is drawn
@@ -89,10 +89,10 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
             }
             /* Draw the orientation line, if any */
             if(drawOrientation) {
-                double theta = ((ICoordinateAngular)a).getOrientation().angle()[0];
+                IVector dir = ((IAtomOriented)a).getOrientation().getDirection();
                 int dxy = (int)(displayBox.getToPixels()*0.5*((AtomTypeOrientedSphere)a.getType()).getDiameter());
-                int dx = (int)(dxy*Math.cos(theta));
-                int dy = (int)(dxy*Math.sin(theta));
+                int dx = (int)(dxy*dir.x(0));
+                int dy = (int)(dxy*dir.x(1));
                 g.setColor(Color.red);
                 xP += dxy; yP += dxy;
                 g.drawLine(xP-dx, yP-dy, xP+dx, yP+dy);

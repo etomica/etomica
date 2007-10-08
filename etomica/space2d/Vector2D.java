@@ -8,7 +8,7 @@ import etomica.util.IRandom;
 /**
  * Implementation of the Vector class for a 2-dimensional space.
  */
-public final class Vector2D implements IVectorRandom, java.io.Serializable {
+public class Vector2D implements IVectorRandom, java.io.Serializable {
 
     double x, y;
     private static final long serialVersionUID = 1L;

@@ -1,9 +1,10 @@
 package etomica.space2d;
 
+import java.io.Serializable;
+
 import etomica.space.IVector;
-import etomica.space.Orientation;
-import etomica.units.Angle;
-import etomica.units.Dimension;
+import etomica.space.IOrientation;
+import etomica.space.Space;
 import etomica.util.Constants;
 import etomica.util.IRandom;
 
@@ -13,89 +14,58 @@ import etomica.util.IRandom;
  * counter-clockwise direction with respect to the fixed space frame.  Periodicity is
  * applied to restrict the angle to values between 0 and 2 PI.
  */
-public class Orientation2D extends Orientation {
+public class Orientation2D implements IOrientation2D, Serializable {
 
     /**
      * Default constructor sets orientation angle to zero.
      */
     public Orientation2D() {
-        this(0.0);
+        direction = Space.makeVector(2);
+        direction.setX(0, 1);
+        angle = 0;
     }
 
     /**
      * Constructs with orientation as specified by the given angle theta.
+     * @throws an exception if vector has 0 length
      */
-    public Orientation2D(double theta) {
-        setTheta(theta);
+    public Orientation2D(IVector direction) {
+        this.direction = Space.makeVector(2);
+        setDirection(direction);
+    }
+    
+    public void E(IOrientation o) {
+        setDirection(o.getDirection());
+    }
+    
+    public IVector getDirection() {
+        return direction;
     }
     
     /**
-     * Sets this orientation to that specified by the given orientation.
-     * 
-     * @throws ClassCastException
-     *             if the given orientation is not of type Orientation2D
+     * Sets this orientation to point in the given direction.
+     * @throws an exception if vector has 0 length
      */
-    public void E(Orientation o) {
-        setTheta(((Orientation2D) o).angle[0]);
+    public void setDirection(IVector newDirection) {
+        direction.E(newDirection);
+        direction.normalize();
+        angle = Math.atan2(this.direction.x(1), this.direction.x(0));
     }
-
+    
     /**
-     * Returns theta.
-     */
-    public double[] angle() {
-        return angle;
-    }
-
-    /**
-     * Rotates orientation by the given value.
-     * 
+     * Rotates orientation around the given axis by the given value.
      * @throws IllegalArgumentException if index is not zer0.
      */
-    public void rotateBy(int index, double dt) {
-        if (index == 0) {
-            rotateBy(dt);
-        } else {
-            throw new IllegalArgumentException("Invalid angle index: "+index);
-        }
-    }
-
-    /**
-     * Rotates orientation the value of the first element of the array.
-     */
-    public void rotateBy(double[] dt) {
-        rotateBy(dt[0]);
-    }
-
-    /**
-     * Rotates angle by the given angle.  Rotation is counter-clockwise
-     * if angle is positive, clockwise if it is negative.  
-     */
     public void rotateBy(double dt) {
-        setTheta(angle[0]+dt);
-    }
-    
-    /**
-     * Sets orientation to that of the given angle.  
-     */
-    public void setTheta(double theta) {
-        while (theta > Constants.TWO_PI) {
-            theta -= Constants.TWO_PI;
+        angle += dt;
+        while (angle > Constants.TWO_PI) {
+            angle -= Constants.TWO_PI;
         }
-        while (theta < 0.0) {
-            theta += Constants.TWO_PI;
+        while (angle < 0.0) {
+            angle += Constants.TWO_PI;
         }
-        angle[0] = theta;
-    }
-    
-    public double getTheta() {
-        return angle[0];
-    }
-    
-    /**
-     * Returns Angle.DIMENSION, indicating that theta is an angle.
-     */
-    public Dimension getThetaDimension() {
-        return Angle.DIMENSION;
+        direction.setX(0, Math.cos(angle));
+        direction.setX(1, Math.cos(angle));
     }
 
     /**
@@ -106,37 +76,7 @@ public class Orientation2D extends Orientation {
         rotateBy((2. * random.nextDouble() - 1.0) * tStep);
     }
 
-    /**
-     * Takes vectors defined in the space-frame representation and converts
-     * each to the equivalent vector defined in the body-frame representation.
-     */
-    public void convertToBodyFrame(IVector[] v) {
-        double axx = Math.cos(angle[0]);
-        double axy = -Math.sin(angle[0]);
-        for(int i=0; i<v.length; i++) {
-            convert((Vector2D)v[i], axx, axy);
-        }
-    }
-
-    /**
-     * Takes vectors defined in the body-frame representation and converts
-     * each to the equivalent vector defined in the space-frame representation.
-     */
-    public void convertToSpaceFrame(IVector[] v) {
-        double axx = Math.cos(angle[0]);
-        double axy = Math.sin(angle[0]);
-        for(int i=0; i<v.length; i++) {
-            convert((Vector2D)v[i], axx, -axy);
-        }
-    }
-    
-    private void convert(Vector2D v, double axx, double axy) {
-        double x = axx * v.x + axy * v.y;
-        v.y = -axy * v.x + axx * v.y;
-        v.x = x;
-        
-    }
-
     private static final long serialVersionUID = 1L;
-    private final double[] angle = new double[1];
+    protected double angle;
+    protected IVector direction;
 }

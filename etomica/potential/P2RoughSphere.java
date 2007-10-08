@@ -5,8 +5,8 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomOrientedKinetic;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateAngularKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -51,8 +51,8 @@ public class P2RoughSphere extends P2HardSphere {
     public void bump(AtomSet pair, double falseTime) {
         IAtom atom0 = pair.getAtom(0);
         IAtom atom1 = pair.getAtom(1);
-        ICoordinateAngularKinetic coord0 = (ICoordinateAngularKinetic)atom0;
-        ICoordinateAngularKinetic coord1 = (ICoordinateAngularKinetic)atom1;
+        IAtomOrientedKinetic coord0 = (IAtomOrientedKinetic)atom0;
+        IAtomOrientedKinetic coord1 = (IAtomOrientedKinetic)atom1;
         IVector v1 = coord0.getVelocity();
         IVector v2 = coord1.getVelocity();
         dv.Ev1Mv2(v2, v1);

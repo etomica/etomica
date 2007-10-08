@@ -3,7 +3,7 @@ package etomica.space2d;
 import etomica.EtomicaInfo;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
-import etomica.space.Orientation;
+import etomica.space.IOrientation;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 
@@ -64,7 +64,7 @@ public final class Space2D extends Space {
         return new Vector2D();
     }
 
-    public Orientation makeOrientation() {
+    public IOrientation makeOrientation() {
         return new Orientation2D();
     }
 

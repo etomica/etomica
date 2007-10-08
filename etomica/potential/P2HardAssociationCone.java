@@ -1,8 +1,8 @@
 package etomica.potential;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomOriented;
 import etomica.box.Box;
-import etomica.space.ICoordinateAngular;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -25,10 +25,7 @@ public class P2HardAssociationCone extends Potential2 {
     private double sigma, sigmaSquared;
     private double epsilon, epsilon4, wellEpsilon;
     private double cutoffLJSquared, cutoffFactor;
-    private IVector e1;
-    private IVector e2;
-    private double theta, ec2;
-    private final IVector[] eArr = new IVector[1];
+    private double ec2;
     private final IVector dr;
     private NearestImageTransformer nearestImageTransformer;
     
@@ -38,8 +35,6 @@ public class P2HardAssociationCone extends Potential2 {
     
     public P2HardAssociationCone(Space space, double sigma, double epsilon, double cutoffFactorLJ) {
         super(space);
-        e1 = space.makeVector();
-        e2 = space.makeVector();
         dr = space.makeVector();
 
         setSigma(sigma);
@@ -67,9 +62,9 @@ public class P2HardAssociationCone extends Potential2 {
      * Returns the pair potential energy.
      */
     public double energy(AtomSet atoms) {
-        ICoordinateAngular coord0 = (ICoordinateAngular)atoms.getAtom(0);
-        ICoordinateAngular coord1 = (ICoordinateAngular)atoms.getAtom(1);
-        dr.Ev1Mv2(coord1.getPosition(),coord0.getPosition());
+        IAtomOriented atom0 = (IAtomOriented)atoms.getAtom(0);
+        IAtomOriented atom1 = (IAtomOriented)atoms.getAtom(1);
+        dr.Ev1Mv2(atom1.getPosition(),atom0.getPosition());
         nearestImageTransformer.nearestImage(dr);
         double r2 = dr.squared();
         double eTot = 0.0;
@@ -84,17 +79,11 @@ public class P2HardAssociationCone extends Potential2 {
         }
                   
         if (r2 < wellCutoffSquared) {
-            e1.E(0.);
-            e1.setX(0,1);
-            eArr[0] = e1;
-            coord0.getOrientation().convertToSpaceFrame(eArr);
+            IVector e1 = atom0.getOrientation().getDirection();
             double er1 = e1.dot(dr);
 
             if ( er1 > 0.0 && er1*er1 > ec2*r2) {
-                e2.E(0.);
-                e2.setX(0,1);
-                eArr[0] = e2;
-                coord1.getOrientation().convertToSpaceFrame(eArr);
+                IVector e2 = atom1.getOrientation().getDirection();
                 double er2 = e2.dot(dr);
                 if(er2 < 0.0 && er2*er2 > ec2*r2) eTot -= wellEpsilon;
             }
@@ -174,14 +163,13 @@ public class P2HardAssociationCone extends Potential2 {
     /**
      * Accessor method for angle describing width of cone.
      */
-    public double getTheta() {return theta;}
+    public double getTheta() {return Math.acos(ec2);}
     
     /**
      * Accessor method for angle (in radians) describing width of cone.
      */
     public void setTheta(double t) {
-        theta = t;
-        ec2   = Math.cos(theta);
+        ec2   = Math.cos(t);
         ec2   = ec2*ec2;
     }
     public Dimension getThetaDimension() {return Angle.DIMENSION;}

@@ -58,7 +58,7 @@ public abstract class Space implements java.io.Serializable {
     /**
      * Constructs and returns a new Orientation appropriate to the space.
      */
-    public abstract Orientation makeOrientation();
+    public abstract IOrientation makeOrientation();
     
     /**
      * Constructs and returns a new Tensor appropriate to the space.

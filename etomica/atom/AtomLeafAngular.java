@@ -1,21 +1,20 @@
 package etomica.atom;
 
-import etomica.space.ICoordinateAngular;
-import etomica.space.Orientation;
+import etomica.space.IOrientation;
 import etomica.space.Space;
 
 public class AtomLeafAngular extends AtomLeaf implements
-        ICoordinateAngular {
+        IAtomOriented {
 
     public AtomLeafAngular(Space space, AtomType type) {
         super(space, type);
-        orientation = space.makeOrientation();
+        iOrientation = space.makeOrientation();
     }
 
-    public Orientation getOrientation() {
-        return orientation;
+    public IOrientation getOrientation() {
+        return iOrientation;
     }
 
     private static final long serialVersionUID = 1L;
-    protected final Orientation orientation;
+    protected final IOrientation iOrientation;
 }

@@ -1,13 +1,13 @@
 package etomica.integrator.mcmove;
 
 import etomica.atom.AtomSource;
+import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.box.Box;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
-import etomica.space.ICoordinateAngular;
-import etomica.space.Orientation;
+import etomica.space.IOrientation;
 import etomica.util.IRandom;
 
 /**
@@ -18,13 +18,13 @@ public class MCMoveRotate extends MCMoveBoxStep {
     private static final long serialVersionUID = 2L;
     private MeterPotentialEnergy energyMeter;
     private final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-    private final Orientation oldOrientation;
+    private final IOrientation oldOrientation;
     private AtomSource atomSource;
 
-    private transient ICoordinateAngular molecule;
+    private transient IAtomOriented molecule;
     private transient double uOld;
     private transient double uNew = Double.NaN;
-    private transient Orientation orientation;
+    private transient IOrientation iOrientation;
     
     protected final IRandom random;
 
@@ -56,13 +56,13 @@ public class MCMoveRotate extends MCMoveBoxStep {
      
     public boolean doTrial() {
         if(box.moleculeCount()==0) {return false;}
-        molecule = (ICoordinateAngular)atomSource.getAtom();
+        molecule = (IAtomOriented)atomSource.getAtom();
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
-        orientation = molecule.getOrientation(); 
-        oldOrientation.E(orientation);  //save old orientation
-        orientation.randomRotation(random, stepSize);
+        iOrientation = molecule.getOrientation(); 
+        oldOrientation.E(iOrientation);  //save old orientation
+        iOrientation.randomRotation(random, stepSize);
         uNew = Double.NaN;
         return true;
     }//end of doTrial
@@ -78,7 +78,7 @@ public class MCMoveRotate extends MCMoveBoxStep {
     public void acceptNotify() {  /* do nothing */}
     
     public void rejectNotify() {
-        orientation.E(oldOrientation);
+        iOrientation.E(oldOrientation);
     }
 
     public double energyChange() {return uNew - uOld;}
