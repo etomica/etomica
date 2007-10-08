@@ -412,7 +412,7 @@ public class EwaldSummation implements IPotential{
 	
 	public double EwaldSum(){
 		
-		return EwaldSumReal(); 
+		return EwaldSumReal() + EwaldSumFourier() + EwaldSumSelf(); 
 	}
 	
 	public void setCriterion(NeighborCriterion criterion){
