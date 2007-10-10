@@ -190,7 +190,7 @@ public class TestHexane extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 100;
+        long nSteps = 1000;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
         double den = 0.37;
@@ -199,6 +199,7 @@ public class TestHexane extends Simulation {
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
         TestHexane sim = new TestHexane(Space3D.getInstance(), density, xLng, yLng, zLng);
+
         System.out.println("Happy Goodness!!");
 
         if (graphic) {
@@ -236,6 +237,8 @@ public class TestHexane extends Simulation {
             System.out.println("Number of cells/molecules in the Y direction = " + yLng);
             System.out.println("Number of cells/molecules in the Z direction = " + zLng);
             System.out.println("Total number of molecules = " + xLng*yLng*zLng);
+            double volume = sim.bdry.volume();
+            System.out.println("volume =  "+ volume);
             
             PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
             // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
@@ -299,7 +302,6 @@ public class TestHexane extends Simulation {
             double[] lnXs = new double[leng];
             double[] scalingFactors = new double[leng];
             double[] volumes = new double[leng];
-            double volume = sim.bdry.volume();
 
             lnXs = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getData();
             
@@ -319,6 +321,10 @@ public class TestHexane extends Simulation {
             for(int i = 0; i < leng; i++){
                 System.out.println(volumes[i]);
             } 
+//            System.out.println("scaling factors");
+//            for (int i = 0; i < leng; i++){
+//                System.out.println(scalingFactors[i]);
+//            }
             
             avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getValue(0);
             System.out.println("Avg Pres = "+ avgPressure);
