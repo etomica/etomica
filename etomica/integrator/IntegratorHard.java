@@ -160,33 +160,45 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
                 }
                 throw new RuntimeException("this simulation is not a time machine");
             }
-            if (Debug.ON && Debug.DEBUG_NOW && ((Debug.LEVEL > 1 && Debug.thisBox(box)) || Debug.anyAtom(atoms))) {
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 0 &&((Debug.LEVEL > 1 && Debug.thisBox(box)) || Debug.anyAtom(atoms))) {
                 System.out.println("collision between atoms "+atoms+" at "+collisionTimeStep+" with "+colliderAgent.collisionPotential.getClass());
             }
             if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box)) {
                 debugPair = Debug.getAtoms(box);
-                if (!(debugPair.atom0 instanceof IAtomGroup && debugPair.atom1 instanceof IAtomGroup)) {
+                if (Debug.LEVEL > 1) {
+                    IAtom a = debugPair.atom0;
+                    if (a != null) {
+                        Agent agent = (Agent)agentManager.getAgent(a);
+                        System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
+                    }
+                    a = debugPair.atom1;
+                    if (a != null) {
+                        Agent agent = (Agent)agentManager.getAgent(a);
+                        System.out.println(a+" collision with "+agent.collisionPartner+" "+agent.collisionPotential+" at "+agent.collisionTime());
+                    }
+                }
+                if (debugPair.atom0 != null && debugPair.atom1 != null && !(debugPair.atom0 instanceof IAtomGroup && debugPair.atom1 instanceof IAtomGroup)) {
                     IVector dr = box.getSpace().makeVector();
                     IVector dv = box.getSpace().makeVector();
 
-                    IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
-                    IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
+                    IAtomKinetic atom0 = (IAtomKinetic)debugPair.atom0;
+                    IAtomKinetic atom1 = (IAtomKinetic)debugPair.atom1;
                     dv.Ev1Mv2(atom1.getVelocity(), atom0.getVelocity());
                     
                     dr.Ev1Mv2(atom1.getPosition(), atom0.getPosition());
-                    box.getBoundary().nearestImage(dr);
 
                     dr.PEa1Tv1(collisionTimeStep,dv);
+                    box.getBoundary().nearestImage(dr);
                     double r2 = dr.squared();
                     if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
                         System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
                         if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                            dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)debugPair.atom0).getVelocity());
-                            dr.PE(((IAtomKinetic)debugPair.atom0).getPosition());
-                            System.out.println(debugPair.atom0+" coordinates "+dr);
-                            dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)debugPair.atom1).getVelocity());
-                            dr.PE(((IAtomKinetic)debugPair.atom1).getPosition());
-                            System.out.println(debugPair.atom1+" coordinates "+dr);
+                            dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)atom0).getVelocity());
+                            dr.PE(((IAtomKinetic)atom0).getPosition());
+                            System.out.println(atom0+" coordinates "+dr);
+                            dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)atom1).getVelocity());
+                            dr.PE(((IAtomKinetic)atom1).getPosition());
+                            System.out.println(atom1+" coordinates "+dr);
                         }
                     }
                     if (Debug.LEVEL > 1) {
@@ -270,19 +282,33 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         downList.setTargetAtom(colliders.atom1);
         potential.calculate(box, downList, reverseCollisionHandler);
 
-        // this will also update colliders[0] since it thought it would collide 
-        // with colliders[1] (and did)
+        // this would update collider0 as well since it wanted to collide with
+        // atom1.  But we to full reset it, so remove it from the (hopefully
+        // small) list.
+        listToUpdate.remove(listToUpdate.indexOf(colliders.atom0));
         processReverseList();
 
+        Agent agent = ((Agent)agentManager.getAgent(colliders.atom0));
+        if (agent.collisionPotential != null) {
+            agent.eventLinker.remove();
+        }
+        agent.resetCollisionFull();
+        upList.setTargetAtom(colliders.atom0);
+        collisionHandlerUp.setAtom(colliders.atom0);
+        collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
+        potential.calculate(box, upList, collisionHandlerUp);
+        if (agent.collisionPotential != null) {
+            eventList.add(agent.eventLinker);
+        }
         downList.setTargetAtom(colliders.atom0);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(box, downList, collisionHandlerDown);
 
-        Agent agent = ((Agent)agentManager.getAgent(colliders.atom1));
+        agent = ((Agent)agentManager.getAgent(colliders.atom1));
         if (agent.collisionPotential != null) {
             agent.eventLinker.remove();
         }
-        agent.resetCollision();
+        agent.resetCollisionFull();
         upList.setTargetAtom(colliders.atom1);
         collisionHandlerUp.setAtom(colliders.atom1);
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
@@ -293,7 +319,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         downList.setTargetAtom(colliders.atom1);
         collisionHandlerDown.collisionTimeStep = this.collisionTimeStep;
         potential.calculate(box, downList, collisionHandlerDown);
-
     }
     
 
@@ -313,7 +338,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         if (agent.collisionPotential != null) {
             agent.eventLinker.remove();
         }
-        agent.resetCollision();
+        agent.resetCollisionFull();
         upList.setTargetAtom(a);
         collisionHandlerUp.setAtom(a);
         collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
@@ -338,6 +363,10 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
             if (agent.collisionPotential != null) {
                 agent.eventLinker.remove();
             }
+            // reset collision, but not a "full" reset
+            // this atom thought it would collide with something and now it
+            // won't.  We should rever to the "null" collision time it had
+            // the last time it had a real collision of its own.
             agent.resetCollision();
             upList.setTargetAtom(reverseAtom);
             collisionHandlerUp.collisionTimeStep = this.collisionTimeStep;
@@ -401,7 +430,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         int nLeaf = leafList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom atom = leafList.getAtom(iLeaf);
-            ((Agent)agentManager.getAgent(atom)).resetCollision();
+            ((Agent)agentManager.getAgent(atom)).resetCollisionFull();
         }
         upList.setTargetAtom(null);
         collisionHandlerUp.reset();
@@ -556,7 +585,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
                     System.out.println("collision up time "+collisionTime+" for atom "+atoms+" "+pHard.getClass());
                 }
                 if(collisionTime < minCollisionTime) {
-                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
+                    if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && (Debug.LEVEL > 2 || Debug.anyAtom(atoms))) {
                         System.out.println("setting up time "+collisionTime+" for atom "+atoms);
                     }
                     minCollisionTime = collisionTime;
@@ -700,12 +729,14 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         public TreeLinker eventLinker;
         private final IntegratorHard integrator;
         protected AtomSetSinglet atomSetSinglet;
+        protected double nullCollisionTime;
         
         public Agent(IAtom a, IntegratorHard integrator) {
             this.integrator = integrator;
             atom = a;
             eventLinker = new TreeLinker(this);
             eventLinker.sortKey = Double.POSITIVE_INFINITY;
+            nullCollisionTime = Double.POSITIVE_INFINITY;
         }
         
         public String toString() {
@@ -715,10 +746,32 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
         public final IAtom collisionPartner() {return collisionPartner;}
 
         /**
+         * resets collision potential and partner.  If a null potnetial is in
+         * use, the time is reset to the null potential collision time.
+         * caller should remove eventLinker from the tree if needed before
+         * calling this method.
+         */
+        public void resetCollision() {
+            // events with a (non-null) potential must be in the tree
+            // events in the tree must have a potential
+            collisionPotential = integrator.nullPotential;
+            if (collisionPotential != null) {
+                eventLinker.sortKey = nullCollisionTime;
+                if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.anyAtom(atomSetSinglet)) {
+                    System.out.println("resetting collision time back to null collision time for "+atom+" to "+eventLinker.sortKey);
+                }
+            }
+            else {
+                eventLinker.sortKey = Double.POSITIVE_INFINITY;
+            }
+            collisionPartner = null;
+        }
+        
+        /**
          * resets time, potential and partner.  caller should remove 
          * eventLinker from the tree if needed before calling this method.
          */
-        public void resetCollision() {
+        public void resetCollisionFull() {
             // events with a (non-null) potential must be in the tree
             // events in the tree must have a potential
             collisionPotential = integrator.nullPotential;
@@ -728,6 +781,10 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
                 }
                 atomSetSinglet.atom = atom;
                 eventLinker.sortKey = collisionPotential.collisionTime(atomSetSinglet,integrator.collisionTimeStep);
+                nullCollisionTime = eventLinker.sortKey;
+                if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 1 && Debug.anyAtom(atomSetSinglet)) {
+                    System.out.println("initializing null collision time for "+atom+" to "+eventLinker.sortKey);
+                }
             }
             else {
                 eventLinker.sortKey = Double.POSITIVE_INFINITY;
@@ -755,6 +812,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
          */
         public final void decrementCollisionTime(double interval) {
             eventLinker.sortKey -= interval;
+            nullCollisionTime -= interval;
         }
         /**
          * Accessor method for the time to next collision of this atom
