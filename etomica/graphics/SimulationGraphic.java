@@ -81,13 +81,12 @@ public class SimulationGraphic implements SimulationContainer {
         }
         switch(this.graphicType) {
         case GRAPHIC_ONLY:
-        	getPanel().graphicsPanel.remove(getPanel().tabbedPane);
         	break;
         case TABBED_PANE:
         	getPanel().graphicsPanel.add(getPanel().tabbedPane);
         	break;
         default:
-        	break;
+            throw new IllegalArgumentException("I don't understand graphicType "+graphicType);
         }
         dcb = new DeviceTrioControllerButton(simulation);
         add(dcb);
@@ -231,7 +230,7 @@ public class SimulationGraphic implements SimulationContainer {
         final Component component = display.graphic(null);
     	if(component == null) return; //display is not graphic
     	if(display instanceof DisplayTextBox || display instanceof DisplayTextBoxesCAE) {
-    	    getPanel().controlPanel.remove(component);
+    	    getPanel().plotPanel.remove(component);
     	}
     	else {
     	    if(this.graphicType == GRAPHIC_ONLY) {
@@ -276,7 +275,7 @@ public class SimulationGraphic implements SimulationContainer {
 
         }
         else {
-        	getPanel().toolbarPanel.remove(component);
+        	getPanel().controlPanel.remove(component);
         }
         deviceList.remove(device);
     }
