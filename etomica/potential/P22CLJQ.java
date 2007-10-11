@@ -114,23 +114,32 @@ public class P22CLJQ extends Potential2 {
             double theta1=Math.acos(v1.dot(v12));
             double theta2=Math.acos(v2.dot(v12));
 
-            double c1=Math.cos(theta1);
-            double c2=Math.cos(theta2);
-            double s1=Math.sin(theta1);
-            double s2=Math.sin(theta2);
-            az1.Ea1Tv1(s1,v1);
-            az2.Ea1Tv1(s2,v2);
+            double cos1=Math.cos(theta1);
+            double cos2=Math.cos(theta2);
+            double sin1=Math.sin(theta1);
+            double sin2=Math.sin(theta2);
+            double c12 = 0;
+            if (Math.abs(sin1) > 1E-6 && Math.abs(sin2) > 1.E-6) {
+                // if theta1 or theta2 is near zero or pi then sin1 and sin2
+                // will be near 0, so the sin1*sin2*c12 term will be 0.  This
+                // is fortunate, since c12 can't be calculated!  c12 represents
+                // rotation about the axis between the molecule centers (dr),
+                // which is undefined if the molecule axis (v1 or v2) is
+                // parallel to dr 
+                az1.Ea1Tv1(sin1,v1);
+                az2.Ea1Tv1(sin2,v2);
 
-            az1.setX(2,0.0);
-            az2.setX(2,0.0);
-            az1.normalize();
-            az2.normalize();
+                az1.setX(2,0.0);
+                az2.setX(2,0.0);
+                az1.normalize();
+                az2.normalize();
 
-            double c12 = az1.dot(az2);
+                c12 = az1.dot(az2);
+            }
 
             double uqq=(3.0*Q2)/(4.0*r2*r2*Math.sqrt(r2));
-            double temp1=s1*s2*c12-4*c1*c2;
-            ener += uqq*(1.0-5.0*(c1*c1+c2*c2+3*c1*c1*c2*c2) +2*(temp1*temp1));
+            double temp1=sin1*sin2*c12-4*cos1*cos2;
+            ener += uqq*(1.0-5.0*(cos1*cos1+cos2*cos2+3*cos1*cos1*cos2*cos2) +2*(temp1*temp1));
         }
         return ener;
     }
