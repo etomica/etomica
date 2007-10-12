@@ -1,8 +1,10 @@
 package etomica.dimer;
 
+import java.io.IOException;
+
+import etomica.action.WriteConfiguration;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -65,13 +67,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public AtomArrayList list, list1, list2;
 	public AtomAgentManager atomAgent0, atomAgent1, atomAgent2;
 	public IteratorDirective allatoms;
+	public String file;
 	
 	
-	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster, Species[] species) {
-		this(sim, potentialMaster, sim.getRandom(), 0.005, 1.0, species);
+	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster, Species[] species, String file) {
+		this(sim, potentialMaster, sim.getRandom(), 0.005, 1.0, species, file);
 	}
 	
-	public IntegratorDimerRT(ISimulation aSim, PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Species[] aspecies) {
+	public IntegratorDimerRT(ISimulation aSim, PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Species[] aspecies, String aFile) {
 		super(potentialMaster, temperature);
 		this.random1 = random;
 		this.sim = aSim;
@@ -81,18 +84,19 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		this.allatoms = new IteratorDirective();
 		this.deltaT = timeStep;
 		this.movableSpecies = aspecies;
+		this.file = aFile;
 		
 		
 		deltaR = 10E-4;
 		
 		dXl = 10E-4;
 		deltaXl = 0;
-		deltaXmax = 0.1;
+		deltaXmax = 0.05;
 		dTheta = 10E-4;
 		
 		deltaTheta = 0;
 		
-		dFsq = 10E-4;
+		dFsq = 0.001*0.001;
 		
 		Frot = 1.0;
 		dFrot = 0.1;
@@ -624,13 +628,20 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	// Calculates and checks magnitude of 3N dimensional force vector
 	protected void dimerSaddleTolerance(){
 		saddleT = 0.0;
-				
+		
+		//If every force is less than dF, consider saddle point found.
 		for(int i=0; i<F.length; i++){
-			saddleT += F[i].squared();
+			if(F[i].squared()<dFsq){saddleT++;}
 		}
-		if(saddleT < dFsq ){
-			System.out.println("Saddle Point Reached");
+		if(saddleT==F.length){
+			System.out.println("Saddle Point Found");
 			System.out.println(counter+"   "+saddleT+"     "+energyBox0.getDataAsScalar());
+
+		    WriteConfiguration writer = new WriteConfiguration();
+		    writer.setConfName(energyBox0.getDataAsScalar()+"_saddle_"+file);
+		    writer.setBox(box);
+		    writer.actionPerformed();
+
 			System.exit(1);
 		}
 			
