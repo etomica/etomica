@@ -94,7 +94,7 @@ public class ParameterSetMEAM {
 	public final double rho0;
 		//scaling parameter 
 	public final double Z; //coordination number for the reference 
-		//crystal stucture (the number of first nearest neighbors) (unitless)
+		//crystal structure (the number of first nearest neighbors) (unitless)
 	public final double Cmin;
 	public final double Cmax;
 	

@@ -7,6 +7,7 @@ import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
 import etomica.chem.elements.Tin;
+import etomica.config.GrainBoundaryConfiguration;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
