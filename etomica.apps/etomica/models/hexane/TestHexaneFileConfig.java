@@ -1,16 +1,13 @@
-/*
- * Created on May 24, 2005
- */
 package etomica.models.hexane;
 
 import etomica.action.BoxInflateDeformable;
-import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
+import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
@@ -39,6 +36,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.virial.MCMoveClusterWiggleMulti;
+
 /**
  * @author nancycribbin
  *  
@@ -51,7 +49,7 @@ import etomica.virial.MCMoveClusterWiggleMulti;
  * 
  */
 
-public class TestHexane extends Simulation {
+public class TestHexaneFileConfig extends Simulation {
 
     public ActivityIntegrate activityIntegrate;
     public IntegratorMC integrator;
@@ -75,7 +73,7 @@ public class TestHexane extends Simulation {
 //    public PairIndexerMolecule pri;
 
     
-    public TestHexane(Space space, double dens, int xCells, int yCells, int zCells) {
+    public TestHexaneFileConfig(Space space, double dens, int xCells, int yCells, int zCells) {
         //super(space, false, new PotentialMasterNbr(space, 12.0));
 //        super(space, true, new PotentialMasterList(space, 12.0));
         super(space, false);
@@ -182,7 +180,10 @@ public class TestHexane extends Simulation {
         //Initialize the positions of the atoms.
         coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species);
         coordinateDefinition.initializeCoordinates(nCells);
-
+        
+        ConfigurationFile config = new ConfigurationFile("hexane");
+        config.initializeCoordinates(box);
+        
         integrator.setBox(box);
        
     }
@@ -199,7 +200,7 @@ public class TestHexane extends Simulation {
   
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
-        TestHexane sim = new TestHexane(Space3D.getInstance(), density, xLng, yLng, zLng);
+        TestHexaneFileConfig sim = new TestHexaneFileConfig(Space3D.getInstance(), density, xLng, yLng, zLng);
 
         System.out.println("Happy Goodness!!");
 
@@ -278,24 +279,24 @@ public class TestHexane extends Simulation {
 //            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
 //            double[] coefficients = waveVectorFactory.getCoefficients();
             
-            WriteS sWriter = new WriteS();
-            sWriter.setFilename(filename);
-            sWriter.setOverwrite(true);
-            sWriter.setMeter(meterNormalMode);
-            sWriter.setWaveVectorFactory(waveVectorFactory);
-            sWriter.setTemperature(sim.integrator.getTemperature());
-        
-            sim.integrator.addIntervalAction(sWriter);
-            sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
-            sim.integrator.setIntervalActionPriority(sWriter, 150);
+//            WriteS sWriter = new WriteS();
+//            sWriter.setFilename(filename);
+//            sWriter.setOverwrite(true);
+//            sWriter.setMeter(meterNormalMode);
+//            sWriter.setWaveVectorFactory(waveVectorFactory);
+//            sWriter.setTemperature(sim.integrator.getTemperature());
+//        
+//            sim.integrator.addIntervalAction(sWriter);
+//            sim.integrator.setActionInterval(sWriter, (int)nSteps/10);
+//            sim.integrator.setIntervalActionPriority(sWriter, 150);
             
             sim.activityIntegrate.setMaxSteps(nSteps);
             sim.getController().actionPerformed();
 
-            //Write out the final configurations for further use.
-            PDBWriter pdbWriter = new PDBWriter(sim.box);
-            pdbWriter.setFileName("calcHex.pdb");
-            pdbWriter.actionPerformed();
+//            //Write out the final configurations for further use.
+//            PDBWriter pdbWriter = new PDBWriter(sim.box);
+//            pdbWriter.setFileName("calcHex.pdb");
+//            pdbWriter.actionPerformed();
 
             WriteConfiguration writer = new WriteConfiguration();
             writer.setBox(sim.box);
