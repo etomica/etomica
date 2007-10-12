@@ -35,7 +35,7 @@ public final class P2LennardJones extends Potential2SoftSpherical {
      */
     public double u(double r2) {
         double s2 = sigmaSquared/r2;
-        s6 = s2*s2*s2;
+        double s6 = s2*s2*s2;
         return epsilon4*s6*(s6 - 1.0);
     }
 
@@ -44,7 +44,7 @@ public final class P2LennardJones extends Potential2SoftSpherical {
      */
     public double du(double r2) {
         double s2 = sigmaSquared/r2;
-        s6 = s2*s2*s2;
+        double s6 = s2*s2*s2;
         return -epsilon48*s6*(s6 - 0.5);
     }
 
@@ -54,7 +54,7 @@ public final class P2LennardJones extends Potential2SoftSpherical {
     */
     public double d2u(double r2) {
         double s2 = sigmaSquared/r2;
-        s6 = s2*s2*s2;
+        double s6 = s2*s2*s2;
         return epsilon624*s6*(s6 - _168div624);
     }
             
@@ -107,5 +107,4 @@ public final class P2LennardJones extends Potential2SoftSpherical {
     private double epsilon;
     private double epsilon4, epsilon48, epsilon624;
     private static final double _168div624 = 168./624.;
-    private double s6;
 }
