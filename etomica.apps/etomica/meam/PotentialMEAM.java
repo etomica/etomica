@@ -1203,10 +1203,7 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
                 pressureTensor.PEv1v2(gnEi[n], rin);
             }
 
-            rin2.E(rin);
-            rin.TE(rin);
-            
-            virial += gnEi[n].dot(rin2);
+            virial += gnEi[n].dot(rin);
         } //exit loop over atom n
         
         giRhoi0.E(sumGiRhoj0);
@@ -1539,6 +1536,4 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
     private final Vector3D giGamma = (Vector3D)space.makeVector();
     private final Vector3D giRhoi = (Vector3D)space.makeVector();
     private final Vector3D giF = (Vector3D)space.makeVector();
-    
-    private final Vector3D rin2 = (Vector3D)space.makeVector();
 }
