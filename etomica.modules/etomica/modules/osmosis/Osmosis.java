@@ -123,7 +123,7 @@ public class Osmosis extends SimulationGraphic {
         sim.integrator.setTimeStep(0.01);
         final DisplayTextBoxesCAE osmoticBox = new DisplayTextBoxesCAE();
         osmoticBox.setAccumulator(osmosisPMeterAvg);
-        osmoticBox.setPrecision(6);
+        osmoticBox.setPrecision(5);
 
         //
         // Delay panel
@@ -170,7 +170,7 @@ public class Osmosis extends SimulationGraphic {
         sim.integrator.addIntervalAction(molePumpRight);
         final DisplayTextBoxesCAE rightMFBox = new DisplayTextBoxesCAE();
         rightMFBox.setAccumulator(moleFractionAvgRight);
-        rightMFBox.setPrecision(8);
+        rightMFBox.setPrecision(5);
 
         // Left side of membrane mole fraction
         moleFractionLeft = new MeterLocalMoleFraction();
@@ -193,7 +193,7 @@ public class Osmosis extends SimulationGraphic {
         sim.integrator.addIntervalAction(molePumpLeft);
         final DisplayTextBoxesCAE leftMFBox = new DisplayTextBoxesCAE();
         leftMFBox.setAccumulator(moleFractionAvgLeft);
-        leftMFBox.setPrecision(8);
+        leftMFBox.setPrecision(5);
 
         ChangeListener cl = new ChangeListener() {
         	public void stateChanged(ChangeEvent evt) {
