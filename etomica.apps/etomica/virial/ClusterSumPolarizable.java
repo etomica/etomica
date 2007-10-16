@@ -127,7 +127,7 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
     		}
 		}
 
-        if (nPoints == 4) {
+        else if (nPoints == 4) {
             // deltaD runs into precision problems for long distances
             boolean truncateLong = false;
             for (int i=0; i<nPoints-1; i++) {
@@ -260,6 +260,699 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                 deltaD = -0.125*deltaD;
                 value += deltaD;
             }
+        }
+        else if (nPoints == 5) {
+            // this produces different results when using uPol vs. uTot
+            if (false) throw new RuntimeException("This doesn't work yet");
+            double f12 = fValues[0][1][0];
+            double f13 = fValues[0][2][0];
+            double f14 = fValues[0][3][0];
+            double f15 = fValues[0][4][0];
+            double f23 = fValues[1][2][0];
+            double f24 = fValues[1][3][0];
+            double f25 = fValues[1][4][0];
+            double f34 = fValues[2][3][0];
+            double f35 = fValues[2][4][0];
+            double f45 = fValues[3][4][0];
+            double g12 = f12+1; //Math.exp(-beta*u12);
+            double g13 = f13+1; //Math.exp(-beta*u13);
+            double g14 = f14+1; //Math.exp(-beta*u14);
+            double g15 = f15+1; //Math.exp(-beta*u14);
+            double g23 = f23+1; //Math.exp(-beta*u23);
+            double g24 = f24+1; //Math.exp(-beta*u24);
+            double g25 = f25+1; //Math.exp(-beta*u14);
+            double g34 = f34+1; //Math.exp(-beta*u34);
+            double g35 = f35+1; //Math.exp(-beta*u14);
+            double g45 = f45+1; //Math.exp(-beta*u14);
+                
+            // can't do this!  B5 terms need to be separated out and each used
+            // if it corresponds to an set of atoms with no overlaps
+                if (g12*g13*g14*g15*g23*g24*g25*g34*g35*g45 != 0) {
+                    //System.out.println("Sum of pair energies is infinity: uijPol[0][1] = " + uijPol[0][1] + ", uijPol[0][2] = " + uijPol[0][2] + ", uijPol[1][2] = " + uijPol[1][2]);
+                    scfAtoms.clear();
+                    // we need to properly construct these lists even if we don't use them
+                    // (due to overlaps) because the next list is obtained by removing/adding
+                    // atoms from this one.
+                    scfAtoms.add(box.molecule(0));
+                    scfAtoms.add(box.molecule(1));
+                    scfAtoms.add(box.molecule(2));  // 123
+                    //System.out.println("Hey, in the heart of the delta B5 code");
+                    double u123 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(2);
+                    scfAtoms.add(box.molecule(3));  // 124
+                    double u124 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(2);
+                    scfAtoms.add(box.molecule(4));  // 125
+                    double u125 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(1);
+                    scfAtoms.add(box.molecule(2));  // 153
+                    double u135 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(1);
+                    scfAtoms.add(box.molecule(3));  // 134
+                    double u134 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(1);
+                    scfAtoms.add(box.molecule(4));  // 145
+                    double u145 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(0);
+                    scfAtoms.add(box.molecule(1));  // 452
+                    double u245 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(1);
+                    scfAtoms.add(box.molecule(2));  // 423
+                    double u234 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(0);
+                    scfAtoms.add(box.molecule(4));  // 235
+                    double u235 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(0);
+                    scfAtoms.add(box.molecule(3));  // 354
+                    double u345 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.add(box.molecule(0));  // 3541
+                    double u1345 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(1);
+                    scfAtoms.add(box.molecule(1));  // 3412
+                    double u1234 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(1);
+                    scfAtoms.add(box.molecule(4));  // 3125
+                    double u1235 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(0);
+                    scfAtoms.add(box.molecule(3));  // 1254
+                    double u1245 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.remove(0);
+                    scfAtoms.add(box.molecule(2));  // 2543
+                    double u2345 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    scfAtoms.add(box.molecule(0));  // 25431
+                    double u12345 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    
+                    double deltaU123 = u123-uijPol[0][1]-uijPol[0][2]-uijPol[1][2];
+                    double deltaU124 = u124-uijPol[0][1]-uijPol[0][3]-uijPol[1][3];
+                    double deltaU125 = u125-uijPol[0][1]-uijPol[0][4]-uijPol[1][4];
+                    double deltaU134 = u134-uijPol[0][2]-uijPol[0][3]-uijPol[2][3];
+                    double deltaU135 = u135-uijPol[0][2]-uijPol[0][4]-uijPol[2][4];
+                    double deltaU145 = u145-uijPol[0][4]-uijPol[0][3]-uijPol[3][4];
+                    double deltaU234 = u234-uijPol[1][2]-uijPol[1][3]-uijPol[2][3];
+                    double deltaU235 = u235-uijPol[1][2]-uijPol[1][4]-uijPol[2][4];
+                    double deltaU245 = u245-uijPol[1][4]-uijPol[1][3]-uijPol[3][4];
+                    double deltaU345 = u345-uijPol[2][3]-uijPol[2][4]-uijPol[3][4];
+                    
+                    double deltaU1234 = u1234-uijPol[0][1]-uijPol[0][2]-uijPol[0][3]-uijPol[1][2]-uijPol[1][3]-uijPol[2][3]-deltaU123-deltaU124-deltaU134-deltaU234;
+                    double deltaU1235 = u1235-uijPol[0][1]-uijPol[0][2]-uijPol[0][4]-uijPol[1][2]-uijPol[1][4]-uijPol[2][4]-deltaU123-deltaU125-deltaU135-deltaU235;
+                    double deltaU1245 = u1245-uijPol[0][1]-uijPol[0][3]-uijPol[0][4]-uijPol[1][3]-uijPol[1][4]-uijPol[3][4]-deltaU124-deltaU125-deltaU145-deltaU245;
+                    double deltaU1345 = u1345-uijPol[0][2]-uijPol[0][3]-uijPol[0][4]-uijPol[2][3]-uijPol[2][4]-uijPol[3][4]-deltaU134-deltaU135-deltaU145-deltaU345;
+                    double deltaU2345 = u2345-uijPol[1][2]-uijPol[1][3]-uijPol[1][4]-uijPol[2][3]-uijPol[2][4]-uijPol[3][4]-deltaU234-deltaU235-deltaU245-deltaU345;
+                    
+                    double deltaU12345 = u12345-uijPol[0][1]-uijPol[0][2]-uijPol[0][3]-uijPol[0][4]-uijPol[1][2]-uijPol[1][3]-uijPol[1][4]-uijPol[2][3]-uijPol[2][4]-uijPol[3][4]-
+                    deltaU123-deltaU124-deltaU125-deltaU134-deltaU135-deltaU145-deltaU234-deltaU235-deltaU245-deltaU345-deltaU1234-deltaU1235-deltaU1245-deltaU1345-deltaU2345;
+                    
+//                  System.out.println(uijPol[0][1] + " " + uijPol[0][2] + " " + uijPol[0][3] + " " + uijPol[0][4] + " " + uijPol[1][2] + " " + uijPol[1][3] + " " + uijPol[1][4] + " " + uijPol[2][3] + " " + uijPol[2][4] + " " + uijPol[3][4] + " " + u123 + " " + u124 + " " + u125 + " " + u134 + " " + u135 + " " + u145 + " " + u234 + " " + u235 + " " + u245 + " " + u345 + " " + u1234 + " " + u1235 + " " + u1245 + " " + u1345 + " " + u2345 + " " + u12345);
+//                  System.out.println(deltaU123 + " " + deltaU124 + " "  + deltaU125 + " " + deltaU134 + " "  + deltaU135 + " " + deltaU145 + " " + deltaU234 + " " + deltaU235 + " " + deltaU245 + " " + deltaU345 + " " + deltaU1234 + " " + deltaU1235 + " " + deltaU1245 + " " + deltaU1345 + " " + deltaU2345 + " " + deltaU12345);
+                    
+/*                      double g12 = Math.exp(-beta*uijPol[0][1]);
+                    double g13 = Math.exp(-beta*uijPol[0][2]);
+                    double g14 = Math.exp(-beta*uijPol[0][3]);
+                    double g23 = Math.exp(-beta*uijPol[1][2]);
+                    double g24 = Math.exp(-beta*uijPol[1][3]);
+                    double g34 = Math.exp(-beta*uijPol[2][3]);
+*/                      
+
+                    // DON'T FORGET THE BETAS! KMB 5/7/07
+                    double betaU12 = uijPol[0][1]*beta;
+                    double betaU13 = uijPol[0][2]*beta;
+                    double betaU14 = uijPol[0][3]*beta;
+                    double betaU15 = uijPol[0][4]*beta;
+                    double betaU23 = uijPol[1][2]*beta;
+                    double betaU24 = uijPol[1][3]*beta;
+                    double betaU25 = uijPol[1][4]*beta;
+                    double betaU34 = uijPol[2][3]*beta;
+                    double betaU35 = uijPol[2][4]*beta;
+                    double betaU45 = uijPol[3][4]*beta;
+
+                    double du012 = deltaU123*beta;
+                    double du013 = deltaU124*beta;
+                    double du014 = deltaU125*beta;
+                    double du023 = deltaU134*beta;
+                    double du024 = deltaU135*beta;
+                    double du034 = deltaU145*beta;
+                    double du123 = deltaU234*beta;
+                    double du124 = deltaU235*beta;
+                    double du134 = deltaU245*beta;
+                    double du234 = deltaU345*beta;
+                    
+                    double du0123 = deltaU1234*beta;
+                    double du0124 = deltaU1235*beta;
+                    double du0134 = deltaU1245*beta;
+                    double du0234 = deltaU1345*beta;
+                    double du1234 = deltaU2345*beta;
+                    
+                    double du01234 = deltaU12345*beta;
+                    
+                    double deltaE = ((-6)*Math.exp((-betaU12) - betaU13 - betaU23) + 6 
+                            *Math.exp((-du012) - betaU12 - betaU13 - betaU23) + 
+                            3*Math.exp((-betaU12) - betaU13 - betaU14 - betaU23) - 3*Math.exp
+                        ((-du012) - betaU12 - betaU13 - betaU14 - 
+                            betaU23) + 3*Math.exp((-betaU12) - betaU13 - betaU15 - betaU23) - 3 
+                        *Math.exp((-du012) - betaU12 - betaU13 -
+                             betaU15 - betaU23) - 2*Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - betaU23) + 
+                        2*Math.exp((-du012) - betaU12 - betaU13 - betaU14 -
+                             betaU15 - betaU23) - 6*Math.exp((-betaU12) - betaU14 - betaU24) + 6 
+                        *Math.exp((-du013) - betaU12 -
+                             betaU14 - betaU24) + 3*Math.exp((-betaU12) - betaU13 - betaU14 - betaU24) - 3 
+                        *Math.exp((-du013) - betaU12 - betaU13 - betaU14 - 
+                            betaU24) + 3*Math.exp((-betaU12) - betaU14 - betaU15 - betaU24) - 3 
+                        *Math.exp((-du013) - betaU12 - betaU14 - betaU15 - betaU24) - 
+                            2*Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - betaU24) + 2 
+                        *Math.exp((-du013) - betaU12 - betaU13 - betaU14 - betaU15 - betaU24) + 3 
+                        *Math.exp((-betaU12) - betaU13 - betaU23 - betaU24) - 3 
+                        *Math.exp((-du012) - betaU12 - betaU13 - betaU23 - betaU24) + 3 
+                        *Math.exp((-betaU12) - betaU14 - betaU23 - betaU24) - 3 
+                        *Math.exp((-du013) - betaU12 - betaU14 - betaU23 - betaU24) - Math.exp(
+                        (-betaU12) - betaU13 - betaU15 - betaU23 - betaU24) + Math.exp((-du012) - betaU12 - 
+                        betaU13 - betaU15 - betaU23 - betaU24) - Math.exp((-betaU12) - betaU14 - betaU15 - betaU23 - betaU24
+                        ) + Math.exp((-du013) - betaU12 - betaU14 - betaU15 - betaU23 - 
+                            betaU24) - 6*Math.exp((-betaU12) - betaU15 - betaU25) + 6*Math.exp
+                        ((-du014) - betaU12 - betaU15 - betaU25) + 3*Math.exp((-betaU12) - betaU13 - 
+                        betaU15 - betaU25) - 3*Math.exp((-du014) - betaU12 - betaU13 - betaU15 - betaU25) + 3 
+                        *Math.exp((-betaU12) - betaU14 - betaU15 - betaU25) - 3 
+                        *Math.exp((-du014) - betaU12 - betaU14 - betaU15 - betaU25) - 2 
+                        *Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - betaU25) + 2 
+                        *Math.exp((-du014) - betaU12 - betaU13 - betaU14 - betaU15 - betaU25) + 3 
+                        *Math.exp((-betaU12) - betaU13 - betaU23 - 
+                            betaU25) - 3*Math.exp((-du012) - betaU12 - betaU13 - betaU23 - betaU25) - 
+                        Math.exp((-betaU12) - betaU13 - betaU14 - betaU23 - betaU25) + 
+                        Math.exp((-du012) - betaU12 - betaU13 - betaU14 - betaU23 - betaU25) + 3 
+                        *Math.exp((-betaU12) - betaU15 - betaU23 - betaU25) - 3 
+                        *Math.exp((-du014) - betaU12 - betaU15 - betaU23 - betaU25) - Math.exp(
+                        (-betaU12) - betaU14 - betaU15 - betaU23 - betaU25) + Math.exp((-du014) - betaU12 - 
+                        betaU14 - betaU15 - betaU23 - betaU25) + 3*Math.exp((-
+                            betaU12) - betaU14 - betaU24 - betaU25) - 3*Math.exp((-du013) - betaU12 - betaU14 
+                        - betaU24 - betaU25) - Math.exp((-
+                            betaU12) - betaU13 - betaU14 - betaU24 - betaU25) + Math.exp((-du013) - betaU12 - 
+                        betaU13 - betaU14 - betaU24 - betaU25) + 3*Math.exp((-betaU12) - betaU15 - betaU24 - betaU25) 
+                        - 3*Math.exp((-du014) - betaU12 - betaU15 - betaU24 - betaU25) - 
+                        Math.exp((-
+                            betaU12) - betaU13 - betaU15 - betaU24 - betaU25) + Math.exp((-du014) - betaU12 - 
+                        betaU13 - betaU15 - betaU24 - betaU25) - 2*Math.exp((-betaU12) - betaU13 - betaU23 - betaU24 - 
+                        betaU25) + 2*Math.exp((-du012) - betaU12 - 
+                            betaU13 - betaU23 - betaU24 - betaU25) - 2*Math.exp((-betaU12) - betaU14 - betaU23 - 
+                        betaU24 - betaU25) + 2*Math.exp((-du013) -
+                             betaU12 - betaU14 - betaU23 - betaU24 - betaU25) - 2*Math.exp((-betaU12) - betaU15 - 
+                        betaU23 - betaU24 - betaU25) + 2*Math.exp((-du014) - betaU12 - betaU15 - betaU23 - betaU24 
+                        - betaU25) - 6*Math.exp((-betaU13) - betaU14 - betaU34) + 6*Math.exp
+                        ((-du023) - betaU13 -
+                             betaU14 - betaU34) + 3*Math.exp((-betaU12) - betaU13 - betaU14 - betaU34) - 3 
+                        *Math.exp((-du023) - betaU12 - betaU13 - betaU14 - betaU34) + 
+                        3*Math.exp((-betaU13) - betaU14 - betaU15 - betaU34) - 3 
+                        *Math.exp((-du023) - betaU13 - betaU14 - betaU15 - betaU34) - 2 
+                        *Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - betaU34) + 2 
+                        *Math.exp((-du023) - betaU12 - betaU13 - betaU14 - betaU15 - betaU34) + 3 
+                        *Math.exp((-betaU12) - betaU13 - betaU23 - betaU34) - 3 
+                        *Math.exp((-du012) - betaU12 - betaU13 - betaU23 - betaU34) + 3 
+                        *Math.exp((-betaU13) - betaU14 - betaU23 - betaU34) - 3 
+                        *Math.exp((-du023) - betaU13 - betaU14 - betaU23 - betaU34) - Math.exp(
+                        (-betaU12) - betaU13 - betaU15 - betaU23 - betaU34) + Math.exp((-du012) - betaU12 - 
+                        betaU13 - betaU15 - betaU23 - betaU34) - Math.exp((-betaU13) - betaU14 - betaU15 - betaU23 - betaU34
+                        ) + Math.exp((-du023) - betaU13 - betaU14 - betaU15 - betaU23 - 
+                            betaU34) + 3*Math.exp((-betaU12) - betaU14 - betaU24 - betaU34) - 3 
+                        *Math.exp((-du013) - betaU12 -
+                             betaU14 - betaU24 - betaU34) + 3*Math.exp((-betaU13) - betaU14 - betaU24 - betaU34) - 
+                        3*Math.exp((-du023) - betaU13 - betaU14 - 
+                            betaU24 - betaU34) - Math.exp((-
+                        betaU12) - betaU14 - betaU15 - betaU24 - betaU34) + Math.exp((-du013) - betaU12 -
+                             betaU14 - betaU15 - betaU24 - betaU34) - Math.exp((-betaU13) - betaU14 - betaU15 - betaU24 
+                        - betaU34) + Math.exp((-du023) - betaU13 - 
+                            betaU14 - betaU15 - betaU24 - betaU34) - 6*Math.exp((-betaU23) - betaU24 - betaU34) + 
+                        6*Math.exp((-du123) - betaU23 - betaU24 - betaU34) + 3*Math.exp(
+                        (-betaU12) - betaU23 - betaU24 - betaU34) - 3*Math.exp((-du123) - betaU12 - betaU23 - 
+                        betaU24 - betaU34) + 
+                            3*Math.exp((-betaU13) - betaU23 - betaU24 - betaU34) - 3*Math.exp
+                        ((-du123) - betaU13 - betaU23 - betaU24 - betaU34) + 3*Math.exp((-betaU14) - betaU23 
+                        - betaU24 - betaU34) - 3*Math.exp((-du123) - betaU14 - betaU23 - betaU24 - betaU34) - 
+                        3*Math.exp((-betaU12) - betaU13 - betaU14 - betaU23 - betaU24 - betaU34) + 3 
+                        *Math.exp((-du012) - 
+                            du0123 - du013 - du023 - du123 - betaU12 - betaU13 - betaU14 - betaU23 - betaU24 - betaU34) + 2 
+                        *Math.exp((-betaU15) - betaU23 - betaU24 - 
+                            betaU34) - 2*Math.exp((-du123) - betaU15 - betaU23 - betaU24 - betaU34) - 
+                        Math.exp((-betaU12) - betaU15 - betaU23 - betaU24 - betaU34) + 
+                        Math.exp((-du123) - betaU12 - betaU15 - betaU23 - betaU24 - betaU34) - 
+                        Math.exp((-betaU13) - betaU15 - 
+                            betaU23 - betaU24 - betaU34) + Math.exp((-du123) - betaU13 - betaU15 - betaU23 - betaU24 
+                        - betaU34) - Math.exp((-betaU14) - betaU15 - betaU23 - betaU24 - betaU34) + 
+                        Math.exp((-du123) - betaU14 - betaU15 - betaU23 - betaU24 - betaU34) + 
+                        Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - betaU23 - betaU24 - betaU34) - 
+                        Math.exp((-du012) - du0123 - 
+                            du013 - du023 - du123 - betaU12 - betaU13 - betaU14 - 
+                            betaU15 - betaU23 - betaU24 - betaU34) + 2*Math.exp((-betaU13) - betaU14 - betaU25 - 
+                        betaU34) - 2*Math.exp((-du023) - betaU13 - betaU14 -
+                             betaU25 - betaU34) - Math.exp((-betaU12) - betaU13 - betaU14 - betaU25 - betaU34) + 
+                        Math.exp((-du023) - betaU12 - betaU13 - 
+                            betaU14 - betaU25 - betaU34) + 2*Math.exp((-betaU12) - betaU15 - betaU25 - betaU34) - 
+                        2*Math.exp((-du014) - betaU12 - betaU15 - betaU25 - betaU34) - 
+                        Math.exp((-betaU12) - betaU13 - betaU15 - betaU25 - betaU34) + 
+                        Math.exp((-du014) - betaU12 - betaU13 - betaU15 - betaU25 - betaU34) - 
+                        Math.exp((-betaU12) - betaU14 - betaU15 - 
+                        betaU25 - betaU34) + Math.exp((-du014) - betaU12 - betaU14 - betaU15 - betaU25 - betaU34) - 
+                        Math.exp((-betaU13) - betaU14 - betaU15 -
+                             betaU25 - betaU34) + Math.exp((-du023) - betaU13 - betaU14 - betaU15 - betaU25 - 
+                        betaU34) + Math.exp((-betaU12) - betaU13 - betaU14 - 
+                        betaU15 - betaU25 - betaU34) - Math.exp((-du014) - du023 - betaU12 - betaU13 - betaU14 - 
+                        betaU15 - betaU25 - betaU34) - Math.exp((-betaU12) - betaU13 - betaU23 - betaU25 - betaU34) + 
+                        Math.exp((-du012) - betaU12 - betaU13 - betaU23 - betaU25 - 
+                            betaU34) - Math.exp((-betaU13) - betaU14 - betaU23 - betaU25 - betaU34) + 
+                        Math.exp((-du023) - betaU13 - betaU14 - betaU23 - betaU25 - betaU34) - 
+                        Math.exp((-betaU12) - betaU15 - betaU23 - betaU25 - betaU34) + 
+                        Math.exp((-du014) - betaU12 - betaU15 - betaU23 - betaU25 - betaU34) - 
+                        Math.exp((-betaU12) - betaU14 - betaU24 - betaU25 - betaU34) + 
+                        Math.exp((-du013) - betaU12 - betaU14 - betaU24 - betaU25 - betaU34) - 
+                        Math.exp((-betaU13) - betaU14 - betaU24 - betaU25 - betaU34) + 
+                        Math.exp((-du023) - 
+                            betaU13 - betaU14 - betaU24 - betaU25 - betaU34) - Math.exp((-betaU12) - betaU15 - betaU24 - 
+                        betaU25 - betaU34) + Math.exp((-du014) - betaU12 -
+                             betaU15 - betaU24 - betaU25 - betaU34) + 3*Math.exp((-betaU23) - betaU24 - betaU25 - 
+                        betaU34) - 3*Math.exp((-du123) - 
+                            betaU23 - betaU24 - betaU25 - betaU34) - 2*Math.exp((-betaU12) - betaU23 - betaU24 - 
+                        betaU25 - betaU34) + 2*Math.exp((-du123) - betaU12 -
+                             betaU23 - betaU24 - betaU25 - betaU34) - Math.exp((-betaU13) - betaU23 - betaU24 - betaU25 
+                        - betaU34) + Math.exp((-
+                            du123) - betaU13 - betaU23 - betaU24 - betaU25 - betaU34) - Math.exp((-betaU14) - 
+                        betaU23 - betaU24 - betaU25 - betaU34) + Math.exp((-du123) - betaU14 - betaU23 - betaU24 - 
+                        betaU25 - betaU34) + Math.exp((-betaU12) - betaU13 - betaU14 - betaU23 - betaU24 - betaU25 - betaU34
+                        ) - Math.exp((-du012) - du0123 - du013 - du023 - du123 - betaU12 - 
+                        betaU13 - betaU14 - betaU23 - betaU24 - betaU25 - betaU34) - Math.exp((-betaU15) - betaU23 - 
+                            betaU24 - betaU25 - betaU34) + Math.exp((-du123) - betaU15 - betaU23 - betaU24 - betaU25 
+                        - betaU34) + Math.exp((-betaU12) - betaU15 - betaU23 - betaU24 - betaU25 - betaU34) - 
+                        Math.exp((-du014) - 
+                            du123 - betaU12 - betaU15 - betaU23 - betaU24 - betaU25 - betaU34) - 6 
+                        *Math.exp((-betaU13) - betaU15 - betaU35) + 6*Math.exp((-du024) 
+                        - betaU13 - betaU15 - betaU35) + 3*Math.exp((-betaU12) - betaU13 - betaU15 - betaU35) - 3 
+                        *Math.exp((-du024) - betaU12 - betaU13 - betaU15 - betaU35) + 3 
+                        *Math.exp((-betaU13) - betaU14 - betaU15 - betaU35) - 3 
+                        *Math.exp((-du024) - betaU13 - 
+                            betaU14 - betaU15 - betaU35) - 2*Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - 
+                        betaU35) + 2*Math.exp((-du024) - betaU12 - betaU13 - betaU14 - betaU15 - betaU35) + 3 
+                        *Math.exp((-betaU12) - betaU13 - betaU23 - betaU35) - 3 
+                        *Math.exp((-du012) - betaU12 - betaU13 - betaU23 - betaU35) - Math.exp(
+                        (-betaU12) - betaU13 - betaU14 - betaU23 - betaU35) + Math.exp((-
+                            du012) - betaU12 - betaU13 - betaU14 - betaU23 - betaU35) + 3*Math.exp((-betaU13) 
+                        - betaU15 - betaU23 - betaU35) - 3*Math.exp((-du024) - betaU13 - betaU15 - betaU23 - 
+                        betaU35) - Math.exp((-betaU13) - betaU14 - betaU15 - betaU23 - betaU35) + 
+                        Math.exp((-du024) - betaU13 - betaU14 - betaU15 - betaU23 - betaU35) + 2 
+                        *Math.exp((-betaU12) - betaU14 - betaU24 - 
+                        betaU35) - 2*Math.exp((-du013) - betaU12 - betaU14 - betaU24 - betaU35) - 
+                        Math.exp((-betaU12) - betaU13 - betaU14 - betaU24 - betaU35) + 
+                        Math.exp((-du013) - betaU12 - betaU13 - betaU14 - betaU24 - betaU35) + 
+                            2*Math.exp((-betaU13) - 
+                        betaU15 - betaU24 - betaU35) - 2*Math.exp((-du024) - betaU13 - betaU15 - betaU24 - 
+                        betaU35) - Math.exp((-betaU12) - betaU13 - betaU15 - betaU24 - betaU35) + 
+                        Math.exp((-du024) - betaU12 - betaU13 - betaU15 - betaU24 - betaU35) - 
+                        Math.exp((-betaU12) - betaU14 - betaU15 - betaU24 - betaU35) + 
+                        Math.exp((-du013) - betaU12 - betaU14 - betaU15 - betaU24 - 
+                            betaU35) - Math.exp((-betaU13) - betaU14 - betaU15 - betaU24 - betaU35) + 
+                        Math.exp((-du024) - betaU13 - betaU14 - betaU15 - betaU24 - betaU35) + 
+                        Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - betaU24 - betaU35) - Math.exp
+                        ((-du013) - du024 - betaU12 - betaU13 - betaU14 - betaU15 - betaU24 - betaU35) - 
+                        Math.exp((-betaU12) - betaU13 - betaU23 - betaU24 - betaU35) + 
+                        Math.exp((-du012) - betaU12 - 
+                            betaU13 - betaU23 - betaU24 - betaU35) - Math.exp((-betaU12) - betaU14 - betaU23 - betaU24 - 
+                        betaU35) + Math.exp((-du013) - betaU12 - betaU14 - betaU23 - betaU24 - betaU35) - 
+                        Math.exp((-betaU13) - betaU15 - betaU23 - betaU24 - betaU35) + 
+                        Math.exp((-du024) - betaU13 - betaU15 - betaU23 - betaU24 - betaU35) + 3 
+                        *Math.exp((-betaU12) - betaU15 - betaU25 - betaU35) - 3 
+                        *Math.exp((-du014) - betaU12 - betaU15 - betaU25 - betaU35) + 3 
+                        *Math.exp((-betaU13) - betaU15 - betaU25 - betaU35) - 3 
+                        *Math.exp((-du024) - betaU13 - betaU15 - betaU25 - betaU35) - Math.exp(
+                        (-betaU12) - betaU14 - betaU15 - betaU25 - betaU35) + Math.exp((-du014) - betaU12 - 
+                        betaU14 - betaU15 - betaU25 - betaU35) - Math.exp((-betaU13) - betaU14 - betaU15 - betaU25 - betaU35
+                        ) + Math.exp((-du024) - betaU13 - betaU14 - betaU15 - betaU25 - betaU35) - 6 
+                        *Math.exp((-betaU23) - betaU25 - betaU35) + 6*Math.exp((-du124) 
+                        - betaU23 - betaU25 - betaU35) + 3*Math.exp((-betaU12) - betaU23 - betaU25 - betaU35) - 3 
+                        *Math.exp((-du124) - betaU12 - betaU23 - betaU25 - betaU35) + 3 
+                        *Math.exp((-betaU13) - betaU23 - betaU25 - betaU35) - 3 
+                        *Math.exp((-du124) - betaU13 - betaU23 - betaU25 - betaU35) + 2 
+                        *Math.exp((-betaU14) - betaU23 - betaU25 - betaU35) - 2 
+                        *Math.exp((-du124) - betaU14 - betaU23 - betaU25 - betaU35) - Math.exp(
+                        (-betaU12) - betaU14 - betaU23 - betaU25 - betaU35) + Math.exp((-
+                            du124) - betaU12 - betaU14 - betaU23 - betaU25 -
+                         betaU35) - Math.exp((-betaU13) - betaU14 - betaU23 - betaU25 - betaU35) + 
+                        Math.exp((-du124) - betaU13 - betaU14 - betaU23 - betaU25 - betaU35) + 3 
+                        *Math.exp((-betaU15) - betaU23 - betaU25 - betaU35) - 3*Math.exp((-
+                            du124) - betaU15 - betaU23 - betaU25 - betaU35) - 3*Math.exp((-betaU12) - betaU13 
+                        - betaU15 - betaU23 - betaU25 - betaU35) + 3*Math.exp((-du012) - du0124 - 
+                        du014 - du024 - du124 - betaU12 - betaU13 - betaU15 - betaU23 - betaU25 - betaU35) - Math.exp
+                        ((-betaU14) - betaU15 - betaU23 - betaU25 - betaU35) + Math.exp((-du124) - betaU14 
+                        - betaU15 - betaU23 - betaU25 - betaU35) + Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - 
+                        betaU23 - betaU25 - betaU35) - Math.exp((-du012) -
+                             du0124 - du014 - du024 - du124 - betaU12 - betaU13 - betaU14 - betaU15 - betaU23 - betaU25 - betaU35
+                        ) - Math.exp((-betaU12) - betaU14 - betaU24 - betaU25 - betaU35) + 
+                        Math.exp((-du013) - betaU12 - betaU14 - betaU24 - betaU25 - betaU35) - 
+                        Math.exp((-betaU12) -
+                         betaU15 - betaU24 - betaU25 - betaU35) + Math.exp((-du014) - betaU12 - betaU15 - betaU24 - 
+                        betaU25 - betaU35) - Math.exp((-betaU13) - betaU15 - betaU24 - betaU25 - betaU35) + 
+                        Math.exp((-du024) - betaU13 - betaU15 - betaU24 - betaU25 - betaU35) + 
+                            3*Math.exp((-betaU23) - betaU24 - betaU25 - betaU35) - 3*Math.exp
+                        ((-du124) - betaU23 - betaU24 - betaU25 - betaU35) - 2*Math.exp((-betaU12) - betaU23 
+                        - betaU24 - betaU25 - betaU35) + 2*Math.exp((-du124) - betaU12 - betaU23 - betaU24 - 
+                        betaU25 - betaU35) - Math.exp((-betaU13) - betaU23 -
+                         betaU24 - betaU25 - betaU35) + Math.exp((-du124) - betaU13 - betaU23 - betaU24 - betaU25 - 
+                        betaU35) - Math.exp((-betaU14) - betaU23 - betaU24 - betaU25 - betaU35) + 
+                        Math.exp((-du124) - betaU14 - betaU23 - betaU24 - betaU25 - betaU35) + 
+                        Math.exp((-betaU12) - betaU14 - betaU23 - betaU24 - betaU25 - betaU35) - Math.exp
+                        ((-du013) - du124 - betaU12 - betaU14 - betaU23 - 
+                            betaU24 - betaU25 - betaU35) - Math.exp((-betaU15) - betaU23 - betaU24 - betaU25 - betaU35) 
+                        + Math.exp((-du124) - betaU15 - betaU23 - 
+                            betaU24 - betaU25 - betaU35) + Math.exp((-betaU12) - betaU13 - betaU15 - betaU23 - betaU24 - 
+                        betaU25 - betaU35) - Math.exp((-du012) - du0124 - du014 - du024 - du124 
+                        - betaU12 - betaU13 - betaU15 - betaU23 - betaU24 - betaU25 - betaU35) + 3*Math.exp((-betaU13) 
+                        - betaU14 - betaU34 - betaU35) - 3*Math.exp((-du023) - betaU13 - betaU14 - betaU34 - 
+                        betaU35) - Math.exp((-betaU12) - betaU13 - betaU14 - betaU34 - betaU35) + 
+                        Math.exp((-du023) - betaU12 - betaU13 - betaU14 - betaU34 - betaU35) + 
+                            3*Math.exp((-betaU13) - betaU15 - betaU34 - betaU35) - 3*Math.exp
+                        ((-du024) - betaU13 - betaU15 - betaU34 - betaU35) - Math.exp((-betaU12) - betaU13 - 
+                        betaU15 - betaU34 - betaU35) + Math.exp((-du024) - betaU12 - betaU13 - betaU15 - betaU34 - 
+                        betaU35) - 2*Math.exp((-
+                            betaU12) - betaU13 - betaU23 - betaU34 - betaU35) + 2*Math.exp((-du012) - betaU12 
+                        - betaU13 - betaU23 - betaU34 - betaU35) - 2*Math.exp((-betaU13) - betaU14 - betaU23 - betaU34 
+                        - betaU35) + 2*Math.exp((-du023) - betaU13 - betaU14 - betaU23 - 
+                            betaU34 - betaU35) - 2*Math.exp((-betaU13) - betaU15 - betaU23 - betaU34 - betaU35) + 
+                        2*Math.exp((-du024) - betaU13 - betaU15 -
+                             betaU23 - betaU34 - betaU35) - Math.exp((-betaU12) - betaU14 - betaU24 - betaU34 - 
+                        betaU35) + Math.exp((-du013) - betaU12 - betaU14 - betaU24 - betaU34 - betaU35) - 
+                        Math.exp((-betaU13) - betaU14 - betaU24 - betaU34 - betaU35) + 
+                        Math.exp((-du023) - betaU13 - betaU14 - betaU24 - betaU34 - betaU35) - 
+                        Math.exp((-betaU13) - betaU15 - betaU24 - betaU34 - betaU35) + 
+                        Math.exp((-du024) - betaU13 - betaU15 - betaU24 - betaU34 - betaU35) + 3 
+                        *Math.exp((-betaU23) - betaU24 - betaU34 - betaU35) - 3 
+                        *Math.exp((-du123) - betaU23 - betaU24 - 
+                            betaU34 - betaU35) - Math.exp((-betaU12) - betaU23 - betaU24 - betaU34 - betaU35) + 
+                        Math.exp((-du123) - betaU12 - betaU23 - betaU24 - betaU34 - betaU35) - 2 
+                        *Math.exp((-betaU13) - betaU23 - betaU24 - betaU34 - betaU35) + 2 
+                        *Math.exp((-du123) - betaU13 - betaU23 - betaU24 - betaU34 - betaU35) - 
+                        Math.exp((-betaU14) - betaU23 - betaU24 - betaU34 - betaU35) + 
+                        Math.exp((-du123) - betaU14 - betaU23 - betaU24 - betaU34 - betaU35) + 
+                        Math.exp((-betaU12) - betaU13 - betaU14 - betaU23 - betaU24 - betaU34 -
+                             betaU35) - Math.exp((-du012) - du0123 - du013 - du023 - du123 - 
+                        betaU12 - betaU13 - betaU14 - betaU23 - betaU24 - betaU34 - betaU35) - Math.exp((-betaU15) - betaU23 
+                        - betaU24 - betaU34 - betaU35) + Math.exp((-du123) - betaU15 - betaU23 - betaU24 - betaU34 - 
+                        betaU35) + Math.exp((-betaU13) - betaU15 - betaU23 - betaU24 - betaU34 - betaU35) - 
+                        Math.exp((-du024) - du123 - betaU13 - betaU15 - betaU23 - betaU24 - betaU34 - betaU35) - 
+                        Math.exp((-betaU13) - betaU14 - betaU25 - betaU34 - betaU35) + 
+                        Math.exp((-du023) - betaU13 - betaU14 - betaU25 - betaU34 - betaU35) - 
+                        Math.exp((-betaU12) - betaU15 - betaU25 - betaU34 - betaU35) + 
+                        Math.exp((-du014) - 
+                            betaU12 - betaU15 - betaU25 - betaU34 - betaU35) - Math.exp((-betaU13) - betaU15 - betaU25 - 
+                        betaU34 - betaU35) + Math.exp((-du024) - betaU13 - betaU15 - betaU25 - betaU34 - betaU35) + 
+                        3*Math.exp((-betaU23) - betaU25 - betaU34 - betaU35) - 3 
+                        *Math.exp((-du124) - 
+                            betaU23 - betaU25 - betaU34 - betaU35) - Math.exp((-betaU12) - betaU23 - betaU25 - betaU34 - 
+                        betaU35) + Math.exp((-du124) - betaU12 - betaU23 - betaU25 - betaU34 - betaU35) - 2 
+                        *Math.exp((-betaU13) - betaU23 - betaU25 - betaU34 - betaU35) + 2 
+                        *Math.exp((-du124) - 
+                            betaU13 - betaU23 - betaU25 - betaU34 - betaU35) - Math.exp((-betaU14) - betaU23 - betaU25 - 
+                        betaU34 - betaU35) + Math.exp((-du124) - betaU14 - betaU23 - betaU25 - betaU34 - betaU35) + 
+                        Math.exp((-betaU13) - betaU14 - betaU23 - betaU25 - betaU34 -
+                         betaU35) - Math.exp((-du023) - du124 - betaU13 - betaU14 - betaU23 - betaU25 - betaU34 
+                        - betaU35) - Math.exp((-betaU15) - betaU23 - betaU25 - betaU34 - betaU35) + 
+                        Math.exp((-du124) - betaU15 - betaU23 - betaU25 - betaU34 - betaU35) + 
+                        Math.exp((-betaU12) - betaU13 - betaU15 - betaU23 - betaU25 - betaU34 - betaU35) - 
+                        Math.exp((-du012) - du0124 - du014 - du024 - du124 - betaU12 - betaU13 - 
+                        betaU15 - betaU23 -
+                             betaU25 - betaU34 - betaU35) - 6*Math.exp((-betaU14) - betaU15 - betaU45) + 6 
+                        *Math.exp((-du034) - betaU14 - betaU15 - betaU45) + 
+                            3*Math.exp((-betaU12) - betaU14 - betaU15 - betaU45) - 3*Math.exp
+                        ((-du034) - betaU12 - betaU14 - betaU15 - betaU45) + 3*Math.exp((-betaU13) - betaU14 
+                        - betaU15 - betaU45) - 3*Math.exp((-du034) - betaU13 - betaU14 - betaU15 - betaU45) - 
+                        2*Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - betaU45) + 2*Math.exp
+                        ((-du034) - betaU12 - betaU13 - betaU14 - betaU15 - betaU45) + 
+                            2*Math.exp((-betaU12) - betaU13 - betaU23 - betaU45) - 2*Math.exp
+                        ((-du012) - betaU12 - betaU13 - betaU23 - betaU45) - Math.exp((-betaU12) - betaU13 - 
+                        betaU14 - betaU23 - betaU45) + Math.exp((-du012) - betaU12 - betaU13 - betaU14 - betaU23 - 
+                        betaU45) - Math.exp((-betaU12) - betaU13 - betaU15 - betaU23 - betaU45) + 
+                        Math.exp((-du012) - betaU12 - betaU13 - betaU15 - betaU23 - betaU45) + 2 
+                        *Math.exp((-betaU14) - betaU15 - betaU23 - betaU45) - 2 
+                        *Math.exp((-du034) - betaU14 - betaU15 - betaU23 - betaU45) - Math.exp(
+                        (-betaU12) - betaU14 - betaU15 - betaU23 - betaU45) + Math.exp((-du034) - betaU12 - 
+                        betaU14 - betaU15 - betaU23 - betaU45) - Math.exp((-betaU13) - betaU14 - betaU15 - betaU23 - 
+                        betaU45) + Math.exp((-du034) - betaU13 - betaU14 - betaU15 - betaU23 - betaU45) + 
+                        Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - betaU23 - betaU45) - Math.exp
+                        ((-du012) - du034 - betaU12 - betaU13 - betaU14 - 
+                            betaU15 - betaU23 - betaU45) + 3*Math.exp((-betaU12) - betaU14 - betaU24 - betaU45) - 
+                        3*Math.exp((-du013) - betaU12 -
+                             betaU14 - betaU24 - betaU45) - Math.exp((-betaU12) - betaU13 - betaU14 - betaU24 - 
+                        betaU45) + Math.exp((-du013) - betaU12 - betaU13 - betaU14 - 
+                            betaU24 - betaU45) + 3*Math.exp((-betaU14) - betaU15 - betaU24 - betaU45) - 
+                            3*Math.exp((-du034) - betaU14 - betaU15 - betaU24 - betaU45) - 
+                        Math.exp((-betaU13) - betaU14 - betaU15 - betaU24 - betaU45) + 
+                        Math.exp((-du034) - betaU13 - 
+                        betaU14 - betaU15 - betaU24 - betaU45) - Math.exp((-betaU12) - betaU13 - betaU23 - betaU24 - betaU45
+                        ) + Math.exp((-du012) - betaU12 - betaU13 - betaU23 - betaU24 - betaU45) - 
+                        Math.exp((-betaU12) - betaU14 - betaU23 - betaU24 - betaU45) + 
+                        Math.exp((-du013) - betaU12 - 
+                        betaU14 - betaU23 - betaU24 - betaU45) - Math.exp((-betaU14) - betaU15 - betaU23 - betaU24 - betaU45
+                        ) + Math.exp((-du034) - betaU14 - betaU15 - betaU23 - betaU24 - betaU45) + 3 
+                        *Math.exp((-betaU12) - betaU15 - betaU25 - betaU45) - 3 
+                        *Math.exp((-du014) - betaU12 - 
+                        betaU15 - betaU25 - betaU45) - Math.exp((-betaU12) - betaU13 - betaU15 - betaU25 - betaU45) + 
+                        Math.exp((-du014) - betaU12 - betaU13 - betaU15 - betaU25 - betaU45) + 3 
+                        *Math.exp((-betaU14) - betaU15 - betaU25 - betaU45) - 3 
+                        *Math.exp((-du034) - betaU14 - betaU15 - betaU25 - betaU45) - Math.exp(
+                        (-betaU13) - betaU14 - betaU15 - betaU25 - betaU45) + Math.exp((-du034) - betaU13 - 
+                        betaU14 - betaU15 - betaU25 -
+                             betaU45) - Math.exp((-betaU12) - betaU13 - betaU23 - betaU25 - betaU45) + 
+                        Math.exp((-du012) - betaU12 - betaU13 - 
+                            betaU23 - betaU25 - betaU45) - Math.exp((-betaU12) - betaU15 - betaU23 - betaU25 - betaU45) 
+                        + Math.exp((-du014) - betaU12 - betaU15 - betaU23 -
+                             betaU25 - betaU45) - Math.exp((-betaU14) - betaU15 - betaU23 - betaU25 - betaU45) + 
+                        Math.exp((-du034) - betaU14 - betaU15 - 
+                            betaU23 - betaU25 - betaU45) - 6*Math.exp((-betaU24) - betaU25 - betaU45) + 6 
+                        *Math.exp((-du134) - betaU24 - betaU25 - betaU45) + 3 
+                        *Math.exp((-betaU12) - betaU24 - betaU25 - betaU45) - 3 
+                        *Math.exp((-du134) - betaU12 - betaU24 - betaU25 - betaU45) + 
+                            2*Math.exp((-betaU13) - betaU24 - betaU25 - betaU45) - 2*Math.exp
+                        ((-du134) - betaU13 - betaU24 - betaU25 - betaU45) - Math.exp((-betaU12) - betaU13 - 
+                        betaU24 - betaU25 - betaU45) + Math.exp((-du134) - betaU12 - betaU13 - betaU24 - betaU25 - 
+                        betaU45) + 3*Math.exp((-
+                            betaU14) - betaU24 - betaU25 - betaU45) - 3*Math.exp((-du134) - betaU14 - betaU24 
+                        - betaU25 - betaU45) - Math.exp((-betaU13) - betaU14 - betaU24 - betaU25 -
+                             betaU45) + Math.exp((-du134) - betaU13 - betaU14 - betaU24 - betaU25 - betaU45) + 
+                        3*Math.exp((-betaU15) - betaU24 - betaU25 -
+                         betaU45) - 3*Math.exp((-du134) - betaU15 - betaU24 - betaU25 - betaU45) - 
+                        Math.exp((-betaU13) - betaU15 - 
+                        betaU24 - betaU25 - betaU45) + Math.exp((-du134) - betaU13 - betaU15 - betaU24 - betaU25 - 
+                        betaU45) - 3*Math.exp((-betaU12) -
+                         betaU14 - betaU15 - betaU24 - betaU25 - betaU45) + 3*Math.exp((-du013) - du0134 - 
+                        du014 - du034 - du134 - betaU12 - betaU14 -
+                         betaU15 - betaU24 - betaU25 - betaU45) + Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - 
+                        betaU24 - betaU25 - betaU45) - Math.exp((-du013) - du0134 - du014 - du034 - 
+                        du134 - betaU12 - betaU13 - betaU14 - betaU15 - betaU24 - betaU25 - betaU45) + 3*Math.exp((-
+                            betaU23) - betaU24 - betaU25 - betaU45) - 3*Math.exp((-du134) - betaU23 - betaU24 
+                        - betaU25 - betaU45) - 2*Math.exp((-betaU12) - betaU23 - betaU24 - 
+                            betaU25 - betaU45) + 2*Math.exp((-du134) - betaU12 - betaU23 - betaU24 - betaU25 - 
+                        betaU45) - Math.exp((-betaU13) - betaU23 - betaU24 - betaU25 - betaU45) + 
+                        Math.exp((-du134) - betaU13 - betaU23 - betaU24 - betaU25 - betaU45) + 
+                        Math.exp((-betaU12) - betaU13 - betaU23 - betaU24 - betaU25 - betaU45) - Math.exp
+                        ((-du012) - du134 - betaU12 - betaU13 - betaU23 - betaU24 - betaU25 - betaU45) - 
+                        Math.exp((-betaU14) - betaU23 - betaU24 - betaU25 - betaU45) + 
+                        Math.exp((-du134) - betaU14 - betaU23 - betaU24 - betaU25 - betaU45) - 
+                        Math.exp((-betaU15) - betaU23 - betaU24 - betaU25 - betaU45) + 
+                        Math.exp((-du134) - 
+                        betaU15 - betaU23 - betaU24 - betaU25 - betaU45) + Math.exp((-betaU12) - betaU14 - betaU15 - betaU23 
+                        - betaU24 - betaU25 - betaU45) - Math.exp((-du013) - du0134 - du014 - du034 
+                        - du134 - betaU12 - betaU14 - betaU15 - betaU23 - betaU24 - betaU25 - betaU45) + 3 
+                        *Math.exp((-betaU13) - betaU14 - betaU34 - betaU45) - 3 
+                        *Math.exp((-du023) - 
+                            betaU13 - betaU14 - betaU34 - betaU45) - Math.exp((-betaU12) - betaU13 - betaU14 - betaU34 - 
+                        betaU45) + Math.exp((-du023) - betaU12 - betaU13 - betaU14 - betaU34 - betaU45) + 3 
+                        *Math.exp((-betaU14) - betaU15 - betaU34 - betaU45) - 3 
+                        *Math.exp((-du034) - betaU14 - betaU15 - betaU34 - 
+                            betaU45) - Math.exp((-betaU12) - betaU14 - betaU15 - betaU34 - betaU45) + 
+                        Math.exp((-du034) - betaU12 - betaU14 - betaU15 - betaU34 - betaU45) - 
+                        Math.exp((-betaU12) - betaU13 - betaU23 - betaU34 - betaU45) + 
+                        Math.exp((-du012) - betaU12 - betaU13 - betaU23 - betaU34 - betaU45) - 
+                        Math.exp((-betaU13) - betaU14 - betaU23 - betaU34 - 
+                            betaU45) + Math.exp((-du023) - betaU13 - betaU14 - betaU23 - betaU34 - betaU45) - 
+                        Math.exp((-betaU14) - betaU15 - 
+                            betaU23 - betaU34 - betaU45) + Math.exp((-du034) - betaU14 - betaU15 - betaU23 - betaU34 
+                        - betaU45) - 2*Math.exp((-betaU12) - betaU14 - betaU24 -
+                             betaU34 - betaU45) + 2*Math.exp((-du013) - betaU12 - betaU14 - betaU24 - betaU34 - 
+                        betaU45) - 2*Math.exp((-betaU13) - betaU14 - betaU24 - betaU34 - betaU45) + 2 
+                        *Math.exp((-du023) - betaU13 - betaU14 - betaU24 - betaU34 - betaU45) - 2 
+                        *Math.exp((-betaU14) - betaU15 - betaU24 - betaU34 - betaU45) + 2 
+                        *Math.exp((-du034) - betaU14 - betaU15 - betaU24 - betaU34 - betaU45) + 3 
+                        *Math.exp((-betaU23) - betaU24 - betaU34 - betaU45) - 3 
+                        *Math.exp((-du123) - betaU23 - betaU24 - betaU34 - betaU45) - Math.exp(
+                        (-betaU12) - betaU23 - betaU24 - betaU34 - 
+                            betaU45) + Math.exp((-du123) - betaU12 - betaU23 - betaU24 - betaU34 - betaU45) - 
+                        Math.exp((-betaU13) - betaU23 - betaU24 - 
+                            betaU34 - betaU45) + Math.exp((-du123) - betaU13 - betaU23 - betaU24 - betaU34 - betaU45
+                        ) - 2*Math.exp((-betaU14) - betaU23 - betaU24 - betaU34 - betaU45) + 2 
+                        *Math.exp((-du123) - betaU14 - betaU23 - betaU24 - betaU34 - betaU45) + 
+                        Math.exp((-betaU12) - betaU13 - betaU14 - betaU23 - betaU24 - betaU34 - betaU45) - 
+                        Math.exp((-du012) - du0123 - du013 - 
+                            du023 - du123 - betaU12 - betaU13 - betaU14 - 
+                        betaU23 - betaU24 - betaU34 - betaU45) - Math.exp((-betaU15) - betaU23 - betaU24 - betaU34 - betaU45
+                        ) + Math.exp((-du123) - betaU15 - betaU23 - betaU24 - betaU34 - betaU45) + 
+                        Math.exp((-betaU14) - betaU15 - betaU23 - betaU24 - betaU34 - betaU45) - Math.exp
+                        ((-du034) - du123 - betaU14 - betaU15 - betaU23 - betaU24 - betaU34 - betaU45) - 
+                        Math.exp((-betaU13) - betaU14 -
+                             betaU25 - betaU34 - betaU45) + Math.exp((-du023) - betaU13 - betaU14 - betaU25 - 
+                        betaU34 - betaU45) - Math.exp((-betaU12) - 
+                            betaU15 - betaU25 - betaU34 - betaU45) + Math.exp((-du014) - betaU12 - betaU15 - betaU25 
+                        - betaU34 - betaU45) - Math.exp((-betaU14) - betaU15 -
+                             betaU25 - betaU34 - betaU45) + Math.exp((-du034) - betaU14 - betaU15 - betaU25 - 
+                        betaU34 - betaU45) + 3*Math.exp((-betaU24) - betaU25 - 
+                            betaU34 - betaU45) - 3*Math.exp((-du134) - betaU24 - betaU25 - betaU34 - betaU45) 
+                        - Math.exp((-betaU12) - betaU24 - betaU25 - betaU34 - betaU45) + Math.exp(
+                        (-du134) - betaU12 - betaU24 - betaU25 - betaU34 - betaU45) - Math.exp((-betaU13) - 
+                        betaU24 - betaU25 - betaU34 - betaU45) + Math.exp((-du134) - betaU13 - betaU24 - betaU25 - 
+                        betaU34 - betaU45) - 2*Math.exp((-betaU14) - betaU24 -
+                         betaU25 - betaU34 - betaU45) + 2*Math.exp((-du134) - betaU14 - betaU24 - betaU25 - betaU34 
+                        - betaU45) + Math.exp((-betaU13) - betaU14 - betaU24 - betaU25 - betaU34 - betaU45) - 
+                        Math.exp((-du023) - du134 - betaU13 - betaU14 - betaU24 -
+                             betaU25 - betaU34 - betaU45) - Math.exp((-betaU15) - betaU24 - betaU25 - betaU34 - 
+                        betaU45) + Math.exp((-du134) - betaU15 - betaU24 - 
+                            betaU25 - betaU34 - betaU45) + Math.exp((-betaU12) - betaU14 - betaU15 - betaU24 - betaU25 - 
+                        betaU34 - betaU45) - Math.exp((-du013) - du0134 - du014 - du034 - du134 
+                        - betaU12 - betaU14 - betaU15 - betaU24 - betaU25 - betaU34 - betaU45) + 3*Math.exp((-betaU13) 
+                        - betaU15 - betaU35 - betaU45) - 3*Math.exp((-du024) - betaU13 - betaU15 - betaU35 - 
+                        betaU45) - Math.exp((-betaU12) - betaU13 - betaU15 - betaU35 - betaU45) + 
+                        Math.exp((-du024) - betaU12 - betaU13 - betaU15 - betaU35 - betaU45) + 3 
+                        *Math.exp((-betaU14) - betaU15 - betaU35 - betaU45) - 3 
+                        *Math.exp((-du034) - betaU14 - betaU15 - betaU35 - betaU45) - Math.exp(
+                        (-betaU12) - betaU14 - betaU15 - betaU35 - betaU45) + Math.exp((-du034) - betaU12 - 
+                        betaU14 - betaU15 - betaU35 - betaU45) - Math.exp((-betaU12) - betaU13 - betaU23 - betaU35 - betaU45
+                        ) + Math.exp((-du012) - betaU12 - betaU13 - betaU23 - betaU35 - betaU45) - 
+                        Math.exp((-betaU13) - betaU15 - betaU23 - betaU35 - betaU45) + 
+                        Math.exp((-du024) - betaU13 - betaU15 - betaU23 - betaU35 - betaU45) - 
+                        Math.exp((-betaU14) - betaU15 - betaU23 - betaU35 - betaU45) + 
+                        Math.exp((-du034) - betaU14 - betaU15 - betaU23 - betaU35 - betaU45) - 
+                        Math.exp((-betaU12) - betaU14 - betaU24 - betaU35 - betaU45) + 
+                        Math.exp((-du013) - betaU12 - betaU14 - betaU24 - betaU35 - betaU45) - 
+                        Math.exp((-betaU13) - betaU15 - betaU24 - betaU35 - betaU45) + 
+                        Math.exp((-du024) - betaU13 - betaU15 - betaU24 - betaU35 - betaU45) - 
+                        Math.exp((-betaU14) - betaU15 - betaU24 - betaU35 - betaU45) + 
+                        Math.exp((-du034) - betaU14 - betaU15 - betaU24 - betaU35 - betaU45) - 2 
+                        *Math.exp((-betaU12) - betaU15 - betaU25 - betaU35 - betaU45) + 2 
+                        *Math.exp((-du014) - betaU12 - betaU15 -
+                         betaU25 - betaU35 - betaU45) - 2*Math.exp((-betaU13) - betaU15 - betaU25 - betaU35 - betaU45) 
+                        + 2*Math.exp((-du024) - betaU13 - betaU15 - betaU25 - betaU35 - betaU45) - 2 
+                        *Math.exp((-betaU14) - betaU15 - betaU25 - betaU35 - betaU45) + 2 
+                        *Math.exp((-du034) - betaU14 - betaU15 -
+                         betaU25 - betaU35 - betaU45) + 3*Math.exp((-betaU23) - betaU25 - betaU35 - betaU45) - 3 
+                        *Math.exp((-
+                            du124) - betaU23 - betaU25 - betaU35 - betaU45) - Math.exp((-betaU12) - betaU23 - 
+                        betaU25 - betaU35 - betaU45) + Math.exp((-
+                            du124) - betaU12 - betaU23 - betaU25 - betaU35 - betaU45) - Math.exp((-betaU13) - 
+                        betaU23 - betaU25 - betaU35 - betaU45) + Math.exp((-du124) - betaU13 - betaU23 - betaU25 - 
+                        betaU35 - betaU45) - Math.exp((-betaU14) - betaU23 - betaU25 - betaU35 - betaU45) + 
+                        Math.exp((-
+                            du124) - betaU14 - betaU23 - betaU25 - betaU35 - betaU45) - 2*Math.exp((-betaU15) 
+                        - betaU23 - betaU25 - betaU35 - betaU45) + 2*Math.exp((-
+                            du124) - betaU15 - betaU23 - 
+                            betaU25 - betaU35 - betaU45) + Math.exp((-betaU12) - betaU13 - betaU15 - betaU23 - betaU25 - 
+                        betaU35 - betaU45) - Math.exp((-du012) - du0124 - du014 - du024 - du124 
+                        - betaU12 - betaU13 - betaU15 - betaU23 - betaU25 - betaU35 - betaU45) + Math.exp((-betaU14) - 
+                        betaU15 - betaU23 - betaU25 - betaU35 - betaU45) - Math.exp((-du034) - du124 - betaU14 - 
+                        betaU15 - betaU23 - betaU25 - betaU35 - betaU45) + 3*Math.exp((-betaU24) - betaU25 - betaU35 - 
+                        betaU45) - 3*Math.exp((-du134) - betaU24 - betaU25 - betaU35 - betaU45) - 
+                        Math.exp((-betaU12) - betaU24 - betaU25 - betaU35 - betaU45) + 
+                        Math.exp((-du134) - betaU12 - betaU24 - betaU25 -
+                             betaU35 - betaU45) - Math.exp((-betaU13) - betaU24 - betaU25 - betaU35 - betaU45) + 
+                        Math.exp((-du134) - betaU13 - 
+                            betaU24 - betaU25 - betaU35 - betaU45) - Math.exp((-betaU14) - betaU24 - betaU25 - betaU35 - 
+                        betaU45) + Math.exp((-du134) - betaU14 -
+                             betaU24 - betaU25 - betaU35 - betaU45) - 2*Math.exp((-betaU15) - betaU24 - betaU25 - 
+                        betaU35 - betaU45) + 2*Math.exp((-du134) - betaU15 - betaU24 - betaU25 - betaU35 - 
+                        betaU45) + Math.exp((-betaU13) - betaU15 - betaU24 - betaU25 - betaU35 - betaU45) - 
+                        Math.exp((-du024) - du134 - betaU13 - betaU15 - betaU24 - betaU25 - betaU35 - betaU45) + 
+                        Math.exp((-betaU12) - betaU14 - betaU15 -
+                             betaU24 - betaU25 - betaU35 - betaU45) - Math.exp((-du013) - du0134 - du014 
+                        - du034 - du134 - betaU12 - betaU14 - betaU15 - betaU24 - betaU25 - betaU35 - betaU45) - 6 
+                        *Math.exp((-betaU34) - betaU35 - betaU45) + 6*Math.exp((-du234) 
+                        - betaU34 - betaU35 - betaU45) + 2*Math.exp((-betaU12) - betaU34 - betaU35 - betaU45) - 2 
+                        *Math.exp((-du234) - betaU12 - betaU34 - betaU35 - betaU45) + 3 
+                        *Math.exp((-betaU13) - betaU34 - betaU35 - betaU45) - 3 
+                        *Math.exp((-du234) - betaU13 - betaU34 - 
+                            betaU35 - betaU45) - Math.exp((-betaU12) - betaU13 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-du234) - betaU12 - betaU13 - betaU34 - betaU35 - betaU45) + 3 
+                        *Math.exp((-betaU14) - betaU34 - betaU35 - betaU45) - 3 
+                        *Math.exp((-du234) - betaU14 - 
+                            betaU34 - betaU35 - betaU45) - Math.exp((-betaU12) - betaU14 - betaU34 - betaU35 - betaU45) 
+                        + Math.exp((-du234) - betaU12 - betaU14 - betaU34 - betaU35 - betaU45) + 3 
+                        *Math.exp((-betaU15) - betaU34 - betaU35 - betaU45) - 3 
+                        *Math.exp((-du234) - betaU15 - betaU34 - betaU35 - betaU45) - Math.exp(
+                        (-betaU12) - 
+                            betaU15 - betaU34 - betaU35 - betaU45) + Math.exp((-du234) - betaU12 - betaU15 - betaU34 
+                        - betaU35 - betaU45) - 3*Math.exp((-betaU13) - betaU14 - betaU15 - 
+                        betaU34 - betaU35 - betaU45) + 3*Math.exp((-du023) - du0234 - du024 - du034 
+                        - du234 - betaU13 - 
+                            betaU14 - betaU15 - betaU34 - betaU35 - betaU45) + Math.exp((-betaU12) - betaU13 - betaU14 - 
+                        betaU15 - betaU34 - betaU35 - betaU45) - Math.exp((-du023) - du0234 - du024 - 
+                        du034 - du234 - betaU12 - betaU13 - betaU14 - betaU15 - betaU34 - betaU35 - betaU45) + 
+                            3*Math.exp((-betaU23) - 
+                        betaU34 - betaU35 - betaU45) - 3*Math.exp((-du234) - betaU23 - betaU34 - betaU35 - 
+                        betaU45) - Math.exp((-
+                            betaU12) - betaU23 - betaU34 - betaU35 - betaU45) + Math.exp((-du234) - betaU12 - 
+                        betaU23 - betaU34 - betaU35 - betaU45) - 2*Math.exp((-betaU13) - betaU23 - betaU34 - betaU35 - 
+                        betaU45) + 2*Math.exp((-du234) - betaU13 - betaU23 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-betaU12) - betaU13 - betaU23 - betaU34 - betaU35 - betaU45) - Math.exp
+                        ((-du012) - du234 - betaU12 - betaU13 - betaU23 - 
+                            betaU34 - betaU35 - betaU45) - Math.exp((-betaU14) - betaU23 - betaU34 - betaU35 - betaU45) 
+                        + Math.exp((-du234) - betaU14 - betaU23 - betaU34 - betaU35 - 
+                            betaU45) - Math.exp((-betaU15) - betaU23 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-du234) - betaU15 - betaU23 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-betaU13) - betaU14 - betaU15 - betaU23 - betaU34 - betaU35 - betaU45) - 
+                        Math.exp((-du023) - du0234 - du024 - du034 - du234 - betaU13 - betaU14 - 
+                        betaU15 - betaU23 - betaU34 - betaU35 - betaU45) + 3*Math.exp((-betaU24) - 
+                            betaU34 - betaU35 - betaU45) - 3*Math.exp((-du234) - betaU24 - betaU34 - betaU35 - 
+                        betaU45) - Math.exp((-betaU12) - betaU24 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-du234) - betaU12 - betaU24 - betaU34 - betaU35 - betaU45) - 
+                        Math.exp((-betaU13) - betaU24 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-du234) - betaU13 - betaU24 - betaU34 - betaU35 - betaU45) - 2 
+                        *Math.exp((-betaU14) - betaU24 - betaU34 - betaU35 - betaU45) + 2 
+                        *Math.exp((-du234) - betaU14 - betaU24 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-betaU12) - betaU14 - betaU24 - betaU34 - betaU35 - betaU45) - Math.exp
+                        ((-du013) - du234 - betaU12 - betaU14 - betaU24 - betaU34 - betaU35 - 
+                            betaU45) - Math.exp((-betaU15) - betaU24 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-du234) - betaU15 - betaU24 -
+                             betaU34 - betaU35 - betaU45) + Math.exp((-betaU13) - betaU14 - betaU15 - betaU24 - betaU34 
+                        - betaU35 - betaU45) - Math.exp((-du023) -
+                             du0234 - du024 - du034 - du234 -
+                         betaU13 - betaU14 - betaU15 - betaU24 - betaU34 - betaU35 - betaU45) + 3*Math.exp((-betaU25) - 
+                        betaU34 - betaU35 - betaU45) - 3*Math.exp((-du234) - betaU25 - betaU34 - betaU35 - 
+                        betaU45) - Math.exp((-betaU12) - 
+                            betaU25 - betaU34 - betaU35 - betaU45) + Math.exp((-du234) - betaU12 - betaU25 - betaU34 
+                        - betaU35 - betaU45) - Math.exp((-betaU13) - betaU25 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-du234) - betaU13 - betaU25 - betaU34 - betaU35 - betaU45) - 
+                        Math.exp((-betaU14) - betaU25 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-du234) - betaU14 - betaU25 - betaU34 - betaU35 - betaU45) - 2 
+                        *Math.exp((-betaU15) - betaU25 - betaU34 - betaU35 - betaU45) + 2 
+                        *Math.exp((-du234) - betaU15 - betaU25 - betaU34 - betaU35 - betaU45) + 
+                        Math.exp((-betaU12) - betaU15 - betaU25 -
+                         betaU34 - betaU35 - betaU45) - Math.exp((-du014) - du234 - betaU12 - betaU15 - betaU25 -
+                             betaU34 - betaU35 - betaU45) + Math.exp((-betaU13) - betaU14 - betaU15 - betaU25 - betaU34 
+                        - betaU35 - betaU45) - Math.exp((-du023) - du0234 -
+                             du024 - du034 - du234 - betaU13 - betaU14 - betaU15 - betaU25 - betaU34 - betaU35 - betaU45) - 3 
+                        *Math.exp((-betaU23) - 
+                            betaU24 - betaU25 - betaU34 - betaU35 - betaU45) + 3*Math.exp((-du123) - du1234 
+                        - du124 - du134 - du234 - betaU23 - betaU24 - betaU25 - betaU34 - betaU35 - 
+                            betaU45) + Math.exp((-betaU12) - betaU23 - betaU24 - betaU25 - betaU34 - betaU35 - betaU45) 
+                        - Math.exp((-du123) - du1234 - du124 - du134 - du234 - betaU12 - betaU23 
+                        - betaU24 - betaU25 - betaU34 - betaU35 - betaU45) + Math.exp((-betaU13) - 
+                            betaU23 - betaU24 - betaU25 - betaU34 - betaU35 - 
+                        betaU45) - Math.exp((-du123) - du1234 - du124 - du134 - du234 - betaU13 
+                        - betaU23 - betaU24 - betaU25 - betaU34 - 
+                            betaU35 - betaU45) + Math.exp((-betaU14) - betaU23 - betaU24 - betaU25 - betaU34 - betaU35 - 
+                        betaU45) - Math.exp((-du123) - du1234 - du124 - du134 - du234 - betaU14 
+                        - betaU23 - betaU24 - betaU25 - betaU34 - betaU35 - betaU45) + Math.exp((-betaU15) - 
+                            betaU23 - betaU24 - betaU25 - betaU34 - betaU35 - betaU45) - Math.exp((-du123) - 
+                        du1234 - du124 - du134 - du234 - betaU15 - betaU23 - betaU24 - betaU25 - betaU34 - 
+                            betaU35 - betaU45) - Math.exp((-betaU12) - betaU13 - betaU14 - betaU15 - betaU23 - betaU24 - 
+                        betaU25 - betaU34 - betaU35 - betaU45) + Math.exp((-du012) - du0123 - du01234 - 
+                        du0124 - du013 - du0134 - du014 - du023 - du0234 - du024 - du034 - du123 - 
+                        du1234 - du124 - du134 - du234 - betaU12 - betaU13 - betaU14 - betaU15 - betaU23 - betaU24 - betaU25 - 
+                        betaU34 - betaU35 - betaU45));
+
+                    //System.out.println("deltaE = " + deltaE);
+                    // coefficient is -(1-5)/5! = -1/30
+                        value += -deltaE/30.0;
+                }
         }
 
         return value;
