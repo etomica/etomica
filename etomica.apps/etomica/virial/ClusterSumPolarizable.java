@@ -1,6 +1,7 @@
 package etomica.virial;
 
 import etomica.atom.AtomArrayList;
+import etomica.potential.Potential;
 import etomica.potential.PotentialPolarizable;
 
 
@@ -262,8 +263,6 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             }
         }
         else if (nPoints == 5) {
-            // this produces different results when using uPol vs. uTot
-            if (false) throw new RuntimeException("This doesn't work yet");
             double f12 = fValues[0][1][0];
             double f13 = fValues[0][2][0];
             double f14 = fValues[0][3][0];
@@ -288,6 +287,13 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
             // can't do this!  B5 terms need to be separated out and each used
             // if it corresponds to an set of atoms with no overlaps
                 if (g12*g13*g14*g15*g23*g24*g25*g34*g35*g45 != 0) {
+                    for(int i=0; i<nPoints-1; i++) {
+                        for(int j=i+1; j<nPoints; j++) {
+                            uijPol[i][j] = ((Potential)scfPotential).energy(aPairs.getAPair(i,j));
+                        }
+                    }
+
+                    
                     //System.out.println("Sum of pair energies is infinity: uijPol[0][1] = " + uijPol[0][1] + ", uijPol[0][2] = " + uijPol[0][2] + ", uijPol[1][2] = " + uijPol[1][2]);
                     scfAtoms.clear();
                     // we need to properly construct these lists even if we don't use them
@@ -297,50 +303,50 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                     scfAtoms.add(box.molecule(1));
                     scfAtoms.add(box.molecule(2));  // 123
                     //System.out.println("Hey, in the heart of the delta B5 code");
-                    double u123 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u123 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(2);
                     scfAtoms.add(box.molecule(3));  // 124
-                    double u124 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u124 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(2);
                     scfAtoms.add(box.molecule(4));  // 125
-                    double u125 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u125 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(1);
                     scfAtoms.add(box.molecule(2));  // 153
-                    double u135 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u135 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(1);
                     scfAtoms.add(box.molecule(3));  // 134
-                    double u134 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u134 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(1);
                     scfAtoms.add(box.molecule(4));  // 145
-                    double u145 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u145 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(0);
                     scfAtoms.add(box.molecule(1));  // 452
-                    double u245 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u245 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(1);
                     scfAtoms.add(box.molecule(2));  // 423
-                    double u234 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u234 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(0);
                     scfAtoms.add(box.molecule(4));  // 235
-                    double u235 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u235 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(0);
                     scfAtoms.add(box.molecule(3));  // 354
-                    double u345 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u345 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.add(box.molecule(0));  // 3541
-                    double u1345 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u1345 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(1);
                     scfAtoms.add(box.molecule(1));  // 3412
-                    double u1234 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u1234 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(1);
                     scfAtoms.add(box.molecule(4));  // 3125
-                    double u1235 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u1235 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(0);
                     scfAtoms.add(box.molecule(3));  // 1254
-                    double u1245 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u1245 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.remove(0);
                     scfAtoms.add(box.molecule(2));  // 2543
-                    double u2345 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u2345 = ((Potential)scfPotential).energy(scfAtoms);
                     scfAtoms.add(box.molecule(0));  // 25431
-                    double u12345 = scfPotential.getPolarizationEnergy(scfAtoms);
+                    double u12345 = ((Potential)scfPotential).energy(scfAtoms);
                     
                     double deltaU123 = u123-uijPol[0][1]-uijPol[0][2]-uijPol[1][2];
                     double deltaU124 = u124-uijPol[0][1]-uijPol[0][3]-uijPol[1][3];
@@ -384,6 +390,17 @@ public class ClusterSumPolarizable implements ClusterAbstract, java.io.Serializa
                     double betaU34 = uijPol[2][3]*beta;
                     double betaU35 = uijPol[2][4]*beta;
                     double betaU45 = uijPol[3][4]*beta;
+
+                    betaU12 = -Math.log(g12);
+                    betaU13 = -Math.log(g13);
+                    betaU14 = -Math.log(g14);
+                    betaU15 = -Math.log(g15);
+                    betaU23 = -Math.log(g23);
+                    betaU24 = -Math.log(g24);
+                    betaU25 = -Math.log(g25);
+                    betaU34 = -Math.log(g34);
+                    betaU35 = -Math.log(g35);
+                    betaU45 = -Math.log(g45);
 
                     double du012 = deltaU123*beta;
                     double du013 = deltaU124*beta;
