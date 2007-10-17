@@ -312,61 +312,60 @@ public class SimulationVirialOverlap extends Simulation {
     public double refPref;
     protected int blockSize;
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		int nPoints = 5;
-		double temperature = 1.3; //temperature governing sampling of configurations
-//		double sigmaHSRef = 1.2*sigmaLJ1B(1.0/temperature);  //diameter of reference HS system
-		double sigmaHSRef = 1.6;
+        int nPoints = 4;
+        double temperature = 1.3; //temperature governing sampling of configurations
+        double sigmaHSRef = 1.5;
         double sigmaLJ = 1.0;
-		double b0 = 2*Math.PI/3. * Math.pow(sigmaHSRef,3);
-		System.out.println("sigmaHSRef: "+sigmaHSRef);
-		System.out.println("B2HS: "+b0);
-		System.out.println("B3HS: "+(5./8.*b0*b0)+" = "+(5.0/8.0)+" B2HS^2");
-		System.out.println("B4HS: "+(b0*b0*b0*(219.0*Math.sqrt(2.0)/2240.0/Math.PI-89.0/280.0+4131.0/2240.0/Math.PI*Math.atan(Math.sqrt(2.0))))+" = "
-				+(219.0*Math.sqrt(2.0)/2240.0/Math.PI-89.0/280.0+4131.0/2240.0/Math.PI*Math.atan(Math.sqrt(2.0)))+" B2HS^3");
-		
+        double[] HSB = new double[7];
+        HSB[2] = Standard.B2HS(sigmaHSRef);
+        HSB[3] = Standard.B3HS(sigmaHSRef);
+        HSB[4] = Standard.B4HS(sigmaHSRef);
+        HSB[5] = Standard.B5HS(sigmaHSRef);
+        HSB[6] = Standard.B6HS(sigmaHSRef);
+        System.out.println("sigmaHSRef: "+sigmaHSRef);
+        System.out.println("B2HS: "+HSB[2]);
+        System.out.println("B3HS: "+HSB[3]+" = "+(HSB[3]/(HSB[2]*HSB[2]))+" B2HS^2");
+        System.out.println("B4HS: "+HSB[4]+" = "+(HSB[4]/(HSB[2]*HSB[2]*HSB[2]))+" B2HS^3");
+        System.out.println("B5HS: "+HSB[5]+" = 0.110252 B2HS^4");
+        System.out.println("B6HS: "+HSB[6]+" = 0.03881 B2HS^5");
+
         Space3D space = Space3D.getInstance();
-		MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
+        MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
         P2LennardJones p2LJ = new P2LennardJones(space,sigmaLJ,1.0);
-		MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
+        MayerGeneralSpherical fTarget = new MayerGeneralSpherical(space,p2LJ);
         MayerESpherical eTarget = new MayerESpherical(space,p2LJ);
-		
+
         ClusterAbstract refCluster = Standard.virialCluster(nPoints,fRef,true,eRef,true);
         refCluster.setTemperature(temperature);
         ClusterAbstract targetCluster = Standard.virialCluster(nPoints,fTarget,true,eTarget,true);
         targetCluster.setTemperature(temperature);
 
-		int maxSteps = 100000;
-		
-//		while (true) {
-			SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
-			sim.ai.setMaxSteps(maxSteps);
-//            sim.integratorOS.setEquilibrating(true);
-//            sim.integratorOS.setAdjustStepFreq(true);
-            sim.integratorOS.setStepFreq0(0.0001);
-			sim.ai.actionPerformed();
-			System.out.println("average: "+sim.dsvo.getDataAsScalar()+", error: "+sim.dsvo.getError());
-            DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-            System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-            System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-            System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-            allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-            System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-            System.out.println("lennard jones average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-            System.out.println("lennard jones overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-//		}
-		
-	}//end of main
+        int maxSteps = 10000;
+
+        SimulationVirialOverlap sim = new SimulationVirialOverlap(space, new SpeciesFactorySpheres(), temperature, refCluster, targetCluster);
+        sim.ai.setMaxSteps(maxSteps);
+        sim.ai.actionPerformed();
+        System.out.println("average: "+sim.dsvo.getDataAsScalar()+", error: "+sim.dsvo.getError());
+        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+        System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
+        System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
+        System.out.println("lennard jones ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("lennard jones average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
+        System.out.println("lennard jones overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
+    }
 }
