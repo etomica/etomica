@@ -4,19 +4,24 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Formatter;
+import java.util.HashMap;
 
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomPositioned;
 import etomica.box.Box;
+import etomica.chem.elements.Carbon;
+import etomica.chem.elements.Hydrogen;
+import etomica.chem.elements.Nitrogen;
+import etomica.chem.elements.Oxygen;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.IVector;
 import etomica.space3d.BoundaryTruncatedOctahedron;
 import etomica.util.Arrays;
+
 
 /**
  * Dumps a box's configuration to a file.  The coordinates are written in a 
@@ -25,7 +30,20 @@ import etomica.util.Arrays;
  * ConfigurationFile.
  */
 public class WriteConfigurationDLPOLY implements Action {
-
+	
+	public WriteConfigurationDLPOLY(){
+		elementHash = new HashMap();
+		elementHash.put(Carbon.INSTANCE, "CA");
+		elementHash.put(Hydrogen.INSTANCE, "HY");
+		elementHash.put(Nitrogen.INSTANCE, "NI");
+		elementHash.put(Oxygen.INSTANCE, "OX");
+		
+	}
+	
+	public HashMap getElementHash(){
+		return elementHash;
+	}
+	
     /**
      * Sets the configuration name.  The file written to is newConfName.pos_new
      */
@@ -134,58 +152,34 @@ public class WriteConfigurationDLPOLY implements Action {
         		formatter.format("\n");
         	}
         	
-            int[] elementNum = new int[0]; 
-            String[] elementString = new String[0];
-            int atomCount = 1;    
-            
-            for (int iMolec=0; iMolec<box.moleculeCount(); iMolec++) {
-            	for (int num=0; num<elementNum.length; num++ ){
-            		elementNum[num] = 0;
-            		elementString[num] = null;
-            	}
+            int atomCount =1;
+            for (int flipIndex=0; flipIndex<2; flipIndex++){
             	
-            	IAtomGroup molecule = (IAtomGroup)box.molecule(iMolec);
-                for (int iLeaf=0; iLeaf<molecule.getChildList().getAtomCount(); iLeaf++){
-                	IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(iLeaf);
-                	String atomName = ((AtomTypeLeaf)atom.getType()).getElement().getSymbol();
-                	
-                	boolean success = false;
-                	for (int num=0; num<elementNum.length; num++){
-                		if (elementString[num]==null){
-                			success = true;
-                			elementString[num] = atomName;
-                			elementNum[num] = 1;
-                			atomName = atomName+"1";
-                			break;
-                		}
-                		if (elementString[num].equals(atomName)){
-                			success = true;
-                			elementNum[num]++;
-                			atomName = atomName+elementNum[num];
-                			break;
-                		}
-                	}
-                	if (!success){
-                		elementString = (String[])Arrays.addObject(elementString, atomName);
-                		elementNum = Arrays.resizeArray(elementNum, elementNum.length+1);
-                		elementNum[elementNum.length-1] = 1;
-                		atomName = atomName+1;
-                	}
-                	
-                	formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
-                	atomCount++;
-                	
-                	IVector atomPos = atom.getPosition();
-                	formatter.format("%20f%20f%20f\n", new Object[]{atomPos.x(0), atomPos.x(1), atomPos.x(2)});
-                	
-                	if (writeVelocity){
-                		IVector atomVelocity = ((IAtomKinetic)atom).getVelocity();
-                		formatter.format("%20f%20f%20f\n", 
-                				new Object[]{atomVelocity.x(0), atomVelocity.x(1), atomVelocity.x(2)});
-                	}
-                }
-                
+	            for (int iMolec=0; iMolec<box.moleculeCount(); iMolec++) {
+	            	if ((iMolec/4)%2 != flipIndex){
+	            		continue;
+	            	}
+	            	IAtomGroup molecule = (IAtomGroup)box.molecule(iMolec);
+	                for (int iLeaf=0; iLeaf<molecule.getChildList().getAtomCount(); iLeaf++){
+	                	IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(iLeaf);
+	                	String atomName = (String)elementHash.get(((AtomTypeLeaf)atom.getType()).getElement());
+	       
+	                	
+	                	formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
+	                	atomCount++;
+	                	IVector atomPos = atom.getPosition();
+	                	formatter.format("%20.12f%20.12f%20.12f\n", new Object[]{atomPos.x(0), atomPos.x(1), atomPos.x(2)});
+	                	
+	                	if (writeVelocity){
+	                		IVector atomVelocity = ((IAtomKinetic)atom).getVelocity();
+	                		formatter.format("%20f%20f%20f\n", 
+	                				new Object[]{atomVelocity.x(0), atomVelocity.x(1), atomVelocity.x(2)});
+	                	}
+	                }
+	                
+	            }
             }
+            
             formatter.close();
         } catch(IOException e) {
             System.err.println("Problem writing to "+fileName+", caught IOException: " + e.getMessage());
@@ -196,4 +190,5 @@ public class WriteConfigurationDLPOLY implements Action {
     private Box box;
     private boolean doApplyPBC;
     private boolean writeVelocity;
+    private HashMap elementHash;
 }
