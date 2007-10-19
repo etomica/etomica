@@ -13,6 +13,8 @@ import etomica.data.IDataInfo;
 import etomica.data.DataSet.DataCasterJudge;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
+import etomica.data.types.DataPoint;
+import etomica.data.types.DataPoint.DataInfoPoint;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.Dimension;
 import etomica.units.Null;
@@ -98,13 +100,17 @@ public class DisplayPlot extends Display implements DataSetListener {
                 plot.setXLabel(xLabel);
             }
             for(int i=oldColumnCount; i<units.length; i++) {
-                DataInfoFunction dataInfo = (DataInfoFunction)dataSet.getDataInfo(i);
-                if (dataInfo.getXDataSource().getIndependentArrayDimension() != 1 || !dataInfo.getXDataSource().getIndependentDataInfo(0).getDimension().equals(xDimension)) {
-                    throw new IllegalArgumentException("All data functions must have the same X dimension");
-                }
+            	Unit dataUnit = null;
 
-                Unit dataUnit = (defaultUnit != null) ? defaultUnit : dataInfo.getDimension().getUnit(UnitSystem.SIM);
-                
+            	if(dataSet.getDataInfo(i) instanceof DataInfoFunction) {
+
+	                DataInfoFunction dataInfo = (DataInfoFunction)dataSet.getDataInfo(i);
+	                if (dataInfo.getXDataSource().getIndependentArrayDimension() != 1 || !dataInfo.getXDataSource().getIndependentDataInfo(0).getDimension().equals(xDimension)) {
+	                    throw new IllegalArgumentException("All data functions must have the same X dimension");
+	                }
+	
+	                dataUnit = (defaultUnit != null) ? defaultUnit : dataInfo.getDimension().getUnit(UnitSystem.SIM);
+            	}
                 DataTagBag tagUnit = DataTagBag.getDataTagBag(unitList, dataSet.getDataInfo(i).getTags());
                 if (tagUnit != null) {
                     dataUnit = (Unit)tagUnit.object;
@@ -140,14 +146,26 @@ public class DisplayPlot extends Display implements DataSetListener {
         int nSource = dataSet.getDataCount();
         plot.clear(false);
         for(int k=0; k<nSource; k++) {
-            final double[] xValues = ((DataInfoFunction)dataSet.getDataInfo(k)).getXDataSource().getIndependentData(0).getData();
-            final double[] data = ((DataFunction)dataSet.getData(k)).getData();
-            for(int i=0; i<data.length; i++) {
-                double y = units[k].fromSim(data[i]);
-                if (!Double.isNaN(y)) {
-                    plot.addPoint(k, xUnit.fromSim(xValues[i]), y, true);
+        	double[] xValues = null;
+            double[] data = null;
+        	if(dataSet.getDataInfo(k) instanceof DataInfoFunction) {
+                xValues = ((DataInfoFunction)dataSet.getDataInfo(k)).getXDataSource().getIndependentData(0).getData();
+                data = ((DataFunction)dataSet.getData(k)).getData();
+                for(int i=0; i<data.length; i++) {
+                    double y = units[k].fromSim(data[i]);
+                    if (!Double.isNaN(y)) {
+                        plot.addPoint(k, xUnit.fromSim(xValues[i]), y, true);
+                    }
                 }
-            }
+        	}
+        	else if (dataSet.getDataInfo(k) instanceof DataInfoPoint) {
+                data = ((etomica.data.types.DataDoubleArray)dataSet.getData(k)).getData();
+                if(data != null) {
+	                for(int i = 0; i < data.length; i = i + 2) {
+	                    plot.addPoint(k, data[i],data[i+1], false);
+	                }
+                }
+        	}
         }
         plot.repaint();
     }
@@ -275,6 +293,9 @@ public class DisplayPlot extends Display implements DataSetListener {
 
         public DataProcessor getDataCaster(IDataInfo dataInfo) {
             if (dataInfo instanceof DataInfoFunction) {
+                return null;
+            }
+            else if (dataInfo instanceof DataInfoPoint) {
                 return null;
             } else if(dataInfo instanceof DataInfoGroup) {
                 for (int i = 0; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {

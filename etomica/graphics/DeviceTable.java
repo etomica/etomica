@@ -1,190 +1,156 @@
 package etomica.graphics;
+
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
+import javax.swing.DefaultCellEditor;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.TableModel;
 
-import etomica.EtomicaInfo;
-import etomica.modifier.Modifier;
-import etomica.units.Unit;
+import etomica.graphics.DeviceTableModelGeneric;
 
 /**
  * Presents a table of numeric properties that can be edited by typing in values.
  *
- * @author David Kofke
  */
- 
- //does not work work Etomica because isn't called with constructor that 
- //provides modifiers.
- //need to return a non-null graphic (instantiate panel in all constructors)
- //and set up set/get methods for modifiers
 public class DeviceTable extends Device /*implements EtomicaElement*/ {
     
-    public JTable table;
-    MyTableData dataSource;
-    Modifier[] modifiers;
-    DimensionedDoubleEditor[] editors;
-    PropertyText[] views;
-    JPanel panel;
+    private JTable table;
+    private JPanel panel;
+    private JScrollPane scrollPane;
 
-    public DeviceTable() {
-        super();
+    public DeviceTable(String[] columnNames) {
+        this(new DeviceTableModelGeneric(null, columnNames));
     }
-    
-    public DeviceTable(Modifier[] mods) {
+
+    public DeviceTable(TableModel tableModel) {
         super();
-        modifiers = mods;
-        editors = new DimensionedDoubleEditor[modifiers.length];
-        views = new PropertyText[modifiers.length];
-        setupTable();
-        for(int i=0; i<modifiers.length; i++) {
-            editors[i] = new DimensionedDoubleEditor(modifiers[i].getDimension());
-            editors[i].setValue(modifiers[i].getValue());
-            new Adapter(editors[i], modifiers[i]);
-            views[i] = new PropertyText(editors[i]);
-        }
-    }
-    
-    private void setupTable() {
+
         panel = new JPanel();
-        panel.setSize(100,150);
-        dataSource = new MyTableData();   //inner class, defined below
-        table = new JTable(dataSource);
-        panel.add(new JScrollPane(table));
-        table.getColumn("Units").setCellEditor(new UnitEditor());
-        table.getColumn("Value").setCellEditor(new ValueEditor());
-    }
-    
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Editable table of property values");
-        return info;
-    }
+        panel.setBorder(new TitledBorder(null, "Table", TitledBorder.CENTER, TitledBorder.TOP));
+        panel.setLayout(new GridBagLayout());
+//        panel.setSize(new java.awt.Dimension(350, 100));
+//        panel.setPreferredSize(new java.awt.Dimension(350, 100));
 
-//    public void setPropertyLabels(String[] labels) {
-//        int n = labels.length;
-//        if(n != modifiers.length) {
-//            System.out.println("Warning:  Number of labels given to DeviceTable disagrees with number of modifiers");
-//            n = Math.min(n, modifiers.length);
-//        }
-//        for(int i=0; i<n; i++) {
-//            modifiers[i].setLabel(labels[i]);
-//        }
-//    }
-    
-    public java.awt.Component graphic(Object obj) {return panel;}
+        table = new JTable(tableModel);
+//        table.setFillsViewportHeight(true);
+        table.setSelectionBackground(java.awt.Color.YELLOW);
 
-    class MyTableData extends AbstractTableModel {
-        
-        String[] columnNames;
-        Class[] columnClasses;
-        
-        MyTableData() {
-            columnNames = new String[] {"Property", "Value", "Units"};
-            columnClasses = new Class[] {String.class, String.class, Unit.class};
+        for(int col = 0; col < tableModel.getColumnCount(); col++) {
+            table.getColumn(tableModel.getColumnName(col)).setCellEditor(new ValueEditor());
         }
+
+        scrollPane = new JScrollPane(table);
+
+        GridBagLayout gbLayout = new GridBagLayout();
+        GridBagConstraints gbConst = new GridBagConstraints();
+        gbConst.gridx = 0; gbConst.gridy = 0;
+        gbLayout.setConstraints(table, gbConst);
         
-        public Object getValueAt(int row, int column) {
-            switch(column) {
-                case 0: return modifiers[row].getLabel();
-                case 1: return editors[row].getAsText();
-                case 2: return editors[row].getUnit();
-                default: return null;
-            }
-        }
-        
-        public int getRowCount() {return modifiers.length;}
-        public int getColumnCount() {return 3;}
-       
-        public boolean isCellEditable(int row, int column) {return column != 0;}        
-        public String getColumnName(int column) {return columnNames[column];}
-        public Class getColumnClass(int column) {return columnClasses[column];}
+//        scrollPane.setSize(new java.awt.Dimension(400, 100));
+//        scrollPane.setPreferredSize(new java.awt.Dimension(400, 100));
+
+        panel.add(scrollPane);
+
     }
 
     /**
-     * ComboBox editor of units column of table.
+     * Set the preferred size attribute of the scrolled window the table
+     * sits on.
+     * @param width
+     * @param height
      */
-    class UnitEditor extends javax.swing.DefaultCellEditor {
-        
-        public UnitEditor() {
-            super(new javax.swing.JTextField());  //dummy argument since there is no default constructor in superclass
-            setClickCountToStart(1);
-        }
-        public java.awt.Component getTableCellEditorComponent(
-                JTable table, Object value, boolean isSelected, int row, int column) {
-            return editors[row].unitSelector();
-        }
-        public boolean isCellEditable(java.util.EventObject e) {return true;}
-        
-    }//end of UnitEditor
-    
+    public void setPreferredSize(int width, int height) {
+    	scrollPane.setPreferredSize(new java.awt.Dimension(width, height));
+    }
+
     /**
-     * TextBox editor of values column of table.
+     * Set the size attribute of the scrolled window the table sits on.
+     * @param width
+     * @param height
      */
-    class ValueEditor extends javax.swing.DefaultCellEditor {
+    public void setSize(int width, int height) {
+    	scrollPane.setSize(width, height);
+    }
+
+    /**
+     * Set the title of the border surrounding the table.
+     * @param title
+     */
+    public void setTitle(String title) {
+        ((TitledBorder)panel.getBorder()).setTitle(title);
+    }
+
+    /**
+     * Returns the indices of all the selected rows on the table.
+     * @return an array of integers containing the indices of all selected rows,
+     * or an empty array if no row is selected
+     */
+    public int[] getSelectedRows() {
+    	return table.getSelectedRows();
+    }
+
+	/**
+	 * Returns the top level panel that the table components sit on.
+	 */
+    public Component graphic(Object obj) {return panel;}
+
+    private class ValueEditor extends DefaultCellEditor {
         
         public ValueEditor() {
-            super(new javax.swing.JTextField());  //dummy argument since there is no default constructor in superclass
-            setClickCountToStart(1);
+            super(new javax.swing.JTextField());
+            setClickCountToStart(2);
         }
-        public java.awt.Component getTableCellEditorComponent(
-                JTable table, Object value, boolean isSelected, int row, int column) {
-            return views[row];
+
+        public boolean isCellEditable(java.util.EventObject e) {
+        	return super.isCellEditable(e);
         }
-        public boolean isCellEditable(java.util.EventObject e) {return true;}
-        
+
     }//end of ValueEditor
-    
-    /**
-     * Class to tie together DimensionedDoubleEditor, modifier, and table.
-     */
-    class Adapter implements java.beans.PropertyChangeListener {
-        private DimensionedDoubleEditor editor;
-        private Modifier modifier;
-        Adapter(DimensionedDoubleEditor ed, Modifier mod) {
-            editor = ed;
-            modifier = mod;
-            ed.addPropertyChangeListener(this);
-        }
-        //method called when DimensionedDoubleEditor changes value
-        public void propertyChange(java.beans.PropertyChangeEvent evt) {
-            double newValue = ((Double)editor.getValue()).doubleValue();
-            modifier.setValue(newValue);
-            panel.repaint();
-        }        
-    }//end of Adapter
-    
+
+
     /**
      * main method to demonstrate and test this class.
      */
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
         
-        javax.swing.JFrame f = new javax.swing.JFrame();   //create a window
-        f.setSize(600,350);
+        javax.swing.JFrame f = new javax.swing.JFrame();
+        f.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+//        f.setPreferredSize(new java.awt.Dimension(600, 350));
+        f.setSize(new java.awt.Dimension(600, 350));
 
-        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
+        etomica.graphics.DeviceSlider slide1 = new etomica.graphics.DeviceSlider(null);
+        etomica.graphics.DeviceSlider slide2 = new etomica.graphics.DeviceSlider(null);
 
-        PotentialSquareWell potential = new PotentialSquareWell(sim);
-        sim.p2 = new P2SimpleWrapper(sim,sim.potential);
-        Modifier mod1 = new Modifier(sim.integrator, "timeStep");
-        Modifier mod2 = new Modifier(potential, "epsilon");
-        DeviceTable table = new DeviceTable(Simulation.instance, new Modifier[] {mod1, mod2});
-        sim.integrator.setIsothermal(true);
-        sim.integrator.setTemperature(Kelvin.UNIT.toSim(300.));
-		DisplayTextBox box1 = new DisplayTextBox();
-		DisplayTextBox box2 = new DisplayTextBox();
-		box1.setDatumSource(mod1);
-		box2.setDatumSource(mod2);
-		
-		Simulation.instance.elementCoordinator.go(); 
-		                                    
-        f.getContentPane().add(Simulation.instance.panel());         //access the static instance of the simulation to
-                                            //display the graphical components
+        String p1 = "0.0";
+        String p2 = "0.1";
+        String p3 = "0.2";
+        String p4 = "1.0";
+        String p5 = "1.1";
+        String p6 = "1.2";
+        
+        DeviceTableModelGeneric td = new DeviceTableModelGeneric(new Object[][] {{p1, p2, p3}, {p4, p5, p6}}, new String[] {"X", "Y", "Z"});
+//      DeviceTableModel td = new DeviceTableModel(null, new String[] {"X", "Y", "Z"});
+        DeviceTable table = new DeviceTable(td);
+        table.setPreferredSize(400, 75);
+
+        javax.swing.JPanel mainPanel = new javax.swing.JPanel();
+        mainPanel.setLayout(new java.awt.GridLayout(3, 1));
+        mainPanel.add(slide1.graphic());
+        mainPanel.add(slide2.graphic());
+        mainPanel.add(table.graphic());
+        f.getContentPane().add(mainPanel);
+
         f.pack();
-        f.show();
-        f.addWindowListener(new java.awt.event.WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
-        });
+        f.setVisible(true);
     }//end of main
-   */
+
+    
 }
+
+
 
