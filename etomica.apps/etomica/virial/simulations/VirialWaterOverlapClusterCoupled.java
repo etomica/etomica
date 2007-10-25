@@ -2,13 +2,9 @@ package etomica.virial.simulations;
 
 
 
-import java.io.FileWriter;
-import java.io.IOException;
-
 import etomica.action.Action;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
-import etomica.data.Data;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.models.water.PNWaterGCPM;
@@ -16,16 +12,13 @@ import etomica.potential.Potential;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
-import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
-import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
-import etomica.virial.MeterDFVirial;
 import etomica.virial.SpeciesFactoryWaterGCPM;
 import etomica.virial.cluster.Standard;
 
