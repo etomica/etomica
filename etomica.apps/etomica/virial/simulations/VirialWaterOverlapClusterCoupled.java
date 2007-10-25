@@ -2,29 +2,35 @@ package etomica.virial.simulations;
 
 
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.Action;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
+import etomica.data.Data;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.models.water.PNWaterGCPM;
 import etomica.potential.Potential;
-import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Kelvin;
+import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterCoupledFlipped;
 import etomica.virial.ClusterSumPolarizable;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ClusterWeightAbs;
+import etomica.virial.CoordinatePairSet;
 import etomica.virial.MayerGeneral;
 import etomica.virial.MayerHardSphere;
+import etomica.virial.MeterDFVirial;
 import etomica.virial.SpeciesFactoryWaterGCPM;
 import etomica.virial.cluster.Standard;
 
 
-public class VirialWaterOverlapClusterCoupled extends Simulation {
+public class VirialWaterOverlapClusterCoupled {
 
     public static void main(String[] args) {
 
@@ -32,18 +38,24 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
         double temperature = Kelvin.UNIT.toSim(350);
         long steps = 10000l;
         int numSubSteps = 1000;
-        double deltaDCut = 100;
+        double deltaCut = 100;
         double pushR = 0;
+        boolean doRDF = false;
+        double initRefPref = 1;
 
         if (args.length > 0) nPoints = Integer.parseInt(args[0]);
         if (args.length > 1) temperature = Kelvin.UNIT.toSim(Double.parseDouble(args[1]));
         if (args.length > 2) steps = Long.parseLong(args[2]);
-        if (args.length > 3) deltaDCut = Double.parseDouble(args[3]);
+        if (args.length > 3) deltaCut = Double.parseDouble(args[3]);
         if (args.length > 4) pushR = Double.parseDouble(args[4]);
+        if (args.length > 5) initRefPref = Double.parseDouble(args[5]);
 
         double sigmaHSRef = 3.2;
-        if (pushR > 2) {
+        if (pushR > 1.2) {
             sigmaHSRef = pushR + 2;
+            if (sigmaHSRef > deltaCut) {
+                sigmaHSRef = deltaCut;
+            }
         }
         final double[] HSB = new double[7];
         HSB[2] = Standard.B2HS(sigmaHSRef);
@@ -76,7 +88,7 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
      
         MayerGeneral fTarget = new MayerGeneral(pTarget);
         ClusterAbstract targetCluster = Standard.virialClusterPolarizable(nPoints, fTarget, nPoints>3, false);
-        ((ClusterSumPolarizable)targetCluster).setDeltaDCut(deltaDCut);
+        ((ClusterSumPolarizable)targetCluster).setDeltaCut(deltaCut);
         targetCluster = new ClusterCoupledFlipped(targetCluster);
         if (targetCluster instanceof ClusterCoupledFlipped) {
             System.out.println("We're flipping");
@@ -96,217 +108,161 @@ public class VirialWaterOverlapClusterCoupled extends Simulation {
 
         System.out.println(steps+" steps of size "+numSubSteps);
 
-            final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
+        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
 
-
-//            if (pushR > 0) {
-                //((ClusterSumPolarizable)((ClusterCoupledFlipped)((ClusterWeightAbs)sim.meters[0].getClusters()[1]).getSubCluster()).getSubCluster()).pushR2 = pushR*pushR;
-//                System.out.println("pushing to "+pushR);
-//                sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
-//                MCMoveClusterMoleculePushMulti translateMove = new MCMoveClusterMoleculePushMulti(sim.integrators[1].getPotential(), sim.getRandom(), 1.0, nPoints-1);
-//                translateMove.setMinRange(pushR);
-//                sim.mcMoveTranslate[1] = translateMove;
-//                sim.mcMoveTranslate[1] = new MCMoveClusterPullMulti(translateMove);
-//                ((MCMoveClusterPullMulti)sim.mcMoveTranslate[1]).setMaxRange(200);
-//                sim.integrators[1].getMoveManager().addMCMove(sim.mcMoveTranslate[1]);
-                
-//                sim.integratorOS.setAdjustStepFreq(false);
-//                sim.integratorOS.setStepFreq0(0);
-                
-//                sim.initRefPref(null,steps/40);
-//                pushR = 500;
-//                System.out.println("pushing to "+pushR);
-//                ((MCMoveClusterMoleculePushMulti)sim.mcMoveTranslate[1]).setMinRange(pushR);
-//                
-//                sim.initRefPref(null,steps/40);
-//                pushR = 900;
-//                System.out.println("pushing to "+pushR);
-//                ((MCMoveClusterMoleculePushMulti)sim.mcMoveTranslate[1]).setMinRange(pushR);
+//        if (pushR > 0) {
+//            AtomSet molecules = sim.box[1].getMoleculeList(sim.getSpeciesManager().getSpecies()[0]);
+//            AtomSet children = ((IAtomGroup)molecules.getAtom(1)).getChildList();
+//            // push an atom out now so that initial configuration will be valid
+//            for (int j=0; j<children.getAtomCount(); j++) {
+//                ((AtomLeaf)children.getAtom(j)).getPosition().PE(space.makeVector(new double[]{pushR, 2, 2}));
 //            }
+//            // fix up the water cluster used in the reference system
+//            ((ClusterSumPolarizable)((ClusterCoupledFlipped)((ClusterWeightAbs)sim.meters[0].getClusters()[1]).getSubCluster()).getSubCluster()).pushR2 = pushR*pushR;
+//            System.out.println("pushing to "+pushR);
+//            sim.integrators[1].getMoveManager().removeMCMove(sim.mcMoveTranslate[1]);
+//            MCMoveClusterMoleculePushMulti translateMove = new MCMoveClusterMoleculePushMulti(sim.integrators[1].getPotential(), sim.getRandom(), 1.0, nPoints-1);
+//            translateMove.setMinRange(pushR);
+//            sim.mcMoveTranslate[1] = translateMove;
+//            sim.mcMoveTranslate[1] = new MCMoveClusterPullMulti(translateMove);
+//            ((MCMoveClusterPullMulti)sim.mcMoveTranslate[1]).setMaxRange(deltaCut);
+//            sim.integrators[1].getMoveManager().addMCMove(sim.mcMoveTranslate[1]);
+//
+//
+//            sim.initRefPref(null,steps/40);
+//            pushR = 500;
+//            System.out.println("pushing to "+pushR);
+//            ((MCMoveClusterMoleculePushMulti)sim.mcMoveTranslate[1]).setMinRange(pushR);
+//            
+//            sim.initRefPref(null,steps/40);
+//            pushR = 900;
+//            System.out.println("pushing to "+pushR);
+//            ((MCMoveClusterMoleculePushMulti)sim.mcMoveTranslate[1]).setMinRange(pushR);
+//        }
             
-            sim.integratorOS.setNumSubSteps(numSubSteps);
-            sim.setAccumulatorBlockSize((int)(steps/10));
+        sim.integratorOS.setNumSubSteps(numSubSteps);
+        sim.setAccumulatorBlockSize((int)(steps/10));
             
-//            final MeterDFVirial meterRDF = new MeterDFVirial(sim.getSpace()); //, sim.getSpeciesManager().getSpecies()[0]);
-//            meterRDF.setBox(sim.box[1]);
-//            meterRDF.getXDataSource().setXMax(1000);
-//            meterRDF.getXDataSource().setNValues(500);
-            
-            
-            for (int i=0; i<2; i++) {
+//        final MeterDFVirial meterRDF = new MeterDFVirial(sim.getSpace());
+//        meterRDF.setBox(sim.box[1]);
+//        meterRDF.getXDataSource().setXMax(pushR*2+50);
+//        meterRDF.getXDataSource().setNValues(200);
+//        if (doRDF) {
+//            sim.integratorOS.setAdjustStepFreq(false);
+//            sim.integratorOS.setStepFreq0(0);
+//        }
 
-                sim.integrators[i].getMoveManager().setEquilibrating(true);
+        // if running interactively, set filename to null so that it doens't read
+        // (or write) to a refpref file
+        String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+Kelvin.UNIT.fromSim(temperature) : null;
+        sim.setRefPref(initRefPref, 1);
+        sim.initRefPref(refFileName,steps/40);
+        sim.equilibrate(refFileName,steps/20);
+        if (!doRDF && (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
+            throw new RuntimeException("Oops");
+        }
 
-                sim.mcMoveTranslate[i].setStepSize(10);
-
-//                sim.mcMoveTranslate[i].setAcceptanceTarget(0.20);
-
-//                sim.mcMoveTranslate[i].setAdjustInterval(sim.mcMoveTranslate[i].getAdjustInterval()*100);
-
-                sim.mcMoveRotate[i].setStepSize(1.5);
-
-  //              sim.mcMoveRotate[i].setAdjustInterval(sim.mcMoveRotate[i].getAdjustInterval()*100);
-
-//                sim.mcMoveRotate[i].setAcceptanceTarget(0.20);
-
-               /* if (sim.mcMoveMulti != null) {
-
-                    sim.mcMoveMulti[i].setStepSize(0.5);
-
-                    sim.mcMoveMulti[i].setAdjustInterval(sim.mcMoveMulti[i].getAdjustInterval()*100);
-
-                    sim.mcMoveMulti[i].setAcceptanceTarget(0.20);
-
-                }*/
-
-            }
-            
-
-
-//            sim.mcMoveAtom1.setNoisyAdjustment(true);
-
-//            sim.mcMoveRotate.setNoisyAdjustment(true);
-
-//            sim.mcMoveMulti.setNoisyAdjustment(true);
-
-            // if running interactively, set filename to null so that it doens't read
-            // (or write) to a refpref file
-            String refFileName = args.length > 0 ? "refpref"+nPoints+"_"+Kelvin.UNIT.fromSim(temperature) : null;
-            sim.initRefPref(refFileName,steps/40);
-            sim.equilibrate(refFileName,steps/20);
-            if (pushR == 0 && (Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
-                throw new RuntimeException("Oops");
-            }
-            //((ClusterSumPolarizable)((ClusterCoupledFlipped)sim.meters[1].getClusters()[0]).getSubCluster()).pushR2 = pushR*pushR;
+//        if (doRDF) {
 //            sim.integrators[1].addIntervalAction(meterRDF);
 //            sim.integrators[1].setActionInterval(meterRDF, 5);
-            sim.setAccumulatorBlockSize((int)(steps*10));
+//        }
+        sim.setAccumulatorBlockSize((int)(steps*10));
 
-            final int n = nPoints;
-//            final ClusterAbstract tc = targetCluster;
-//            Action rdfWriteAction = new Action() {
-//                public void actionPerformed() {
-//                    try {
-//                        BoxCluster box = sim.box[1];
-//                        CoordinatePairSet cPairs = box.getCPairSet();
-//                        //System.out.println("writing xyz "+i);
-//                        for (int j=0; j<n-1; j++) {
-//                            for (int k=j+1; k<n; k++) {
-//                                System.out.print(Math.sqrt(cPairs.getr2(j,k))+" ");
-//                            }
+        final int n = nPoints;
+        final ClusterAbstract tc = targetCluster;
+//        Action rdfWriteAction = new Action() {
+//            public void actionPerformed() {
+//                try {
+//                    BoxCluster box = sim.box[1];
+//                    CoordinatePairSet cPairs = box.getCPairSet();
+//                    //System.out.println("writing xyz "+i);
+//                    for (int j=0; j<n-1; j++) {
+//                        for (int k=j+1; k<n; k++) {
+//                            System.out.print(Math.sqrt(cPairs.getr2(j,k))+" ");
 //                        }
-//                        System.out.println();
-//                        DataGroup data = (DataGroup)meterRDF.getData();
-//                        Data dataDF = data.getData(0);
-//                        Data dataV = data.getData(1);
-//                        Data dataV2 = data.getData(2);
-//                        Data dataPi = data.getData(3);
-//                        double deltaX = meterRDF.getXDataSource().getXMax() / meterRDF.getXDataSource().getNValues();
-//                        int max = -1;
-//                        for (int i=dataDF.getLength()-1; i>-1; i--) {
-//                            if (dataDF.getValue(i) > 0) {
-//                                max = i;
-//                                break;
-//                            }
-//                        }
-//                        if (max == -1) {
-//                            System.out.println("oops nothing there!");
-//                            return;
-//                        }
-//                        System.out.println("writing rdf");
-//                        FileWriter fileWriter = new FileWriter("rdf"+n+(tc instanceof ClusterCoupledFlipped ? "f" : "")+(
-//                                (pTarget instanceof PNWaterGCPM) ? "" : "_old")+".dat");
-//                        for (int i=0; i<max+1; i++) {
-//                            if (dataDF.getValue(i) > 0) {
-//                                fileWriter.write((i+0.5)*deltaX+" "+dataDF.getValue(i)+" "+dataV.getValue(i)+" "+dataV2.getValue(i)+" "+dataPi.getValue(i)+"\n");
-//                            }
-//                        }
-//                        fileWriter.close();
 //                    }
-//                    catch (IOException e) {throw new RuntimeException(e);}
+//                    System.out.println();
+//                    DataGroup data = (DataGroup)meterRDF.getData();
+//                    Data dataDF = data.getData(0);
+//                    Data dataV = data.getData(1);
+//                    Data dataV2 = data.getData(2);
+//                    Data dataPi = data.getData(3);
+//                    double deltaX = meterRDF.getXDataSource().getXMax() / meterRDF.getXDataSource().getNValues();
+//                    int max = -1;
+//                    for (int i=dataDF.getLength()-1; i>-1; i--) {
+//                        if (dataDF.getValue(i) > 0) {
+//                            max = i;
+//                            break;
+//                        }
+//                    }
+//                    if (max == -1) {
+//                        System.out.println("oops nothing there!");
+//                        return;
+//                    }
+//                    System.out.println("writing rdf");
+//                    FileWriter fileWriter = new FileWriter("rdf"+n+(tc instanceof ClusterCoupledFlipped ? "f" : "")+(
+//                            (pTarget instanceof PNWaterGCPM) ? "" : "_old")+".dat");
+//                    for (int i=0; i<max+1; i++) {
+//                        if (dataDF.getValue(i) > 0) {
+//                            fileWriter.write((i+0.5)*deltaX+" "+dataDF.getValue(i)+" "+dataV.getValue(i)+" "+dataV2.getValue(i)+" "+dataPi.getValue(i)+"\n");
+//                        }
+//                    }
+//                    fileWriter.close();
 //                }
-//            };
-            Action progressReport = new Action() {
-                public void actionPerformed() {
-                    System.out.print(sim.integratorOS.getStepCount()+" steps: ");
-                    double ratio = sim.dsvo.getDataAsScalar();
-                    double error = sim.dsvo.getError();
-                    System.out.println("abs average: "+ratio*HSB[n]+", error: "+error*HSB[n]);
-                }
-            };
+//                catch (IOException e) {throw new RuntimeException(e);}
+//            }
+//        };
+        Action progressReport = new Action() {
+            public void actionPerformed() {
+                System.out.print(sim.integratorOS.getStepCount()+" steps: ");
+                double ratio = sim.dsvo.getDataAsScalar();
+                double error = sim.dsvo.getError();
+                System.out.println("abs average: "+ratio*HSB[n]+", error: "+error*HSB[n]);
+            }
+        };
+//        if (doRDF) {
 //            sim.integrators[1].addIntervalAction(rdfWriteAction);
 //            sim.integrators[1].setActionInterval(rdfWriteAction, (int)(steps*10));
-            sim.integratorOS.addIntervalAction(progressReport);
-            sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
+//        }
+        sim.integratorOS.addIntervalAction(progressReport);
+        sim.integratorOS.setActionInterval(progressReport, (int)(steps/10));
 
-            sim.ai.setMaxSteps(steps);
+        sim.ai.setMaxSteps(steps);
+        System.out.println("equilibration finished");
 
-            System.out.println("equilibration finished");
+        for (int i=0; i<2; i++) {
+            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "
+                                                    +sim.mcMoveRotate[i].getStepSize());
+        }
 
-            for (int i=0; i<2; i++) {
+        sim.getController().actionPerformed();
 
-                System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "
+        System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
+        System.out.println("actual reference step frequency "+sim.integratorOS.getActualStepFreq0());
+        double ratio = sim.dsvo.getDataAsScalar();
+        double error = sim.dsvo.getError();
+        System.out.println("ratio average: "+ratio+", error: "+error);
+        System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
 
-                                                        +sim.mcMoveRotate[i].getStepSize());
+        DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
+        System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
+        System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 
-            }
-
-
-            
-
-            sim.getController().actionPerformed();
-
-
-
-            System.out.println("final reference step frequency "+sim.integratorOS.getStepFreq0());
-
-            
-
-            double ratio = sim.dsvo.getDataAsScalar();
-            double error = sim.dsvo.getError();
-            System.out.println("ratio average: "+ratio+", error: "+error);
-            System.out.println("abs average: "+ratio*HSB[nPoints]+", error: "+error*HSB[nPoints]);
-
-            DataGroup allYourBase = (DataGroup)sim.accumulators[0].getData(sim.dsvo.minDiffLocation());
-            System.out.println("hard sphere ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-            System.out.println("hard sphere   average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-            System.out.println("hard sphere overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-
-            allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
-            System.out.println("water ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
-            System.out.println("water average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
-                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
-            System.out.println("water overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
-                              +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
-                              +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
-
-            //rdfWriteAction.actionPerformed();
-            
-/*		double[] valueArray = targetCluster.getMaxValueArray();
-            
-            	System.out.println("Here are the pi versus log O-O values");
-            
-            	for(int y=0; y<9; y++) {
-            		System.out.println(valueArray[y]);
-    			}
-            
-            	double[] binCountArray = targetCluster.getBinCountArray();
-            
-            	System.out.println("Here are the bin counts");
-            
-            	for(int y=0; y<10; y++) {
-            		System.out.println(binCountArray[y]);
-    			}
-*/            
-
-//       }
+        allYourBase = (DataGroup)sim.accumulators[1].getData(sim.dsvo.minDiffLocation());
+        System.out.println("water ratio average: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorRatioAverage.StatType.RATIO_ERROR.index)).getData()[1]);
+        System.out.println("water average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[0]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[0]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[0]);
+        System.out.println("water overlap average: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.AVERAGE.index)).getData()[1]
+                          +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
+                          +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 
 	}
 
