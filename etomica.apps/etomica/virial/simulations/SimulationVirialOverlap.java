@@ -198,6 +198,9 @@ public class SimulationVirialOverlap extends Simulation {
     }
     
     public void initRefPref(String fileName, long initSteps) {
+        // use the old refpref value as a starting point so that an initial
+        // guess can be provided
+        double oldRefPref = refPref;
         // refPref = -1 indicates we are searching for an appropriate value
         refPref = -1.0;
         if (fileName != null) {
@@ -225,7 +228,7 @@ public class SimulationVirialOverlap extends Simulation {
 
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,true),0);
             setAccumulator(new AccumulatorVirialOverlapSingleAverage(21,false),1);
-            setRefPref(1,30);
+            setRefPref(oldRefPref,30);
             ai.setMaxSteps(initSteps);
             getController().actionPerformed();
 
