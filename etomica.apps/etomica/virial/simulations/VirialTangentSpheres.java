@@ -8,12 +8,15 @@ import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.potential.P2HardSphere;
+import etomica.potential.P2LennardJones;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
+import etomica.util.ParameterBase;
+import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.MayerEGeneral;
 import etomica.virial.MayerEHardSphere;
@@ -29,20 +32,21 @@ public class VirialTangentSpheres {
 
 
     public static void main(String[] args) {
-        int nPoints = 3;
-        int nSpheres = 2;
+        VirialTangentSpheresParam params = new VirialTangentSpheresParam();
+        if (args.length > 0) {
+            ReadParameters paramReader = new ReadParameters(args[0], params);
+            paramReader.readParameters();
+        }
+        int nPoints = params.nPoints;
+        int nSpheres = params.nSpheres;
+        double temperature = params.temperature;
+        long steps = params.numSteps;
+        String model = params.model;
+        double bondL = params.bondL;
         double sigmaHSRef = Math.pow(nSpheres,1.0/3.0);
-        double temperature = 1;
-        long steps = 2000l;
-        if (args.length > 0) nPoints = Integer.parseInt(args[0]);
-        if (args.length > 1) nSpheres = Integer.parseInt(args[1]);
-        if (args.length > 2) temperature = Double.parseDouble(args[2]);
-        if (args.length > 3) steps = Long.parseLong(args[3]);
-            
         if (temperature > 0) {
             sigmaHSRef += 0.5;
         }
-        if (args.length > 4) sigmaHSRef = Double.parseDouble(args[4]);
         double[] HSB = new double[8];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
@@ -57,7 +61,6 @@ public class VirialTangentSpheres {
         System.out.println("B5HS: "+HSB[5]+" = 0.110252 B2HS^4");
         System.out.println("B6HS: "+HSB[6]+" = 0.03881 B2HS^5");
         System.out.println("B7HS: "+HSB[7]+" = 0.013046 B2HS^6");
-        System.out.println(nSpheres+"-mer Overlap sampling B"+nPoints+(temperature>0 ? " at "+temperature : " (HS)"));
 		
         Space space = Space3D.getInstance();
         
@@ -65,13 +68,25 @@ public class VirialTangentSpheres {
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
         PotentialGroup pTargetGroup = new PotentialGroup(2, space);
         Potential2 p2 = null;
-        if (temperature == 0) {
-            p2 = new P2HardSphere(space, 1.0, false);
-            temperature = 1.0;
+        if (model.equals("hard")) {
+            if (temperature == 0) {
+                System.out.println(nSpheres+"-mer hard chain B"+nPoints);
+                p2 = new P2HardSphere(space, 1.0, false);
+                temperature = 1.0;
+            }
+            else {
+                System.out.println(nSpheres+"-mer sqw chains B"+nPoints+" at "+temperature);
+                p2 = new P2SquareWell(space, 1.0, 1.5, 1.0, false);
+            }
+        }
+        else if (model.equals("LJ")) {
+            System.out.println(nSpheres+"-mer LJ chains B"+nPoints+" at "+temperature);
+            p2 = new P2LennardJones(space, 1.0, 1.0);
         }
         else {
-            p2 = new P2SquareWell(space, 1.0, 1.5, 1.0, false);
+            throw new RuntimeException("Unknown model "+model);
         }
+        System.out.println("bond length: "+bondL);
         pTargetGroup.addPotential(p2, new ApiIntergroup());
         MayerGeneral fTarget = new MayerGeneral(pTargetGroup);
         MayerEGeneral eTarget = new MayerEGeneral(pTargetGroup);
@@ -82,7 +97,8 @@ public class VirialTangentSpheres {
         refCluster.setTemperature(temperature);
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
-        SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryTangentSpheres(nSpheres, new ConformationLinear(space,1.0)), temperature,refCluster,targetCluster);
+        SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryTangentSpheres(nSpheres,
+                new ConformationLinear(space,bondL)), temperature,refCluster,targetCluster);
         sim.integratorOS.setNumSubSteps(1000);
         
         if (nSpheres > 2) {
@@ -140,5 +156,16 @@ public class VirialTangentSpheres {
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 	}
+    
+    /**
+     * Inner class for parameters
+     */
+    public static class VirialTangentSpheresParam extends ParameterBase {
+        public int nPoints = 2;
+        public int nSpheres = 2;
+        public double temperature = 1.0;
+        public long numSteps = 50;
+        public String model = "hard";
+        public double bondL = 1.0;
+    }
 }
-
