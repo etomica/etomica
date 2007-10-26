@@ -183,7 +183,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         int i=0;
         for (IAtomGroup a = (IAtomGroup)iterator.nextAtom(); a != null;
              a = (IAtomGroup)iterator.nextAtom()) {
-            selectedMolecules[i++] = (IAtomGroup)iterator.nextAtom();
+            selectedMolecules[i++] = a;
         }
         return selectedMolecules;
     }
