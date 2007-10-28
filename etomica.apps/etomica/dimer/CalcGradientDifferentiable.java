@@ -91,14 +91,14 @@ public class CalcGradientDifferentiable implements FunctionMultiDimensionalDiffe
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] = ((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(box.getLeafList().getAtom(startAtom+(j/3)))).force().x(j%3);
+            forceRow[j] = -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(box.getLeafList().getAtom(startAtom+(j/3)))).force().x(j%3);
         }
         
         position[elem]-=2*newH;
         f(position);
         
         for(int j=0; j<forceRow.length; j++){
-            forceRow[j] -= ((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(box.getLeafList().getAtom(startAtom+(j/3)))).force().x(j%3);
+            forceRow[j] -= -((IntegratorVelocityVerlet.MyAgent)atomAgent.getAgent(box.getLeafList().getAtom(startAtom+(j/3)))).force().x(j%3);
             forceRow[j] /= (2.0*newH);
         }
         

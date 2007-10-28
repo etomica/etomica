@@ -35,6 +35,7 @@ import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
 import etomica.util.HistoryCollapsingAverage;
 
@@ -64,7 +65,7 @@ public class SimDimerMEAMadatomSn extends Simulation{
     	final String APP_NAME = "DimerMEAMadatomSn";
     	final SimDimerMEAMadatomSn sim = new SimDimerMEAMadatomSn();
     	
-    	sim.activityIntegrateMD.setMaxSteps(1000);
+    	sim.activityIntegrateMD.setMaxSteps(700);
     	sim.activityIntegrateDimer.setMaxSteps(700);
     	
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
@@ -90,18 +91,6 @@ public class SimDimerMEAMadatomSn extends Simulation{
         sim.integratorMD.addIntervalAction(energyPump);
         sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
         
-        DataLogger elog = new DataLogger();
-        elog.setFileName("cu_sim-energy2");
-        elog.setAppending(true);
-        elog.setWriteInterval(1);
-        elog.setCloseFileEachTime(true);
-        elog.setDataSink(new DataTableWriter());
-        sim.getController().getEventManager().addListener(elog);
-        
-        DataPump pump = new DataPump(energyMeter, elog);
-        
-        sim.integratorDimer.addIntervalAction(pump);
-        sim.integratorDimer.setActionInterval(pump, 1);
         sim.integratorDimer.addIntervalAction(energyPump);
     	sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
     	
@@ -137,7 +126,7 @@ public class SimDimerMEAMadatomSn extends Simulation{
     	Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
     	
         snFix = new SpeciesSpheresMono(this, tinFixed);
-        sn = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        sn = new SpeciesSpheresMono(this, tinFixed);
         snAdatom = new SpeciesSpheresMono(this, Tin.INSTANCE);
         movable = new SpeciesSpheresMono(this, Tin.INSTANCE);
         
@@ -148,14 +137,14 @@ public class SimDimerMEAMadatomSn extends Simulation{
         
         
         ((AtomTypeSphere)snFix.getMoleculeType()).setDiameter(3.022); 
-        ((AtomTypeSphere)sn.getMoleculeType()).setDiameter(3.022); 
+        ((AtomTypeSphere)sn.getMoleculeType()).setDiameter(3.022);
         ((AtomTypeSphere)snAdatom.getMoleculeType()).setDiameter(3.022);
         ((AtomTypeSphere)movable.getMoleculeType()).setDiameter(3.022);
         
         box = new Box(new BoundaryRectangularSlit(space, random, 0, 5));
         addBox(box);
         
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{snAdatom, movable}, "5-atom");     
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{snAdatom}, "1");
     	activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
 
     	// First simulation style
@@ -204,17 +193,20 @@ public class SimDimerMEAMadatomSn extends Simulation{
         ((IAtomPositioned)iAtom).getPosition().setX(0, 10.0);
         ((IAtomPositioned)iAtom).getPosition().setX(1, 0.1);
         ((IAtomPositioned)iAtom).getPosition().setX(2, -0.1);
+        
+        System.out.println(ElectronVolt.UNIT.fromSim(1));
        
-       // /**
+        
          
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
         AtomSet loopSet = box.getMoleculeList(sn);
         
         for (int i=0; i<loopSet.getAtomCount(); i++){
+            
             rij.Ev1Mv2(((IAtomPositioned)iAtom).getPosition(),((IAtomPositioned)loopSet.getAtom(i)).getPosition());
           
-            if(rij.squared()<25.0){
+            if((rij.squared())<38.0){
                movableList.add(loopSet.getAtom(i));
             } 
         }
@@ -224,7 +216,7 @@ public class SimDimerMEAMadatomSn extends Simulation{
            box.removeMolecule(movableList.getAtom(i));
        }
        
-    //   */
+       
        
        
     }

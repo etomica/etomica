@@ -1,7 +1,7 @@
 package etomica.dimer;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Formatter;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
@@ -12,16 +12,18 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
+import etomica.space.IVector;
 
 public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
 
     IAtom adatom;
     public MeterPotentialEnergy energy;
+    String fileTail;
     
-    public IntegratorEnergyMap(ISimulation aSim, PotentialMaster potentialMaster, IAtom aAdatom) {
+    public IntegratorEnergyMap(ISimulation aSim, PotentialMaster potentialMaster, IAtom aAdatom, String aFileTail) {
         super(potentialMaster, 1.0);
-    
-        adatom = aAdatom;
+        this.fileTail = aFileTail;
+        this.adatom = aAdatom;
     
         
     
@@ -30,33 +32,28 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
     
     public void doStepInternal(){
         try {
-        
-        FileWriter writer = new FileWriter("energy-cu-63-45cut");
-        
-        // Move atom along Y-axis, steps by 0.1
-        for(int i=0; i<500; i++){
-            
-            // Move atom along Z-axis, steps by 0.1
-            for(int j=0; j<500; j++){
+           
+            Formatter formatter = new Formatter("energy-"+fileTail);
+            IVector pos = ((IAtomPositioned)adatom).getPosition();
+            // Move atom along Y-axis, steps by 0.1
+            for(int i=0; i<292; i++){ //292
                 
-                // Step atom by 0.1 along Z-axis
-                ((IAtomPositioned)adatom).getPosition().setX(2, ((IAtomPositioned)adatom).getPosition().x(2) +0.01);
+                // Return atom to original Z position
+                ((IAtomPositioned)adatom).getPosition().setX(2, -1.6);
                 
-                // --PRINT-- 
-                writer.write(energy.getDataAsScalar()+"     "+((IAtomPositioned)adatom).getPosition()+"\n");
+                // Move atom along Z-axis, steps by 0.1
+                for(int j=0; j<213; j++){  //213
+                    // --PRINT-- 
+                    formatter.format("%f %7.2f %7.2f %7.2f \n",new Object[] {energy.getDataAsScalar(),pos.x(0), pos.x(1), pos.x(2)});
+                    
+                    // Step atom by 0.1 along Z-axis
+                    ((IAtomPositioned)adatom).getPosition().setX(2, ((IAtomPositioned)adatom).getPosition().x(2) +0.02);
+                }
+                // Step atom by 0.1 along Y-axis
+                ((IAtomPositioned)adatom).getPosition().setX(1, ((IAtomPositioned)adatom).getPosition().x(1) + 0.02);
+     
             }
-            
-            // Return atom to original Z position
-            ((IAtomPositioned)adatom).getPosition().setX(2, -1.2);
-            
-            // Step atom by 0.1 along Y-axis
-            ((IAtomPositioned)adatom).getPosition().setX(1, ((IAtomPositioned)adatom).getPosition().x(1) + 0.01);
-            
-            // --PRINT--
-            writer.write(energy.getDataAsScalar()+"     "+((IAtomPositioned)adatom).getPosition()+"\n");
-            
-        }
-        
+            formatter.close();
         }
         catch (IOException e) {
             

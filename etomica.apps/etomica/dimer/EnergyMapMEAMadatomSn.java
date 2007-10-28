@@ -48,11 +48,12 @@ public class EnergyMapMEAMadatomSn extends Simulation{
     public ActivityIntegrate activityIntegrateMAP;
     
     public static void main(String[] args){
+        double height1 = 10.0;
+        String fileTail1 = ""+height1;
     	final String APP_NAME = "DimerMEAMadatomCu";
-    	final EnergyMapMEAMadatomSn sim = new EnergyMapMEAMadatomSn();
+    	final EnergyMapMEAMadatomSn sim = new EnergyMapMEAMadatomSn(height1, fileTail1);
     	
     	sim.activityIntegrateMAP.setMaxSteps(1); 
-    	
     	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
     	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
@@ -73,13 +74,10 @@ public class EnergyMapMEAMadatomSn extends Simulation{
     }
     
     
-    public EnergyMapMEAMadatomSn() {
+    public EnergyMapMEAMadatomSn(double height, String fileTail) {
     	super(Space3D.getInstance(), true);
     	
     	potentialMaster = new PotentialMaster(space);
-    	
-    	activityIntegrateMAP= new ActivityIntegrate(integratorMAP);
-
         // Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         
@@ -130,9 +128,9 @@ public class EnergyMapMEAMadatomSn extends Simulation{
         IAtom iAtom = snAdatom.getMoleculeFactory().makeAtom();
         box.getAgent(snAdatom).addChildAtom(iAtom);
 
-         ((IAtomPositioned)iAtom).getPosition().setX(0, 10.0);
-         ((IAtomPositioned)iAtom).getPosition().setX(1, -1.0);
-         ((IAtomPositioned)iAtom).getPosition().setX(2, -2.0);
+         ((IAtomPositioned)iAtom).getPosition().setX(0, height);
+         ((IAtomPositioned)iAtom).getPosition().setX(1, -4.37);
+         ((IAtomPositioned)iAtom).getPosition().setX(2, -1.6);
          
          /**
          
@@ -155,7 +153,7 @@ public class EnergyMapMEAMadatomSn extends Simulation{
         
          */
          
-         integratorMAP = new IntegratorEnergyMap(this, potentialMaster, iAtom);
+         integratorMAP = new IntegratorEnergyMap(this, potentialMaster, iAtom, fileTail);
          integratorMAP.setBox(box);
          activityIntegrateMAP = new ActivityIntegrate(integratorMAP);
 

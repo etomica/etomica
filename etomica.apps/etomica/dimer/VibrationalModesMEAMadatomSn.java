@@ -3,6 +3,8 @@ package etomica.dimer;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
@@ -19,6 +21,7 @@ import etomica.meam.PotentialMEAM;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
+import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
@@ -102,13 +105,33 @@ public class VibrationalModesMEAMadatomSn extends Simulation{
         ((IAtomPositioned)iAtom).getPosition().setX(1, 0.1);
         ((IAtomPositioned)iAtom).getPosition().setX(2, -0.1);
         
-        String fTail = "-6091374.806734505";
         
-        ConfigurationFile configFile = new ConfigurationFile(fTail+"_minimum");
+        
+        IVector rij = space.makeVector();
+        AtomArrayList movableList = new AtomArrayList();
+        AtomSet loopSet = box.getMoleculeList(sn);
+        
+        for (int i=0; i<loopSet.getAtomCount(); i++){
+            
+            rij.Ev1Mv2(((IAtomPositioned)iAtom).getPosition(),((IAtomPositioned)loopSet.getAtom(i)).getPosition());
+          
+            if((rij.squared())<38.0){
+               movableList.add(loopSet.getAtom(i));
+            } 
+        }
+       
+       for (int i=0; i<movableList.getAtomCount(); i++){
+           ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
+           box.removeMolecule(movableList.getAtom(i));
+       }
+               
+        String fTail = "-6121967.366429915_saddle_38cut-Fine";
+        
+        ConfigurationFile configFile = new ConfigurationFile(fTail);
         configFile.initializeCoordinates(box);
         System.out.println("Reading in system coordinates...");
         
-        calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, 216, 216);
+        calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, box.getLeafList().getAtomCount()-1, box.getLeafList().getAtomCount()-1);
         d = new int[3];
         positions = new double[d.length];
         dForces = new double[positions.length][positions.length];
@@ -122,7 +145,7 @@ public class VibrationalModesMEAMadatomSn extends Simulation{
         
         // fill dForces array
         for(int l=0; l<d.length; l++){
-            d[l] = 1;                
+            d[l] = 1;
             System.arraycopy(calcGradientDifferentiable.df2(d, positions), 0, dForces[l], 0, d.length);
             System.out.println("Calculating force constant row "+l+"...");
             d[l] = 0;
@@ -177,6 +200,7 @@ public class VibrationalModesMEAMadatomSn extends Simulation{
             System.err.println("Cannot open file, caught IOException: " + e.getMessage());
             return;
         }
+        
         
         System.out.println("Done.");
     }

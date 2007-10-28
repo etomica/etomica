@@ -1,5 +1,8 @@
 package etomica.dimer;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import etomica.action.WriteConfiguration;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
@@ -18,6 +21,7 @@ import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.species.Species;
+import etomica.units.ElectronVolt;
 import etomica.util.IRandom;
 
 /**
@@ -37,6 +41,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public PotentialCalculationForceSum force0, forceMin;
 	public IteratorDirective allatoms;
 	public IRandom random;
+	public FileWriter fileWriter;
 	public MeterPotentialEnergy energyBox0, energyBoxMin;
 
 	public IVectorRandom [] N, Nstar;
@@ -80,7 +85,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		stepLength = 10E-3;
 		deltaR = 10E-4;
 		dTheta = 10E-4;
-		dFrot = 0.1;
+		dFrot = 0.01;
 		rotCounter = 0;
 		counter = 1;
 		Frot = 1;
@@ -88,6 +93,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		
 		sinDtheta = Math.sin(dTheta)*deltaR;
 		cosDtheta = Math.cos(dTheta)*deltaR;
+		
+		
 				
 	}
 	
@@ -105,7 +112,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 					+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(2));
 		
 		// Check and see if we're at the minimum energy
-		if(counter%4==0){energyDimer();}
+		energyDimer();
 		
 		counter++;
 	}
@@ -212,6 +219,15 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         for(int i=0; i<N.length; i++){
             ((IAtomPositioned)listMin.getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
         }
+        
+        
+        try{
+            fileWriter = new FileWriter(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"_min-path");
+            fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"\n");
+      }catch(IOException e) {
+          
+      }
+        
 		
         // Write out initial configuration
         System.out.println("----Dimer Minimum Energy Path");
@@ -354,9 +370,9 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			
 			rotCounter++;
 			
-			if(rotCounter>15){
-	                break;
-			}
+			//if(rotCounter>15){
+	        //        break;
+			//}
 		}
 	}
 	
@@ -383,19 +399,32 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		e0 = energyBox0.getDataAsScalar();
 		eMin = energyBoxMin.getDataAsScalar();
 		
-		System.out.println(e0);
+    	try { 
+            fileWriter.write(ElectronVolt.UNIT.fromSim(e0)+"\n");
+            }catch(IOException e) {
+                System.err.println("Cannot open file, caught IOException: " + e.getMessage());
+            }
+		
+		
+		System.out.println(ElectronVolt.UNIT.fromSim(e0));
 		
 		if(e0 < eMin){ 
 		    System.out.println("Minimum Energy Found");
-			System.out.println("Box0 = "+e0);
-			System.out.println("BoxMin = "+eMin);
+			System.out.println("Box0 = "+ElectronVolt.UNIT.fromSim(e0));
+			System.out.println("BoxMin = "+ElectronVolt.UNIT.fromSim(eMin));
+			
+			try { 
+	            fileWriter.close();
+	            }catch(IOException e) {
+	                System.err.println("Cannot open file, caught IOException: " + e.getMessage());
+	            }
 			
 			WriteConfiguration writer = new WriteConfiguration();
             writer.setConfName(energyBox0.getDataAsScalar()+"_minimum");
             writer.setBox(box);
             writer.actionPerformed();
 			
-			System.exit(1);
+            System.exit(1);
 		}
 		
 	}

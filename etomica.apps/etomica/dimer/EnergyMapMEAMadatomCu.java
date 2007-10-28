@@ -132,7 +132,7 @@ public class EnergyMapMEAMadatomCu extends Simulation{
          ((IAtomPositioned)iAtom).getPosition().setX(1, -0.8);
          ((IAtomPositioned)iAtom).getPosition().setX(2, -1.2);
          
-         integratorMAP = new IntegratorEnergyMap(this, potentialMaster, iAtom);
+         integratorMAP = new IntegratorEnergyMap(this, potentialMaster, iAtom, "-cu");
          integratorMAP.setBox(box);
          activityIntegrateMAP = new ActivityIntegrate(integratorMAP);
 

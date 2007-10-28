@@ -5,7 +5,6 @@ import Jama.Matrix;
 
 public class CalcVibrationalModes {
 
-    double[][] forceConstant;
     double [] modes;
     double [] frequencies;
     int[] modeSigns;
@@ -15,10 +14,9 @@ public class CalcVibrationalModes {
     public CalcVibrationalModes(double [][] aForceConstantArray){
         
         modeSigns = new int[3];
-        
-        this.forceConstant = aForceConstantArray;
+
         fC = new Matrix(aForceConstantArray);
-        
+
         // Finds Eigenvalues of Matrix fC
         eigenDecomp = new EigenvalueDecomposition(fC);
         
@@ -59,7 +57,8 @@ public class CalcVibrationalModes {
             
             frequencies[i] = Math.sqrt(modes[i]) / (2*Math.PI);
         }
-        
+        System.out.println(eigenDecomp.getV().getArray()[1][2]);
+        eigenDecomp.getV().print(15, 6);
         return frequencies;
     }
 }
