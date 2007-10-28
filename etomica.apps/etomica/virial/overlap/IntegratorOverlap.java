@@ -3,8 +3,9 @@ package etomica.virial.overlap;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.integrator.IntegratorManagerMC;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
+import etomica.integrator.IntegratorManagerMC;
 import etomica.util.Debug;
 import etomica.util.IRandom;
 
@@ -46,6 +47,11 @@ public class IntegratorOverlap extends IntegratorManagerMC {
             totNumSubSteps[i] = 0;
         }
         minDiffLoc = -1;
+    }
+    
+    public void reset() throws ConfigurationOverlapException {
+        setDSVO(dsvo);
+        super.reset();
     }
 
     /**
