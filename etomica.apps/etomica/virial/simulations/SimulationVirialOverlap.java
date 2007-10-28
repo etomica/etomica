@@ -188,6 +188,12 @@ public class SimulationVirialOverlap extends Simulation {
         for (int i=0; i<2; i++) {
             accumulators[i].setBlockSize(newBlockSize);
         }
+        try {
+            // reset the integrator so that it will re-adjust step frequency
+            // and ensure it will take enough data for both ref and target
+            integratorOS.reset();
+        }
+        catch (ConfigurationOverlapException e) { /* meaningless */ }
     }
 
     public void setRefPref(double newRefPref) {
@@ -236,9 +242,9 @@ public class SimulationVirialOverlap extends Simulation {
             refPref = accumulators[0].getBennetAverage(newMinDiffLoc)
                 /accumulators[1].getBennetAverage(newMinDiffLoc);
             System.out.println("setting ref pref to "+refPref);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,true),0);
-            setAccumulator(new AccumulatorVirialOverlapSingleAverage(11,false),1);
-            setRefPref(refPref,3);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(15,true),0);
+            setAccumulator(new AccumulatorVirialOverlapSingleAverage(15,false),1);
+            setRefPref(refPref,4);
             for (int i=0; i<2; i++) {
                 try {
                     integrators[i].reset();
