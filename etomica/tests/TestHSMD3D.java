@@ -16,7 +16,7 @@ import etomica.species.SpeciesSpheresMono;
 
 /**
  * Simple hard-sphere molecular dynamics simulation in 3D.
- * Initial configurations at http://gordon.eng.buffalo.edu/etomica/tests/
+ * Initial configurations at http://rheneas.eng.buffalo.edu/etomica/tests/
  * @author David Kofke
  */
  
