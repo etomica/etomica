@@ -36,22 +36,19 @@ import etomica.species.SpeciesSpheresMono;
  *
  */
 
-public class EnergyMapMEAMadatomSnCluster extends Simulation{
+public class EnergyMapMEAMadatomCluster extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "MEAM Md3D";
-    public IntegratorEnergyMap integratorMAP;
-    public Box box;
-    public SpeciesSpheresMono sn, snFix, snAdatom, movable;
-    public PotentialMEAM potential;
+
     
     public static void main(String[] args){
         double height;
         height = Double.parseDouble(args[0]);
         String fileTail = ""+height;
         
-    	final String APP_NAME = "EnergyMapMEAMadatomSn";
-    	final EnergyMapMEAMadatomSn sim = new EnergyMapMEAMadatomSn(height, fileTail);
+    	final String APP_NAME = "EnergyMapMEAMadatom";
+    	final EnergyMapMEAMadatom sim = new EnergyMapMEAMadatom(height, fileTail);
     	
     	
     	sim.activityIntegrateMAP.setMaxSteps(1);

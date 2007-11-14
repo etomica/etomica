@@ -108,12 +108,15 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	
 	public void doStepInternal(){
-		
+	    	    
 		rotateDimerNewton();
 		
 		rotCounter=0;
 		
 		translateDimerQuickmin();
+		
+		
+		
 		
 		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2)
 	                +"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(2)
