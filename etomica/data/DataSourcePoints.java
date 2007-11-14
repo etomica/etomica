@@ -42,10 +42,8 @@ public class DataSourcePoints implements DataSource {
     	double[] x = dataX.getData();
     	double[] y = dataY.getData();
     	for(int idx = 0; idx < dataX.getLength(); idx++) {
-    		d[idx] = x[idx];
-    	}
-    	for(int idx = 0; idx < dataX.getLength(); idx++) {
-    		d[idx + dataX.getLength()] = y[idx];
+    		d[2*idx] = x[idx];
+    		d[2*idx+1] = y[idx];
     	}
 
     	DataDoubleArray data = new DataDoubleArray(new int[] {dataX.getLength() + dataY.getLength()}, d);
@@ -67,12 +65,12 @@ public class DataSourcePoints implements DataSource {
 	    	dataX = new DataDoubleArray(xpts.length/* * pointDim*/);
 	    	dataY = new DataDoubleArray(ypts.length);
             double[] x = dataX.getData();
-            double[] y = dataX.getData();
+            double[] y = dataY.getData();
 
-	    	for(int row = 0; row < xpts.length; row++) {
-	    	    x[row] = xpts[row];
-	    	    y[row] = ypts[row];
-	    	}
+            for(int row = 0; row < xpts.length; row++) {
+                x[row] = xpts[row];
+                y[row] = ypts[row];
+            }
     	}
     }
 
