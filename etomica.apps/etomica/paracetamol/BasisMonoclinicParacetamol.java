@@ -4,7 +4,7 @@ import etomica.space3d.Vector3D;
 
 /**
  * An 4-atom basis that for a monoclinic paracetamol crystal.  This Form I crystal structure 
- * occurs at T = 20K. 
+ * occurs at T = 10K. 
  *
  * @author Tai Tan
  */

@@ -58,12 +58,7 @@ public class MCParacetamolMonoclinic extends Simulation {
     public P2ElectrostaticDreiding potentialHpN, potentialOHp , potentialHyHp;
     public Controller controller;
 
-  
-    public MCParacetamolMonoclinic() {
-        this(96);
-    }
-    
-    private MCParacetamolMonoclinic(int numMolecules) {
+    public MCParacetamolMonoclinic(int numMolecules) {
 
     	super(Space3D.getInstance(), false);
     	potentialMaster = new PotentialMaster(space);

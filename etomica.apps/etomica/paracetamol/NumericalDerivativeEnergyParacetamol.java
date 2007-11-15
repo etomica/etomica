@@ -8,9 +8,10 @@ import etomica.potential.PotentialMaster;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
 import etomica.util.numerical.FiniteDifferenceDerivative;
 
-public class EnergyFunctionParacetamol implements FunctionMultiDimensionalDifferentiable{
+
+public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimensionalDifferentiable{
 	
-	public EnergyFunctionParacetamol(Box box, PotentialMaster potentialMaster){
+	public NumericalDerivativeEnergyParacetamol(Box box, PotentialMaster potentialMaster){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		this.meterEnergy = new MeterPotentialEnergy(potentialMaster);
@@ -26,7 +27,18 @@ public class EnergyFunctionParacetamol implements FunctionMultiDimensionalDiffer
 			coordinateDefinition.setToU(molecules, u);
 		}
 		
-		return meterEnergy.getDataAsScalar();
+		double energy = meterEnergy.getDataAsScalar();
+		
+		//System.out.println("Coordinate of first atom that overlaps: "+((IAtomPositioned)((IAtomGroup)box.getMoleculeList(species).getAtom(101)).getChildList().getAtom(2)).getPosition());
+        //System.out.println("Coordinate of second atom that overlaps: "+((IAtomPositioned)((IAtomGroup)box.getMoleculeList(species).getAtom(103)).getChildList().getAtom(18)).getPosition());
+        
+        //System.out.println(Arrays.toString(u));
+		
+		if (Double.isNaN(energy)|| Double.isInfinite(energy)){
+			
+			throw new RuntimeException("Energy is "+ energy);
+		}
+		return energy;
 	}
 	
 	public double df(int[] d, double[] u){
@@ -87,5 +99,6 @@ public class EnergyFunctionParacetamol implements FunctionMultiDimensionalDiffer
 	protected double[] fPrime;
 	protected Box box;
 	protected PotentialMaster potentialMaster;
+	//public Species species;
 	
 }

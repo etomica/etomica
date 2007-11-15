@@ -6,14 +6,15 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.box.Box;
+import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space3d.IVector3D;
 
-public class DerivativeEnergyFunctionParacetamol extends etomica.conjugategradient.DerivativeEnergyFunction implements Serializable{
+public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunction implements Serializable{
 	
-	public DerivativeEnergyFunctionParacetamol(Box box, PotentialMaster potentialMaster){
+	public AnalyticalDerivativeEnergyParacetamol(Box box, PotentialMaster potentialMaster){
 		super(box, potentialMaster);
 		rotationAxis = (IVector3D)box.getSpace().makeVector();
 		a      = (IVector3D)box.getSpace().makeVector();
@@ -62,6 +63,9 @@ public class DerivativeEnergyFunctionParacetamol extends etomica.conjugategradie
 		
 		int group = index;
 		
+		/*
+		 * return the first-derivative of translation mode
+		 */
 		if(group%6 < 3){
 			
 			fPrimeRotation[index] = super.df(d, u);
@@ -85,7 +89,8 @@ public class DerivativeEnergyFunctionParacetamol extends etomica.conjugategradie
 			
 			int j=3;
 			
-			for (int p=0; p<molecules.getAtomCount(); p++){ //loop over the 8 atoms in the basis cell
+			for (int p=0; p<molecules.getAtomCount(); p++){ //loop over the 8 molecules in the basis cell
+				
 				AtomSet molecule = ((IAtomGroup)molecules.getAtom(p)).getChildList();
 			
 				 //leafPos0 is atom C1 in Paracetamol
@@ -118,7 +123,7 @@ public class DerivativeEnergyFunctionParacetamol extends etomica.conjugategradie
 					 } else
 					
 					 if(jay==1){
-						 deltaV.E(new double[]{-u[j]/Math.sqrt(1-u[j-1]*u[j-1]-u[j]*u[j]) ,0 ,1});
+						 deltaV.E(new double[]{-u[j+1]/Math.sqrt(1-u[j]*u[j]-u[j+1]*u[j+1]) ,0 ,1});
 						 rotationAxis.E(v);
 						 rotationAxis.XE(deltaV);
 						 rotationAxis.normalize();
@@ -150,6 +155,7 @@ public class DerivativeEnergyFunctionParacetamol extends etomica.conjugategradie
 						 	
 			    	    	double dotProd = a.dot(rotationAxis);
 			    	    	aProj.Ea1Tv1(dotProd,rotationAxis);
+			    	    	aProj.normalize();
 			    	    	
 			    	    	if (q==0){
 						 		distance[q].E(new double[] {0, 0, 0});

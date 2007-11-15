@@ -42,7 +42,7 @@ import etomica.units.Pixel;
  * @author Tai Tan
  *
  */
-public class ParacetamolOrthorhombicMCMoveHarmonic extends Simulation {
+public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
 
 	private static final long serialVersionUID = 1L;
 	private final static String APP_NAME = "MC Move Harmonic Paracetamol Orthorhombic";
@@ -59,11 +59,11 @@ public class ParacetamolOrthorhombicMCMoveHarmonic extends Simulation {
     public Controller controller;
 
   
-    public ParacetamolOrthorhombicMCMoveHarmonic() {
+    public MCParacetamolOrthorhombicMoveHarmonic() {
         this(192);
     }
     
-    private ParacetamolOrthorhombicMCMoveHarmonic(int numMolecules) {
+    private MCParacetamolOrthorhombicMoveHarmonic(int numMolecules) {
 
     	super(Space3D.getInstance(), false);
     	
@@ -309,7 +309,7 @@ public class ParacetamolOrthorhombicMCMoveHarmonic extends Simulation {
         bdry.setDimensions(Space.makeVector(new double []{2*17.248, 3*12.086, 4*7.382}));
         box.setBoundary(bdry);
 
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
+        coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
         coordDef.setBasisOrthorhombic();
         coordDef.initializeCoordinates(new int []{2, 3, 4});
  
@@ -323,13 +323,15 @@ public class ParacetamolOrthorhombicMCMoveHarmonic extends Simulation {
    
     public static void main(String[] args) {
     	int numMolecules = 192;
-        etomica.paracetamol.ParacetamolOrthorhombicMCMoveHarmonic sim = new etomica.paracetamol.ParacetamolOrthorhombicMCMoveHarmonic(numMolecules);
+        etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonic sim = new etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonic(numMolecules);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1);
         Pixel pixel = new Pixel(10);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
         //sim.getController().actionPerformed();
         ConfigurationFile configFile = new ConfigurationFile("Coord_Paracetamol_FormII_100.0_K");
         configFile.initializeCoordinates(sim.box);
+
+        
    /*****************************************************************************/    
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
@@ -339,10 +341,11 @@ public class ParacetamolOrthorhombicMCMoveHarmonic extends Simulation {
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(PEpump);
         
+        
+        sim.actionIntegrate.setMaxSteps(5);
         sim.integrator.addIntervalAction(PEpump);
         sim.integrator.setActionInterval(PEpump, 500);
-        
- /**********************************************************************/   
+           
         simGraphic.add(PEbox);
         
         simGraphic.makeAndDisplayFrame(APP_NAME);
@@ -364,4 +367,5 @@ public class ParacetamolOrthorhombicMCMoveHarmonic extends Simulation {
     public BravaisLattice lattice;
     public BoundaryRectangularPeriodic bdry;
     public ActivityIntegrate actionIntegrate;
+    public CoordinateDefinitionParacetamol coordDef;
 }//end of class

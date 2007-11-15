@@ -2,7 +2,6 @@ package etomica.paracetamol;
 
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtomGroup;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.config.Conformation;
 import etomica.space.Space;

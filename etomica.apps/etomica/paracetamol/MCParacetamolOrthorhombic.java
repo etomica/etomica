@@ -6,11 +6,12 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
+import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -19,7 +20,7 @@ import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.box.Box;
+import etomica.potential.P2Exp6;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -48,11 +49,11 @@ public class MCParacetamolOrthorhombic extends Simulation {
     public MCMoveMolecule mcMoveMolecule;
     public MCMoveRotateMolecule3D mcMoveRotateMolecule;
     public SpeciesParacetamol species;
-    public P2ElectrostaticDreiding potentialCC , potentialCHy , potentialHyHy;
-    public P2ElectrostaticDreiding potentialCN , potentialNO  , potentialNN  ;
-    public P2ElectrostaticDreiding potentialHyN, potentialHyO , potentialOO  ;
-    public P2ElectrostaticDreiding potentialCO , potentialHpHp, potentialCHp ;
-    public P2ElectrostaticDreiding potentialHpN, potentialOHp , potentialHyHp;
+    public P2Exp6 potentialCC , potentialCHy , potentialHyHy;
+    public P2Exp6 potentialCN , potentialNO  , potentialNN  ;
+    public P2Exp6 potentialHyN, potentialHyO , potentialOO  ;
+    public P2Exp6 potentialCO , potentialHpHp, potentialCHp ;
+    public P2Exp6 potentialHpN, potentialOHp , potentialHyHp;
     public Controller controller;
 
   
@@ -113,8 +114,8 @@ public class MCParacetamolOrthorhombic extends Simulation {
          * Intermolecular Potential
          */
     
-        double truncationRadiusCC   = 3.0* 3.395524116;
-        double truncationRadiusCHy  = 3.0* 2.670105986;
+        double truncationRadiusCC   = 5.0* 3.395524116;
+        double truncationRadiusCHy  = 5.0* 2.670105986;
         double truncationRadiusHyHy = 3.0* 2.099665865;
         double truncationRadiusCN   = 3.0* 3.237739512;
         double truncationRadiusNO   = 3.0* 3.035146951;
@@ -129,39 +130,26 @@ public class MCParacetamolOrthorhombic extends Simulation {
         double truncationRadiusOHp  = 3.0* 2.145849932;
         double truncationRadiusHyHp = 3.0* 1.800044389;
         
-        potentialCC   = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim(3832.14700),
-        		0.277778, ElectronVolt.UNIT.toSim(25.286949));
-        potentialCHy  = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim( 689.53672),
-        		0.272480, ElectronVolt.UNIT.toSim( 5.978972));
-        potentialHyHy = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim( 124.07167), 
-        		0.267380, ElectronVolt.UNIT.toSim( 1.413698));
-        potentialCN   = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim(3179.51460),
-        		0.271003, ElectronVolt.UNIT.toSim(19.006710));
-        potentialNO   = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim(2508.04480),
-        		0.258398, ElectronVolt.UNIT.toSim(12.898341));
-        potentialNN   = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim(2638.02850),
-        		0.264550, ElectronVolt.UNIT.toSim(14.286224));
-        potentialHyN  = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim( 572.10541),
-        		0.265957, ElectronVolt.UNIT.toSim( 4.494041));
-        potentialHyO  = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim( 543.91604),
-        		0.259740, ElectronVolt.UNIT.toSim( 4.057452));
-        potentialOO   = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim(2384.46580),
-        		0.252525, ElectronVolt.UNIT.toSim(11.645288));
-        potentialCO   = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim(3022.85020), 
-        		0.264550, ElectronVolt.UNIT.toSim(17.160239));
-        potentialHpHp = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim(  52.12899), 
-        		0.214592, ElectronVolt.UNIT.toSim( 0.222819));
-        potentialCHp  = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim( 446.95185), 
-        		0.242131, ElectronVolt.UNIT.toSim( 2.373693));
-        potentialHpN  = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim( 370.83387), 
-        		0.236967, ElectronVolt.UNIT.toSim( 1.784166));
-        potentialOHp  = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim( 352.56176), 
-        		0.232019, ElectronVolt.UNIT.toSim( 1.610837));
-        potentialHyHp = new P2ElectrostaticDreiding(space, ElectronVolt.UNIT.toSim(  80.42221), 
-        		0.238095, ElectronVolt.UNIT.toSim( 0.561248));
+        // Potential Parameters from DL_MULTI
+        potentialCC   = new P2Exp6(space, ElectronVolt.UNIT.toSim(3832.14700), 0.277778, ElectronVolt.UNIT.toSim(25.286949));
+        potentialCHy  = new P2Exp6(space,  ElectronVolt.UNIT.toSim(689.53672), 0.272480,  ElectronVolt.UNIT.toSim(5.978972));
+        potentialHyHy = new P2Exp6(space,  ElectronVolt.UNIT.toSim(124.07167), 0.267380, ElectronVolt.UNIT.toSim( 1.413698));
+        potentialCN   = new P2Exp6(space, ElectronVolt.UNIT.toSim(3179.51460), 0.271003, ElectronVolt.UNIT.toSim(19.006710));
+        potentialNO   = new P2Exp6(space, ElectronVolt.UNIT.toSim(2508.04480), 0.258398, ElectronVolt.UNIT.toSim(12.898341));
+        potentialNN   = new P2Exp6(space, ElectronVolt.UNIT.toSim(2638.02850), 0.264550, ElectronVolt.UNIT.toSim(14.286224));
+        potentialHyN  = new P2Exp6(space,  ElectronVolt.UNIT.toSim(572.10541), 0.265957, ElectronVolt.UNIT.toSim( 4.494041));
+        potentialHyO  = new P2Exp6(space,  ElectronVolt.UNIT.toSim(543.91604), 0.259740, ElectronVolt.UNIT.toSim( 4.057452));
+        potentialOO   = new P2Exp6(space, ElectronVolt.UNIT.toSim(2384.46580), 0.252525, ElectronVolt.UNIT.toSim(11.645288));
+        potentialCO   = new P2Exp6(space, ElectronVolt.UNIT.toSim(3022.85020), 0.264550, ElectronVolt.UNIT.toSim(17.160239));
+        potentialHpHp = new P2Exp6(space,   ElectronVolt.UNIT.toSim(52.12899), 0.214592, ElectronVolt.UNIT.toSim( 0.222819));
+        potentialCHp  = new P2Exp6(space,  ElectronVolt.UNIT.toSim(446.95185), 0.242131, ElectronVolt.UNIT.toSim( 2.373693));
+        potentialHpN  = new P2Exp6(space,  ElectronVolt.UNIT.toSim(370.83387), 0.236967, ElectronVolt.UNIT.toSim( 1.784166));
+        potentialOHp  = new P2Exp6(space,  ElectronVolt.UNIT.toSim(352.56176), 0.232019, ElectronVolt.UNIT.toSim( 1.610837));
+        potentialHyHp = new P2Exp6(space,   ElectronVolt.UNIT.toSim(80.42221), 0.238095, ElectronVolt.UNIT.toSim( 0.561248));
         
+       
         // CA-CA
-        if(truncationRadiusCC > 0.5*box.getBoundary().getDimensions().x(0)) {
+        if(false && truncationRadiusCC > 0.5*box.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
             		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
             }
@@ -170,7 +158,7 @@ public class MCParacetamolOrthorhombic extends Simulation {
         		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).cType} );
         
         // CA-HY
-        if(truncationRadiusCHy > 0.5*box.getBoundary().getDimensions().x(0)) {
+        if(false && truncationRadiusCHy > 0.5*box.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  " +
             		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
             }
@@ -296,7 +284,8 @@ public class MCParacetamolOrthorhombic extends Simulation {
         		(AtomFactoryParacetamol)species.getMoleculeFactory()).hyType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hpType} );
   
         potentialMaster.lrcMaster().setEnabled(false);
-       /*
+        
+        /*
         *
         */
         
@@ -307,12 +296,25 @@ public class MCParacetamolOrthorhombic extends Simulation {
         CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
         coordDef.setBasisOrthorhombic();
         coordDef.initializeCoordinates(new int []{2, 3, 4});
-       	
+        
+        
+//        WriteConfigurationDLPOLY writeConfig = new WriteConfigurationDLPOLY();
+//        writeConfig.setConfName("CONFIG_Paracetamol");
+//        writeConfig.setBox(box);
+//        writeConfig.getElementHash().put(HydrogenP.INSTANCE, "HP");
+//        writeConfig.actionPerformed();
+//        
+//        XYZWriter pdbWriter = new XYZWriter(box);
+//        pdbWriter.setFileName("TestPoly_CONFIG_Paracetamol");
+//        pdbWriter.actionPerformed();
+        
+        
         integrator.setBox(box);
         //BoxImposePbc pbc = new BoxImposePbc(box);
         //pbc.actionPerformed();
         //pbc.setApplyToMolecules(true);
         //integrator.addListener(new IntervalActionAdapter(pbc));
+
         
     } //end of constructor
     
@@ -323,12 +325,13 @@ public class MCParacetamolOrthorhombic extends Simulation {
         SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME,1);
         Pixel pixel = new Pixel(10);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
-        //sim.getController().actionPerformed();
         
    /*****************************************************************************/    
         
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
         meterPE.setBox(sim.box);
+        System.out.println("Energy of the Orthorhombic is: "+ ElectronVolt.UNIT.fromSim(meterPE.getDataAsScalar()));
+        
         DisplayTextBox PEbox = new DisplayTextBox();
         DataPump PEpump = new DataPump(meterPE, PEbox);
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();

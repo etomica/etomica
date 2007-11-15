@@ -3,7 +3,6 @@ package etomica.paracetamol;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.box.Box;
-import etomica.integrator.IntegratorMC;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;

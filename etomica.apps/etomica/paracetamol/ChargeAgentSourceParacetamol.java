@@ -1,5 +1,9 @@
 package etomica.paracetamol;
 
+/*
+ * The agent source for the charges on paracetamol
+ */
+
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.AtomAgentManager.AgentSource;

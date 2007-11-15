@@ -26,8 +26,8 @@ import etomica.units.Kelvin;
 public class MCParacetamolMonoclinicforCluster {
 
     public static void main(String[] args) {
-    	
-        MCParacetamolMonoclinic sim = new MCParacetamolMonoclinic();
+    	int numMolecules = 96;
+        MCParacetamolMonoclinic sim = new MCParacetamolMonoclinic(numMolecules);
         double temperature = sim.integrator.getTemperature();
         long maxSteps = 10;
         

@@ -33,7 +33,7 @@ import etomica.units.Kelvin;
  * @author Tai Tan
  *
  */
-public class ParacetamolOrthorhombicMCMoveHarmonicStep extends Simulation {
+public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
 
 	private static final long serialVersionUID = 1L;
 	//private final static String APP_NAME = "MC Move Harmonic Step Paracetamol Orthorhombic";
@@ -48,11 +48,11 @@ public class ParacetamolOrthorhombicMCMoveHarmonicStep extends Simulation {
     public Controller controller;
 
   
-    public ParacetamolOrthorhombicMCMoveHarmonicStep() {
+    public MCParacetamolOrthorhombicMoveHarmonicStep() {
         this(192);
     }
     
-    private ParacetamolOrthorhombicMCMoveHarmonicStep(int numMolecules) {
+    private MCParacetamolOrthorhombicMoveHarmonicStep(int numMolecules) {
 
     	super(Space3D.getInstance(), false);
     	
@@ -318,7 +318,7 @@ public class ParacetamolOrthorhombicMCMoveHarmonicStep extends Simulation {
    
     public static void main(String[] args) {
     	int numMolecules = 192;
-        etomica.paracetamol.ParacetamolOrthorhombicMCMoveHarmonicStep sim = new etomica.paracetamol.ParacetamolOrthorhombicMCMoveHarmonicStep(numMolecules);
+        etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonicStep sim = new etomica.paracetamol.MCParacetamolOrthorhombicMoveHarmonicStep(numMolecules);
 //        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1);
 //        Pixel pixel = new Pixel(10);
 //        simGraphic.getDisplayPhase(sim.phase).setPixelUnit(pixel);

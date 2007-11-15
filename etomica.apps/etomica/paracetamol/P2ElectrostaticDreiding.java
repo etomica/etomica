@@ -42,6 +42,9 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         int index0 = atom0.getIndex();
         int index1 = atom1.getIndex();
         
+        if (true){
+        	return 0;
+        }
         return constant*AtomParacetamol.Echarge[index0]*AtomParacetamol.Echarge[index1]/Math.sqrt(r2)
         		+ u(r2);        
         		
@@ -66,6 +69,6 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         return gradient;        		
     }
     
-    private double constant = 162.0678e3;
+    private double constant = 162.0678e3; //conversion factor
 	private static final long serialVersionUID = 1L;
 }

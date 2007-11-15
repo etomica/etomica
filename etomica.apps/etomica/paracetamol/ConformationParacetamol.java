@@ -8,6 +8,7 @@ import etomica.space.Space;
 
 /*
  * Geometry of Paracetamol Molecule
+ * Constructed with angles and bond lengths
  * 
  * @author Tai Tan
  */
