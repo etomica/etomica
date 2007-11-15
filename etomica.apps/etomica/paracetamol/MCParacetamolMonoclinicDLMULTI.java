@@ -18,11 +18,16 @@ import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.potential.P2Exp6;
+import etomica.normalmode.MCMoveHarmonicStep;
+import etomica.normalmode.NormalModesFromFile;
+import etomica.normalmode.WaveVectorFactory;
+import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.PotentialDLPOLY;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
+import etomica.species.Species;
 import etomica.units.Kelvin;
 
 /**
@@ -35,6 +40,17 @@ import etomica.units.Kelvin;
  * 
  * Monoclinic Crystal
  * 
+ * The constructor takes in:
+ * 		1. Space
+ * 		2. Number of molecules
+ * 		3. Temperature
+ * 		4. Type of simulation 
+ * 
+ * Selection of type of simulation:
+ * 		0. MC Simulation (MCMoveMolecule & MCMoveRotateMolecule3D)
+ * 		1. Equilibration (MCMoveHarmonicStep)
+ * 		2. SimCalcS      (MCMoveRotateMolecule3D & MCMoveMoleculeCoupledDLPOLY)
+ * 
  * @author Tai Tan
  *
  */
@@ -45,49 +61,42 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
     public IntegratorMC integrator;
     public MCMoveMolecule mcMoveMolecule;
     public MCMoveRotateMolecule3D mcMoveRotateMolecule;
+    public MCMoveHarmonicStep mcMoveHarmonicStep;
+    public MCMoveMoleculeCoupledDLPOLY mcMoveMoleculeCoupledDLPOLY;
     public SpeciesParacetamol species;
-    public P2Exp6 potentialCC , potentialCHy , potentialHyHy;
-    public P2Exp6 potentialCN , potentialNO  , potentialNN  ;
-    public P2Exp6 potentialHyN, potentialHyO , potentialOO  ;
-    public P2Exp6 potentialCO , potentialHpHp, potentialCHp ;
-    public P2Exp6 potentialHpN, potentialOHp , potentialHyHp;
     public Controller controller;
+    public PotentialMaster potentialMaster;
+    public BravaisLatticeCrystal lattice;
+    public BoundaryDeformableLattice bdry;
+    public PrimitiveMonoclinic primitive;
+    public CoordinateDefinitionParacetamol coordDef;
+    public ActivityIntegrate actionIntegrate;
+    public int simType;
+    public static final int MCSIMULATION = 0;
+    public static final int EQUILIBRATION = 1;
+    public static final int SIMCALCS = 2;
 
   
-    public MCParacetamolMonoclinicDLMULTI(Space space, int numMolecules, double temperature) {
+    public MCParacetamolMonoclinicDLMULTI(Space space, int numMolecules, double temperature, int simType) {
     	super(space, true);
     	potentialMaster = new PotentialMaster(space);
+    	this.simType = simType;
     	
     	/*
     	 * Monoclinic Crystal
     	 */
         
-    	PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(space,  12.119, 8.944, 7.278,  1.744806);
-    	//8.944, 12.119, 7.277, 1.74533
+    	primitive = new PrimitiveMonoclinic(space,  12.119, 8.944, 7.278,  1.744806);
+    	/*8.944, 12.119, 7.277, 1.74533*/
     	BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
     	lattice = new BravaisLatticeCrystal (primitive, basis);
         
         integrator = new IntegratorMC(this, potentialMaster);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
-        integrator.setTemperature(Kelvin.UNIT.toSim(20));
-        
-
-        integrator.getMoveManager().setEquilibrating(true);
-
-        mcMoveMolecule = new MCMoveMolecule(this, potentialMaster);
-        mcMoveMolecule.setStepSize(0.1747);  //Step size to input
-        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setTunable(true);
-        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);
-        
-        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random);
-        mcMoveRotateMolecule.setStepSize(0.068);
-        ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
-        
+        integrator.setTemperature(Kelvin.UNIT.toSim(123));
         
         integrator.getMoveManager().setEquilibrating(true);
-        integrator.getMoveManager().addMCMove(mcMoveMolecule);
-        integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
         
         actionIntegrate = new ActivityIntegrate(integrator, 0, false);
         getController().addAction(actionIntegrate);
@@ -106,10 +115,77 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         bdry.setDimensions(Space.makeVector(new double []{2*12.119, 3*8.944, 4*7.278}));
         box.setBoundary(bdry);
         
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
+        coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
         coordDef.setBasisMonoclinic();
-        coordDef.initializeCoordinates(new int []{2, 3, 4});
         
+        if (simType == 0){
+        	coordDef.initializeCoordinates(new int []{2, 3, 4});
+	        mcMoveMolecule = new MCMoveMolecule(this, potentialMaster);
+	        mcMoveMolecule.setStepSize(0.1747);  //Step size to input
+	        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setTunable(true);
+	        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setNoisyAdjustment(true);
+	        
+	        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random);
+	        mcMoveRotateMolecule.setStepSize(0.068);
+	        ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
+	        
+	        
+	        integrator.getMoveManager().setEquilibrating(true);
+	        integrator.getMoveManager().addMCMove(mcMoveMolecule);
+	        integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
+        } else 
+        	
+        	if (simType == 1){
+        		coordDef.initializeCoordinates(new int []{2, 3, 4});
+                mcMoveHarmonicStep = new MCMoveHarmonicStep(potentialMaster, getRandom());
+                mcMoveHarmonicStep.setCoordinateDefinition(coordDef);
+                mcMoveHarmonicStep.setBox(box);
+                
+                int[] modes = new int[45];
+                for (int i=0; i<45; i++){
+                	modes[i] = i+3;
+                }
+           
+                NormalModesFromFile normalModes = new NormalModesFromFile("Normal_Modes_Paracetamol_FormII_10.0K",3);
+                WaveVectorFactory waveVectorFactory = normalModes.getWaveVectorFactory();
+                waveVectorFactory.makeWaveVectors(box);
+                
+                mcMoveHarmonicStep.setModes(modes);
+                mcMoveHarmonicStep.setEigenVectors(normalModes.getEigenvectors(box)[0]);
+                mcMoveHarmonicStep.setStepSize(0.006);
+                ((MCMoveStepTracker)mcMoveHarmonicStep.getTracker()).setAdjustInterval(5);
+                ((MCMoveStepTracker)mcMoveHarmonicStep.getTracker()).setNoisyAdjustment(true);
+               
+                integrator.getMoveManager().addMCMove(mcMoveHarmonicStep);
+                integrator.getMoveManager().setEquilibrating(true);
+        	} else 
+        		
+        		if (simType == 2){
+        			
+        	        //ConfigurationFile configFile = new ConfigurationFile("FinalCoord_Min_Paracetamol_Monoclinic");
+        			//coordinateDefinition.setConfiguration(configFile);
+        	        coordDef.initializeCoordinates(new int []{2, 2, 2});
+        	        double[] u = new double[]{0.19923028993600184, -0.10831241063851138, -0.3374206766423242, -0.056318915244514295, -0.08373011094015517, -0.20967425215989952, -0.15036406963107662, -0.06903390627642114, 0.2911023015207981, -0.062482609873595024, -0.0836259970912052, -0.17490727322325597, -0.19043886713958358, 0.09585326949021145, 0.29982577023219825, -0.052978731871725596, 0.0794450448846585, 0.20078353728718995, 0.1791946947288432, 0.07473598884040555, -0.33875779999181965, -0.06542404448301108, 0.0856334706980024, 0.20954733660556393};
+        	        BasisCell[] cell = coordDef.getBasisCells() ;
+        	        for (int i=0; i<cell.length; i++){
+        	        	coordDef.setToU(cell[i].molecules, u);
+        	        }
+        			
+        			
+        	        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random);
+        	        mcMoveRotateMolecule.setStepSize(0.068);
+        	        ((MCMoveStepTracker)mcMoveRotateMolecule.getTracker()).setNoisyAdjustment(true);
+        	      
+        	        mcMoveMoleculeCoupledDLPOLY = new MCMoveMoleculeCoupledDLPOLY(potentialMaster, getRandom());
+        	        
+        	        integrator.getMoveManager().addMCMove(mcMoveMoleculeCoupledDLPOLY);
+        	        integrator.getMoveManager().addMCMove(mcMoveRotateMolecule);
+        	        integrator.getMoveManager().setEquilibrating(true);
+        		} else {
+        			
+        			throw new RuntimeException ("Need to input type of simulation!!!!");
+        		}
+   
         WriteConfigurationDLPOLY configDLPOLY = new WriteConfigurationDLPOLY();
         configDLPOLY.setConfName("CONFIG");
         configDLPOLY.setBox(box);
@@ -117,9 +193,9 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
        // configDLPOLY.actionPerformed();
        // System.exit(1);
    
-       //PotentialDLPOLY potentialDLPOLY = new PotentialDLPOLY(space);
-       //potentialDLPOLY.setConfigDLPOLY(configDLPOLY);
-       //potentialMaster.addPotential(potentialDLPOLY, new Species[0]);
+        PotentialDLPOLY potentialDLPOLY = new PotentialDLPOLY(space);
+        potentialDLPOLY.setConfigDLPOLY(configDLPOLY);
+        potentialMaster.addPotential(potentialDLPOLY, new Species[0]);
 
         integrator.setBox(box);
     } //end of constructor
@@ -128,7 +204,8 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
     	
     	int numMolecules = 96;
     	double temperature = Kelvin.UNIT.toSim(123);
-    	long simSteps = 100;
+    	long simSteps = 1000;
+    	int simType = 0;
       
         String filename = "Paracetamol_Monoclinic_"+ Kelvin.UNIT.fromSim(temperature)+"K";
         if (args.length > 0) {
@@ -140,14 +217,19 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         if (args.length > 2) {
             temperature = Kelvin.UNIT.toSim(Double.parseDouble(args[2]));
         }
+        if (args.length > 3) {
+            simType = Integer.parseInt(args[3]);
+        }
         
         System.out.println("Running "+ "Monoclinic Paracetamol simulation");
+        System.out.println("Type of simulation: "+simType);
         System.out.println(numMolecules + " molecules " +" and temperature "+ Kelvin.UNIT.fromSim(temperature) +"K");
         System.out.println(simSteps+ " steps");
         System.out.println("output data to " + filename);
         
+        
     	MCParacetamolMonoclinicDLMULTI sim = 
-        	new MCParacetamolMonoclinicDLMULTI(Space.getInstance(3), numMolecules, temperature);
+        	new MCParacetamolMonoclinicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType);
 
         sim.actionIntegrate.setMaxSteps(simSteps);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
@@ -180,10 +262,5 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         pdbWriter.actionPerformed();
         
     }//end of main
-    
-    public PotentialMaster potentialMaster;
-    public BravaisLatticeCrystal lattice;
-    public BoundaryDeformableLattice bdry;
-    public ActivityIntegrate actionIntegrate;
-
+  
 }//end of class

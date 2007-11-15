@@ -153,7 +153,7 @@ public class HarmonicCrystalOrthorhombic {
         if (args.length > 0) {
             temperature = Kelvin.UNIT.toSim(Double.parseDouble(args[0]));
         }
-        MCParacetamolOrthorhombicDLMULTISimCalcS sim = new MCParacetamolOrthorhombicDLMULTISimCalcS(Space3D.getInstance(),32,temperature);
+        MCParacetamolOrthorhombicDLMULTI sim = new MCParacetamolOrthorhombicDLMULTI(Space3D.getInstance(),32,temperature, 2);
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
       
         CoordinateDefinitionParacetamol coordinateDefinition = new CoordinateDefinitionParacetamol(sim.box, sim.primitive, basis);

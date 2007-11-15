@@ -154,7 +154,7 @@ public class HarmonicCrystalMonoclinic {
             temperature = Kelvin.UNIT.toSim(Double.parseDouble(args[0]));
         }
         
-        MCParacetamolMonoclinicDLMULTISimCalcS sim = new MCParacetamolMonoclinicDLMULTISimCalcS(Space3D.getInstance(),32,temperature);
+        MCParacetamolMonoclinicDLMULTI sim = new MCParacetamolMonoclinicDLMULTI(Space3D.getInstance(),32,temperature, 2);
         BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
       
         CoordinateDefinitionParacetamol coordinateDefinition = new CoordinateDefinitionParacetamol(sim.box, sim.primitive, basis);

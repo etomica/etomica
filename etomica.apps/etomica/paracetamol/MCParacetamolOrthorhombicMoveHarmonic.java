@@ -341,7 +341,6 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(PEpump);
         
-        
         sim.actionIntegrate.setMaxSteps(5);
         sim.integrator.addIntervalAction(PEpump);
         sim.integrator.setActionInterval(PEpump, 500);
