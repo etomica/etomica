@@ -20,7 +20,8 @@ import etomica.util.FunctionMultiDimensionalDifferentiable;
 public class DerivativeEnergyFunction implements FunctionMultiDimensionalDifferentiable{
 
 	/*
-	 * This class is developed to calculate for the first derivative of energy function.
+	 * This class is developed to calculate for 
+	 * 	the first derivative of energy function ANALYTICALLY.
 	 * 
 	 * @author Tai Tan
 	 */

@@ -8,7 +8,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.paracetamol.DerivativeEnergyFunctionParacetamol;
+import etomica.paracetamol.AnalyticalDerivativeEnergyParacetamol;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.space.Space;
@@ -34,11 +34,11 @@ public class FiniteDifferenceDerivativeCG {
 	protected AtomAgentManager agentManager;
 	protected Activity activity;
 	
-	protected DerivativeEnergyFunctionParacetamol derivativeFunction;
+	protected AnalyticalDerivativeEnergyParacetamol derivativeFunction;
 	protected double h;
 	protected boolean hOptimizer;
 	
-	public FiniteDifferenceDerivativeCG(Box box, PotentialMaster potentialMaster, DerivativeEnergyFunctionParacetamol derivativeFunction){
+	public FiniteDifferenceDerivativeCG(Box box, PotentialMaster potentialMaster, AnalyticalDerivativeEnergyParacetamol derivativeFunction){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		this.derivativeFunction = derivativeFunction;
@@ -67,7 +67,7 @@ public class FiniteDifferenceDerivativeCG {
 		int coordinateDim = u.length;
 		double[] d2fdu2 = new double[coordinateDim];
 		
-		derivativeFunction = new DerivativeEnergyFunctionParacetamol(box, potentialMaster);
+		derivativeFunction = new AnalyticalDerivativeEnergyParacetamol(box, potentialMaster);
 		double[] uDerivative = new double[coordinateDim];
 		int[] dAssign = new int[coordinateDim];
 		

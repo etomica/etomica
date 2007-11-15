@@ -1,6 +1,7 @@
 package etomica.conjugategradient;
 
 import etomica.util.FunctionMultiDimensional;
+import etomica.util.FunctionMultiDimensionalDifferentiable;
 import etomica.util.numerical.FiniteDifferenceDerivative;
 
 
@@ -15,21 +16,20 @@ public class NonLinearConjugateGradients {
 	 *  @author Tai Tan
 	 */
 	
-	protected FiniteDifferenceDerivative finiteDifferenceDerivative;
 	protected int imax;
 	protected int jmax;
 	protected double epsilonCG;
 	protected double epsilonNR;
 	
-	public NonLinearConjugateGradients(FiniteDifferenceDerivative finiteDifferenceDerivative){
-		this.finiteDifferenceDerivative = finiteDifferenceDerivative;
+	public NonLinearConjugateGradients(){
+		
 		imax = 100;
 		jmax = 100;
 		epsilonCG = 0.01;
 		epsilonNR = 0.01;
 	}
 	
-	public void NonLinearCG(FunctionMultiDimensional function, double[] u){
+	public void nonLinearCG(FunctionMultiDimensionalDifferentiable functionDifferentiable, double[] u){
 		
 		/*
 		 *  imax is a maximum number of CG iterations
@@ -46,7 +46,6 @@ public class NonLinearConjugateGradients {
 		int[] dAssign = new int[coordinateDim];
 		double[] uDerivative = new double[coordinateDim];
 		
-		finiteDifferenceDerivative = new FiniteDifferenceDerivative(function);
 		//finiteDifferenceDerivative.setH(0.01);
 		//finiteDifferenceDerivative.setHOptimizer(true);
 		/*
@@ -63,7 +62,7 @@ public class NonLinearConjugateGradients {
 					dAssign[dim] = 0;
 				}
 			}
-			uDerivative[diff1Counter] = - finiteDifferenceDerivative.df(dAssign, u);
+			uDerivative[diff1Counter] = - functionDifferentiable.df(dAssign, u);
 		}
 		
 		
@@ -138,7 +137,7 @@ public class NonLinearConjugateGradients {
 						
 						++ dAssign[diff2Counter];  // determine the next element of the derivative
 						
-						u2Derivative[diff2Counter][diff1Counter] = finiteDifferenceDerivative.df(dAssign, u);
+						u2Derivative[diff2Counter][diff1Counter] = functionDifferentiable.df(dAssign, u);
 						System.out.println("Second Derivative d["+diff2Counter+"]d["+diff1Counter+"] is: "
 								+u2Derivative[diff2Counter][diff1Counter]);
 					}
@@ -163,7 +162,7 @@ public class NonLinearConjugateGradients {
 						}
 						
 						if (diff1Counter == diff2Counter){
-							u2Derivative[diff2Counter][diff1Counter] = finiteDifferenceDerivative.df(dAssign, u);
+							u2Derivative[diff2Counter][diff1Counter] = functionDifferentiable.df(dAssign, u);
 						} else {
 							u2Derivative[diff2Counter][diff1Counter] = 0;
 						}
@@ -218,7 +217,7 @@ public class NonLinearConjugateGradients {
 						dAssign[dim] = 0;
 					}
 				}
-				uDerivative[diff1Counter] = - finiteDifferenceDerivative.df(dAssign, u);
+				uDerivative[diff1Counter] = - functionDifferentiable.df(dAssign, u);
 			}
 			
 			double deltaOld = deltaNew;

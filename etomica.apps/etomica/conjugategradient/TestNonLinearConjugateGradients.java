@@ -1,9 +1,9 @@
 package etomica.conjugategradient;
 
-import etomica.util.FunctionMultiDimensional;
+import etomica.util.FunctionMultiDimensionalDifferentiable;
 import etomica.util.numerical.FiniteDifferenceDerivative;
 
-public class TestNonLinearConjugateGradients implements FunctionMultiDimensional{
+public class TestNonLinearConjugateGradients implements FunctionMultiDimensionalDifferentiable{
 	
 	public TestNonLinearConjugateGradients(){
 		
@@ -13,23 +13,42 @@ public class TestNonLinearConjugateGradients implements FunctionMultiDimensional
 		return u[0]*u[0] + u[1]*u[1];
 	}
 	
+	public double df(int[] d, double[] u){
+		
+		if (d[0]==0){
+			if (d[1]==0){
+				return f(u);
+			} else if (d[1]==1){
+				return 2*u[1];
+			} else if (d[1]==2){
+				return 2;
+			} 
+		} else if (d[0]==1){
+			return(d[1]==0)? 2*u[0]: 0.0;
+		} else if (d[0]==2){
+			return(d[1]==0)? 2: 0.0;
+		}
+		return 0;
+		
+	}
+	
 	public int getDimension(){
 		return 1;
 	}
 	
 	public static void main(String args[]){
-		double[] uNew = new double[] {.5, .5};
+		double[] uNew = new double[] {.2, .2};
 		TestNonLinearConjugateGradients testFunction = new TestNonLinearConjugateGradients();
 		
 		FiniteDifferenceDerivative finiteDifferenceDerivative = new FiniteDifferenceDerivative(testFunction);
 		finiteDifferenceDerivative.setH(0.001);
 		finiteDifferenceDerivative.setHOptimizer(true);
-		NonLinearConjugateGradients nonLinearCG = new NonLinearConjugateGradients(finiteDifferenceDerivative);
+		NonLinearConjugateGradients nonLinearCG = new NonLinearConjugateGradients();
 		nonLinearCG.setEpsilonCG(0.1);
-		nonLinearCG.setEpsilonNR(0.71); // 
+		nonLinearCG.setEpsilonNR(0.1); // 
 		nonLinearCG.setImax(1000);
-		nonLinearCG.setJmax(10);
-		nonLinearCG.NonLinearCG(testFunction, uNew);
+		nonLinearCG.setJmax(5);
+		nonLinearCG.nonLinearCG(testFunction, uNew);
 
 		
 		System.out.println("u[0] is: "+ uNew[0]);
