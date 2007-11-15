@@ -48,6 +48,7 @@ public class ConjugateGradientMultiDimensional {
 			derivative[j] = 1;
 			
 			df[j] = function.df(derivative,p);
+			System.out.println("The d["+j+"] is: "+ df[j]);
 			derivative[j] = 0;
 		}
 		
@@ -59,6 +60,11 @@ public class ConjugateGradientMultiDimensional {
 		for (its=0; its<ITMAX; its++){
 			
 			this.iteration = its;
+			
+			for (int i=0; i<p.length; i++){
+				System.out.println("The number of iteration: "+its);
+				System.out.println("u["+i+"] is: "+p[i]);
+			}
 			
 			fret = lineMinimization.dLineMinimization(p, df, function);
 			
