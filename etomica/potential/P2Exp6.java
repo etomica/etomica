@@ -52,6 +52,7 @@ public class P2Exp6 extends Potential2SoftSpherical {
             return Double.POSITIVE_INFINITY;
         }
         return AA * Math.exp(-r / BB) - CC / (r2 * r2 * r2);
+        
     }
 
     /**
@@ -59,7 +60,7 @@ public class P2Exp6 extends Potential2SoftSpherical {
      */
     public double du(double r2) {
         double r = Math.sqrt(r2);
-        return -AA / (BB) * r * Math.exp(-r / BB) + 6 * CC / (r2 * r2 * r2);
+        return -(AA / BB) * r * Math.exp(-r / BB) + 6 * CC / (r2 * r2 * r2);
 
     }
 
@@ -69,7 +70,7 @@ public class P2Exp6 extends Potential2SoftSpherical {
      */
     public double d2u(double r2) {
         double r = Math.sqrt(r2);
-        return AA / (BB * BB) * r2 * Math.exp(-r / BB) - 42 * CC
+        return (AA / (BB * BB)) * r2 * Math.exp(-r / BB) - 42 * CC
                 / (r2 * r2 * r2);
     }
 

@@ -20,14 +20,14 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryPeriodic;
 import etomica.space.IVector;
 import etomica.space3d.BoundaryTruncatedOctahedron;
-import etomica.util.Arrays;
 
 
 /**
+ * 
  * Dumps a box's configuration to a file.  The coordinates are written in a 
- * format that can be read in by ConfigurationFile.  The output file has a 
- * "pos_new" extension, which should be renamed to "pos" for use with
- * ConfigurationFile.
+ * format that can be read in by ConfigurationFile.  The output file is normally 
+ * named 'CONFIG', which is read by the DL_MULTI package as an input file
+ * 
  */
 public class WriteConfigurationDLPOLY implements Action {
 	
@@ -102,7 +102,7 @@ public class WriteConfigurationDLPOLY implements Action {
      */
     public void actionPerformed() {
         FileWriter fileWriter = null;
-        String fileName = confName + ".dlp";
+        String fileName = confName;
         
 //        try { 
 //            fileWriter = null; //new FileWriter(fileName);
@@ -153,22 +153,34 @@ public class WriteConfigurationDLPOLY implements Action {
         	}
         	
             int atomCount =1;
+            
             for (int flipIndex=0; flipIndex<2; flipIndex++){
             	
 	            for (int iMolec=0; iMolec<box.moleculeCount(); iMolec++) {
-	            	if ((iMolec/4)%2 != flipIndex){
-	            		continue;
+	            	
+	            	//for Orthorhombic Paracetamol
+	            	if(boundaryType==2){
+		            	if ((iMolec/4)%2 != flipIndex){
+		            		continue;
+		            	}
+	            	}
+	            	
+	            	//for Monoclinic Paracetamol
+	            	if(boundaryType==3){
+		            	if ((iMolec/2)%2 != flipIndex){
+		            		continue;
+		            	}
 	            	}
 	            	IAtomGroup molecule = (IAtomGroup)box.molecule(iMolec);
 	                for (int iLeaf=0; iLeaf<molecule.getChildList().getAtomCount(); iLeaf++){
 	                	IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(iLeaf);
 	                	String atomName = (String)elementHash.get(((AtomTypeLeaf)atom.getType()).getElement());
 	       
-	                	
 	                	formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
 	                	atomCount++;
 	                	IVector atomPos = atom.getPosition();
 	                	formatter.format("%20.12f%20.12f%20.12f\n", new Object[]{atomPos.x(0), atomPos.x(1), atomPos.x(2)});
+	                		                	
 	                	
 	                	if (writeVelocity){
 	                		IVector atomVelocity = ((IAtomKinetic)atom).getVelocity();
@@ -179,7 +191,6 @@ public class WriteConfigurationDLPOLY implements Action {
 	                
 	            }
             }
-            
             formatter.close();
         } catch(IOException e) {
             System.err.println("Problem writing to "+fileName+", caught IOException: " + e.getMessage());
