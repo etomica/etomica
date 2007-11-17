@@ -1,5 +1,12 @@
 package etomica.graphics;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -8,23 +15,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import etomica.action.Action;
-
+import etomica.data.Data;
 import etomica.data.DataPump;
 import etomica.data.DataSourceFunction;
 import etomica.data.DataSourcePoints;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DeviceTable;
-import etomica.graphics.DeviceTableModelGeneric;
-import etomica.graphics.DisplayPlot;
 import etomica.modifier.ModifierGeneral;
 import etomica.units.Length;
 import etomica.units.Null;
@@ -32,13 +27,13 @@ import etomica.util.Function;
 
 public class DevicePlotPoints {
 
-	private final int X_DIM = 0;
-	private final int Y_DIM = 1;
-	private final int MIN_X = 0;
-	private final int MAX_X = 1;
-	private final int MIN_Y = 2;
-	private final int MAX_Y = 3;
-	private final int TOTAL_X_SAMPLES = 100;
+	private static final int X_DIM = 0;
+	private static final int Y_DIM = 1;
+	public static final int MIN_X = 0;
+	public static final int MAX_X = 1;
+	public static final int MIN_Y = 2;
+	public static final int MAX_Y = 3;
+	private final int TOTAL_X_SAMPLES = 20;
     private final double[] scaleInit = new double[] {-50.0, 50.0, -250.0, 250.0};
 
     private double[] scaleMins = new double[] {-50.0, 0.0, -250.0, 0.0};
@@ -67,11 +62,11 @@ public class DevicePlotPoints {
     private String[] funcParmLabels;
 
 	public DevicePlotPoints(Function[] fncts, String[] funcNames) {
-		this(null, null, fncts, funcNames);
+		this(null, fncts, funcNames);
 	}
 
 	public DevicePlotPoints(String[] sliderLabels,
-			boolean[] showSliders, Function[] fncts, String[] funcNames) {
+			Function[] fncts, String[] funcNames) {
 
 		numFunctions = fncts.length;
 		funcParmLabels = sliderLabels;
@@ -245,25 +240,39 @@ public class DevicePlotPoints {
 	    updateAction = new Action() {
 	        public void actionPerformed() {
 
-	        	for(int f = 0; f < numFunctions; f++) {
-	        		dataSourceFuncs[f].getXSource().setXMax(plotSizeSliders[MAX_X].getValue());
-	        		dataSourceFuncs[f].getXSource().setXMin(plotSizeSliders[MIN_X].getValue());
-	        		dataSourceFuncs[f].update();
+	            // sniff out min and max y values from the functions.
+	            double maxY = Double.MIN_VALUE;
+	            double minY = Double.MAX_VALUE;
+	            for(int f = 0; f < numFunctions; f++) {
+	                dataSourceFuncs[f].getXSource().setXMax(plotSizeSliders[MAX_X].getValue());
+	                dataSourceFuncs[f].getXSource().setXMin(plotSizeSliders[MIN_X].getValue());
+	                dataSourceFuncs[f].update();
+	                Data yFunc = dataSourceFuncs[f].getData();
+	                for (int i=0; i<yFunc.getLength(); i++) {
+	                    if (yFunc.getValue(i) > maxY) {
+	                        maxY = yFunc.getValue(i);
+	                    }
+                        if (yFunc.getValue(i) < minY) {
+                            minY = yFunc.getValue(i);
+                        }
+	                }
+
 		            funcPumps[f].actionPerformed();
 	        	}
 	            dspts.update(getPoints(X_DIM), getPoints(Y_DIM));
+	            // we could also sniff min and max y here
 	            ptPump.actionPerformed();
+	            // don't auto-scale in X.  this means that entered data outside
+	            // the range won't show up.
+                plot.getPlot().setXRange(plotSizeSliders[MIN_X].getValue(),
+                        plotSizeSliders[MAX_X].getValue());
+                
 	            if(buttonUser.isSelected() == true) {
-	                plot.getPlot().setXRange(plotSizeSliders[MIN_X].getValue(),
-	            	    	                 plotSizeSliders[MAX_X].getValue());
 	                plot.getPlot().setYRange(plotSizeSliders[MIN_Y].getValue(),
 	            		                     plotSizeSliders[MAX_Y].getValue());
 	            }
 	            else {
-            	    double[] autoXRange = plot.getPlot().getXAutoRange();
-            	    double[] autoYRange = plot.getPlot().getYAutoRange();
-	                plot.getPlot().setXRange(autoXRange[0], autoXRange[1]);
-                    plot.getPlot().setYRange(autoYRange[0], autoYRange[1]);
+                    plot.getPlot().setYRange(minY, maxY);
 	            }
 	        }
 	    };
@@ -290,6 +299,13 @@ public class DevicePlotPoints {
         updateAction.actionPerformed();
 
 	}
+
+    /**
+     * Returns the top level panel that the function plot components sit on.
+     */
+    public DisplayPlot getDisplayPlot() {
+        return plot;
+    }
 
 	/**
 	 * Returns the top level panel that the function plot components sit on.
@@ -324,14 +340,53 @@ public class DevicePlotPoints {
 	}
 
 	/**
+	 * Returns the plot scale slider for the given parameter (values can be
+	 * DevicePlotPoints.MIN_X, MAX_X, MIN_Y or MAX_Y.
+	 */
+	public DeviceSlider getPlotSizeSlider(int minMaxXY) {
+	    return plotSizeSliders[minMaxXY];
+	}
+	
+	/**
 	 * Sets the minimum X axis limit allowed on the function plot.  The slider that
 	 * sets the minimum X axis limit will have a range of this value to zero.
 	 * @param min  The minimum X axis value
 	 */
 	public void setMinimumXScale(double min) {
+        if (scaleMaxs[MAX_X] < min) {
+            setMaximumXScale(min);
+        }
 		scaleMins[MIN_X] = min;
 		plotSizeSliders[MIN_X].setMinimum(scaleMins[MIN_X]);
 	}
+
+    /**
+     * Sets the minimum value for the maximum X slider.
+     */
+    public void setMinimumMaxXScale(double minMax) {
+        if (scaleMins[MIN_X] > minMax) {
+            setMinimumXScale(minMax);
+        }
+        if (scaleMaxs[MAX_X] < minMax) {
+            setMaximumXScale(minMax);
+        }
+        scaleMins[MAX_X] = minMax;
+        plotSizeSliders[MAX_X].setMinimum(scaleMins[MAX_X]);
+    }
+
+    /**
+     * Sets the maxmimum value for the minimum X slider.
+     */
+    public void setMaximumMinXScale(double maxMin) {
+        if (scaleMaxs[MAX_X] < maxMin) {
+            setMaximumXScale(maxMin);
+        }
+        if (scaleMins[MIN_X] > maxMin) {
+            setMinimumXScale(maxMin);
+        }
+        scaleMaxs[MIN_X] = maxMin;
+        plotSizeSliders[MIN_X].setMaximum(scaleMaxs[MIN_X]);
+    }
 
 	/**
 	 * Sets the maximum X axis limit allowed on the function plot.  The slider that
@@ -339,6 +394,9 @@ public class DevicePlotPoints {
 	 * @param max  The maximum X axis value
 	 */
 	public void setMaximumXScale(double max) {
+	    if (scaleMins[MIN_X] > max) {
+	        setMinimumXScale(max);
+	    }
 		scaleMaxs[MAX_X] = max;
 		plotSizeSliders[MAX_X].setMaximum(scaleMaxs[MAX_X]);
 	}
@@ -450,6 +508,24 @@ public class DevicePlotPoints {
 		}
 
 		return points;
+	}
+	
+	/**
+	 * Returns the slider for the given parameter.
+	 */
+	public DeviceSlider getSlider(String desc) {
+        for(int i = 0; i < funcParmLabels.length; i++) {
+            if(desc.compareTo(funcParmLabels[i]) == 0) {
+                return funcSlider[i];
+            }
+        }
+        return null;
+	}
+	
+	public void setAutoScale(boolean isAutoScale) {
+	    buttonAuto.setSelected(isAutoScale);
+	    new ToggleButtonListener().actionPerformed(null);
+	    updateAction.actionPerformed();
 	}
 
     private class ToggleButtonListener implements ActionListener {
