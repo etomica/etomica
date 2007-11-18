@@ -40,6 +40,7 @@ public class DevicePlotPoints {
     private double[] scaleMaxs = new double[] {0.0, 50.0, 0.0, 250.0};
 
     private JPanel controlPanel;
+    private JPanel parameterPanel;
     private JPanel resizePanel;
     private JPanel scalePanel;
 
@@ -62,11 +63,11 @@ public class DevicePlotPoints {
     private String[] funcParmLabels;
 
 	public DevicePlotPoints(Function[] fncts, String[] funcNames) {
-		this(null, fncts, funcNames);
+		this(null, fncts, funcNames, true);
 	}
 
 	public DevicePlotPoints(String[] sliderLabels,
-			Function[] fncts, String[] funcNames) {
+			Function[] fncts, String[] funcNames, boolean verticalParameters) {
 
 		numFunctions = fncts.length;
 		funcParmLabels = sliderLabels;
@@ -76,7 +77,7 @@ public class DevicePlotPoints {
 		}
 
 		// GBC that is reused throughout
-		GridBagConstraints vertGBC = new GridBagConstraints();
+		vertGBC = new GridBagConstraints();
     	vertGBC.gridx = 0;
     	vertGBC.gridy = GridBagConstraints.RELATIVE;
         vertGBC.insets = new java.awt.Insets(3,1,3,1);
@@ -147,17 +148,25 @@ public class DevicePlotPoints {
         // is added to the "control panel"
         JPanel sPanel = new JPanel();
         sPanel.setLayout(new GridBagLayout());
+        GridBagConstraints horizGBC = new GridBagConstraints();
+        horizGBC.gridx = GridBagConstraints.RELATIVE;
+        horizGBC.gridy = 0;
 		for(int slide = 0; slide < numSliders; slide++) {
-			sPanel.add(sliderPanel[slide], vertGBC);
+			sPanel.add(sliderPanel[slide], verticalParameters ? vertGBC : horizGBC);
 		}
-		JScrollPane scrollPane = new JScrollPane(sPanel);
-		scrollPane.setPreferredSize(new java.awt.Dimension(250, 320));
-		JPanel parameterPanel = new JPanel();
+        parameterPanel = new JPanel();
+        if (verticalParameters) {
+            JScrollPane scrollPane = new JScrollPane(sPanel);
+            scrollPane.setPreferredSize(new java.awt.Dimension(250, 320));
+            parameterPanel.add(scrollPane);
+            controlPanel.add(parameterPanel, vertGBC);
+        }
+        else {
+            parameterPanel.setLayout(new GridBagLayout());
+            parameterPanel.add(sPanel);
+        }
 		parameterPanel.setBorder(new TitledBorder(null, "Function Parameter Adjustment",
                 TitledBorder.CENTER, TitledBorder.TOP));
-		parameterPanel.add(scrollPane);
-
-        controlPanel.add(parameterPanel, vertGBC);
 
 		//
 		// Plot axis adjustment sliders
@@ -315,12 +324,20 @@ public class DevicePlotPoints {
 	}
 
 	/**
-	 * Returns the top level panel that the points table and function parameter
-	 * slider components sit on.
+	 * Returns the top level panel that the points table and (if parameters are
+	 * vertically-oriented) function parameter slider components sit on.
 	 */
 	public Component controlGraphic() {
 		return controlPanel;
 	}
+
+    /**
+     * Returns the panel that contains the parameter sliders.  You probably
+     * don't want this unless you have horizontal layout for the parameters.
+     */
+    public Component parameterGraphic() {
+        return parameterPanel;
+    }
 
 	/**
 	 * Returns the top level panel that the plot scale resizing components sit on.
