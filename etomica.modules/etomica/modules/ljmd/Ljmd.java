@@ -1,14 +1,13 @@
 package etomica.modules.ljmd;
-import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.box.Box;
+import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -27,7 +26,7 @@ public class Ljmd extends Simulation {
     
     public Ljmd(Space space) {
         super(space);
-        PotentialMaster potentialMaster = new PotentialMaster(space);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.99);
         
         int N = 182;  //number of atoms
         
@@ -37,7 +36,6 @@ public class Ljmd extends Simulation {
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         integrator.setTimeStep(0.01);
      //   integrator.setDoSleep(false);
@@ -56,16 +54,15 @@ public class Ljmd extends Simulation {
 	    box = new Box(this);
         addBox(box);
         IVector dim = space.makeVector();
-        dim.E(14);
+        dim.E(15);
         box.setDimensions(dim);
         box.setNMolecules(species, N);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
         integrator.setBox(box);
-		
-        BoxImposePbc imposePBC = new BoxImposePbc(box);
-        integrator.addIntervalAction(imposePBC);
-        
-    }//end of constructor    
+
+        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
+        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
+    }
     
     public static void main(String[] args) {
         Space space = Space2D.getInstance();
