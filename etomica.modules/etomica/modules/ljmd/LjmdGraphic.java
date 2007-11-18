@@ -83,7 +83,7 @@ public class LjmdGraphic extends SimulationGraphic {
         LJ unitSystem = new LJ();
         Unit tUnit = Energy.DIMENSION.getUnit(unitSystem);
 
-        sim.activityIntegrate.setSleepPeriod(10);
+        sim.activityIntegrate.setSleepPeriod(1);
        
 	    //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
