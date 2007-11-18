@@ -1,0 +1,174 @@
+package etomica.modules.vle;
+
+import java.util.HashMap;
+
+import javax.swing.JFrame;
+
+import etomica.action.Action;
+import etomica.graphics.DeviceButton;
+import etomica.graphics.DevicePlotPoints;
+import etomica.graphics.SimulationGraphic;
+import etomica.graphics.SimulationPanel;
+import etomica.units.Debye;
+import etomica.units.Kelvin;
+import etomica.util.Function;
+
+
+public class B2Fit extends SimulationPanel {
+
+	private final static String APP_NAME = "CO2 Potential Fitter";
+
+	public DevicePlotPoints dPlot;
+
+	public B2Fit() {
+		super(APP_NAME);
+
+        //
+        // Function
+        //
+        FunctionB2LJQ functionB2LJQ = new FunctionB2LJQ();
+        final FunctionMayerB2LJQ functionMayerB2LJQ = new FunctionMayerB2LJQ();
+
+    	dPlot = new DevicePlotPoints(new String[] {"Q", "epsilon", "sigma"},
+    			new Function[]{functionB2LJQ}, new String[] {"B2"}, false);
+    	functionB2LJQ.dPlot = dPlot;
+//    	functionMayerB2LJQ.dPlot = dPlot;
+
+        controlPanel.add(dPlot.controlGraphic());
+		graphicsPanel.add(dPlot.graphic());
+		footerPanel.add(dPlot.parameterGraphic());
+
+        dPlot.setMinimumXScale(200);
+        dPlot.setMaximumMinXScale(300);
+        dPlot.setMinimumMaxXScale(300);
+        dPlot.setMaximumXScale(500);
+        dPlot.getPlotSizeSlider(DevicePlotPoints.MIN_X).setValue(200);
+        dPlot.getPlotSizeSlider(DevicePlotPoints.MAX_X).setValue(400);
+        dPlot.setAutoScale(true);
+        
+		dPlot.setMaximumYScale(100);
+		dPlot.setMinimumYScale(-100);
+		
+		dPlot.setParameterLimits("Q", 0, 10.0);
+        dPlot.setParameterLimits("epsilon", 100.0, 300.0);
+        dPlot.getSlider("epsilon").setValue(200);
+        dPlot.getSlider("epsilon").setNMajor(2);
+        dPlot.getSlider("sigma").setPrecision(2);
+        dPlot.setParameterLimits("sigma", 2.0, 5.0);
+
+        DeviceButton recalcButton = new DeviceButton(null);
+        recalcButton.setAction(new Action() {
+            public void actionPerformed() {
+                functionMayerB2LJQ.reset();
+                dPlot.refresh();
+            }
+        });
+        recalcButton.setLabel("Recalc Mayer");
+//        controlPanel.add(recalcButton.graphic());
+	}
+
+	/**
+	 * Function using LJQB2 to evaluate B2 as a function of Q, epsilon, sigma
+	 * and T.
+	 */
+	public static class FunctionB2LJQ implements Function {
+	    public double f(double T) {
+	        double Q = 0;
+	        double epsilon = 1;
+            double sigma = 1;
+	        if (dPlot != null) {
+	            Q = Debye.UNIT.toSim(dPlot.getParameterValue("Q"));
+                epsilon = dPlot.getParameterValue("epsilon");
+                sigma = dPlot.getParameterValue("sigma");
+	        }
+            T /= epsilon;
+	        Q /= Math.sqrt(Kelvin.UNIT.toSim(epsilon))*Math.pow(sigma, 2.5);
+	        return LJQB2.B2(T, Q)/1E24*etomica.util.Constants.AVOGADRO*Math.pow(sigma,3);
+	    }
+	    
+	    public DevicePlotPoints dPlot;
+	}
+
+    /**
+     * Function using Mayer sampling to evaluate B2 as a function of Q,
+     * epsilon, sigma and T.
+     */
+    public static class FunctionMayerB2LJQ implements Function {
+        public double f(double T) {
+            // only evaluate B2 if user has hit the button
+            if (!ready) return Double.NaN;
+            double Q = 0;
+            double epsilon = 1;
+            double sigma = 1;
+            if (dPlot != null) {
+                Q = Debye.UNIT.toSim(dPlot.getParameterValue("Q"));
+                epsilon = dPlot.getParameterValue("epsilon");
+                sigma = dPlot.getParameterValue("sigma");
+            }
+            if (Double.isNaN(oldQ)) {
+                oldQ = Q;
+            }
+            if (Double.isNaN(oldEpsilon)) {
+                oldEpsilon = epsilon;
+            }
+            if (Double.isNaN(oldSigma)) {
+                oldEpsilon = epsilon;
+            }
+            // try to use a cached value if Q, epsilon, sigma and T haven't changed
+            if (Q == oldQ && epsilon == oldEpsilon && sigma == oldSigma) {
+                Double B2 = B2Hash.get(T);
+                if (B2 != null) {
+                    return B2.doubleValue()*Math.pow(sigma,3);
+                }
+            }
+            else {
+                // user changed a parameter, but hasn't hit the recalc button
+                return Double.NaN;
+            }
+            double unreducedT = T;
+            T /= epsilon;
+            Q /= Math.sqrt(Kelvin.UNIT.toSim(epsilon))*Math.pow(sigma, 2.5);
+            double b2 = VirialLJQB2.calcB2(T, Q)/1E24*etomica.util.Constants.AVOGADRO;
+            B2Hash.put(unreducedT, b2);
+            return b2*Math.pow(sigma,3);
+        }
+        
+        public void reset() {
+            // forget cached B2, forget old parameter values
+            B2Hash.clear();
+            oldQ = Double.NaN;
+            oldEpsilon = Double.NaN;
+            oldSigma = Double.NaN;
+            ready = true;
+        }
+        
+        public DevicePlotPoints dPlot;
+        protected HashMap<Double,Double> B2Hash = new HashMap<Double,Double>();
+        protected double oldQ, oldEpsilon, oldSigma;
+        public boolean ready = false;
+    }
+
+    public static void main(String[] args) {
+
+        B2Fit graph = new B2Fit();
+        JFrame f = new JFrame();
+        f.setSize(1000, 600);
+        f.getContentPane().add(graph);
+        f.setVisible(true);
+        f.addWindowListener(SimulationGraphic.WINDOW_CLOSER);
+        graph.dPlot.refresh();
+
+    }
+
+    public static class Applet extends javax.swing.JApplet {
+	    public void init() {
+
+            B2Fit graph = new B2Fit();
+		    getContentPane().add(graph);
+		    graph.dPlot.refresh();
+	    }
+
+        private static final long serialVersionUID = 1L;
+    }
+
+}
