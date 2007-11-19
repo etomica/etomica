@@ -1,6 +1,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.atom.AtomSource;
+import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtomOriented;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -38,6 +39,8 @@ public class MCMoveRotate extends MCMoveBoxStep {
         setStepSize(Math.PI/2.0);
         perParticleFrequency = true;
         energyMeter.setIncludeLrc(false);
+        atomSource = new AtomSourceRandomMolecule();
+        ((AtomSourceRandomMolecule)atomSource).setRandom(random);
     }
     
     /**
@@ -63,15 +66,13 @@ public class MCMoveRotate extends MCMoveBoxStep {
         iOrientation = molecule.getOrientation(); 
         oldOrientation.E(iOrientation);  //save old orientation
         iOrientation.randomRotation(random, stepSize);
-        uNew = Double.NaN;
+        uNew = energyMeter.getDataAsScalar();
         return true;
     }//end of doTrial
     
     public double getA() {return 1.0;}
     
     public double getB() {
-        energyMeter.setTarget(molecule);
-        uNew = energyMeter.getDataAsScalar();
         return -(uNew - uOld);
     }
     
@@ -92,5 +93,6 @@ public class MCMoveRotate extends MCMoveBoxStep {
     public void setBox(Box p) {
         super.setBox(p);
         energyMeter.setBox(p);
+        atomSource.setBox(p);
     }
 }
