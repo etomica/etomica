@@ -105,11 +105,11 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
         private static final long serialVersionUID = 1L;
         private final double A;
         private final int D;
-        private P2SoftSphericalTruncated potential;
+        private Potential2Soft potential;
         
-        public P0Lrc(Space space, Potential2SoftSpherical truncatedPotential, 
-                P2SoftSphericalTruncated potential, AtomType[] types) {
-            super(space, types, truncatedPotential);
+        public P0Lrc(Space space, Potential2Soft truncatedPotential, 
+                Potential2Soft potential, AtomType[] types) {
+            super(space, types, (Potential2SoftSpherical)truncatedPotential);
             this.potential = potential;
             A = space.sphereArea(1.0);  //multiplier for differential surface element
             D = space.D();              //spatial dimension
@@ -143,7 +143,7 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
          */
         public double uCorrection(double pairDensity) {
             double rCutoff = potential.getRange();
-            double integral = ((Potential2SoftSpherical)truncatedPotential).integral(rCutoff);
+            double integral = ((Potential2Soft)truncatedPotential).integral(rCutoff);
             return pairDensity*integral;
         }
         
@@ -154,9 +154,9 @@ public class P2SoftSphericalTruncated extends Potential2SoftSpherical
          */
         public double duCorrection(double pairDensity) {
             double rCutoff = potential.getRange();
-            double integral = ((Potential2SoftSpherical)truncatedPotential).integral(rCutoff);
+            double integral = ((Potential2Soft)truncatedPotential).integral(rCutoff);
             //need potential to be spherical to apply here
-            integral = -A*space.powerD(rCutoff)*((Potential2SoftSpherical)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
+            integral = -A*space.powerD(rCutoff)*((Potential2Soft)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
             return pairDensity*integral;
         }
 
