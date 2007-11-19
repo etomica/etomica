@@ -38,6 +38,7 @@ public class P2SoftTruncated extends Potential2
     }
 
     public void setBox(Box newBox) {
+        wrappedPotential.setBox(newBox);
         nearestImageTransformer = newBox.getBoundary();
     }
     
@@ -104,6 +105,10 @@ public class P2SoftTruncated extends Potential2
         return wrappedPotential.integral(rC);
     }
     
+    public double u(double r2) {
+        return wrappedPotential.u(r2);
+    }
+    
     /**
      * Mutator method for the radial cutoff distance.
      */
@@ -145,10 +150,10 @@ public class P2SoftTruncated extends Potential2
         private static final long serialVersionUID = 1L;
         private final double A;
         private final int D;
-        private P2SoftTruncated potential;
+        private Potential2Soft potential;
         
         public P0Lrc(Space space, Potential2Soft truncatedPotential, 
-                P2SoftTruncated potential, AtomType[] types) {
+                Potential2Soft potential, AtomType[] types) {
             super(space, types, (Potential)truncatedPotential);
             this.potential = potential;
             A = space.sphereArea(1.0);  //multiplier for differential surface element
@@ -196,7 +201,7 @@ public class P2SoftTruncated extends Potential2
             double rCutoff = potential.getRange();
             double integral = ((Potential2Soft)truncatedPotential).integral(rCutoff);
             //need potential to be spherical to apply here
-            integral = -A*space.powerD(rCutoff)*((Potential2SoftSpherical)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
+            integral = -A*space.powerD(rCutoff)*((Potential2Soft)truncatedPotential).u(rCutoff*rCutoff) - D*integral;
             return pairDensity*integral;
         }
 
