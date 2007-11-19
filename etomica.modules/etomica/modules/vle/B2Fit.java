@@ -49,6 +49,8 @@ public class B2Fit extends SimulationPanel {
 		dPlot.setMaximumYScale(100);
 		dPlot.setMinimumYScale(-100);
 		
+        dPlot.getSlider("Q").setPrecision(2);
+        dPlot.getSlider("Q").setValue(5.0);
 		dPlot.setParameterLimits("Q", 0, 10.0);
         dPlot.setParameterLimits("epsilon", 100.0, 300.0);
         dPlot.getSlider("epsilon").setValue(200);
