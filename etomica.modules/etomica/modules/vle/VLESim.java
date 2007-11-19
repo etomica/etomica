@@ -66,7 +66,7 @@ public class VLESim extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster(space);
         p2LJQ = new P2LJQ(space, sigma, epsilon, moment);
         p2LJQ.setTemperature(temperature);
-        p2Truncated = new P2SoftTruncated(p2LJQ, 4.0*sigma);
+        p2Truncated = new P2SoftTruncated(p2LJQ, 15);
 //        ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
         potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getMoleculeType(), species.getMoleculeType()});
         
