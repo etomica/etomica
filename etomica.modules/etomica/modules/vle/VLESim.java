@@ -51,7 +51,7 @@ public class VLESim extends Simulation {
         
         species = new SpeciesSpheresRotating(this);
         getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
+        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
 
         boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize));
         addBox(boxLiquid);
@@ -68,7 +68,7 @@ public class VLESim extends Simulation {
         p2LJQ.setTemperature(temperature);
         p2Truncated = new P2SoftTruncated(p2LJQ, 4.0*sigma);
 //        ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
-        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        potentialMaster.addPotential(p2Truncated, new AtomType[]{species.getMoleculeType(), species.getLeafType()});
         
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.setBox(boxLiquid);
@@ -115,7 +115,7 @@ public class VLESim extends Simulation {
         System.out.println("setting sigma to "+sigma);
         p2LJQ.setSigma(sigma);
         p2Truncated.setTruncationRadius(4.0*sigma);
-        ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
+        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
     }
 
     public double getSigma() {
