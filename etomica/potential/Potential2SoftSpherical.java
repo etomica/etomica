@@ -27,12 +27,6 @@ public abstract class Potential2SoftSpherical extends Potential2 implements Pote
     }
         
     /**
-     * The pair energy u(r^2).
-     * @param the square of the distance between the particles.
-     */
-    public abstract double u(double r2);
-        
-    /**
      * The derivative of the pair energy, times the separation r: r du/dr.
      */
     public abstract double du(double r2);

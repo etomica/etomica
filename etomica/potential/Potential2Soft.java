@@ -14,5 +14,12 @@ public interface Potential2Soft extends PotentialSoft {
 	/**
 	 * Integral used to evaluate correction to truncation of potential.
 	 */
-	public abstract double integral(double rC);
+	public double integral(double rC);
+
+    /**
+     * The pair energy u(r^2).  Anisotropic potentials return an (Boltzmann
+     * weighted) orientationally averaged energy.
+     * @param the square of the distance between the particles.
+     */
+	public double u(double r2);
 }
