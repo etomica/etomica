@@ -39,11 +39,11 @@ public class VLESim extends Simulation {
     
     public VLESim() {
         super(Space3D.getInstance());
-        int initNumMolecules = 300;
-        sigma = 3.82;
-        temperature = Kelvin.UNIT.toSim(273.15);
-        epsilon = Kelvin.UNIT.toSim(182.9);
-        moment = Debye.UNIT.toSim(5.1);
+        int initNumMolecules = 200;
+        sigma = 3;
+        temperature = Kelvin.UNIT.toSim(250);
+        epsilon = Kelvin.UNIT.toSim(150);
+        moment = Debye.UNIT.toSim(5);
         moment *= moment;
         density = 0.004;
 
@@ -112,7 +112,6 @@ public class VLESim extends Simulation {
     
     public void setSigma(double newSigma) {
         sigma = newSigma;
-        System.out.println("setting sigma to "+sigma);
         p2LJQ.setSigma(sigma);
         p2Truncated.setTruncationRadius(4.0*sigma);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);

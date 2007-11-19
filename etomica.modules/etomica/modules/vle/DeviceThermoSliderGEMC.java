@@ -217,6 +217,10 @@ public class DeviceThermoSliderGEMC extends Device {
         temperaturePanel.setBorder(new TitledBorder(null, "Set Temperature" + suffix, TitledBorder.CENTER, TitledBorder.TOP));
     }
 
+    public void doUpdate() {
+        temperatureSlider.doUpdate();
+    }
+
     /**
      * Set the precision of the scrollbar.
      * @param prec Number of significant digits after the "dot".
