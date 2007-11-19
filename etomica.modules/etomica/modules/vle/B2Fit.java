@@ -67,7 +67,10 @@ public class B2Fit extends SimulationPanel {
         });
         recalcButton.setLabel("Recalc Mayer");
 //        controlPanel.add(recalcButton.graphic());
-	}
+
+        dPlot.getDisplayPlot().getPlot().setXLabel("Temperature (K)");
+        dPlot.getDisplayPlot().getPlot().setYLabel("B2 (L/mol)");
+    }
 
 	/**
 	 * Function using LJQB2 to evaluate B2 as a function of Q, epsilon, sigma
