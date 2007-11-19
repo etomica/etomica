@@ -128,12 +128,14 @@ public class DevicePlotPoints {
 	    Action deletePointAction = new Action() {
 	        public void actionPerformed() {
 	        	int[] selRows = table.getSelectedRows();
+	        	int adjust = 0;
                 for(int i = 0; i < selRows.length; i++) {
 
                 	// Don't delete the last row.
                 	// It is there for a new entry.
 	                if(selRows[i] != tableModel.getRowCount()-1) {
-	                	tableModel.deleteRow(selRows[i]);
+	                	tableModel.deleteRow(selRows[i]+adjust);
+	                	adjust--;
 	                }
                 }
 	            plot.getPlot().repaint();
