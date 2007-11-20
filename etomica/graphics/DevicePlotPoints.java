@@ -375,10 +375,7 @@ public class DevicePlotPoints {
 			plotSizeSliders[MAX_X].setMinimum(scaleMins[MAX_X]);
 			plotSizeSliders[MIN_X].setMaximum(scaleMaxs[MIN_X]);
 			plotSizeSliders[MAX_X].setMaximum(scaleMaxs[MAX_X]);
-System.out.println(" MIN min x : " + plotSizeSliders[MIN_X].getMinimum());
-System.out.println(" MAX min x : " + plotSizeSliders[MAX_X].getMinimum());
-System.out.println(" MIN max x : " + plotSizeSliders[MIN_X].getMaximum());
-System.out.println(" MAX max x : " + plotSizeSliders[MAX_X].getMaximum());
+
 		}
 	}
 
