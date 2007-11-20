@@ -7,9 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TableModelEvent;
@@ -27,8 +26,8 @@ import etomica.util.Function;
 
 public class DevicePlotPoints {
 
-	private static final int X_DIM = 0;
-	private static final int Y_DIM = 1;
+	public static final int X_DIM = 0;
+	public static final int Y_DIM = 1;
 	public static final int MIN_X = 0;
 	public static final int MAX_X = 1;
 	public static final int MIN_Y = 2;
@@ -49,8 +48,7 @@ public class DevicePlotPoints {
     private DeviceTable table;
 
 	private DeviceSlider[] plotSizeSliders = new DeviceSlider[4];
-	private JRadioButton buttonAuto;
-    private JRadioButton buttonUser;
+	private JCheckBox buttonAuto;
     private DeviceSlider funcSlider[];
     private Action updateAction;
     private GridBagConstraints vertGBC;
@@ -179,14 +177,9 @@ public class DevicePlotPoints {
 
 		JPanel scaleTypePanel = new JPanel();
 		scaleTypePanel.setBorder(new TitledBorder(null, "Scaling Type", TitledBorder.CENTER, TitledBorder.TOP));
-        ButtonGroup scaleGroup = new ButtonGroup();
-        buttonAuto = new JRadioButton("Auto Scale");
-        buttonUser = new JRadioButton("User Scale");
-        scaleGroup.add(buttonAuto);
-        scaleGroup.add(buttonUser);
-        buttonUser.setSelected(true);
+        buttonAuto = new JCheckBox("Auto Scale Y Axis");
+        buttonAuto.setSelected(false);
         scaleTypePanel.add(buttonAuto);
-        scaleTypePanel.add(buttonUser);
 
         JPanel[] scalePanels = new JPanel[4];
         String[] scaleTitles = new String[] {"Minimum", "Maximum", "Minimum", "Maximum"};
@@ -278,7 +271,7 @@ public class DevicePlotPoints {
                 plot.getPlot().setXRange(plotSizeSliders[MIN_X].getValue(),
                         plotSizeSliders[MAX_X].getValue());
                 
-	            if(buttonUser.isSelected() == true) {
+	            if(buttonAuto.isSelected() == false) {
 	                plot.getPlot().setYRange(plotSizeSliders[MIN_Y].getValue(),
 	            		                     plotSizeSliders[MAX_Y].getValue());
 	            }
@@ -301,8 +294,6 @@ public class DevicePlotPoints {
         // Update on scale type selection
         //
         buttonAuto.addActionListener(new ToggleButtonListener());
-        buttonUser.addActionListener(new ToggleButtonListener());
-
 
         plot.getDataSet().setUpdatingOnAnyChange(true);
 
@@ -365,79 +356,51 @@ public class DevicePlotPoints {
 	public DeviceSlider getPlotSizeSlider(int minMaxXY) {
 	    return plotSizeSliders[minMaxXY];
 	}
-	
-	/**
-	 * Sets the minimum X axis limit allowed on the function plot.  The slider that
-	 * sets the minimum X axis limit will have a range of this value to zero.
-	 * @param min  The minimum X axis value
-	 */
-	public void setMinimumXScale(double min) {
-        if (scaleMaxs[MAX_X] < min) {
-            setMaximumXScale(min);
-        }
-		scaleMins[MIN_X] = min;
-		plotSizeSliders[MIN_X].setMinimum(scaleMins[MIN_X]);
-	}
-
-    /**
-     * Sets the minimum value for the maximum X slider.
-     */
-    public void setMinimumMaxXScale(double minMax) {
-        if (scaleMins[MIN_X] > minMax) {
-            setMinimumXScale(minMax);
-        }
-        if (scaleMaxs[MAX_X] < minMax) {
-            setMaximumXScale(minMax);
-        }
-        scaleMins[MAX_X] = minMax;
-        plotSizeSliders[MAX_X].setMinimum(scaleMins[MAX_X]);
-    }
-
-    /**
-     * Sets the maxmimum value for the minimum X slider.
-     */
-    public void setMaximumMinXScale(double maxMin) {
-        if (scaleMaxs[MAX_X] < maxMin) {
-            setMaximumXScale(maxMin);
-        }
-        if (scaleMins[MIN_X] > maxMin) {
-            setMinimumXScale(maxMin);
-        }
-        scaleMaxs[MIN_X] = maxMin;
-        plotSizeSliders[MIN_X].setMaximum(scaleMaxs[MIN_X]);
-    }
 
 	/**
-	 * Sets the maximum X axis limit allowed on the function plot.  The slider that
-	 * sets the maximum X axis limit will have a range of zero to this value.
-	 * @param max  The maximum X axis value
+	 * Sets the minimum and maximum X-axis limits on the function display
+	 * sliders.
+	 * @param min Minimum X-axis value
+	 * @param max Maximum X-axis value
+	 * @param middle Value at which to split the min/max X-axis limit sliders
 	 */
-	public void setMaximumXScale(double max) {
-	    if (scaleMins[MIN_X] > max) {
-	        setMinimumXScale(max);
-	    }
-		scaleMaxs[MAX_X] = max;
-		plotSizeSliders[MAX_X].setMaximum(scaleMaxs[MAX_X]);
+	public void setXScale(double min, double max, double middle) {
+		if(min < max && middle > min && middle < max) {
+			scaleMins[MIN_X] = min;
+			scaleMins[MAX_X] = middle;
+			scaleMaxs[MIN_X] = middle;
+			scaleMaxs[MAX_X] = max;
+
+			plotSizeSliders[MIN_X].setMinimum(scaleMins[MIN_X]);
+			plotSizeSliders[MAX_X].setMinimum(scaleMins[MAX_X]);
+			plotSizeSliders[MIN_X].setMaximum(scaleMaxs[MIN_X]);
+			plotSizeSliders[MAX_X].setMaximum(scaleMaxs[MAX_X]);
+System.out.println(" MIN min x : " + plotSizeSliders[MIN_X].getMinimum());
+System.out.println(" MAX min x : " + plotSizeSliders[MAX_X].getMinimum());
+System.out.println(" MIN max x : " + plotSizeSliders[MIN_X].getMaximum());
+System.out.println(" MAX max x : " + plotSizeSliders[MAX_X].getMaximum());
+		}
 	}
 
 	/**
-	 * Sets the minimum Y axis limit allowed on the function plot.  The slider that
-	 * sets the minimum Y axis limit will have a range of this value to zero.
-	 * @param min  The minimum Y axis value
+	 * Sets the minimum and maximum Y-axis limits on the function display
+	 * sliders.
+	 * @param min Minimum Y-axis value
+	 * @param max Maximum Y-axis value
+	 * @param middle Value at which to split the min/max Y-axis limit sliders
 	 */
-	public void setMinimumYScale(double min) {
-		scaleMins[MIN_Y] = min;
-		plotSizeSliders[MIN_Y].setMinimum(scaleMins[MIN_Y]);
-	}
+	public void setYScale(double min, double max, double middle) {
+		if(min < max && middle > min && middle < max) {
+			scaleMins[MIN_Y] = min;
+			scaleMins[MAX_Y] = middle;
+			scaleMaxs[MIN_Y] = middle;
+			scaleMaxs[MAX_Y] = max;
 
-	/**
-	 * Sets the maximum Y axis limit allowed on the function plot.  The slider that
-	 * sets the maximum Y axis limit will have a range of zero to this value.
-	 * @param max  The maximum Y axis value
-	 */
-	public void setMaximumYScale(double max) {
-		scaleMaxs[MAX_Y] = max;
-		plotSizeSliders[MAX_Y].setMaximum(scaleMaxs[MAX_Y]);
+			plotSizeSliders[MIN_Y].setMinimum(scaleMins[MIN_Y]);
+			plotSizeSliders[MAX_Y].setMinimum(scaleMins[MAX_Y]);
+			plotSizeSliders[MIN_Y].setMaximum(scaleMaxs[MIN_Y]);
+			plotSizeSliders[MAX_Y].setMaximum(scaleMaxs[MAX_Y]);
+		}
 	}
 
 	/**
@@ -550,8 +513,8 @@ public class DevicePlotPoints {
     private class ToggleButtonListener implements ActionListener {
     	public void actionPerformed(ActionEvent e) {
             if(buttonAuto.isSelected()) {
-            	plotSizeSliders[MIN_X].getSlider().setEnabled(false);
-            	plotSizeSliders[MAX_X].getSlider().setEnabled(false);
+            	plotSizeSliders[MIN_X].getSlider().setEnabled(true);
+            	plotSizeSliders[MAX_X].getSlider().setEnabled(true);
             	plotSizeSliders[MIN_Y].getSlider().setEnabled(false);
             	plotSizeSliders[MAX_Y].getSlider().setEnabled(false);
             }

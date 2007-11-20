@@ -38,16 +38,12 @@ public class B2Fit extends SimulationPanel {
 		graphicsPanel.add(dPlot.graphic());
 		footerPanel.add(dPlot.parameterGraphic());
 
-        dPlot.setMinimumXScale(200);
-        dPlot.setMaximumMinXScale(300);
-        dPlot.setMinimumMaxXScale(300);
-        dPlot.setMaximumXScale(500);
+        dPlot.setXScale(200, 500, 300);
         dPlot.getPlotSizeSlider(DevicePlotPoints.MIN_X).setValue(200);
         dPlot.getPlotSizeSlider(DevicePlotPoints.MAX_X).setValue(400);
         dPlot.setAutoScale(true);
-        
-		dPlot.setMaximumYScale(100);
-		dPlot.setMinimumYScale(-100);
+
+        dPlot.setYScale(-100, 100, 0);
 		
         dPlot.getSlider("Q").setPrecision(2);
         dPlot.getSlider("Q").setValue(5.0);
