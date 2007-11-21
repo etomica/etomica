@@ -1,14 +1,11 @@
-package etomica.paracetamol;
+package etomica.atom.iterator;
 
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
-import etomica.atom.iterator.AtomsetIterator;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 
 /**
  * Atomset Iterator that iterates over set-of-four atoms
@@ -68,7 +65,7 @@ public class Atomset4IteratorIndexList implements AtomsetIteratorBasisDependent,
 	        parentGroup = null;
 	    }
 	    else {
-	        parentGroup = (AtomGroup)parent.getAtom(0);
+	        parentGroup = (IAtomGroup)parent.getAtom(0);
 	    }
 		unset();
 	}

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
+import etomica.atom.iterator.Atomset3IteratorIndexList;
+import etomica.atom.iterator.Atomset4IteratorIndexList;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
