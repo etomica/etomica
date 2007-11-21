@@ -1,13 +1,14 @@
 package etomica.virial;
 
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
@@ -21,9 +22,9 @@ import etomica.util.IRandom;
  * with the same bond length as before, but perturbed by some angle from its
  * original position.  If an Atom in the middle of the chain is chosen, a 
  * crankshaft move is performed that maintains its distances with its 
- * neightobors.  If a middle Atom has a bond angle too close to 180 degrees
+ * neighbors.  If a middle Atom has a bond angle too close to 180 degrees
  * (such that rotation does nothing) the Atom is not moved at all.
- * In each doTrail, wiggle moves are attempted on all molecules in the box. 
+ * In each doTrial, wiggle moves are attempted on all molecules in the box. 
  * 
  * @author Andrew Schultz
  */
@@ -150,6 +151,13 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
             position.PEa1Tv1(Math.sin(theta),work2);
 
             translationVectors[i].PE(position);
+            
+            work1.E(translationVectors[i]);
+            work1.TE(-1.0/childList.getAtomCount());
+            for (int k=0; k<childList.getAtomCount(); k++) {
+                ((IAtomPositioned)childList.getAtom(k)).getPosition().PE(work1);
+            }
+            
             if (Debug.ON && Debug.DEBUG_NOW) {
                 for (int k=0; k<numChildren; k++) {
 //                    System.out.println(i+" after "+k+" "+((AtomLeaf)childList.get(k)).coord.position());
@@ -190,6 +198,12 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
 	
     public void rejectNotify() {
         for(int i=0; i<selectedMolecules.length; i++) {
+            AtomSet childList = selectedMolecules[i].getChildList();
+            work1.E(translationVectors[i]);
+            work1.TE(1.0/childList.getAtomCount());
+            for (int k=0; k<childList.getAtomCount(); k++) {
+                ((IAtomPositioned)childList.getAtom(k)).getPosition().PE(work1);
+            }
             selectedAtoms[i].getPosition().ME(translationVectors[i]);
 //            System.out.println(selectedAtoms[i]+" rejected => "+selectedAtoms[i].coord.position());
         }
