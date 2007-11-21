@@ -53,7 +53,7 @@ public class DeviceTableModelGeneric extends AbstractTableModel {
      * @return the value of the given table cell wrapped as an Object
      */
     public Object getValueAt(int row, int col) {
-
+        if (row == -1) return columnNames[col];
     	Object value = "";
 
     	if(data.size() >= row) {
@@ -103,6 +103,10 @@ public class DeviceTableModelGeneric extends AbstractTableModel {
 
     public String getColumnName(int column) {
     	return columnNames[column];
+    }
+
+    public void setColumnNames(String[] newColumnNames) {
+        columnNames = newColumnNames;
     }
 
     public Class getColumnClass(int column) {

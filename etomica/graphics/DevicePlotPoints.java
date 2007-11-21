@@ -467,6 +467,10 @@ public class DevicePlotPoints {
 		}
 	}
 
+	public DeviceTableModelGeneric getTableModel() {
+	    return tableModel;
+	}
+
 	private double[] getPoints(int column) {
 
         double[] points = null;
