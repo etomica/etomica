@@ -115,7 +115,7 @@ public class SimulationVirialPT extends Simulation {
                 }
             }
             
-            ConfigurationCluster configuration = new ConfigurationCluster(getRandom());
+            ConfigurationCluster configuration = new ConfigurationCluster();
             configuration.initializeCoordinates(box[iTemp]);
             
             setMeter(iTemp,new MeterVirial(allValueClusters[iTemp]));
