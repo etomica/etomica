@@ -287,8 +287,8 @@ public class AtomFactoryHetero extends AtomFactory {
     }
 
     private static final long serialVersionUID = 1L;
-    private AtomFactory[] childFactory;
-    private int[] childCount;
-    private int totalChildCount;
-    private double[] numberFraction;
+    protected AtomFactory[] childFactory;
+    protected int[] childCount;
+    protected int totalChildCount;
+    protected double[] numberFraction;
 }
