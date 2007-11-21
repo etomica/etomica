@@ -98,7 +98,7 @@ public class VirialTangentSpheres {
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
         SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryTangentSpheres(nSpheres,
-                new ConformationLinear(space,bondL)), temperature,refCluster,targetCluster);
+                new ConformationLinear(space,bondL)), temperature,refCluster,targetCluster, true);
         sim.integratorOS.setNumSubSteps(1000);
         
         if (nSpheres > 2) {
@@ -163,9 +163,9 @@ public class VirialTangentSpheres {
     public static class VirialTangentSpheresParam extends ParameterBase {
         public int nPoints = 2;
         public int nSpheres = 2;
-        public double temperature = 1.0;
-        public long numSteps = 50;
-        public String model = "hard";
-        public double bondL = 1.0;
+        public double temperature = 500.0/114.0;
+        public long numSteps = 10000;
+        public String model = "LJ";
+        public double bondL = 1.54/3.93;
     }
 }

@@ -101,7 +101,7 @@ public class VirialWaterOverlapClusterCoupled {
 
         System.out.println(steps+" steps of size "+numSubSteps);
 
-        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1});
+        final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1}, false);
 
 //        if (pushR > 0) {
 //            AtomSet molecules = sim.box[1].getMoleculeList(sim.getSpeciesManager().getSpecies()[0]);
