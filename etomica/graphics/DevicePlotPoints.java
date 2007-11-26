@@ -60,12 +60,12 @@ public class DevicePlotPoints {
     private ModifierGeneral[] mods;
     private String[] funcParmLabels;
 
-	public DevicePlotPoints(Function[] fncts, String[] funcNames) {
-		this(null, fncts, funcNames, true);
+	public DevicePlotPoints(Function[] fncts, String[] funcNames, String[] colNames) {
+		this(null, fncts, funcNames, colNames, true);
 	}
 
 	public DevicePlotPoints(String[] sliderLabels,
-			Function[] fncts, String[] funcNames, boolean verticalParameters) {
+			Function[] fncts, String[] funcNames, String[] colNames, boolean verticalParameters) {
 
 		numFunctions = fncts.length;
 		funcParmLabels = sliderLabels;
@@ -111,7 +111,7 @@ public class DevicePlotPoints {
 		//
 		// Data point table
 		//
-		tableModel = new DeviceTableModelGeneric(null, new String[] {"X", "Y"});
+		tableModel = new DeviceTableModelGeneric(null, colNames);
 		table = new DeviceTable(tableModel);
 		table.setPreferredSize(200, 200);
 		table.setSize(200, 200);

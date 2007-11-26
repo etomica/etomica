@@ -41,7 +41,7 @@ public class DeviceTableModelGeneric extends AbstractTableModel {
             }
         }
         addEmptyRow();
-        
+
         addTableModelListener(new TableDataListener());
     }
     
@@ -53,7 +53,11 @@ public class DeviceTableModelGeneric extends AbstractTableModel {
      * @return the value of the given table cell wrapped as an Object
      */
     public Object getValueAt(int row, int col) {
-        if (row == -1) return columnNames[col];
+        if (row == TableModelEvent.HEADER_ROW)
+            return columnNames[col];
+        else if (col == TableModelEvent.ALL_COLUMNS)
+        	return null;
+
     	Object value = "";
 
     	if(data.size() >= row) {
@@ -156,11 +160,19 @@ public class DeviceTableModelGeneric extends AbstractTableModel {
     		Object blank = "";
 
             if(e.getType() == TableModelEvent.UPDATE) {
-	    		if(e.getFirstRow() == numRows-1) {
-	    		    if(getValueAt(e.getFirstRow(), e.getColumn()).equals(blank) == false) {
-	    		    	addEmptyRow();	
-	    			}
-	    		}
+            	if(e.getColumn() == TableModelEvent.ALL_COLUMNS) {
+            		;
+            	}
+            	else if(e.getFirstRow() == TableModelEvent.HEADER_ROW) {
+            		;
+            	}
+            	else {
+		    		if(e.getFirstRow() == numRows-1) {
+		    		    if(getValueAt(e.getFirstRow(), e.getColumn()).equals(blank) == false) {
+		    		    	addEmptyRow();	
+		    			}
+		    		}
+            	}
 	    	}
             else if(e.getType() == TableModelEvent.DELETE) {
             }

@@ -31,9 +31,11 @@ public class B2Fit extends SimulationPanel {
         final FunctionMayerB2LJQ functionMayerB2LJQ = new FunctionMayerB2LJQ();
 
     	dPlot = new DevicePlotPoints(new String[] {"Q", "epsilon", "sigma"},
-    			new Function[]{functionB2LJQ}, new String[] {"B2"}, false);
-    	dPlot.getTableModel().setColumnNames(new String[]{"T (K)","B2 (mL/mol)"});
-    	dPlot.getTableModel().fireTableCellUpdated(-1,0);
+    			new Function[]{functionB2LJQ}, new String[] {"B2"}, new String[]{"T (K)","B2 (mL/mol)"}, false);
+//    	dPlot.getTableModel().setColumnNames(new String[]{"T (K)","B2 (mL/mol)"});
+//    	dPlot.getTableModel().fireTableCellUpdated(TableModelEvent.HEADER_ROW,0);
+//    	dPlot.getTableModel().fireTableDataChanged();
+
     	functionB2LJQ.dPlot = dPlot;
 //    	functionMayerB2LJQ.dPlot = dPlot;
 
