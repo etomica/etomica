@@ -264,6 +264,15 @@ public class DevicePlotPoints {
 		            funcPumps[f].actionPerformed();
 	        	}
 	            dspts.update(getPoints(X_DIM), getPoints(Y_DIM));
+	            double[] yPoints = getPoints(Y_DIM);
+	            for (int i = 0; i<yPoints.length; i++) {
+	                if (yPoints[i] > maxY) {
+	                    maxY = yPoints[i];
+	                }
+	                if (yPoints[i] < minY) {
+	                    minY = yPoints[i];
+	                }
+	            }
 	            // we could also sniff min and max y here
 	            ptPump.actionPerformed();
 	            // don't auto-scale in X.  this means that entered data outside
