@@ -3,6 +3,7 @@ package etomica.modules.vle;
 import java.util.HashMap;
 
 import javax.swing.JFrame;
+import javax.swing.event.TableModelEvent;
 
 import etomica.action.Action;
 import etomica.graphics.DeviceButton;
@@ -31,6 +32,8 @@ public class B2Fit extends SimulationPanel {
 
     	dPlot = new DevicePlotPoints(new String[] {"Q", "epsilon", "sigma"},
     			new Function[]{functionB2LJQ}, new String[] {"B2"}, false);
+    	dPlot.getTableModel().setColumnNames(new String[]{"T (K)","B2 (mL/mol)"});
+    	dPlot.getTableModel().fireTableCellUpdated(-1,0);
     	functionB2LJQ.dPlot = dPlot;
 //    	functionMayerB2LJQ.dPlot = dPlot;
 
@@ -65,7 +68,7 @@ public class B2Fit extends SimulationPanel {
 //        controlPanel.add(recalcButton.graphic());
 
         dPlot.getDisplayPlot().getPlot().setXLabel("Temperature (K)");
-        dPlot.getDisplayPlot().getPlot().setYLabel("B2 (L/mol)");
+        dPlot.getDisplayPlot().getPlot().setYLabel("B2 (mL/mol)");
     }
 
 	/**
