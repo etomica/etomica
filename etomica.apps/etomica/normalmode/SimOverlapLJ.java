@@ -95,7 +95,7 @@ public class SimOverlapLJ extends Simulation {
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.45;
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
-        AtomType sphereType = species.getMoleculeType();
+        AtomType sphereType = species.getLeafType();
         potentialMasterTarget.addPotential(pTruncated, new AtomType[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
         
@@ -196,6 +196,10 @@ public class SimOverlapLJ extends Simulation {
         refPref = refPrefCenter;
         accumulators[0].setBennetParam(refPrefCenter,span);
         accumulators[1].setBennetParam(refPrefCenter,span);
+        if (accumulators[0].getNBennetPoints() == 1) {
+            ((MeterBoltzmannHarmonic)meters[0]).refPref = refPrefCenter;
+            ((MeterBoltzmannTarget)meters[1]).refPref = refPrefCenter;
+        }
     }
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
@@ -379,7 +383,8 @@ public class SimOverlapLJ extends Simulation {
         System.out.println("equilibration finished");
         System.out.flush();
 
-        sim.integratorOverlap.getMoveManager().setEquilibrating(false);
+        sim.integratorOverlap.setAdjustStepFreq(false);
+        sim.integratorOverlap.setStepFreq0(0);
         sim.activityIntegrate.setMaxSteps(numSteps);
         sim.getController().actionPerformed();
 
@@ -447,9 +452,9 @@ public class SimOverlapLJ extends Simulation {
         public int numMolecules = 32;
         public double density = 1.2;
         public int D = 3;
-        public long numSteps = 1000;
+        public long numSteps = 10000000;
         public double harmonicFudge = 1;
-        public String filename = "d0962_T06";
-        public double temperature = 1.0;
+        public String filename = "d12_T04";
+        public double temperature = 1.052;
     }
 }
