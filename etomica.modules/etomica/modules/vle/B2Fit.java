@@ -3,7 +3,8 @@ package etomica.modules.vle;
 import java.util.HashMap;
 
 import javax.swing.JFrame;
-import javax.swing.event.TableModelEvent;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
 import etomica.graphics.DeviceButton;
@@ -58,6 +59,13 @@ public class B2Fit extends SimulationPanel {
         dPlot.getSlider("epsilon").setNMajor(2);
         dPlot.getSlider("sigma").setPrecision(2);
         dPlot.setParameterLimits("sigma", 2.0, 5.0);
+
+        ((JPanel)dPlot.getSlider("Q").graphic().getParent()).setBorder(new TitledBorder(null, "Q (Debye-A)",
+                TitledBorder.CENTER, TitledBorder.TOP));
+        ((JPanel)dPlot.getSlider("sigma").graphic().getParent()).setBorder(new TitledBorder(null, "sigma (A)",
+                TitledBorder.CENTER, TitledBorder.TOP));
+        ((JPanel)dPlot.getSlider("epsilon").graphic().getParent()).setBorder(new TitledBorder(null, "epsilon (K)",
+                TitledBorder.CENTER, TitledBorder.TOP));
 
         DeviceButton recalcButton = new DeviceButton(null);
         recalcButton.setAction(new Action() {
