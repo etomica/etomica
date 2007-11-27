@@ -40,9 +40,7 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
 //        table.setFillsViewportHeight(true);
         table.setSelectionBackground(java.awt.Color.YELLOW);
 
-        for(int col = 0; col < tableModel.getColumnCount(); col++) {
-            table.getColumn(tableModel.getColumnName(col)).setCellEditor(new ValueEditor());
-        }
+        initCellEditor(tableModel);
 
         scrollPane = new JScrollPane(table);
 
@@ -56,6 +54,12 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
 
         panel.add(scrollPane);
 
+    }
+
+    public void initCellEditor(TableModel tableModel) {
+	    for(int col = 0; col < tableModel.getColumnCount(); col++) {
+	        table.getColumn(tableModel.getColumnName(col)).setCellEditor(new ValueEditor());
+	    }
     }
 
     /**

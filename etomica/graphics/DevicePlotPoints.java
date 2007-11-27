@@ -61,11 +61,11 @@ public class DevicePlotPoints {
     private String[] funcParmLabels;
 
 	public DevicePlotPoints(Function[] fncts, String[] funcNames, String[] colNames) {
-		this(null, fncts, funcNames, colNames, true);
+		this(null, fncts, funcNames, true);
 	}
 
 	public DevicePlotPoints(String[] sliderLabels,
-			Function[] fncts, String[] funcNames, String[] colNames, boolean verticalParameters) {
+			Function[] fncts, String[] funcNames, boolean verticalParameters) {
 
 		numFunctions = fncts.length;
 		funcParmLabels = sliderLabels;
@@ -111,7 +111,7 @@ public class DevicePlotPoints {
 		//
 		// Data point table
 		//
-		tableModel = new DeviceTableModelGeneric(null, colNames);
+		tableModel = new DeviceTableModelGeneric(null, new String[]{"X", "Y"});
 		table = new DeviceTable(tableModel);
 		table.setPreferredSize(200, 200);
 		table.setSize(200, 200);
@@ -310,6 +310,17 @@ public class DevicePlotPoints {
         updateAction.actionPerformed();
 
 	}
+
+	/**
+	 * Sets the column headers to the given strings and fires an event
+	 * indicating the column headers have been changed.
+	 * @param colNames Column Header Names
+	 */
+    public void setTableColumnNames(String[] colNames) {
+	    tableModel.setColumnNames(colNames);
+	    tableModel.fireTableCellUpdated(TableModelEvent.HEADER_ROW,0);
+	    table.initCellEditor(tableModel);
+    }
 
     /**
      * Returns the top level panel that the function plot components sit on.
@@ -546,11 +557,12 @@ public class DevicePlotPoints {
     		// plot the points on the display.
     		if(e.getType() == TableModelEvent.UPDATE) {
         		Object blank = "";
-
-        		if(tableModel.getValueAt(e.getFirstRow(), 0).equals(blank) == false &&
-        		   tableModel.getValueAt(e.getFirstRow(), 1).equals(blank) == false) {
-                    updateAction.actionPerformed();
-                }
+        		if(e.getFirstRow() != TableModelEvent.HEADER_ROW) {
+	        		if(tableModel.getValueAt(e.getFirstRow(), 0).equals(blank) == false &&
+	        		   tableModel.getValueAt(e.getFirstRow(), 1).equals(blank) == false) {
+	                    updateAction.actionPerformed();
+	                }
+        		}
     		}
     		// If a row is removed, remove it from the display.
         	else if(e.getType() == TableModelEvent.DELETE) {
