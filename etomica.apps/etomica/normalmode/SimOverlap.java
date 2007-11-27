@@ -7,9 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomType;
 import etomica.box.Box;
-import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
@@ -18,7 +16,6 @@ import etomica.data.types.DataGroup;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMC;
-import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.BasisMonatomic;
@@ -34,6 +31,7 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -76,7 +74,7 @@ public class SimOverlap extends Simulation {
             // don't need this for the target system, but we do need it for the reference
             p2 = new P2XOrder(space, (Potential2HardSpherical)p2);
         }
-        potentialMasterTarget.addPotential(p2, new AtomType[]{species.getLeafType(),species.getLeafType()});
+        potentialMasterTarget.addPotential(p2, new Species[]{species,species});
 
         if (space.D() == 1) {
             primitive = new PrimitiveCubic(space, 1.0/density);
