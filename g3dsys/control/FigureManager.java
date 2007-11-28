@@ -61,7 +61,7 @@ class FigureManager {
   public float getMaxZ() { return max.z; }
 
   /** Dispatches draw commands to all stored Figures */
-  public void draw() {
+  public synchronized void draw() {
     for (int j=0; j<idMax+1; j++) {
       if(figs[j] instanceof Ball && wireframe) continue;
       figs[j].draw();
@@ -72,7 +72,7 @@ class FigureManager {
    * Stores an additional figure, expanding model bounds as needed
    * @param f the Figure to add
    */
-  public void addFig(Figure f) {
+  public synchronized void addFig(Figure f) {
     if (f.getID() > -1) {
       throw new IllegalArgumentException("figure is already here");
     }
@@ -148,7 +148,7 @@ class FigureManager {
     return new Point3f(0,0,0);
   }
 
-  public Point3f getAverageAtomPoint() {
+  public synchronized Point3f getAverageAtomPoint() {
     Point3f average = new Point3f(0,0,0);
     int ballCount = 0;
     for (int i = figs.length; --i >= 0;)
@@ -242,7 +242,7 @@ class FigureManager {
    * Turn atom drawing off, bond types to wireframe; or
    * turn atom drawing on, bond types to cylinder.
    */
-  public void toggleWireframe() {
+  public synchronized void toggleWireframe() {
     wireframe = !wireframe;
     for(int i=0; i<figs.length; i++) {
       if(figs[i] instanceof Bond) ((Bond)figs[i]).setBondType(
