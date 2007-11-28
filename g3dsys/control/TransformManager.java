@@ -32,7 +32,7 @@ import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
 import javax.vecmath.Vector3f;
 
-class TransformManager {
+public class TransformManager {
 
   G3DSys g3dsys;
   
@@ -190,10 +190,6 @@ class TransformManager {
     yFixedTranslation = (height / 2) + height * percent / 100;
   }
 
-  void translateToZPercent(float percent) {
-    // FIXME who knows what this should be? some type of zoom?
-  }
-
   float getTranslationXPercent() {
     return (xFixedTranslation - width / 2) * 100 / width;
   }
@@ -261,7 +257,7 @@ class TransformManager {
 
   void zoomToPercent(float percentZoom) {
     zoomPercentSetting = percentZoom;
-    calcScale("zoomToPercent");
+    calcScale();
   }
 
   void zoomByPercent(float percentZoom) {
@@ -269,7 +265,7 @@ class TransformManager {
     if (delta == 0)
       delta = (percentZoom < 0) ? -1 : 1;
     zoomPercentSetting += delta;
-    calcScale("zoomByPercent");
+    calcScale();
   }
 
   private void setZoomParameters() {
@@ -280,7 +276,7 @@ class TransformManager {
     zoomPercent = (zoomEnabled) ? zoomPercentSetting : 100;
   }
   
-  private void calcScale(String from) {
+  private void calcScale() {
     setZoomParameters();
     scalePixelsPerAngstrom = scaleDefaultPixelsPerAngstrom * zoomPercent / 100;
   }
@@ -289,7 +285,7 @@ class TransformManager {
   void setZoomEnabled(boolean zoomEnabled) {
     if (this.zoomEnabled != zoomEnabled) {
       this.zoomEnabled = zoomEnabled;
-      calcScale("setZoomEnabled");
+      calcScale();
     }
   }
 
@@ -424,7 +420,7 @@ class TransformManager {
       return;
     setTranslationCenterToScreen();
     scaleDefaultPixelsPerAngstrom = defaultScaleToScreen(rotationRadius);
-    calcScale("scaleFitToScreen rotrad=" + rotationRadius);
+    calcScale();
   }
 
   float perspectiveFactor(float z) {
