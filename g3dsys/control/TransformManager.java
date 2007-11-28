@@ -137,9 +137,9 @@ class TransformManager {
   void rotateFront() { matrixRotate.setIdentity(); }
   
   /* Set specific rotation values for x,y,z */
-  void rotateToX(float angleRadians) { matrixRotate.rotX(angleRadians); }
-  void rotateToY(float angleRadians) { matrixRotate.rotY(angleRadians); }
-  void rotateToZ(float angleRadians) { matrixRotate.rotZ(angleRadians); }
+  public void rotateToX(float angleRadians) { matrixRotate.rotX(angleRadians); }
+  public void rotateToY(float angleRadians) { matrixRotate.rotY(angleRadians); }
+  public void rotateToZ(float angleRadians) { matrixRotate.rotZ(angleRadians); }
 
   synchronized void rotateXRadians(float angleRadians) {
     matrixTemp3.rotX(angleRadians);
