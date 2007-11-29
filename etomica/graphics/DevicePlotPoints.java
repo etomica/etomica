@@ -233,9 +233,9 @@ public class DevicePlotPoints {
 		}
 
 		// point display on the plot
-		final DataSourcePoints dspts = new DataSourcePoints("Independent Points", Null.DIMENSION);
+		final DataSourcePoints dspts = new DataSourcePoints("Independent Points", Length.DIMENSION, Length.DIMENSION/*Null.DIMENSION, Null.DIMENSION*/);
 	    final DataPump ptPump = new DataPump(dspts, plot.getDataSet().makeDataSink());
-        plot.getPlot().setMarksStyle("dots", numFunctions);
+		plot.getPlot().setMarksStyle("dots", numFunctions);
         plot.getPlot().setConnected(false, numFunctions);
 
 	    //

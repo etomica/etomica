@@ -13,8 +13,6 @@ import etomica.data.IDataInfo;
 import etomica.data.DataSet.DataCasterJudge;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.data.types.DataPoint;
-import etomica.data.types.DataPoint.DataInfoPoint;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.Dimension;
 import etomica.units.Null;
@@ -158,14 +156,6 @@ public class DisplayPlot extends Display implements DataSetListener {
                     }
                 }
         	}
-        	else if (dataSet.getDataInfo(k) instanceof DataInfoPoint) {
-                data = ((etomica.data.types.DataDoubleArray)dataSet.getData(k)).getData();
-                if(data != null) {
-	                for(int i = 0; i < data.length; i = i + 2) {
-	                    plot.addPoint(k, data[i],data[i+1], false);
-	                }
-                }
-        	}
         }
         plot.repaint();
     }
@@ -295,9 +285,7 @@ public class DisplayPlot extends Display implements DataSetListener {
             if (dataInfo instanceof DataInfoFunction) {
                 return null;
             }
-            else if (dataInfo instanceof DataInfoPoint) {
-                return null;
-            } else if(dataInfo instanceof DataInfoGroup) {
+            else if(dataInfo instanceof DataInfoGroup) {
                 for (int i = 0; i<((DataInfoGroup)dataInfo).getNDataInfo(); i++) {
                     if (!(((DataInfoGroup)dataInfo).getSubDataInfo(i) instanceof DataInfoFunction)) {
                         throw new IllegalArgumentException("DisplayPlot can only handle homogeneous groups of DataFunctions");
