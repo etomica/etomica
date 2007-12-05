@@ -72,7 +72,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public void setForce(double f) {
         force = f;
-        pressure = -1.0;
+        isForced = true;
     }
     public double getForce() {
         return force;
@@ -83,6 +83,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     
     public void setPressure(double p) {
         pressure = p;
+        isForced = false;
     }
     public double getPressure() {
         return pressure;
@@ -136,9 +137,9 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         double dr = atom.getPosition().x(wallD) - wallPosition;
         double dv = atom.getVelocity().x(wallD) - wallVelocity;
         dr += dv*falseTime;
-        if (pressure >= 0.0) {
+        if (!isForced) {
             double area = 1.0;
-            if (pressure > 0.0) {
+            if (pressure != 0.0) {
                 final IVector dimensions = pistonBoundary.getDimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
@@ -199,9 +200,9 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         IAtomKinetic atom = (IAtomKinetic)atoms.getAtom(0);
         double r = atom.getPosition().x(wallD);
         IVector v = atom.getVelocity();
-        if (pressure >= 0.0) {
+        if (!isForced) {
             double area = 1.0;
-            if (pressure > 0.0) {
+            if (pressure != 0.0) {
                 final IVector dimensions = pistonBoundary.getDimensions();
                 for (int i=0; i<D; i++) {
                     if (i != wallD) {
@@ -314,6 +315,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
     private double setWallMass;
     private double force;
     private double pressure;
+    private boolean isForced;
     private final Boundary pistonBoundary;
     private double thickness = 0.0;
     private double virialSum;
