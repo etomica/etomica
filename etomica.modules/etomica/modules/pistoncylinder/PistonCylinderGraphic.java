@@ -43,6 +43,7 @@ import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
 import etomica.graphics.DeviceToggleButton;
 import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.DisplayCanvasInterface;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBox;
@@ -129,6 +130,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         displayBox.setColorScheme(new ColorSchemeByType());
         if (sim.getSpace().D() == 3) {
             pc.integrator.setActionInterval(getPaintAction(pc.box), 1);
+            ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new PistonPlane(pc.pistonPotential));
         }
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
@@ -426,6 +428,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         if (D == 2) {
             displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getDimensions().x(1)));
         }
+        else {
+            displayBox.setPixelUnit(new Pixel(40/pc.box.getBoundary().getDimensions().x(1)));
+        }
         displayBox.setAlign(1,DisplayBox.BOTTOM);
         displayBox.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
         displayBox.getDrawables().clear();
@@ -472,7 +477,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         
         potentialChooserListener = new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-            if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
+                if(evt.getStateChange() == java.awt.event.ItemEvent.DESELECTED) return; 
                 setPotential((String)evt.getItem());
                 if((String)evt.getItem() == idealGas ||
                    (String)evt.getItem() == repulsionOnly) {
