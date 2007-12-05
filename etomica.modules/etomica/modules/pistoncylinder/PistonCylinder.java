@@ -62,7 +62,7 @@ public class PistonCylinder extends Simulation {
         }
         else {
             config = new ConfigurationLattice(new LatticeCubicFcc());
-            newDim = new Vector3D(80,80,80);
+            newDim = new Vector3D(30,80,30);
         }
         config.setBoundaryPadding(sigma);
         box.setDimensions(newDim);
