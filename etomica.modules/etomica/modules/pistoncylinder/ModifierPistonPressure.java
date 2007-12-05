@@ -14,11 +14,12 @@ public class ModifierPistonPressure implements Modifier {
     }
 
     public void setValue(double p) {
-        pistonPotential.setPressure(p);
+        pistonPotential.setPressure(pistonPotential.getSpace().D() == 3 ? -p : p);
     }
 
     public double getValue() {
-        return pistonPotential.getPressure();
+        double p = pistonPotential.getPressure();
+        return pistonPotential.getSpace().D() == 3 ? -p : p;
     }
 
     public Dimension getDimension() {

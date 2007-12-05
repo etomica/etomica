@@ -22,7 +22,12 @@ public class DataSourceWallPressure extends MeterPressureHard {
      */
     public void collisionAction(IntegratorHard.Agent agent) {
         if (agent.collisionPotential == wallPotential) {
-            virialSum += wallPotential.lastWallVirial();
+            if (wallPotential.getSpace().D() == 2) {
+                virialSum += wallPotential.lastWallVirial();
+            }
+            else {
+                virialSum -= wallPotential.lastWallVirial();
+            }
         }
     }
     

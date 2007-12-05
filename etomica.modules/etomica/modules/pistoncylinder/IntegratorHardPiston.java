@@ -26,7 +26,12 @@ public class IntegratorHardPiston extends IntegratorHard {
     }
 
     public void setup() {
-        pistonPotential.setWallPosition(-box.getBoundary().getDimensions().x(1)*0.5);
+        if (box.getSpace().D() == 3) {
+            pistonPotential.setWallPosition(box.getBoundary().getDimensions().x(1)*0.5);
+        }
+        else {
+            pistonPotential.setWallPosition(-box.getBoundary().getDimensions().x(1)*0.5);
+        }
         super.setup();
     }
     
