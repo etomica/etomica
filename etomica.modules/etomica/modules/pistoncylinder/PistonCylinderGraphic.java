@@ -422,14 +422,14 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         if (D == 2) {
             displayBox.setPixelUnit(new Pixel(400/pc.box.getBoundary().getDimensions().x(1)));
-            displayBox.setAlign(1,DisplayBox.BOTTOM);
-            displayBox.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
-            displayBox.getDrawables().clear();
-            displayBox.addDrawable(pc.pistonPotential);
-            displayBox.addDrawable(pc.wallPotential);
-        } else {
-        	getPanel().tabbedPane.add("Run Faster", blankPanel);
         }
+        displayBox.setAlign(1,DisplayBox.BOTTOM);
+        displayBox.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
+        displayBox.getDrawables().clear();
+        // doesn't actually work for 3D
+        displayBox.addDrawable(pc.pistonPotential);
+        displayBox.addDrawable(pc.wallPotential);
+        // doesn't actually have any effect for 3D
         scaleSlider.setController(pc.controller);
 
         //  control panel
@@ -505,7 +505,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pressureSlider.setUnit(pUnit);
         pressureSliderPanel.setBorder(new TitledBorder(null, "Set Pressure ("+pUnit.symbol()+")", TitledBorder.CENTER, TitledBorder.TOP));
         Dimension pDim = Pressure.dimension(D);
-        pc.pistonPotential.setPressure(pUnit.toSim(pressureSlider.getValue()));
+        double p = pUnit.toSim(pressureSlider.getValue());
+        pc.pistonPotential.setPressure(D == 3 ? -p : p);
         pressureSlider.setModifier(new ModifierPistonPressure(pc.pistonPotential,pDim));
         pressureSlider.setPostAction(new ActionPistonUpdate(pc.integrator));
         pressureSlider.setController(pc.getController());
