@@ -123,7 +123,7 @@ public class DisplayTextBoxesCAE extends Display implements DataSink {
     public void setPrecision(int n) {
         currentBox.setPrecision(n);
         averageBox.setPrecision(n);
-        errorBox.setPrecision(n);
+        errorBox.setPrecision(n > 2 ? 2 : n);
     }
 
     public void setLabel(String s) {
