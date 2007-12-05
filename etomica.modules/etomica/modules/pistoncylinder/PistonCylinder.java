@@ -78,21 +78,27 @@ public class PistonCylinder extends Simulation {
         potentialMaster.addPotential(wallPotential,new Species[]{species});
         wallPotential.setActive(0,true,true);  // left wall
         wallPotential.setActive(0,false,true); // right wall
-        wallPotential.setActive(1,true,false); // top wall
-        wallPotential.setActive(1,false,true); // bottom wall
         if (D==3) {
+            wallPotential.setActive(1,true,true); // top wall
+            wallPotential.setActive(1,false,false); // bottom wall
             wallPotential.setActive(2,true,true);  // front wall
             wallPotential.setActive(2,false,true); // back wall
+        }
+        else {
+            wallPotential.setActive(1,true,false); // top wall
+            wallPotential.setActive(1,false,true); // bottom wall
         }
 
         pistonPotential = new P1HardMovingBoundary(space,box.getBoundary(),1,400, true);
         pistonPotential.setCollisionRadius(sigma*0.5);
-        pistonPotential.setWallPosition(-box.getBoundary().getDimensions().x(1)*0.5);
-        pistonPotential.setWallVelocity(0.5);
         if (D == 3) {
-            pistonPotential.setPressure(Bar.UNIT.toSim(1.0));
+            pistonPotential.setWallPosition(box.getBoundary().getDimensions().x(1)*0.5);
+            pistonPotential.setWallVelocity(-0.5);
+            pistonPotential.setPressure(-Bar.UNIT.toSim(1.0));
         }
         else {
+            pistonPotential.setWallPosition(-box.getBoundary().getDimensions().x(1)*0.5);
+            pistonPotential.setWallVelocity(0.5);
             pistonPotential.setPressure(Bar.UNIT.toSim(100.0));
         }
         pistonPotential.setThickness(1.0);
