@@ -127,6 +127,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         displayBox = getDisplayBox(pc.box);
         displayBox.setColorScheme(new ColorSchemeByType());
+        if (sim.getSpace().D() == 3) {
+            pc.integrator.setActionInterval(getPaintAction(pc.box), 1);
+        }
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
         historyLength = 100;
