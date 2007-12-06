@@ -96,3 +96,4 @@ public class EtomicaInfo implements java.io.Serializable {
      */
     public void setEnabled(boolean b) {enabled = b;}
 }
+
