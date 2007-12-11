@@ -140,19 +140,6 @@ public class LjmdGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(mbPump);
         sim.integrator.setActionInterval(mbPump, 100);
 		
-        getController().getReinitButton().setPostAction(new Action() {
-            public void actionPerformed() {
-                getDisplayBox(sim.box).repaint();
-                rdfMeter.reset();
-            }
-        });
-
-        getController().getResetAveragesButton().setPostAction(new Action() {
-            public void actionPerformed() {
-                rdfMeter.reset();
-            }
-        });
-
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
         //add meter and display for current kinetic temperature
@@ -306,7 +293,9 @@ public class LjmdGraphic extends SimulationGraphic {
 
         Action resetAction = new Action() {
         	public void actionPerformed() {
-        		// Reset density (Density is set and won't change, but
+                rdfMeter.reset();
+
+                // Reset density (Density is set and won't change, but
         		// do this anyway)
         		densityPump.actionPerformed();
         		densityBox.repaint();
