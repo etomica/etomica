@@ -498,14 +498,16 @@ public class DevicePlotPoints {
         int numRows = tableModel.getRowCount();
 
 		for(int row = 0; row < numRows; row++) {
-			if(((String)tableModel.getValueAt(row, column)).compareTo("") != 0) {
+			if(((String)tableModel.getValueAt(row, 0)).compareTo("") != 0 &&
+			   ((String)tableModel.getValueAt(row, 1)).compareTo("") != 0) {
                 nonBlankRowCount++;
 			}
 		}
 
 		points = new double[nonBlankRowCount];
 		for(int row = 0; row < numRows; row++) {
-			if(((String)tableModel.getValueAt(row, column)).compareTo("") != 0) {
+            if(((String)tableModel.getValueAt(row, 0)).compareTo("") != 0 &&
+               ((String)tableModel.getValueAt(row, 1)).compareTo("") != 0) {
 				points[row] = Double.valueOf(((String)tableModel.getValueAt(row, column))).doubleValue();
 			}
 		}
