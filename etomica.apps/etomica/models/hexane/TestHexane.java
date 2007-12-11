@@ -184,6 +184,7 @@ public class TestHexane extends Simulation {
         coordinateDefinition.initializeCoordinates(nCells);
         WriteConfiguration writer = new WriteConfiguration();
         writer.setBox(box);
+        writer.setDoApplyPBC(false);
         writer.setConfName("hexanePure");
         writer.actionPerformed();
         
@@ -304,6 +305,7 @@ public class TestHexane extends Simulation {
 
             WriteConfiguration writer = new WriteConfiguration();
             writer.setBox(sim.box);
+            writer.setDoApplyPBC(false);
             writer.setConfName("hexane");
             writer.actionPerformed();
             

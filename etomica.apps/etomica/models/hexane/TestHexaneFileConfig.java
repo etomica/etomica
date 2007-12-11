@@ -192,7 +192,7 @@ public class TestHexaneFileConfig extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 20;
+        long nSteps = 2000;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
         double den = 0.37;
@@ -300,6 +300,7 @@ public class TestHexaneFileConfig extends Simulation {
 
             WriteConfiguration writer = new WriteConfiguration();
             writer.setBox(sim.box);
+            writer.setDoApplyPBC(false);
             writer.setConfName("hexane");
             writer.actionPerformed();
             
