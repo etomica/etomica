@@ -14,7 +14,7 @@ public class PrimitiveOrthorhombicHexagonal extends Primitive {
     public PrimitiveOrthorhombicHexagonal(Space space, double a) {
         super(space);
         //set up orthogonal vectors of unit size
-        setSize(new double[]{a, 2.0/Math.sqrt(3)*a});
+        setSize(new double[]{a, Math.sqrt(3)*a});
         setAngles(new double[]{rightAngle});
     }
     
@@ -31,7 +31,7 @@ public class PrimitiveOrthorhombicHexagonal extends Primitive {
         }
         double[] newSize = new double[D];
         newSize[0] = newA;
-        newSize[1] = 2.0/Math.sqrt(3)*newA;
+        newSize[1] = Math.sqrt(3)*newA;
         setSize(newSize);
     }
     public double getSizeA() {return size[0];}
