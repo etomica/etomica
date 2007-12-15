@@ -1,7 +1,5 @@
 package etomica.virial.simulations;
 
-import java.awt.Color;
-
 import etomica.action.Action;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
@@ -14,9 +12,7 @@ import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
-import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.SimulationGraphic;
-import etomica.models.water.SpeciesWater4P;
 import etomica.paracetamol.ApiIndexList;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P3BondAngle;
@@ -38,8 +34,10 @@ import etomica.virial.SpeciesFactorySiepmannSpheres;
 import etomica.virial.cluster.Standard;
 
 /**
- * Mayer sampling simulation for alkanes based on model by Siepmann.
- *   Siepmann, Karaborni and Smit, Nature, 365, 330-332.
+ * Mayer sampling simulation for alkanes using the TraPPE force field.
+ *   M.G. Martin and J.I. Siepmann, "Transferable Potentials for Phase
+ *   Equilibria. 1. United-Atom Description of n-Alkanes," J. Phys. Chem. B
+ *   102, 2569-2577 (1998)
  */
 public class VirialAlkane {
 
@@ -54,12 +52,9 @@ public class VirialAlkane {
         int nSpheres = params.nSpheres;
         double temperature = params.temperature;
         long steps = params.numSteps;
-        double sigmaHSRef = Math.pow(nSpheres,1.0/3.0);
-        if (temperature > 0) {
-            sigmaHSRef += 0.5;
-        }
-        double sigma = 3.93;
-        sigmaHSRef *= sigma;
+        double sigmaCH2 = 3.95;
+        double sigmaCH3 = 3.75;
+        double sigmaHSRef = sigmaCH3 + nSpheres;
         final double[] HSB = new double[8];
         HSB[2] = Standard.B2HS(sigmaHSRef);
         HSB[3] = Standard.B3HS(sigmaHSRef);
@@ -80,14 +75,14 @@ public class VirialAlkane {
         MayerHardSphere fRef = new MayerHardSphere(space,sigmaHSRef);
         MayerEHardSphere eRef = new MayerEHardSphere(space,sigmaHSRef);
         PotentialGroup pTargetGroup = new PotentialGroup(2, space);
-        System.out.println("Siepman chains B"+nPoints+" at "+temperature+"K");
+        System.out.println("Siepman "+nSpheres+"-mer chains B"+nPoints+" at "+temperature+"K");
         temperature = Kelvin.UNIT.toSim(temperature);
         double epsilonCH2 = Kelvin.UNIT.toSim(47);
-        double epsilonCH3 = Kelvin.UNIT.toSim(114.0);
+        double epsilonCH3 = Kelvin.UNIT.toSim(98.0);
         double epsilonCH2CH3 = Math.sqrt(epsilonCH2*epsilonCH3);
-        P2LennardJones p2CH2 = new P2LennardJones(space, sigma, epsilonCH2);
-        P2LennardJones p2CH3 = new P2LennardJones(space, sigma, epsilonCH3);
-        P2LennardJones p2CH2CH3 = new P2LennardJones(space, sigma, epsilonCH2CH3);
+        P2LennardJones p2CH2 = new P2LennardJones(space, sigmaCH2, epsilonCH2);
+        P2LennardJones p2CH3 = new P2LennardJones(space, sigmaCH3, epsilonCH3);
+        P2LennardJones p2CH2CH3 = new P2LennardJones(space, 0.5*(sigmaCH2+sigmaCH3), epsilonCH2CH3);
         
         MayerGeneral fTarget = new MayerGeneral(pTargetGroup);
         MayerEGeneral eTarget = new MayerEGeneral(pTargetGroup);
@@ -99,7 +94,7 @@ public class VirialAlkane {
 
         System.out.println((steps*1000)+" steps ("+steps+" blocks of 1000)");
         final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactorySiepmannSpheres(space, nSpheres),
-                          temperature,refCluster,targetCluster, true);
+                          temperature,refCluster,targetCluster, nSpheres > 2);
 //        sim.integratorOS.setAdjustStepFreq(false);
 //        sim.integratorOS.setStepFreq0(1);
 
@@ -176,8 +171,8 @@ public class VirialAlkane {
             simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
             simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
             
-            ((AtomTypeSphere)typeCH2).setDiameter(sigma);
-            ((AtomTypeSphere)typeCH3).setDiameter(sigma);
+            ((AtomTypeSphere)typeCH2).setDiameter(sigmaCH2);
+            ((AtomTypeSphere)typeCH3).setDiameter(sigmaCH3);
             simGraphic.makeAndDisplayFrame();
 
             sim.integratorOS.setNumSubSteps(1000);
@@ -260,7 +255,7 @@ public class VirialAlkane {
                           +" stdev: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.STANDARD_DEVIATION.index)).getData()[1]
                           +" error: "+((DataDoubleArray)allYourBase.getData(AccumulatorAverage.StatType.ERROR.index)).getData()[1]);
 	}
-    
+
     /**
      * Inner class for parameters
      */
