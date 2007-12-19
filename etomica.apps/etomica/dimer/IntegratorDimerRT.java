@@ -110,23 +110,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public void doStepInternal(){
 	    	    
 		rotateDimerNewton();
-		
 		rotCounter=0;
-		
 		translateDimerQuickmin();
-		
-		
-		
-		
-		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2)
-	                +"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(2)
-	                +"     "+((IAtomPositioned)list2.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list2.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list2.getAtom(0)).getPosition().x(2));
-		
-		dimerSaddleTolerance();
-
-		
+		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));
+		dimerSaddleTolerance();		
 		counter++;
-	
 	}
 			
 	// Takes in a current configuration of atoms (Rc) and creates a dimer of their positions (R1 and R2).
@@ -256,7 +244,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		
 		// Write out initial configuration
-		System.out.println("----Dimer Saddle Search");
+		System.out.println(file+" ***Dimer Saddle Search***");
 		System.out.println(N[0]);
 		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2)
 				+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(2)
@@ -616,7 +604,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             a1 = deltaXmax - dXl;
         }
 		workvector.Ea1Tv1(a1, normal[0]);
-		System.out.println(workvector+" step vector");
+		//System.out.println(workvector+" step vector");
 		
 		for(int i=0; i<normal.length; i++){
 		    workvector.Ea1Tv1(a1, normal[i]);
@@ -631,17 +619,17 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	// Calculates and checks magnitude of 3N dimensional force vector
 	protected void dimerSaddleTolerance(){
 		saddleT = 0.0;
-		
 		//If every force is less than dF, consider saddle point found.
 		for(int i=0; i<F.length; i++){
-			if(F[i].squared()<dFsq){saddleT++;}
+			saddleT += F[i].squared();
 		}
-		if(saddleT==F.length){
-			System.out.println("Saddle Point Found");
-			System.out.println(counter+"   "+saddleT+"     "+energyBox0.getDataAsScalar());
+		saddleT /= Math.sqrt(saddleT);
+		if(saddleT<dFsq){
+			System.out.println(file+" +++Dimer Saddle Found+++");
+			System.out.println(counter+" steps.  "+saddleT+" magnitude of force array.  "+energyBox0.getDataAsScalar()+" energy of box 0.");
 
 		    WriteConfiguration writer = new WriteConfiguration();
-		    writer.setConfName(energyBox0.getDataAsScalar()+"_saddle_"+file);
+		    writer.setConfName(file+"_saddle");
 		    writer.setBox(box);
 		    writer.actionPerformed();
 
