@@ -57,7 +57,7 @@ public class SimDimerMEAMadatom extends Simulation{
     public IVector [] saddle;
     public SpeciesSpheresMono sn, snFix, snAdatom, ag, agFix, agAdatom, cu, cuFix, cuAdatom, movable;
     public PotentialMEAM potential;
-    public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer;
+    public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer, activityIntegrateMin;
     CalcGradientDifferentiable calcGradientDifferentiable;
     CalcVibrationalModes calcVibrationalModes;
     public double [][] dForces;
