@@ -1,5 +1,6 @@
 package etomica.dimer;
 
+import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.WriteConfiguration;
@@ -20,6 +21,7 @@ import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.species.Species;
+import etomica.units.ElectronVolt;
 import etomica.util.IRandom;
 
 /**
@@ -68,6 +70,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public AtomAgentManager atomAgent0, atomAgent1, atomAgent2;
 	public IteratorDirective allatoms;
 	public String file;
+	public FileWriter fileWriter;
 	
 	
 	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster, Species[] species, String file) {
@@ -347,8 +350,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 						
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
 			
-			double energy1 = (energyBox1.getDataAsScalar()-energyBox0.getDataAsScalar());
-			double energy2 = (energyBox2.getDataAsScalar()-energyBox0.getDataAsScalar());
+			//double energy1 = (energyBox1.getDataAsScalar()-energyBox0.getDataAsScalar());
+			//double energy2 = (energyBox2.getDataAsScalar()-energyBox0.getDataAsScalar());
 			// System.out.println(energy1+energy2+"     "+Frot+"     "+Fprimerot+"     "+deltaTheta+"     "+N[0]);
 			
 			 // Check deltaTheta vs. dTheta and adjust step size
@@ -461,9 +464,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
                
         deltaXl = ((-Feffmag/curvatureLM) - (dXl/2));
         
-        System.out.println(Feff[0]+" effective force");
-        System.out.println(Neff[0]+" effective normal");
-        System.out.println(N[0]+" dimer normal");
+        //System.out.println(Feff[0]+" effective force");
+        //System.out.println(Neff[0]+" effective normal");
+        //System.out.println(N[0]+" dimer normal");
         
         // Step dimer
         dimerUpdatePositions(deltaXl, Neff);
@@ -626,13 +629,23 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		saddleT /= Math.sqrt(saddleT);
 		if(saddleT<dFsq){
 			System.out.println(file+" +++Dimer Saddle Found+++");
-			System.out.println(counter+" steps.  "+saddleT+" magnitude of force array.  "+energyBox0.getDataAsScalar()+" energy of box 0.");
+			System.out.println("  -"+counter+" steps.  "+saddleT+" magnitude of force array.  "+energyBox0.getDataAsScalar()+" energy of box 0.");
 
 		    WriteConfiguration writer = new WriteConfiguration();
 		    writer.setConfName(file+"_saddle");
 		    writer.setBox(box);
 		    writer.actionPerformed();
 
+		    //Write out normal vector
+	        try{
+	            fileWriter = new FileWriter(file+"_saddle_normal");
+	            for(int i=0; i<N.length; i++){
+	                fileWriter.write(N[i]+"\n");
+	            }
+	        }catch(IOException e) {
+	          
+	        }
+		    
 			System.exit(1);
 		}
 			

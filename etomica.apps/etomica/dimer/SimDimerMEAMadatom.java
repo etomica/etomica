@@ -53,8 +53,9 @@ public class SimDimerMEAMadatom extends Simulation{
     public final PotentialMaster potentialMaster;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
+    public IntegratorDimerMin integratorDimerMin;
     public Box box;
-    public IVector [] saddle;
+    public IVector [] saddle, normal;
     public SpeciesSpheresMono sn, snFix, snAdatom, ag, agFix, agAdatom, cu, cuFix, cuAdatom, movable;
     public PotentialMEAM potential;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer, activityIntegrateMin;
@@ -67,10 +68,11 @@ public class SimDimerMEAMadatom extends Simulation{
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerMEAMadatomSn";
-    	final SimDimerMEAMadatom sim = new SimDimerMEAMadatom("snAdatom", false, false, false);
+    	final SimDimerMEAMadatom sim = new SimDimerMEAMadatom("snAdatom", false, false, false, false);
 
     	sim.activityIntegrateMD.setMaxSteps(7);
     	sim.activityIntegrateDimer.setMaxSteps(1);
+    	sim.activityIntegrateMin.setMaxSteps(0);
     	
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);
@@ -123,9 +125,9 @@ public class SimDimerMEAMadatom extends Simulation{
     	
     }
 
-    public SimDimerMEAMadatom(String fileName, Boolean saddleFine, Boolean calcModes, Boolean minSearch) {
+    public SimDimerMEAMadatom(String fileName, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
     	super(Space3D.getInstance(), true);
-    	
+    	    	
     	potentialMaster = new PotentialMaster(space);
     	
     //SIMULATION BOX
@@ -228,7 +230,20 @@ public class SimDimerMEAMadatom extends Simulation{
          */
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
-
+        
+        
+    //INTEGRATOR - Minimum Energy Path
+        if(minSearch){
+            
+            //flip normal for second Min path search
+            if(normalDir){
+                
+            }
+        }
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{snAdatom}, fileName, normal);
+        activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
+        
+        
     //ADD CONTROLLER ACTIONS
     	getController().addAction(activityIntegrateMD);
     	getController().addAction(activityIntegrateDimer);
@@ -318,6 +333,7 @@ public class SimDimerMEAMadatom extends Simulation{
            box.removeMolecule(movableList.getAtom(i));
        	}
         */
+    
         
         
     //CALCULATE VIBRATIONAL MODES

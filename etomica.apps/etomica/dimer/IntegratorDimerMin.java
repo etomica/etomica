@@ -67,13 +67,14 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public double sinDtheta, cosDtheta;
 	public int rotCounter, counter;
 	public boolean rotate;
+	public String file;
 	
 	
-	public IntegratorDimerMin(ISimulation sim, PotentialMaster potentialMaster, Species[] species) {
-		this(sim, potentialMaster, sim.getRandom(), 1.0, species);
+	public IntegratorDimerMin(ISimulation sim, PotentialMaster potentialMaster, Species[] species, String fileName, IVector [] normal) {
+		this(sim, potentialMaster, sim.getRandom(), 1.0, species, fileName, normal);
 	}
 	
-	public IntegratorDimerMin(ISimulation aSim, PotentialMaster potentialMaster, IRandom arandom, double temperature, Species[] aspecies) {
+	public IntegratorDimerMin(ISimulation aSim, PotentialMaster potentialMaster, IRandom arandom, double temperature, Species[] aspecies, String fileName, IVector [] normal) {
 		super(potentialMaster, temperature);
 		this.random = arandom;
 		this.sim = aSim;
@@ -81,6 +82,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		this.forceMin = new PotentialCalculationForceSum();
 		this.allatoms = new IteratorDirective();
 		this.movableSpecies = aspecies;
+		this.file = fileName;
 		
 		stepLength = 10E-3;
 		deltaR = 10E-4;
@@ -165,7 +167,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	            Fpara[i] = box.getSpace().makeVector();
 	        }
 		
-		// Use random unit array for N to generate dimer from saddle
+	    //Normal vector assigned by simulation
+		//Use random unit array for N to generate dimer from saddle
 		
         // Normalize N
         double mag = 0;
@@ -178,7 +181,8 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         for (int i=0; i<N.length; i++){
             N[i].TE(mag);
         }
-	
+	    
+	        
 		boxMin = new Box(box.getBoundary());
         sim.addBox(boxMin);
          
@@ -222,7 +226,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         
         
         try{
-            fileWriter = new FileWriter(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"_min-path");
+            fileWriter = new FileWriter(file+"_minimum_path");
             fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"\n");
       }catch(IOException e) {
           
@@ -230,7 +234,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         
 		
         // Write out initial configuration
-        System.out.println("----Dimer Minimum Energy Path");
+        System.out.println(file+" ***Dimer Minima Search***");
         System.out.println(N[0].x(0)+"     "+N[0].x(1)+"     "+N[0].x(2));       
         System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2)
                 +"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(2));
@@ -332,7 +336,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
 			
 			double energy = (energyBox0.getDataAsScalar()+energyBoxMin.getDataAsScalar());
-            System.out.println(energy+"    "+Frot+"     "+Fprimerot+"     "+deltaTheta);
+            //System.out.println(energy+"    "+Frot+"     "+Fprimerot+"     "+deltaTheta);
             
              // Check deltaTheta vs. dTheta and adjust step size
             if (deltaTheta < 0){
@@ -409,7 +413,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		System.out.println(ElectronVolt.UNIT.fromSim(e0));
 		
 		if(e0 < eMin){ 
-		    System.out.println("Minimum Energy Found");
+		    System.out.println(file+" +++Dimer Minimum Found+++");
 			System.out.println("Box0 = "+ElectronVolt.UNIT.fromSim(e0));
 			System.out.println("BoxMin = "+ElectronVolt.UNIT.fromSim(eMin));
 			
@@ -420,7 +424,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	            }
 			
 			WriteConfiguration writer = new WriteConfiguration();
-            writer.setConfName(energyBox0.getDataAsScalar()+"_minimum");
+            writer.setConfName(file+"_minimum");
             writer.setBox(box);
             writer.actionPerformed();
 			
