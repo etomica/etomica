@@ -230,6 +230,7 @@ public class SimDimerMEAMadatom extends Simulation{
          */
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
+        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
         
         
     //INTEGRATOR - Minimum Energy Path
@@ -280,7 +281,7 @@ public class SimDimerMEAMadatom extends Simulation{
         config.initializeCoordinates(box); 
         
     //FINE-DIMER SETTINGS
-        if(saddleFine){
+        if(saddleFine==true){
         	ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
         	configFile.initializeCoordinates(box);
         	
@@ -337,7 +338,7 @@ public class SimDimerMEAMadatom extends Simulation{
         
         
     //CALCULATE VIBRATIONAL MODES
-        if(calcModes){
+        if(calcModes==true){
         	String file = fileName;
 		    ConfigurationFile configFile = new ConfigurationFile(file);
 		    configFile.initializeCoordinates(box);

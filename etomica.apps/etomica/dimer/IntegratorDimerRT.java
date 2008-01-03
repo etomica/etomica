@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.WriteConfiguration;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
@@ -21,7 +22,6 @@ import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.species.Species;
-import etomica.units.ElectronVolt;
 import etomica.util.IRandom;
 
 /**
@@ -71,6 +71,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public IteratorDirective allatoms;
 	public String file;
 	public FileWriter fileWriter;
+	public ActivityIntegrate activityIntegrate;
 	
 	
 	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster, Species[] species, String file) {
@@ -493,7 +494,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		curvature = 0.5 * curvature / deltaR;
 		
-		System.out.println(curvature+" curvature");
+		//System.out.println(curvature+" curvature");
 	}
 	
 	// Compute Normal vector for dimer orientation
@@ -577,8 +578,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    for(int i=0; i<aF.length; i++){
             mag += aF[i].dot(N[i]);
         }
-	    System.out.println(F[0]+" actual force");
-	    System.out.println(mag+" F dot N");
+	    //System.out.println(F[0]+" actual force");
+	    //System.out.println(mag+" F dot N");
 	    
 		// Feff = F - 2(F[dot]N)N
 		if(curvature<0){
@@ -646,11 +647,16 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	          
 	        }
 		    
-			System.exit(1);
+	        activityIntegrate.halt();
+			//System.exit(1);
 		}
 			
 	}
-		
+	
+	public void setActivityIntegrate(ActivityIntegrate ai){
+		activityIntegrate = ai;
+	}
+	
 	public Class getAgentClass() {
 		return IntegratorVelocityVerlet.MyAgent.class;
 	}
