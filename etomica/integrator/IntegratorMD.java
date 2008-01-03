@@ -27,7 +27,7 @@ import etomica.util.IRandom;
  */
 
 public abstract class IntegratorMD extends IntegratorBox implements BoxListener {
-    
+
     public IntegratorMD(PotentialMaster potentialMaster, IRandom random, 
             double timeStep, double temperature) {
         super(potentialMaster,temperature);
@@ -66,6 +66,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
             super.setup();
         }
         catch (ConfigurationOverlapException e) {}
+        currentTime = 0;
         thermostatCount = 1;
         meterKE.setBox(box);
         doThermostat();
