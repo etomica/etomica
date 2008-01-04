@@ -182,12 +182,11 @@ public class TestHexane extends Simulation {
         //Initialize the positions of the atoms.
         coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species);
         coordinateDefinition.initializeCoordinates(nCells);
-        WriteConfiguration writer = new WriteConfiguration();
-        writer.setBox(box);
-        writer.setDoApplyPBC(false);
-        writer.setConfName("hexanePure");
-        writer.actionPerformed();
-        
+//        WriteConfiguration writer = new WriteConfiguration();
+//        writer.setBox(box);
+//        writer.setDoApplyPBC(false);
+//        writer.setConfName("hexanePure");
+//        writer.actionPerformed();
         
         integrator.setBox(box);
        
@@ -197,7 +196,7 @@ public class TestHexane extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 20;
+        long nSteps = 1000;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
         double den = 0.37;
@@ -213,6 +212,13 @@ public class TestHexane extends Simulation {
             SimulationGraphic simGraphic = new SimulationGraphic(sim);
             simGraphic.makeAndDisplayFrame();
         } else {
+            
+            final java.util.Date day = new java.util.Date();
+            long time = day.getTime();
+            System.out.println(time);
+            long time1;
+            long time2;
+            
             //parse arguments
             //filename is element 0
             String filename = "nm_hex_";
@@ -308,6 +314,7 @@ public class TestHexane extends Simulation {
             writer.setDoApplyPBC(false);
             writer.setConfName("hexane");
             writer.actionPerformed();
+            time1 = time - day.getTime();
             
             double avgPressure = 0.0;  
             int leng = 10;
@@ -334,13 +341,16 @@ public class TestHexane extends Simulation {
             for(int i = 0; i < leng; i++){
                 System.out.println(volumes[i]);
             } 
-//            System.out.println("scaling factors");
-//            for (int i = 0; i < leng; i++){
-//                System.out.println(scalingFactors[i]);
-//            }
+            System.out.println("scaling factors");
+            for (int i = 0; i < leng; i++){
+                System.out.println(scalingFactors[i]);
+            }
             
             avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getValue(0);
             System.out.println("Avg Pres = "+ avgPressure);
+            time2 = time - day.getTime();
+            System.out.println("simulation  " + time1);
+            System.out.println("data colle  " + time2);
         }
     }
 }
