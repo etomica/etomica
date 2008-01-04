@@ -212,9 +212,7 @@ public class TestHexane extends Simulation {
             SimulationGraphic simGraphic = new SimulationGraphic(sim);
             simGraphic.makeAndDisplayFrame();
         } else {
-            
-            final java.util.Date day = new java.util.Date();
-            long time = day.getTime();
+            long time = System.currentTimeMillis();
             System.out.println(time);
             long time1;
             long time2;
@@ -314,7 +312,7 @@ public class TestHexane extends Simulation {
             writer.setDoApplyPBC(false);
             writer.setConfName("hexane");
             writer.actionPerformed();
-            time1 = time - day.getTime();
+            time1 = time - System.currentTimeMillis();
             
             double avgPressure = 0.0;  
             int leng = 10;
@@ -348,7 +346,7 @@ public class TestHexane extends Simulation {
             
             avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getValue(0);
             System.out.println("Avg Pres = "+ avgPressure);
-            time2 = time - day.getTime();
+            time2 = time - System.currentTimeMillis();
             System.out.println("simulation  " + time1);
             System.out.println("data colle  " + time2);
         }
