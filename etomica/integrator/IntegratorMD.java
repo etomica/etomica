@@ -235,10 +235,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
      * integrator may need to be updated after calling this method.
      * @return the factor velocities were scaled by 
      */
-    protected double scaleMomenta() {
+    protected void scaleMomenta() {
         momentum.E(0);
         AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
+        if (nLeaf == 0) return;
         if (nLeaf > 1) {
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
                 IAtom a = leafList.getAtom(iLeaf);
@@ -272,22 +273,59 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
             }
             momentum.E(0);
         }
+        if (temperature == 0) {
+        }
         
-        // calculate current kinetic temperature
-        double t = meterTemperature.getDataAsScalar();
-        if (t == temperature) return 1.0;
-        double s = Math.sqrt(temperature / t);
-        double scale = s;
-        if (t == 0) {
-            randomizeMomenta();
-            t = meterTemperature.getDataAsScalar();
-            s = Math.sqrt(temperature / t);
+        // calculate current kinetic temperature.
+        for (int i = 0; i<box.getSpace().D(); i++) {
+            // scale independently in each dimension
+            double sum = 0.0;
+            for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
+                IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
+                double mass = ((AtomTypeLeaf)atom.getType()).getMass();
+                if(mass == Double.POSITIVE_INFINITY) continue;
+                double v = atom.getVelocity().x(i);
+                sum += mass*v*v;
+            }
+            if (sum == 0) {
+                if (temperature == 0) {
+                    continue;
+                }
+                if (i > 0) {
+                    // wonky.  possible in theory.  but then, you called
+                    // scaleMomenta, so you're probably a bad person and
+                    // deserve this.
+                    throw new RuntimeException("atoms have no velocity component in "+i+" dimension");
+                }
+                randomizeMomenta();
+                i--;
+                // try again, we could infinite loop in theory, but only if 
+                continue;
+            }
+            double s = Math.sqrt(temperature / (sum / nLeaf));
+            if (s == 1) continue;
+            for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
+                IAtomKinetic atom = (IAtomKinetic)leafList.getAtom(iAtom);
+                IVector vel = atom.getVelocity(); 
+                vel.setX(i, vel.x(i)*s); //scale momentum
+            }
         }
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
-            a.getVelocity().TE(s); //scale momentum
-        }
-        return scale;
+        
+        
+//        double t = meterTemperature.getDataAsScalar();
+//        if (t == temperature) return;
+//        double s = Math.sqrt(temperature / t);
+//        double scale = s;
+//        if (t == 0) {
+//            randomizeMomenta();
+//            t = meterTemperature.getDataAsScalar();
+//            s = Math.sqrt(temperature / t);
+//        }
+//        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
+//            IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
+//            a.getVelocity().TE(s); //scale momentum
+//        }
+//        return;
     }
 
     /**

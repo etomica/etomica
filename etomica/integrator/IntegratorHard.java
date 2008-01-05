@@ -193,11 +193,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
                     if (Debug.LEVEL > 1 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
                         System.out.println("distance between "+debugPair+" is "+Math.sqrt(r2));
                         if (Debug.LEVEL > 2 || Math.sqrt(r2) < Debug.ATOM_SIZE-1.e-11) {
-                            dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)atom0).getVelocity());
-                            dr.PE(((IAtomKinetic)atom0).getPosition());
+                            dr.Ea1Tv1(collisionTimeStep,atom0.getVelocity());
+                            dr.PE(atom0.getPosition());
                             System.out.println(atom0+" coordinates "+dr);
-                            dr.Ea1Tv1(collisionTimeStep,((IAtomKinetic)atom1).getVelocity());
-                            dr.PE(((IAtomKinetic)atom1).getPosition());
+                            dr.Ea1Tv1(collisionTimeStep,atom1.getVelocity());
+                            dr.PE(atom1.getPosition());
                             System.out.println(atom1+" coordinates "+dr);
                         }
                     }
@@ -449,17 +449,11 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
     /**
      * Updates collision times appropriately after scaling momenta.
      */
-    protected double scaleMomenta() {
-        double s = super.scaleMomenta();
-        double rs = 1.0/s;
-        AtomSet leafList = box.getLeafList();
-        int nLeaf = leafList.getAtomCount();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom atom = leafList.getAtom(iLeaf);
-            ((Agent)agentManager.getAgent(atom)).eventLinker.sortKey *= rs;
-        }
-        // don't need to update eventTree because event order didn't change
-        return s;
+    protected void scaleMomenta() {
+        super.scaleMomenta();
+        // super.scaleMomenta alters the velocities, so we need to 
+        // recalculate collision times
+        resetCollisionTimes();
     }
 
     /**
