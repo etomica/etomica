@@ -122,6 +122,12 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
      * Steps all atoms across time interval timeStep, handling all intervening collisions.
      */
     public void doStepInternal() {
+        if (Double.isInfinite(currentPotentialEnergy)) {
+            // we were overlapped at some point.  try recalculating the PE now
+            // so we can start re-tracking the PE once we aren't overlapped.
+            meterPE.setBox(box);
+            currentPotentialEnergy = meterPE.getDataAsScalar();
+        }
         super.doStepInternal();
         findNextCollider();
         collisionTimeStep = (colliderAgent != null) ? colliderAgent.collisionTime() : Double.POSITIVE_INFINITY;
