@@ -256,7 +256,10 @@ public class SwmdGraphic extends SimulationGraphic {
                 }
                 ((PotentialMasterList)sim.integrator.getPotential()).setRange(nbrRange);
                 ((PotentialMasterList)sim.integrator.getPotential()).reset();
-                sim.integrator.reset();
+                try {
+                    sim.integrator.reset();
+                }
+                catch (ConfigurationOverlapException e) {}
             }
         };
         sigBox.setPostAction(neighborRangeReset);
