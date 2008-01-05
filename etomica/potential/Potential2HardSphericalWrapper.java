@@ -31,6 +31,10 @@ public class Potential2HardSphericalWrapper extends Potential2HardSpherical {
         wrappedPotential = potential;
     }
     
+    public PotentialHard getWrappedPotential() {
+        return wrappedPotential;
+    }
+
     public void setBox(Box box) {
         ((Potential2)wrappedPotential).setBox(box);
         super.setBox(box);
