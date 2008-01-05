@@ -109,13 +109,6 @@ public class IntegratorHardPiston extends IntegratorHard {
         pistonUpdateRequested = true;
     }
     
-    protected double scaleMomenta() {
-        // Force a piston update after scaling momenta since the collision
-        // time correction won't work (piston velocity/acceleration are unchanged)
-        pistonUpdateRequested = true;
-        return super.scaleMomenta();
-    }
-    
     private static final long serialVersionUID = 1L;
     private final P1HardMovingBoundary pistonPotential;
     private boolean pistonUpdateRequested = false;
