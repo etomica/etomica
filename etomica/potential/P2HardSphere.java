@@ -4,7 +4,6 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
@@ -72,8 +71,8 @@ public class P2HardSphere extends Potential2HardSpherical {
         double time = Double.POSITIVE_INFINITY;
 
         if(bij < 0.0) {
-        	if (ignoreOverlap && dr.squared() < sig2) return falseTime;
             double v2 = dv.squared();
+            if (ignoreOverlap && dr.squared() < sig2) return falseTime+0.001*Math.sqrt(dr.squared())/Math.sqrt(v2);
             double discriminant = bij*bij - v2 * ( dr.squared() - sig2 );
             if(discriminant > 0) {
                 time = (-bij - Math.sqrt(discriminant))/v2;

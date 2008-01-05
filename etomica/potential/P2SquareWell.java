@@ -157,7 +157,7 @@ public class P2SquareWell extends Potential2HardSpherical {
 
             if(bij < 0.0) {    // Check for hard-core collision
                 if(ignoreOverlap && r2 < coreDiameterSquared) {   // Inside core; collision now
-                    return falseTime;
+                    return falseTime+0.001*Math.sqrt(dr.squared())/Math.sqrt(v2);
                 }
 
                 double discr = bij*bij - v2 * ( r2 - coreDiameterSquared );
