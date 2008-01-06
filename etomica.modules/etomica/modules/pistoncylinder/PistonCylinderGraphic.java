@@ -59,7 +59,6 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
-import etomica.potential.PotentialGroup;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
@@ -91,7 +90,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public P2HardSphere potentialHS;
     public P2SquareWell potentialSW;
     public P2Ideal potentialIdeal;
-    public PotentialGroup potentialGroupHS, potentialGroupSW;
     public DataSourceCountTime meterCycles;
     public DisplayTextBox displayCycles;
     public MeterTemperature thermometer;
@@ -197,7 +195,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // State tabbed pane page
         //
 
-        tempSlider = new DeviceThermoSlider(pc.controller);
+        tempSlider = new DeviceThermoSlider(pc.getController());
         tempSlider.setShowValues(true);
         tempSlider.setEditValues(true);
         tempSlider.setMinimum(0);
@@ -438,7 +436,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         displayBox.addDrawable(pc.pistonPotential);
         displayBox.addDrawable(pc.wallPotential);
         // doesn't actually have any effect for 3D
-        scaleSlider.setController(pc.controller);
+        scaleSlider.setController(pc.getController());
 
         //  control panel
         ModifierBoolean fixPistonModulator = new ModifierBoolean() {
@@ -451,7 +449,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 return pc.pistonPotential.isStationary();
             }
         };
-        fixPistonButton.setController(pc.controller);
+        fixPistonButton.setController(pc.getController());
         fixPistonButton.setModifier(fixPistonModulator, "Release piston", "Hold piston");
         fixPistonButton.setPostAction(new ActionPistonUpdate(pc.integrator));
         fixPistonButton.setState(pistonHeld);
@@ -688,7 +686,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public void setPotential(String potentialDesc) {
         final boolean HS = potentialDesc.equals("Repulsion only"); 
         final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
-        pc.controller.doActionNow( new Action() {
+        pc.getController().doActionNow( new Action() {
             public void actionPerformed() {
                 if (HS) {
                     potentialHS.setBox(pc.box);

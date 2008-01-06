@@ -34,7 +34,6 @@ public class PistonCylinder extends Simulation {
     public IntegratorHardPiston integrator;
     public SpeciesSpheresMono species;
     public Box box;
-    public Controller controller;
     public Potential2HardSphericalWrapper potentialWrapper;
     public P1HardBoundary wallPotential;
     public P1HardMovingBoundary pistonPotential;
@@ -47,7 +46,6 @@ public class PistonCylinder extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster(space);
         lambda = 2.0;
         double sigma = 4.0;
-        controller = getController();
         species = new SpeciesSpheresMono(this);
         ((ElementSimple)((AtomTypeLeaf)species.getMoleculeType()).getElement()).setMass(16);
         ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
