@@ -120,13 +120,38 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     private boolean doConfigButton = false;
     private boolean doRDF = false;
 
+    /**
+     * Creates a PistonCylinder graphic instance.  init() must be called before
+     * this can be used.
+     */
     public PistonCylinderGraphic(PistonCylinder sim) {
     	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
     	pc = sim;
+    }
+
+    /**
+     * Enable the config (and velocity) buttons.  This must be called before
+     * init() is called.
+     */
+    public void setDoConfigButton(boolean newDoConfigButton) {
+        doConfigButton = newDoConfigButton;
+    }
+    
+    /**
+     * Enable the RDF plot.  This must be called before init() is called.
+     */
+    public void setDoRDF(boolean newDoRDF) {
+        doRDF = newDoRDF;
+    }
+    
+    /**
+     * Initialize all the bits based on previously set doConfigButton and doRDF.
+     */
+    public void init() {
 
         displayBox = getDisplayBox(pc.box);
         displayBox.setColorScheme(new ColorSchemeByType());
-        if (sim.getSpace().D() == 3) {
+        if (pc.getSpace().D() == 3) {
             pc.integrator.setActionInterval(getPaintAction(pc.box), 1);
             ((DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(new PistonPlane(pc.pistonPotential));
         }
@@ -743,6 +768,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public static void main(String[] args) {
         PistonCylinder sim = new PistonCylinder(2);
         PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
+        pcg.init();
 		SimulationGraphic.makeAndDisplayFrame(pcg.getPanel(), APP_NAME);
     }
 
@@ -751,7 +777,15 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         public void init() {
             PistonCylinder sim = new PistonCylinder(2);
             PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
-
+            String doConfigButtonStr = getParameter("doConfigButton");
+            if (doConfigButtonStr != null) {
+                pcg.setDoConfigButton(Boolean.valueOf(doConfigButtonStr).booleanValue());
+            }
+            String doRDFStr = getParameter("doRDF");
+            if (doRDFStr != null) {
+                pcg.setDoRDF(Boolean.valueOf(doRDFStr).booleanValue());
+            }
+            pcg.init();
             getContentPane().add(pcg.getPanel());
         }
 
