@@ -218,36 +218,7 @@ public class SimDimerMEAMadatom extends Simulation{
         this.potentialMaster.addPotential(potential, new Species[]{cu, cuFix, cuAdatom, movable});
          */
            
-    //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{snAdatom,movable}, fileName);
-    	/**
-    	//Ag
-    	integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{agAdatom}, fileName);
-    	 */
-        /**
-        //Cu
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{cuAdatom}, fileName);
-         */
-        integratorDimer.setBox(box);
-        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
-        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
-        
-        
-    //INTEGRATOR - Minimum Energy Path
-        if(minSearch){
-            
-            //flip normal for second Min path search
-            if(normalDir){
-                
-            }
-        }
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{snAdatom}, fileName, normal);
-        activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
-        
-        
-    //ADD CONTROLLER ACTIONS
-    	getController().addAction(activityIntegrateMD);
-    	getController().addAction(activityIntegrateDimer);
+    
     	
     //CRYSTAL
     	/**
@@ -279,20 +250,7 @@ public class SimDimerMEAMadatom extends Simulation{
          */
         Configuration config = new ConfigurationLattice(crystal);
         config.initializeCoordinates(box); 
-        
-    //FINE-DIMER SETTINGS
-        if(saddleFine==true){
-        	ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
-        	configFile.initializeCoordinates(box);
-        	
-        	integratorDimer.file = fileName+"_fine";
-            integratorDimer.deltaR = 0.0005;
-            integratorDimer.dXl = 10E-5;       
-            integratorDimer.deltaXmax = 0.005;
-            integratorDimer.dFsq = 0.0001*0.0001;
-            integratorDimer.dFrot = 0.01;
-        }
-        
+       
     //ADATOM CREATION AND PLACEMENT
         // Sn
         IAtom iAtom = snAdatom.getMoleculeFactory().makeAtom();
@@ -317,7 +275,49 @@ public class SimDimerMEAMadatom extends Simulation{
         ((IAtomPositioned)iAtom).getPosition().setX(2, 1.0709520701043456);
         */
         
+    //INTEGRATOR - Dimer
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{snAdatom,movable}, fileName);
+    	/**
+    	//Ag
+    	integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{agAdatom}, fileName);
+    	 */
+        /**
+        //Cu
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{cuAdatom}, fileName);
+         */
+        integratorDimer.setBox(box);
+        activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
+        integratorDimer.setActivityIntegrate(activityIntegrateDimer);
+
+//FINE-DIMER SETTINGS
+        if(saddleFine==true){
+        	ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
+        	configFile.initializeCoordinates(box);
+        	
+        	integratorDimer.file = fileName+"_fine";
+            integratorDimer.deltaR = 0.0005;
+            integratorDimer.dXl = 10E-5;       
+            integratorDimer.deltaXmax = 0.005;
+            integratorDimer.dFsq = 0.0001*0.0001;
+            integratorDimer.dFrot = 0.01;
+        }
         
+    //INTEGRATOR - Minimum Energy Path
+        if(minSearch){
+        	ConfigurationFile configFile = new ConfigurationFile(fileName+"_fine_saddle");
+        	configFile.initializeCoordinates(box);
+            //flip normal for second Min path search
+            if(normalDir){
+                
+            }
+        }
+        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{snAdatom}, fileName, normal);
+        activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
+        
+    //ADD CONTROLLER ACTIONS
+    	getController().addAction(activityIntegrateMD);
+    	getController().addAction(activityIntegrateDimer);
+
     //SET MOVABLE ATOMS
         /**
         IVector rij = space.makeVector();
