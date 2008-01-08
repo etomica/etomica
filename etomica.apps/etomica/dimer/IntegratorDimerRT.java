@@ -647,7 +647,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	          
 	        }
 		    
-	        activityIntegrate.halt();
+	        activityIntegrate.setMaxSteps(0);
 			//System.exit(1);
 		}
 			

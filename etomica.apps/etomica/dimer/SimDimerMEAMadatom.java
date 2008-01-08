@@ -122,7 +122,6 @@ public class SimDimerMEAMadatom extends Simulation{
         colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
          */
     	simGraphic.makeAndDisplayFrame(APP_NAME);
-    	
     }
 
     public SimDimerMEAMadatom(String fileName, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
@@ -217,9 +216,7 @@ public class SimDimerMEAMadatom extends Simulation{
         potential.setParameters(movable, ParameterSetMEAM.Cu);
         this.potentialMaster.addPotential(potential, new Species[]{cu, cuFix, cuAdatom, movable});
          */
-           
-    
-    	
+               	
     //CRYSTAL
     	/**
     	beta-Sn box
@@ -303,7 +300,7 @@ public class SimDimerMEAMadatom extends Simulation{
         }
         
     //INTEGRATOR - Minimum Energy Path
-        if(minSearch){
+        if(minSearch==true){
         	ConfigurationFile configFile = new ConfigurationFile(fileName+"_fine_saddle");
         	configFile.initializeCoordinates(box);
             //flip normal for second Min path search
@@ -313,10 +310,12 @@ public class SimDimerMEAMadatom extends Simulation{
         }
         integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{snAdatom}, fileName, normal);
         activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
+        integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
         
     //ADD CONTROLLER ACTIONS
     	getController().addAction(activityIntegrateMD);
     	getController().addAction(activityIntegrateDimer);
+    	getController().addAction(activityIntegrateMin);
 
     //SET MOVABLE ATOMS
         /**
@@ -335,8 +334,6 @@ public class SimDimerMEAMadatom extends Simulation{
        	}
         */
     
-        
-        
     //CALCULATE VIBRATIONAL MODES
         if(calcModes==true){
         	String file = fileName;
@@ -416,8 +413,6 @@ public class SimDimerMEAMadatom extends Simulation{
 		    }
 		
 		    System.out.println("Done.");
-		    
-		    System.exit(1);
 		    
         }
     }

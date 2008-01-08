@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.WriteConfiguration;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
@@ -43,6 +44,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public IRandom random;
 	public FileWriter fileWriter;
 	public MeterPotentialEnergy energyBox0, energyBoxMin;
+	public ActivityIntegrate activityIntegrate;
 
 	public IVectorRandom [] N, Nstar;
 	public IVector NDelta, NstarDelta;
@@ -110,8 +112,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		// Step half-dimer toward the local energy minimum
 		walkDimer();
 		
-		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2)
-					+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(2));
+		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));
 		
 		// Check and see if we're at the minimum energy
 		energyDimer();
@@ -236,8 +237,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         // Write out initial configuration
         System.out.println(file+" ***Dimer Minima Search***");
         System.out.println(N[0].x(0)+"     "+N[0].x(1)+"     "+N[0].x(2));       
-        System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2)
-                +"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)listMin.getAtom(0)).getPosition().x(2));
+        System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));
         
 		// Calculate F's
 		dimerForces(Fmin, F0, Fmin2);
@@ -335,7 +335,6 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
 			
-			double energy = (energyBox0.getDataAsScalar()+energyBoxMin.getDataAsScalar());
             //System.out.println(energy+"    "+Frot+"     "+Fprimerot+"     "+deltaTheta);
             
              // Check deltaTheta vs. dTheta and adjust step size
@@ -428,7 +427,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             writer.setBox(box);
             writer.actionPerformed();
 			
-            System.exit(1);
+            activityIntegrate.setMaxSteps(0);
 		}
 		
 	}
@@ -501,6 +500,10 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			aFperp[i].TE(1.0/deltaR);
 		}
 
+	}
+	
+	public void setActivityIntegrate(ActivityIntegrate ai){
+		activityIntegrate = ai;
 	}
 	
 	public Class getAgentClass() {
