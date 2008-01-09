@@ -9,6 +9,7 @@ import etomica.data.DataSourceIndependent;
 import etomica.data.DataSourceUniform;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
+import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
@@ -91,6 +92,8 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
         double halfBox = 0.5*box.getBoundary().getDimensions().dot(profileVector);
         xDataSource.setXMin(-halfBox);
         xDataSource.setXMax(halfBox);
+        xDataSource.setTypeMax(LimitType.HALF_STEP);
+        xDataSource.setTypeMin(LimitType.HALF_STEP);
     }
     
     /**
