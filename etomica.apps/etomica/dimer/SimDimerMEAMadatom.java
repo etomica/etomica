@@ -272,7 +272,7 @@ public class SimDimerMEAMadatom extends Simulation{
         ((IAtomPositioned)iAtom).getPosition().setX(2, 1.0709520701043456);
         */
         
-    //INTEGRATOR - Dimer
+  //INTEGRATOR - Dimer
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{snAdatom,movable}, fileName);
     	/**
     	//Ag
@@ -286,8 +286,14 @@ public class SimDimerMEAMadatom extends Simulation{
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
 
-//FINE-DIMER SETTINGS
+    //ADD CONTROLLER ACTIONS
+    	getController().addAction(activityIntegrateMD);
+    	getController().addAction(activityIntegrateDimer);
+    	
+    //FINE-DIMER SETTINGS
         if(saddleFine==true){
+        	getController().removeAction(activityIntegrateMD);
+        	
         	ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
         	configFile.initializeCoordinates(box);
         	
@@ -298,6 +304,8 @@ public class SimDimerMEAMadatom extends Simulation{
             integratorDimer.dFsq = 0.0001*0.0001;
             integratorDimer.dFrot = 0.01;
         }
+                
+   
         
     //INTEGRATOR - Minimum Energy Path
         if(minSearch==true){
@@ -306,17 +314,18 @@ public class SimDimerMEAMadatom extends Simulation{
             //flip normal for second Min path search
             if(normalDir){
                 
-            }
+            } 
+            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{snAdatom,movable}, fileName, normal);
+            integratorDimerMin.setBox(box);
+            activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
+            integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
+            getController().removeAction(activityIntegrateMD);
+            getController().removeAction(activityIntegrateDimer);
+            getController().addAction(activityIntegrateMin);
         }
-        integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{snAdatom}, fileName, normal);
-        activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
-        integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
-        
-    //ADD CONTROLLER ACTIONS
-    	getController().addAction(activityIntegrateMD);
-    	getController().addAction(activityIntegrateDimer);
-    	getController().addAction(activityIntegrateMin);
 
+        
+        
     //SET MOVABLE ATOMS
         /**
         IVector rij = space.makeVector();
@@ -336,6 +345,8 @@ public class SimDimerMEAMadatom extends Simulation{
     
     //CALCULATE VIBRATIONAL MODES
         if(calcModes==true){
+        	getController().removeAction(activityIntegrateMD);
+        	getController().removeAction(activityIntegrateDimer);
         	String file = fileName;
 		    ConfigurationFile configFile = new ConfigurationFile(file);
 		    configFile.initializeCoordinates(box);
