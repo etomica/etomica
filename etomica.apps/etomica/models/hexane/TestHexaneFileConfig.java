@@ -61,14 +61,14 @@ public class TestHexaneFileConfig extends Simulation {
     public CoordinateDefinition coordinateDefinition;
     public Primitive primitive;
     
-//    public MCMoveVolume moveVolume;
-//    public MCMoveClusterWiggleMulti crank; 
-////    public MCMoveReptate snake;
-//    public MCMoveMolecule moveMolecule;
-//    public CBMCGrowSolidHexane growMolecule;
+    public MCMoveVolume moveVolume;
+    public MCMoveClusterWiggleMulti crank; 
+//    public MCMoveReptate snake;
+    public MCMoveMolecule moveMolecule;
+    public CBMCGrowSolidHexane growMolecule;
     public MCMoveRotateMolecule3D rot;
-//    public MCMoveMoleculeCoupled coupledMove;
-//    public MCMoveCombinedCbmcTranslation cctMove;
+    public MCMoveMoleculeCoupled coupledMove;
+    public MCMoveCombinedCbmcTranslation cctMove;
     
 //    public PairIndexerMolecule pri;
 
@@ -105,19 +105,19 @@ public class TestHexaneFileConfig extends Simulation {
 //        config.initializeCoordinates(box);
         integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
         
-//        moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
-//                0.1, 1, false);
-//        // 0.025 for translate, 0.042 for rotate for rho=0.3737735
-//        moveMolecule.setStepSize(0.024);        
-//        integrator.getMoveManager().addMCMove(moveMolecule);
-//        ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
-//        
-//        moveVolume = new MCMoveVolume(this, potentialMaster);
-////        moveVolume = new MCMoveVolume(potentialMaster, getRandom(), pressure);
-//        moveVolume.setBox(box);
-//        integrator.getMoveManager().addMCMove(moveVolume);
-//        
-//        crank = new MCMoveClusterWiggleMulti(potentialMaster, getRandom(), 0.20, 6);
+        moveMolecule = new MCMoveMolecule(potentialMaster, getRandom(),
+                0.1, 1, false);
+        // 0.025 for translate, 0.042 for rotate for rho=0.3737735
+        moveMolecule.setStepSize(0.024);        
+        integrator.getMoveManager().addMCMove(moveMolecule);
+        ((MCMoveStepTracker)moveMolecule.getTracker()).setNoisyAdjustment(true);
+        
+        moveVolume = new MCMoveVolume(this, potentialMaster);
+//        moveVolume = new MCMoveVolume(potentialMaster, getRandom(), pressure);
+        moveVolume.setBox(box);
+        integrator.getMoveManager().addMCMove(moveVolume);
+        
+        crank = new MCMoveClusterWiggleMulti(potentialMaster, getRandom(), 0.20, 6);
     
 //        snake = new MCMoveReptate(potentialMaster, getRandom(), 0.4, 3.0, true);
 //        snake.setBox(box);
@@ -129,17 +129,17 @@ public class TestHexaneFileConfig extends Simulation {
         integrator.getMoveManager().addMCMove(rot);
         ((MCMoveStepTracker)rot.getTracker()).setNoisyAdjustment(true);
         
-//        growMolecule = new CBMCGrowSolidHexane(potentialMaster,
-//                getRandom(), integrator, box, species, 20);
-//        growMolecule.setBox(box);
-//        integrator.getMoveManager().addMCMove(growMolecule);
-//
-//        coupledMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom());
-//        integrator.getMoveManager().addMCMove(coupledMove);
-//        
-//        cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, growMolecule, getRandom());
-//        cctMove.setBox(box);
-//        integrator.getMoveManager().addMCMove(cctMove);
+        growMolecule = new CBMCGrowSolidHexane(potentialMaster,
+                getRandom(), integrator, box, species, 20);
+        growMolecule.setBox(box);
+        integrator.getMoveManager().addMCMove(growMolecule);
+
+        coupledMove = new MCMoveMoleculeCoupled(potentialMaster, getRandom());
+        integrator.getMoveManager().addMCMove(coupledMove);
+        
+        cctMove = new MCMoveCombinedCbmcTranslation(potentialMaster, growMolecule, getRandom());
+        cctMove.setBox(box);
+        integrator.getMoveManager().addMCMove(cctMove);
         
         // nan we're going to need some stuff in there to set the step sizes and
         // other stuff like that.
@@ -174,14 +174,14 @@ public class TestHexaneFileConfig extends Simulation {
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
         
-//        coupledMove.setPotential(potentialMaster.getPotential(new AtomType[] {
-//                species.getMoleculeType(), species.getMoleculeType() }  ));
+        coupledMove.setPotential(potentialMaster.getPotential(new AtomType[] {
+                species.getMoleculeType(), species.getMoleculeType() }  ));
 
         //Initialize the positions of the atoms.
         coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species);
         coordinateDefinition.initializeCoordinates(nCells);
         
-        ConfigurationFile config = new ConfigurationFile("hexanePure");
+        ConfigurationFile config = new ConfigurationFile("hexane");
         config.initializeCoordinates(box);
         
         integrator.setBox(box);
@@ -192,11 +192,11 @@ public class TestHexaneFileConfig extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 2000;
+        long nSteps = 1000;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
         double den = 0.37;
-        boolean graphic = false;
+        boolean graphic = true;
   
         //spaces are now singletons; we can only have one instance, so we call
         // it with this method, not a "new" thing.
@@ -255,6 +255,7 @@ public class TestHexaneFileConfig extends Simulation {
             BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
             MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
             meterPressure.setIntegrator(sim.integrator);
+            meterPressure.setX(-0.001, 0.001, 20);
             AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
             DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
             pressureAccumulator.setBlockSize(50);
@@ -265,7 +266,7 @@ public class TestHexaneFileConfig extends Simulation {
             System.out.println("equilibration finished");
             sim.getController().reset();
             
-//            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
+            ((MCMoveStepTracker)sim.moveMolecule.getTracker()).setTunable(false);
             ((MCMoveStepTracker)sim.rot.getTracker()).setTunable(false);
            
             sim.integrator.addIntervalAction(meterNormalMode);
@@ -293,7 +294,7 @@ public class TestHexaneFileConfig extends Simulation {
             sim.activityIntegrate.setMaxSteps(nSteps);
             sim.getController().actionPerformed();
 
-//            //Write out the final configurations for further use.
+            //Write out the final configurations for further use.
 //            PDBWriter pdbWriter = new PDBWriter(sim.box);
 //            pdbWriter.setFileName("calcHex.pdb");
 //            pdbWriter.actionPerformed();
@@ -305,7 +306,7 @@ public class TestHexaneFileConfig extends Simulation {
             writer.actionPerformed();
             
             double avgPressure = 0.0;  
-            int leng = 10;
+            int leng = 20;
             double[] pressies = new double[leng];
             double[] lnXs = new double[leng];
             double[] scalingFactors = new double[leng];
@@ -336,6 +337,9 @@ public class TestHexaneFileConfig extends Simulation {
             
             avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getValue(0);
             System.out.println("Avg Pres = "+ avgPressure);
+            
+
+            System.out.println(sim.integrator.meterPE.getDataAsScalar());
         }
     }
 }

@@ -196,7 +196,7 @@ public class TestHexane extends Simulation {
         int xLng = 4;
         int yLng = 4;
         int zLng = 3;
-        long nSteps = 1000;
+        long nSteps = 500;
         // Monson reports data for 0.373773507616 and 0.389566754417
         double density = 0.373773507616;
         double den = 0.37;
@@ -264,10 +264,12 @@ public class TestHexane extends Simulation {
             BoxInflateDeformable pid = new BoxInflateDeformable(sim.getSpace());
             MeterPressureByVolumeChange meterPressure = new MeterPressureByVolumeChange(sim.getSpace(), pid);
             meterPressure.setIntegrator(sim.integrator);
+            meterPressure.setX(-0.001, 0.001, 20);
             AccumulatorAverageFixed pressureAccumulator = new AccumulatorAverageFixed();
             DataPump pressureManager = new DataPump(meterPressure, pressureAccumulator);
             pressureAccumulator.setBlockSize(50);
             sim.integrator.addIntervalAction(pressureManager);
+//            sim.integrator.setActionInterval(pressureManager, 10);
          
             sim.activityIntegrate.setMaxSteps(nSteps/10);
             sim.getController().actionPerformed();
@@ -312,10 +314,10 @@ public class TestHexane extends Simulation {
             writer.setDoApplyPBC(false);
             writer.setConfName("hexane");
             writer.actionPerformed();
-            time1 = time - System.currentTimeMillis();
+            time1 = System.currentTimeMillis();   
             
             double avgPressure = 0.0;  
-            int leng = 10;
+            int leng = 20;
             double[] pressies = new double[leng];
             double[] lnXs = new double[leng];
             double[] scalingFactors = new double[leng];
@@ -346,9 +348,13 @@ public class TestHexane extends Simulation {
             
             avgPressure = ((DataDoubleArray)((DataGroup)pressureAccumulator.getData()).getData(StatType.AVERAGE.index)).getValue(0);
             System.out.println("Avg Pres = "+ avgPressure);
-            time2 = time - System.currentTimeMillis();
+            time2 = System.currentTimeMillis();
+            
+            System.out.println("start  " + time);
             System.out.println("simulation  " + time1);
-            System.out.println("data colle  " + time2);
+            System.out.println("data collection  " + time2);
+            
+            System.out.println(sim.integrator.meterPE.getDataAsScalar());
         }
     }
 }
