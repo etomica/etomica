@@ -111,8 +111,8 @@ public class ReadParameters implements java.io.Serializable {
                     throw new IllegalStateException("You must either provide the wrapper Object or have the wrapper Class name at the top of the input file");
                 }
             }
-            else if (line.matches("^ *#.*")) {
-                // skip comments
+            else if (line.matches("^ *#.*") || line.length() == 0) {
+                // skip comments and empty lines
                 continue;
             }
             int i = line.indexOf(' ');
