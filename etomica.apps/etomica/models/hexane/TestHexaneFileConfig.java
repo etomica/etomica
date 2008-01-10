@@ -339,7 +339,7 @@ public class TestHexaneFileConfig extends Simulation {
             System.out.println("Avg Pres = "+ avgPressure);
             
 
-            System.out.println(sim.integrator.meterPE.getDataAsScalar());
+//            System.out.println(sim.integrator.meterPE.getDataAsScalar());
         }
     }
 }

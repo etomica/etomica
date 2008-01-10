@@ -354,7 +354,7 @@ public class TestHexane extends Simulation {
             System.out.println("simulation  " + time1);
             System.out.println("data collection  " + time2);
             
-            System.out.println(sim.integrator.meterPE.getDataAsScalar());
+//            System.out.println(sim.integrator.meterPE.getDataAsScalar());
         }
     }
 }
