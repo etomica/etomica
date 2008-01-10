@@ -304,18 +304,12 @@ public class SimDimerMEAMadatom extends Simulation{
             integratorDimer.dFsq = 0.0001*0.0001;
             integratorDimer.dFrot = 0.01;
         }
-                
-   
-        
+                        
     //INTEGRATOR - Minimum Energy Path
         if(minSearch==true){
         	ConfigurationFile configFile = new ConfigurationFile(fileName+"_fine_saddle");
         	configFile.initializeCoordinates(box);
-            //flip normal for second Min path search
-            if(normalDir){
-                
-            } 
-            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{snAdatom,movable}, fileName, normal);
+            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{snAdatom,movable}, fileName, normalDir);
             integratorDimerMin.setBox(box);
             activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
             integratorDimerMin.setActivityIntegrate(activityIntegrateMin);

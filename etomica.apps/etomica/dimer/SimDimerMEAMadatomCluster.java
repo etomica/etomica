@@ -14,8 +14,8 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 	
 	 public static void main(String[] args){
 	        
-	        String fileName = "one"; //args[0];
-	        int mdSteps = 10; //Integer.parseInt(args[1]);
+	        String fileName = args[0];
+	        int mdSteps = Integer.parseInt(args[1]);
 	        
 	    	final String APP_NAME = "SimDimerMEAMadatomCluster";
 	    	
@@ -34,14 +34,23 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 	        final SimDimerMEAMadatom sim3 = new SimDimerMEAMadatom(fileName+"_fine_saddle", false, true, false, false);
 	        sim3.getController().actionPerformed();
 	        
-	        //Simulation 4 - Minimum Search
+	        //Simulation 4 - Minimum Search - A direction
 	        final SimDimerMEAMadatom sim4 = new SimDimerMEAMadatom(fileName, false, false, true, false);
 	    	sim4.activityIntegrateMin.setMaxSteps(500);
 	        sim4.getController().actionPerformed();
 	        
 		    //Simulation 5 - Vibrational normal mode analysis
-	        final SimDimerMEAMadatom sim5 = new SimDimerMEAMadatom(fileName+"_minimum", false, true, false, false);
+	        final SimDimerMEAMadatom sim5 = new SimDimerMEAMadatom(fileName+"_A_minimum", false, true, false, false);
 	        sim5.getController().actionPerformed();
+	        
+	        //Simulation 6 - Minimum Search - B direction
+	        final SimDimerMEAMadatom sim6 = new SimDimerMEAMadatom(fileName, false, false, true, true);
+	    	sim6.activityIntegrateMin.setMaxSteps(500);
+	        sim6.getController().actionPerformed();
+	        
+		    //Simulation 7 - Vibrational normal mode analysis
+	        final SimDimerMEAMadatom sim7 = new SimDimerMEAMadatom(fileName+"_B_minimum", false, true, false, false);
+	        sim7.getController().actionPerformed();
 	     
 	    }
 

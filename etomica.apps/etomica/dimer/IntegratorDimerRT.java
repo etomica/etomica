@@ -632,20 +632,19 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			System.out.println(file+" +++Dimer Saddle Found+++");
 			System.out.println("  -"+counter+" steps.  "+saddleT+" magnitude of force array.  "+energyBox0.getDataAsScalar()+" energy of box 0.");
 
+			// Write out configurations of 3 boxes
 		    WriteConfiguration writer = new WriteConfiguration();
 		    writer.setConfName(file+"_saddle");
 		    writer.setBox(box);
 		    writer.actionPerformed();
-
-		    //Write out normal vector
-	        try{
-	            fileWriter = new FileWriter(file+"_saddle_normal");
-	            for(int i=0; i<N.length; i++){
-	                fileWriter.write(N[i]+"\n");
-	            }
-	        }catch(IOException e) {
-	          
-	        }
+		    
+		    writer.setConfName(file+"_fine_1_saddle");
+		    writer.setBox(box1);
+		    writer.actionPerformed();
+		    
+		    writer.setConfName(file+"_fine_2_saddle");
+		    writer.setBox(box2);
+		    writer.actionPerformed();
 		    
 	        activityIntegrate.setMaxSteps(0);
 			//System.exit(1);
