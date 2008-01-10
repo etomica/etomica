@@ -130,7 +130,7 @@ public class DeviceSlider extends Device {
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
         slider.setDecimalSliderValue(300);
-        setMinimum(100);
+        setMinimum(0);
         setMaximum(500);
         slider.addChangeListener(new SliderListener());
         slider.setDecimalSliderMajorTickSpacing(100);
@@ -245,9 +245,9 @@ public class DeviceSlider extends Device {
         slider.setDecimalSliderMinorTickSpacing(spacing/minorTick);
         //need to do the following because JSlider does not automatically
         //reset labels if they have been set before
-        slider.setDecimalSliderLabelTable(slider.createDecimalSliderStandardLabels(Math.max(spacing/minorTick,1)));
+        slider.setDecimalSliderLabelTable(slider.createDecimalSliderStandardLabels(spacing/minorTick));
     }
-    
+
     public boolean getShowValues(){ return showValues;}
     public void setShowValues(boolean b){
         showValues = b;
