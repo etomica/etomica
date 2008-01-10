@@ -35,7 +35,7 @@ public class MCParacetamolMonoclinicDLMULTISimCalcS extends Simulation{
     	long simSteps = 10000;
     	int simType = 2;
       
-        String filename = "SimCalcS_Paracetamol_Monoclinic_"+ Kelvin.UNIT.fromSim(temperature)+"K";
+        String filename = "SimCalcS_Monoclinic_"+ Kelvin.UNIT.fromSim(temperature)+"K";
         if (args.length > 0) {
             filename = args[0];
         }
@@ -56,7 +56,7 @@ public class MCParacetamolMonoclinicDLMULTISimCalcS extends Simulation{
         System.out.println("output data to " + filename);
         
     	MCParacetamolMonoclinicDLMULTI sim = 
-        	new MCParacetamolMonoclinicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType);
+        	new MCParacetamolMonoclinicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType, new int[] {2,3,4});
 
         sim.actionIntegrate.setMaxSteps(simSteps);
         PrimitiveMonoclinic primitive = sim.primitive;
@@ -86,7 +86,7 @@ public class MCParacetamolMonoclinicDLMULTISimCalcS extends Simulation{
         sim.getController().actionPerformed();
         
         WriteConfiguration writeConfig = new WriteConfiguration();
-        writeConfig.setConfName("FinalCoord_SimCalcS_Paracetamol_Monoclinic_"+Kelvin.UNIT.fromSim(temperature)+"K");
+        writeConfig.setConfName("FinalCoord_SimCalcS_Monoclinic_"+Kelvin.UNIT.fromSim(temperature)+"K");
         writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);
         writeConfig.actionPerformed();

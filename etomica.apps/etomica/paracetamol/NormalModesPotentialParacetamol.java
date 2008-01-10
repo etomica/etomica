@@ -5,16 +5,16 @@ import Jama.Matrix;
 import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataInfo;
+import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.lattice.BravaisLatticeCrystal;
-import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.NormalModes;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.WaveVectorFactorySimple;
-import etomica.potential.Potential2SoftSpherical;
+import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
@@ -22,13 +22,14 @@ import etomica.space.IVector;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
-import etomica.util.FunctionGeneral;
 import etomica.util.RandomNumberGenerator;
 import etomica.util.numerical.FiniteDifferenceDerivative;
 
 /**
  * Uses analysis of 2nd derivatives to compute the normal modes for a Bravais lattice with a basis, 
  * occupied by atoms that interact with a simple, spherically-symmetric soft potential.
+ *
+ * @author Tai Tan
  */
 
 public class NormalModesPotentialParacetamol implements NormalModes {
@@ -67,73 +68,17 @@ public class NormalModesPotentialParacetamol implements NormalModes {
         int eDim = basisDim * spaceDim;
         omega2 = new double[kDim][eDim];
         eigenvectors = new double[kDim][eDim][eDim];
-        
-        
-        //this function returns phi_{alpha,beta}, as defined in Dove Eq. 6.15
-        FunctionGeneral function = new FunctionGeneral() {
-            public Data f(Object obj) {
-            	//Object is passed in as a set of generalized coordinates within a cell
-                
-            	DataDoubleArray u = (DataDoubleArray)obj;
-            	
-            	int[] d2 = new int[coordinateDefinitionParacetamol.getCoordinateDim()];
-            	
-            	////////////////////////////////////////////////////////////
-//          	Vector3D r = (Vector3D)obj;
-//              tensor.x.Ev1v2(r, r);
-//              double r2 = r.squared();
-//              double dW = potential.du(r2);
-//              double d2W = potential.d2u(r2);
-//              tensor.TE(1.0/(r2*r2)*(dW - d2W));
-//              tensor.x.PEa1Tt1(-dW/r2,identity);
-//      		  return tensor;
-             
-              //////////////////////////////////////////////////////////////
-            	NumericalDerivativeEnergyParacetamol dW = new NumericalDerivativeEnergyParacetamol(box, potentialMaster);
-            	dW.setCoordinateDefinition(coordinateDefinitionParacetamol);
-            	
-            	for (int i=0; i<coordinateDefinitionParacetamol.getCoordinateDim(); i++){
-            		
-            		/*
-            		 * assignment of the first derivative
-            		 */
-            		d2[i]++;
-            		double[] columnArrayi = new double[coordinateDefinitionParacetamol.getCoordinateDim()];
-            		
-            		for (int j=0; j<coordinateDefinitionParacetamol.getCoordinateDim(); j++){
-            			/*
-                		 * assignment of the second derivative
-                		 */
-            			d2[j]++;
-            			
-		            	FiniteDifferenceDerivative d2W = new FiniteDifferenceDerivative(dW);
-		        		d2W.setH(0.00001);
-		        		d2W.setHOptimizer(false);
-		        		d2W.setNtab(10);
-		        		
-		        		columnArrayi[j] = d2W.df(d2, u.getData());
-		        		d2[j]--;
-		        	}
-            		tensorDoubleArray.assignColumnFrom(i, columnArrayi);
-            		d2[i]--;
-            	}
-            	return tensorDoubleArray;
-                
-            }
-            
-            public IDataInfo getDataInfo() {
-                return dataInfo;
-            }
-            
-            final DataDoubleArray tensorDoubleArray = new DataDoubleArray(new int[]{coordinateDefinitionParacetamol.getCoordinateDim(),
-					   coordinateDefinitionParacetamol.getCoordinateDim()});;
-            //final DataTensor tensor = new DataTensor(Space3D.getInstance());
-            final DataInfo dataInfo = new DataDoubleArray.DataInfoDoubleArray("",Dimension.MIXED.MIXED, new int[]{coordinateDefinitionParacetamol.getCoordinateDim(),
-					   coordinateDefinitionParacetamol.getCoordinateDim()});
-            //final Tensor3D identity = new Tensor3D(new double[] {1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0});
+        NumericalDerivativeEnergyParacetamol dW = new NumericalDerivativeEnergyParacetamol(box, potentialMaster);
        
         
-        };
+        /*
+         * this function returns phi_{alpha,beta}, as defined in Dove Eq. 6.15
+         * alpha and beta each has 6 components
+         * 
+         * lattice2ndDerivative is the inner class that computes the 2nd derivatives
+         * 	for the 6x6 matrix
+         */
+        Lattice2ndDerivative lattice2ndDerivative = new Lattice2ndDerivative(coordinateDefinitionParacetamol, dW);
         
         LatticeSumCrystalParacetamol summer = new LatticeSumCrystalParacetamol(lattice);
         summer.setMaxLatticeShell(maxLatticeShell);
@@ -144,16 +89,22 @@ public class NormalModesPotentialParacetamol implements NormalModes {
         summer.setK(kVector);
         System.out.println("\n k:"+kVector.toString()+"   in NormalModesPotentialParacetamol");
         summer.setCoordinateDefinitionParacetamol(coordinateDefinitionParacetamol);
-        DataGroupLSC sum0 = (DataGroupLSC)summer.calculateSum(function);
+        
+        DataGroupLSCParacetamol sum0 = (DataGroupLSCParacetamol)summer.calculateSum(lattice2ndDerivative);
+        
+        System.out.println("NormalModesPotentialParacetamol!!");
         Function chopper = new Function.Chop(1e-9);
         sum0.map(chopper);
-//        System.out.println(sum0.toString());
+//      a System.out.println(sum0.toString());
+        
+        System.out.println(" after!");
+        
         double[][] array = new double[eDim][eDim];
         for(int k=0; k<kDim; k++) {
             kVector.E(kFactory.getWaveVectors()[k]);
             summer.setK(kVector);
             System.out.println("k:"+kVector.toString());
-            DataGroupLSC sum = (DataGroupLSC)summer.calculateSum(function);
+            DataGroupLSCParacetamol sum = (DataGroupLSCParacetamol)summer.calculateSum(lattice2ndDerivative);
             sum.map(chopper);
             for(int j=0; j<basisDim; j++) {
                 for(int jp=0; jp<basisDim; jp++) {
@@ -172,7 +123,6 @@ public class NormalModesPotentialParacetamol implements NormalModes {
                     for(int alpha=0; alpha<spaceDim; alpha++) {
                         for(int beta=0; beta<spaceDim; beta++) {
                         	
-                        	//////////////////////////
                             array[spaceDim*j+alpha][spaceDim*jp+beta] = tensor.getValue(new int[]{alpha, beta});
                         }
                     }
@@ -198,6 +148,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
         needToCalculateModes = false;
     }
  
+
 
     public double[][][] getEigenvectors(Box box) {
         if(needToCalculateModes) {
@@ -254,12 +205,94 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 	public void setBox(Box box) {
 		this.box = box;
 	}
+    
+	public PotentialMaster getPotentialMaster() {
+		return potentialMaster;
+	}
+	
+    public static final class Lattice2ndDerivative implements LatticeEnergyParacetamol {
+    	
+    	public Lattice2ndDerivative(CoordinateDefinitionParacetamol coordinateDefinitionParacetamol, NumericalDerivativeEnergyParacetamol dW){
+    		this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
+    		this.dW = dW;
+    		singleMolDim = coordinateDefinitionParacetamol.getCoordinateDim()
+  		  	/coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getAtomCount();
+    		tag = new DataTag();
+    		tensorDoubleArray = new DataDoubleArray(new int[]{singleMolDim, singleMolDim});
+    		dataInfo = new DataDoubleArray.DataInfoDoubleArray("",Dimension.MIXED.MIXED, new int[]{singleMolDim, singleMolDim});
+  	
+    	}
+    	
+
+		public Data getData() {
+			//Object is passed in as a set of generalized coordinates within a cell
+			double[] u = new double[coordinateDefinitionParacetamol.getCoordinateDim()];
+			
+			int[] d2 = new int[coordinateDefinitionParacetamol.getCoordinateDim()];
+			dW.setCoordinateDefinition(coordinateDefinitionParacetamol);
+		
+			for (int i=indexjp*singleMolDim; i< (indexjp+1)*singleMolDim; i++){
+				
+				/*
+				 * assignment of the first derivative
+				 */
+				d2[i]++;
+				double[] columnArrayi = new double[singleMolDim];
+				
+				for (int k=indexj*singleMolDim; k<(indexj+1)*singleMolDim; k++){
+					/*
+		    		 * assignment of the second derivative
+		    		 */
+					d2[k]++;
+					
+		        	FiniteDifferenceDerivative d2W = new FiniteDifferenceDerivative(dW);
+		    		d2W.setH(0.00001);
+		    		d2W.setHOptimizer(false);
+		    		d2W.setNtab(10);
+		    		
+		    		//System.out.println("dimension of u is: "+ u.getLength());
+		    		columnArrayi[k] = d2W.df(d2, u);
+		    		d2[k]--;
+		    	}
+				
+				System.out.println("NormalModesPotentialParacetamol secondDerivatives!!");
+				
+				tensorDoubleArray.assignColumnFrom(i, columnArrayi);
+				d2[i]--;
+			}
+			return tensorDoubleArray;
+         }
+		
+		/* (non-Javadoc)
+		 * @see etomica.paracetamol.LatticeEnergyParacetamol#setMolecule(int, int)
+		 */
+		public void setMolecule(int indexj, int indexjp){
+			this.indexj = indexj;
+			this.indexjp = indexjp;
+		}
+
+		public IDataInfo getDataInfo() {
+			 return dataInfo;
+		}
+
+		public DataTag getTag(){
+			return tag;
+		}
+		
+		private final CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
+		private final DataTag tag;
+		private final DataDoubleArray tensorDoubleArray;
+		private final DataInfo dataInfo;
+		private final int singleMolDim;
+		private final NumericalDerivativeEnergyParacetamol dW;
+		private int indexj, indexjp;
+	}
+
 	
     private CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
     private PotentialMaster potentialMaster;
     private Box box;
     private final BravaisLatticeCrystal lattice;
-    private Potential2SoftSpherical potential;
     private WaveVectorFactory kFactory;
     private int maxLatticeShell;
     private double harmonicFudge;
@@ -267,13 +300,5 @@ public class NormalModesPotentialParacetamol implements NormalModes {
     private double[][] omega2;
     private double[][][] eigenvectors;
     private boolean needToCalculateModes;
-    
-	public PotentialMaster getPotentialMaster() {
-		return potentialMaster;
-	}
-
-
-
-
 
 }

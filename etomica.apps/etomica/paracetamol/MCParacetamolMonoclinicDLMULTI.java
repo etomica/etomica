@@ -22,6 +22,7 @@ import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
+import etomica.potential.P2DLPOLY;
 import etomica.potential.PotentialDLPOLY;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -36,7 +37,7 @@ import etomica.units.Kelvin;
  *  using the potential model from DL_MULTI package
  *  with inclusion of multipole ewald-summation
  *  
- * To get the lowest minimum cofiguration with MCMoveHarmonicStep
+ * To get the lowest minimum configuration with MCMoveHarmonicStep
  * 
  * Monoclinic Crystal
  * 
@@ -50,7 +51,7 @@ import etomica.units.Kelvin;
  * 		0. MC Simulation (MCMoveMolecule & MCMoveRotateMolecule3D)
  * 		1. Equilibration (MCMoveHarmonicStep)
  * 		2. SimCalcS      (MCMoveRotateMolecule3D & MCMoveMoleculeCoupledDLPOLY)
- * 
+ * 		3. LatticeHarmonic (P2DLPOLY potential)
  * @author Tai Tan
  *
  */
@@ -72,15 +73,19 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
     public CoordinateDefinitionParacetamol coordDef;
     public ActivityIntegrate actionIntegrate;
     public int simType;
+    private final int[] cellDim;
+    
     public static final int MCSIMULATION = 0;
     public static final int EQUILIBRATION = 1;
     public static final int SIMCALCS = 2;
+    public static final int LATTICEHARMONIC = 3;
 
   
-    public MCParacetamolMonoclinicDLMULTI(Space space, int numMolecules, double temperature, int simType) {
+    public MCParacetamolMonoclinicDLMULTI(Space space, int numMolecules, double temperature, int simType, int[] cellDim) {
     	super(space, true);
     	potentialMaster = new PotentialMaster(space);
     	this.simType = simType;
+    	this.cellDim = cellDim;
     	
     	/*
     	 * Monoclinic Crystal
@@ -108,18 +113,18 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         
         box = new Box(this);
         addBox(box);
-        box.setDimensions(Space.makeVector(new double[] {25,25,25}));
+        box.setDimensions(Space.makeVector(new double[] {35,35,35}));
         box.setNMolecules(species, numMolecules);        
         
-        bdry =  new BoundaryDeformableLattice( primitive, getRandom(), new int []{2, 3, 4});
-        bdry.setDimensions(Space.makeVector(new double []{2*12.119, 3*8.944, 4*7.278}));
+        bdry =  new BoundaryDeformableLattice( primitive, getRandom(), new int []{cellDim[0], cellDim[1], cellDim[2]});
+        bdry.setDimensions(Space.makeVector(new double []{cellDim[0]*12.119, cellDim[1]*8.944, cellDim[2]*7.278}));
         box.setBoundary(bdry);
         
         coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
         coordDef.setBasisMonoclinic();
         
         if (simType == 0){
-        	coordDef.initializeCoordinates(new int []{2, 3, 4});
+        	coordDef.initializeCoordinates(cellDim);
 	        mcMoveMolecule = new MCMoveMolecule(this, potentialMaster);
 	        mcMoveMolecule.setStepSize(0.1747);  //Step size to input
 	        ((MCMoveStepTracker)mcMoveMolecule.getTracker()).setTunable(true);
@@ -136,7 +141,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         } else 
         	
         	if (simType == 1){
-        		coordDef.initializeCoordinates(new int []{2, 3, 4});
+        		coordDef.initializeCoordinates(cellDim);
                 mcMoveHarmonicStep = new MCMoveHarmonicStep(potentialMaster, getRandom());
                 mcMoveHarmonicStep.setCoordinateDefinition(coordDef);
                 mcMoveHarmonicStep.setBox(box);
@@ -160,16 +165,17 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
                 integrator.getMoveManager().setEquilibrating(true);
         	} else 
         		
-        		if (simType == 2){
+        		if (simType == 2 || simType == 3){
         			
         	        //ConfigurationFile configFile = new ConfigurationFile("FinalCoord_Min_Paracetamol_Monoclinic");
-        			//coordinateDefinition.setConfiguration(configFile);
-        	        coordDef.initializeCoordinates(new int []{2, 2, 2});
-        	        double[] u = new double[]{0.19923028993600184, -0.10831241063851138, -0.3374206766423242, -0.056318915244514295, -0.08373011094015517, -0.20967425215989952, -0.15036406963107662, -0.06903390627642114, 0.2911023015207981, -0.062482609873595024, -0.0836259970912052, -0.17490727322325597, -0.19043886713958358, 0.09585326949021145, 0.29982577023219825, -0.052978731871725596, 0.0794450448846585, 0.20078353728718995, 0.1791946947288432, 0.07473598884040555, -0.33875779999181965, -0.06542404448301108, 0.0856334706980024, 0.20954733660556393};
+        			//coordDef.setConfiguration(configFile);
+        	        coordDef.initializeCoordinates(cellDim);
+        	        //double[] u = new double[]{0.19923028993600184, -0.10831241063851138, -0.3374206766423242, -0.056318915244514295, -0.08373011094015517, -0.20967425215989952, -0.15036406963107662, -0.06903390627642114, 0.2911023015207981, -0.062482609873595024, -0.0836259970912052, -0.17490727322325597, -0.19043886713958358, 0.09585326949021145, 0.29982577023219825, -0.052978731871725596, 0.0794450448846585, 0.20078353728718995, 0.1791946947288432, 0.07473598884040555, -0.33875779999181965, -0.06542404448301108, 0.0856334706980024, 0.20954733660556393};
         	        BasisCell[] cell = coordDef.getBasisCells() ;
-        	        for (int i=0; i<cell.length; i++){
-        	        	coordDef.setToU(cell[i].molecules, u);
-        	        }
+        	       
+        	        //for (int i=0; i<cell.length; i++){
+        	        //	coordDef.setToU(cell[i].molecules, u);
+        	        //}
         			
         			
         	        mcMoveRotateMolecule = new MCMoveRotateMolecule3D(potentialMaster, random);
@@ -185,27 +191,32 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         			
         			throw new RuntimeException ("Need to input type of simulation!!!!");
         		}
+        
+        if (simType == 3){
+        	P2DLPOLY p2DLPOLY = new P2DLPOLY(space);
+        	potentialMaster.addPotential(p2DLPOLY, new Species[]{species});
+        	
+        } else {
+        	WriteConfigurationDLPOLY configDLPOLY = new WriteConfigurationDLPOLY();
+        	configDLPOLY.setConfName("CONFIG");
+        	configDLPOLY.setBox(box);
+        	configDLPOLY.getElementHash().put(HydrogenP.INSTANCE, "HP");
+        	configDLPOLY.actionPerformed();
+        	System.exit(1);
    
-        WriteConfigurationDLPOLY configDLPOLY = new WriteConfigurationDLPOLY();
-        configDLPOLY.setConfName("CONFIG");
-        configDLPOLY.setBox(box);
-        configDLPOLY.getElementHash().put(HydrogenP.INSTANCE, "HP");
-       // configDLPOLY.actionPerformed();
-       // System.exit(1);
-   
-        PotentialDLPOLY potentialDLPOLY = new PotentialDLPOLY(space);
-        potentialDLPOLY.setConfigDLPOLY(configDLPOLY);
-        potentialMaster.addPotential(potentialDLPOLY, new Species[0]);
-
+        	PotentialDLPOLY potentialDLPOLY = new PotentialDLPOLY(space);
+        	potentialDLPOLY.setConfigDLPOLY(configDLPOLY);
+        	potentialMaster.addPotential(potentialDLPOLY, new Species[0]);
+        }
         integrator.setBox(box);
     } //end of constructor
     
     public static void main(String[] args) {
     	
-    	int numMolecules = 96;
+    	int numMolecules = 192;
     	double temperature = Kelvin.UNIT.toSim(123);
     	long simSteps = 1000;
-    	int simType = 0;
+    	int simType = 2;
       
         String filename = "Paracetamol_Monoclinic_"+ Kelvin.UNIT.fromSim(temperature)+"K";
         if (args.length > 0) {
@@ -229,7 +240,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         
         
     	MCParacetamolMonoclinicDLMULTI sim = 
-        	new MCParacetamolMonoclinicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType);
+        	new MCParacetamolMonoclinicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType, new int[] {4,4,3});
 
         sim.actionIntegrate.setMaxSteps(simSteps);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);

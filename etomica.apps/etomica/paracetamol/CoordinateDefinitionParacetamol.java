@@ -54,11 +54,11 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         bprime = (IVector3D)box.getSpace().makeVector();
         c = (IVector3D)box.getSpace().makeVector();
         
-        x = (IVector3D)box.getSpace().makeVector();
-        y = (IVector3D)box.getSpace().makeVector();
-        z = (IVector3D)box.getSpace().makeVector();
-        xPrime = (IVector3D)box.getSpace().makeVector();
-        zPrime = (IVector3D)box.getSpace().makeVector();
+//        x = (IVector3D)box.getSpace().makeVector();
+//        y = (IVector3D)box.getSpace().makeVector();
+//        z = (IVector3D)box.getSpace().makeVector();
+//        xPrime = (IVector3D)box.getSpace().makeVector();
+//        zPrime = (IVector3D)box.getSpace().makeVector();
         
         xNorm = (IVector3D)box.getSpace().makeVector();
         yNorm = (IVector3D)box.getSpace().makeVector();
@@ -75,6 +75,8 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         rotationL = lattice.getSpace().makeTensor();
         rotationM = lattice.getSpace().makeTensor();
         rotationN = lattice.getSpace().makeTensor();
+        
+        t = lattice.getSpace().makeTensor();
         
         orientationManager = new AtomAgentManager(new OrientationAgentSource(), box);
         atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
@@ -112,9 +114,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         indexIterator.reset();
         IVector position = lattice.getSpace().makeVector();
         AtomArrayList currentList = null;
-        Tensor t = lattice.getSpace().makeTensor();
-    	
-        if (configuration != null){
+		if (configuration != null){
         	configuration.initializeCoordinates(box);
         }
         
@@ -401,97 +401,97 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	    	 * Determine axis 1 by using Vector Projection
 	    	 */
 	    	
-	    	xPrime.Ev1Mv2(leafPos5, leafPos0);
-	    	xPrime.normalize();
+//	    	xPrime.Ev1Mv2(leafPos5, leafPos0);
+//	    	xPrime.normalize();
 	    	
-	    	x.E(siteOrientation[0]);
+//	    	x.E(siteOrientation[0]);
 	      
 	      	/*
 	      	 * finding the tensor that brings the arbiVectorPrime to arbiVector
 	      	 */ 
-	      	double xDotxPrime = x.dot(xPrime);
-	      	if (xDotxPrime < 0.999999999){
-	      		
-	      		/*
-	             * Getting the axes for vectorPrime (xPrime, y, zPrime) 
-	             * 
-	             * y is the arbitrary rotation axis
-	             */
-	      		
-	      		y.E(xPrime);
-	            y.XE(x);
-		      	y.normalize();
-		      	
-		      	zPrime.E(xPrime);
-		      	zPrime.XE(y);
-		      	zPrime.normalize();
-		      	
-		      	z.E(x);
-		      	z.XE(y);
-		      	z.normalize();
-	      		
-	      		double x1Prime = xPrime.x(0);
-	      		double x2Prime = xPrime.x(1);
-	      		double x3Prime = xPrime.x(2);
-	      	
-		      	double z1Prime = zPrime.x(0);
-		      	double z2Prime = zPrime.x(1);
-		      	double z3Prime = zPrime.x(2);
-		      	
-		      	double x1 = x.x(0);
-		      	double x2 = x.x(1);
-		      	double x3 = x.x(2);
-		      	double y1 = y.x(0);
-		      	double y2 = y.x(1);
-		      	double y3 = y.x(2);
-		      	double z1 = z.x(0);
-		      	double z2 = z.x(1);
-		      	double z3 = z.x(2);
-		      	
-		      	double L11 = x1Prime*x1 + y1*y1 + z1Prime*z1;
-		      	double L12 = x2Prime*x1 + y2*y1 + z2Prime*z1;
-		      	double L13 = x3Prime*x1 + y3*y1 + z3Prime*z1;
-		      	
-		      	double L21 = x1Prime*x2 + y1*y2 + z1Prime*z2;
-		      	double L22 = x2Prime*x2 + y2*y2 + z2Prime*z2;
-		      	double L23 = x3Prime*x2 + y3*y2 + z3Prime*z2;
-		      	
-		      	double L31 = x1Prime*x3 + y1*y3 + z1Prime*z3;
-		      	double L32 = x2Prime*x3 + y2*y3 + z2Prime*z3;
-		      	double L33 = x3Prime*x3 + y3*y3 + z3Prime*z3;
-		      	
-		      	/*
-		      	double L11 = x.dot(xPrime);
-		      	double L12 = x.dot(y);
-		      	double L13 = x.dot(zPrime);
-		      	
-		      	double L21 = y.dot(xPrime);
-		      	double L22 = y.dot(y);
-		      	double L23 = y.dot(zPrime);
-		      	
-		      	double L31 = z.dot(xPrime);
-		      	double L32 = z.dot(y);
-		      	double L33 = z.dot(zPrime);
-		      	*/
-		    	
-		      	rotationL.setComponent(0, 0, L11);
-		    	rotationL.setComponent(0, 1, L12);
-		    	rotationL.setComponent(0, 2, L13);
-		    	rotationL.setComponent(1, 0, L21);
-		    	rotationL.setComponent(1, 1, L22);
-		    	rotationL.setComponent(1, 2, L23);
-		    	rotationL.setComponent(2, 0, L31);
-		    	rotationL.setComponent(2, 1, L32);
-		    	rotationL.setComponent(2, 2, L33);
-		    	
-		    	if(rotationL.isNaN()){
-		    		System.out.println("RotationL tensor is BAD!");
-		    		System.out.println(rotationL);
-		    		throw new RuntimeException();
-		    	}
-		    	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(rotationL);
-		        atomGroupAction.actionPerformed(molecule);
-	      	}
+//	      	double xDotxPrime = x.dot(xPrime);
+//	      	if (xDotxPrime < 0.999999999){
+//	      		
+//	      		/*
+//	             * Getting the axes for vectorPrime (xPrime, y, zPrime) 
+//	             * 
+//	             * y is the arbitrary rotation axis
+//	             */
+//	      		
+//	      		y.E(xPrime);
+//	            y.XE(x);
+//		      	y.normalize();
+//		      	
+//		      	zPrime.E(xPrime);
+//		      	zPrime.XE(y);
+//		      	zPrime.normalize();
+//		      	
+//		      	z.E(x);
+//		      	z.XE(y);
+//		      	z.normalize();
+//	      		
+//	      		double x1Prime = xPrime.x(0);
+//	      		double x2Prime = xPrime.x(1);
+//	      		double x3Prime = xPrime.x(2);
+//	      	
+//		      	double z1Prime = zPrime.x(0);
+//		      	double z2Prime = zPrime.x(1);
+//		      	double z3Prime = zPrime.x(2);
+//		      	
+//		      	double x1 = x.x(0);
+//		      	double x2 = x.x(1);
+//		      	double x3 = x.x(2);
+//		      	double y1 = y.x(0);
+//		      	double y2 = y.x(1);
+//		      	double y3 = y.x(2);
+//		      	double z1 = z.x(0);
+//		      	double z2 = z.x(1);
+//		      	double z3 = z.x(2);
+//		      	
+//		      	double L11 = x1Prime*x1 + y1*y1 + z1Prime*z1;
+//		      	double L12 = x2Prime*x1 + y2*y1 + z2Prime*z1;
+//		      	double L13 = x3Prime*x1 + y3*y1 + z3Prime*z1;
+//		      	
+//		      	double L21 = x1Prime*x2 + y1*y2 + z1Prime*z2;
+//		      	double L22 = x2Prime*x2 + y2*y2 + z2Prime*z2;
+//		      	double L23 = x3Prime*x2 + y3*y2 + z3Prime*z2;
+//		      	
+//		      	double L31 = x1Prime*x3 + y1*y3 + z1Prime*z3;
+//		      	double L32 = x2Prime*x3 + y2*y3 + z2Prime*z3;
+//		      	double L33 = x3Prime*x3 + y3*y3 + z3Prime*z3;
+//		      	
+//		      	/*
+//		      	double L11 = x.dot(xPrime);
+//		      	double L12 = x.dot(y);
+//		      	double L13 = x.dot(zPrime);
+//		      	
+//		      	double L21 = y.dot(xPrime);
+//		      	double L22 = y.dot(y);
+//		      	double L23 = y.dot(zPrime);
+//		      	
+//		      	double L31 = z.dot(xPrime);
+//		      	double L32 = z.dot(y);
+//		      	double L33 = z.dot(zPrime);
+//		      	*/
+//		    	
+//		      	rotationL.setComponent(0, 0, L11);
+//		    	rotationL.setComponent(0, 1, L12);
+//		    	rotationL.setComponent(0, 2, L13);
+//		    	rotationL.setComponent(1, 0, L21);
+//		    	rotationL.setComponent(1, 1, L22);
+//		    	rotationL.setComponent(1, 2, L23);
+//		    	rotationL.setComponent(2, 0, L31);
+//		    	rotationL.setComponent(2, 1, L32);
+//		    	rotationL.setComponent(2, 2, L33);
+//		    	
+//		    	if(rotationL.isNaN()){
+//		    		System.out.println("RotationL tensor is BAD!");
+//		    		System.out.println(rotationL);
+//		    		throw new RuntimeException();
+//		    	}
+//		    	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(rotationL);
+//		        atomGroupAction.actionPerformed(molecule);
+//	      	}
 	        
 	      	/*
 	      	 *  STEP 2
@@ -499,6 +499,16 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	 * Treat x as the new vector along the x-axis (vector formed from atom0 to atom10)
 	      	 * and yNorm is normal to x-axis
 	      	 */
+	      	
+	      	
+	      	for (int a=0; a<3; a++){
+	      		t.setComponent(a, a, basisOrientation[i][a]);
+	      	}
+            Conformation config = ((AtomTypeGroup)molecule.getType()).getConformation();
+            config.initializePositions(((IAtomGroup)molecule).getChildList());
+	      	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
+	      	atomGroupAction.actionPerformed(molecule);
+
 	        
 	    	xNorm.Ev1Mv2(leafPos5, leafPos0);
 	    	yNorm.Ev1Mv2(leafPos10, leafPos0);
@@ -698,7 +708,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     protected final IVector3D com, temp, axis0, axis0Prime; 
     protected final IVector3D proj, proja, projb;
     protected final IVector3D axisNorm, axisNormPrime, b, bprime, c;
-    protected final IVector3D x, y, z, xPrime, zPrime;
+//    protected final IVector3D x, y, z, xPrime, zPrime;
     protected final IVector3D xNorm, yNorm, zNorm;
     protected final IVector3D yDoublePrime, zDoublePrime;
     protected final IVector3D xTriplePrime, yTriplePrime, zTriplePrime, zQuadruplePrime;
@@ -708,6 +718,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     
     protected AtomAgentManager orientationManager; 
     protected final AtomGroupAction atomGroupAction;
+	private Tensor t;
 
     protected static class OrientationAgentSource implements AgentSource, Serializable {
         

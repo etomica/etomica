@@ -22,6 +22,7 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 	
 	public double f(double[] u){
 		
+		
 		for (int cell=0; cell<coordinateDefinition.getBasisCells().length; cell++){
 			AtomSet molecules = coordinateDefinition.getBasisCells()[cell].molecules;
 			coordinateDefinition.setToU(molecules, u);

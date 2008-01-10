@@ -1,79 +1,79 @@
 package etomica.paracetamol;
 
 import etomica.action.WriteConfigurationDLPOLY;
+import etomica.action.WriteConfigurationP2DLPOLY;
+import etomica.atom.AtomPair;
+import etomica.atom.AtomSet;
 import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataInfo;
+import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.lattice.BravaisLatticeCrystal;
-import etomica.lattice.LatticeSumCrystal;
-import etomica.lattice.LatticeSumCrystal.DataGroupLSC;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.potential.PotentialDLPOLY;
+import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
+import etomica.potential.P2DLPOLY;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
 import etomica.units.Kelvin;
 import etomica.util.Arrays;
-import etomica.util.FunctionGeneral;
 
 /**
  * Properties of a system of monatomic molecules occupying a lattice and interacting according
  * to a spherically-symmetric pair potential.  Properties are given by a lattice-dynamics treatment.
  * 
- * @author kofke
+ * @author Tai Tan
  *
  */
 public class HarmonicCrystalOrthorhombic {
 
-    public HarmonicCrystalOrthorhombic(int[] nCells, Primitive primitive, Basis basis, Box box) {
-        //this.potential = potential;
+    public HarmonicCrystalOrthorhombic(int[] nCells, Primitive primitive, Basis basis, Box box, CoordinateDefinitionParacetamol coordinateDefinitionParacetamol) {
         this.nCells = (int[])nCells.clone();
+        this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
+        potential = new P2DLPOLY(box.getSpace());
         lattice = new BravaisLatticeCrystal(primitive, basis);
         normalModes = new NormalModesPotentialParacetamol(nCells, primitive, basis);
         normalModes.setBox(box);
-        //setMaxLatticeShell(49);
     }
     
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     public double getLatticeEnergy() {
-        FunctionGeneral function = new FunctionGeneral() {
-            public Data f(Object obj) {
-                //data.x = potential.u(((Vector3D)obj).squared());
-                return data;
-            }
-            public IDataInfo getDataInfo() {
-                return dataInfo;
-            }
-            final DataInfo dataInfo = new DataDouble.DataInfoDouble("Lattice energy", Energy.DIMENSION);
-            final DataDouble data = new DataDouble();
-        };
-        LatticeSumCrystal summer = new LatticeSumCrystal(lattice);
+    	
+    	/*
+    	 * Lattice Energy is inner class that compute the pair energy
+    	 *  between the two particular paracetamol molecules
+    	 */
+    	LatticeEnergy latticeEnergy = new LatticeEnergy(potential, coordinateDefinitionParacetamol);
+    	
+    	LatticeSumCrystalParacetamol summer = new LatticeSumCrystalParacetamol(lattice);
         summer.setMaxLatticeShell(maxLatticeShell);
         summer.setK(lattice.getSpace().makeVector());
-//        System.out.println("\n k:"+kVector.toString());
+        summer.setCoordinateDefinitionParacetamol(coordinateDefinitionParacetamol);
+//        aSystem.out.println("\n k:"+kVector.toString());
+        
         double sum = 0;
         double basisDim = lattice.getBasis().getScaledCoordinates().length;
-        DataGroupLSC data = (DataGroupLSC)summer.calculateSum(function);
+        
+        DataGroupLSCParacetamol data = (DataGroupLSCParacetamol)summer.calculateSum(latticeEnergy);
         for(int j=0; j<basisDim; j++) {
             for(int jp=0; jp<basisDim; jp++) {
                 sum += ((DataDouble)data.getDataReal(j,jp)).x; 
             }
         }
         return 0.5*sum/basisDim;
-//            ((Tensor)sum[0]).map(chopper);
-//            ((Tensor)sum[1]).map(chopper);
-//            ((Tensor)sum[0]).ME(sum0);
-//            System.out.println(sum[0].toString());
- //           System.out.println();
-//            System.out.println(sum[1].toString());
+//            a((Tensor)sum[0]).map(chopper);
+//            a((Tensor)sum[1]).map(chopper);
+//            a((Tensor)sum[0]).ME(sum0);
+//            aSystem.out.println(sum[0].toString());
+ //           aSystem.out.println();
+//            aSystem.out.println(sum[1].toString());
     }
   ///////////////////////////////////////////////////////////////////////////////////////////////////////  
-    
-    
     
     public double getHelmholtzFreeEnergy(double temperature) {
         
@@ -119,7 +119,7 @@ public class HarmonicCrystalOrthorhombic {
         sumA -= jacobian;
         sumA /= moleculeCount;
         sumA *= temperature;
-        //sumA += getLatticeEnergy(); //Get the lattic energy from the minimized configuration
+        sumA += getLatticeEnergy(); //Get the lattic energy from the minimized configuration
         return sumA;
     }
     
@@ -128,7 +128,7 @@ public class HarmonicCrystalOrthorhombic {
         double scale = newDensity * oldVolume;
         Primitive primitive = lattice.getPrimitive();
         primitive.scaleSize(1.0/Math.pow(scale, 1.0/lattice.getSpace().D()));
-//        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
+//       a normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
         normalModes = new NormalModesPotentialParacetamol(nCells, primitive, lattice.getBasis());
         normalModes.setMaxLatticeShell(maxLatticeShell);
     }
@@ -147,42 +147,35 @@ public class HarmonicCrystalOrthorhombic {
         
 //        double rho = 1.0;
 //        int maxLatticeShell = 49;
-//        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
-//        Basis basis = new BasisMonatomic(Space3D.getInstance());
+//        aPrimitive primitive = new PrimitiveFcc(Space3D.getInstance());
+//        aBasis basis = new BasisMonatomic(Space3D.getInstance());
 
         if (args.length > 0) {
             temperature = Kelvin.UNIT.toSim(Double.parseDouble(args[0]));
         }
-        MCParacetamolOrthorhombicDLMULTI sim = new MCParacetamolOrthorhombicDLMULTI(Space3D.getInstance(),32,temperature, 2);
+        MCParacetamolOrthorhombicDLMULTI sim = new MCParacetamolOrthorhombicDLMULTI(Space3D.getInstance(),16,temperature, 3, new int[] {1,1,2});
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
+        
+        
+        //a double[] u = new double[]{-8.519546134513288, -6.357161053952702, -7.449621419035304, -0.003932863936184616, -0.0016776660890108416, -0.013522565626184084, -8.726086341054327, -5.722820924623122, -7.451563204983988, -0.005551030882875035, -0.008781239888660329, 0.005654659111204717, -8.737722525835544, -6.358584368530293, -7.312474753722753, -0.004632407803175042, 0.0073903160411125865, -0.0022154770629279168, -8.513251161366203, -5.718672928462283, -7.308964948201192, -0.008253140936357385, -0.0016033969986892181, -0.007589294260920792, -8.726675083680286, -5.711819873904577, -7.345829560494344, 0.0012238914448621102, 0.009773882446509393, 0.0029289771411575016, -8.4909577926205, -6.372620681124473, -7.328828834258954, 0.008259322829339406, 7.612944355468755E-4, 0.015416013389648568, -8.536258682509295, -5.721912267935009, -7.4175804780220504, 0.0048799658666174375, 0.01669560616620193, -0.004313176827043905, -8.741502278415917, -6.38040790144197, -7.441136801296486, 0.0043516618097694075, 0.010742961480577531, 0.0048663615734551415}; 
       
-        CoordinateDefinitionParacetamol coordinateDefinition = new CoordinateDefinitionParacetamol(sim.box, sim.primitive, basis);
-        coordinateDefinition.setBasisOrthorhombic();
-        //coordinateDefinition.setConfiguration(configFile);
-        int[] nCells = new int[] {1, 2, 2};
-        coordinateDefinition.initializeCoordinates(nCells);
-        double[] u = new double[]{-8.519546134513288, -6.357161053952702, -7.449621419035304, -0.003932863936184616, -0.0016776660890108416, -0.013522565626184084, -8.726086341054327, -5.722820924623122, -7.451563204983988, -0.005551030882875035, -0.008781239888660329, 0.005654659111204717, -8.737722525835544, -6.358584368530293, -7.312474753722753, -0.004632407803175042, 0.0073903160411125865, -0.0022154770629279168, -8.513251161366203, -5.718672928462283, -7.308964948201192, -0.008253140936357385, -0.0016033969986892181, -0.007589294260920792, -8.726675083680286, -5.711819873904577, -7.345829560494344, 0.0012238914448621102, 0.009773882446509393, 0.0029289771411575016, -8.4909577926205, -6.372620681124473, -7.328828834258954, 0.008259322829339406, 7.612944355468755E-4, 0.015416013389648568, -8.536258682509295, -5.721912267935009, -7.4175804780220504, 0.0048799658666174375, 0.01669560616620193, -0.004313176827043905, -8.741502278415917, -6.38040790144197, -7.441136801296486, 0.0043516618097694075, 0.010742961480577531, 0.0048663615734551415}; 
-        BasisCell[] cell = coordinateDefinition.getBasisCells() ;
-        for (int i=0; i<cell.length; i++){
-        	coordinateDefinition.setToU(cell[i].molecules, u);
-        }
+        BasisCell[] cell = sim.coordDef.getBasisCells() ;
+      
+        
+        // for (int i=0; i<cell.length; i++){
+        //  	coordinateDefinition.setToU(cell[i].molecules, u);
+        // }
         
         WriteConfigurationDLPOLY configDLPOLY = new WriteConfigurationDLPOLY();
         configDLPOLY.setConfName("CONFIG");
-        //configDLPOLY.setBox();
+        // configDLPOLY.setBox();
         configDLPOLY.getElementHash().put(HydrogenP.INSTANCE, "HP");
-        
-        PotentialDLPOLY potentialDLPOLY = new PotentialDLPOLY(Space3D.getInstance());
-        potentialDLPOLY.setConfigDLPOLY(configDLPOLY);
-        
-        //final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
+   
+        //a final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
 
-        
-        
-        
-        HarmonicCrystalOrthorhombic harmonicCrystal = new HarmonicCrystalOrthorhombic(nCells, sim.primitive, basis, sim.box);
+        HarmonicCrystalOrthorhombic harmonicCrystal = new HarmonicCrystalOrthorhombic(new int[]{1,1,2}, sim.primitive, basis, sim.box, sim.coordDef);
         //harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
-        harmonicCrystal.normalModes.setCoordinateDefinition(coordinateDefinition);
+        harmonicCrystal.normalModes.setCoordinateDefinition(sim.coordDef);
         harmonicCrystal.normalModes.setPotentialMaster(sim.potentialMaster);
         harmonicCrystal.setMaxLatticeShell(harmonicCrystal.maxLatticeShell);
    
@@ -190,23 +183,23 @@ public class HarmonicCrystalOrthorhombic {
         //System.out.println("Density: " + rho);
         System.out.println("Temperature: " + temperature);
         
-        //double uEnergy = harmonicCrystal.getLatticeEnergy();
+        double uEnergy = harmonicCrystal.getLatticeEnergy();
         double a = harmonicCrystal.getHelmholtzFreeEnergy(temperature);
-        //System.out.println("Lattice Energy: " + u);
+        System.out.println("Lattice Energy: " + uEnergy);
         //double uEos = LennardJones.uStaticFcc(rho);
         //System.out.println("Lattice energy from EOS: " + uEos);
         System.out.println("Helmholtz: " + a);
         //double aEos = LennardJones.aResidualFcc(T,rho) + T*Math.log(rho) - 1.0*T;
         //System.out.println("Helmholtz from EOS: " + aEos);
         
-//        double latticeConstant = 1.0;
-//        primitive = new PrimitiveHexagonal(Space3D.getInstance(), latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant);
-//        basis = new BasisHcp();
-//        harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential);
-//        harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
-//        harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
-//        u = harmonicCrystal.getLatticeEnergy();
-//        System.out.println("Lattice energy (HCP): "+u);
+//        a double latticeConstant = 1.0;
+//        a primitive = new PrimitiveHexagonal(Space3D.getInstance(), latticeConstant, Math.sqrt(8.0/3.0)*latticeConstant);
+//        a basis = new BasisHcp();
+//        a harmonicCrystal = new HarmonicCrystal(nCells, primitive, basis, potential);
+//        a harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
+//        a harmonicCrystal.setMaxLatticeShell(maxLatticeShell);
+//        a u = harmonicCrystal.getLatticeEnergy();
+//        a System.out.println("Lattice energy (HCP): "+u);
     }
     
     
@@ -214,6 +207,64 @@ public class HarmonicCrystalOrthorhombic {
     private BravaisLatticeCrystal lattice;
     private int[] nCells;
     private int maxLatticeShell;
+    private final CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
+    private final P2DLPOLY potential;
     private static final long serialVersionUID = 1L;
+    
+    public static final class LatticeEnergy implements LatticeEnergyParacetamol {
+    	
+    	public LatticeEnergy(P2DLPOLY potential, CoordinateDefinitionParacetamol coordinateDefinitionParacetamol){
+    		this.potential = potential;
+    		potential.getConfigP2DLPOLY().getElementHash().put(HydrogenP.INSTANCE, "HP");
+    		potential.setBox(coordinateDefinitionParacetamol.getBox());
+    		
+    		this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
+    		singleMolDim = coordinateDefinitionParacetamol.getCoordinateDim()
+  		  	/coordinateDefinitionParacetamol.getBasisCells()[0].molecules.getAtomCount();
+    		dataInfo = new DataInfoDouble("Lattice Energy", Energy.DIMENSION);
+    		pairEnergy = new DataDouble();
+    		tag = new DataTag();
+   
+    		
+    	}
+    
+		public Data getData() {
+			
+			double[] u = new double[coordinateDefinitionParacetamol.getCoordinateDim()];
+			
+			AtomSet molecules = coordinateDefinitionParacetamol.getBasisCells()[0].molecules; 
+			coordinateDefinitionParacetamol.setToU(molecules, u);
+			
+			AtomPair pair = new AtomPair(molecules.getAtom(indexj), molecules.getAtom(indexjp));
+			
+			pairEnergy.x = potential.energy(pair);
+			
+			return pairEnergy;
+         }
+		
+		public void setMolecule(int indexj, int indexjp){
+			this.indexj = indexj;
+			this.indexjp = indexjp;
+			
+		}
+
+		public IDataInfo getDataInfo() {
+			 return dataInfo;
+		}
+
+		public DataTag getTag(){
+			return tag;
+		}
+		
+		private final CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
+		private final P2DLPOLY potential;
+		private final DataTag tag;
+		private final DataDouble pairEnergy;
+		private final DataInfo dataInfo;
+		private final int singleMolDim;
+		private int indexj, indexjp;
+	}
+    
+    
     
 }

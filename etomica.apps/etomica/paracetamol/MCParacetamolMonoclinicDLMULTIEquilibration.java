@@ -71,7 +71,7 @@ public class MCParacetamolMonoclinicDLMULTIEquilibration extends Simulation{
         System.out.println("output data to " + filename);
         
     	MCParacetamolMonoclinicDLMULTI sim = 
-        	new MCParacetamolMonoclinicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType);
+        	new MCParacetamolMonoclinicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType, new int[] {2,3,4});
 
         sim.actionIntegrate.setMaxSteps(simSteps);
         MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);

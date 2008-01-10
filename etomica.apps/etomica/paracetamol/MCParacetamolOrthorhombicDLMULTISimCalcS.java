@@ -35,7 +35,7 @@ public class MCParacetamolOrthorhombicDLMULTISimCalcS extends Simulation {
     	long simSteps = 1000;
     	int simType = 2;
     	
-        String filename = "SimCalcS_Paracetamol_Orthorhombic_"+ Kelvin.UNIT.fromSim(temperature)+"K";
+        String filename = "SimCalcS_Orthorhombic_"+ Kelvin.UNIT.fromSim(temperature)+"K";
         if (args.length > 0) {
             filename = args[0];
         }
@@ -56,7 +56,7 @@ public class MCParacetamolOrthorhombicDLMULTISimCalcS extends Simulation {
         System.out.println("output data to " + filename);
         
     	MCParacetamolOrthorhombicDLMULTI sim = 
-        	new MCParacetamolOrthorhombicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType);
+        	new MCParacetamolOrthorhombicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType, new int[] {1,2,2});
         
         sim.actionIntegrate.setMaxSteps(simSteps);
         PrimitiveOrthorhombic primitive = sim.primitive;
@@ -86,7 +86,7 @@ public class MCParacetamolOrthorhombicDLMULTISimCalcS extends Simulation {
         sim.getController().actionPerformed();
         
         WriteConfiguration writeConfig = new WriteConfiguration();
-        writeConfig.setConfName("FinalCoord_SimCalcS_Paracetamol_Orthorhombic_"+Kelvin.UNIT.fromSim(temperature)+"K");
+        writeConfig.setConfName("FinalCoord_SimCalcS_Orthorhombic_"+Kelvin.UNIT.fromSim(temperature)+"K");
         writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);
         writeConfig.actionPerformed();
