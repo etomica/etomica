@@ -288,8 +288,6 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(kePump);
         sim.integrator.setActionInterval(kePump, 10);
         dataStreamPumps.add(kePump);
-        int numAtoms = sim.box.getLeafList().getAtomCount();
-
 
         MeterFlux meterFlux = new MeterFlux();
         double xLength = sim.box.getBoundary().getDimensions().x(0);
@@ -420,7 +418,10 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
         Action resetAction = new Action() {
         	public void actionPerformed() {
-        	    sim.integrator.initialize();
+        	    try {
+        	        sim.integrator.initialize();
+        	    }
+        	    catch (ConfigurationOverlapException e){}
 
         	    // Reset density (Density is set and won't change, but
         		// do this anyway)
