@@ -197,14 +197,14 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		}
 		
 		// Read in coordinates for boxMin atom locations
-		ConfigurationFile configFile = new ConfigurationFile(file+"_1_saddle");
+		ConfigurationFile configFile = new ConfigurationFile(file+"_fine_A_saddle");
     	configFile.initializeCoordinates(boxMin);
     	writer = new WriteConfiguration();
     	writer.setConfName(file+"_A_minimum");
     	
     	if(normalD==true){
     		// Read in coordinates for opposite boxMin atom locations
-    		ConfigurationFile configFile1 = new ConfigurationFile(file+"_2_saddle");
+    		ConfigurationFile configFile1 = new ConfigurationFile(file+"_fine_B_saddle");
         	configFile1.initializeCoordinates(boxMin);
         	writer.setConfName(file+"_B_minimum");
     	}

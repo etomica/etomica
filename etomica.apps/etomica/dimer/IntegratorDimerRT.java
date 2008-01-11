@@ -638,11 +638,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		    writer.setBox(box);
 		    writer.actionPerformed();
 		    
-		    writer.setConfName(file+"_fine_1_saddle");
+		    writer.setConfName(file+"_A_saddle");
 		    writer.setBox(box1);
 		    writer.actionPerformed();
 		    
-		    writer.setConfName(file+"_fine_2_saddle");
+		    writer.setConfName(file+"_B_saddle");
 		    writer.setBox(box2);
 		    writer.actionPerformed();
 		    

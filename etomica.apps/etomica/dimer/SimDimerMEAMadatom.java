@@ -4,6 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
@@ -70,9 +72,8 @@ public class SimDimerMEAMadatom extends Simulation{
     	final String APP_NAME = "DimerMEAMadatomSn";
     	final SimDimerMEAMadatom sim = new SimDimerMEAMadatom("snAdatom", false, false, false, false);
 
-    	sim.activityIntegrateMD.setMaxSteps(7);
-    	sim.activityIntegrateDimer.setMaxSteps(1);
-    	sim.activityIntegrateMin.setMaxSteps(0);
+    	sim.activityIntegrateMD.setMaxSteps(700);
+    	sim.activityIntegrateDimer.setMaxSteps(700);
     	
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);
@@ -92,7 +93,7 @@ public class SimDimerMEAMadatom extends Simulation{
     	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
     	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
-        simGraphic.add(/*"PE Plot",*/plotPE);
+        simGraphic.add(plotPE);
     	
         sim.integratorMD.addIntervalAction(energyPump);
         sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
@@ -321,7 +322,7 @@ public class SimDimerMEAMadatom extends Simulation{
         
         
     //SET MOVABLE ATOMS
-        /**
+        
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
         AtomSet loopSet = box.getMoleculeList(sn);
@@ -335,7 +336,7 @@ public class SimDimerMEAMadatom extends Simulation{
            ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
            box.removeMolecule(movableList.getAtom(i));
        	}
-        */
+        
     
     //CALCULATE VIBRATIONAL MODES
         if(calcModes==true){
