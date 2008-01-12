@@ -49,6 +49,10 @@ public class P4BondTorsion extends Potential {
         dr34.PEa1Tv1(-dr34.dot(dr23)/dr23Sq, dr23);
         
         double cosphi = dr21.dot(dr34)/Math.sqrt(dr21.squared()*dr34.squared());
+        return energyAtAngle(cosphi);
+    }
+    
+    public double energyAtAngle(double cosphi) {
         double cos2phi = 2*cosphi*cosphi-1;
         double cos3phi = cosphi*(2*cos2phi-1);
 
