@@ -1,0 +1,241 @@
+package etomica.modules.rosmosis;
+
+import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomActionTranslateTo;
+import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomPositioned;
+import etomica.box.Box;
+import etomica.config.Configuration;
+import etomica.config.ConfigurationLattice;
+import etomica.lattice.BravaisLatticeCrystal;
+import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.crystal.BasisCubicFcc;
+import etomica.lattice.crystal.PrimitiveOrthorhombic;
+import etomica.simulation.ISimulation;
+import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.IVector;
+import etomica.species.Species;
+
+public class ConfigurationMembrane extends Configuration {
+
+    public ConfigurationMembrane(ISimulation sim) {
+        soluteMoleFraction = 1;
+        solutionChamberDensity = 0.5;
+        solventChamberDensity = 0.5;
+        numMembraneLayers = 2;
+        membraneWidth = 4;
+        this.sim = sim;
+    }
+
+    public void initializeCoordinates(Box box) {
+        AtomActionTranslateBy translateBy = new AtomActionTranslateBy(box.getSpace());
+        IVector translationVector = translateBy.getTranslationVector();
+        translationVector.E(0);
+        
+        box.setNMolecules(speciesSolute, 0);
+        box.setNMolecules(speciesSolvent, 0);
+        box.setNMolecules(speciesMembrane, 0);
+        
+        IVector boxDimensions = box.getBoundary().getDimensions();
+        double boxLength = boxDimensions.x(membraneDim);
+        double membraneThickness = membraneThicknessPerLayer * numMembraneLayers;
+        double chamberLength = 0.5 * boxLength - membraneThickness;
+        
+        // solventChamber (middle, solvent-only)
+        Box pretendBox = new Box(new BoundaryRectangularPeriodic(box.getSpace(), null, 1));
+        sim.addBox(pretendBox);
+        IVector pretendBoxDim = box.getSpace().makeVector();
+        pretendBoxDim.E(boxDimensions);
+        pretendBoxDim.setX(membraneDim, chamberLength);
+        pretendBox.getBoundary().setDimensions(pretendBoxDim);
+        int nMolecules = (int)Math.round(pretendBox.getBoundary().volume() * solventChamberDensity);
+        pretendBox.setNMolecules(speciesSolvent, nMolecules);
+        ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc());
+        configLattice.initializeCoordinates(pretendBox);
+        // move molecules over to the real box
+        AtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);
+        for (int i=nMolecules-1; i>-1; i--) {
+            // molecules will be reversed in order, but that's OK
+            IAtom atom = molecules.getAtom(i);
+            pretendBox.removeMolecule(atom);
+            box.addMolecule(atom);
+        }
+
+        nMolecules = (int)Math.round(pretendBox.getBoundary().volume() * solutionChamberDensity);
+        int nSolutes = (int)(nMolecules * soluteMoleFraction);
+        pretendBox.setNMolecules(speciesSolute, nSolutes);
+        pretendBox.setNMolecules(speciesSolvent, nMolecules - nSolutes);
+        configLattice.initializeCoordinates(pretendBox);
+        // move molecules over to the real box
+        Species[] fluidSpecies = new Species[]{speciesSolute, speciesSolvent};
+        for (int iSpecies=0; iSpecies<2; iSpecies++) {
+            molecules = pretendBox.getMoleculeList(fluidSpecies[iSpecies]);
+            for (int i=molecules.getAtomCount()-1; i>-1; i--) {
+                // molecules will be reversed in order, but that's OK
+                IAtom atom = molecules.getAtom(i);
+                pretendBox.removeMolecule(atom);
+                // we need to translate the molecules into the proper chamber
+                double x = atom.getType().getPositionDefinition().position(atom).x(membraneDim);
+                if (x < 0) {
+                    translationVector.setX(membraneDim, -0.5*chamberLength + membraneThickness);
+                }
+                else {
+                    translationVector.setX(membraneDim, 0.5*chamberLength + membraneThickness);
+                }
+                box.addMolecule(atom);
+            }
+        }
+        
+        int pretendNumMembraneLayers = numMembraneLayers;
+        double pretendMembraneThickness = membraneThickness;
+        double membraneCenter = 0;
+        if (numMembraneLayers % 2 == 1) {
+            // we want an odd number of layers, which ConfigurationLattice can't
+            // handle.  So add a pretend layer of atoms, which we'll drop later.
+            pretendMembraneThickness /= numMembraneLayers;
+            pretendNumMembraneLayers++;
+            pretendMembraneThickness *= pretendNumMembraneLayers;
+            membraneCenter = -0.5 * membraneThicknessPerLayer;
+        }
+        
+        nMolecules = 2*membraneWidth * membraneWidth * pretendNumMembraneLayers;
+        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(box.getSpace());
+        double a = boxDimensions.x(0) / membraneWidth;
+        double b = boxDimensions.x(1) / membraneWidth;
+        double c = boxDimensions.x(2) / membraneWidth;
+        switch (membraneDim) {
+            case 0:
+                a = 2*pretendMembraneThickness / pretendNumMembraneLayers;
+                break;
+            case 1:
+                b = 2*pretendMembraneThickness / pretendNumMembraneLayers;
+                break;
+            case 2:
+                c = 2*pretendMembraneThickness / pretendNumMembraneLayers;
+                break;
+        }
+        primitive.setSizeA(a);
+        primitive.setSizeB(b);
+        primitive.setSizeC(c);
+        
+        configLattice = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisCubicFcc()));
+        pretendBoxDim.E(boxDimensions);
+        pretendBoxDim.setX(membraneDim, pretendMembraneThickness);
+        pretendBox.getBoundary().setDimensions(pretendBoxDim);
+        pretendBox.setNMolecules(speciesSolute, 0);
+        pretendBox.setNMolecules(speciesSolvent, 0);
+        
+        double[] shifts = new double[]{-0.25, 0.25};
+        for (int iShift = 0; iShift<2; iShift++) {
+            pretendBox.setNMolecules(speciesMembrane, nMolecules);
+            configLattice.initializeCoordinates(pretendBox);
+            
+            double membraneShift = shifts[iShift]*boxDimensions.x(membraneDim) - membraneCenter;
+            // move molecules over to the real box
+            molecules = pretendBox.getMoleculeList(speciesMembrane);
+            for (int i=molecules.getAtomCount()-1; i>-1; i--) {
+                // molecules will be reversed in order, but that's OK
+                IAtomPositioned atom = (IAtomPositioned)molecules.getAtom(i);
+                double x = atom.getPosition().x(membraneDim);
+                if (Math.abs(x - membraneCenter) > 0.5 * membraneThickness) {
+                    // we encountered a pretend atom in our pretend box!
+                    continue;
+                }
+                atom.getPosition().setX(membraneDim, x + membraneShift);
+                pretendBox.removeMolecule(atom);
+                box.addMolecule(atom);
+            }
+        }
+        
+        sim.removeBox(pretendBox);
+    }
+
+    public double getMembraneThicknessPerLayer() {
+        return membraneThicknessPerLayer;
+    }
+
+    public void setMembraneThicknessPerLayer(double newMembraneWidth) {
+        membraneThicknessPerLayer = newMembraneWidth;
+    }
+
+    public int getNumMembraneLayers() {
+        return numMembraneLayers;
+    }
+
+    public void setNumMembraneLayers(int newNumMembraneLayers) {
+        numMembraneLayers = newNumMembraneLayers;
+    }
+
+    public int getMembraneWidth() {
+        return membraneWidth;
+    }
+
+    public void setMembraneWidth(int newMembraneWidth) {
+        membraneWidth = newMembraneWidth;
+    }
+
+    public double getSolventChamberDensity() {
+        return solventChamberDensity;
+    }
+
+    public void setSolventChamberDensity(double newSolventChamberDensity) {
+        solventChamberDensity = newSolventChamberDensity;
+    }
+
+    public double getSolutionChamberDensity() {
+        return solutionChamberDensity;
+    }
+
+    public void setSolutionChamberDensity(double newSolutionChamberDensity) {
+        solutionChamberDensity = newSolutionChamberDensity;
+    }
+
+    public double getSoluteMoleFraction() {
+        return soluteMoleFraction;
+    }
+
+    public void setSoluteMoleFraction(double newSoluteMoleFraction) {
+        soluteMoleFraction = newSoluteMoleFraction;
+    }
+
+    public int getMembraneDim() {
+        return membraneDim;
+    }
+
+    public void setMembraneDim(int newMembraneDim) {
+        membraneDim = newMembraneDim;
+    }
+
+    public Species getSpeciesSolute() {
+        return speciesSolute;
+    }
+
+    public void setSpeciesSolute(Species newSpeciesSolute) {
+        speciesSolute = newSpeciesSolute;
+    }
+
+    public Species getSpeciesSolvent() {
+        return speciesSolvent;
+    }
+
+    public void setSpeciesSolvent(Species newSpeciesSolvent) {
+        speciesSolvent = newSpeciesSolvent;
+    }
+
+    public Species getSpeciesMembrane() {
+        return speciesMembrane;
+    }
+
+    public void setSpeciesMembrane(Species newSpeciesMembrane) {
+        speciesMembrane = newSpeciesMembrane;
+    }
+
+    protected Species speciesSolute, speciesSolvent, speciesMembrane;
+    protected double membraneThicknessPerLayer;
+    protected int numMembraneLayers, membraneWidth;
+    protected double solventChamberDensity, solutionChamberDensity;
+    protected double soluteMoleFraction;
+    protected int membraneDim;
+    protected final ISimulation sim;
+}

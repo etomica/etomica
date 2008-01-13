@@ -38,6 +38,8 @@ public class ReverseOsmosis extends Simulation {
     public P2LennardJones potential11, potential12, potential22;
     public P2LennardJones potentialMM, potentialM1, potentialM2;
     public ActivityIntegrate activityIntegrate;
+    public ConfigurationMembrane configMembrane;
+    public P1Tether potentialTether;
     
     public ReverseOsmosis(Space space) {
         super(space);
@@ -72,7 +74,7 @@ public class ReverseOsmosis extends Simulation {
         double epsSolute = Kelvin.UNIT.toSim(125.0);
         double sigSolute = 3.5;
         double epsSolvent = Kelvin.UNIT.toSim(125.0);
-        double sigSolvent = 1.75;
+        double sigSolvent = 0.5*3.5;
         double epsMembrane = Kelvin.UNIT.toSim(12.5);
         double sigMembrane = 0.988 * 3.5; // ???
         
@@ -116,41 +118,22 @@ public class ReverseOsmosis extends Simulation {
         IVector dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
         box.setDimensions(dim);
-        box.setNMolecules(speciesSolute, N);
-        new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc() : new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
-        AtomSet molecules = box.getMoleculeList(speciesSolute);
-        double membraneSize = 5.0;
-        double wallX1 = -0.25*xSize;
-        double wallX2 =  0.25*xSize;
-        IVector pos = space.makeVector();
-        for (int i=0; i<molecules.getAtomCount(); ) {
-            IAtomPositioned atom = (IAtomPositioned)molecules.getAtom(i);
-            pos.E(atom.getPosition());
-            double x = pos.x(0);
-            if (Math.abs(x - wallX1) < membraneSize*0.5 ||
-                Math.abs(x - wallX2) < membraneSize*0.5) {
-                // membrane atom
-                box.removeMolecule(atom);
-                IAtomPositioned newAtom = (IAtomPositioned)speciesMembrane.getMoleculeFactory().makeAtom();
-                newAtom.getPosition().E(pos);
-                box.addMolecule(newAtom);
-            }
-            else if (Math.abs(x) < wallX2) {
-                // solvent atom
-                box.removeMolecule(atom);
-                IAtomPositioned newAtom = (IAtomPositioned)speciesSolvent.getMoleculeFactory().makeAtom();
-                newAtom.getPosition().E(pos);
-                box.addMolecule(newAtom);
-            }
-            else {
-                // atom is OK (solute).  advance to next one
-                i++;
-            }
-        }
+        configMembrane = new ConfigurationMembrane(this);
+        configMembrane.setMembraneDim(0);
+        configMembrane.setMembraneThicknessPerLayer(10.0/3.0);
+        configMembrane.setNumMembraneLayers(2);
+        configMembrane.setMembraneWidth(3);
+        double density = 0.525/Math.pow(sigSolute, 3);
+        configMembrane.setSolutionChamberDensity(density);
+        configMembrane.setSolventChamberDensity(density);
+        configMembrane.setSpeciesMembrane(speciesMembrane);
+        configMembrane.setSpeciesSolute(speciesSolute);
+        configMembrane.setSpeciesSolvent(speciesSolvent);
+        configMembrane.initializeCoordinates(box);
         
-        P1Tether membraneTether = new P1Tether(box, speciesMembrane);
-        membraneTether.setEpsilon(20000);
-        potentialMaster.addPotential(membraneTether, new Species[]{speciesMembrane});
+        potentialTether = new P1Tether(box, speciesMembrane);
+        potentialTether.setEpsilon(20000);
+        potentialMaster.addPotential(potentialTether, new Species[]{speciesMembrane});
         
         integrator.setBox(box);
 
