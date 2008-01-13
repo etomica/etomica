@@ -115,6 +115,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
     
     public Data getData() {
         int crossings = 0;
+        double boxLength = box.getBoundary().getDimensions().x(dim);
         for (int i=0; i<species.length; i++) {
             AtomSet molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
@@ -123,8 +124,12 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
                 double oldX = oldPosition.x(dim);
                 double newX = atom.getPosition().x(dim);
                 for (int k=0; k<boundaries.length; k++) {
-                    if ((newX - boundaries[k]) * (oldX - boundaries[k]) < 0) {
-                        crossings += boundaryCoefficients[k] * (newX - boundaries[k]);
+                    double newDelta = newX - boundaries[k];
+                    if (Math.abs(newDelta)  > 0.25*boxLength) continue;
+                    double oldDelta = oldX - boundaries[k];
+                    if (Math.abs(oldDelta)  > 0.25*boxLength) continue;
+                    if (newDelta * oldDelta < 0) {
+                        crossings += boundaryCoefficients[k] * Math.abs(newDelta)/newDelta;
                         break;
                     }
                 }
