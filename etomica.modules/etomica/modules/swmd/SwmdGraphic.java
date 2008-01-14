@@ -62,7 +62,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
@@ -98,7 +97,7 @@ import etomica.util.Constants.CompassDirection;
 public class SwmdGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Square-Well Molecular Dynamics";
-    private final static int REPAINT_INTERVAL = 20;
+    private final static int REPAINT_INTERVAL = 1;
     protected DeviceThermoSlider tempSlider;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
@@ -166,6 +165,15 @@ public class SwmdGraphic extends SimulationGraphic {
         epsBox.setEditable(false);
         lamBox.setEditable(false);
 
+        // Simulation Time
+        final DisplayTextBox displayCycles = new DisplayTextBox();
+
+        final DataSourceCountTime meterCycles = new DataSourceCountTime(sim.integrator);
+        displayCycles.setPrecision(6);
+        DataPump pump= new DataPump(meterCycles,displayCycles);
+        sim.integrator.addIntervalAction(pump);
+        displayCycles.setLabel("Simulation time");
+        
         //temperature selector
         tempSlider = new DeviceThermoSlider(sim.getController());
         tempSlider.setUnit(Kelvin.UNIT);
@@ -242,29 +250,6 @@ public class SwmdGraphic extends SimulationGraphic {
         lamBox.setController(sim.getController());
         massBox.setController(sim.getController());
 
-        Action neighborRangeReset = new Action() {
-            public void actionPerformed() {
-                double nbrRange = sim.potentialWrapper.getWrappedPotential().getRange();
-                if (sim.potentialWrapper.getWrappedPotential() instanceof P2Ideal) {
-                    nbrRange = 2.0;
-                }
-                else if (sim.potentialWrapper.getWrappedPotential() instanceof P2HardSphere) {
-                    nbrRange *= 1.4;
-                }
-                else {
-                    nbrRange *= 1.2;
-                }
-                ((PotentialMasterList)sim.integrator.getPotential()).setRange(nbrRange);
-                ((PotentialMasterList)sim.integrator.getPotential()).reset();
-                try {
-                    sim.integrator.reset();
-                }
-                catch (ConfigurationOverlapException e) {}
-            }
-        };
-        sigBox.setPostAction(neighborRangeReset);
-        lamBox.setPostAction(neighborRangeReset);
-
         //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getMoleculeType(),java.awt.Color.red);
@@ -273,13 +258,13 @@ public class SwmdGraphic extends SimulationGraphic {
 	    //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
         sim.integrator.addIntervalAction(rdfMeter);
-        sim.integrator.setActionInterval(rdfMeter, 50);
+        sim.integrator.setActionInterval(rdfMeter, 1);
         rdfMeter.getXDataSource().setXMax(12.0);
         rdfMeter.setBox(sim.box);
         DisplayPlot rdfPlot = new DisplayPlot();
         DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(rdfPump);
-        sim.integrator.setActionInterval(rdfPump, 50);
+        sim.integrator.setActionInterval(rdfPump, 1);
         
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
@@ -293,7 +278,7 @@ public class SwmdGraphic extends SimulationGraphic {
         AccumulatorAverage rmsAverage = new AccumulatorAverageFixed(10);
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
         sim.integrator.addIntervalAction(velocityPump);
-        sim.integrator.setActionInterval(velocityPump, 20);
+        sim.integrator.setActionInterval(velocityPump, 1);
         rmsAverage.setPushInterval(10);
         dataStreamPumps.add(velocityPump);
         
@@ -316,7 +301,7 @@ public class SwmdGraphic extends SimulationGraphic {
 		mbSource.update();
         DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet().makeDataSink());
         sim.integrator.addIntervalAction(mbPump);
-        sim.integrator.setActionInterval(mbPump, 100);
+        sim.integrator.setActionInterval(mbPump, 1);
 		
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
@@ -327,7 +312,7 @@ public class SwmdGraphic extends SimulationGraphic {
         DataFork temperatureFork = new DataFork();
         final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
         sim.integrator.addIntervalAction(temperaturePump);
-        sim.integrator.setActionInterval(temperaturePump, 5);
+        sim.integrator.setActionInterval(temperaturePump, 1);
         final AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
         temperatureAverage.setPushInterval(20);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
@@ -347,7 +332,7 @@ public class SwmdGraphic extends SimulationGraphic {
 	    densityBox.setUnit(dUnit);
         final DataPump densityPump = new DataPump(densityMeter, densityBox);
         sim.integrator.addIntervalAction(densityPump);
-        sim.integrator.setActionInterval(densityPump, 20);
+        sim.integrator.setActionInterval(densityPump, 1);
         dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Density");
 	    
@@ -383,9 +368,9 @@ public class SwmdGraphic extends SimulationGraphic {
         sim.integrator.addIntervalAction(kePump);
         dataStreamPumps.add(kePump);
         int numAtoms = sim.box.getLeafList().getAtomCount();
-        sim.integrator.setActionInterval(energyPump, 12000/numAtoms);
-        sim.integrator.setActionInterval(kePump, 12000/numAtoms);
-        sim.integrator.setActionInterval(pePump, 12000/numAtoms);
+        sim.integrator.setActionInterval(energyPump, numAtoms > 120 ? 1 : 120/numAtoms);
+        sim.integrator.setActionInterval(kePump, numAtoms > 120 ? 1 : 120/numAtoms);
+        sim.integrator.setActionInterval(pePump, numAtoms > 120 ? 1 : 120/numAtoms);
         
         final DisplayPlot ePlot = new DisplayPlot();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -431,11 +416,7 @@ public class SwmdGraphic extends SimulationGraphic {
         ChangeListener nListener = new ChangeListener() {
             public void stateChanged(ChangeEvent evt) {
                 final int n = (int)nSlider.getValue() > 0 ? (int)nSlider.getValue() : 1;
-                sim.activityIntegrate.setSleepPeriod(n > 400 ? 0 : 1);
-                sim.integrator.setThermostatInterval(4000/n);
-                sim.integrator.setActionInterval(energyPump, 100);
-                sim.integrator.setActionInterval(kePump, 100);
-                sim.integrator.setActionInterval(pePump, 100);
+                sim.integrator.setThermostatInterval(n > 40 ? 1 : 40/n);
                 eExcludeOverlap.numAtoms = n;
                 peExcludeOverlap.numAtoms = n;
                 keExcludeOverlap.numAtoms = n;
@@ -479,6 +460,8 @@ public class SwmdGraphic extends SimulationGraphic {
 
         Action resetAction = new Action() {
         	public void actionPerformed() {
+        	    sim.integrator.initialize();
+
         	    rdfMeter.reset();
 
         	    // Reset density (Density is set and won't change, but
@@ -499,6 +482,9 @@ public class SwmdGraphic extends SimulationGraphic {
                 peDisplay.repaint();
 
         		getDisplayBox(sim.box).graphic().repaint();
+        		
+        		displayCycles.putData(meterCycles.getData());
+        		displayCycles.repaint();
         	}
         };
 
@@ -517,6 +503,7 @@ public class SwmdGraphic extends SimulationGraphic {
     	add(rdfPlot);
     	add(vPlot);
     	add(ePlot);
+    	add(displayCycles);
     	add(densityBox);
     	add(tBox);
     	add(pDisplay);
@@ -528,31 +515,24 @@ public class SwmdGraphic extends SimulationGraphic {
         final boolean SW = potentialDesc.equals("Repulsion and attraction"); 
         sim.getController().doActionNow( new Action() {
             public void actionPerformed() {
-                double nbrRange = 2.0;
                 if (HS) {
                     potentialHS.setBox(sim.box);
                     sim.potentialWrapper.setPotential(potentialHS);
-                    nbrRange = potentialHS.getRange()*1.4;
                 }
                 else if (SW) {
                     potentialSW.setBox(sim.box);
                     sim.potentialWrapper.setPotential(potentialSW);
-                    nbrRange = potentialSW.getRange()*1.2;
                 }
                 else {
                     potentialIdeal.setBox(sim.box);
                     sim.potentialWrapper.setPotential(potentialIdeal);
-                    // nbrRange = 0 is OK, but we need to have a sane number of cells
                 }
-                try {
-                    // wrap atoms back inside the box so we can reassign atoms to cells if needed
-                    new BoxImposePbc(sim.box).actionPerformed();
-                    ((PotentialMasterList)sim.integrator.getPotential()).setRange(nbrRange);
-                    ((PotentialMasterList)sim.integrator.getPotential()).reset();
-                    if (sim.integrator.isInitialized()) {
+                // wrap atoms back inside the box so we can reassign atoms to cells if needed
+                if (sim.integrator.isInitialized()) {
+                    try {
                         sim.integrator.reset();
-                    }
-                } catch(ConfigurationOverlapException e) {}
+                    } catch(ConfigurationOverlapException e) {}
+                }
             }
         });
     }
@@ -568,17 +548,6 @@ public class SwmdGraphic extends SimulationGraphic {
             SwmdGraphic.this.potentialHS.setCollisionDiameter(d);
             SwmdGraphic.this.potentialSW.setCoreDiameter(d);
             new BoxImposePbc(sim.box).actionPerformed();
-            if (sim.potentialWrapper.getWrappedPotential() instanceof P2Ideal) {
-                // 0 is OK, but we need to have a sane number of cells
-                ((PotentialMasterList)sim.integrator.getPotential()).setRange(2.0);
-            }
-            else if (sim.potentialWrapper.getWrappedPotential() instanceof P2HardSphere) {
-                ((PotentialMasterList)sim.integrator.getPotential()).setRange(potentialHS.getRange()*1.4);
-            }
-            else { //SW
-                ((PotentialMasterList)sim.integrator.getPotential()).setRange(potentialSW.getRange()*1.2);
-            }
-            ((PotentialMasterList)sim.integrator.getPotential()).reset();
             try {
                 sim.integrator.reset();
             }
@@ -587,7 +556,6 @@ public class SwmdGraphic extends SimulationGraphic {
             }
             sigma = d;
             getDisplayBox(sim.box).repaint();
-//            sim.config.setBoundaryPadding(sigma);
         }
 
         public double getValue() {
@@ -635,7 +603,7 @@ public class SwmdGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        Space space = Space2D.getInstance();
+        Space space = Space3D.getInstance();
         if(args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
@@ -655,7 +623,7 @@ public class SwmdGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(Space2D.getInstance()));
+            SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(Space3D.getInstance()));
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }
