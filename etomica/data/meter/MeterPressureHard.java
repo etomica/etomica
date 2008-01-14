@@ -26,14 +26,15 @@ public class MeterPressureHard extends DataSourceScalar implements
      */
     public double getDataAsScalar() {
         if (integratorHard == null) throw new IllegalStateException("must call setIntegrator before using meter");
-        if (!integratorHard.isIsothermal()) {
-            throw new IllegalStateException("Integrator must be isothermal");
-        }
         Box box = integratorHard.getBox();
         double currentTime = integratorHard.getCurrentTime();
         double elapsedTime = currentTime - lastTime;
         if(elapsedTime == 0.0) return Double.NaN;
-        double value = (integratorHard.getTemperature()*box.atomCount() - virialSum/(box.getSpace().D()*elapsedTime)) / 
+        double numAtomTemp = integratorHard.getKineticEnergy() * 2 / box.getSpace().D();
+        if (integratorHard.isIsothermal()) {
+            numAtomTemp = integratorHard.getTemperature()*box.atomCount();
+        }
+        double value = (numAtomTemp - virialSum/(box.getSpace().D()*elapsedTime)) / 
                         box.getBoundary().volume();
 
         virialSum = 0.0;
