@@ -1,4 +1,5 @@
 package etomica.modules.swmd;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeLeaf;
 import etomica.box.Box;
@@ -8,9 +9,9 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -34,7 +35,7 @@ public class Swmd extends Simulation {
     
     public Swmd(Space space) {
         super(space);
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 2.0);
+        PotentialMaster potentialMaster = new PotentialMaster(space); //List(this, 2.0);
         
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
         
@@ -45,8 +46,7 @@ public class Swmd extends Simulation {
         integrator.setThermostatInterval(1);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
-        integrator.setTimeStep(0.01);
-     //   integrator.setDoSleep(false);
+        integrator.setTimeStep(1);
 
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this);//index 1
@@ -68,8 +68,7 @@ public class Swmd extends Simulation {
         new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc() : new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
         integrator.setBox(box);
 
-        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
-        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        integrator.addIntervalAction(new BoxImposePbc(box));
     }
     
     public static void main(String[] args) {
@@ -85,6 +84,5 @@ public class Swmd extends Simulation {
             
         Swmd sim = new Swmd(space);
         sim.getController().actionPerformed();
-    }//end of main
-    
+    }
 }
