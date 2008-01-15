@@ -196,10 +196,11 @@ public class SimOverlapLJ extends Simulation {
         refPref = refPrefCenter;
         accumulators[0].setBennetParam(refPrefCenter,span);
         accumulators[1].setBennetParam(refPrefCenter,span);
-        if (accumulators[0].getNBennetPoints() == 1) {
-            ((MeterBoltzmannHarmonic)meters[0]).refPref = refPrefCenter;
-            ((MeterBoltzmannTarget)meters[1]).refPref = refPrefCenter;
-        }
+        // needed for Bennett sampling
+//        if (accumulators[0].getNBennetPoints() == 1) {
+//            ((MeterBoltzmannHarmonic)meters[0]).refPref = refPrefCenter;
+//            ((MeterBoltzmannTarget)meters[1]).refPref = refPrefCenter;
+//        }
     }
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {
