@@ -18,6 +18,7 @@ public class Orientation3D implements IOrientation3D, Serializable {
         direction = (IVector3D)Space.makeVector(3);
         direction.setX(0, 1);
         temp = (IVector3D)Space.makeVector(3);
+        temp2 = (IVector3D)Space.makeVector(3);
     }
 
     /**
@@ -77,16 +78,15 @@ public class Orientation3D implements IOrientation3D, Serializable {
 
         temp.TE(-v1overAxis);
         temp.PE(direction);
-        // now temp = v2 
+        // now temp = v2
         double v2Sq = temp.squared();
-        temp.E(axis);
-        temp.XE(direction);
-        temp.TE(Math.sqrt(v2Sq/temp.squared()));
-        // now temp = v3
-        temp.PEa1Tv1(v1overAxis, axis);
-        // now temp = v4
-        direction.TE(Math.cos(dt));
-        direction.PEa1Tv1(Math.sin(dt), temp);
+        temp2.E(axis);
+        temp2.XE(direction);
+        temp2.TE(Math.sqrt(v2Sq/temp2.squared()));
+        // now temp2 = v3
+        direction.Ea1Tv1(Math.cos(dt), temp);
+        direction.PEa1Tv1(Math.sin(dt), temp2);
+        direction.PEa1Tv1(v1overAxis, axis);
     }
     
     /**
@@ -119,5 +119,5 @@ public class Orientation3D implements IOrientation3D, Serializable {
 
     private static final long serialVersionUID = 1L;
     protected final IVector3D direction;
-    protected final IVector3D temp;
+    protected final IVector3D temp, temp2;
 }
