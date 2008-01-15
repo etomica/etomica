@@ -115,8 +115,7 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
      * Arranges interval listeners registered with this iterator in order such that
      * those with the smallest (closer to zero) priority value are performed
      * before those with a larger priority value.  This is invoked automatically
-     * whenever a listener is added or removed.  It should be invoked explicitly if
-     * the priority setting of a registered interval listener is changed.
+     * whenever a listener is added or removed.
      */
     protected synchronized void sortListeners() {
         //sort using linked list, but put into array afterwards
@@ -174,10 +173,11 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     }
         
     /**
-     * Adds the given interval listener to those that receive interval events fired by
-     * this integrator.  If listener has already been added to integrator, it is
-     * not added again.  If listener is not held by this Integrator,
-     * NullPointerException is thrown.
+     * Sets the priority for the given interval action.  The order in which
+     * interval actions for a given time step are fired is based on the
+     * priority.  Actions with a small priority (closer to zero) are invoked
+     * before those with a larger priority.  The priority must be positive and
+     * not greater than 200.  The default priority is 100.
      */
     public synchronized void setIntervalActionPriority(Action intervalAction, int newPriority) {
         if (newPriority < 0 || newPriority > 200) {
@@ -188,16 +188,23 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     }
         
     /**
-     * Adds the given interval listener to those that receive interval events fired by
-     * this integrator.  If listener has already been added to integrator, it is
-     * not added again.  If listener is not held by this Integrator, 
-     * NullPointerException is thrown.
+     * Sets the interval for the given action.  After this call, the action
+     * will be fired after every N steps, where N is the newInterval given to
+     * this method.
      */
     public synchronized void setActionInterval(Action intervalAction, int newInterval) {
         if (newInterval < 1) {
             throw new RuntimeException("Action interval must be positive");
         }
         findWrapper(intervalAction).setInterval(newInterval);
+    }
+        
+    /**
+     * Returns the interval for the given action.  The action is fired after
+     * every N steps, where N is the number returned by this method.
+     */
+    public synchronized int getActionInterval(Action intervalAction) {
+        return findWrapper(intervalAction).interval;
     }
         
     /**
