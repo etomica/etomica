@@ -212,6 +212,11 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
                 myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.x(2));
                 
                 if (i<j) {
+                    double OOr2 = O1r.Mv1Squared(atomj.O.getPosition());
+                    if (OOr2 < core) {
+                        UpolAtkins = Double.NaN;
+                        return UpolAtkins;
+                    }
                     comWj.Ea1Tv1(massH, atomj.H1.getPosition());
                     comWj.PEa1Tv1(massO, atomj.O.getPosition());
                     comWj.PEa1Tv1(massH, atomj.H2.getPosition());
