@@ -4,10 +4,11 @@ import java.io.Serializable;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
+import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.box.Box;
 import etomica.space.IVector;
 
 /**
@@ -39,7 +40,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     public double[] calcU(AtomSet atoms) {
         int j = 0;
         for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtomPositioned a = (IAtomPositioned)atoms.getAtom(i);
+            IAtomPositioned a = (IAtomPositioned)((IMolecule)atoms.getAtom(i)).getChildList().getAtom(0);
             IVector pos = a.getPosition();
             IVector site = getLatticePosition(a);
             workVector.Ev1Mv2(pos, site);
@@ -61,7 +62,7 @@ public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
     public void setToU(AtomSet atoms, double[] newU) {
         int j = 0;
         for (int i=0; i<atoms.getAtomCount(); i++) {
-            IAtomPositioned a = (IAtomPositioned)atoms.getAtom(i);
+            IAtomPositioned a = (IAtomPositioned)((IMolecule)atoms.getAtom(i)).getChildList().getAtom(0);
             IVector pos = a.getPosition();
             for (int k=0; k<workVector.getD(); k++) {
                 pos.setX(k, newU[j+k]);

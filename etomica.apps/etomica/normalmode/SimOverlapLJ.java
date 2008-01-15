@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.DataPump;
@@ -31,7 +32,6 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -95,7 +95,8 @@ public class SimOverlapLJ extends Simulation {
         Potential2SoftSpherical potential = new P2LennardJones(space, 1.0, 1.0);
         double truncationRadius = boundaryTarget.getDimensions().x(0) * 0.45;
         P2SoftSphericalTruncated pTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
-        potentialMasterTarget.addPotential(pTruncated, new Species[] {species, species});
+        AtomType sphereType = species.getLeafType();
+        potentialMasterTarget.addPotential(pTruncated, new AtomType[] { sphereType, sphereType });
         atomMove.setPotential(pTruncated);
         
         if (potentialMasterTarget instanceof PotentialMasterList) {
@@ -195,6 +196,10 @@ public class SimOverlapLJ extends Simulation {
         refPref = refPrefCenter;
         accumulators[0].setBennetParam(refPrefCenter,span);
         accumulators[1].setBennetParam(refPrefCenter,span);
+        if (accumulators[0].getNBennetPoints() == 1) {
+            ((MeterBoltzmannHarmonic)meters[0]).refPref = refPrefCenter;
+            ((MeterBoltzmannTarget)meters[1]).refPref = refPrefCenter;
+        }
     }
 
     public void setAccumulator(AccumulatorVirialOverlapSingleAverage newAccumulator, int iBox) {

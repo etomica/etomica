@@ -4,14 +4,12 @@ package etomica.models.hexane;
  * @author cribbin
  */
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomsetArrayList;
-import etomica.atom.IAtom;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.graphics.SimulationGraphic;
@@ -154,8 +152,7 @@ public class TestSetToUHexane extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        AtomTypeSphere sphereType = (AtomTypeSphere) ((AtomTypeGroup) species
-                .getMoleculeType()).getChildTypes()[0];
+        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,
@@ -174,19 +171,19 @@ public class TestSetToUHexane extends Simulation {
         int nsteps = chainLength * 500;
             
         //Store old positions
-        AtomSet aal = ((AtomGroup)box.molecule(0)).getChildList();
+        AtomSet aal = ((IMolecule)box.getMoleculeList().getAtom(0)).getChildList();
         AtomsetArrayList list = new AtomsetArrayList();
         list.setAtoms(aal);
 
-        IVector site = cdHex.getLatticePosition((AtomGroup)box.molecule(0));
+        IVector site = cdHex.getLatticePosition(box.getMoleculeList().getAtom(0));
         
         for(int i = 0; i < chainLength; i++){
-            oldX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
+            oldX[i].E(((AtomLeaf)list.getAtom(i)).getPosition());
         }
            
         for(int counter = 0; counter < nsteps; counter++){    
             //Calculate the u's that correspond to the old positions. 
-            oldUs = cdHex.calcU(box.getAgent(species).getChildList());
+            oldUs = cdHex.calcU(box.getMoleculeList(species));
 //            for(int i = 0; i < 9; i++){
 //                System.out.println(oldUs[i]);
 //            }
@@ -198,12 +195,12 @@ public class TestSetToUHexane extends Simulation {
             
             //Store the current positions for later use.
             for(int i = 0; i < chainLength; i++){
-                newX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
+                newX[i].E(((AtomLeaf)list.getAtom(i)).getPosition());
 //                System.out.println("newX  " + newX[i]);
             }
             
             //Move the molecules to the old positions, using u's      
-            cdHex.setToU(box.getAgent(species).getChildList(), oldUs);
+            cdHex.setToU(box.getMoleculeList(species), oldUs);
 //            for(int i = 0; i < 9; i++){
 //                System.out.println("u "+ i + " + " +oldUs[i]);
 //            }
@@ -217,7 +214,7 @@ public class TestSetToUHexane extends Simulation {
             //Compare the old and new positions.
             double tol = 0.0000005;
             for(int i = 0; i < chainLength; i++) {
-                newX[i].E((Vector3D)((AtomLeaf)list.getAtom(i)).getPosition());
+                newX[i].E(((AtomLeaf)list.getAtom(i)).getPosition());
                 newX[i].ME(oldX[i]);
                 double test = Math.sqrt(newX[i].squared());
 //                System.out.println(test);

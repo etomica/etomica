@@ -1,12 +1,13 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.atom.iterator.AtomIteratorTreeRoot;
-import etomica.data.DataSourceScalar;
 import etomica.box.Box;
+import etomica.data.DataSourceScalar;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -62,30 +63,27 @@ public class MeterRadiusGyration extends DataSourceScalar {
         NearestImageTransformer nearestImageTransformer = box.getBoundary();
         iterator.setBox(box);
         iterator.reset();
-        AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
         int nLeafAtomsTot = 0;
         double r2Tot = 0.0;
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
             // loop over molecules
-            leafIterator.setRootAtom(atom);
-            leafIterator.reset();
+            AtomSet childList = ((IMolecule)iterator.nextAtom()).getChildList();
+            if (childList.getAtomCount() < 2) {
+                // a monatomic molecule
+                continue;
+            }
 
             // find center of mass
             //do the first iterate explicitly, assume there is at least
             // one leaf atom
-            IAtomPositioned firstAtom = (IAtomPositioned)leafIterator.nextAtom();
-            if (firstAtom == null || firstAtom == atom) {
-                // molecule with no atoms!  or a leaf molecule
-                // it's hard to tell since AtomIteratorTree is happy to be a singlet iterator
-                continue;
-            }
+            IAtomPositioned firstAtom = (IAtomPositioned)childList.getAtom(0);
             int nLeafAtoms = 1;
             realPos.E(firstAtom.getPosition());
             cm.E(realPos);
             IVector prevPosition = firstAtom.getPosition();
-            for (IAtomPositioned a = (IAtomPositioned)leafIterator.nextAtom(); a != null;
-                 a = (IAtomPositioned)leafIterator.nextAtom()) {
+            for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
+                IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
                 nLeafAtoms++;
                 IVector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
@@ -100,10 +98,9 @@ public class MeterRadiusGyration extends DataSourceScalar {
             cm.TE(1.0 / nLeafAtoms);
             // calculate Rg^2 for this chain
             double r2 = 0.0;
-            leafIterator.reset();
             realPos.E(firstAtom.getPosition());
-            for (IAtomPositioned a = (IAtomPositioned)leafIterator.nextAtom(); a != null;
-                 a = (IAtomPositioned)leafIterator.nextAtom()) {
+            for (int iChild = 1; iChild < childList.getAtomCount(); iChild++) {
+                IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
                 IVector position = a.getPosition();
                 dr.Ev1Mv2(position, prevPosition);
                 //molecule might be wrapped around the box.  calculate

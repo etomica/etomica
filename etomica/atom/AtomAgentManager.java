@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 
 import etomica.atom.iterator.AtomIteratorTreeBox;
-import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.box.Box;
 import etomica.box.BoxAtomAddedEvent;
 import etomica.box.BoxAtomEvent;
@@ -33,9 +32,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
     public AtomAgentManager(AgentSource source, Box box, boolean isBackend) {
         agentSource = source;
         this.isBackend = isBackend;
-        atomManager = box.getSpeciesMaster();
-        treeIterator = new AtomIteratorTreeRoot();
-        treeIterator.setDoAllNodes(true);
+        this.box = box;
         setupBox();
     }        
     
@@ -68,7 +65,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
      * Convenience method to return the box the Manager is tracking.
      */
     public Box getBox(){
-        return atomManager.getBox();
+        return box;
     }
     
     /**
@@ -76,8 +73,8 @@ public class AtomAgentManager implements BoxListener, Serializable {
      */
     public void dispose() {
         // remove ourselves as a listener to the box
-        atomManager.getBox().getEventManager().removeListener(this);
-        AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(atomManager.getBox(),Integer.MAX_VALUE,true);
+        box.getEventManager().removeListener(this);
+        AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(box,Integer.MAX_VALUE,true);
         iterator.reset();
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
@@ -96,12 +93,12 @@ public class AtomAgentManager implements BoxListener, Serializable {
      * Sets the Box in which this AtomAgentManager will manage Atom agents.
      */
     protected void setupBox() {
-        atomManager.getBox().getEventManager().addListener(this, isBackend);
+        box.getEventManager().addListener(this, isBackend);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
-                atomManager.getMaxGlobalIndex()+1+atomManager.getIndexReservoirSize());
+                box.getMaxGlobalIndex()+1+box.getIndexReservoirSize());
         // fill in the array with agents from all the atoms
-        AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(atomManager.getBox(),Integer.MAX_VALUE,true);
+        AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(box,Integer.MAX_VALUE,true);
         iterator.reset();
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
@@ -114,13 +111,12 @@ public class AtomAgentManager implements BoxListener, Serializable {
             IAtom a = ((BoxAtomEvent)evt).getAtom();
             if (evt instanceof BoxAtomAddedEvent) {
                 addAgent(a);
-                if (a instanceof IAtomGroup) {
+                if (a instanceof IMolecule) {
                     // add all atoms below this atom
-                    treeIterator.setRootAtom(a);
-                    treeIterator.reset();
-                    
-                    for (IAtom atom = treeIterator.nextAtom(); atom != null; atom = treeIterator.nextAtom()) {
-                        addAgent(atom);
+                    addAgent(a);
+                    AtomSet childList = ((IMolecule)a).getChildList();
+                    for (int i=0; i<childList.getAtomCount(); i++) {
+                        addAgent(childList.getAtom(i));
                     }
                 }       
             }
@@ -131,11 +127,11 @@ public class AtomAgentManager implements BoxListener, Serializable {
                     agentSource.releaseAgent(agents[index], a);
                     agents[index] = null;
                 }
-                if (a instanceof IAtomGroup) {
+                if (a instanceof IMolecule) {
                     // nuke all atoms below this atom
-                    treeIterator.setRootAtom(a);
-                    treeIterator.reset();
-                    for (IAtom childAtom = treeIterator.nextAtom(); childAtom != null; childAtom = treeIterator.nextAtom()) {
+                    AtomSet childList = ((IMolecule)a).getChildList();
+                    for (int i=0; i<childList.getAtomCount(); i++) {
+                        IAtom childAtom = childList.getAtom(i);
                         index = childAtom.getGlobalIndex();
                         if (agents[index] != null) {
                             // Atom used to have an agent.  nuke it.
@@ -153,7 +149,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
             }
         }
         else if (evt instanceof BoxGlobalAtomIndexEvent) {
-            int reservoirSize = atomManager.getIndexReservoirSize();
+            int reservoirSize = box.getIndexReservoirSize();
             int newMaxIndex = ((BoxGlobalAtomIndexEvent)evt).getMaxIndex();
             if (agents.length > newMaxIndex+reservoirSize || agents.length < newMaxIndex) {
                 // indices got compacted.  If our array is a lot bigger than it
@@ -168,7 +164,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
     protected void addAgent(IAtom a) {
         if (agents.length < a.getGlobalIndex()+1) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = Arrays.resizeArray(agents,a.getGlobalIndex()+1+atomManager.getIndexReservoirSize());
+            agents = Arrays.resizeArray(agents,a.getGlobalIndex()+1+box.getIndexReservoirSize());
         }
         agents[a.getGlobalIndex()] = agentSource.makeAgent(a);
     }
@@ -199,8 +195,7 @@ public class AtomAgentManager implements BoxListener, Serializable {
     private static final long serialVersionUID = 1L;
     protected final AgentSource agentSource;
     protected Object[] agents;
-    protected final AtomIteratorTreeRoot treeIterator;
-    protected final AtomManager atomManager;
+    protected final Box box;
     protected final boolean isBackend;
     
     /**

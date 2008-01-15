@@ -77,7 +77,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
      * Readies iterator for iteration.
      */
     public void reset() {
-        ((AtomsetIteratorBoxDependent)iterator).setBox(box);
+        iterator.setBox(box);
         iterator.reset();
     }
 
@@ -136,7 +136,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
     }
     
     private static final long serialVersionUID = 1L;
-    private AtomsetIterator iterator;
+    private AtomsetIteratorBoxDependent iterator;
     private final AtomsetIteratorPDT api1A;
     private final AtomsetIteratorBoxDependent apiAA;
     private Box box;

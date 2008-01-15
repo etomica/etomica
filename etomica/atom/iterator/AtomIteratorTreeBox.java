@@ -2,8 +2,9 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 
 /**
@@ -76,7 +77,7 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
     
     public void setBox(Box newBox) {
         box = newBox;
-        listIterator.setList(newBox.getSpeciesMaster().getAgentList());
+        listIterator.setList(newBox.getMoleculeList());
         unset();
     }
     
@@ -85,11 +86,11 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
      * by reset status. Clobbers iteration state.
      */
     public void allAtoms(AtomsetAction act) {
-        listIterator.setList(box.getSpeciesMaster().getAgentList());
+        listIterator.setList(box.getMoleculeList());
         listIterator.reset();
         for (IAtom atom = listIterator.nextAtom(); atom != null;
              atom = listIterator.nextAtom()) {
-            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
+            if (!(atom instanceof IMolecule) || iterationDepth == 1) {
                 atomSetSinglet.atom = atom;
                 act.actionPerformed(atomSetSinglet);
                 continue;
@@ -100,12 +101,11 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
                 act.actionPerformed(atomSetSinglet);
             }
 
-            if (treeIterator == null) {
-                treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
-                treeIterator.setDoAllNodes(doAllNodes);
+            AtomSet childList = ((IMolecule)atom).getChildList();
+            for (int iChild=0; iChild<childList.getAtomCount(); iChild++) {
+                atomSetSinglet.atom = childList.getAtom(iChild);
+                act.actionPerformed(atomSetSinglet);
             }
-            treeIterator.setRootAtom(atom);
-            treeIterator.allAtoms(act);
         }
         unset();
     }
@@ -115,11 +115,11 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
      * by reset status. Clobbers iteration state.
      */
     public void allAtoms(AtomAction act) {
-        listIterator.setList(box.getSpeciesMaster().getAgentList());
+        listIterator.setList(box.getMoleculeList());
         listIterator.reset();
         for (IAtom atom = listIterator.nextAtom(); atom != null;
              atom = listIterator.nextAtom()) {
-            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
+            if (!(atom instanceof IMolecule) || iterationDepth == 1) {
                 act.actionPerformed(atom);
                 continue;
             }
@@ -128,21 +128,19 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
                 act.actionPerformed(atom);
             }
 
-            if (treeIterator == null) {
-                treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
-                treeIterator.setDoAllNodes(doAllNodes);
+            AtomSet childList = ((IMolecule)atom).getChildList();
+            for (int iChild=0; iChild<childList.getAtomCount(); iChild++) {
+                act.actionPerformed(childList.getAtom(iChild));
             }
-            treeIterator.setRootAtom(atom);
-            treeIterator.allAtoms(act);
         }
         unset();
     }
 
     public void reset() {
-        listIterator.setList(box.getSpeciesMaster().getAgentList());
+        listIterator.setList(box.getMoleculeList());
         listIterator.reset();
 
-        if (treeIterator != null) treeIterator.unset();
+        if (childListIterator != null) childListIterator.unset();
     }
 
     /**

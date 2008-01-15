@@ -5,7 +5,8 @@ import etomica.action.AtomsetActionAdapter;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomLeaf;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.ApiIntraspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -28,15 +29,12 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         int[] n0 = new int[] {10, 1, 0};
         int nA0 = 5;
         int[] n1 = new int[] {5, 1, 6};
-        int[] n2 = new int[] {1, 7, 2};
-        int[] n2Tree = new int[] {3,4};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
+        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
         Species[] species = sim.getSpeciesManager().getSpecies();
 
         boxTest(sim.getBoxs()[0], species);
         boxTest(sim.getBoxs()[1], species);
-        boxTest(sim.getBoxs()[2], species);
         
         ApiIntraspecies1A api = new ApiIntraspecies1A(species[0]);
         
@@ -70,7 +68,6 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
     private void boxTest(Box box, Species[] species) {
         speciesTestForward(box, species[0]);
         speciesTestForward(box, species[1]);
-        speciesTestForward(box, species[2]);
     }
 
     /**
@@ -116,8 +113,8 @@ public class ApiIntraspecies1ATest extends IteratorTestAbstract {
         
         //species0 leafAtom target; any direction
         if(species instanceof SpeciesSpheres) {
-            target = ((IAtomGroup)box.getMoleculeList(species).getAtom(nMolecules[0]/2)).getChildList().getAtom(1);
-            targetMolecule = target.getParentGroup();
+            target = ((IMolecule)box.getMoleculeList(species).getAtom(nMolecules[0]/2)).getChildList().getAtom(1);
+            targetMolecule = ((IAtomLeaf)target).getParentGroup();
             api.setTarget(target);
             api.setDirection(UP);
             testApiIterates(api,UP, targetMolecule,upMolecules(targetMolecule, molecules0));

@@ -1,13 +1,14 @@
 package etomica.integrator.mcmove;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
+import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
-import etomica.atom.iterator.AtomIteratorTreeRoot;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.box.Box;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.RotationTensor;
@@ -22,11 +23,9 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     protected final IRandom random;
     protected AtomSource moleculeSource;
     
-    protected final AtomIteratorTreeRoot leafAtomIterator = new AtomIteratorTreeRoot();
-    
     protected transient double uOld;
     protected transient double uNew = Double.NaN;
-    protected transient IAtomGroup molecule;
+    protected transient IMolecule molecule;
     protected transient IVector r0;
     protected transient RotationTensor rotationTensor;
     public int count;
@@ -60,7 +59,7 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
         
         if(box.moleculeCount()==0) {molecule = null; return false;}
             
-        molecule = (IAtomGroup)moleculeSource.getAtom();
+        molecule = (IMolecule)moleculeSource.getAtom();
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();
         if(Double.isInfinite(uOld)) {
@@ -70,7 +69,6 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(r0.getD() == 3 ? random.nextInt(3) : 2,dTheta);
 
-        leafAtomIterator.setRootAtom(molecule);
         r0.E(molecule.getType().getPositionDefinition().position(molecule));
         doTransform();
         
@@ -80,9 +78,9 @@ public class MCMoveRotateMolecule3D extends MCMoveBoxStep {
     }//end of doTrial
     
     protected void doTransform() {
-        leafAtomIterator.reset();
-        for (IAtomPositioned a = (IAtomPositioned)leafAtomIterator.nextAtom(); a != null;
-             a = (IAtomPositioned)leafAtomIterator.nextAtom()) {
+        AtomSet childList = molecule.getChildList();
+        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
+            IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
             IVector r = a.getPosition();
             r.ME(r0);
             box.getBoundary().nearestImage(r);

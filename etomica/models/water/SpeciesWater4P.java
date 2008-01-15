@@ -13,7 +13,8 @@ public class SpeciesWater4P extends Species {
     private static final long serialVersionUID = 1L;
 
     public SpeciesWater4P(ISimulation sim) {
-       super(new AtomFactoryWater4P(sim));
+       super();
+       setMoleculeFactory(new AtomFactoryWater4P(sim, this));
     }
     
     public SpeciesSignature getSpeciesSignature() {

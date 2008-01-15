@@ -47,14 +47,14 @@ class DiameterModifier implements Modifier {
 		potentialRR.setCoreDiameter(newCoreDiameter);
 		potentialRB.setCoreDiameter(newCoreDiameter);
 		potentialBB.setCoreDiameter(newCoreDiameter);
-		((AtomTypeSphere)speciesR.getMoleculeType()).setDiameter(d);
-        ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(d);
+		((AtomTypeSphere)speciesR.getLeafType()).setDiameter(d);
+        ((AtomTypeSphere)speciesB.getLeafType()).setDiameter(d);
 		if (display != null)
 			display.repaint();
 	}
 
 	public double getValue() {
-		return ((AtomTypeSphere)speciesR.getMoleculeType()).getDiameter();
+		return ((AtomTypeSphere)speciesR.getLeafType()).getDiameter();
 	}
 
 	public void setDisplay(DisplayBox display) {

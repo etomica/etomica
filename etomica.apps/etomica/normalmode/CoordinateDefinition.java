@@ -6,20 +6,19 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
-import etomica.atom.ISpeciesAgent;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.config.Conformation;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 
@@ -55,7 +54,8 @@ public abstract class CoordinateDefinition {
     
     public void initializeCoordinates(int[] nCells) {
         AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
-        if (atomIterator.size() == 0) {
+        AtomSet moleculeList = box.getMoleculeList();
+        if (moleculeList.getAtomCount() == 0) {
             throw new RuntimeException("There are no atoms yet!");
         }
 
@@ -88,20 +88,18 @@ public abstract class CoordinateDefinition {
         indexIterator.reset();
         IVector position = lattice.getSpace().makeVector();
         AtomArrayList currentList = null;
-        for (IAtom a = atomIterator.nextAtom(); a != null;
-             a = atomIterator.nextAtom()) {
-            if (a instanceof IAtomGroup) {
-                // initialize coordinates of child atoms
-                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
-                config.initializePositions(((IAtomGroup)a).getChildList());
-            }
+        for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
+            IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
+            // initialize coordinates of child atoms
+            Conformation config = ((AtomTypeMolecule)molecule.getType()).getConformation();
+            config.initializePositions(molecule.getChildList());
 
             int[] ii = indexIterator.next();
             position.E((IVector)lattice.site(ii));
             position.PE(offset);
             
             atomActionTranslateTo.setDestination(position);
-            atomActionTranslateTo.actionPerformed(a);
+            atomActionTranslateTo.actionPerformed(molecule);
 
             if (ii[box.getSpace().D()] == 0) {
                 if (iCell > -1) {
@@ -113,7 +111,7 @@ public abstract class CoordinateDefinition {
                 cells[iCell] = new BasisCell(new AtomsetArrayList(currentList), lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
-            currentList.add(a);
+            currentList.add(molecule);
         }
         
         initNominalU(cells[totalCells-1].molecules);
@@ -234,7 +232,6 @@ public abstract class CoordinateDefinition {
         }
         public Object makeAgent(IAtom atom) {
             IVector vector = space.makeVector();
-            if(atom instanceof ISpeciesAgent) return null;
             vector.E(atom.getType().getPositionDefinition().position(atom));
             return vector;
         }

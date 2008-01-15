@@ -5,24 +5,24 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorTreeBox;
-import etomica.atom.iterator.AtomIteratorTreeRoot;
-import etomica.integrator.mcmove.MCMoveEvent;
-import etomica.integrator.mcmove.MCMoveListener;
-import etomica.integrator.mcmove.MCMoveBox;
-import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
-import etomica.lattice.CellLattice;
 import etomica.box.Box;
 import etomica.box.BoxCellManager;
 import etomica.box.BoxEvent;
 import etomica.box.BoxInflateEvent;
 import etomica.box.BoxListener;
+import etomica.integrator.mcmove.MCMoveBox;
+import etomica.integrator.mcmove.MCMoveEvent;
+import etomica.integrator.mcmove.MCMoveListener;
+import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
+import etomica.lattice.CellLattice;
 import etomica.space.Boundary;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -237,8 +237,6 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
     
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
         public MyMCMoveListener(Space space, Box box, NeighborCellManager manager) {
-            treeIterator = new AtomIteratorTreeRoot();
-            treeIterator.setDoAllNodes(true);
             moleculePosition = new AtomPositionCOM(space);
             translator = new AtomActionTranslateBy(space);
             moleculeTranslator = new AtomGroupAction(translator);
@@ -255,12 +253,10 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
             iterator.reset();
             for (IAtom atom = iterator.nextAtom(); atom != null; atom = iterator.nextAtom()) {
                 updateCell(atom);
-                if (atom instanceof IAtomGroup) {
-                    treeIterator.setRootAtom(atom);
-                    treeIterator.reset();
-                    for (IAtom childAtom = treeIterator.nextAtom();
-                         childAtom != null; childAtom = treeIterator.nextAtom()) {
-                        updateCell(childAtom);
+                if (atom instanceof IMolecule) {
+                    AtomSet childList = ((IMolecule)atom).getChildList();
+                    for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                        updateCell(childList.getAtom(iChild));
                     }
                 }
             }
@@ -274,7 +270,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
                 // not de-associate the atom from the cell.  assignCell below
                 // will do that.
                 cell.removeAtom(atom);
-                if (atom instanceof IAtomGroup) {
+                if (atom instanceof IMolecule) {
                     IVector shift = boundary.centralImage(moleculePosition.position(atom));
                     if (!shift.isZero()) {
                         translator.setTranslationVector(shift);
@@ -289,7 +285,6 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
         }
         
         private static final long serialVersionUID = 1L;
-        private final AtomIteratorTreeRoot treeIterator;
         private final AtomPositionDefinition moleculePosition;
         private final AtomActionTranslateBy translator;
         private final AtomGroupAction moleculeTranslator;

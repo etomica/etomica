@@ -13,7 +13,8 @@ public class SpeciesUAPropane extends Species {
     private static final long serialVersionUID = 1L;
 
     public SpeciesUAPropane(ISimulation sim) {
-       super(new AtomFactoryUAPropane(sim));
+       super();
+       setMoleculeFactory(new AtomFactoryUAPropane(sim, this));
     }
     
     public SpeciesSignature getSpeciesSignature() {

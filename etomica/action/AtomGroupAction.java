@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 
 /**
  * Wraps an AtomAction, and performs the wrapped action on the atom
@@ -27,8 +27,8 @@ public class AtomGroupAction implements AtomAction, Serializable {
      * @see etomica.action.AtomAction#actionPerformed(etomica.Atom)
      */
     public void actionPerformed(IAtom atom) {
-        if(atom instanceof IAtomGroup) {
-            AtomSet atomList = ((IAtomGroup)atom).getChildList();
+        if(atom instanceof IMolecule) {
+            AtomSet atomList = ((IMolecule)atom).getChildList();
             int size = atomList.getAtomCount();
             for(int i=0; i<size; i++) {
                 this.actionPerformed(atomList.getAtom(i));

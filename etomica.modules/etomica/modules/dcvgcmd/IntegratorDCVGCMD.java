@@ -5,10 +5,12 @@
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package etomica.modules.dcvgcmd;
+import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
-import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.modifier.Modifier;
 import etomica.nbr.PotentialMasterHybrid;
@@ -85,6 +87,12 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 			for(int i=0; i<50; i++) {
                 integratormc.doStep();
             }
+			AtomSet allMolecules = box.getLeafList();
+			for (int i=0; i<allMolecules.getAtomCount(); i++) {
+			    if (((IAtomPositioned)allMolecules.getAtom(i)).getPosition().x(2) < -40) {
+			        throw new RuntimeException(i+" "+allMolecules.getAtom(i)+" "+((IAtomPositioned)allMolecules.getAtom(i)).getPosition());
+			    }
+			}
             potentialMasterHybrid.setUseNbrLists(true);
             potentialMasterHybrid.getNeighborManager(box).reset();
             try {
@@ -95,6 +103,12 @@ public class IntegratorDCVGCMD extends IntegratorBox {
 	 	} else {
             MDStepCount--;
 	 		integratormd.doStep();
+            AtomSet allMolecules = box.getLeafList();
+            for (int i=0; i<allMolecules.getAtomCount(); i++) {
+                if (((IAtomPositioned)allMolecules.getAtom(i)).getPosition().x(2) < -40) {
+                    throw new RuntimeException(i+" "+allMolecules.getAtom(i)+" "+((IAtomPositioned)allMolecules.getAtom(i)).getPosition()+" "+allMolecules.getAtom(i).getGlobalIndex());
+                }
+            }
 		} 
 	}
 

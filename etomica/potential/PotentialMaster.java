@@ -2,8 +2,8 @@ package etomica.potential;
 
 import java.util.Arrays;
 
-import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomType;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomsetArray;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAll;
@@ -11,9 +11,9 @@ import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.atom.iterator.IteratorFactory;
+import etomica.box.Box;
 import etomica.chem.models.Model;
 import etomica.chem.models.Model.PotentialAndIterator;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.species.Species;
 
@@ -147,20 +147,20 @@ public class PotentialMaster implements java.io.Serializable {
         }
         Arrays.sort(atomTypes);
         // depth of molecules
-        int maxDepth = AtomAddressManager.MOLECULE_DEPTH;
-        int[] depth = new int[atomTypes.length];
+        boolean haveLeafTypes = false;
         for (int i=0; i<atomTypes.length; i++) {
-            depth[i] = atomTypes[i].getDepth();
-            if (depth[i] > maxDepth) maxDepth = depth[i];
+            if (atomTypes[i] instanceof AtomTypeLeaf) {
+                haveLeafTypes = true;
+            }
         }
-        if (maxDepth == AtomAddressManager.MOLECULE_DEPTH) {
+        if (!haveLeafTypes) {
             addPotential(potential,moleculeSpecies(atomTypes));
             return;
         }
         AtomType[] parentAtomTypes = new AtomType[atomTypes.length];
         for (int i=0; i<atomTypes.length; i++) {
-            if (depth[i] == maxDepth) {
-                parentAtomTypes[i] = atomTypes[i].getParentType();
+            if (atomTypes[i] instanceof AtomTypeLeaf) {
+                parentAtomTypes[i] = ((AtomTypeLeaf)atomTypes[i]).getParentType();
             }
             else {
                 parentAtomTypes[i] = atomTypes[i];

@@ -5,14 +5,14 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.util.Constants;
@@ -84,7 +84,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
         // we assume that that atoms that make the molecule are children of the
         // molecule.
-        atomList = ((IAtomGroup) atom).getChildList();
+        atomList = ((IMolecule) atom).getChildList();
         chainlength = atomList.getAtomCount();
 
         // store the old locations of every atom in the molecule in positionOld.
@@ -102,7 +102,7 @@ public abstract class MCMoveCBMC extends MCMoveBox {
 
         // we assume that that atoms that make the molecule are children of the
         // molecule.
-        atomList = ((IAtomGroup) atom).getChildList();
+        atomList = ((IMolecule) atom).getChildList();
         chainlength = atomList.getAtomCount();
 
         // store the old locations of every atom in the molecule in positionOld.

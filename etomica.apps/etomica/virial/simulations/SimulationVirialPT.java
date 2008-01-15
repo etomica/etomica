@@ -1,7 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
@@ -11,24 +11,21 @@ import etomica.data.DataSourceAcceptanceRatio;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveManager;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.species.Species;
+import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
 import etomica.virial.ConfigurationCluster;
-import etomica.virial.MCMoveClusterAtom;
 import etomica.virial.MCMoveClusterAtomMulti;
-import etomica.virial.MCMoveClusterMolecule;
 import etomica.virial.MCMoveClusterMoleculeMulti;
-import etomica.virial.MCMoveClusterRotateMolecule3D;
+import etomica.virial.MCMoveClusterRotateMoleculeMulti;
 import etomica.virial.MeterVirial;
 import etomica.virial.P0Cluster;
-import etomica.virial.BoxCluster;
 import etomica.virial.SpeciesFactory;
 import etomica.virial.paralleltempering.MCMoveSwapCluster;
 
@@ -54,7 +51,6 @@ public class SimulationVirialPT extends Simulation {
         meter = new MeterVirial[temperature.length];
         accumulator = new DataAccumulator[temperature.length];
         accumulatorPump = new DataPump[temperature.length];
-        mcMoveAtom1 = new MCMoveAtom[temperature.length];
         mcMoveMulti = new MCMoveBoxStep[temperature.length];
         mcMoveRotate = new MCMoveBoxStep[temperature.length];
         meterAccept = new DataSource[temperature.length-1];
@@ -93,25 +89,16 @@ public class SimulationVirialPT extends Simulation {
             
             MCMoveManager moveManager = integrator[iTemp].getMoveManager();
             
-            if (!(box[iTemp].molecule(0) instanceof IAtomGroup)) {
-                mcMoveAtom1[iTemp] = new MCMoveClusterAtom(this, potentialMaster);
-                mcMoveAtom1[iTemp].setStepSize(1.15);
-                moveManager.addMCMove(mcMoveAtom1[iTemp]);
-                if (nMolecules>2) {
-                    mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
-                    mcMoveMulti[iTemp].setStepSize(0.41);
-                    moveManager.addMCMove(mcMoveMulti[iTemp]);
-                }
+            if (((IMolecule)box[iTemp].getMoleculeList().getAtom(0)).getChildList().getAtomCount() == 0) {
+                mcMoveMulti[iTemp] = new MCMoveClusterAtomMulti(this, potentialMaster);
+                moveManager.addMCMove(mcMoveMulti[iTemp]);
             }
             else {
-                mcMoveAtom1[iTemp] = new MCMoveClusterMolecule(potentialMaster, getRandom(), 3.0);
-                moveManager.addMCMove(mcMoveAtom1[iTemp]);
-                mcMoveRotate[iTemp] = new MCMoveClusterRotateMolecule3D(potentialMaster,getRandom());
-                mcMoveRotate[iTemp].setStepSize(Math.PI);
-                moveManager.addMCMove(mcMoveRotate[iTemp]);
                 if (nMolecules>2) {
-                    mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(potentialMaster, getRandom(), 0.41, nMolecules-1);
+                    mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(this, potentialMaster);
                     moveManager.addMCMove(mcMoveMulti[iTemp]);
+                    mcMoveRotate[iTemp] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom());
+                    moveManager.addMCMove(mcMoveRotate[iTemp]);
                 }
             }
             
@@ -144,7 +131,6 @@ public class SimulationVirialPT extends Simulation {
 	public BoxCluster[] box;
     public ClusterAbstract[][] allValueClusters;
     public ClusterWeight[] sampleCluster;
-    public MCMoveAtom[] mcMoveAtom1;
     public MCMoveBoxStep[] mcMoveRotate;
     public MCMoveBoxStep[] mcMoveMulti;
     public IntegratorPT integratorPT;

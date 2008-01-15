@@ -6,13 +6,12 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
@@ -83,7 +82,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     }
 
     public void initializeCoordinates(int[] nCells) {
-        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
+        AtomSet moleculeList = box.getMoleculeList();
 
         int basisSize = lattice.getBasis().getScaledCoordinates().length;
 
@@ -110,24 +109,20 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         cells = new BasisCell[totalCells];
         int iCell = -1;
         // Place molecules
-        atomIterator.reset();
         indexIterator.reset();
         IVector position = lattice.getSpace().makeVector();
         AtomArrayList currentList = null;
 		if (configuration != null){
         	configuration.initializeCoordinates(box);
         }
-        
-        for (IAtom a = atomIterator.nextAtom(); a != null;
-             a = atomIterator.nextAtom()) {
-        	
-            if (configuration ==null){
-	        	if (a instanceof IAtomGroup) {
-	                // initialize coordinates of child atoms
-	                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
-	                config.initializePositions(((IAtomGroup)a).getChildList());
-	            }
-            } 
+
+        for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
+            IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
+            if (configuration == null) {
+                // initialize coordinates of child atoms
+                Conformation config = ((AtomTypeMolecule)molecule.getType()).getConformation();
+                config.initializePositions(molecule.getChildList());
+            }
             
             int[] ii = indexIterator.next();
             
@@ -140,7 +135,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	             * Take out these 2 lines for MCMoveHarmonic
 	             */
 	        	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
-	            atomGroupAction.actionPerformed(a);
+	            atomGroupAction.actionPerformed(molecule);
             }
             
             position.E((IVector)lattice.site(ii));
@@ -149,11 +144,11 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
             /*
              * Take out these 2 lines for MCMoveHarmonic
              */
-            if (configuration ==null){
-            	atomActionTranslateTo.setDestination(position);
-            	atomActionTranslateTo.actionPerformed(a);
+            if (configuration == null) {
+                atomActionTranslateTo.setDestination(position);
+                atomActionTranslateTo.actionPerformed(molecule);
             }
-            
+
             if (ii[box.getSpace().D()] == 0) {
                 if (iCell > -1) {
                     initNominalU(cells[iCell].molecules);
@@ -164,7 +159,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
                 cells[iCell] = new BasisCell(new AtomsetArrayList(currentList), lattice.getSpace().makeVector());
                 cells[iCell].cellPosition.E(position);
             }
-            currentList.add(a);
+            currentList.add(molecule);
         }
         
         initNominalU(cells[totalCells-1].molecules);
@@ -244,7 +239,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         int j = 3;
         
         for (int i=0; i < molecules.getAtomCount() ; i++){
-        	IAtomGroup molecule = (IAtomGroup)molecules.getAtom(i);
+        	IMolecule molecule = (IMolecule)molecules.getAtom(i);
         	IVector3D [] siteOrientation = (IVector3D [])orientationManager.getAgent(molecule);
         	
 	    	/*
@@ -340,7 +335,7 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
     		orientation[0] = (IVector3D)box.getSpace().makeVector();
     		orientation[1] = (IVector3D)box.getSpace().makeVector();
     		orientation[2] = (IVector3D)box.getSpace().makeVector();
-    		IAtomGroup molecule = (IAtomGroup)molecules.getAtom(i);
+    		IMolecule molecule = (IMolecule)molecules.getAtom(i);
     		
     	    	/*
     	    	 * Determine the Orientation of Each Molecule
@@ -384,8 +379,8 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
         
         for (int i=0; i < molecules.getAtomCount() ; i++){
         	
-        	IAtomGroup molecule = (IAtomGroup)molecules.getAtom(i);
-        	IVector3D[] siteOrientation = (IVector3D[])orientationManager.getAgent(molecule);
+        	IMolecule molecule = (IMolecule)molecules.getAtom(i);
+            IVector3D[] siteOrientation = (IVector3D[])orientationManager.getAgent(molecule);
 	    	
 	    	/*
 	    	 *   STEP 1
@@ -504,8 +499,8 @@ public class CoordinateDefinitionParacetamol extends CoordinateDefinitionMolecul
 	      	for (int a=0; a<3; a++){
 	      		t.setComponent(a, a, basisOrientation[i][a]);
 	      	}
-            Conformation config = ((AtomTypeGroup)molecule.getType()).getConformation();
-            config.initializePositions(((IAtomGroup)molecule).getChildList());
+            Conformation config = ((AtomTypeMolecule)molecule.getType()).getConformation();
+            config.initializePositions(molecule.getChildList());
 	      	((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
 	      	atomGroupAction.actionPerformed(molecule);
 

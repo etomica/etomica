@@ -3,9 +3,10 @@ package etomica.threaded.domain;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.ApiInnerFixed;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -166,18 +167,18 @@ public class PotentialMasterListWorker extends Thread {
         }//end of for
 
 		//		if atom has children, repeat process with them
-        if(atom instanceof IAtomGroup) {
-            potentialArray = pmlt.getIntraPotentials(atom.getType());
+        if(atom instanceof IMolecule) {
+            potentialArray = pmlt.getIntraPotentials((AtomTypeMolecule)atom.getType());
             potentials = potentialArray.getPotentials();
             for(int i=0; i<potentials.length; i++) {
             
                 // Extracts thread-specific potential for intra-molecular atoms
                 IPotential potentialIntraThread = ((PotentialThreaded)potentials[i]).getPotentials()[threadNumber];
-                ((PotentialGroupNbr)potentialIntraThread).calculateRangeIndependent(atom,id,pc);
+                ((PotentialGroupNbr)potentialIntraThread).calculateRangeIndependent((IMolecule)atom,id,pc);
             }
             
             //cannot use AtomIterator field because of recursive call
-            AtomSet list = ((IAtomGroup)atom).getChildList();
+            AtomSet list = ((IMolecule)atom).getChildList();
             int size = list.getAtomCount();
             for (int i=0; i<size; i++) {
                 IAtom a = list.getAtom(i);

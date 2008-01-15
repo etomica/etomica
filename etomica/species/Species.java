@@ -1,11 +1,8 @@
 package etomica.species;
 import etomica.atom.AtomFactory;
-import etomica.atom.AtomManager;
-import etomica.atom.AtomType;
-import etomica.atom.AtomTypeSpeciesAgent;
-import etomica.atom.ISpeciesAgent;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.AtomTypeMolecule;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.SpeciesManager;
 
 
  /**
@@ -44,38 +41,33 @@ public class Species implements java.io.Serializable {
      * Species agents made by this species will have the given type for 
      * their (common) AtomType.
      */
-    public Species(AtomFactory factory) {
-        this.factory = factory;
+    public Species() {}
+    
+    public void resetIndex(SpeciesManager speciesManager) {
+        Species[] allSpecies = speciesManager.getSpecies();
+        for (int i=0; i<allSpecies.length; i++) {
+            if (allSpecies[i] == this) {
+                index = i;
+                return;
+            }
+        }
+        throw new RuntimeException("I couldn't find myself.  That's bad.");
     }
     
-    /**
-     * Sets the AtomType for SpeciesAgents associated with this Species.
-     * This method should only be called by the SpeciesManager
-     */
-    public void setAgentType(AtomTypeSpeciesAgent agentType) {
-        this.agentType = agentType;
-        factory.getType().setParentType(agentType);
+    public int getIndex() {
+        return index;
     }
-
+    
+    public void setMoleculeFactory(AtomFactory newMoleculeFactory) {
+        factory = newMoleculeFactory;
+    }
+    
     public AtomFactory getMoleculeFactory() {
         return factory;
     }
     
-    /**
-     * Constructs an Agent of this species and sets its SpeciesMaster.
-     * The agent's type is in common with all other agents of this species.
-     * 
-     * @param atomManager The SpeciesMaster that will hold this SpeciesAgent
-     * @return The new agent.
-     */
-    public ISpeciesAgent makeAgent(AtomManager atomManager) {
-        SpeciesAgent agent = new SpeciesAgent(agentType, atomManager);
-        atomManager.addSpeciesAgent(agent);
-        return agent;
-    }
-
-    public final AtomType getMoleculeType() {
-        return factory.getType();
+    public final AtomTypeMolecule getMoleculeType() {
+        return (AtomTypeMolecule)factory.getType();
     }
     
     /**
@@ -90,6 +82,6 @@ public class Species implements java.io.Serializable {
     
     private static final long serialVersionUID = 2L;
 //    final AtomType agentType;
-    protected final AtomFactory factory;
-    protected AtomTypeSpeciesAgent agentType;
+    protected AtomFactory factory;
+    protected int index;
 }

@@ -42,7 +42,6 @@ import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
 import etomica.units.Dimension;
@@ -88,8 +87,8 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		temperatureSelect.setMaximum(2500);
 		temperatureSelect.setTemperature(300); //sets 300K as selected temperature
         temperatureSelect.setIsothermal();
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
-        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesA.getLeafType(), java.awt.Color.RED);
+        ((ColorSchemeByType)getDisplayBox(sim.box).getColorScheme()).setColor(sim.speciesB.getLeafType(), java.awt.Color.BLACK);
 
 		//	adjustment of species properties
 		MySpeciesEditor AEditor = new MySpeciesEditor(sim, sim.box, sim.speciesA, "Red");
@@ -429,14 +428,14 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 		//	public DeviceSlider nSlider;
 		public DeviceNSelector nSlider;
 
-		public Species species;
+		public SpeciesSpheresMono species;
 
 		public final javax.swing.JTextField mass = new javax.swing.JTextField(
 				"40");
 
 		//    public java.awt.TextField mass = new java.awt.TextField("40");
 
-        public MySpeciesEditor(final ReactionEquilibrium sim, Box box, Species s, String label) {
+        public MySpeciesEditor(final ReactionEquilibrium sim, Box box, SpeciesSpheresMono s, String label) {
             super();
             species = s;
             nSlider = new DeviceNSelector(sim.getController());
@@ -484,7 +483,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 						value = 1000000;
 					final double newMass = value;
 					mass.setText(Integer.toString(value));
-					((ElementSimple)((AtomTypeLeaf)species.getMoleculeType()).getElement()).setMass(newMass);
+					((ElementSimple)((AtomTypeLeaf)species.getLeafType()).getElement()).setMass(newMass);
                      try {
                          sim.integratorHard1.reset();
                      } catch(ConfigurationOverlapException e) {}
@@ -545,14 +544,14 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 			potentialRR.setCoreDiameter(newCoreDiameter);
 			potentialRB.setCoreDiameter(newCoreDiameter);
 			potentialBB.setCoreDiameter(newCoreDiameter);
-			((AtomTypeSphere)speciesR.getMoleculeType()).setDiameter(d);
-			((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(d);
+			((AtomTypeSphere)speciesR.getLeafType()).setDiameter(d);
+			((AtomTypeSphere)speciesB.getLeafType()).setDiameter(d);
 			if (display != null)
 				display.repaint();
 		}
 
 		public double getValue() {
-			return ((AtomTypeSphere)speciesR.getMoleculeType()).getDiameter();
+			return ((AtomTypeSphere)speciesR.getLeafType()).getDiameter();
 		}
 
 		public void setDisplay(DisplayBox display) {

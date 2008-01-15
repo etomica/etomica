@@ -3,6 +3,9 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeLeaf;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceNSelector;
@@ -12,13 +15,11 @@ import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.ParameterBase;
 
@@ -94,12 +95,13 @@ public class HSMD3D extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        
+
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         potential = new P2HardSphere(space, sigma, false);
+        AtomTypeLeaf leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential,new Species[]{species,species});
+        potentialMaster.addPotential(potential,new AtomType[]{leafType, leafType});
 
         box = new Box(this);
         addBox(box);

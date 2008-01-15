@@ -2,6 +2,7 @@ package etomica.nbr;
 
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeAgentManager;
+import etomica.atom.AtomTypeMolecule;
 import etomica.box.BoxAgentManager;
 import etomica.box.BoxAgentManager.BoxAgentSource;
 import etomica.potential.IPotential;
@@ -128,7 +129,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return (PotentialArray)rangedAgentManager.getAgent(atomType);
     }
 
-    public PotentialArray getIntraPotentials(AtomType atomType) {
+    public PotentialArray getIntraPotentials(AtomTypeMolecule atomType) {
         return (PotentialArray)intraAgentManager.getAgent(atomType);
     }
     

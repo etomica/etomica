@@ -4,13 +4,14 @@ import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.simulation.ISimulation;
+import etomica.species.Species;
 
 /**
  * Factory that constructs a 3-point water molecule, with three child atoms of 
@@ -25,19 +26,19 @@ public class AtomFactoryWater3P extends AtomFactory {
 	 * @param sim
 	 * @param sequencerFactory
 	 */
-    public AtomFactoryWater3P(ISimulation sim) {
-		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
+    public AtomFactoryWater3P(ISimulation sim, Species species) {
+		super(new AtomTypeMolecule(species, new AtomPositionGeometricCenter(sim.getSpace())));
 
         AtomTypeSphere hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
         AtomTypeSphere oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
-        hType.setParentType((AtomTypeGroup)atomType);
-        oType.setParentType((AtomTypeGroup)atomType);
+        ((AtomTypeMolecule)atomType).addChildType(hType);
+        ((AtomTypeMolecule)atomType).addChildType(oType);
         hFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), hType) :
                                      new AtomFactoryMono(sim.getSpace(), hType);
 		oFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), oType) :
                                      new AtomFactoryMono(sim.getSpace(), oType);
 
-		((AtomTypeGroup)atomType).setConformation(new ConformationWater3P(sim.getSpace())); 
+		((AtomTypeMolecule)atomType).setConformation(new ConformationWater3P(sim.getSpace())); 
 	}
 
 	/**
@@ -52,7 +53,7 @@ public class AtomFactoryWater3P extends AtomFactory {
         water.addChildAtom(water.O);
         water.addChildAtom(water.H1);
         water.addChildAtom(water.H2);
-        ((AtomTypeGroup)atomType).getConformation().initializePositions(water.getChildList());
+        ((AtomTypeMolecule)atomType).getConformation().initializePositions(water.getChildList());
 		return water;
 	}
     

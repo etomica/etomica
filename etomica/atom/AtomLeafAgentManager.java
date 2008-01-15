@@ -28,7 +28,6 @@ public class AtomLeafAgentManager extends AtomAgentManager {
     public AtomLeafAgentManager(AgentSource source, Box box, boolean isBackend) {
         super(source, box, isBackend);
         // we just want the leaf atoms
-        treeIterator.setDoAllNodes(false);
     }        
     
     /**
@@ -36,7 +35,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      * from the Box associated with this instance.
      */
     public Object getAgent(IAtom a) {
-        return agents[atomManager.getLeafIndex(a)];
+        return agents[box.getLeafIndex(a)];
     }
     
     /**
@@ -44,7 +43,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      * The IAtom must be from the Box associated with this instance.
      */
     public void setAgent(IAtom a, Object newAgent) {
-        agents[atomManager.getLeafIndex(a)] = newAgent;
+        agents[box.getLeafIndex(a)] = newAgent;
     }
     
     /**
@@ -52,8 +51,8 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      */
     public void dispose() {
         // remove ourselves as a listener to the box
-        atomManager.getBox().getEventManager().removeListener(this);
-        AtomSet leafList = atomManager.getLeafList();
+        box.getEventManager().removeListener(this);
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             // leaf index corresponds to the position in the leaf list
@@ -69,12 +68,12 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      * Sets the Box in which this AtomAgentManager will manage Atom agents.
      */
     protected void setupBox() {
-        atomManager.getBox().getEventManager().addListener(this, isBackend);
+        box.getEventManager().addListener(this, isBackend);
         
         agents = (Object[])Array.newInstance(agentSource.getAgentClass(),
-                atomManager.getLeafList().getAtomCount()+1+atomManager.getIndexReservoirSize());
+                box.getLeafList().getAtomCount()+1+box.getIndexReservoirSize());
         // fill in the array with agents from all the atoms
-        AtomSet leafList = atomManager.getLeafList();
+        AtomSet leafList = box.getLeafList();
         int nLeaf = leafList.getAtomCount();
         for (int i=0; i<nLeaf; i++) {
             // leaf list position is the leaf index, so don't bother looking
@@ -87,13 +86,11 @@ public class AtomLeafAgentManager extends AtomAgentManager {
         if (evt instanceof BoxAtomEvent) {
             IAtom a = ((BoxAtomEvent)evt).getAtom();
             if (evt instanceof BoxAtomAddedEvent) {
-                if (a instanceof IAtomGroup) {
+                if (a instanceof IMolecule) {
                     // add all leaf atoms below this atom
-                    treeIterator.setRootAtom(a);
-                    treeIterator.reset();
-                    
-                    for (IAtom atom = treeIterator.nextAtom(); atom != null; atom = treeIterator.nextAtom()) {
-                        addAgent(atom);
+                    AtomSet childList = ((IMolecule)a).getChildList();
+                    for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                        addAgent(childList.getAtom(iChild));
                     }
                 }
                 else {
@@ -102,12 +99,12 @@ public class AtomLeafAgentManager extends AtomAgentManager {
                 }
             }
             else if (evt instanceof BoxAtomRemovedEvent) {
-                if (a instanceof IAtomGroup) {
+                if (a instanceof IMolecule) {
                     // IAtomGroups don't have agents, but nuke all atoms below this atom
-                    treeIterator.setRootAtom(a);
-                    treeIterator.reset();
-                    for (IAtom childAtom = treeIterator.nextAtom(); childAtom != null; childAtom = treeIterator.nextAtom()) {
-                        int index = atomManager.getLeafIndex(childAtom);
+                    AtomSet childList = ((IMolecule)a).getChildList();
+                    for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                        IAtom childAtom = childList.getAtom(iChild);
+                        int index = box.getLeafIndex(childAtom);
                         if (agents[index] != null) {
                             // Atom used to have an agent.  nuke it.
                             agentSource.releaseAgent(agents[index], childAtom);
@@ -116,7 +113,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
                     }
                 }
                 else {
-                    int index = atomManager.getLeafIndex(a);
+                    int index = box.getLeafIndex(a);
                     if (agents[index] != null) {
                         // Atom used to have an agent.  nuke it.
                         agentSource.releaseAgent(agents[index], a);
@@ -127,12 +124,12 @@ public class AtomLeafAgentManager extends AtomAgentManager {
             else if (evt instanceof BoxAtomLeafIndexChangedEvent) {
                 // the atom's index changed.  assume it would get the same agent
                 int oldIndex = ((BoxAtomLeafIndexChangedEvent)evt).getOldIndex();
-                agents[atomManager.getLeafIndex(a)] = agents[oldIndex];
+                agents[box.getLeafIndex(a)] = agents[oldIndex];
                 agents[oldIndex] = null;
             }
         }
         else if (evt instanceof BoxGlobalAtomLeafIndexEvent) {
-            int reservoirSize = atomManager.getIndexReservoirSize();
+            int reservoirSize = box.getIndexReservoirSize();
             // don't use leafList.size() since the SpeciesMaster might be notifying
             // us that it's about to add leaf atoms
             int newMaxIndex = ((BoxGlobalAtomLeafIndexEvent)evt).getMaxIndex();
@@ -150,7 +147,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
      * Adds an agent for the given leaf atom to the agents array.
      */
     protected void addAgent(IAtom a) {
-        addAgent(a, atomManager.getLeafIndex(a));
+        addAgent(a, box.getLeafIndex(a));
     }
     
     /**
@@ -160,7 +157,7 @@ public class AtomLeafAgentManager extends AtomAgentManager {
     protected void addAgent(IAtom a, int index) {
         if (agents.length < index+1) {
             // no room in the array.  reallocate the array with an extra cushion.
-            agents = Arrays.resizeArray(agents,index+1+atomManager.getIndexReservoirSize());
+            agents = Arrays.resizeArray(agents,index+1+box.getIndexReservoirSize());
         }
         agents[index] = agentSource.makeAgent(a);
     }        

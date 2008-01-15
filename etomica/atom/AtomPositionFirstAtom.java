@@ -19,10 +19,10 @@ public class AtomPositionFirstAtom implements AtomPositionDefinition, java.io.Se
     }
     
     protected IAtomPositioned getFirstChildLeafAtom(IAtom atom) {
-        if (!(atom instanceof IAtomGroup)) {
+        if (!(atom instanceof IMolecule)) {
             return (IAtomPositioned)atom;
         }
-        AtomSet childList = ((IAtomGroup)atom).getChildList();
+        AtomSet childList = ((IMolecule)atom).getChildList();
         for (int i = 0; i < childList.getAtomCount(); i++) {
             IAtomPositioned a1 = getFirstChildLeafAtom(childList.getAtom(i));
             if(a1 != null) return a1;

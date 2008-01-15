@@ -1,13 +1,13 @@
 package etomica.models.water;
 
-import etomica.atom.AtomGroup;
+import etomica.atom.Molecule;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomPositioned;
 
 /**
  * Tree node for 3-point water molecule.
  */
-public class AtomWater3P extends AtomGroup {
+public class AtomWater3P extends Molecule {
 
     /**
 	 * Constructor for AtomTreeNodeWater.

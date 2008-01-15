@@ -3,8 +3,9 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomAddressManager;
+import etomica.atom.AtomToAtomSetSpecies;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomLeaf;
 import etomica.box.Box;
 import etomica.species.Species;
 
@@ -22,10 +23,16 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      *            species whose molecules will form the pair iterates
      */
     public ApiIntraspecies1A(Species species) {
-        super();
+        this(species, new AtomToAtomSetSpecies(species));
+    }
+    
+    protected ApiIntraspecies1A(Species species, AtomToAtomSetSpecies atomToAtomSet) {
+        super(new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1, atomToAtomSet, atomToAtomSet),
+                new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1, atomToAtomSet, atomToAtomSet));
         if (species == null) {
             throw new NullPointerException("Constructor of ApiIntraspecies1A a non-null species");
         }
+        this.atomToAtomSet = atomToAtomSet;
         this.species = species;
     }
 
@@ -34,10 +41,11 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      * box.
      * @throws NullPointerException if the Box is null
      */
-    public void setBox(Box box) {
-        if (box == null) {
-            throw new IllegalArgumentException("You are a bad person.  I didn't even care about the box, but since you passed null, I'm going to quit.");
+    public void setBox(Box newBox) {
+        if (newBox == null) {
+            throw new IllegalArgumentException("You passed a null Box.  Now sit in the corner.");
         }
+        atomToAtomSet.setBox(newBox);
     }
 
     /**
@@ -77,8 +85,8 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
             targetMolecule = null;
         } else {
             targetMolecule = targetAtom;
-            while (targetMolecule.getType().getDepth() > AtomAddressManager.MOLECULE_DEPTH) {
-                targetMolecule = targetMolecule.getParentGroup();
+            if (targetMolecule instanceof IAtomLeaf) {
+                targetMolecule = ((IAtomLeaf)targetMolecule).getParentGroup();
             }
             if (targetMolecule.getType().getSpecies() != species) {
                 targetMolecule = null;
@@ -92,5 +100,6 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     private final Species species;
 
     private IAtom targetAtom, targetMolecule;
-
+    protected Box box;
+    protected AtomToAtomSetSpecies atomToAtomSet;
 }

@@ -2,7 +2,7 @@ package etomica.modules.pistoncylinder;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -47,8 +47,8 @@ public class PistonCylinder extends Simulation {
         lambda = 2.0;
         double sigma = 4.0;
         species = new SpeciesSpheresMono(this);
-        ((ElementSimple)((AtomTypeLeaf)species.getMoleculeType()).getElement()).setMass(16);
-        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(sigma);
+        ((ElementSimple)species.getLeafType().getElement()).setMass(16);
+        ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         getSpeciesManager().addSpecies(species);
         box = new Box(new BoundaryPistonCylinder(space, getRandom()));
         addBox(box);
@@ -69,11 +69,11 @@ public class PistonCylinder extends Simulation {
         P2SquareWell potentialSW = new P2SquareWell(space,sigma,lambda,31.875,true);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
 //        potential = new P2HardSphere(space,Default.atomSize);
-        potentialMaster.addPotential(potentialWrapper,new Species[]{species,species});
+        potentialMaster.addPotential(potentialWrapper,new AtomType[]{species.getLeafType(),species.getLeafType()});
         
         wallPotential = new P1HardBoundary(space, true);
         wallPotential.setCollisionRadius(sigma*0.5); //potential.getCoreDiameter()*0.5);
-        potentialMaster.addPotential(wallPotential,new Species[]{species});
+        potentialMaster.addPotential(wallPotential,new AtomType[]{species.getLeafType()});
         wallPotential.setActive(0,true,true);  // left wall
         wallPotential.setActive(0,false,true); // right wall
         if (D==3) {
@@ -100,7 +100,7 @@ public class PistonCylinder extends Simulation {
             pistonPotential.setPressure(Bar.UNIT.toSim(100.0));
         }
         pistonPotential.setThickness(1.0);
-        potentialMaster.addPotential(pistonPotential,new Species[]{species});
+        potentialMaster.addPotential(pistonPotential,new AtomType[]{species.getLeafType()});
         ((BoundaryPistonCylinder)box.getBoundary()).setPistonPotential(pistonPotential);
         
         integrator = new IntegratorHardPiston(this,potentialMaster,pistonPotential);

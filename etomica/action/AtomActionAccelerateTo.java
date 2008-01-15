@@ -1,7 +1,7 @@
 package etomica.action;
 import etomica.atom.AtomGroupVelocityAverage;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.atom.IAtomKinetic;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -35,7 +35,7 @@ public class AtomActionAccelerateTo implements AtomAction {
      * so that its mass-average velocity equals the target velocity.
      */
     public void actionPerformed(IAtom atom) {
-        if(!(atom instanceof IAtomGroup)) {
+        if(!(atom instanceof IMolecule)) {
             ((IAtomKinetic)atom).getVelocity().E(targetVelocity);
         } else {
             IVector currentVelocity = velocityMeter.getVelocityAverage(atom);

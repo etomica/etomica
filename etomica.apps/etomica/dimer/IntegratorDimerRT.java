@@ -7,8 +7,10 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -235,9 +237,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		list2 = new AtomArrayList();
 		
 		for(int i=0; i<movableSpecies.length; i++){
-			list.addAll(box.getMoleculeList(movableSpecies[i]));
-		    list1.addAll(box1.getMoleculeList(movableSpecies[i]));
-			list2.addAll(box2.getMoleculeList(movableSpecies[i]));
+            AtomSet molecules = box.getMoleculeList(movableSpecies[i]);
+            for (int j=0; j<molecules.getAtomCount(); j++) {
+                list.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
+                list1.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
+                list2.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
+            }
 		}
 		
 		// Offset replicas

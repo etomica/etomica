@@ -2,13 +2,13 @@ package etomica.virial;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
@@ -46,7 +46,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
         super(potentialMaster);
         this.random = random;
         this.nAtoms = nAtoms;
-        selectedMolecules = new IAtomGroup[nAtoms];
+        selectedMolecules = new IMolecule[nAtoms];
         oldPositions = new Vector3D[nAtoms];
         for (int i=0; i<nAtoms; i++) {
             oldPositions[i] = new Vector3D();
@@ -145,15 +145,11 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
     }
 	
     protected IAtom[] selectMolecules() {
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
-        if (iterator.size() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in box - 1");
-        iterator.reset();
+        AtomSet moleculeList = box.getMoleculeList();
+        if (moleculeList.getAtomCount() != nAtoms+1) throw new IllegalStateException("move should work on number of molecules in box - 1");
         //skip the first one
-        iterator.next();
-        int i=0;
-        for (IAtomGroup a = (IAtomGroup)iterator.nextAtom(); a != null;
-             a = (IAtomGroup)iterator.nextAtom()) {
-            selectedMolecules[i++] = a;
+        for (int i=1; i<moleculeList.getAtomCount(); i++) {
+            selectedMolecules[i++] = (IMolecule)moleculeList.getAtom(i);
         }
         return selectedMolecules;
     }
@@ -206,7 +202,7 @@ public class MCMoveClusterReptateMulti extends MCMoveBox {
     }
 	
     private final int nAtoms;
-    private final IAtomGroup[] selectedMolecules;
+    private final IMolecule[] selectedMolecules;
     private double bondLength;
     private final Vector3D work1;
     private final Vector3D[] oldPositions;

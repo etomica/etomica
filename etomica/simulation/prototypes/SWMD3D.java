@@ -5,20 +5,21 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayBox;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.modifier.Modifier;
-import etomica.box.Box;
+import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -39,7 +40,7 @@ public class SWMD3D extends Simulation {
 		 */
 		public void setValue(double d) {
 			potential.setCoreDiameter(d);
-			((AtomTypeSphere)species.getMoleculeType()).setDiameter(d);
+			((AtomTypeSphere)species.getLeafType()).setDiameter(d);
 		}
 
 		/**
@@ -62,7 +63,8 @@ public class SWMD3D extends Simulation {
     integrator = new IntegratorHard(this, potentialMaster);
     integrator.setTimeStep(0.01);
     integrator.setIsothermal(true);
-    integrator.setTemperature(300);
+    integrator.setTemperature(1);
+    integrator.setNullPotential(new P1HardPeriodic(space));
     ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
     getController().addAction(activityIntegrate);
 
@@ -100,7 +102,7 @@ public class SWMD3D extends Simulation {
 //	lambdaControl.setNMajor(5);
 
 
-    potentialMaster.addPotential(potential,new Species[]{species,species});
+    potentialMaster.addPotential(potential,new AtomType[]{species.getLeafType(),species.getLeafType()});
 
     integrator.setBox(box);
     integrator.addIntervalAction(new BoxImposePbc(box));

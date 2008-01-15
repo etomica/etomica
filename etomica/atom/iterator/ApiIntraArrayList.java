@@ -75,6 +75,9 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
         }
         innerIndex++;
         atoms.atom1 = list.getAtom(innerIndex);
+        if (atoms.atom0 == atoms.atom1) {
+            throw new RuntimeException("oops");
+        }
         return atoms;
     }
 
@@ -107,6 +110,9 @@ public class ApiIntraArrayList implements AtomsetIterator, java.io.Serializable 
      *            the new atom list for iteration
      */
     public void setList(AtomSet newList) {
+        if (newList.getAtomCount() > 1 && newList.getAtom(0) == newList.getAtom(1)) {
+            throw new RuntimeException("oops");
+        }
         list = newList;
         unset();
     }

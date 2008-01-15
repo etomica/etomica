@@ -7,9 +7,9 @@ import java.util.Formatter;
 import java.util.HashMap;
 
 import etomica.atom.AtomTypeLeaf;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
@@ -171,7 +171,7 @@ public class WriteConfigurationDLPOLY implements Action {
 		            		continue;
 		            	}
 	            	}
-	            	IAtomGroup molecule = (IAtomGroup)box.molecule(iMolec);
+	            	IMolecule molecule = (IMolecule)box.getMoleculeList().getAtom(iMolec);
 	                for (int iLeaf=0; iLeaf<molecule.getChildList().getAtomCount(); iLeaf++){
 	                	IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(iLeaf);
 	                	String atomName = (String)elementHash.get(((AtomTypeLeaf)atom.getType()).getElement());

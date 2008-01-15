@@ -1,6 +1,7 @@
 package etomica.atom;
 
 import etomica.chem.elements.Element;
+import etomica.species.Species;
 import etomica.units.Dimension;
 import etomica.units.Mass;
 
@@ -25,13 +26,30 @@ public class AtomTypeLeaf extends AtomType {
             AtomPositionDefinition positionDefinition) {
         super(positionDefinition);
         this.element = element;
+        index = -1;
     }
 
     /**
-     * Returns true, indicating that this is a leaf type.
+     * Returns the parent AtomType of this AtomType.
      */
-    public boolean isLeaf() {
-        return true;
+    public AtomTypeMolecule getParentType() {
+        return parentType;
+    }
+    
+    public void setParentType(AtomTypeMolecule newParent) {
+        parentType = newParent;
+    }
+    
+    public void setChildIndex(int newChildIndex) {
+        childIndex = newChildIndex;
+    }
+    
+    public int getChildIndex() {
+        return childIndex;
+    }
+    
+    public Species getSpecies() {
+        return parentType.getSpecies();
     }
 
     /**
@@ -60,4 +78,6 @@ public class AtomTypeLeaf extends AtomType {
     }
 
     protected final Element element;
+    protected AtomTypeMolecule parentType;
+    protected int childIndex;
 }

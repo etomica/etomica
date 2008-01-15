@@ -4,6 +4,7 @@ import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.simulation.ISimulation;
 import etomica.space.Space;
+import etomica.species.Species;
 
 /**
  * Builds an atom group that comprises a set of identically formed atoms or atom groups.
@@ -20,16 +21,16 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param sequencerFactory makes sequencers for each of the atoms built by this factory
      * @param parentType the type instance of the atoms that are parents of those made by this factory
      */
-    public AtomFactoryHomo(ISimulation sim) {
-        this(sim, 1);
+    public AtomFactoryHomo(ISimulation sim, Species species) {
+        this(sim, species, 1);
     }
     /**
      * @param space the coordinate factory
      * @param parentType the type instance of the atoms that are parents of those made by this factory
      * @param atoms the number of identical children per group (default is 1).
      */
-    public AtomFactoryHomo(ISimulation sim, int atoms) {
-        this(sim.getSpace(), atoms, new ConformationLinear(sim));
+    public AtomFactoryHomo(ISimulation sim, Species species, int atoms) {
+        this(species, sim.getSpace(), atoms, new ConformationLinear(sim));
     }
     /**
      * @param space the coordinate factory
@@ -37,10 +38,10 @@ public class AtomFactoryHomo extends AtomFactory {
      * @param atoms the number of identical children per group (default is 1).
      * @param config the conformation applied to each group that is built (default is Linear).
      */
-   public AtomFactoryHomo(Space space, int atoms, Conformation conformation) {
-        super(new AtomTypeGroup(new AtomPositionGeometricCenter(space)));
+   public AtomFactoryHomo(Species species, Space space, int atoms, Conformation conformation) {
+        super(new AtomTypeMolecule(species, new AtomPositionGeometricCenter(space)));
         atomsPerGroup = atoms;
-        ((AtomTypeGroup)atomType).setConformation(conformation);
+        ((AtomTypeMolecule)atomType).setConformation(conformation);
     }
     
     /**
@@ -48,9 +49,9 @@ public class AtomFactoryHomo extends AtomFactory {
      */
      public IAtom makeAtom() {
          isMutable = false;
-         AtomGroup group = new AtomGroup(atomType);
+         Molecule group = new Molecule(atomType);
          for(int i=0; i<atomsPerGroup; i++) {
-             group.addChildAtom(childFactory.makeAtom());
+             group.addChildAtom((IAtomLeaf)childFactory.makeAtom());
          }
          return group;
      }
@@ -75,6 +76,7 @@ public class AtomFactoryHomo extends AtomFactory {
             throw new IllegalStateException("Factory is not mutable");
         }
         this.childFactory = childFactory;
+        ((AtomTypeMolecule)atomType).addChildType((AtomTypeLeaf)childFactory.getType());
     }
     
     /**

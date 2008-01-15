@@ -6,7 +6,7 @@ import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.box.Box;
@@ -48,7 +48,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		
 		ConformationWaterTIP4P config = new ConformationWaterTIP4P(space);
 		species = new SpeciesWater4P(this);
-		((AtomTypeGroup)species.getMoleculeType()).setConformation(config);
+		species.getMoleculeType().setConformation(config);
 		getSpeciesManager().addSpecies(species);
 		
 		integrator = new IntegratorMC(this, potentialMaster);
@@ -135,7 +135,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-        AtomTypeGroup atomType = (AtomTypeGroup)sim.species.getMoleculeType();
+        AtomTypeMolecule atomType = sim.species.getMoleculeType();
         colorScheme.setColor(atomType.getChildTypes()[0], java.awt.Color.white);
         colorScheme.setColor(atomType.getChildTypes()[1], java.awt.Color.blue);
         ((AtomTypeSphere)atomType.getChildTypes()[2]).setDiameter(0);

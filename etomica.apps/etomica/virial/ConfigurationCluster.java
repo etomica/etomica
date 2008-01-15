@@ -1,9 +1,8 @@
 package etomica.virial;
 
-import etomica.atom.AtomTypeGroup;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeMolecule;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
@@ -15,24 +14,23 @@ import etomica.space.IVector;
  * Generates a configuration such that the value of the box's
  * sampling cluster is positive at beta = 1.
  */
-public class ConfigurationCluster extends Configuration {
+public class ConfigurationCluster implements Configuration, java.io.Serializable {
 
 	/**
 	 * @see etomica.config.Configuration#initializePositions(etomica.AtomIterator)
 	 */
+    //XXX this can't actually handle multi-atom molecules
 	public void initializeCoordinates(Box box) {
         IVector dimVector = box.getSpace().makeVector();
         dimVector.E(box.getBoundary().getDimensions());
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
-		iterator.reset();
-        for (IAtom a = iterator.nextAtom(); a != null;
-             a = iterator.nextAtom()) {
-            if (a instanceof IAtomGroup) {
-                // initialize coordinates of child atoms
-                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
-                config.initializePositions(((IAtomGroup)a).getChildList());
-            }
+		AtomSet moleculeList = box.getMoleculeList();
+		for (int i=0; i<moleculeList.getAtomCount(); i++) {
+            // initialize coordinates of child atoms
+		    IMolecule a = (IMolecule)moleculeList.getAtom(i);
+            Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
+            config.initializePositions(a.getChildList());
         }
+
         BoxCluster boxCluster = (BoxCluster)box;
         boxCluster.trialNotify();
         boxCluster.acceptNotify();

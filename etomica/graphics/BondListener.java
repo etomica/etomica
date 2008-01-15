@@ -8,15 +8,14 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
-import etomica.atom.ISpeciesAgent;
+import etomica.atom.IAtomLeaf;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorMolecule;
-import etomica.atom.iterator.AtomIteratorTreeRoot;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.chem.models.Model;
 import etomica.box.Box;
+import etomica.chem.models.Model;
 import etomica.potential.IPotential;
 import etomica.species.Species;
 
@@ -110,14 +109,11 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
         AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(species);
         moleculeIterator.setBox(box);
         moleculeIterator.reset();
-        AtomIteratorTreeRoot leafIterator = new AtomIteratorTreeRoot();
         for (IAtom molecule = moleculeIterator.nextAtom(); molecule != null;
              molecule = moleculeIterator.nextAtom()) {
-            leafIterator.setRootAtom(molecule);
-            leafIterator.reset();
-            for (IAtom leafAtom = leafIterator.nextAtom(); leafAtom != null;
-                 leafAtom = leafIterator.nextAtom()) {
-                ArrayList list = (ArrayList)atomAgentManager.getAgent(leafAtom);
+            AtomSet childList = ((IMolecule)molecule).getChildList();
+            for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                ArrayList list = (ArrayList)atomAgentManager.getAgent(childList.getAtom(iChild));
                 for (int i=0; i<list.size(); i++) {
                     bondManager.releaseBond(list.get(i));
                 }
@@ -133,7 +129,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     }
     
     public Object makeAgent(IAtom newAtom) {
-        if (!(newAtom.getParentGroup() instanceof ISpeciesAgent) && !(newAtom instanceof IAtomGroup)) {
+        if (newAtom instanceof IAtomLeaf) {
             // we got a leaf atom in a mult-atom molecule
             ArrayList bondList = new ArrayList(); 
             Model.PotentialAndIterator[] bondIterators = 
@@ -141,10 +137,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
                     get(newAtom.getType().getSpecies());
             
             if (bondIterators != null) {
-                IAtomGroup molecule = newAtom.getParentGroup();
-                while (!(molecule.getParentGroup() instanceof ISpeciesAgent)) {
-                    molecule = molecule.getParentGroup();
-                }
+                IMolecule molecule = ((IAtomLeaf)newAtom).getParentGroup();
                 
                 for (int i=0; i<bondIterators.length; i++) {
                     IPotential bondedPotential = bondIterators[i].getPotential();

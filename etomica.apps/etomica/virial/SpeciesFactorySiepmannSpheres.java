@@ -1,6 +1,5 @@
 package etomica.virial;
 
-import etomica.atom.AtomTypeGroup;
 import etomica.config.ConformationChainZigZag;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
@@ -24,7 +23,7 @@ public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Se
     
     public Species makeSpecies(ISimulation sim) {
         SpeciesAlkane species = new SpeciesAlkane(sim, nA);
-        ((AtomTypeGroup)species.getMoleculeType()).setConformation(conformation);
+        species.getMoleculeType().setConformation(conformation);
         return species;
     }
     

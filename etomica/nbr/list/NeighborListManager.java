@@ -5,7 +5,6 @@ import java.io.Serializable;
 import etomica.action.Action;
 import etomica.action.AtomAction;
 import etomica.action.BoxImposePbc;
-import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
@@ -52,11 +51,12 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         neighborCheck = new NeighborCheck(this);
         setPriority(200);
         pbcEnforcer = new BoxImposePbc();
+        pbcEnforcer.setBox(box);
         pbcEnforcer.setApplyToMolecules(false);
         potentialMaster = potentialMasterList;
         cellNbrIterator = new ApiAACell(potentialMaster.getSpace().D(), range, box);
         agentManager2Body = new AtomAgentManager(this, box);
-        agentManager1Body = new AtomAgentManager(new AtomPotential1ListSource(), box);
+        agentManager1Body = new AtomAgentManager(new AtomPotential1ListSource(potentialMasterList), box);
         neighborReset = new NeighborReset(this, agentManager2Body, agentManager1Body);
         boxEvent = new BoxEventNeighborsUpdated(box);
     }
@@ -82,11 +82,20 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         iterator.reset();
         for (IAtom atom = iterator.nextAtom(); atom != null;
              atom = iterator.nextAtom()) {
-            int numPotentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials().length;
-            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(numPotentials);
-
-            numPotentials = potentialMaster.getIntraPotentials(atom.getType()).getPotentials().length;
-            ((AtomPotentialList)agentManager1Body.getAgent(atom)).setCapacity(numPotentials);
+            int num2Body = 0;
+            int num1Body = 0;
+            IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
+            for (int i=0; i<potentials.length; i++) {
+                if (potentials[i].nBody() == 1) {
+                    num1Body++;
+                }
+                else {
+                    num2Body++;
+                }
+            }
+            
+            ((AtomNeighborLists)agentManager2Body.getAgent(atom)).setCapacity(num2Body);
+            ((AtomPotentialList)agentManager1Body.getAgent(atom)).setCapacity(num1Body);
         }
     }
 
@@ -121,7 +130,6 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         for (int j = 0; j < criteriaArray.length; j++) {
             criteriaArray[j].setBox(box);
         }
-        pbcEnforcer.setBox(box);
         pbcEnforcer.actionPerformed();
         neighborSetup();
         iieCount = updateInterval;
@@ -378,10 +386,6 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         }
         
         public void actionPerformed(IAtom atom) {
-            //TODO consider removing this check, for perf improvement
-            if (atom.getType().getDepth() < AtomAddressManager.MOLECULE_DEPTH) {
-                return;//don't want SpeciesMaster or SpeciesAgents
-            }
             final NeighborCriterion[] criterion = neighborListManager.getCriterion(atom.getType());
             ((AtomNeighborLists)agentManager2Body.getAgent(atom)).clearNbrs();
             for (int i = 0; i < criterion.length; i++) {
@@ -413,8 +417,14 @@ public class NeighborListManager implements IntegratorNonintervalListener,
     
     public Object makeAgent(IAtom atom) {
         AtomNeighborLists lists = new AtomNeighborLists();
-        int numPotentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials().length;
-        lists.setCapacity(numPotentials);
+        int num2Body = 0;
+        IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
+        for (int i=0; i<potentials.length; i++) {
+            if (potentials[i].nBody() > 1) {
+                num2Body++;
+            }
+        }
+        lists.setCapacity(num2Body);
         return lists;
     }
     
@@ -422,16 +432,29 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         ((AtomNeighborLists)agent).clearNbrs();
     }
     
-    public class AtomPotential1ListSource implements AtomAgentManager.AgentSource, java.io.Serializable {
-        private static final long serialVersionUID = 1L;
+    public static class AtomPotential1ListSource implements AtomAgentManager.AgentSource, java.io.Serializable {
+        private static final long serialVersionUID = 2L;
+        protected final PotentialMasterList potentialMaster;
+
+        public AtomPotential1ListSource(PotentialMasterList potentialMaster) {
+            this.potentialMaster = potentialMaster;
+        }
+        
         public Class getAgentClass() {
             return AtomPotentialList.class;
         }
         public void releaseAgent(Object obj, IAtom atom) {}
         public Object makeAgent(IAtom atom) {
             AtomPotentialList lists = new AtomPotentialList();
-            int numPotentials = potentialMaster.getIntraPotentials(atom.getType()).getPotentials().length;
-            lists.setCapacity(numPotentials);
+            int num1Body = 0;
+            IPotential[] potentials = potentialMaster.getRangedPotentials(atom.getType()).getPotentials();
+            for (int i=0; i<potentials.length; i++) {
+                if (potentials[i].nBody() == 1) {
+                    num1Body++;
+                }
+            }
+            
+            lists.setCapacity(num1Body);
             return lists;
         }
     }

@@ -6,8 +6,8 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiInterspeciesAA;
-import etomica.junit.UnitTestUtil;
 import etomica.box.Box;
+import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 
@@ -25,15 +25,12 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         int[] n0 = new int[] {10, 1, 0};
         int nA0 = 5;
         int[] n1 = new int[] {5, 1, 6};
-        int[] n2 = new int[] {1, 7, 2};
-        int[] n2Tree = new int[] {3,4};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
+        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
         Species[] species = sim.getSpeciesManager().getSpecies();
 
         boxTest(sim.getBoxs()[0], species);
         boxTest(sim.getBoxs()[1], species);
-        boxTest(sim.getBoxs()[2], species);
         
         ApiInterspeciesAA api = new ApiInterspeciesAA(new Species[] {species[0], species[1]});
         
@@ -70,11 +67,7 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
      */
     private void boxTest(Box box, Species[] species) {
         speciesTestForward(box, species, 0, 1);
-        speciesTestForward(box, species, 0, 2);
-        speciesTestForward(box, species, 1, 2);
         speciesTestForward(box, species, 1, 0);
-        speciesTestForward(box, species, 2, 0);
-        speciesTestForward(box, species, 2, 1);
     }
 
     /**
@@ -87,9 +80,9 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         api.setBox(box);
         IAtom[] molecules0 = ((AtomArrayList)box.getMoleculeList(species[species0Index])).toArray();
         IAtom[] molecules1 = ((AtomArrayList)box.getMoleculeList(species[species1Index])).toArray();
-        
+
         int count = molecules0.length * molecules1.length;
-        
+
         countTest(api, count);
         api.allAtoms(speciesTest);
 
@@ -108,7 +101,7 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
         public SpeciesTestAction() {
         }
         public void actionPerformed(AtomSet atomSet) {
-            assertTrue(atomSet.getAtom(0).getAddress() < atomSet.getAtom(1).getAddress());
+            assertTrue(atomSet.getAtom(0).getType().getIndex() < atomSet.getAtom(1).getType().getIndex());
         }
     }
     

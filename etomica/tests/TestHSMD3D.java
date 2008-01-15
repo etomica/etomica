@@ -1,12 +1,14 @@
 package etomica.tests;
 
 import etomica.action.ActionIntegrate;
+import etomica.atom.AtomType;
+import etomica.atom.AtomTypeMolecule;
+import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
@@ -50,12 +52,14 @@ public class TestHSMD3D extends Simulation {
         getSpeciesManager().addSpecies(species);
         species2 = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species2);
+        AtomType type1 = ((AtomTypeMolecule)species.getMoleculeType()).getChildTypes()[0];
+        AtomType type2 = ((AtomTypeMolecule)species2.getMoleculeType()).getChildTypes()[0];
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new Species[]{species,species});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new AtomType[]{type1, type1});
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new Species[]{species,species2});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new AtomType[]{type1, type2});
 
-        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new Species[]{species2,species2});
+        potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new AtomType[]{type2, type2});
         
         box = new Box(this);
         addBox(box);

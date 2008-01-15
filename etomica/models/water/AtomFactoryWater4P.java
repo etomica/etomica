@@ -4,7 +4,7 @@ import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
@@ -12,6 +12,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.simulation.ISimulation;
+import etomica.species.Species;
 import etomica.units.ElectronVolt;
 
 /**
@@ -27,8 +28,8 @@ public class AtomFactoryWater4P extends AtomFactory {
 	 * Constructor for AtomFactoryWater.
 	 * @param sim
 	 */
-    public AtomFactoryWater4P(ISimulation sim) {
-		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
+    public AtomFactoryWater4P(ISimulation sim, Species species) {
+		super(new AtomTypeMolecule(species, new AtomPositionGeometricCenter(sim.getSpace())));
         
 		AtomWater4P.Echarge[AtomWater4P.indexH1] = ElectronVolt.UNIT.toSim( 0.52);
 		AtomWater4P.Echarge[AtomWater4P.indexH2] = ElectronVolt.UNIT.toSim( 0.52);
@@ -38,9 +39,9 @@ public class AtomFactoryWater4P extends AtomFactory {
         AtomTypeSphere hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
         AtomTypeSphere oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.154);
         AtomTypeSphere mType = new AtomTypeSphere(new ElementSimple("M", 1.0), 2.0);
-        hType.setParentType((AtomTypeGroup)atomType);
-        oType.setParentType((AtomTypeGroup)atomType);
-        mType.setParentType((AtomTypeGroup)atomType);
+        ((AtomTypeMolecule)atomType).addChildType(hType);
+        ((AtomTypeMolecule)atomType).addChildType(oType);
+        ((AtomTypeMolecule)atomType).addChildType(mType);
 
         hFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), hType) :
                                      new AtomFactoryMono(sim.getSpace(), hType);
@@ -49,7 +50,7 @@ public class AtomFactoryWater4P extends AtomFactory {
 		mFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), mType) :
 		                             new AtomFactoryMono(sim.getSpace(), mType);
 		
-		((AtomTypeGroup)atomType).setConformation(new ConformationWaterTIP4P(sim.getSpace())); 
+		((AtomTypeMolecule)atomType).setConformation(new ConformationWaterTIP4P(sim.getSpace())); 
 	}
 
 	/**
@@ -68,7 +69,7 @@ public class AtomFactoryWater4P extends AtomFactory {
         water.addChildAtom(water.H2);
         water.addChildAtom(water.O);
         water.addChildAtom(water.M);
-        ((AtomTypeGroup)atomType).getConformation().initializePositions(water.getChildList());
+        ((AtomTypeMolecule)atomType).getConformation().initializePositions(water.getChildList());
 		return water;
 	}
     

@@ -3,6 +3,7 @@ package etomica.modules.multiharmonic;
 import etomica.action.SimulationDataAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
@@ -19,7 +20,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistoryCollapsing;
 
@@ -39,7 +39,7 @@ public class Multiharmonic extends Simulation {
         double x0 = 1;
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(0.02);
+        ((AtomTypeSphere)species.getLeafType()).setDiameter(0.02);
         box = new Box(this);
         addBox(box);
         box.getBoundary().setDimensions(new Vector1D(3.0));
@@ -53,7 +53,7 @@ public class Multiharmonic extends Simulation {
         potentialA = new P1Harmonic(space);
         potentialA.setX0(new Vector1D(x0));
         potentialA.setSpringConstant(1.0);
-        potentialMaster.addPotential(potentialA, new Species[] {species});
+        potentialMaster.addPotential(potentialA, new AtomType[] {species.getLeafType()});
         
         box.setNMolecules(species, 20);
         

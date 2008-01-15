@@ -47,7 +47,7 @@ public class SimCalcS extends Simulation {
         // activityIntegrate.setMaxSteps(nSteps);
 
         Potential potential = new P2HardSphere(space, 1.0, false);
-        AtomTypeSphere sphereType = (AtomTypeSphere)species.getMoleculeType();
+        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,
                 sphereType });
 

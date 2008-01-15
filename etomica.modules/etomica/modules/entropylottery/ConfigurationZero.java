@@ -12,7 +12,7 @@ import etomica.space.IVector;
  * is even (which makes the entropy lottery binning happy).
  * @author Andrew Schultz
  */
-public class ConfigurationZero extends Configuration {
+public class ConfigurationZero implements Configuration, java.io.Serializable {
 
 
     public ConfigurationZero() {

@@ -4,12 +4,13 @@ import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomPositionGeometricCenter;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.ElementSimple;
 import etomica.simulation.ISimulation;
+import etomica.species.Species;
 
 /**
  * Factory that constructs a 3-point water molecule, with three child atoms of 
@@ -24,14 +25,14 @@ public class AtomFactoryUAPropane extends AtomFactory {
 	 * @param sim
 	 * @param sequencerFactory
 	 */
-    public AtomFactoryUAPropane(ISimulation sim) {
-		super(new AtomTypeGroup(new AtomPositionGeometricCenter(sim.getSpace())));
+    public AtomFactoryUAPropane(ISimulation sim, Species species) {
+		super(new AtomTypeMolecule(species, new AtomPositionGeometricCenter(sim.getSpace())));
         AtomTypeSphere UAType = new AtomTypeSphere(new ElementSimple("UA", 15), 3.75);
-        UAType.setParentType((AtomTypeGroup)atomType);
+        ((AtomTypeMolecule)atomType).addChildType(UAType);
         UAFactory = sim.isDynamic() ? new AtomFactoryMonoDynamic(sim.getSpace(), UAType) : 
                                       new AtomFactoryMono(sim.getSpace(), UAType);
 
-        ((AtomTypeGroup)atomType).setConformation(new ConformationUAPropane(sim.getSpace())); 
+        ((AtomTypeMolecule)atomType).setConformation(new ConformationUAPropane(sim.getSpace())); 
 	}
 
 	/**
@@ -43,7 +44,7 @@ public class AtomFactoryUAPropane extends AtomFactory {
         propane.UA2 = (IAtomPositioned)UAFactory.makeAtom();
         propane.addChildAtom(propane.UA1);
         propane.addChildAtom(propane.UA2);
-		((AtomTypeGroup)atomType).getConformation().initializePositions(propane.getChildList());
+		((AtomTypeMolecule)atomType).getConformation().initializePositions(propane.getChildList());
 		return propane;
 	}
     

@@ -4,7 +4,8 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
+import etomica.atom.AtomSetSinglet;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.atom.iterator.AtomIteratorSinglet;
@@ -12,6 +13,7 @@ import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
 import etomica.species.Species;
+import etomica.util.Debug;
 import etomica.util.IRandom;
 
 /**
@@ -30,7 +32,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     protected final MeterPotentialEnergy energyMeter;
 	protected Species species;
 	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
-	protected IAtom testMolecule;
+	protected IMolecule testMolecule;
 	protected double uOld;
 	protected double uNew = Double.NaN;
 	protected boolean insert;
@@ -77,8 +79,8 @@ public class MCMoveInsertDelete extends MCMoveBox {
         if(insert) {
             uOld = 0.0;
             
-            if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getAtomCount()-1);
-            else testMolecule = moleculeFactory.makeAtom();
+            if(!reservoir.isEmpty()) testMolecule = (IMolecule)reservoir.remove(reservoir.getAtomCount()-1);
+            else testMolecule = (IMolecule)moleculeFactory.makeAtom();
             box.addMolecule(testMolecule);
 
             atomTranslator.setDestination(box.getBoundary().randomPosition());
@@ -88,7 +90,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
                 testMolecule = null;
                 return false;
             }
-            testMolecule = moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
+            testMolecule = (IMolecule)moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
             //delete molecule only upon accepting trial
             energyMeter.setTarget(testMolecule);
             uOld = energyMeter.getDataAsScalar();
@@ -113,8 +115,9 @@ public class MCMoveInsertDelete extends MCMoveBox {
     }
     
     public void acceptNotify() {
+        if (insert && Debug.ON && Debug.DEBUG_NOW && Debug.allAtoms(new AtomSetSinglet(testMolecule))) System.out.println("accepted insertion of "+testMolecule);
         if(!insert) {
-            // accepted deletion - remove from box and add to reservoir 
+            // accepted deletion - remove from box and add to reservoir
             box.removeMolecule(testMolecule);
             reservoir.add(testMolecule);
         }

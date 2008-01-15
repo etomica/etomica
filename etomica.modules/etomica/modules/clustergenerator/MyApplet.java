@@ -293,9 +293,11 @@ public class MyApplet extends javax.swing.JApplet {
             }
             output.setText("");
             graphicOut2.removeAll();
+            output.append(""+cluster.mReeHooverFactor);
             if (!allPermutations) {
-                output.append(cluster.mNumIdenticalPermutations + "x\t");
+                output.append("/"+cluster.mNumIdenticalPermutations);
             }
+            output.append("x\t");
             output.append(cluster.toString() + "\n");
             if (graphicOut != null) {
                 addCluster(cluster);
@@ -304,9 +306,11 @@ public class MyApplet extends javax.swing.JApplet {
             }
            
             while (!stopNow && generator.advance()) {
+                output.append(""+cluster.mReeHooverFactor);
                 if (!allPermutations) {
-                    output.append(cluster.mNumIdenticalPermutations + "x\t");
+                    output.append("/"+cluster.mNumIdenticalPermutations);
                 }
+                output.append("x\t");
                 output.append(cluster.toString() + "\n");
                 if (graphicOut != null) {
 //                    graphicOut2.setLayout(new GridLayout(0,2));

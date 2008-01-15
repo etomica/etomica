@@ -1,30 +1,25 @@
 package etomica.box;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import etomica.action.BoxInflate;
-import etomica.atom.AtomManager;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.ISpeciesAgent;
+import etomica.atom.IAtomLeaf;
+import etomica.atom.IMolecule;
+import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.simulation.ISimulation;
 import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.species.Species;
-import etomica.species.SpeciesResolver;
-import etomica.species.SpeciesSignature;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
 import etomica.units.Volume;
+import etomica.util.Arrays;
+import etomica.util.Debug;
 
 /**
  * A Box collects all atoms that interact with one another; atoms in different
@@ -69,10 +64,19 @@ public class Box implements java.io.Serializable {
     public Box(Boundary boundary) {
         space = boundary.getSpace();
         eventManager = new BoxEventManager();
-        atomManager = new AtomManager(this, eventManager);
         setBoundary(boundary);
         
         inflateEvent = new BoxInflateEvent(this);
+        moleculeLists = new AtomArrayList[0];
+        allMoleculeList = new AtomSetAllMolecules();
+        allMoleculeList.setMoleculeLists(moleculeLists);
+        leafList = new AtomArrayList();
+        
+        indexReservoir = new int[reservoirSize];
+        maxIndex = -1;
+        leafIndices = new int[0];
+        reservoirCount = 0;
+        treeIteratorBox = new AtomIteratorTreeBox(this, Integer.MAX_VALUE, true);
     }
     
     /**
@@ -116,19 +120,52 @@ public class Box implements java.io.Serializable {
     public final Space getSpace() {return space;}
     
     public IAtom addNewMolecule(Species species) {
-        IAtom aNew = species.getMoleculeFactory().makeAtom();
-        getAgent(species).addChildAtom(aNew);
+        IMolecule aNew = (IMolecule)species.getMoleculeFactory().makeAtom();
+        addMolecule(aNew, species);
         return aNew;
     }
     
-    public void addMolecule(IAtom molecule) {
+    public void addMolecule(IMolecule molecule) {
         Species species = molecule.getType().getSpecies();
-        getAgent(species).addChildAtom(molecule);
+        addMolecule(molecule, species);
+    }
+    
+    protected void addMolecule(IMolecule molecule, Species species) {
+        int speciesIndex = species.getIndex();
+        if (moleculeLists[speciesIndex].contains(molecule)) {
+            throw new RuntimeException("you bastard!");
+        }
+        molecule.setIndex(moleculeLists[speciesIndex].getAtomCount());
+        moleculeLists[speciesIndex].add(molecule);
+        allMoleculeList.setMoleculeLists(moleculeLists);
+        addAtomNotify(molecule);
+        for (int i=0; i<moleculeLists[speciesIndex].getAtomCount(); i++) {
+            if (moleculeLists[speciesIndex].getAtom(i).getIndex() != i) {
+                throw new RuntimeException("oops "+molecule+" "+moleculeLists[speciesIndex].getAtom(i)+" "+i);
+            }
+        }
     }
 
-    public void removeMolecule(IAtom molecule) {
+    public void removeMolecule(IMolecule molecule) {
         Species species = molecule.getType().getSpecies();
-        getAgent(species).removeChildAtom(molecule);
+        removeMolecule(molecule, species);
+    }
+    
+    protected void removeMolecule(IMolecule molecule, Species species) {
+        int moleculeIndex = molecule.getIndex();
+        AtomArrayList moleculeList = moleculeLists[species.getIndex()];
+        if (moleculeList.getAtom(moleculeIndex) != molecule) {
+            throw new IllegalArgumentException("can't find "+molecule);
+        }
+        if (moleculeIndex < moleculeList.getAtomCount()-1) {
+            moleculeList.removeAndReplace(moleculeIndex);
+            moleculeList.getAtom(moleculeIndex).setIndex(moleculeIndex);
+        }
+        else {
+            moleculeList.remove(moleculeIndex);
+        }
+        allMoleculeList.setMoleculeLists(moleculeLists);
+        removeAtomNotify(molecule);
     }
     
     /**
@@ -139,51 +176,42 @@ public class Box implements java.io.Serializable {
      * @param n  the new number of molecules for this species
      */
     public void setNMolecules(Species species, int n) {
-        ISpeciesAgent agent = getAgent(species);
-        int currentNMolecules = getAgent(species).getNMolecules();
-        atomManager.notifyNewAtoms((n-currentNMolecules)*species.getMoleculeFactory().getNumTreeAtoms(),
+        int speciesIndex = species.getIndex();
+        AtomArrayList moleculeList = moleculeLists[speciesIndex];
+        int currentNMolecules = moleculeList.getAtomCount();
+        notifyNewAtoms((n-currentNMolecules)*species.getMoleculeFactory().getNumTreeAtoms(),
                                      (n-currentNMolecules)*species.getMoleculeFactory().getNumLeafAtoms());
-        if(n > agent.getChildList().getAtomCount()) {
-            for(int i=agent.getChildList().getAtomCount(); i<n; i++) addNewMolecule(species);
+        if(n < 0) {
+            throw new IllegalArgumentException("Number of molecules cannot be negative");
         }
-        else if(n < agent.getChildList().getAtomCount()) {
-            if(n < 0) {
-                throw new IllegalArgumentException("Number of molecules cannot be negative");
-            }
-            for (int i=agent.getChildList().getAtomCount(); i>n; i--) {
-                removeMolecule(agent.getChildList().getAtom(i-1));
-            }
+        for(int i=currentNMolecules; i<n; i++) {
+            addNewMolecule(species);
+        }
+        for (int i=currentNMolecules; i>n; i--) {
+            removeMolecule((IMolecule)moleculeList.getAtom(i-1));
         }
     }
     
     public int getNMolecules(Species species) {
-        return getAgent(species).getNMolecules();
+        int speciesIndex = species.getIndex();
+        return moleculeLists[speciesIndex].getAtomCount();
     }
     
     public AtomSet getMoleculeList(Species species) {
-        return getAgent(species).getChildList();
+        return moleculeLists[species.getIndex()];
+    }
+    
+    public AtomSet getMoleculeList() {
+        return allMoleculeList;
     }
     
     /**
-     * Returns the ith molecule in the linked list of molecules.
+     * Returns the ith molecule in the list of molecules.
      * 0 returns the first molecule, and moleculeCount-1 returns the last.
      * An argument outside this range throws an IndexOutOfBoundsException
      */
-    //could make more efficient by starting from first or last molecule, as appropriate
-    public IAtom molecule(int i) {
-        if(i >= moleculeCount() || i < 0) 
-            throw new IndexOutOfBoundsException("Index: "+i+
-                                                ", Number of molecules: "+moleculeCount());
-        AtomSet agentList = atomManager.getAgentList();
-        for (int agentIndex=0; agentIndex<agentList.getAtomCount(); agentIndex++) {
-            AtomSet moleculeList = ((IAtomGroup)agentList.getAtom(agentIndex)).getChildList();
-            int count = moleculeList.getAtomCount();
-            if (i < count) {
-                return moleculeList.getAtom(i);
-            }
-            i -= count;
-        }
-        throw new IllegalStateException("how can this be?!?!?!");
+    public IMolecule molecule(int i) {
+        return (IMolecule)allMoleculeList.getAtom(i);
     }
     
     /**
@@ -205,24 +233,6 @@ public class Box implements java.io.Serializable {
         eventManager.fireEvent(inflateEvent);
     }
     
-    /**
-     * Returns the agent of the given species in this box.
-     */
-    public final ISpeciesAgent getAgent(Species s) {
-        //brute force it
-        AtomSet agentList = atomManager.getAgentList();
-        for (int i=0; i<agentList.getAtomCount(); i++) {
-            if (((ISpeciesAgent)agentList.getAtom(i)).getType().getSpecies() == s) {
-                return (ISpeciesAgent)agentList.getAtom(i);
-            }
-        }
-        return null;
-    }
-    
-    public void removeSpeciesNotify(Species removedSpecies) {
-        atomManager.removeSpeciesNotify(removedSpecies);
-    }
-
     public final double volume() {return boundary.volume();}  //infinite volume unless using PBC
     
     public void setDensity(double rho) {
@@ -239,97 +249,291 @@ public class Box implements java.io.Serializable {
         return new DimensionRatio("Density",Quantity.DIMENSION,Volume.DIMENSION);
     }
 
-    public AtomSet getLeafList() {
-        return atomManager.getLeafList();
-    }
-    
-    /**
-     * returns the number of molecules in the box
-     */
-    public int moleculeCount() {return atomManager.moleculeCount();}
-    
     /**
      * returns the number of leaf atoms in the box
      */
-    public int atomCount() {return atomManager.getLeafList().getAtomCount();}
+    public int atomCount() {return leafList.getAtomCount();}
 
-    /**
-     * @return Returns the speciesMaster.
-     */
-    public AtomManager getSpeciesMaster() {
-        return atomManager;
-    }
-
-    public void writeBox(ObjectOutputStream out) throws IOException {
-        out.writeObject(boundary);
-        AtomSet agents = atomManager.getAgentList();
-        out.writeInt(agents.getAtomCount());
-        for (int i=0; i<agents.getAtomCount(); i++) {
-            Species species = agents.getAtom(i).getType().getSpecies();
-            out.writeObject(species.getSpeciesSignature());
-            out.writeInt(((ISpeciesAgent)agents.getAtom(i)).getNMolecules());
-        }
-        AtomSet leafList = atomManager.getLeafList();
-        int nLeaf = leafList.getAtomCount();
-        for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtomPositioned a = (IAtomPositioned)leafList.getAtom(iLeaf);
-            out.writeObject(a.getPosition());
-        }
-    }
-    
-    public static Box readBox(ObjectInputStream in, ISimulation sim, SpeciesResolver resolver) throws IOException, ClassNotFoundException {
-        Boundary newBoundary = (Boundary)in.readObject();
-        Box newBox = new Box(sim);
-        sim.addBox(newBox);
-        newBox.setBoundary(newBoundary);
-        
-        Species[] mySpecies = sim.getSpeciesManager().getSpecies();
-        int numSpecies = in.readInt();
-        for (int i = 0; i<numSpecies; i++) {
-            SpeciesSignature speciesSignature = (SpeciesSignature)in.readObject();
-            Species newSpecies = null;
-            Species[] candidates = new Species[0];
-            for (int j=0; j<mySpecies.length; j++) {
-                Species candidate = mySpecies[j];
-                if (speciesSignature.equals(candidate.getSpeciesSignature())) {
-                    candidates = (Species[])etomica.util.Arrays.addObject(candidates,candidate);
-                }
-            }
-            if (candidates.length > 0) {
-                newSpecies = resolver.whichOneDoYouLike(candidates);
-            }
-            if (newSpecies == null) {
-                Constructor constructor = speciesSignature.constructor;
-                Object[] parameters = new Object[speciesSignature.parameters.length+1];
-                parameters[0] = sim;
-                System.arraycopy(speciesSignature.parameters,0,parameters,1,parameters.length-1);
-                try {
-                    newSpecies = (Species)constructor.newInstance(parameters);
-                }
-                catch (IllegalAccessException e) {}
-                catch (InstantiationException e) {}
-                catch (InvocationTargetException e) {}
-            }
-            int nMolecules = in.readInt();
-            newBox.setNMolecules(newSpecies, nMolecules);
-        }
-
-            //XXX broken
-        // loop over the atoms
-//            ((AtomLeaf)iterator.nextAtom()).getCoord().E((ICoordinate)in.readObject());
-        return newBox;
-    }
-    
     public BoxEventManager getEventManager() {
         return eventManager;
     }
 
+    public void addSpeciesNotify(Species species) {
+        moleculeLists = (AtomArrayList[])Arrays.addObject(moleculeLists, new AtomArrayList());
+        allMoleculeList.setMoleculeLists(moleculeLists);
+    }
+    
+    /**
+     * Notifies the SpeciesMaster that a Species has been removed.  This method
+     * should only be called by the SpeciesManager.
+     */
+    public void removeSpeciesNotify(Species species) {
+        moleculeLists = (AtomArrayList[])Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
+        allMoleculeList.setMoleculeLists(moleculeLists);
+    }
+
+    /**
+     * Returns the number of molecules in the Box
+     */
+    public int moleculeCount() {
+        return allMoleculeList.getAtomCount();
+    }
+
+    /**
+     * Returns an AtomArrayList containing the leaf atoms in the Box
+     */
+    public AtomSet getLeafList() {
+        return leafList;
+    }
+    
+    /**
+     * Returns a "global" index for the Box.  This method should only be
+     * called by Atom.
+     */
+    public int requestGlobalIndex() {
+        if (reservoirCount == 0) {
+            return ++maxIndex;
+        }
+        reservoirCount--;
+        return indexReservoir[reservoirCount];
+    }
+    
+    protected void returnGlobalIndex(int atomIndex) {
+        // add the index to the reservoir first
+        indexReservoir[reservoirCount] = atomIndex;
+        reservoirCount++;
+        if (reservoirCount == reservoirSize) {
+            // reservoir is full
+            collapseGlobalIndices();
+        }
+    }
+    
+    /**
+     * Returns the maximum global index for the Box.
+     */
+    public int getMaxGlobalIndex() {
+        return maxIndex;
+    }
+    
+    /**
+     * Collapses the global indices.  At the end, the maximum global index of 
+     * an atom in the simulation will be maxIndex.  At the start, if indices 
+     * in the reservoir are greater than the final maximum global index, they
+     * are discarded.  Then Atom with global indices greater than the final 
+     * maximum global index are given indices from the reservoir that are less
+     * than the final maximum global index.  At the end maxIndex is decreased 
+     * by maxIndex.
+     */
+    private void collapseGlobalIndices() {
+        int[] oldIndexArray = new int[maxIndex+1];
+        for (int i=0; i<allMoleculeList.getAtomCount(); i++) {
+            IAtom a = allMoleculeList.getAtom(i);
+            if (oldIndexArray[a.getGlobalIndex()] != 0) {
+                throw new RuntimeException("double index "+a.getGlobalIndex());
+            }
+            oldIndexArray[a.getGlobalIndex()] = 1;
+        }
+        for (int i=0; i<leafList.getAtomCount(); i++) {
+            IAtom a = leafList.getAtom(i);
+            if (oldIndexArray[a.getGlobalIndex()] != 0) {
+                throw new RuntimeException("double index "+a.getGlobalIndex());
+            }
+            oldIndexArray[a.getGlobalIndex()] = 2;
+        }
+        for (int j=0; j<reservoirCount; ) {
+            if (indexReservoir[j] > maxIndex-reservoirSize) {
+                // this index isn't useful to us, so just drop it
+                reservoirCount--;
+                indexReservoir[j] = indexReservoir[reservoirCount];
+                continue;
+            }
+            j++;
+        }
+        treeIteratorBox.setBox(this);
+        treeIteratorBox.reset();
+        // loop over all the atoms.  Any atoms whose index is larger than what
+        // the new maxIndex will be get new indices
+        int recycledCount = 0;
+        int countedAtoms = 0;
+        for (IAtom a = treeIteratorBox.nextAtom(); a != null;
+             a = treeIteratorBox.nextAtom()) {
+            countedAtoms++;
+            if (a.getGlobalIndex() > maxIndex-reservoirSize) {
+                recycledCount++;
+                // Just re-invoke the Atom's method without first "returning"
+                // the index to the reservoir.  The old index gets dropped on the
+                // floor.
+                int oldGlobalIndex = a.getGlobalIndex();
+                BoxAtomIndexChangedEvent event = new BoxAtomIndexChangedEvent(this, a, oldGlobalIndex);
+                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                    System.out.println("reassigning global index for "+a);
+                }
+                a.setGlobalIndex(this);
+                if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                    System.out.println("reassigned global index for "+a+" from "+oldGlobalIndex+" to "+a.getGlobalIndex());
+                }
+                leafIndices[a.getGlobalIndex()] = leafIndices[oldGlobalIndex];
+                eventManager.fireEvent(event);
+            }
+            else {
+                for (int i=0; i<reservoirCount; i++) {
+                    if (a.getGlobalIndex() == indexReservoir[i]) {
+                        throw new RuntimeException(a+" "+a.getGlobalIndex()+" was in the reservoir");
+                    }
+                }
+            }
+        }
+        maxIndex -= reservoirSize;
+        if (leafIndices.length > maxIndex + 1 + reservoirSize) {
+            leafIndices = Arrays.resizeArray(leafIndices, maxIndex+1);
+        }
+        BoxGlobalAtomIndexEvent event = new BoxGlobalAtomIndexEvent(this, maxIndex);
+        eventManager.fireEvent(event);
+        if (reservoirCount != 0) {
+            System.out.println("reservoir still has atoms:");
+            for (int i=0; i<reservoirCount; i++) {
+                System.out.print(indexReservoir[i]+" ");
+            }
+            throw new RuntimeException("I was fully expecting the reservoir to be empty!");
+        }
+    }
+
+    /**
+     * Notifies the SpeciesMaster that the given number of new Atoms will be
+     * added to the system.  It's not required to call this method before
+     * adding atoms, but if adding many Atoms, calling this will improve
+     * performance.
+     */
+    public void notifyNewAtoms(int numNewAtoms, int numNewLeafAtoms) {
+        // has no actual effect within this object.  We just notify things to 
+        // prepare for an increase in the max index.  If things assume that the
+        // actual max index has already increased, there's no harm since
+        // there's nothing that says the max index can't be too large.
+        if (numNewAtoms > reservoirCount) {
+            BoxGlobalAtomIndexEvent event = new BoxGlobalAtomIndexEvent(this, maxIndex + numNewAtoms - reservoirCount);
+            eventManager.fireEvent(event);
+            leafIndices = Arrays.resizeArray(leafIndices, maxIndex + numNewAtoms - reservoirCount + 1 + reservoirSize);
+        }
+        if (numNewLeafAtoms > 1) {
+            BoxGlobalAtomLeafIndexEvent leafEvent = new BoxGlobalAtomLeafIndexEvent(this, leafList.getAtomCount() + numNewLeafAtoms);
+            eventManager.fireEvent(leafEvent);
+        }
+    }
+    
+    /**
+     * Sets the size of the atom global index reservoir.
+     * @param size
+     */
+    public void setIndexReservoirSize(int size) {
+        if (size < 0) {
+            throw new IllegalArgumentException("Reservoir size must not be negative");
+        }
+        collapseGlobalIndices();
+        // Set the actual reservoir size to one more because we collapse the
+        // indices when it's full, not when it's full and we have another to add.
+        reservoirSize = size+1;
+        indexReservoir = new int[reservoirSize];
+    }
+
+    /**
+     * Returns the size of the reservoir; the number of Atom that can be
+     * removed without triggering an index collapse.
+     */
+    public int getIndexReservoirSize() {
+        return reservoirSize-1;
+    }
+
+    public void addAtomNotify(IAtom newAtom) {
+        newAtom.setGlobalIndex(this);
+        if (newAtom instanceof IAtomLeaf) {
+            int globalIndex = newAtom.getGlobalIndex();
+            if (globalIndex > leafIndices.length-1) {
+                leafIndices = Arrays.resizeArray(leafIndices, globalIndex + 1 + reservoirSize);
+            }
+            leafIndices[globalIndex] = leafList.getAtomCount();
+            leafList.add(newAtom);
+        } else {
+            AtomSet childList = ((IMolecule)newAtom).getChildList();
+            for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
+                childAtom.setGlobalIndex(this);
+                int globalIndex = childAtom.getGlobalIndex();
+                if (globalIndex > leafIndices.length-1) {
+                    leafIndices = Arrays.resizeArray(leafIndices, globalIndex + 1 + reservoirSize);
+                }
+                leafIndices[globalIndex] = leafList.getAtomCount();
+                leafList.add(childAtom);
+            }
+        }
+        eventManager.fireEvent(new BoxAtomAddedEvent(this, newAtom));
+    }
+
+    //updating of leaf atomList may not be efficient enough for repeated
+    // use, but is probably ok
+    public void removeAtomNotify(IAtom oldAtom) {
+        eventManager.fireEvent(new BoxAtomRemovedEvent(this, oldAtom));
+        if (oldAtom instanceof IAtomLeaf) {
+            int leafIndex = leafIndices[oldAtom.getGlobalIndex()];
+            leafList.removeAndReplace(leafIndex);
+            leafList.maybeTrimToSize();
+            // if we didn't remove the last atom, removeAndReplace
+            // inserted the last atom in the emtpy spot.  Set its leaf index.
+            if (leafList.getAtomCount() > leafIndex) {
+                IAtom movedAtom = leafList.getAtom(leafIndex);
+                int globalIndex = movedAtom.getGlobalIndex();
+                BoxAtomLeafIndexChangedEvent event = new BoxAtomLeafIndexChangedEvent(this, movedAtom, leafIndices[globalIndex]);
+                leafIndices[globalIndex] = leafIndex;
+                eventManager.fireEvent(event);
+            }
+            returnGlobalIndex(oldAtom.getGlobalIndex());
+        } else {
+            returnGlobalIndex(oldAtom.getGlobalIndex());
+            AtomSet childList = ((IMolecule)oldAtom).getChildList();
+            for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                IAtomLeaf childAtom = (IAtomLeaf)childList.getAtom(iChild);
+                int leafIndex = leafIndices[childAtom.getGlobalIndex()];
+                leafList.removeAndReplace(leafIndex);
+                if (leafList.getAtomCount() > leafIndex) {
+                    IAtom movedAtom = leafList.getAtom(leafIndex);
+                    int globalIndex = movedAtom.getGlobalIndex();
+                    BoxAtomLeafIndexChangedEvent event = new BoxAtomLeafIndexChangedEvent(this, movedAtom, leafIndices[globalIndex]);
+                    leafIndices[globalIndex] = leafIndex;
+                    eventManager.fireEvent(event);
+                }
+                returnGlobalIndex(childAtom.getGlobalIndex());
+            }
+            leafList.maybeTrimToSize();
+        }
+    }
+    
+    /**
+     * Returns the index of the given leaf atom within the SpeciesMaster's
+     * leaf list.  The given leaf atom must be in the SpeciesMaster's Box. 
+     */
+    public int getLeafIndex(IAtom atomLeaf) {
+        return leafIndices[atomLeaf.getGlobalIndex()];
+    }
+
+    /**
+     * List of leaf atoms in box
+     */
+    protected final AtomArrayList leafList;
+
+    protected final AtomIteratorTreeBox treeIteratorBox;
+
+    protected int[] indexReservoir;
+    protected int reservoirSize = 50;
+    protected int reservoirCount;
+    protected int maxIndex;
+    
+    protected int[] leafIndices;
+    
     private static final long serialVersionUID = 2L;
     private Boundary boundary;
-    private AtomManager atomManager;
     protected final Space space;
     private final BoxEventManager eventManager;
     private final BoxEvent inflateEvent;
+    protected AtomArrayList[] moleculeLists;
     private int index;
+    protected final AtomSetAllMolecules allMoleculeList;
 }
-        

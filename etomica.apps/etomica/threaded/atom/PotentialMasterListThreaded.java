@@ -2,15 +2,17 @@ package etomica.threaded.atom;
 
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomLeaf;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
+import etomica.box.BoxAgentManager;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.cell.BoxAgentSourceCellManager;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
-import etomica.box.BoxAgentManager;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
@@ -81,22 +83,30 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
         else {
             //first walk up the tree looking for 1-body range-independent potentials that apply to parents
-            IAtom parentAtom = targetAtom.getParentGroup();
-            while (parentAtom.getType().getDepth() > 1) {
-                PotentialArray potentialArray = getIntraPotentials(parentAtom.getType());
+            if (targetAtom instanceof IAtomLeaf) {
+                IMolecule molecule = ((IAtomLeaf)targetAtom).getParentGroup();
+                PotentialArray potentialArray = getIntraPotentials((AtomTypeMolecule)molecule.getType());
                 IPotential[] potentials = potentialArray.getPotentials();
                 for(int i=0; i<potentials.length; i++) {
                     potentials[i].setBox(box);
-                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(parentAtom,id,pc);
+                    ((PotentialGroupNbr)potentials[i]).calculateRangeIndependent(molecule,id,pc);
                 }
-                parentAtom = parentAtom.getParentGroup();
-            }                
-            PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
-            IPotential[] potentials = potentialArray.getPotentials();
-            for(int i=0; i<potentials.length; i++) {
-                potentials[i].setBox(box);
+                
+                potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
+                potentials = potentialArray.getPotentials();
+                for(int i=0; i<potentials.length; i++) {
+                    potentials[i].setBox(box);
+                }
+                calculate((IAtomLeaf)targetAtom, id, pc, neighborManager);
             }
-            calculate(targetAtom, id, pc, neighborManager);
+            else {
+                PotentialArray potentialArray = (PotentialArray)rangedAgentManager.getAgent(targetAtom.getType());
+                IPotential[] potentials = potentialArray.getPotentials();
+                for(int i=0; i<potentials.length; i++) {
+                    potentials[i].setBox(box);
+                }
+                calculate((IMolecule)targetAtom, id, pc, neighborManager);
+            }
         }
        
         if(lrcMaster != null) {
@@ -107,21 +117,8 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     protected void calculateThreaded(Box box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
-        AtomSet list = box.getSpeciesMaster().getAgentList();
+        AtomSet list = box.getMoleculeList();
         int size = list.getAtomCount();
-        for (int i=0; i<size; i++) {
-            IAtom a = list.getAtom(i);
-            calculateThreaded(a, id, pc, neighborManager);//recursive call
-        }
-        pc.writeData();
-    }
-        
-    protected void calculateThreaded(IAtom atom, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
-           
-        AtomSet list = ((IAtomGroup)atom).getChildList();
-        int size = list.getAtomCount();
-        
-    	
 			                            
             for(int i=0; i<threads.length; i++){
                 synchronized(threads[i]){
@@ -157,6 +154,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 			}
 		}
 		
+        pc.writeData();
         
     }
 	

@@ -3,7 +3,7 @@ package etomica.simulation.prototypes;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeLeaf;
 import etomica.chem.models.ModelChain;
 import etomica.config.ConfigurationLattice;
@@ -37,7 +37,7 @@ public class ChainHSMD3D extends Simulation {
     private ChainHSMD3D(Space space) {
         super(space, true);
         PotentialMasterList potentialMaster = new PotentialMasterList(this);
-        int numAtoms = 704;
+        int numAtoms = 108;
         int chainLength = 4;
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac);
@@ -45,18 +45,18 @@ public class ChainHSMD3D extends Simulation {
         integrator = new IntegratorHard(this, potentialMaster);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
-        
+
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator, 1, true);
         getController().addAction(activityIntegrate);
-        
+
         model = new ModelChain();
         model.setNumAtoms(chainLength);
         model.setBondingPotential(new P2HardBond(space, 1.0, 0.15, true));
-        
+
         species = (SpeciesSpheres)model.makeSpecies(this);
         potentialMaster.addModel(model);
         ((ConformationLinear)model.getConformation()).setBondLength(1.0);
-        ((ConformationLinear)model.getConformation()).setAngle(1,0.5);
+        ((ConformationLinear)model.getConformation()).setAngle(1,0.35);
         
         box = new Box(this);
         double l = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
@@ -68,12 +68,8 @@ public class ChainHSMD3D extends Simulation {
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
         integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
 
-        BoxImposePbc pbc = new BoxImposePbc(box);
-        integrator.addIntervalAction(pbc);
-        pbc.setApplyToMolecules(true);
-        
         potential = new P2HardSphere(space, 1.0, true);
-        AtomTypeLeaf leafType = (AtomTypeLeaf)((AtomTypeGroup)species.getMoleculeType()).getChildTypes()[0];
+        AtomTypeLeaf leafType = species.getLeafType();
         potentialMaster.addPotential(potential, new AtomType[]{leafType,leafType});
 
         integrator.setBox(box);

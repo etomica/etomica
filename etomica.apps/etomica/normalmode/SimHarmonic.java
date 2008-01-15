@@ -29,7 +29,6 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
 
@@ -143,7 +142,7 @@ public class SimHarmonic extends Simulation {
             p2 = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)p2);
         }
         PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim) : new PotentialMaster(sim.getSpace()));
-        potentialMaster.addPotential(p2, new AtomType[]{sim.species.getMoleculeType(),sim.species.getMoleculeType()});
+        potentialMaster.addPotential(p2, new AtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
 
         if (potentialMaster instanceof PotentialMasterList) {
             double neighborRange;
@@ -263,7 +262,7 @@ public class SimHarmonic extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public Box box;
     public Boundary boundary;
-    public Species species;
+    public SpeciesSpheresMono species;
     public NormalModes normalModes;
     public int[] nCells;
     public CoordinateDefinition coordinateDefinition;

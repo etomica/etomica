@@ -2,15 +2,11 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
 import etomica.atom.iterator.AtomIteratorTreeBox;
-import etomica.junit.UnitTestUtil;
 import etomica.box.Box;
+import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
 
 /**
  * Unit test for AtomIteratorTree
@@ -21,15 +17,9 @@ public class AtomIteratorTreeBoxTest extends IteratorTestAbstract {
         n0a = 3;
         nAtoms = 3;
         n1a = 10;
-        n2a = 4;
-        nTree = new int[] { 5, 4, 3 };
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(new int[] { n0a },
-                nAtoms, new int[] { n1a }, new int[] { n2a }, nTree);
+                nAtoms, new int[] { n1a });
         box = sim.getBoxs()[0];
-        Species[] species = sim.getSpeciesManager().getSpecies();
-        speciesAgent0 = box.getAgent(species[0]);
-        speciesAgent1 = box.getAgent(species[1]);
-        speciesAgent2 = box.getAgent(species[2]);
 
         treeIterator = new AtomIteratorTreeBox();
         treeIterator.setBox(box);
@@ -43,39 +33,30 @@ public class AtomIteratorTreeBoxTest extends IteratorTestAbstract {
         int count = 0;
 
         //test iteration over all nodes from speciesMaster
-        count = 3 + n0a*(1 + nAtoms) + n1a*(1) 
-                + n2a*(1 + nTree[0]*(1 + nTree[1]*(1 + nTree[2])));
+        count = n0a*(1 + nAtoms) + n1a*(1+1);
         treeIterator.setDoAllNodes(true);
         list = testIterateCount(count);
 
         //test iteration over different depths, starting at root
         treeIterator.setDoAllNodes(true);
 
-        list = testArrayIterates(1, new IAtom[] {speciesAgent0, speciesAgent1, speciesAgent2});
-        list = testIterateCount(2, 3+n0a+n1a+n2a);
-        list = testIterateCount(3, 3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]));
-        list = testIterateCount(4, 3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]*(1+nTree[1])));
-        list = testIterateCount(5, 3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]*(1+nTree[1]*(1+nTree[2]))));
-        list = testIterateCount(100, 3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]*(1+nTree[1]*(1+nTree[2]))));
+        list = testIterateCount(1, n0a+n1a);
+        list = testIterateCount(2, n0a*(1+nAtoms)+n1a*(1+1));
 
         treeIterator.setDoAllNodes(false);
-        list = testArrayIterates(1, new IAtom[] {speciesAgent0, speciesAgent1, speciesAgent2});
-        list = testIterateCount(2, n0a+n1a+n2a);
-        list = testIterateCount(3, n0a*nAtoms+n1a+n2a*nTree[0]);
-        list = testIterateCount(4, n0a*nAtoms+n1a+n2a*nTree[0]*(nTree[1]));
-        list = testIterateCount(5, n0a*nAtoms+n1a+n2a*nTree[0]*nTree[1]*nTree[2]);
-        list = testIterateCount(100, n0a*nAtoms+n1a+n2a*nTree[0]*nTree[1]*nTree[2]);
+        list = testIterateCount(1, n0a+n1a);
+        list = testIterateCount(2, n0a*nAtoms+n1a);
 
         //test iteration of leaf atoms
         treeIterator.setAsLeafIterator();
-        count = n0a*nAtoms + n1a + n2a*nTree[0]*nTree[1]*nTree[2];
+        count = n0a*nAtoms + n1a;
         list = testIterateCount(count);
         list = testListIterates(box.getLeafList());
         
         //test re-specifying iteration in different orders
         int depth = 3;
         boolean doAllNodes = true;
-        count = 3+n0a*(1+nAtoms)+n1a+n2a*(1+nTree[0]);
+        count = n0a*(1+nAtoms)+n1a*(1+1);
         treeIterator = new AtomIteratorTreeBox(box, depth, doAllNodes);
         list = generalIteratorMethodTests(treeIterator);
         assertEquals(list.size(), count);
@@ -115,15 +96,6 @@ public class AtomIteratorTreeBoxTest extends IteratorTestAbstract {
         return list;
     }
     
-    private LinkedList testArrayIterates(int depth, IAtom[] iterates) {
-        treeIterator.setIterationDepth(depth);
-        AtomArrayList arrayList = new AtomArrayList();
-        for (int i=0; i<iterates.length; i++) {
-            arrayList.add(iterates[i]);
-        }
-        return testListIterates(arrayList);
-    }
-    
     private LinkedList testListIterates(AtomSet iterates) {
         LinkedList list = generalIteratorMethodTests(treeIterator);
         Lister testLister = new Lister();
@@ -133,9 +105,6 @@ public class AtomIteratorTreeBoxTest extends IteratorTestAbstract {
     }
     
     private Box box;
-    private ISpeciesAgent speciesAgent0, speciesAgent1, speciesAgent2;
     private AtomIteratorTreeBox treeIterator;
-    int n0a, nAtoms, n1a, n2a;
-    int[] nTree;
-
+    int n0a, nAtoms, n1a;
 }

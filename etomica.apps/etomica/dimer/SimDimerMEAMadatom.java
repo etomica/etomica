@@ -7,8 +7,8 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
@@ -154,10 +154,10 @@ public class SimDimerMEAMadatom extends Simulation{
         getSpeciesManager().addSpecies(sn);
         getSpeciesManager().addSpecies(snAdatom);
         getSpeciesManager().addSpecies(movable);
-        ((AtomTypeSphere)snFix.getMoleculeType()).setDiameter(3.022); 
-        ((AtomTypeSphere)sn.getMoleculeType()).setDiameter(3.022);
-        ((AtomTypeSphere)snAdatom.getMoleculeType()).setDiameter(3.022);
-        ((AtomTypeSphere)movable.getMoleculeType()).setDiameter(3.022);
+        ((AtomTypeSphere)snFix.getLeafType()).setDiameter(3.022); 
+        ((AtomTypeSphere)sn.getLeafType()).setDiameter(3.022);
+        ((AtomTypeSphere)snAdatom.getLeafType()).setDiameter(3.022);
+        ((AtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         box.setNMolecules(snFix, 72);
     	box.setNMolecules(sn, 144);	
     	box.setNMolecules(snAdatom, 0);
@@ -251,11 +251,12 @@ public class SimDimerMEAMadatom extends Simulation{
        
     //ADATOM CREATION AND PLACEMENT
         // Sn
-        IAtom iAtom = snAdatom.getMoleculeFactory().makeAtom();
-        box.getAgent(snAdatom).addChildAtom(iAtom);
-        ((IAtomPositioned)iAtom).getPosition().setX(0, 10.0);
-        ((IAtomPositioned)iAtom).getPosition().setX(1, 0.1);
-        ((IAtomPositioned)iAtom).getPosition().setX(2, -0.1);
+        IMolecule iMolecule = (IMolecule)snAdatom.getMoleculeFactory().makeAtom();
+        box.addMolecule(iMolecule);
+        IVector adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
+        adAtomPos.setX(0, 10.0);
+        adAtomPos.setX(1, 0.1);
+        adAtomPos.setX(2, -0.1);
         /**
         //Ag
         IAtom iAtom = agAdatom.getMoleculeFactory().makeAtom();
@@ -327,14 +328,14 @@ public class SimDimerMEAMadatom extends Simulation{
         AtomArrayList movableList = new AtomArrayList();
         AtomSet loopSet = box.getMoleculeList(sn);
         for (int i=0; i<loopSet.getAtomCount(); i++){
-            rij.Ev1Mv2(((IAtomPositioned)iAtom).getPosition(),((IAtomPositioned)loopSet.getAtom(i)).getPosition()); 
+            rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition()); 
             if((rij.squared())<38.0){
                movableList.add(loopSet.getAtom(i));
             } 
         }
        	for (int i=0; i<movableList.getAtomCount(); i++){
            ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
-           box.removeMolecule(movableList.getAtom(i));
+           box.removeMolecule((IMolecule)movableList.getAtom(i));
        	}
         
     

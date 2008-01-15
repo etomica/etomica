@@ -27,12 +27,13 @@ public class Virial2CLJQ {
 
         int nPoints = 2;
         double temperature = 1;
-        long steps = 1000000l;
+        long steps = 10000000l;
         double sigmaHSRef = 1.5;
         double epsilon = 1.0; // Kelvin.UNIT.toSim(125.317) for CO2
         double sigma = 1.0;   // 3.0354 for CO2
-        double moment = 1;    // moment=Q^2/(epsilon*sigma^5), 3.0255 for CO2
-        double bondL = 1.0;   // 0.699 for CO2;
+        double moment = 3.0255;    // moment=Q^2/(epsilon*sigma^5), 3.0255 for CO2
+        double bondL = 0.699;   // 0.699sigma for CO2;
+        temperature = 250/125.317;
         if (args.length > 0) nPoints = Integer.parseInt(args[0]);
         if (args.length > 1) temperature = Double.parseDouble(args[1]);
         if (args.length > 2) bondL = Double.parseDouble(args[2]);

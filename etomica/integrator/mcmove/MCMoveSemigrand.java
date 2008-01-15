@@ -5,7 +5,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
@@ -38,7 +38,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     private AtomPositionDefinition atomPositionDefinition;
     private final IRandom random;
     
-    private transient IAtom deleteMolecule, insertMolecule;
+    private transient IMolecule deleteMolecule, insertMolecule;
     private transient double uOld;
     private transient double uNew = Double.NaN;
     private transient int iInsert, iDelete;
@@ -130,18 +130,18 @@ public class MCMoveSemigrand extends MCMoveBox {
         else while(iInsert == iDelete) {iInsert = random.nextInt(nSpecies);}
   
         AtomSet moleculeList = box.getMoleculeList(speciesSet[iDelete]);
-        deleteMolecule = moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
+        deleteMolecule = (IMolecule)moleculeList.getAtom(random.nextInt(moleculeList.getAtomCount()));
         energyMeter.setTarget(deleteMolecule);
         uOld = energyMeter.getDataAsScalar();
         box.removeMolecule(deleteMolecule);
         
         int size = reservoirs[iInsert].getAtomCount();
         if(size>0) {
-            insertMolecule = reservoirs[iInsert].remove(size-1);
+            insertMolecule = (IMolecule)reservoirs[iInsert].remove(size-1);
             box.addMolecule(insertMolecule);
         }
         else {
-            insertMolecule = box.addNewMolecule(speciesSet[iInsert]);
+            insertMolecule = (IMolecule)box.addNewMolecule(speciesSet[iInsert]);
         }
         moleculeTranslator.setDestination(atomPositionDefinition.position(deleteMolecule));
         moleculeTranslator.actionPerformed(insertMolecule);

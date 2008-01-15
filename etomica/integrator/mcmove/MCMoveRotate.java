@@ -3,6 +3,7 @@ package etomica.integrator.mcmove;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtomOriented;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
@@ -59,7 +60,7 @@ public class MCMoveRotate extends MCMoveBoxStep {
      
     public boolean doTrial() {
         if(box.moleculeCount()==0) {return false;}
-        molecule = (IAtomOriented)atomSource.getAtom();
+        molecule = (IAtomOriented)((IMolecule)atomSource.getAtom()).getChildList().getAtom(0);
 
         energyMeter.setTarget(molecule);
         uOld = energyMeter.getDataAsScalar();

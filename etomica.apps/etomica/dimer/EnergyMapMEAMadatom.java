@@ -1,13 +1,10 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
-import etomica.chem.elements.Copper;
 import etomica.chem.elements.Tin;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -16,15 +13,12 @@ import etomica.graphics.DisplayBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
@@ -104,10 +98,10 @@ public class EnergyMapMEAMadatom extends Simulation{
         getSpeciesManager().addSpecies(snAdatom);
         getSpeciesManager().addSpecies(movable);
         
-        ((AtomTypeSphere)snFix.getMoleculeType()).setDiameter(3.022); 
-        ((AtomTypeSphere)sn.getMoleculeType()).setDiameter(3.022); 
-        ((AtomTypeSphere)snAdatom.getMoleculeType()).setDiameter(3.022);
-        ((AtomTypeSphere)movable.getMoleculeType()).setDiameter(3.022);
+        ((AtomTypeSphere)snFix.getLeafType()).setDiameter(3.022); 
+        ((AtomTypeSphere)sn.getLeafType()).setDiameter(3.022); 
+        ((AtomTypeSphere)snAdatom.getLeafType()).setDiameter(3.022);
+        ((AtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         
         /**
         // Cu
@@ -181,12 +175,13 @@ public class EnergyMapMEAMadatom extends Simulation{
         config.initializeCoordinates(box); 
 
         // Sn
-        IAtom iAtom = snAdatom.getMoleculeFactory().makeAtom();
-        box.getAgent(snAdatom).addChildAtom(iAtom);
+        IMolecule adMolecule = (IMolecule)snAdatom.getMoleculeFactory().makeAtom();
+        box.addMolecule(adMolecule);
+        IAtomPositioned adAtom = (IAtomPositioned)adMolecule.getChildList().getAtom(0);
 
-         ((IAtomPositioned)iAtom).getPosition().setX(0, height);
-         ((IAtomPositioned)iAtom).getPosition().setX(1, -4.37);
-         ((IAtomPositioned)iAtom).getPosition().setX(2, -1.6);
+        adAtom.getPosition().setX(0, height);
+        adAtom.getPosition().setX(1, -4.37);
+        adAtom.getPosition().setX(2, -1.6);
         
        /**
         // Cu
@@ -219,7 +214,7 @@ public class EnergyMapMEAMadatom extends Simulation{
         
          */
          
-         integratorMAP = new IntegratorEnergyMap(this, potentialMaster, iAtom, fileTail);
+         integratorMAP = new IntegratorEnergyMap(this, potentialMaster, adAtom, fileTail);
          integratorMAP.setBox(box);
          activityIntegrateMAP = new ActivityIntegrate(integratorMAP);
 

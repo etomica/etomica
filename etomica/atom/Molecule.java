@@ -1,21 +1,23 @@
 package etomica.atom;
 
-public class AtomGroup extends Atom implements IAtomGroup {
+public class Molecule extends Atom implements IMolecule {
 
-    public AtomGroup(AtomType type) {
+    public Molecule(AtomType type) {
         super(type);
         childList = new AtomArrayList();
         assignChildOrdinals();
     }
     
     /**
-     * Set this atom's index and update indexes of its descendants.
+     * Returns a string of digits that uniquely identifies this atom.  String is
+     * formed by concatenating the ordinal of this atom to the signature
+     * given by the parent of this atom.  If atom has no parent, forms a string
+     * from only the ordinal.
      */
-    public void setIndex(int parentIndex) {
-        super.setIndex(parentIndex);
-        assignChildOrdinals();
+    public String signature() {
+        return Integer.toString(getIndex());
     }
-
+    
     /**
      * Assigns ordinals to all child atoms, numbering them sequentially
      * according to their position in the childList.
@@ -31,7 +33,7 @@ public class AtomGroup extends Atom implements IAtomGroup {
      * should be parentless when this method is called.
      * @throws IllegalArgumentException if the given atom already has a parent.
      */
-    public void addChildAtom(IAtom newChildAtom) {
+    public void addChildAtom(IAtomLeaf newChildAtom) {
         if(newChildAtom.getParentGroup() != null) {//new parent is null
             throw new IllegalArgumentException(newChildAtom+" is already the child of "+newChildAtom.getParentGroup());
         }
@@ -40,14 +42,13 @@ public class AtomGroup extends Atom implements IAtomGroup {
 
         newChildAtom.setIndex(childList.getAtomCount());
         childList.add(newChildAtom);
-        addAtomNotify(newChildAtom);
     }
     
     /**
      * Removes the given child Atom from this AtomGroup.
      * @throws IllegalArgumentException if the given atom is not a child.
      */
-    public void removeChildAtom(IAtom oldChildAtom) {
+    public void removeChildAtom(IAtomLeaf oldChildAtom) {
         for (int i=0; i<childList.getAtomCount(); i++) {
             if (childList.getAtom(i) == oldChildAtom) {
                 oldChildAtom.setParent(null);
@@ -58,7 +59,6 @@ public class AtomGroup extends Atom implements IAtomGroup {
                     // Atom's place) to have the old Atom's index.
                     childList.getAtom(i).setIndex(i);
                 }
-                removeAtomNotify(oldChildAtom);
                 return;
             }
         }
@@ -83,45 +83,14 @@ public class AtomGroup extends Atom implements IAtomGroup {
     private IAtom getDescendant(int n, int[] path) {
         IAtom child = childList.getAtom(path[n]);
         if(path.length - 1 > n) {//go further down hierarchy
-            if(!(child instanceof IAtomGroup)) {//no more there
+            if(!(child instanceof IMolecule)) {//no more there
                 throw new IllegalArgumentException("Depth of requested descendant exceeds depth of atom hierarchy");
             }//get indicated descendant recursively
-            child = ((AtomGroup)child).getDescendant(n+1, path);
+            child = ((Molecule)child).getDescendant(n+1, path);
         }
         return child;
     }
     
-    /**
-     * Returns the children of this group in an array of atoms.
-     * Array is constructed on-the-fly, and is not updated with any
-     * subsequent atom addition/removals.  Since array construction is
-     * involved, this method can be expensive in computationally intensive
-     * situations involving repeated calls (this should be avoided).
-     */
-    public IAtom[] childAtomArray() {
-        return childList.toArray();
-    }
-    
-    /**
-     * Notifies this atom group that an atom has been added to it 
-     * or one of its descendants.
-     */
-    public void addAtomNotify(IAtom childAtom) {
-        if (parent != null) {
-            parent.addAtomNotify(childAtom);
-        }
-    }
-    
-    /**
-     * Notifies this atom group that an atom has been removed from it or 
-     * one of its descendants.
-     */
-    public void removeAtomNotify(IAtom childAtom) {
-        if(parent != null) {
-            parent.removeAtomNotify(childAtom);
-        }
-    }
-
     /**
      * @return the childList
      */

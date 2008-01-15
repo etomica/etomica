@@ -1,7 +1,8 @@
 package etomica.config;
 
-import etomica.atom.IAtom;
+import etomica.atom.IAtomLeaf;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
@@ -15,7 +16,7 @@ import etomica.species.Species;
  * @authors ajschultz, msellers
  */
 
-public class GrainBoundaryTiltConfiguration extends Configuration {
+public class GrainBoundaryTiltConfiguration implements Configuration {
     
     RotationTensor eulerRotationL2BoxTOP;
     RotationTensor eulerRotationB2LatticeTOP;
@@ -26,6 +27,7 @@ public class GrainBoundaryTiltConfiguration extends Configuration {
     double cutoff;
     double angle;
     double dist;
+    protected Species fixedSpecies, mobileSpecies;
     
     public GrainBoundaryTiltConfiguration(BravaisLatticeCrystal aLatticeTOP, BravaisLatticeCrystal aLatticeBOTTOM, Species [] aSpecies, double aCutoff){
         super();    
@@ -40,6 +42,22 @@ public class GrainBoundaryTiltConfiguration extends Configuration {
         eulerRotationL2BoxBOTTOM = latticeBOTTOM.getSpace().makeRotationTensor();
         eulerRotationB2LatticeBOTTOM = latticeBOTTOM.getSpace().makeRotationTensor();
         
+    }
+    
+    public void setFixedSpecies(Species newFixedSpecies) {
+        fixedSpecies = newFixedSpecies;
+    }
+    
+    public void setMobileSpecies(Species newMobileSpecies) {
+        mobileSpecies = newMobileSpecies;
+    }
+    
+    public Species getFixedSpecies() {
+        return fixedSpecies;
+    }
+    
+    public Species getMobileSpecies() {
+        return mobileSpecies;
     }
     
     /**
@@ -126,17 +144,15 @@ public class GrainBoundaryTiltConfiguration extends Configuration {
             }
             
             // Check to see if this atom needs to be fixed.
+            IMolecule a = null;
             if(transformedPosition.x(2)>(box.getBoundary().getDimensions().x(2)/2.0 - cutoff)){
-                IAtom a = species[0].getMoleculeFactory().makeAtom();
-                box.getAgent(species[0]).addChildAtom(a);
-                ((IAtomPositioned)a).getPosition().E(transformedPosition);
-              
+                a = (IMolecule)fixedSpecies.getMoleculeFactory().makeAtom();
             }
             else{
-                IAtom a = species[1].getMoleculeFactory().makeAtom();
-                box.getAgent(species[1]).addChildAtom(a);
-                ((IAtomPositioned)a).getPosition().E(transformedPosition);
+                a = (IMolecule)mobileSpecies.getMoleculeFactory().makeAtom();
             }
+            box.addMolecule(a);
+            ((IAtomPositioned)a.getChildList().getAtom(0)).getPosition().E(transformedPosition);
             
         }
         
@@ -200,17 +216,15 @@ public class GrainBoundaryTiltConfiguration extends Configuration {
             }
             
             // Check to see if this atom needs to be fixed. Notice signs/inequalities
+            IMolecule a = null;
             if(transformedPosition.x(2)<(-box.getBoundary().getDimensions().x(2)/2.0 + cutoff)){
-                IAtom a = species[0].getMoleculeFactory().makeAtom();
-                box.getAgent(species[0]).addChildAtom(a);
-                ((IAtomPositioned)a).getPosition().E(transformedPosition);
-              
+                a = (IMolecule)fixedSpecies.getMoleculeFactory().makeAtom();
             }
             else{
-                IAtom a = species[1].getMoleculeFactory().makeAtom();
-                box.getAgent(species[1]).addChildAtom(a);
-                ((IAtomPositioned)a).getPosition().E(transformedPosition);
+                a = (IMolecule)mobileSpecies.getMoleculeFactory().makeAtom();
             }
+            box.addMolecule(a);
+            ((IAtomPositioned)a.getChildList().getAtom(0)).getPosition().E(transformedPosition);
             
         }
     
@@ -233,7 +247,7 @@ public class GrainBoundaryTiltConfiguration extends Configuration {
                 range = rij.squared();
                 
                 if(range<dist){
-                    box.removeMolecule(box.getLeafList().getAtom(j));
+                    box.removeMolecule(((IAtomLeaf)box.getLeafList().getAtom(j)).getParentGroup());
                     removeCount++;
                }
             }

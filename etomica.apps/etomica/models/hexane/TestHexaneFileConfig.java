@@ -4,7 +4,6 @@ import etomica.action.BoxInflateDeformable;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -26,7 +25,6 @@ import etomica.normalmode.CoordinateDefinition;
 import etomica.normalmode.MCMoveMoleculeCoupled;
 import etomica.normalmode.MeterNormalMode;
 import etomica.normalmode.WaveVectorFactorySimple;
-import etomica.normalmode.WriteS;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -167,8 +165,7 @@ public class TestHexaneFileConfig extends Simulation {
         //The PotentialMaster generates a group potential and automatically
         // does a lot of the stuff which we have to do for the intramolecular
         // potential manually.
-        AtomTypeSphere sphereType = (AtomTypeSphere) ((AtomTypeGroup) species
-                .getMoleculeType()).getChildTypes()[0];
+        AtomTypeSphere sphereType = (AtomTypeSphere)species.getLeafType();
 
         //Add the Potential to the PotentialMaster
         potentialMaster.addPotential(potential, new AtomType[] { sphereType,

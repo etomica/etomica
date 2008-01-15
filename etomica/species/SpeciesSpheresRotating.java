@@ -3,11 +3,15 @@ package etomica.species;
 import java.lang.reflect.Constructor;
 
 import etomica.EtomicaInfo;
+import etomica.atom.AtomFactory;
+import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoAngular;
 import etomica.atom.AtomFactoryMonoAngularDynamic;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.chem.elements.ElementSimple;
+import etomica.config.ConformationLinear;
 import etomica.simulation.ISimulation;
 
 /**
@@ -20,7 +24,21 @@ import etomica.simulation.ISimulation;
 public class SpeciesSpheresRotating extends Species {
     
     public SpeciesSpheresRotating(ISimulation sim) {
-        super(makeAtomFactory(sim, new AtomTypeOrientedSphere(new ElementSimple(sim),1.0)));
+        super();
+        setMoleculeFactory(new AtomFactoryHomo(this, sim.getSpace(), 1, new ConformationLinear(sim.getSpace(), 1)));
+        AtomTypeOrientedSphere atomType = new AtomTypeOrientedSphere(new ElementSimple(sim), 1.0);
+        AtomFactory childFactory = null;
+        if (sim.isDynamic()) {
+            childFactory = new AtomFactoryMonoAngularDynamic(sim.getSpace(), atomType);
+        }
+        else {
+            childFactory = new AtomFactoryMonoAngular(sim.getSpace(), atomType);
+        }
+        ((AtomFactoryHomo)factory).setChildFactory(childFactory);
+    }
+
+    public AtomTypeLeaf getLeafType() {
+        return (AtomTypeLeaf)getMoleculeType().getChildTypes()[0];
     }
     
     private static AtomFactoryMono makeAtomFactory(ISimulation sim, AtomTypeOrientedSphere atomType) {

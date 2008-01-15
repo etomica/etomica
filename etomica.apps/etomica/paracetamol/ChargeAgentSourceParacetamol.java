@@ -5,7 +5,7 @@ package etomica.paracetamol;
  */
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.potential.EwaldSummation.MyCharge;
 
@@ -27,7 +27,7 @@ public class ChargeAgentSourceParacetamol implements AgentSource {
 
 	public Object makeAgent(IAtom a) {
 		
-		if (a instanceof IAtomGroup){
+		if (a instanceof IMolecule){
 			return null;
 		}
 		

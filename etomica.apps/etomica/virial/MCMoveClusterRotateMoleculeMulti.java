@@ -2,10 +2,10 @@ package etomica.virial;
 
 import etomica.action.AtomAction;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
+import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.util.IRandom;
@@ -22,23 +22,21 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
      * @param space
      */
     public MCMoveClusterRotateMoleculeMulti(PotentialMaster potentialMaster,
-            IRandom random, int numMolecules) {
+            IRandom random) {
         super(potentialMaster, random);
         weightMeter = new MeterClusterWeight(potential);
-        nMolecules = numMolecules;
-        selectedMolecules = new IAtomGroup[nMolecules];
-        oldPositions = new IVector[nMolecules][];
     }
     
     public void setBox(Box p) {
         super.setBox(p);
         weightMeter.setBox(p);
-        selectMolecules();
-        for (int i=0; i<nMolecules; i++) {
-            molecule = selectedMolecules[i];
-            oldPositions[i] = new IVector[molecule.getChildList().getAtomCount()];
-            for (int j=0; j<oldPositions[i].length; j++) {
-                oldPositions[i][j] = p.getSpace().makeVector();
+        AtomSet moleculeList = box.getMoleculeList();
+        oldPositions = new IVector[moleculeList.getAtomCount()-1][];
+        for (int i=1; i<moleculeList.getAtomCount(); i++) {
+            molecule = (IMolecule)moleculeList.getAtom(i);
+            oldPositions[i-1] = new IVector[molecule.getChildList().getAtomCount()];
+            for (int j=0; j<oldPositions[i-1].length; j++) {
+                oldPositions[i-1][j] = p.getSpace().makeVector();
             }
         }
     }
@@ -50,21 +48,18 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             doRelax = true;
             trialCount = relaxInterval;
         }
-        for (int i=0; i<selectedMolecules.length; i++) {
-            molecule = selectedMolecules[i];
-            leafAtomIterator.setRootAtom(molecule);
-            leafAtomIterator.reset();
+        AtomSet moleculeList = box.getMoleculeList();
+        for (int i=1; i<moleculeList.getAtomCount(); i++) {
+            molecule = (IMolecule)moleculeList.getAtom(i);
+            AtomSet leafAtoms = molecule.getChildList();
             r0.E(molecule.getType().getPositionDefinition().position(molecule));
-        
+
             double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
             rotationTensor.setAxial(random.nextInt(3),dTheta);
-            
-            int j=0;
-            for (IAtomPositioned a = (IAtomPositioned)leafAtomIterator.nextAtom(); a != null;
-                 a = (IAtomPositioned)leafAtomIterator.nextAtom()) {
-                oldPositions[i][j++].E(a.getPosition());
+
+            for (int j=0; j<leafAtoms.getAtomCount(); j++) {
+                oldPositions[i-1][j].E(((IAtomPositioned)leafAtoms.getAtom(j)).getPosition());
             }
-            leafAtomIterator.reset();
             doTransform();
             
             
@@ -78,38 +73,38 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
         return true;
     }
     
-    public void selectMolecules() {
-        AtomSet atomList = ((IAtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
-        for (int i=0; i<selectedMolecules.length; i++) {
-            selectedMolecules[i] = (IAtomGroup)atomList.getAtom(i+1);
-        }
-    }
-
     public double getB() {
         return 0.0;
     }
     
     public double getA() {
-        return (uOld==0.0) ? Double.POSITIVE_INFINITY : uNew/uOld;
+        return uNew/uOld;
     }
     
     public void acceptNotify() {
         super.acceptNotify();
+        if (uNew == 0) {
+            throw new RuntimeException("oops, accepted illegal configuration");
+        }
         ((BoxCluster)box).acceptNotify();
+        if (weightMeter.getDataAsScalar() == 0) {
+            throw new RuntimeException("oops oops, accepted illegal configuration");
+        }
     }
     
     public void rejectNotify() {
-        for (int i=0; i<selectedMolecules.length; i++) {
-            molecule = selectedMolecules[i];
-            leafAtomIterator.setRootAtom(molecule);
-            leafAtomIterator.reset();
-            int j=0;
-            for (IAtomPositioned a = (IAtomPositioned)leafAtomIterator.nextAtom(); a != null;
-                 a = (IAtomPositioned)leafAtomIterator.nextAtom()) {
-                a.getPosition().E(oldPositions[i][j++]);
+        AtomSet moleculeList = box.getMoleculeList();
+        for (int i=1; i<moleculeList.getAtomCount(); i++) {
+            molecule = (IMolecule)moleculeList.getAtom(i);
+            AtomSet leafAtoms = molecule.getChildList();
+            for (int j=0; j<leafAtoms.getAtomCount(); j++) {
+                ((IAtomPositioned)leafAtoms.getAtom(j)).getPosition().E(oldPositions[i-1][j]);
             }
         }
         ((BoxCluster)box).rejectNotify();
+        if (weightMeter.getDataAsScalar() == 0) {
+            throw new RuntimeException("oops oops, reverted to illegal configuration");
+        }
     }
     
     public void setRelaxAction(AtomAction action) {
@@ -118,9 +113,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
-    private final IAtomGroup[] selectedMolecules;
-    private final IVector[][] oldPositions;
-    private final int nMolecules;
+    private IVector[][] oldPositions;
     private int trialCount, relaxInterval = 100;
     private AtomAction relaxAction;
 }

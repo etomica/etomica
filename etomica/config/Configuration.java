@@ -1,7 +1,5 @@
 package etomica.config;
 
-import etomica.atom.AtomSet;
-import etomica.atom.IAtomGroup;
 import etomica.box.Box;
 
 /**
@@ -15,7 +13,7 @@ import etomica.box.Box;
  * @author David Kofke and Andrew Schultz
  */
  
-public abstract class Configuration implements java.io.Serializable {
+public interface Configuration {
 
     /**
      * Defines the placement of the molecules. Atoms in all lists are 
@@ -28,25 +26,6 @@ public abstract class Configuration implements java.io.Serializable {
      * 
      * @param atomList array of list of molecules to be placed by this class
      */
-    public abstract void initializeCoordinates(Box box);
-    
-    /**
-     * Primary means by which this class is used to arrange molecules in the Box.
-     * Generates an array of AtomLists holding the molecules in the Box, with
-     * one list for each Species.  This array is then passed to <tt>initializePositions</tt>.
-     * <p>
-     * Also sets the dimensions field for this class to that of the Boundary
-     * in the given Box.
-     * 
-     * @param box
-     */
-    protected AtomSet[] getMoleculeLists(Box box) {
-        AtomSet speciesAgentList = box.getSpeciesMaster().getAgentList();
-        AtomSet[] moleculeLists = new AtomSet[speciesAgentList.getAtomCount()];
-        for (int i=0; i<speciesAgentList.getAtomCount(); i++) {
-            moleculeLists[i] = ((IAtomGroup)speciesAgentList.getAtom(i)).getChildList();
-        }
-        return moleculeLists;
-    }
-    
+    public void initializeCoordinates(Box box);
+
 }

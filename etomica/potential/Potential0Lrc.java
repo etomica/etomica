@@ -1,9 +1,10 @@
 package etomica.potential;
 
-import etomica.atom.AtomAddressManager;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorTreeRoot;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.space.Space;
 
@@ -86,20 +87,16 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
     public void setBox(Box p) {
         if (lrcAtomsPerMolecule[0] == 0 || lrcAtomsPerMolecule[1] == 0) {
             // count the number of Atoms of the relevant type in each molecule
-            AtomIteratorTreeRoot treeIterator = new AtomIteratorTreeRoot();
             for (int i=0; i<2; i++) {
                 if (lrcAtomsPerMolecule[i] == 0) {
-                    if (types[i].getDepth() == AtomAddressManager.MOLECULE_DEPTH) {
+                    if (types[i] instanceof AtomTypeLeaf) {
                         lrcAtomsPerMolecule[i] = 1;
                     }
                     else if (p.getNMolecules(types[i].getSpecies()) > 0) {
-                        treeIterator.setRootAtom(p.getMoleculeList(types[i].getSpecies()).getAtom(0));
-                        treeIterator.setIterationDepth(types[i].getDepth());
-                        treeIterator.reset();
+                        AtomSet childList = ((IMolecule)p.getMoleculeList(types[i].getSpecies()).getAtom(0)).getChildList();
                         int numAtoms = 0;
-                        for (IAtom atom = treeIterator.nextAtom(); atom != null;
-                             atom = treeIterator.nextAtom()) {
-                            if (atom.getType() == types[i]) numAtoms++;
+                        for (int iChild = 0; iChild < childList.getAtomCount(); iChild++) {
+                            if (childList.getAtom(iChild).getType() == types[i]) numAtoms++;
                         }
                         lrcAtomsPerMolecule[i] = numAtoms;
                     }
@@ -115,10 +112,12 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
             return;
         }
         int typeIndex = 1;
-        if (types[0].isDescendedFrom(targetAtom.getType())) {
+        if (types[0] == targetAtom.getType() || (types[0] instanceof AtomTypeLeaf && 
+             ((AtomTypeLeaf)types[0]).getParentType() == targetAtom.getType())) {
             typeIndex = 0;
         }
-        else if (!types[1].isDescendedFrom(targetAtom.getType())) {
+        else if (!(types[1] == targetAtom.getType() || (types[1] instanceof AtomTypeLeaf && 
+                  ((AtomTypeLeaf)types[1]).getParentType() == targetAtom.getType()))) {
             divisor = 0;
             return;
         }

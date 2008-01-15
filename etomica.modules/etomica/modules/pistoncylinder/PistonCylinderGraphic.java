@@ -18,7 +18,6 @@ import etomica.action.Action;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
@@ -424,7 +423,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
         
-        ((ElementSimple)((AtomTypeLeaf)pc.species.getMoleculeType()).getElement()).setMass(mass);
+        ((ElementSimple)pc.species.getLeafType().getElement()).setMass(mass);
         int D = pc.getSpace().D();
 
         tUnit = Kelvin.UNIT;
@@ -531,7 +530,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         sigModifier.setValue(sigma);
         ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
-        ModifierGeneral massModifier = new ModifierGeneral(((AtomTypeLeaf)pc.species.getMoleculeType()).getElement(),"mass");
+        ModifierGeneral massModifier = new ModifierGeneral(pc.species.getLeafType().getElement(),"mass");
         sigBox.setModifier(sigModifier);
         sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
         epsBox.setUnit(eUnit);
@@ -754,7 +753,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         public void setValue(double d) {
             //assume one type of atom
-            ((AtomTypeSphere)pc.species.getMoleculeType()).setDiameter(d);
+            ((AtomTypeSphere)pc.species.getLeafType()).setDiameter(d);
             PistonCylinderGraphic.this.potentialHS.setCollisionDiameter(d);
             PistonCylinderGraphic.this.potentialSW.setCoreDiameter(d);
             pc.pistonPotential.setCollisionRadius(0.5*d);
@@ -782,7 +781,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        PistonCylinder sim = new PistonCylinder(2);
+        PistonCylinder sim = new PistonCylinder(3);
         PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
         pcg.setDoRDF(true);
         pcg.init();

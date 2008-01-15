@@ -7,6 +7,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -18,7 +19,6 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space2d.Space2D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 public class ReactionEquilibrium extends Simulation implements AgentSource {
@@ -62,8 +62,8 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         speciesB = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(speciesA);
         getSpeciesManager().addSpecies(speciesB);
-        ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
-        ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(diameter);
+        ((AtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);
+        ((AtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 30);
         box.setNMolecules(speciesB, 30);
 
@@ -80,11 +80,11 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
                 2.0, //well multiplier
                 1.0, true);
         potentialMaster.addPotential(AAbonded,
-                new Species[] { speciesA, speciesA });
+                new AtomType[] { speciesA.getLeafType(), speciesA.getLeafType() });
         potentialMaster.addPotential(ABbonded,
-                new Species[] { speciesA, speciesB });
+                new AtomType[] { speciesA.getLeafType(), speciesB.getLeafType() });
         potentialMaster.addPotential(BBbonded,
-                new Species[] { speciesB, speciesB });
+                new AtomType[] { speciesB.getLeafType(), speciesB.getLeafType() });
 
         meterDimerFraction = new MeterDimerFraction(agentManager);
         meterDimerFraction.setSpeciesA(speciesA);
@@ -96,7 +96,6 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         integratorHard1.addIntervalAction(new BoxImposePbc(box));
-
 	}
     
     public Class getAgentClass() {

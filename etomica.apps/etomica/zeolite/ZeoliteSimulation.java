@@ -2,6 +2,7 @@ package etomica.zeolite;
 
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -123,13 +124,13 @@ public class ZeoliteSimulation extends Simulation {
         	species[i] = new SpeciesSpheresMono(this);
             getSpeciesManager().addSpecies(species[i]);
         	box.setNMolecules(species[i], numAtoms[i]);
-        	((etomica.atom.AtomTypeSphere)species[i].getMoleculeType()).setDiameter(atomicSize[i]);
+        	((AtomTypeSphere)species[i].getLeafType()).setDiameter(atomicSize[i]);
         	if (i!=(numAtoms.length-1)){
                 // all elements except the last (methane) are fixed
-        	    ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getMoleculeType()).getElement()).setMass(Double.POSITIVE_INFINITY);
+        	    ((ElementSimple)(species[i].getLeafType()).getElement()).setMass(Double.POSITIVE_INFINITY);
         	}
             else {
-                ((ElementSimple)((etomica.atom.AtomTypeLeaf)species[i].getMoleculeType()).getElement()).setMass(16);
+                ((ElementSimple)species[i].getLeafType().getElement()).setMass(16);
             }
         }
         //Setting up potential for Methane-Methane interactions

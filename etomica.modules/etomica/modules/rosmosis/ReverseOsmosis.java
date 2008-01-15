@@ -58,19 +58,19 @@ public class ReverseOsmosis extends Simulation {
 
         //solute (1)
         speciesSolute = new SpeciesSpheresMono(this);
-        ((ElementSimple)((AtomTypeLeaf)speciesSolute.getMoleculeType()).getElement()).setMass(Dalton.UNIT.toSim(40));
+        ((ElementSimple)speciesSolute.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         getSpeciesManager().addSpecies(speciesSolute);
         
         //solvent (2)
         speciesSolvent = new SpeciesSpheresMono(this);
-        ((ElementSimple)((AtomTypeLeaf)speciesSolvent.getMoleculeType()).getElement()).setMass(Dalton.UNIT.toSim(40));
+        ((ElementSimple)speciesSolvent.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         getSpeciesManager().addSpecies(speciesSolvent);
 
         //membrane
         speciesMembrane = new SpeciesSpheresMono(this);
-        ((ElementSimple)((AtomTypeLeaf)speciesMembrane.getMoleculeType()).getElement()).setMass(Dalton.UNIT.toSim(80));
+        ((ElementSimple)speciesMembrane.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(80));
         getSpeciesManager().addSpecies(speciesMembrane);
-        
+
         double epsSolute = Kelvin.UNIT.toSim(125.0);
         double sigSolute = 3.5;
         double epsSolvent = Kelvin.UNIT.toSim(125.0);
@@ -108,9 +108,9 @@ public class ReverseOsmosis extends Simulation {
         potentialMaster.addPotential(pTrunc,new Species[]{speciesMembrane,speciesSolvent});
 
 
-        ((AtomTypeSphere)speciesSolute.getMoleculeType()).setDiameter(sigSolute);
-        ((AtomTypeSphere)speciesSolvent.getMoleculeType()).setDiameter(sigSolvent);
-        ((AtomTypeSphere)speciesMembrane.getMoleculeType()).setDiameter(sigMembrane);
+        ((AtomTypeSphere)speciesSolute.getLeafType()).setDiameter(sigSolute);
+        ((AtomTypeSphere)speciesSolvent.getLeafType()).setDiameter(sigSolvent);
+        ((AtomTypeSphere)speciesMembrane.getLeafType()).setDiameter(sigMembrane);
 
         //construct box
 	    box = new Box(this);

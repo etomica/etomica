@@ -1,11 +1,9 @@
 package etomica.models.hexane;
 
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
@@ -73,7 +71,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // super.calcU fills in the first 3 elements of |u|
         super.calcU(molecules);
         
-        IAtomGroup molecule = (IAtomGroup)molecules.getAtom(0);
+        IMolecule molecule = (IMolecule)molecules.getAtom(0);
 
         // Now we play with the molecule we are measuring.
 
@@ -251,7 +249,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     public void initNominalU(AtomSet molecules) {
         // handle center-of-mass part
         super.initNominalU(molecules);
-        IAtomGroup molecule = (IAtomGroup)molecules.getAtom(0);
+        IMolecule molecule = (IMolecule)molecules.getAtom(0);
         // assume they're all oriented the same way.
         
         // Set up all the axes based on the molecule atom0, the reference
@@ -294,7 +292,7 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         // atoms is a single molecule; we can grab its childlist for our
         //      AtomArrayList; we're looking at an AtomGroup
         // Put the molecule into its initial conformation
-        childlist = ((AtomGroup)((AtomArrayList)atoms).getAtom(0)).getChildList();
+        childlist = ((IMolecule)atoms.getAtom(0)).getChildList();
         confHex.initializePositions(childlist);
         
         /*

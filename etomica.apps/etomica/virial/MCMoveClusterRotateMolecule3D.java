@@ -1,12 +1,12 @@
 package etomica.virial;
 
 import etomica.action.AtomAction;
-import etomica.atom.IAtomGroup;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
+import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
 import etomica.util.IRandom;
 
 public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
@@ -20,31 +20,20 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     public void setBox(Box p) {
         super.setBox(p);
         weightMeter.setBox(p);
-        oldPositions = new IVector[molecule.getChildList().getAtomCount()-1];
-        for (int j=0; j<oldPositions.length; j++) {
-            oldPositions[j] = p.getSpace().makeVector();
-        }
     }
 
     public boolean doTrial() {
-        molecule = (IAtomGroup)moleculeSource.getAtom();
+        molecule = (IMolecule)moleculeSource.getAtom();
         while (molecule.getIndex() == 0) {
-            molecule = (IAtomGroup)moleculeSource.getAtom();
+            molecule = (IMolecule)moleculeSource.getAtom();
         }
         uOld = weightMeter.getDataAsScalar();
         
         double dTheta = (2*random.nextDouble() - 1.0)*stepSize;
         rotationTensor.setAxial(random.nextInt(3),dTheta);
 
-        leafAtomIterator.setRootAtom(molecule);
-        leafAtomIterator.reset();
-        IAtomPositioned first = (IAtomPositioned)leafAtomIterator.nextAtom();
-        int j=0;
-        for (IAtomPositioned a = (IAtomPositioned)leafAtomIterator.nextAtom(); a != null;
-             a = (IAtomPositioned)leafAtomIterator.nextAtom()) {
-            oldPositions[j++].E(a.getPosition());
-        }
-        leafAtomIterator.reset();
+        AtomSet leafAtoms = molecule.getChildList();
+        IAtomPositioned first = (IAtomPositioned)leafAtoms.getAtom(0);
         r0.E(first.getPosition());
         doTransform();
 
@@ -84,5 +73,4 @@ public class MCMoveClusterRotateMolecule3D extends MCMoveRotateMolecule3D {
     private final MeterClusterWeight weightMeter;
     protected int trialCount, relaxInterval = 100;
     protected AtomAction relaxAction;
-    private IVector[] oldPositions;
 }

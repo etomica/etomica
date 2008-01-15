@@ -1,8 +1,8 @@
 package etomica.paracetamol;
 
 import etomica.action.PDBWriter;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.space.Space;
 import etomica.units.ElectronVolt;
 import etomica.units.Kelvin;
@@ -46,10 +46,10 @@ public class TestCGParacetamolMinEnergy{
         
         
         System.out.println("CG Coordinate of first atom that overlaps: "
-        		+((IAtomPositioned)((IAtomGroup)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(5))
+        		+((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(5))
         				.getChildList().getAtom(7)).getPosition());
         System.out.println("CG Coordinate of second atom that overlaps: "
-        		+((IAtomPositioned)((IAtomGroup)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(7))
+        		+((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(7))
         				.getChildList().getAtom(18)).getPosition());
         
         
@@ -66,7 +66,7 @@ public class TestCGParacetamolMinEnergy{
         }
         
         System.out.println("CG Coordinate of first atom after setToU 0: "
-        		+((IAtomPositioned)((IAtomGroup)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(5))
+        		+((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(5))
         				.getChildList().getAtom(7)).getPosition());
 //        System.out.println("CG Coordinate of second atom after setToU 0: "
 //        		+((IAtomPositioned)((IAtomGroup)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(7))
@@ -74,12 +74,12 @@ public class TestCGParacetamolMinEnergy{
         
         sim.coordinateDefinition.setToU(sim.coordinateDefinition.getBasisCells()[0].molecules, num);
         System.out.println("CG Coordinate of first atom after setToU num: "
-        		+((IAtomPositioned)((IAtomGroup)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(5))
+        		+((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(5))
        				.getChildList().getAtom(7)).getPosition());
         
         sim.coordinateDefinition.setToU(sim.coordinateDefinition.getBasisCells()[0].molecules, u);
         System.out.println("CG Coordinate of first atom after setToU u: "
-        		+((IAtomPositioned)((IAtomGroup)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(5))
+        		+((IAtomPositioned)((IMolecule)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(5))
         				.getChildList().getAtom(7)).getPosition());
 //        System.out.println("CG Coordinate of second atom after setToU u: "
 //        		+((IAtomPositioned)((IAtomGroup)sim.box.getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(7))

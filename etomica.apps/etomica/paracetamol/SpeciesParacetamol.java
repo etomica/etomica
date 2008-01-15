@@ -9,7 +9,8 @@ import etomica.species.SpeciesSignature;
 public class SpeciesParacetamol extends Species {
 
 	public SpeciesParacetamol(ISimulation sim) {
-		super(new AtomFactoryParacetamol(sim));
+		super();
+		setMoleculeFactory(new AtomFactoryParacetamol(sim, this));
 	}
 	
 	public SpeciesSignature getSpeciesSignature(){

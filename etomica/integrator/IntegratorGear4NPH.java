@@ -121,7 +121,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
 // steps all particles across time interval tStep
 
     public void doStepInternal() {
-        
+        super.doStepInternal();
         predictor();
         calculateForces();
         if(isothermal) drivePT();

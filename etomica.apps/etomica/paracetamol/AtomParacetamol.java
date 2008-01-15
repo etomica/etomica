@@ -1,10 +1,10 @@
 package etomica.paracetamol;
 
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
+import etomica.atom.Molecule;
 
-public class AtomParacetamol extends AtomGroup{
+public class AtomParacetamol extends Molecule {
 
 	public AtomParacetamol(AtomType atomType){
 		super(atomType);

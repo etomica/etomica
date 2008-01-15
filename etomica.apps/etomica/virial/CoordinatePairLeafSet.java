@@ -2,7 +2,6 @@ package etomica.virial;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.Debug;
@@ -41,12 +40,8 @@ public class CoordinatePairLeafSet implements java.io.Serializable, CoordinatePa
     }
 
     private void setAtoms(AtomSet list) {
-        AtomIteratorArrayListSimple iterator = new AtomIteratorArrayListSimple(list);
-        iterator.reset();
-        int k=0;
-        for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom(); atom != null;
-             atom = (IAtomPositioned)iterator.nextAtom()) {
-            positions[k++] = atom.getPosition();
+        for (int i=0; i<list.getAtomCount(); i++) {
+            positions[i] = ((IAtomPositioned)list.getAtom(i)).getPosition();
         }
     }
     

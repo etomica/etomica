@@ -5,17 +5,18 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.iterator.Atomset3IteratorIndexList;
 import etomica.atom.iterator.Atomset4IteratorIndexList;
+import etomica.box.Box;
 import etomica.data.DataPump;
 import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
-import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLattice;
@@ -25,7 +26,6 @@ import etomica.nbr.CriterionInterMolecular;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2Dreiding;
 import etomica.potential.P2Exp6;
 import etomica.potential.P2SoftSphericalTruncated;
@@ -437,7 +437,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-        AtomTypeGroup atomType = (AtomTypeGroup)sim.species.getMoleculeType();
+        AtomTypeMolecule atomType = sim.species.getMoleculeType();
         colorScheme.setColor(atomType.getChildTypes()[0], java.awt.Color.red);
         colorScheme.setColor(atomType.getChildTypes()[1], java.awt.Color.gray);
         colorScheme.setColor(atomType.getChildTypes()[2], java.awt.Color.blue);

@@ -1,9 +1,10 @@
 package etomica.spin;
 
+import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.config.Configuration;
 import etomica.box.Box;
+import etomica.config.Configuration;
 import etomica.space.IVector;
 
 
@@ -15,7 +16,7 @@ import etomica.space.IVector;
  * @author David Kofke
  *
  */
-public class ConfigurationAligned extends Configuration {
+public class ConfigurationAligned implements Configuration, java.io.Serializable {
 
     /**
      * @param space
@@ -27,11 +28,9 @@ public class ConfigurationAligned extends Configuration {
      * Sets all spins to be aligned in the +x direction
      */
     public void initializeCoordinates(Box box) {
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
-        iterator.reset();
-        for (IAtomPositioned atom = (IAtomPositioned)iterator.nextAtom(); atom != null;
-             atom = (IAtomPositioned)iterator.nextAtom()) {
-            IVector spin = atom.getPosition();
+        AtomSet leafAtoms = box.getLeafList();
+        for (int i=0; i<leafAtoms.getAtomCount(); i++) {
+            IVector spin = ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition();
             spin.E(0.0);
             spin.setX(0,1.0);
         }

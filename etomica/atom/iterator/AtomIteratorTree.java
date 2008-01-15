@@ -6,7 +6,7 @@ import etomica.action.AtomsetCount;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 
 /**
  * Atom iterator that traverses all atoms at or to a specified depth below a
@@ -60,11 +60,11 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      * by reset status. Clobbers iteration state.
      */
     public void allAtoms(AtomsetAction act) {
-        AtomSet list = ((IAtomGroup)rootAtom).getChildList();
+        AtomSet list = ((IMolecule)rootAtom).getChildList();
         int nAtoms = list.getAtomCount();
         for (int iAtom=0; iAtom<nAtoms; iAtom++) {
             IAtom atom = list.getAtom(iAtom);
-            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
+            if (!(atom instanceof IMolecule) || iterationDepth == 1) {
                 atomSetSinglet.atom = atom;
                 act.actionPerformed(atomSetSinglet);
                 continue;
@@ -75,12 +75,11 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
                 act.actionPerformed(atomSetSinglet);
             }
 
-            if (treeIterator == null) {
-                treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
-                treeIterator.setDoAllNodes(doAllNodes);
+            AtomSet childList = ((IMolecule)atom).getChildList();
+            for (int iChild=0; iChild<childList.getAtomCount(); iChild++) {
+                atomSetSinglet.atom = childList.getAtom(iChild);
+                act.actionPerformed(atomSetSinglet);
             }
-			treeIterator.setRootAtom(atom);
-			treeIterator.allAtoms(act);
 		}
     	unset();
     }
@@ -90,11 +89,11 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      * by reset status. Clobbers iteration state.
      */
     public void allAtoms(AtomAction act) {
-        AtomSet list = ((IAtomGroup)rootAtom).getChildList();
+        AtomSet list = ((IMolecule)rootAtom).getChildList();
         int nAtoms = list.getAtomCount();
         for (int iAtom=0; iAtom<nAtoms; iAtom++) {
             IAtom atom = list.getAtom(iAtom);
-            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
+            if (!(atom instanceof IMolecule) || iterationDepth == 1) {
                 act.actionPerformed(atom);
                 continue;
             }
@@ -103,12 +102,10 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
                 act.actionPerformed(atom);
             }
 
-            if (treeIterator == null) {
-                treeIterator = new AtomIteratorTreeRoot(iterationDepth-1);
-                treeIterator.setDoAllNodes(doAllNodes);
+            AtomSet childList = ((IMolecule)atom).getChildList();
+            for (int iChild=0; iChild<childList.getAtomCount(); iChild++) {
+                act.actionPerformed(childList.getAtom(iChild));
             }
-            treeIterator.setRootAtom(atom);
-            treeIterator.allAtoms(act);
         }
         unset();
     }
@@ -117,7 +114,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      */
     public void unset() {
         listIterator.unset();
-        if (treeIterator != null) treeIterator.unset();
+        if (childListIterator != null) childListIterator.unset();
     }
     
     /**
@@ -125,36 +122,34 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      * iteration depth, and doAllNodes flag.
      */
     public void reset() {
-        listIterator.setList(((IAtomGroup)rootAtom).getChildList());
+        listIterator.setList(((IMolecule)rootAtom).getChildList());
         listIterator.reset();
 
-        if (treeIterator != null) treeIterator.unset();
+        if (childListIterator != null) childListIterator.unset();
     }
 
     /**
      * Returns the next atom in the iteration sequence.
      */
     public IAtom nextAtom() {
-        if (treeIterator != null) {
+        if (childListIterator != null) {
             // If we're in the middle of returning iterates from the tree
             // then continue doing so until the sub-tree iterator runs out.
-            IAtom nextAtom = treeIterator.nextAtom();
+            IAtom nextAtom = childListIterator.nextAtom();
             if (nextAtom != null) {
                 return nextAtom;
             }
         }
         for (IAtom atom = listIterator.nextAtom(); atom != null;
              atom = listIterator.nextAtom()) {
-            if (!(atom instanceof IAtomGroup) || iterationDepth == 1) {
+            if (!(atom instanceof IMolecule) || iterationDepth == 1) {
                 return atom;
             }
-            if (treeIterator == null) {
-                treeIterator = new AtomIteratorTreeRoot(atom, iterationDepth-1, doAllNodes);
+            if (childListIterator == null) {
+                childListIterator = new AtomIteratorArrayListSimple();
             }
-            else {
-                treeIterator.setRootAtom(atom);
-            }
-            treeIterator.reset();
+            childListIterator.setList(((IMolecule)atom).getChildList());
+            childListIterator.reset();
 
             if (doAllNodes) {
                 // tree iterator won't return its root, so return that now
@@ -163,7 +158,7 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
             }
 
             // we're only interested in iterates below our own level
-            IAtom nextAtom = treeIterator.nextAtom();
+            IAtom nextAtom = childListIterator.nextAtom();
             if(nextAtom != null) {
                 return nextAtom;
             }
@@ -220,8 +215,10 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
         if (iterationDepth == depth) return;
         if(depth < 1) throw new IllegalArgumentException("Error: iteration depth must be positive");
         iterationDepth = depth;
-        if(treeIterator != null && depth > 1) {
-            treeIterator.setIterationDepth(depth - 1);
+        if(childListIterator != null && depth == 1) {
+            // drop our childList iterator.  this isn't efficient if someone
+            // keeps toggling between depth=1 and depth>1, but that's kinda dumb.
+            childListIterator = null;
         }
         unset();
     }
@@ -255,14 +252,13 @@ public abstract class AtomIteratorTree implements AtomIterator, java.io.Serializ
      */
 	public void setDoAllNodes(boolean doAllNodes) {
 		this.doAllNodes = doAllNodes;
-		if(treeIterator != null) treeIterator.setDoAllNodes(doAllNodes);
 		unset();
 	}
 
     private static final long serialVersionUID = 2L;
     protected IAtom rootAtom;
-    protected AtomIteratorTreeRoot treeIterator;//used for recursive iteration to lower levels in tree
     protected final AtomIteratorArrayListSimple listIterator = new AtomIteratorArrayListSimple();
+    protected AtomIteratorArrayListSimple childListIterator;
     protected int iterationDepth = Integer.MAX_VALUE;
     protected IAtom next;
     protected boolean doAllNodes = false;

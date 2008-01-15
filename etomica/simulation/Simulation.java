@@ -32,17 +32,13 @@ public class Simulation implements java.io.Serializable, ISimulation  {
     }
     
     public Simulation(Space space, boolean isDynamic) {
-        this(space, isDynamic, new int[] {4, 19, 9});
-    }
-    
-    public Simulation(Space space, boolean isDynamic, int[] bitLength) {
         this.space = space;
         this.dynamic = isDynamic;
         boxList = new Box[0];
         setController(new Controller());
         random = new RandomNumberGenerator();
         eventManager = new SimulationEventManager();
-        speciesManager = new SpeciesManager(this, bitLength);
+        speciesManager = new SpeciesManager(this);
     }
 
     public final void addBox(Box newBox) {

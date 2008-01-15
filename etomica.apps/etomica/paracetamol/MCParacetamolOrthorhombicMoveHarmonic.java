@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.DataPump;
@@ -106,7 +106,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
         species = new SpeciesParacetamol(this);
-        ((AtomTypeGroup)species.getMoleculeType()).setConformation(conformation);
+        species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
         box = new Box(this);
@@ -351,7 +351,7 @@ public class MCParacetamolOrthorhombicMoveHarmonic extends Simulation {
         simGraphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.
         		displayList().getFirst()).getColorScheme());
-        AtomTypeGroup atomType = (AtomTypeGroup)sim.species.getMoleculeType();
+        AtomTypeMolecule atomType = sim.species.getMoleculeType();
         colorScheme.setColor(atomType.getChildTypes()[0], java.awt.Color.red);
         colorScheme.setColor(atomType.getChildTypes()[1], java.awt.Color.gray);
         colorScheme.setColor(atomType.getChildTypes()[2], java.awt.Color.blue);

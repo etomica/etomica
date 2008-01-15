@@ -2,22 +2,22 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
-import etomica.atom.AtomGroup;
-import etomica.atom.AtomManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
-import etomica.atom.SpeciesAgent;
+import etomica.atom.IMolecule;
+import etomica.atom.Molecule;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
+import etomica.species.Species;
 
 /**
  * Tests the iterators made by the various static methods in ApiBuilder.
@@ -40,10 +40,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         n0a = 5;
         nAtoms = 10;
         n1a = 10;
-        n2a = 3;
-        nTree = new int[] { 5, 4, 3 };
         sim = UnitTestUtil.makeStandardSpeciesTree(new int[] { n0a, 1 },
-                nAtoms, new int[] { n1a, 2}, new int[] { n2a, 3 }, nTree);
+                nAtoms, new int[] { n1a, 2});
     }
     
     /**
@@ -57,29 +55,27 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         setup1();
         nonAdjacentPairTests(api);
         
-        setup2();
-        api.setBasis(new AtomSetSinglet(parent));
+        //XXX depends on https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=245#c0
+//        setup2();
+//        api.setBasis(new AtomSetSinglet(parent));
+//        
+//        //target matches basis, no direction, two iterates
+//        api.setDirection(null);
+//        api.setTarget(target);
+//        if (false) testApiIterates(api, target, upNon, dnNon);
+//
+//        //target matches basis, up, one iterate
+//        api.setDirection(UP);
+//        testApiIterates(api, UP, target, upNon);
+//        
+//        //target matches basis, down, one iterate
+//        api.setDirection(DOWN);
+//        testApiIterates(api, DOWN, target, dnNon);
+//        
+//        //target doesn't match basis, no iterates
+//        api.setTarget(targetFirst);
+//        testNoIterates(api);
         
-        //target matches basis, no direction, two iterates
-        api.setDirection(null);
-        api.setTarget(target);
-        testApiIterates(api, target, upNon, dnNon);
-
-        //target matches basis, up, one iterate
-        api.setDirection(UP);
-        testApiIterates(api, UP, target, upNon);
-        
-        //target matches basis, down, one iterate
-        api.setDirection(DOWN);
-        testApiIterates(api, DOWN, target, dnNon);
-        
-        //target doesn't match basis, no iterates
-        api.setTarget(targetFirst);
-        testNoIterates(api);
-        
-        setup3();
-        nonAdjacentPairTests(api);
-
         setup4();
         nonAdjacentPairTests(api);
 
@@ -92,40 +88,42 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //iterator must loop over pairs formed from molecules of each species
         sim = UnitTestUtil.makeMultitypeSpeciesTree(new int[] {5,7}, 
                 new int[][] {{3,2},{4,1,6}});
+        Species species0 = sim.getSpeciesManager().getSpecies()[0];
+        Species species1 = sim.getSpeciesManager().getSpecies()[1];
         AtomType[] types = new AtomType[2];
         AtomPair basisPair = new AtomPair();
 
-        AtomManager atomManager = sim.getBoxs()[0].getSpeciesMaster();
-        SpeciesAgent agent0 = (SpeciesAgent)atomManager.getAgentList().getAtom(0);
-        SpeciesAgent agent1 = (SpeciesAgent)atomManager.getAgentList().getAtom(1);
-        AtomTypeGroup agentType0 = sim.getSpeciesManager().getSpeciesAgentTypes()[0];
-        AtomTypeGroup agentType1 = sim.getSpeciesManager().getSpeciesAgentTypes()[1];
+        Box box = sim.getBoxs()[0];
+        AtomSet moleculeList0 = box.getMoleculeList(species0);
+        AtomSet moleculeList1 = box.getMoleculeList(species1);
+        AtomTypeMolecule moleculeType0 = species0.getMoleculeType();
+        AtomTypeMolecule moleculeType1 = species1.getMoleculeType();
         
         //test 3-atom type and 4-atom type, no target
-        basisPair.atom0 = agent0.getDescendant(new int[] {2});
-        basisPair.atom1 = agent1.getDescendant(new int[] {1});
-        types[0] = agentType0.getDescendant(new int[] {0,0});
-        types[1] = agentType1.getDescendant(new int[] {0,0});
+        basisPair.atom0 = moleculeList0.getAtom(2);
+        basisPair.atom1 = moleculeList1.getAtom(1);
+        types[0] = moleculeType0.getChildTypes()[0];
+        types[1] = moleculeType1.getChildTypes()[0];
         ApiIntergroup api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         LinkedList list0 = generalIteratorMethodTests(api);
         assertEquals(list0.size(), 12);
         //test 3 and 4, one of the 3 given as target
-        IAtom target0 = agent0.getDescendant(new int[] {2,1});
+        IAtom target0 = ((IMolecule)moleculeList0.getAtom(2)).getChildList().getAtom(1);
         api.setTarget(target0);
         LinkedList list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 4);
         //test 3 and 4, one of the 4 given as target
-        IAtom target1 = agent1.getDescendant(new int[] {1,0});
+        IAtom target1 = ((IMolecule)moleculeList1.getAtom(1)).getChildList().getAtom(0);
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
         assertEquals(list1.size(), 3);
         //give target that isn't the specified type
-        target0 = agent0.getDescendant(new int[] {2,4});
+        target0 = ((IMolecule)moleculeList0.getAtom(2)).getChildList().getAtom(4);
         api.setTarget(target0);
         testNoIterates(api);
         //again
-        target1 = agent1.getDescendant(new int[] {1,10});
+        target1 = ((IMolecule)moleculeList1.getAtom(1)).getChildList().getAtom(10);
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
@@ -135,68 +133,68 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         
         //same tests, but switch order of basis; nothing should give iterates
         //test 3-atom type and 4-atom type, no target
-        basisPair.atom1 = agent0.getDescendant(new int[] {2});
-        basisPair.atom0 = agent1.getDescendant(new int[] {1});
-        types[0] = agentType0.getDescendant(new int[] {0,0});
-        types[1] = agentType1.getDescendant(new int[] {0,0});
+        basisPair.atom1 = moleculeList0.getAtom(2);
+        basisPair.atom0 = moleculeList1.getAtom(1);
+        types[0] = moleculeType0.getChildTypes()[0];
+        types[1] = moleculeType1.getChildTypes()[0];
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         testNoIterates(api);
         //test 3 and 4, one of the 3 given as target
-        target0 = agent0.getDescendant(new int[] {2,1});
+        target0 = ((IMolecule)moleculeList0.getAtom(2)).getChildList().getAtom(1);
         api.setTarget(target0);
         testNoIterates(api);
         //test 3 and 4, one of the 4 given as target
-        target1 = agent1.getDescendant(new int[] {1,0});
+        target1 = ((IMolecule)moleculeList1.getAtom(1)).getChildList().getAtom(0);
         api.setTarget(target1);
         testNoIterates(api);
 
         //same tests, but switch order of basis and switch order of types
         //test 3-atom type and 4-atom type, no target
-        basisPair.atom1 = agent0.getDescendant(new int[] {2});
-        basisPair.atom0 = agent1.getDescendant(new int[] {1});
-        types[1] = agentType0.getDescendant(new int[] {0,0});
-        types[0] = agentType1.getDescendant(new int[] {0,0});
+        basisPair.atom1 = moleculeList0.getAtom(2);
+        basisPair.atom0 = moleculeList1.getAtom(1);
+        types[1] = moleculeType0.getChildTypes()[0];
+        types[0] = moleculeType1.getChildTypes()[0];
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         list0 = generalIteratorMethodTests(api);
-        assertEquals(list0.size(), 12);
+        assertEquals(12, list0.size());
         //test 3 and 4, one of the 3 given as target
-        target0 = agent0.getDescendant(new int[] {2,1});
+        target0 = ((IMolecule)moleculeList0.getAtom(2)).getChildList().getAtom(1);
         api.setTarget(target0);
         list1 = generalIteratorMethodTests(api);
-        assertEquals(list1.size(), 4);
+        assertEquals(4, list1.size());
         //test 3 and 4, one of the 4 given as target
-        target1 = agent1.getDescendant(new int[] {1,0});
+        target1 = ((IMolecule)moleculeList1.getAtom(1)).getChildList().getAtom(0);
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
-        assertEquals(list1.size(), 3);
+        assertEquals(3, list1.size());
 
         //test 3-atom type and 1-atom type, no target
-        basisPair.atom0 = agent0.getDescendant(new int[] {2});
-        basisPair.atom1 = agent1.getDescendant(new int[] {1});
-        types[0] = agentType0.getDescendant(new int[] {0,0});
-        types[1] = agentType1.getDescendant(new int[] {0,1});
+        basisPair.atom0 = moleculeList0.getAtom(2);
+        basisPair.atom1 = moleculeList1.getAtom(1);
+        types[0] = moleculeType0.getChildTypes()[0];
+        types[1] = moleculeType1.getChildTypes()[1];
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         list0 = generalIteratorMethodTests(api);
-        assertEquals(list0.size(), 3);
+        assertEquals(3, list0.size());
         //test 3 and 1, one of the 3 given as target
-        target0 = agent0.getDescendant(new int[] {2,1});
+        target0 = ((IMolecule)moleculeList0.getAtom(2)).getChildList().getAtom(1);
         api.setTarget(target0);
         list1 = generalIteratorMethodTests(api);
-        assertEquals(list1.size(), 1);
+        assertEquals(1, list1.size());
         //test 3 and 1, the 1 given as target
-        target1 = agent1.getDescendant(new int[] {1,4});
+        target1 = ((IMolecule)moleculeList1.getAtom(1)).getChildList().getAtom(4);
         api.setTarget(target1);
         list1 = generalIteratorMethodTests(api);
-        assertEquals(list1.size(), 3);
+        assertEquals(3, list1.size());
         //give target that isn't the specified type
-        target0 = agent0.getDescendant(new int[] {2,4});
+        target0 = ((IMolecule)moleculeList0.getAtom(2)).getChildList().getAtom(4);
         api.setTarget(target0);
         testNoIterates(api);
         //again
-        target1 = agent1.getDescendant(new int[] {1,10});
+        target1 = ((IMolecule)moleculeList1.getAtom(1)).getChildList().getAtom(10);
         api.setTarget(target1);
         testNoIterates(api);
         //no targets again
@@ -204,14 +202,14 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         list1 = generalIteratorMethodTests(api);
         assertEquals(list0, list1);
 
-        basisPair.atom0 = agent0.getDescendant(new int[] {2});
-        basisPair.atom1 = agent1.getDescendant(new int[] {1});
-        types[0] = agentType0.getDescendant(new int[] {0,0});
-        types[1] = agentType1.getDescendant(new int[] {0,0});
+        basisPair.atom0 = moleculeList0.getAtom(2);
+        basisPair.atom1 = moleculeList1.getAtom(1);
+        types[0] = moleculeType0.getChildTypes()[0];
+        types[1] = moleculeType1.getChildTypes()[0];
         api = ApiBuilder.makeIntergroupTypeIterator(types);
         api.setBasis(basisPair);
         list1 = generalIteratorMethodTests(api);
-        assertEquals(list1.size(), 12);
+        assertEquals(12, list1.size());
 
         //incomplete
     }
@@ -228,32 +226,28 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         setup1();
         adjacentPairTests(api);
         
+        //XXX depends on https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=245#c0
         //************ test basis is leaf
-        setup2();
-        api.setBasis(new AtomSetSinglet(parent));
-        
-        //target matches basis, no direction, two iterates
-        api.setDirection(null);
-        api.setTarget(target);
-        testApiTwoIterates(api, new AtomPair(target, up), new AtomPair(dn, target));
+//        setup2();
+//        api.setBasis(new AtomSetSinglet(parent));
+//        
+//        //target matches basis, no direction, two iterates
+//        api.setDirection(null);
+//        api.setTarget(target);
+//        testApiTwoIterates(api, new AtomPair(target, up), new AtomPair(dn, target));
+//
+//        //target matches basis, up, one iterate
+//        api.setDirection(UP);
+//        testApiOneIterate(api, new AtomPair(target, up));
+//        
+//        //target matches basis, down, one iterate
+//        api.setDirection(DOWN);
+//        testApiOneIterate(api, new AtomPair(dn, target));
+//        
+//        //target doesn't match basis, no iterates
+//        api.setTarget(targetFirst);
+//        testNoIterates(api);
 
-        //target matches basis, up, one iterate
-        api.setDirection(UP);
-        testApiOneIterate(api, new AtomPair(target, up));
-        
-        //target matches basis, down, one iterate
-        api.setDirection(DOWN);
-        testApiOneIterate(api, new AtomPair(dn, target));
-        
-        //target doesn't match basis, no iterates
-        api.setTarget(targetFirst);
-        testNoIterates(api);
-
-        //********* test target further descended from iterates
-        setup3();
-
-        adjacentPairTests(api);
-        
         setup4();
         adjacentPairTests(api);
 
@@ -261,9 +255,10 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //******* adjacent/nonadjacent setup -- basis has only one child
     private void setup4() {
-        AtomManager atomManager = sim.getBoxs()[1].getSpeciesMaster();
-        parent = atomManager.getAgentList().getAtom(0);//box1, species0
-        target = ((IAtomGroup)parent).getChildList().getAtom(0);//the only species0 molecule
+        Box box = sim.getBoxs()[1];
+        Species species1 = sim.getSpeciesManager().getSpecies()[1];
+        parent = box.getMoleculeList(species1).getAtom(0);//box1, species1, molecule0
+        target = ((IMolecule)parent).getChildList().getAtom(0);
         targetFirst = target;
         targetLast = target;
         up = dn = upFirst = dnLast = null;
@@ -273,34 +268,11 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         iterateLast = target;
     }
 
-    //************ adjacent/nonadjacent setup -- target is descended from but not direct child of basis
-    private void setup3() {
-        parent = sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[2]).getAtom(2);
-        AtomSet childList = ((IAtomGroup)parent).getChildList(); 
-        target = ((AtomGroup)parent).getDescendant(new int[] {1,0,1});
-        targetFirst = ((AtomGroup)parent).getDescendant(new int[] {0,0,2});
-        targetLast = ((AtomGroup)parent).getDescendant(new int[] {4,1});
-        up = ((AtomGroup)parent).getDescendant(new int[] {2});
-        upNon = new IAtom[] {childList.getAtom(3), childList.getAtom(4)};
-        upFirst = childList.getAtom(1);
-        upFirstNon = new IAtom[] {childList.getAtom(2), childList.getAtom(3),
-                childList.getAtom(4)};
-        dn = childList.getAtom(0);
-        dnNon = new IAtom[0];
-        dnLast = childList.getAtom(3);
-        dnLastNon = new IAtom[] {childList.getAtom(2),childList.getAtom(1),
-                childList.getAtom(0)};
-        iterate = childList.getAtom(1);
-        iterateFirst = childList.getAtom(0);
-        iterateLast = childList.getAtom(4);
-    }
-
-
     //**********  adjacent/nonadjacent setup -- basis is a leaf atom
     private void setup2() {
         AtomSet moleculeList = sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[1]);
         parent = moleculeList.getAtom(5);//leaf-atom basis
-        target = parent;//atom5 
+        target = parent;//atom5
         targetFirst = moleculeList.getAtom(0);//atom0 
         targetLast = moleculeList.getAtom(9);//atom9
         up = moleculeList.getAtom(6);
@@ -322,7 +294,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //******* adjacent/nonadjacent setup -- basis has child atoms, target is among them
     private void setup1() {
         parent = sim.getBoxs()[0].getMoleculeList(sim.getSpeciesManager().getSpecies()[0]).getAtom(2);
-        AtomSet childList = ((IAtomGroup)parent).getChildList();
+        AtomSet childList = ((IMolecule)parent).getChildList();
         target = childList.getAtom(5);
         targetFirst = childList.getAtom(0);
         targetLast = childList.getAtom(9);
@@ -401,7 +373,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //no target, n-1 iterates
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        assertEquals(list0.size(), ((IAtomGroup)parent).getChildList().getAtomCount()-1);
+        assertEquals(list0.size(), ((IMolecule)parent).getChildList().getAtomCount()-1);
         
         //if no target, direction doesn't matter
         api.setDirection(null);
@@ -473,7 +445,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //(first and last have n-2, the other n-2 have n-3)
         api.setTarget(null);
         LinkedList list0 = generalIteratorMethodTests(api);
-        int n = ((IAtomGroup)parent).getChildList().getAtomCount();
+        int n = ((IMolecule)parent).getChildList().getAtomCount();
         assertEquals(list0.size(), (2*(n-2) + (n-2)*(n-3))/2);
         
         //if no target, direction doesn't matter
@@ -489,8 +461,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     }
 
     private ISimulation sim;
-    int n0a, nAtoms, n1a, n2a, n3a;
-    int[] nTree;
+    int n0a, nAtoms, n1a;
     private static final IteratorDirective.Direction UP = IteratorDirective.Direction.UP;
     private static final IteratorDirective.Direction DOWN = IteratorDirective.Direction.DOWN;
     private IAtom parent;

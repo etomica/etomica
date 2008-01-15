@@ -2,9 +2,7 @@ package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTypeGroup;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -24,8 +22,18 @@ public class ConformationLinear extends Conformation {
         this(sim.getSpace(), 0.55);
     }
     public ConformationLinear(Space space, double bondLength) {
-    	this(space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
+    	this(space, bondLength, makeDefaultAngles(space));
     }
+    
+    private static double[] makeDefaultAngles(Space space) {
+        switch (space.D()) {
+            case 1: return new double[0];
+            case 2: return new double[]{etomica.units.Degree.UNIT.toSim(45)};
+            case 3: return new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0};
+            default: throw new RuntimeException(space.D()+" dimensional space?  I'm impressed.");
+        }
+    }
+    
     public ConformationLinear(Space space, double bondLength, double[] initAngles) {
         super(space);
         this.bondLength = bondLength;
@@ -75,15 +83,8 @@ public class ConformationLinear extends Conformation {
         double xNext = -bondLength*0.5*(size-1);
         int nLeaf = atomList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = atomList.getAtom(iLeaf);
-            if (a instanceof IAtomGroup) {
-                //initialize coordinates of child atoms
-                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
-                config.initializePositions(((IAtomGroup)a).getChildList());
-            }
-            moveToOrigin.actionPerformed(a);
-            translationVector.Ea1Tv1(xNext, orientation);
-            translator.actionPerformed(a);
+            IAtomPositioned a = (IAtomPositioned)atomList.getAtom(iLeaf);
+            a.getPosition().Ea1Tv1(xNext, orientation);
             xNext += bondLength;
         }
     }

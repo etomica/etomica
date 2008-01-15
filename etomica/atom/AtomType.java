@@ -1,7 +1,6 @@
 package etomica.atom;
 
 import etomica.species.Species;
-import etomica.util.Debug;
 
 /**
  * AtomType holds fields that are common to many atoms. It serves many
@@ -26,26 +25,11 @@ import etomica.util.Debug;
 
 public abstract class AtomType implements java.io.Serializable, Comparable {
 
-    protected Species species;
     protected int index;
-    private int typeTreeAddress;
 
-    private AtomAddressManager addressManager;
     private AtomPositionDefinition positionDefinition;
 
-    protected AtomTypeGroup parentType;
-    
     private boolean isInteracting = false;
-
-    /**
-     * Used only to create root type.
-     */
-    AtomType(AtomAddressManager indexManager) {
-        parentType = null;
-        this.addressManager = indexManager;
-        setChildIndex(0,0);
-        positionDefinition = null;
-    }
 
     /**
      * Primary constructor called by subclasses to make the instance.
@@ -66,103 +50,16 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
 //        setParentType(null);
     }
 
-    /**
-     * Integer describing this AtomType's place in the tree
-     */
-    public final int getAddress() {
-        return typeTreeAddress;
+    public void setIndex(int newIndex) {
+        index = newIndex;
     }
 
-    /**
-     * @param parentType
-     *            the instance of the AtomType that is the parent of this in the
-     *            AtomType hierarchy. This constructor adds this instance to the
-     *            list of child types of the given parent (if not null, which is
-     *            permitted and may arise if working outside the species tree
-     *            hierarchy)
-     */
-    public void setParentType(AtomTypeGroup newParentType) {
-        if (parentType != null) {
-            throw new RuntimeException("You can't set the parent type twice");
-        }
-        
-        parentType = newParentType;
-        if (parentType == null) {
-            addressManager = AtomAddressManager
-                    .makeSimpleIndexManager(new int[] {4, 19, 9});
-            index = -1;
-            setChildIndex(0,0);
-        } else {
-            AtomAddressManager parentAddressManager = parentType.getAddressManager();
-            if (parentAddressManager != null) {
-                addressManager = parentAddressManager.makeChildManager();
-                // we just got hooked up.  get our new index
-                resetIndex();
-            }
-            parentType.addChildType(this);
-        }
-    }
-
-    public void setChildIndex(int newChildIndex) {
-        setChildIndex((parentType != null) ? parentType.getAddress() : 0, newChildIndex);
-    }
-    
-    protected void setChildIndex(int parentTypeAddress, int newChildIndex) {
-        typeTreeAddress = parentTypeAddress + addressManager.shiftIndex(newChildIndex);
-        if (Debug.ON && getAddressManager().getIndex(typeTreeAddress) != newChildIndex) {
-            addressManager.getIndex(typeTreeAddress);
-            throw new RuntimeException(typeTreeAddress+" "+newChildIndex+" "+(addressManager.getIndex(typeTreeAddress)));
-        }
-    }
-    
-    public int getChildIndex() {
-        return addressManager.getIndex(typeTreeAddress);
-    }
-    
     public int getIndex() {
         return index;
     }
     
-    public void resetIndex() {
-        addressManager = parentType.getAddressManager().makeChildManager();
-        setChildIndex(parentType.childTypes.length);
-        // we just got hooked up.  get our new index
-        index = parentType.requestIndex();
-    }
+    public abstract Species getSpecies();
     
-    /**
-     * Indicates whether this type is at the bottom of the AtomType hierarchy.
-     * 
-     * @return true if this type is an instance of AtomTypeLeaf
-     */
-    public abstract boolean isLeaf();
-
-    /**
-     * Returns the parent AtomType of this AtomType.
-     */
-    public AtomTypeGroup getParentType() {
-        return parentType;
-    }
-
-    /**
-     * Returns the index manager used to set and interpret the 
-     * index of an atom of this type.
-     */
-    public AtomAddressManager getAddressManager() {
-        return addressManager;
-    }
-
-    /**
-     * Implementation of Comparable interface, based on type index value.  
-     * Returns -1, 0, 1 if getIndexManager().getTypeIndex() for this type
-     * is less, equal, or greater, respectively, than the corresponding 
-     * value for the given type.
-     */
-    public int compareTo(Object atomType) {
-        int otherAddress = ((AtomType) atomType).getAddress();
-        return otherAddress > typeTreeAddress ? -1 : (otherAddress == typeTreeAddress ? 0 : 1);
-    }
-
     /**
      * The position definition held by the type provides an appropriate default
      * to define the position of an atom of this type. This field is set in the
@@ -181,37 +78,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
     public void setPositionDefinition(AtomPositionDefinition newPositionDefinition) {
         positionDefinition = newPositionDefinition;
     }
-    
-    /**
-     * Returns true if an atom of this type is descended from an atom (any atom)
-     * having the given type.
-     */
-    public boolean isDescendedFrom(AtomType type) {
-        return type.getAddressManager().sameAncestry(type.getAddress(),typeTreeAddress);
-    }
-
-    /**
-     * Returns the depth of this atom in the atom hierarchy. That is, returns
-     * the number of parent relations between this atom and the species master.
-     */
-    public final int getDepth() {
-        return addressManager.getDepth();
-    }
-
-    /**
-     * @return Returns the species.
-     */
-    public Species getSpecies() {
-        return species;
-    }
-
-    /**
-     * @param species
-     *            The species to set.
-     */
-    public void setSpecies(Species species) {
-        this.species = species;
-    }
 
     public void setInteracting(boolean b) {
         isInteracting = b;
@@ -223,6 +89,11 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
      */
     public boolean isInteracting() {
         return isInteracting;
+    }
+    
+    public int compareTo(Object otherAtomType) {
+        int otherIndex = ((AtomType)otherAtomType).getIndex();
+        return otherIndex > index ? -1 : (otherIndex == index ? 0 : 1);
     }
     
     public String toString() {

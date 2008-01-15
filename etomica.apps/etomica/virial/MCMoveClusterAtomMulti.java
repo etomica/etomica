@@ -16,13 +16,8 @@ import etomica.space.IVectorRandom;
  */
 public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
-    public MCMoveClusterAtomMulti(ISimulation sim, PotentialMaster potentialMaster, int nAtoms) {
+    public MCMoveClusterAtomMulti(ISimulation sim, PotentialMaster potentialMaster) {
         super(sim, potentialMaster);
-        selectedAtoms = new IAtomPositioned[nAtoms];
-        translationVectors = new IVectorRandom[nAtoms];
-        for (int i=0; i<nAtoms; i++) {
-            translationVectors[i] = (IVectorRandom)potential.getSpace().makeVector();
-        }
         weightMeter = new MeterClusterWeight(potential);
         setStepSize(1.2);
 	}
@@ -30,16 +25,20 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     public void setBox(Box p) {
         super.setBox(p);
         weightMeter.setBox(p);
+        translationVectors = new IVectorRandom[box.getMoleculeList().getAtomCount()-1];
+        for (int i=0; i<box.getMoleculeList().getAtomCount()-1; i++) {
+            translationVectors[i] = (IVectorRandom)potential.getSpace().makeVector();
+        }
     }
     
 	//note that total energy is calculated
 	public boolean doTrial() {
-		if (selectedAtoms[0] == null) selectAtoms();
         uOld = weightMeter.getDataAsScalar();
-        for(int i=0; i<selectedAtoms.length; i++) {
-            translationVectors[i].setRandomCube(random);
-            translationVectors[i].TE(stepSize);
-            selectedAtoms[i].getPosition().PE(translationVectors[i]);
+        AtomSet leafAtoms = box.getLeafList();
+        for(int i=1; i<leafAtoms.getAtomCount(); i++) {
+            translationVectors[i-1].setRandomCube(random);
+            translationVectors[i-1].TE(stepSize);
+            ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition().PE(translationVectors[i-1]);
         }
 		((BoxCluster)box).trialNotify();
 		uNew = Double.NaN;
@@ -55,17 +54,10 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
     	return 0.0;
     }
     
-    public void selectAtoms() {
-        AtomSet leafList = box.getLeafList();
-        int total = leafList.getAtomCount();
-    	for(int i=1; i<total; i++) {
-    		selectedAtoms[i-1] = (IAtomPositioned)leafList.getAtom(i);
-    	}
-    }
-
     public void rejectNotify() {
-        for(int i=0; i<selectedAtoms.length; i++) {
-            selectedAtoms[i].getPosition().ME(translationVectors[i]);
+        AtomSet leafAtoms = box.getLeafList();
+        for(int i=1; i<leafAtoms.getAtomCount(); i++) {
+            ((IAtomPositioned)leafAtoms.getAtom(i)).getPosition().ME(translationVectors[i-1]);
         }
     	((BoxCluster)box).rejectNotify();
     }
@@ -76,6 +68,5 @@ public class MCMoveClusterAtomMulti extends MCMoveAtom {
 
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
-    private final IAtomPositioned[] selectedAtoms;
-    private final IVectorRandom[] translationVectors;
+    private IVectorRandom[] translationVectors;
 }

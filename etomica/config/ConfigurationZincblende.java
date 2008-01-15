@@ -5,15 +5,16 @@ import etomica.action.AtomGroupAction;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
+import etomica.box.Box;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.lattice.LatticeCubicFcc;
-import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
+import etomica.species.Species;
 
 /**
  * Sets the configuration to the zincblende structure, which consists
@@ -24,11 +25,28 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     
     private static final long serialVersionUID = 2L;
     private AtomGroupAction translator0, translator1;
+    protected Species[] species;
     
     public ConfigurationZincblende(double latticeConstant) {
         super(new LatticeCubicFcc(latticeConstant));
+        species = new Species[2];
     }
     
+    public void setSpecies1(Species species1) {
+        species[0] = species1;
+    }
+    
+    public void setSpecies2(Species species2) {
+        species[1] = species2;
+    }
+    
+    public Species getSpecies1() {
+        return species[0];
+    }
+    
+    public Species getSpecies2() {
+        return species[1];
+    }
     
     /**
      * Initializes positions of atoms to the zincblende structure.  The given
@@ -37,7 +55,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     public void initializeCoordinates(Box box) {
         translator0 = new AtomGroupAction(new AtomActionTranslateBy(box.getSpace()));
         translator1 = new AtomGroupAction(new AtomActionTranslateBy(box.getSpace()));
-        AtomSet[] lists = getMoleculeLists(box);
+        AtomSet[] lists = new AtomSet[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
         }
@@ -107,8 +125,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         etomica.species.SpeciesSpheresMono speciesSpheres1  = new etomica.species.SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(speciesSpheres0);
         sim.getSpeciesManager().addSpecies(speciesSpheres1);
-        ((AtomTypeSphere)speciesSpheres0.getMoleculeType()).setDiameter(5.0);
-        ((AtomTypeSphere)speciesSpheres1.getMoleculeType()).setDiameter(5.0);
+        ((AtomTypeSphere)speciesSpheres0.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
+        ((AtomTypeSphere)speciesSpheres1.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
         box.setNMolecules(speciesSpheres0, 32);
         box.setNMolecules(speciesSpheres1, 32);
         ConfigurationZincblende config = new ConfigurationZincblende(15);

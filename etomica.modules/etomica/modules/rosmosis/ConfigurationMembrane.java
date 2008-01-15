@@ -1,10 +1,9 @@
 package etomica.modules.rosmosis;
 
 import etomica.action.AtomActionTranslateBy;
-import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -17,7 +16,7 @@ import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
 import etomica.species.Species;
 
-public class ConfigurationMembrane extends Configuration {
+public class ConfigurationMembrane implements Configuration {
 
     public ConfigurationMembrane(ISimulation sim) {
         soluteMoleFraction = 1;
@@ -57,7 +56,7 @@ public class ConfigurationMembrane extends Configuration {
         AtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);
         for (int i=nMolecules-1; i>-1; i--) {
             // molecules will be reversed in order, but that's OK
-            IAtom atom = molecules.getAtom(i);
+            IMolecule atom = (IMolecule)molecules.getAtom(i);
             pretendBox.removeMolecule(atom);
             box.addMolecule(atom);
         }
@@ -73,7 +72,7 @@ public class ConfigurationMembrane extends Configuration {
             molecules = pretendBox.getMoleculeList(fluidSpecies[iSpecies]);
             for (int i=molecules.getAtomCount()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
-                IAtom atom = molecules.getAtom(i);
+                IMolecule atom = (IMolecule)molecules.getAtom(i);
                 pretendBox.removeMolecule(atom);
                 // we need to translate the molecules into the proper chamber
                 double x = atom.getType().getPositionDefinition().position(atom).x(membraneDim);
@@ -136,15 +135,16 @@ public class ConfigurationMembrane extends Configuration {
             molecules = pretendBox.getMoleculeList(speciesMembrane);
             for (int i=molecules.getAtomCount()-1; i>-1; i--) {
                 // molecules will be reversed in order, but that's OK
-                IAtomPositioned atom = (IAtomPositioned)molecules.getAtom(i);
+                IMolecule molecule = (IMolecule)molecules.getAtom(i);
+                IAtomPositioned atom = (IAtomPositioned)molecule.getChildList().getAtom(0);
                 double x = atom.getPosition().x(membraneDim);
                 if (Math.abs(x - membraneCenter) > 0.5 * membraneThickness) {
                     // we encountered a pretend atom in our pretend box!
                     continue;
                 }
                 atom.getPosition().setX(membraneDim, x + membraneShift);
-                pretendBox.removeMolecule(atom);
-                box.addMolecule(atom);
+                pretendBox.removeMolecule(molecule);
+                box.addMolecule(molecule);
             }
         }
         

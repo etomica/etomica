@@ -1,8 +1,8 @@
 package etomica.potential;
 
 import etomica.atom.AtomSet;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
@@ -47,8 +47,8 @@ public class P22CLJQ extends Potential2 {
     public double energy(AtomSet pair){
         double ener=0.0;
 
-        AtomSet mol1 = ((IAtomGroup)pair.getAtom(0)).getChildList(); 
-        AtomSet mol2 = ((IAtomGroup)pair.getAtom(1)).getChildList(); 
+        AtomSet mol1 = ((IMolecule)pair.getAtom(0)).getChildList(); 
+        AtomSet mol2 = ((IMolecule)pair.getAtom(1)).getChildList(); 
         IAtomPositioned bead11 = (IAtomPositioned)mol1.getAtom(0);
         IAtomPositioned bead12 = (IAtomPositioned)mol1.getAtom(1);
 

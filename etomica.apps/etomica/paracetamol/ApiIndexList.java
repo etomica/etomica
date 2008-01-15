@@ -2,11 +2,10 @@ package etomica.paracetamol;
 
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 
 /**
@@ -58,7 +57,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
 	        parentGroup = null;
 	    }
 	    else {
-	        parentGroup = (AtomGroup)parent.getAtom(0);
+	        parentGroup = (IMolecule)parent.getAtom(0);
 	    }
 		unset();
 	}
@@ -135,7 +134,7 @@ public class ApiIndexList implements AtomsetIteratorBasisDependent {
 
     private int [][]index;
     private int cursor;
-    private IAtomGroup parentGroup;
+    private IMolecule parentGroup;
     private IAtom target;
     
     private final AtomPair pair;

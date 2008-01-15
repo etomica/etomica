@@ -63,7 +63,7 @@ public class Heisenberg extends Simulation {
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
 
-        AtomType type = spins.getMoleculeType();
+        AtomType type = spins.getLeafType();
         potentialMaster.addPotential(field, new AtomType[] {type});
         potentialMaster.addPotential(potential, new AtomType[] {type, type});
         
@@ -81,7 +81,7 @@ public class Heisenberg extends Simulation {
     private static final long serialVersionUID = 2L;
     public PotentialMasterSite potentialMaster;
     public Box box;
-    public Species spins;
+    public SpeciesSpheresMono spins;
     public P2Spin potential;
     public P1MagneticField field;
     private IntegratorMC integrator;

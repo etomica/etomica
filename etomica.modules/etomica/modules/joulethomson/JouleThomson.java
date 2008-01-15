@@ -20,10 +20,13 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
+import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterDensity;
+import etomica.data.meter.MeterPressure;
+import etomica.data.meter.MeterTemperature;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.ColorSchemeTemperature;
 import etomica.graphics.DeviceBox;
@@ -57,6 +60,7 @@ import etomica.units.Temperature;
 import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.units.systems.MKS;
+import etomica.util.HistoryScrolling;
 
 /**
  * Joule Thomson Experiment
@@ -168,9 +172,11 @@ public class JouleThomson extends SimulationGraphic {
 //        hMeter.setHistorying(true);
         
         //meter and display for density
+		DataSourceCountTime time = new DataSourceCountTime(sim.integrator);
         final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
         densityMeter.setBox(sim.box);
         AccumulatorHistory densityHistoryAcc = new AccumulatorHistory();
+        densityHistoryAcc.setTimeDataSource(time);
         DataPump densityPump = new DataPump(densityMeter, densityHistoryAcc);
         sim.integratorJT.addIntervalAction(densityPump);
         sim.integratorJT.setActionInterval(densityPump, 20);
@@ -194,6 +200,7 @@ public class JouleThomson extends SimulationGraphic {
             }
         };
         AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
+        targetPressureHistory.setTimeDataSource(time);
         DataPump pump = new DataPump(targetPressureDataSource, targetPressureHistory);
         sim.integratorJT.addIntervalAction(pump);
         sim.integratorJT.setActionInterval(pump, 20);
@@ -206,6 +213,7 @@ public class JouleThomson extends SimulationGraphic {
         };
         tSlider.setValue(tSlider.getUnit().fromSim(sim.integrator.getTemperature()));
         AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
+        targetTemperatureHistory.setTimeDataSource(time);
         pump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
         sim.integratorJT.addIntervalAction(pump);
         sim.integratorJT.setActionInterval(pump, 20);
@@ -223,6 +231,24 @@ public class JouleThomson extends SimulationGraphic {
         plot.setUnit(new DataTag[]{densityHistoryAcc.getTag()}, dadUnit);
         plot.setUnit(new DataTag[]{targetTemperatureHistory.getTag()}, tUnit);
         plot.setUnit(new DataTag[]{targetPressureHistory.getTag()}, pUnit);
+        
+        MeterPressure meterPressure = new MeterPressure(sim.getSpace());
+        meterPressure.setIntegrator(sim.integrator);
+        AccumulatorHistory pressureHistory = new AccumulatorHistory(new HistoryScrolling(20));
+        pressureHistory.setTimeDataSource(time);
+        pump = new DataPump(meterPressure, pressureHistory);
+        sim.integratorJT.addIntervalAction(pump);
+        sim.integratorJT.setActionInterval(pump, 20);
+        pressureHistory.addDataSink(plot.getDataSet().makeDataSink());
+        
+        MeterTemperature meterTemperature = new MeterTemperature();
+        meterTemperature.setBox(sim.box);
+        AccumulatorHistory temperatureHistory = new AccumulatorHistory();
+        temperatureHistory.setTimeDataSource(time);
+        pump = new DataPump(meterTemperature, temperatureHistory);
+        sim.integratorJT.addIntervalAction(pump);
+        sim.integratorJT.setActionInterval(pump, 100);
+        temperatureHistory.addDataSink(plot.getDataSet().makeDataSink());
 
         //plot of enthalpy and PT set points
         DisplayPlot plotH = new DisplayPlot();
@@ -361,10 +387,10 @@ public class JouleThomson extends SimulationGraphic {
                     sim.integrator.setTimeStep(tStep);
                     sim.integratorNVE.setTimeStep(tStep);
                     currentMass = mass[i];
-                    ((ElementSimple)((AtomTypeLeaf)sim.species.getMoleculeType()).getElement()).setMass(currentMass);
+                    ((ElementSimple)sim.species.getLeafType().getElement()).setMass(currentMass);
                     currentEps = epsilon[i];
                     currentSig = sigma[i];
-                    ((AtomTypeSphere)sim.species.getMoleculeType()).setDiameter(sigma[i]);
+                    ((AtomTypeSphere)sim.species.getLeafType()).setDiameter(sigma[i]);
                     sim.potential.setEpsilon(epsilon[i]);
                     sim.potential.setSigma(sigma[i]);
                 }

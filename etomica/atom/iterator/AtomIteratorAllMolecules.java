@@ -21,7 +21,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
             implements AtomIteratorBoxDependent {
 
     public AtomIteratorAllMolecules() {
-        super(new AtomIteratorTreeBox(2));
+        super(new AtomIteratorArrayListSimple());
     }
 
     /**
@@ -37,7 +37,7 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
      * Sets the box having the molecules to be returned as iterates.
      */
     public void setBox(Box box) {
-        ((AtomIteratorBoxDependent)iterator).setBox(box);
+        ((AtomIteratorArrayListSimple)iterator).setList(box.getMoleculeList());
     }
     
     private static final long serialVersionUID = 1L;

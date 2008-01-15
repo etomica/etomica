@@ -2,7 +2,7 @@ package etomica.nbr.site;
 
 import etomica.atom.AtomAgentManager;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
@@ -91,7 +91,7 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
     }
 
     public Object makeAgent(IAtom atom) {
-        if (atom instanceof IAtomGroup) {
+        if (atom instanceof IMolecule) {
             return null;
         }
         AtomSite site = (AtomSite)siteIterator.next();

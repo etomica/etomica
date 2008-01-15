@@ -1,6 +1,7 @@
 package etomica.nbr;
 
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomLeaf;
 
 /**
  * @author andrew
@@ -24,7 +25,7 @@ public class CriterionBondedSimple extends CriterionAdapter {
     public boolean accept(AtomSet pair) {
         int diff = pair.getAtom(0).getIndex() - pair.getAtom(1).getIndex();
         if (isBonded != (diff == 1 || diff == -1) 
-                || (!pair.getAtom(0).inSameMolecule(pair.getAtom(1)))) {
+                || (((IAtomLeaf)pair.getAtom(0)).getParentGroup() != ((IAtomLeaf)pair.getAtom(1)).getParentGroup())) {
             return false;
         }
         return subCriterion.accept(pair);

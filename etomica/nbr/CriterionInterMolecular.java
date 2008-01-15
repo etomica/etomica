@@ -1,6 +1,7 @@
 package etomica.nbr;
 
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomLeaf;
 
 /**
  * Pair criterion that judges whether two atoms are or are not in the same 
@@ -33,8 +34,8 @@ public class CriterionInterMolecular extends CriterionAdapter {
     
     public boolean accept(AtomSet pair) {
         // Only ask the intracriterion if it exists and the pair is intramolecular. 
-        if (intraCriterion != null && (pair.getAtom(0).inSameMolecule(pair.getAtom(1))) &&
-                !intraCriterion.accept(pair)) {
+        if ((((IAtomLeaf)pair.getAtom(0)).getParentGroup() == ((IAtomLeaf)pair.getAtom(1)).getParentGroup()) && (intraCriterion == null ||
+                !intraCriterion.accept(pair))) {
             return false;
         }
         return subCriterion.accept(pair);

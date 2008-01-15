@@ -237,7 +237,7 @@ public class SwmdGraphic extends SimulationGraphic {
         sigModifier.setValue(sigma);
         ModifierGeneral epsModifier = new ModifierGeneral(potentialSW, "epsilon");
         ModifierGeneral lamModifier = new ModifierGeneral(potentialSW, "lambda");
-        ModifierGeneral massModifier = new ModifierGeneral(((AtomTypeLeaf)sim.species.getMoleculeType()).getElement(),"mass");
+        ModifierGeneral massModifier = new ModifierGeneral(sim.species.getLeafType().getElement(),"mass");
         sigBox.setModifier(sigModifier);
         sigBox.setLabel("Core Diameter ("+Angstrom.UNIT.symbol()+")");
         epsBox.setUnit(eUnit);
@@ -289,7 +289,7 @@ public class SwmdGraphic extends SimulationGraphic {
         vPlot.setDoLegend(true);
         vPlot.setLabel("Velocity");
 		
-		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(),sim.integrator.getTemperature(),((AtomTypeLeaf)sim.species.getMoleculeType()).getMass());
+		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(),sim.integrator.getTemperature(),sim.species.getLeafType().getMass());
 		final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann Distribution",
                 Null.DIMENSION, mbDistribution, 100, "Speed (A/ps)", new DimensionRatio(Length.DIMENSION,Time.DIMENSION));
 		DataSourceUniform mbX = mbSource.getXSource();
@@ -547,7 +547,7 @@ public class SwmdGraphic extends SimulationGraphic {
                 throw new IllegalArgumentException("diameter can't exceed 4.0A");
             }
             //assume one type of atom
-            ((AtomTypeSphere)sim.species.getMoleculeType()).setDiameter(d);
+            ((AtomTypeSphere)sim.species.getLeafType()).setDiameter(d);
             SwmdGraphic.this.potentialHS.setCollisionDiameter(d);
             SwmdGraphic.this.potentialSW.setCoreDiameter(d);
             new BoxImposePbc(sim.box).actionPerformed();

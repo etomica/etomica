@@ -12,7 +12,7 @@ import etomica.space.IVector;
 /**
  * reads configuration coordinates from a file and assigns them to the leaf atoms in a box
  */
-public class ConfigurationFile extends Configuration {
+public class ConfigurationFile implements Configuration, java.io.Serializable {
 
     public ConfigurationFile(String aConfName) {
         confName = aConfName;

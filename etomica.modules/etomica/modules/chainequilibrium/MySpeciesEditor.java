@@ -10,7 +10,6 @@ import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomAgentManager;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
@@ -18,6 +17,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
 import etomica.species.Species;
+import etomica.species.SpeciesSpheresMono;
 
 /**
  * @author Matt Moynihan
@@ -32,13 +32,13 @@ class MySpeciesEditor extends javax.swing.JPanel {
 
 	//	public DeviceSlider nSlider;
 	public DeviceNSelector nSlider;
-	public Species species;
+	public SpeciesSpheresMono species;
 	boolean initializing;
     ChainEquilibriumSim sim;
 	public final javax.swing.JTextField mass = new javax.swing.JTextField("40");
 
 	
-	public MySpeciesEditor(final ChainEquilibriumGraphic simGraphic, Box box, Species s, String label) {
+	public MySpeciesEditor(final ChainEquilibriumGraphic simGraphic, Box box, SpeciesSpheresMono s, String label) {
 		super();
 		species = s;
         sim = simGraphic.sim;
@@ -67,7 +67,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 					value = 1000000;
 				final double newMass = value;
 				mass.setText(Integer.toString(value));
-				((ElementSimple)((AtomTypeLeaf)species.getMoleculeType()).getElement()).setMass(newMass);
+				((ElementSimple)species.getLeafType().getElement()).setMass(newMass);
 				try {
                     sim.integratorHard1.reset();
                 } catch (ConfigurationOverlapException e) {

@@ -3,6 +3,7 @@ package etomica.nbr;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
@@ -23,7 +24,7 @@ public class PotentialGroupNbr extends PotentialGroup {
      * using the directive to set up the iterators for the sub-potentials of this group.
      */
     //TODO consider what to do with sub-potentials after target atoms are reached
-    public void calculateRangeIndependent(IAtom atom, IteratorDirective id, PotentialCalculation pc) {
+    public void calculateRangeIndependent(IMolecule atom, IteratorDirective id, PotentialCalculation pc) {
         IAtom targetAtom = id.getTargetAtom();
         IteratorDirective.Direction direction = id.direction();
         //loop over sub-potentials

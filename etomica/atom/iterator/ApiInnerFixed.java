@@ -143,6 +143,9 @@ public final class ApiInnerFixed implements ApiComposite, java.io.Serializable {
                 pair.atom1 = nextInner;
             }
         }
+        if (pair.atom0 == pair.atom1) {
+            throw new RuntimeException("wow! "+pair);
+        }
         return pair;
     }
 

@@ -71,8 +71,8 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
         }
         agents[parentType.getIndex()] = null;
 
-        if (parentType instanceof AtomTypeGroup) {
-            AtomType[] children = ((AtomTypeGroup)parentType).getChildTypes();
+        if (parentType instanceof AtomTypeMolecule) {
+            AtomType[] children = ((AtomTypeMolecule)parentType).getChildTypes();
             for (int i=0; i<children.length; i++) {
                 releaseAgents(children[i]);
             }
@@ -82,21 +82,21 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     /**
      * Creates the agents associated with the children of the given AtomType.
      */
-    private void makeChildAgents(AtomTypeGroup parentType) {
+    private void makeChildAgents(AtomTypeMolecule parentType) {
         AtomType[] children = parentType.getChildTypes();
         for (int i=0; i<children.length; i++) {
             addAgent(children[i]);
-            if (children[i] instanceof AtomTypeGroup) {
-                makeChildAgents((AtomTypeGroup)children[i]);
+            if (children[i] instanceof AtomTypeMolecule) {
+                makeChildAgents((AtomTypeMolecule)children[i]);
             }
         }
     }
 
     private void makeAllAgents() {
-        AtomTypeSpeciesAgent[] speciesAgentTypes = speciesManager.getSpeciesAgentTypes();
-        for (int i=0; i<speciesAgentTypes.length; i++) {
-            addAgent(speciesAgentTypes[i]);
-            makeChildAgents(speciesAgentTypes[i]);
+        AtomTypeMolecule[] moleculeTypes = speciesManager.getMoleculeTypes();
+        for (int i=0; i<moleculeTypes.length; i++) {
+            addAgent(moleculeTypes[i]);
+            makeChildAgents(moleculeTypes[i]);
         }
     }
     
@@ -105,7 +105,7 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
      */
     private int getGlobalMaxIndex() {
         int max = 0;
-        AtomTypeSpeciesAgent[] speciesAgentTypes = speciesManager.getSpeciesAgentTypes();
+        AtomTypeMolecule[] speciesAgentTypes = speciesManager.getMoleculeTypes();
         for (int i=0; i<speciesAgentTypes.length; i++) {
             if (speciesAgentTypes[i].getIndex() > max) {
                 max = speciesAgentTypes[i].getIndex();
@@ -121,15 +121,15 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     /**
      * Returns the max index of all the children of the given AtomType
      */
-    private static int getMaxIndexOfChildren(AtomTypeGroup parentType) {
+    private static int getMaxIndexOfChildren(AtomTypeMolecule parentType) {
         int max = 0;
         AtomType[] children = parentType.getChildTypes();
         for (int i=0; i<children.length; i++) {
             if (children[i].getIndex() > max) {
                 max = children[i].getIndex();
             }
-            if (children[i] instanceof AtomTypeGroup) {
-                int childMax = getMaxIndexOfChildren((AtomTypeGroup)children[i]);
+            if (children[i] instanceof AtomTypeMolecule) {
+                int childMax = getMaxIndexOfChildren((AtomTypeMolecule)children[i]);
                 if (childMax > max) {
                     max = childMax;
                 }
@@ -145,9 +145,9 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     public void dispose() {
         // remove ourselves as a listener to the old box
         simEventManager.removeListener(this);
-        AtomTypeSpeciesAgent[] speciesAgentTypes = speciesManager.getSpeciesAgentTypes();
-        for (int i=0; i<speciesAgentTypes.length; i++) {
-            releaseAgents(speciesAgentTypes[i]);
+        AtomTypeMolecule[] moleculeTypes = speciesManager.getMoleculeTypes();
+        for (int i=0; i<moleculeTypes.length; i++) {
+            releaseAgents(moleculeTypes[i]);
         }
         agents = null;
     }
@@ -171,22 +171,22 @@ public class AtomTypeAgentManager implements SimulationListener, java.io.Seriali
     public void actionPerformed(SimulationEvent evt) {
         // we learn about new Species via AtomTypeAdded events
         if (evt instanceof SimulationSpeciesRemovedEvent) {
-            AtomTypeGroup parentType = ((SimulationSpeciesRemovedEvent)evt).getSpecies().getMoleculeType().getParentType();
+            AtomTypeMolecule parentType = ((SimulationSpeciesRemovedEvent)evt).getSpecies().getMoleculeType();
             releaseAgents(parentType);
         }
         else if (evt instanceof SimulationAtomTypeAddedEvent) {
             AtomType newType = ((SimulationAtomTypeAddedEvent)evt).getAtomType();
             int indexMax = newType.getIndex();
-            if (newType instanceof AtomTypeGroup) {
-                int childMax = getMaxIndexOfChildren((AtomTypeGroup)newType);
+            if (newType instanceof AtomTypeMolecule) {
+                int childMax = getMaxIndexOfChildren((AtomTypeMolecule)newType);
                 if (childMax > indexMax) {
                     indexMax = childMax;
                 }
             }
             agents = Arrays.resizeArray(agents, indexMax+1);
             addAgent(newType);
-            if (newType instanceof AtomTypeGroup) {
-                makeChildAgents((AtomTypeGroup)newType);
+            if (newType instanceof AtomTypeMolecule) {
+                makeChildAgents((AtomTypeMolecule)newType);
             }
         }
         else if (evt instanceof SimulationAtomTypeIndexChangedEvent) {

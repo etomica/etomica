@@ -1,11 +1,11 @@
 package etomica.species;
 import java.lang.reflect.Constructor;
 
-import etomica.EtomicaInfo;
 import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
@@ -34,19 +34,18 @@ public class SpeciesSpheres extends Species {
     }
     
     public SpeciesSpheres(ISimulation sim, int nA, Element leafElement, Conformation conformation) {
-        super(new AtomFactoryHomo(sim.getSpace(), nA, conformation));
+        super();
+        setMoleculeFactory(new AtomFactoryHomo(this, sim.getSpace(), nA, conformation));
         AtomTypeSphere atomType = new AtomTypeSphere(leafElement);
-        atomType.setParentType((AtomTypeGroup)factory.getType());
         ((AtomFactoryHomo)factory).setChildFactory(sim.isDynamic() ?
                             new AtomFactoryMonoDynamic(sim.getSpace(), atomType) :
                             new AtomFactoryMono(sim.getSpace(), atomType));
     }
     
-    public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Species with molecules composed of one or more spherical atoms");
-        return info;
+    public AtomTypeLeaf getLeafType() {
+        return (AtomTypeLeaf)getMoleculeType().getChildTypes()[0];
     }
-
+    
     public SpeciesSignature getSpeciesSignature() {
         Constructor constructor = null;
         try {

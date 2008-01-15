@@ -8,8 +8,10 @@ import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomLeaf;
+import etomica.atom.IMolecule;
 
 /**
  * Elementary basis-dependent iterator that gives atoms meeting specification
@@ -62,7 +64,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
     public void setTarget(IAtom newTargetAtom) {
         targetAtom = newTargetAtom;
         if (targetAtom != null) {
-            targetDepth = targetAtom.getType().getDepth();
+            leafTarget = targetAtom instanceof IAtomLeaf;
         }
         needSetupIterator = (basis != null);//flag to setup iterator only if
                                             // presently has a non-null basis
@@ -108,10 +110,14 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
         if (target == null) {
             return true;
         }
-        if(target.getType().getDepth() <= basis.getType().getDepth()) { 
-            return basis.isDescendedFrom(target);
+        if (basis == target) return true;
+        if (target instanceof IMolecule && basis instanceof IAtomLeaf) {
+            return ((IAtomLeaf)basis).getParentGroup() == target;
         }
-        return target.isDescendedFrom(basis);
+        if (basis instanceof IMolecule && target instanceof IAtomLeaf) {
+            return ((IAtomLeaf)target).getParentGroup() == basis;
+        }
+        return false;
     }
 
     /**
@@ -178,21 +184,13 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
             if (targetAtom == null) {
                 setupBasisIteration();
             }
-            else if(targetDepth <= basis.getType().getDepth()) {
-                if(basis.isDescendedFrom(targetAtom)) {
-                    // target is a parent atom of the basis atom
-                    setupBasisIteration();
-                }
+            else if(basis == targetAtom || (basis instanceof IAtomLeaf && ((IAtomLeaf)basis).getParentGroup() == targetAtom)) {
+                // target is the basis atom or is a parent atom of the basis atom
+                setupBasisIteration();
             }
-            else {
-                //targetAtom is not null, and is not in hierarchy above basis
-                //return child of basis that is or is above targetAtom (if in
-                //hierarchy of basis)
-                //do looping only if in hierarchy of basis
-                IAtom targetNode = targetAtom.getChildWhereDescendedFrom(basis);
-                if (targetNode != null) {
-                    littleList.add(targetNode);
-                }
+            else if (targetAtom instanceof IAtomLeaf && ((IAtomLeaf)targetAtom).getParentGroup() == basis) {
+                //targetAtom is the child of the basis atom
+                littleList.add(targetAtom);
             }
         }
     }
@@ -201,14 +199,14 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
      * Convenience method used by setupIterator
      */
     private void setupBasisIteration() {
-        if (!(basis instanceof IAtomGroup)) {
+        if (!(basis instanceof IMolecule)) {
             //if the basis is a leaf atom, we define the iterates to be just
             //the basis atom itself
             littleList.clear();
             littleList.add(basis);
             list = littleList;
         } else {
-            list = ((IAtomGroup)basis).getChildList();
+            list = ((IMolecule)basis).getChildList();
         }
     }
 
@@ -218,7 +216,7 @@ public final class AtomIteratorBasis extends AtomIteratorAdapter implements
                                                        // one iterate if target
                                                        // is specified
     private IAtom targetAtom;
-    private int targetDepth;
+    private boolean leafTarget;
     private IAtom basis;
     private AtomSet list;
     private boolean needSetupIterator = true;//flag to indicate if

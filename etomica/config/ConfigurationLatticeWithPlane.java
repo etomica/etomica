@@ -265,7 +265,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(5.0);
+        ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
         int k = 4;
         box.setNMolecules(species, 4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);

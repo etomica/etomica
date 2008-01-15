@@ -1,10 +1,10 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -40,7 +40,7 @@ import etomica.species.SpeciesSpheresMono;
  * lattice position for each molecule that is placed. This can be useful if it
  * is desired to associate each molecule with a lattice site.
  */
-public class ConfigurationLatticeSimple extends Configuration {
+public class ConfigurationLatticeSimple implements Configuration, java.io.Serializable {
 
     /**
      * Constructs class using instance of IndexIteratorRectangular as the default
@@ -106,10 +106,10 @@ public class ConfigurationLatticeSimple extends Configuration {
         indexIterator.reset();
         for (IAtom a = atomIterator.nextAtom(); a != null;
              a = atomIterator.nextAtom()) {
-            if (a instanceof IAtomGroup) {
+            if (a instanceof IMolecule) {
                 // initialize coordinates of child atoms
-                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
-                config.initializePositions(((IAtomGroup)a).getChildList());
+                Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
+                config.initializePositions(((IMolecule)a).getChildList());
             }
 
             atomActionTranslateTo.setDestination((IVector)lattice.site(indexIterator.next()));
@@ -166,7 +166,7 @@ public class ConfigurationLatticeSimple extends Configuration {
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
-        ((AtomTypeSphere)species.getMoleculeType()).setDiameter(5.0);
+        ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
         int k = 4;
         box.setNMolecules(species, 4 * k * k * k);
         IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);

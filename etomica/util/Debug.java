@@ -1,10 +1,9 @@
 package etomica.util;
 
-import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.ISpeciesAgent;
+import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.box.Box;
 
@@ -16,6 +15,8 @@ import etomica.box.Box;
 
 public final class Debug {
 
+    protected static AtomPair debugPair = null;
+    
 	/**
 	 * true if any debugging should be done
 	 */
@@ -94,14 +95,12 @@ public final class Debug {
 		for (int i=0; i<atoms.getAtomCount(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
 			if ((ATOM1_INDEX > -1 && globalIndex == ATOM1_INDEX) || (ATOM2_INDEX > -1 && globalIndex == ATOM2_INDEX)) return true;
-            if (atoms.getAtom(i).getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
-                IAtom molecule = atoms.getAtom(i);
-                while (!(molecule.getParentGroup() instanceof ISpeciesAgent)) {
-                    molecule = molecule.getParentGroup();
-                }
-                globalIndex = molecule.getGlobalIndex();
-                if ((MOLECULE1_INDEX > -1 && globalIndex == MOLECULE1_INDEX) || (MOLECULE2_INDEX > -1 && globalIndex == MOLECULE2_INDEX)) return true;
+            IAtom molecule = atoms.getAtom(i);
+            if (molecule instanceof IAtomLeaf) {
+                molecule = ((IAtomLeaf)molecule).getParentGroup();
             }
+            globalIndex = molecule.getGlobalIndex();
+            if ((MOLECULE1_INDEX > -1 && globalIndex == MOLECULE1_INDEX) || (MOLECULE2_INDEX > -1 && globalIndex == MOLECULE2_INDEX)) return true;
 		}
 		return false;
 	}
@@ -115,15 +114,18 @@ public final class Debug {
 	public static boolean allAtoms(AtomSet atoms) {
 		for (int i=0; i<atoms.getAtomCount(); i++) {
             int globalIndex = atoms.getAtom(i).getGlobalIndex();
-			if (globalIndex != ATOM1_INDEX && globalIndex != ATOM2_INDEX) return false;  
-            if (atoms.getAtom(i).getType().getDepth() > AtomAddressManager.SPECIES_DEPTH) {
-                IAtom molecule = atoms.getAtom(i);
-                while (!(molecule.getParentGroup() instanceof ISpeciesAgent)) {
-                    molecule = molecule.getParentGroup();
-                }
-                globalIndex = molecule.getGlobalIndex();
-                if (globalIndex != MOLECULE1_INDEX && globalIndex != MOLECULE2_INDEX) return false;
+			if (globalIndex == ATOM1_INDEX || globalIndex == ATOM2_INDEX) {
+			    continue;
+			}
+            IAtom molecule = atoms.getAtom(i);
+            if (molecule instanceof IAtomLeaf) {
+                molecule = ((IAtomLeaf)molecule).getParentGroup();
             }
+            globalIndex = molecule.getGlobalIndex();
+            if (globalIndex == MOLECULE1_INDEX && globalIndex != MOLECULE2_INDEX) {
+                continue;
+            }
+            return false;
 		}
 		return true;
 	}
@@ -144,26 +146,50 @@ public final class Debug {
      * with the proper global index.
      */
     public static AtomPair getAtoms(Box box) {
-        AtomPair pair = new AtomPair();
+        if (debugPair == null) {
+            debugPair = new AtomPair();
+        }
         if (ATOM1_INDEX > -1 || ATOM2_INDEX > -1) {
             AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(box,Integer.MAX_VALUE,true);
             iterator.reset();
             for (IAtom atom = iterator.nextAtom(); atom != null;
                  atom = iterator.nextAtom()) {
                 if (atom.getGlobalIndex() == ATOM1_INDEX) {
-                    pair.atom0 = atom;
-                    if (pair.atom1 != null || ATOM2_INDEX < 0) {
+                    debugPair.atom0 = atom;
+                    if (debugPair.atom1 != null || ATOM2_INDEX < 0) {
                         break;
                     }
                 }
                 if (atom.getGlobalIndex() == ATOM2_INDEX) {
-                    pair.atom1 = atom;
-                    if (pair.atom0 != null || ATOM1_INDEX < 0) {
+                    debugPair.atom1 = atom;
+                    if (debugPair.atom0 != null || ATOM1_INDEX < 0) {
                         break;
                     }
                 }
             }
         }
-        return pair;
+        if (debugPair.atom0 == null || debugPair.atom1 == null) return null;
+        return debugPair;
     }
+    
+    /**
+     * Returns an AtomPair containing the two atoms with global indices
+     * ATOM1_INDEX and ATOM2_INDEX within the given box.  The atom in
+     * the AtomPair will be null if the box does not contain an Atom 
+     * with the proper global index.
+     */
+    public static IAtom getAtom1(Box box) {
+        if (ATOM1_INDEX > -1) {
+            AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(box,Integer.MAX_VALUE,true);
+            iterator.reset();
+            for (IAtom atom = iterator.nextAtom(); atom != null;
+                 atom = iterator.nextAtom()) {
+                if (atom.getGlobalIndex() == ATOM1_INDEX) {
+                    return atom;
+                }
+            }
+        }
+        return null;
+    }
+
 }

@@ -1,17 +1,17 @@
 package etomica.simulation.prototypes;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.box.Box;
 import etomica.potential.P2HardSphere;
 import etomica.potential.Potential2;
 import etomica.simulation.Simulation;
 import etomica.space2d.Space2D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -50,19 +50,21 @@ public class HSMD2D extends Simulation {
         getController().addAction(activityIntegrate);
         species1 = new SpeciesSpheresMono(this);
 	    species2 = new SpeciesSpheresMono(this);
-        ((AtomTypeSphere)species1.getMoleculeType()).setDiameter(sigma);
-        ((AtomTypeSphere)species2.getMoleculeType()).setDiameter(sigma);
+	    AtomTypeSphere leafType1 = (AtomTypeSphere)species1.getLeafType();
+        AtomTypeSphere leafType2 = (AtomTypeSphere)species2.getLeafType();
+        leafType1.setDiameter(sigma);
+        leafType2.setDiameter(sigma);
         getSpeciesManager().addSpecies(species1);
         getSpeciesManager().addSpecies(species2);
         potential11 = new P2HardSphere(space, sigma, false);
         potential12 = new P2HardSphere(space, sigma, false);
         potential22 = new P2HardSphere(space, sigma, false);
         
-        potentialMaster.addPotential(potential11,new Species[]{species1,species1});
+        potentialMaster.addPotential(potential11,new AtomType[]{leafType1, leafType1});
 
-        potentialMaster.addPotential(potential12,new Species[]{species2,species2});
+        potentialMaster.addPotential(potential12,new AtomType[]{leafType2, leafType2});
 
-        potentialMaster.addPotential(potential22,new Species[]{species2,species1});
+        potentialMaster.addPotential(potential22,new AtomType[]{leafType1, leafType2});
 
         box = new Box(this);
         addBox(box);

@@ -1,8 +1,8 @@
 package etomica.atom.iterator;
 
-import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
 import etomica.species.Species;
@@ -75,8 +75,8 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
         //target specified -- give it as only iterate if descended from species
         } else {
             IAtom molecule = targetAtom;
-            if (molecule.getType().getDepth() > AtomAddressManager.MOLECULE_DEPTH) {
-                molecule = molecule.getParentGroup();
+            if (molecule instanceof IAtomLeaf) {
+                molecule = ((IAtomLeaf)molecule).getParentGroup();
             }
             if (molecule.getType().getSpecies() != species) {
                 molecule = null;

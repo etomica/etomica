@@ -149,10 +149,10 @@ public class SimDimerMEAMadatomGB extends Simulation{
         getSpeciesManager().addSpecies(movable);
         
         
-        ((AtomTypeSphere)snFix.getMoleculeType()).setDiameter(3.022); 
-        ((AtomTypeSphere)sn.getMoleculeType()).setDiameter(3.022);
-        ((AtomTypeSphere)snAdatom.getMoleculeType()).setDiameter(3.022);
-        ((AtomTypeSphere)movable.getMoleculeType()).setDiameter(3.022);
+        ((AtomTypeSphere)snFix.getLeafType()).setDiameter(3.022); 
+        ((AtomTypeSphere)sn.getLeafType()).setDiameter(3.022);
+        ((AtomTypeSphere)snAdatom.getLeafType()).setDiameter(3.022);
+        ((AtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         
         /**
         //Ag

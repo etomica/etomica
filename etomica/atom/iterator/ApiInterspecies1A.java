@@ -3,9 +3,9 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
-import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
 import etomica.species.Species;
@@ -136,8 +136,8 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
         }
         else {
             targetMolecule = targetAtom;
-            while (targetMolecule.getType().getDepth() > AtomAddressManager.MOLECULE_DEPTH) {
-                targetMolecule = targetMolecule.getParentGroup();
+            if (targetMolecule instanceof IAtomLeaf) {
+                targetMolecule = ((IAtomLeaf)targetMolecule).getParentGroup();
             }
             if (targetMolecule.getType().getSpecies() == species0) {
                 //target is species0

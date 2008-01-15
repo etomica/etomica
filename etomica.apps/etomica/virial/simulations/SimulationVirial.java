@@ -1,7 +1,7 @@
 package etomica.virial.simulations;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.IMolecule;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataAccumulator;
 import etomica.data.DataPump;
@@ -56,12 +56,12 @@ public class SimulationVirial extends Simulation {
 		ai = new ActivityIntegrate(integrator);
 		getController().addAction(ai);
 		
-        if (species.getMoleculeType() instanceof AtomTypeLeaf) {
-            mcMoveTranslate= new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
+        if (((IMolecule)box.getMoleculeList().getAtom(0)).getChildList().getAtomCount() == 1) {
+            mcMoveTranslate= new MCMoveClusterAtomMulti(this, potentialMaster);
         }
         else {
-            mcMoveTranslate = new MCMoveClusterMoleculeMulti(potentialMaster,getRandom(),0.41,nMolecules-1);
-            mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(),nMolecules-1);
+            mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, potentialMaster);
+            mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom());
             mcMoveRotate.setStepSize(Math.PI);
             if (species instanceof SpeciesSpheres) {
                 if (species.getMoleculeFactory().getNumChildAtoms() > 2) {

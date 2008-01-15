@@ -4,7 +4,7 @@ import etomica.action.Activity;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -129,7 +129,7 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 					
 			} else {
 				
-				AtomSet childList = ((IAtomGroup)molecules.getAtom(m)).getChildList();
+				AtomSet childList = ((IMolecule)molecules.getAtom(m)).getChildList();
 				
 				moleculeForce.E(0); //initialize moleculeForce to zero
 				

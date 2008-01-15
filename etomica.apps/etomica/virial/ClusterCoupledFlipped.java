@@ -1,9 +1,8 @@
 package etomica.virial;
 
-import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 
@@ -28,7 +27,6 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
     }
     
     public double value(BoxCluster box) {
-        AtomSet atomList = ((AtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
         CoordinatePairSet cPairs = box.getCPairSet();
         int thisCPairID = cPairs.getID();
 //      System.out.println(thisCPairID+" "+cPairID+" "+lastCPairID+" "+value+" "+lastValue+" "+f[0].getClass());
@@ -58,6 +56,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         
         double vsum = wrappedCluster.value(box);
 
+        AtomSet atomList = box.getMoleculeList();
         // loop through the atoms, toggling each one until we toggle one "on"
         // this should generate each combination of flipped/unflipped for all
         // the molecules
@@ -66,7 +65,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
             for (int i=0; !didFlipTrue && i<pointCount; i++) {
                 flippedAtoms[i] = !flippedAtoms[i];
                 didFlipTrue = flippedAtoms[i];
-                flip((IAtomGroup)atomList.getAtom(i));
+                flip((IMolecule)atomList.getAtom(i));
                 cPairs.reset();
             }
             if (!didFlipTrue) {
@@ -82,7 +81,7 @@ public class ClusterCoupledFlipped implements ClusterAbstract {
         return value;
     }
     
-    private void flip(IAtomGroup flippedMolecule) {
+    private void flip(IMolecule flippedMolecule) {
         IVector COM = flippedMolecule.getType().getPositionDefinition().position(flippedMolecule);
 		AtomSet childAtoms = flippedMolecule.getChildList();
 		for (int i = 0; i < childAtoms.getAtomCount(); i++) {

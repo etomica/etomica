@@ -1,7 +1,7 @@
 package etomica.action;
 
 import etomica.atom.AtomFilter;
-import etomica.atom.IAtom;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 
 /**
@@ -31,10 +31,10 @@ public class BoxDeleteMolecules extends BoxActionAdapter {
     public void actionPerformed() {
         iterator.setBox(box);
         iterator.reset();
-        for (IAtom molecule = iterator.nextAtom(); molecule != null;
-             molecule = iterator.nextAtom()) {
+        for (IMolecule molecule = (IMolecule)iterator.nextAtom(); molecule != null;
+             molecule = (IMolecule)iterator.nextAtom()) {
             if (!filter.accept(molecule)) {
-                molecule.getParentGroup().removeChildAtom(molecule);
+                box.removeMolecule(molecule);
             }
         }
     }

@@ -11,7 +11,7 @@ import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 
-public class ConfigurationFileXYZ extends Configuration{
+public class ConfigurationFileXYZ implements Configuration, java.io.Serializable {
 
 		public ConfigurationFileXYZ(String aConfName){
 			super();

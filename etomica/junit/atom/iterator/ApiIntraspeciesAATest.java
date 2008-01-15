@@ -6,8 +6,8 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiIntraspeciesAA;
-import etomica.junit.UnitTestUtil;
 import etomica.box.Box;
+import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
 import etomica.species.Species;
 
@@ -26,9 +26,7 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         int[] n0 = new int[] {10, 1, 0};
         int nA0 = 5;
         int[] n1 = new int[] {5, 1, 6};
-        int[] n2 = new int[] {1, 7, 2};
-        int[] n2Tree = new int[] {3,4};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
+        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
         Species[] species = sim.getSpeciesManager().getSpecies();
 
@@ -57,7 +55,6 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
     private void boxTest(Box box, Species[] species) {
         speciesTestForward(box, species, 0);
         speciesTestForward(box, species, 1);
-        speciesTestForward(box, species, 2);
     }
 
     /**

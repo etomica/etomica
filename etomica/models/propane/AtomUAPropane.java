@@ -1,13 +1,13 @@
 package etomica.models.propane;
 
-import etomica.atom.AtomGroup;
+import etomica.atom.Molecule;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomPositioned;
 
 /**
  * Tree node for 3-point water molecule.
  */
-public class AtomUAPropane extends AtomGroup {
+public class AtomUAPropane extends Molecule {
 
     /**
 	 * Constructor for AtomTreeNodeWater.

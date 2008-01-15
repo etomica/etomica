@@ -12,16 +12,12 @@ import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
-import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
 import etomica.box.Box;
 import etomica.integrator.IIntegrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.math.geometry.Plane;
 import etomica.simulation.ISimulation;
 import etomica.simulation.SimulationContainer;
-import etomica.space3d.Vector3D;
 import etomica.units.Pixel;
 
 /**
@@ -352,62 +348,26 @@ public class SimulationGraphic implements SimulationContainer {
     public static void main(String[] args) {
 //        etomica.simulation.prototypes.SwMd2D sim = new etomica.simulation.prototypes.SwMd2D();
 //        etomica.simulation.prototypes.LjMd2D sim = new etomica.simulation.prototypes.LjMd2D();
-        etomica.simulation.prototypes.HsMc2d sim = new etomica.simulation.prototypes.HsMc2d();
-//          etomica.simulation.prototypes.SWMD3D sim = new etomica.simulation.prototypes.SWMD3D();
-//      etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
-//      final etomica.simulation.prototypes.HSMD3DNoNbr sim = new etomica.simulation.prototypes.HSMD3DNoNbr();
-//      etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
-//        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-//        etomica.simulation.prototypes.HSMD2D_atomNbr sim = new etomica.simulation.prototypes.HSMD2D_atomNbr();
+//        etomica.simulation.prototypes.HsMc2d sim = new etomica.simulation.prototypes.HsMc2d();
+//        etomica.simulation.prototypes.SWMD3D sim = new etomica.simulation.prototypes.SWMD3D();
+//        etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D();
+//        final etomica.simulation.prototypes.HSMD3DNoNbr sim = new etomica.simulation.prototypes.HSMD3DNoNbr();
+//        etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
+        etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
 //        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
         SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY);
-		Action repaintAction = simGraphic.createDisplayBoxPaintAction(sim.box);
+		Action repaintAction = simGraphic.getPaintAction(sim.getBoxs()[0]);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
-        nSelector.setSpecies(sim.species);
-        nSelector.setBox(sim.box);
+        nSelector.setSpecies(sim.getSpeciesManager().getSpecies()[0]);
+        nSelector.setBox(sim.getBoxs()[0]);
         nSelector.setPostAction(repaintAction);
         simGraphic.add(nSelector);
         simGraphic.getController().getReinitButton().setPostAction(repaintAction);
         
-//        AtomFilterInPolytope filter = new AtomFilterInPolytope(sim.box.boundary().getShape());
-//        MyFilter filter = new MyFilter((Polyhedron)sim.box.boundary().getShape());
-//        BoxDeleteMolecules deleter = new BoxDeleteMolecules(filter);
-        //positionDefinition shifts atom to same origin as polytope
-//        AtomPositionDefinition position = new AtomPositionDefinition() {
-//            public Vector position(Atom a) {
-//                Vector3D r = (Vector3D)sim.box.boundary().dimensions().clone();
-//                r.TE(-0.5);
-//                r.PE(a.coord.position());
-//                return r;
-//            }
-//        };
-//        deleter.setBox(sim.box);
-//        filter.setPositionDefinition(position);
-//        DeviceButton deleteButton = new DeviceButton(sim.getController(),deleter);
-//        simGraphic.add(deleteButton);
         simGraphic.makeAndDisplayFrame();
-        AtomType moleculeType = sim.species.getMoleculeType();
-        final ColorSchemeByType colorScheme = new ColorSchemeByType();
-        ((DisplayBox) simGraphic.displayList().getFirst())
-                .setColorScheme(colorScheme);
-        if (moleculeType.isLeaf()) {
-            colorScheme.setColor(moleculeType, java.awt.Color.red);
-        }
-        else {
-            AtomType leafType = ((AtomTypeGroup)moleculeType).getChildTypes()[0];
-            colorScheme.setColor(leafType, java.awt.Color.red);
-            if (((AtomTypeGroup)moleculeType).getChildTypes().length > 1) {
-                leafType = ((AtomTypeGroup)moleculeType).getChildTypes()[1];
-                colorScheme.setColor(leafType, java.awt.Color.blue);
-            }
-        }
-//        ColorSchemeByType.setColor(sim.species2, java.awt.Color.blue);
-        Plane plane = new Plane(sim.getSpace());
-        plane.setThreePoints(new Vector3D(1,1,1), new Vector3D(2,2,2), new Vector3D(4,5,1));
-        
     }
 }
 

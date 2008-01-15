@@ -4,7 +4,7 @@ import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeGroup;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
@@ -14,7 +14,6 @@ import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.normalmode.MCMoveHarmonicStep;
 import etomica.normalmode.NormalModesFromFile;
 import etomica.normalmode.WaveVectorFactory;
-import etomica.box.Box;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
@@ -83,7 +82,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
        
         ConformationParacetamolOrthorhombic conformation = new ConformationParacetamolOrthorhombic(space);
         species = new SpeciesParacetamol(this);
-        ((AtomTypeGroup)species.getMoleculeType()).setConformation(conformation);
+        species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
         box = new Box(this);

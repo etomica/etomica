@@ -2,9 +2,7 @@ package etomica.config;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTypeGroup;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomPositioned;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -32,9 +30,6 @@ public class ConformationChainLinear extends ConformationChain {
         orientation = space.makeVector();
         angle = new double[space.D()];
         for(int i=0; i<initAngles.length; i++) setAngle(i,initAngles[i]);
-        translator = new AtomActionTranslateBy(space);
-        moveToOrigin = new AtomActionTranslateTo(space);
-        translationVector = translator.getTranslationVector();
     }
     public void setBondLength(double b) {
         bondLength = b;
@@ -75,15 +70,8 @@ public class ConformationChainLinear extends ConformationChain {
         double xNext = -bondLength*0.5*(size-1);
         int nLeaf = atomList.getAtomCount();
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
-            IAtom a = atomList.getAtom(iLeaf);
-            if (a instanceof IAtomGroup) {
-                //initialize coordinates of child atoms
-                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
-                config.initializePositions(((IAtomGroup)a).getChildList());
-            }
-            moveToOrigin.actionPerformed(a);
-            translationVector.Ea1Tv1(xNext, orientation);
-            translator.actionPerformed(a);
+            IAtomPositioned a = (IAtomPositioned)atomList.getAtom(iLeaf);
+            a.getPosition().Ea1Tv1(xNext, orientation);
             xNext += bondLength;
         }
     }
@@ -92,9 +80,6 @@ public class ConformationChainLinear extends ConformationChain {
     private double bondLength;
     private IVector orientation;
     private double[] angle;
-    private IVector translationVector;
-    private AtomActionTranslateBy translator;
-    private AtomActionTranslateTo moveToOrigin;
 	/* (non-Javadoc)
 	 * @see etomica.ConformationChain#reset()
 	 */

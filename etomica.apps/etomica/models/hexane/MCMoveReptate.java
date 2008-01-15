@@ -4,12 +4,12 @@ import etomica.atom.AtomSet;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
@@ -85,7 +85,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
        
        //Pick direction & set up list of atoms to iterate
        forward = random.nextInt(2) == 0;
-       AtomSet childlist = ((IAtomGroup)atom).getChildList();
+       AtomSet childlist = ((IMolecule)atom).getChildList();
        int numChildren = childlist.getAtomCount();
        
        if(forward){
@@ -132,7 +132,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
     }
     
     public void rejectNotify(){
-        AtomSet childlist = ((IAtomGroup)atom).getChildList();
+        AtomSet childlist = ((IMolecule)atom).getChildList();
         int numChildren = childlist.getAtomCount();
         if (!forward) {
             IVector position = ((IAtomPositioned)childlist.getAtom(numChildren-1)).getPosition();

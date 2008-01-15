@@ -10,53 +10,40 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTypeGroup;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.iterator.AtomIteratorArrayListSimple;
+import etomica.atom.IMolecule;
+import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.box.Box;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
+import etomica.species.Species;
 
 /**
  * @author K.R. Schadel with help from A. Schultz
  */
-public class GrainBoundaryConfiguration extends Configuration {
-
-	/**
-     * Constructs class using instances of IndexIteratorRectangular as the default
-     * index iterators.
-     */
-    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB) {
-        this(latticeA, latticeB, new IndexIteratorRectangular(latticeA.D()), 
-        		new IndexIteratorRectangular(latticeB.D()));
-    }
+public class GrainBoundaryConfiguration implements Configuration {
 
     /**
      * Construct class that will place atoms on sites of the given lattices,
      * proceeding in the order resulting from iteration through the given index
      * iterator.
      */
-    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB,
-            IndexIteratorSizable indexIteratorA, 
-			IndexIteratorSizable indexIteratorB) {
-    	/** Lattices A + B share same space.  Only need to getSpace() for one 
-    	 *  of the two.
-    	 */
+    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB) {
         super(); 
+        /** Lattices A + B share same space.  Only need to getSpace() for one 
+         *  of the two.
+         */
         this.latticeA = latticeA; 
         this.latticeB = latticeB;
-        this.indexIteratorA = indexIteratorA; 
-        this.indexIteratorB = indexIteratorB;
+        this.indexIteratorA = new IndexIteratorRectangular(latticeA.D()); 
+        this.indexIteratorB = new IndexIteratorRectangular(latticeB.D());
         if(indexIteratorA.getD() != latticeA.D()) {
             throw new IllegalArgumentException(
             		"Dimension of index iterator and lattice are incompatible");
@@ -67,12 +54,6 @@ public class GrainBoundaryConfiguration extends Configuration {
         }
         atomActionTranslateTo = new AtomActionTranslateTo(latticeA.getSpace());
         atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionDefinitionSimple());
-        //There may be more than one species in the lattice with mobile atoms.
-        atomIteratorMobileA = new AtomIteratorArrayListSimple();
-        atomIteratorMobileB = new AtomIteratorArrayListSimple();
-        //Probably only one type of atom will exit in the lattice with fixed atoms.
-        atomIteratorFixedA = new AtomIteratorArrayListSimple();
-        atomIteratorFixedB = new AtomIteratorArrayListSimple();
     }
 
     public void setDimensions (int nCellsAx, int nCellsAy, int nCellsAz, 
@@ -102,31 +83,45 @@ public class GrainBoundaryConfiguration extends Configuration {
     	iteratorDimensionsB[1] = nCellsBy;
     	iteratorDimensionsB[2] = nCellsBz;
     	iteratorDimensionsB[3] = latticeB.getBasis().getScaledCoordinates().length;
-    }	
+    }
+    
+    public void setSpeciesA(Species newSpeciesAFixed, Species newSpeciesAMobile) {
+        speciesAFixed = newSpeciesAFixed;
+        speciesAMobile = newSpeciesAMobile;
+    }
+    
+    public void setSpeciesB(Species newSpeciesBFixed, Species newSpeciesBMobile) {
+        speciesBFixed = newSpeciesBFixed;
+        speciesBMobile = newSpeciesBMobile;
+    }
+
+    public Species getSpeciesAFixed() {
+        return speciesAFixed;
+    }
+
+    public Species getSpeciesBFixed() {
+        return speciesBFixed;
+    }
+
+    public Species getSpeciesAMobile() {
+        return speciesAMobile;
+    }
+
+    public Species getSpeciesBMobile() {
+        return speciesBMobile;
+    }
+
 
     /**
      * Places the molecules in the given box on the positions of the
      * lattice.  
      */
     public void initializeCoordinates(Box box) {
-    	AtomSet[] lists = getMoleculeLists(box);
-    	IVector firstAtomPosition = ((IAtomPositioned)lists[0].getAtom(0)).getPosition();
+    	AtomSet listMobileA = box.getMoleculeList(speciesAMobile);
+    	AtomSet listMobileB = box.getMoleculeList(speciesBMobile);
+        AtomSet listFixedA = box.getMoleculeList(speciesAFixed);
+        AtomSet listFixedB = box.getMoleculeList(speciesBFixed);
     	
-    	System.out.println("At beginning of initializePositions  "+ firstAtomPosition);
-    	
-    	AtomSet[] listsMobileA = new AtomArrayList[lists.length/2 - 1];
-    	AtomSet[] listsMobileB = new AtomArrayList[lists.length/2 - 1];
-    	
-    	for (int i = 1; i < lists.length/2; i++) {
-    		listsMobileA[i - 1] = lists[i];
-    		listsMobileB[i - 1] = lists[i + lists.length/2];
-    	}
-    	
-        atomIteratorMobileA.setList(lists[1]);
-        atomIteratorMobileB.setList(lists[lists.length-1]);
-        atomIteratorFixedA.setList(lists[0]);
-        atomIteratorFixedB.setList(lists[lists.length/2]);
-
         indexIteratorA.setSize(iteratorDimensionsA);
         indexIteratorB.setSize(iteratorDimensionsB);
 
@@ -147,10 +142,9 @@ public class GrainBoundaryConfiguration extends Configuration {
         myLatB = new MyLattice(latticeB, offsetB);
 
         // Place molecules
-        atomIteratorMobileA.reset();
-        atomIteratorMobileB.reset();
-        atomIteratorFixedA.reset();
-        atomIteratorFixedB.reset();
+
+        int iMobileA = 0;
+        int iFixedA = 0;
         
         indexIteratorA.reset();
         while (indexIteratorA.hasNext()) {
@@ -160,53 +154,51 @@ public class GrainBoundaryConfiguration extends Configuration {
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz, because of 
         	//how setSize method works
             if (ii[2] > ((nCellsAz - 2) - 1)) {
-            	a = atomIteratorFixedA.nextAtom();
-            	
-            	
+            	a = listFixedA.getAtom(iFixedA);
+            	iFixedA++;
             }
             else {
-            	a = atomIteratorMobileA.nextAtom();	
+            	a = listMobileA.getAtom(iMobileA);
+            	iMobileA++;
             	//System.out.println(ii[2] + "  |  " + a);
             }
-            if (a instanceof IAtomGroup) {
+            if (a instanceof IMolecule) {
                 // initialize coordinates of child atoms
-                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
-                config.initializePositions(((IAtomGroup)a).getChildList());
+                Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
+                config.initializePositions(((IMolecule)a).getChildList());
             }
             IVector site = (IVector) myLatA.site(ii);
-            if (((IAtomPositioned)a).getPosition() == firstAtomPosition) {
-            	System.out.println();
-            }
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
-            System.out.println("A  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
-            System.out.println("At end of while loop over indexIteratorA  " + firstAtomPosition);
+//            System.out.println("A  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
         }
         
+        int iMobileB = 0;
+        int iFixedB = 0;
+
         indexIteratorB.reset();
         while (indexIteratorB.hasNext()) {
         	IAtom a;
         	int[] ii = indexIteratorB.next();
         	//ii[2] goes from 0 to nCellsAz-1, not 1 to nCellsAz
             if (ii[2] < 2) {
-            	a = atomIteratorFixedB.nextAtom();
+            	a = listFixedB.getAtom(iFixedB);
             	
             }
             else {
-            	a = atomIteratorMobileB.nextAtom();
+            	a = listMobileB.getAtom(iMobileB);
             	
             }
-            if (a instanceof IAtomGroup) {
+            if (a instanceof IMolecule) {
                 // initialize coordinates of child atoms
-                Conformation config = ((AtomTypeGroup)a.getType()).getConformation();
-                config.initializePositions(((IAtomGroup)a).getChildList());
+                Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
+                config.initializePositions(((IMolecule)a).getChildList());
             }
             IVector site = (IVector) myLatB.site(ii);
             atomActionTranslateTo.setDestination(site);
             atomActionTranslateTo.actionPerformed(a);
             //System.out.println("B  |  " +a + "  |  " + site.x(2) + "  |  " + ii[2]);
         }
-        System.out.println("At end of initializePositions()  " + firstAtomPosition);
     }
     
     
@@ -267,10 +259,9 @@ public class GrainBoundaryConfiguration extends Configuration {
     }
 
     private final BravaisLatticeCrystal latticeA, latticeB;
+    private Species speciesAFixed, speciesBFixed, speciesAMobile, speciesBMobile;
     private final IndexIteratorSizable indexIteratorA, indexIteratorB;
     private final AtomActionTranslateTo atomActionTranslateTo;
-    private final AtomIteratorArrayListSimple atomIteratorFixedA, atomIteratorFixedB;
-    private final AtomIteratorArrayListSimple atomIteratorMobileA, atomIteratorMobileB;
     int[] iteratorDimensionsA = new int[4];
     int[] iteratorDimensionsB = new int[4];
     //int[] indexIteratorA = new int[4];

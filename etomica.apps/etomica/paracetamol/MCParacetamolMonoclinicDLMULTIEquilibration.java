@@ -3,30 +3,12 @@ package etomica.paracetamol;
 
 import etomica.action.PDBWriter;
 import etomica.action.WriteConfiguration;
-import etomica.action.WriteConfigurationDLPOLY;
-import etomica.action.activity.ActivityIntegrate;
-import etomica.action.activity.Controller;
-import etomica.atom.AtomTypeGroup;
-import etomica.box.Box;
 import etomica.data.DataLogger;
 import etomica.data.DataPump;
 import etomica.data.DataTableWriter;
 import etomica.data.meter.MeterPotentialEnergy;
-import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMoveMolecule;
-import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
-import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.lattice.BravaisLatticeCrystal;
-import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.normalmode.MCMoveHarmonicStep;
-import etomica.normalmode.NormalModesFromFile;
-import etomica.normalmode.WaveVectorFactory;
-import etomica.potential.PotentialDLPOLY;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
-import etomica.species.Species;
 import etomica.units.Kelvin;
 
 /**

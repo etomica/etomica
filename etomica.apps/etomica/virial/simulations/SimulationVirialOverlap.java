@@ -7,8 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomTypeGroup;
-import etomica.atom.AtomTypeLeaf;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorRatioAverage;
 import etomica.data.DataPump;
@@ -26,6 +24,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
@@ -84,7 +83,7 @@ public class SimulationVirialOverlap extends Simulation {
         integrators = new IntegratorMC[sampleClusters.length];
         meters = new MeterVirial[sampleClusters.length];
         mcMoveTranslate = new MCMoveBoxStep[sampleClusters.length];
-        if (species.getMoleculeType() instanceof AtomTypeGroup || species instanceof SpeciesSpheresRotating) {
+        if (!(species instanceof SpeciesSpheresMono)) {
             mcMoveRotate = new MCMoveBoxStep[sampleClusters.length];
         }
         if (doWiggle) {
@@ -109,8 +108,8 @@ public class SimulationVirialOverlap extends Simulation {
             
             MCMoveManager moveManager = integrators[iBox].getMoveManager();
             
-            if (species.getMoleculeType() instanceof AtomTypeLeaf) {
-                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster, nMolecules-1);
+            if (species instanceof SpeciesSpheresMono || species instanceof SpeciesSpheresRotating) {
+                mcMoveTranslate[iBox] = new MCMoveClusterAtomMulti(this, potentialMaster);
                 mcMoveTranslate[iBox].setStepSize(0.41);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 
@@ -120,10 +119,10 @@ public class SimulationVirialOverlap extends Simulation {
                 }
             }
             else {
-                mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(),nMolecules-1);
+                mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom());
                 mcMoveRotate[iBox].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iBox]);
-                mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(potentialMaster, getRandom(), 0.41, nMolecules-1);
+                mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, potentialMaster);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 if (doWiggle) {
                     if (species.getMoleculeFactory().getNumChildAtoms() > 2) {

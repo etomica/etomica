@@ -6,9 +6,9 @@ import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IAtomLeaf;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
@@ -29,10 +29,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         int[] n0 = new int[] { 10, 1, 0 };
         int nA0 = 5;
         int[] n1 = new int[] { 5, 1, 6 };
-        int[] n2 = new int[] { 1, 7, 2 };
-        int[] n2Tree = new int[] { 3, 4 };
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2,
-                n2Tree);
+        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
 
         Species[] species = sim.getSpeciesManager().getSpecies();
         
@@ -97,8 +94,6 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
      */
     private void boxTest(Box box, Species[] species) {
         speciesTestForward(box, species[0], species[1]);
-        speciesTestForward(box, species[0], species[2]);
-        speciesTestForward(box, species[1], species[2]);
     }
 
     /**
@@ -109,8 +104,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
             Species species0, Species species1) {
         ApiInterspecies1A api = new ApiInterspecies1A(new Species[] {
                 species0, species1 });
-        AtomsetAction speciesTest = new SpeciesTestAction(
-                species0, species1);
+        AtomsetAction speciesTest = new SpeciesTestAction();
         IAtom target = null;
         IAtom targetMolecule = null;
         //test no iterates if no target
@@ -148,14 +142,13 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         testNoIterates(api);
 
         //species0 leafAtom target; any direction
-        if (!(species0.getMoleculeType() instanceof AtomTypeLeaf)) {
-            target = ((IAtomGroup)box.getMoleculeList(species0).getAtom(nMolecules[0] / 2)).getChildList().getAtom(1);
-            targetMolecule = target.getParentGroup();
-            api.setTarget(target);
-            api.setDirection(UP);
-            testApiIterates(api, UP, targetMolecule, molecules1);
-            api.allAtoms(speciesTest);
-        }
+        target = ((IMolecule)box.getMoleculeList(species0).getAtom(nMolecules[0] / 2)).getChildList().getAtom(1);
+        targetMolecule = ((IAtomLeaf)target).getParentGroup();
+        api.setTarget(target);
+        api.setDirection(UP);
+        testApiIterates(api, UP, targetMolecule, molecules1);
+        api.allAtoms(speciesTest);
+
 
         //species1 target; both
         target = box.getMoleculeList(species1).getAtom(nMolecules[1] / 2);
@@ -191,19 +184,12 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         assertTrue(exceptionThrown);
     }
 
-    private class SpeciesTestAction extends AtomsetActionAdapter {
-
-        final Species species0, species1;
-
-        public SpeciesTestAction(Species species0, Species species1) {
-            this.species0 = species0;
-            this.species1 = species1;
-        }
+    protected class SpeciesTestAction extends AtomsetActionAdapter {
 
         public void actionPerformed(AtomSet atomSet) {
 //            assertTrue(atoms.getAtom(0).type.getSpecies() == species0);
             //assertTrue(atoms.getAtom(1).type.getSpecies() == species1);
-            assertTrue(atomSet.getAtom(0).getAddress() < atomSet.getAtom(1).getAddress());
+            assertTrue(atomSet.getAtom(0).getType().getSpecies().getIndex() < atomSet.getAtom(1).getType().getSpecies().getIndex());
         }
     }
 

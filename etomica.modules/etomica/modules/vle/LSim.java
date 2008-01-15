@@ -1,6 +1,7 @@
 package etomica.modules.vle;
 
 import etomica.action.Action;
+import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.box.Box;
 import etomica.config.Configuration;
@@ -11,25 +12,29 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSourceCountSteps;
+import etomica.data.DataSplitter;
 import etomica.data.DataTag;
 import etomica.data.meter.MeterPressure;
+import etomica.data.meter.MeterPressureByVolumeChange;
+import etomica.data.types.DataDoubleArray;
+import etomica.data.types.DataGroup;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveAtom;
-import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.modifier.ModifierGeneral;
-import etomica.nbr.cell.PotentialMasterCell;
 import etomica.potential.P2LennardJones;
-import etomica.potential.P2SoftSphericalTruncated;
+import etomica.potential.P2SoftSphericalTruncatedBox;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
+import etomica.units.Pixel;
 import etomica.util.HistoryCollapsingAverage;
 
 public class LSim extends Simulation {
@@ -37,57 +42,49 @@ public class LSim extends Simulation {
     public final Box boxLiquid;
     public final Species species;
     public final IntegratorMC integratorLiquid;
-    public final PotentialMasterCell potentialMaster;
+    public final PotentialMaster potentialMaster;
     public final ActivityIntegrate activityIntegrate;
-    public final P2SoftSphericalTruncated potential;
-    protected double sigma;
-    protected double temperature;
-    protected double epsilon;
-    protected double density;
+    public final P2SoftSphericalTruncatedBox potential;
     
-    public LSim() {
+    public LSim(int numAtoms, double temperature, double density) {
         super(Space3D.getInstance());
-        int initNumMolecules = 2000;
-        sigma = 1.0;
-        temperature = 1.0;
-        epsilon = 1.0;
-        density = 0.3;
-        double cutoff = 6*sigma;
 
-        double initBoxSize = Math.pow(initNumMolecules/density, (1.0/3.0));
+        double initBoxSize = Math.pow(numAtoms/density, (1.0/3.0));
         
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
         boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize));
         addBox(boxLiquid);
-        boxLiquid.setNMolecules(species, initNumMolecules);
-        boxLiquid.setDensity(0.70081);
+        boxLiquid.setNMolecules(species, numAtoms);
+        boxLiquid.setDensity(density);
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc());
         config.initializeCoordinates(boxLiquid);
         
-        potentialMaster = new PotentialMasterCell(this, cutoff);
-        P2LennardJones p2LJ = new P2LennardJones(space, sigma, epsilon);
-        potential = new P2SoftSphericalTruncated(p2LJ, cutoff);
+        potentialMaster = new PotentialMaster(space);
+        P2LennardJones p2LJ = new P2LennardJones(space, 1.0, 1.0);
+        potential = new P2SoftSphericalTruncatedBox(p2LJ);
+        potential.setBox(boxLiquid);
         potentialMaster.addPotential(potential, new Species[]{species, species});
-        potentialMaster.setCellRange(3);
         
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.setBox(boxLiquid);
         MCMoveAtom atomMove = new MCMoveAtom(potentialMaster, random, 0.5, 5.0, true);
         integratorLiquid.getMoveManager().addMCMove(atomMove);
-        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
+        atomMove.setStepSize(0.3);
         
         activityIntegrate = new ActivityIntegrate(integratorLiquid);
         getController().addAction(activityIntegrate);
-
-        integratorLiquid.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(boxLiquid).makeMCMoveListener());
-        potentialMaster.getNbrCellManager(boxLiquid).assignCellAll();
+        
+        BoxImposePbc pbc = new BoxImposePbc(boxLiquid);
+        integratorLiquid.addIntervalAction(pbc);
+        integratorLiquid.setActionInterval(pbc, 1000);
     }
     
     public static void main(String[] args) {
-        final LSim sim = new LSim();
+        final LSim sim = new LSim(864, 1.0, 0.70081);
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "L", 50);
+        simGraphic.getDisplayBox(sim.boxLiquid).setPixelUnit(new Pixel(15));
         MeterPressure meterPressureLiquid = new MeterPressure(sim.getSpace());
         meterPressureLiquid.setIntegrator(sim.integratorLiquid);
         DataFork fork = new DataFork();
@@ -116,18 +113,92 @@ public class LSim extends Simulation {
         simGraphic.makeAndDisplayFrame();
         simGraphic.add(plotHistoryPressure);
         
-        ModifierGeneral modifier = new ModifierGeneral(sim.potential, "truncationRadius");
+        ModifierGeneral modifier = new ModifierGeneral(sim.potential, "truncationFactor");
         DeviceSlider cutoffSlider = new DeviceSlider(sim.getController(), modifier);
-        cutoffSlider.setMinimum(0);
-        cutoffSlider.setMaximum(6);
+        cutoffSlider.setPrecision(2);
+        cutoffSlider.setMinimum(0.0);
+        cutoffSlider.setMaximum(0.5);
+        cutoffSlider.setNMajor(10);
+        cutoffSlider.setValue(0.49);
         cutoffSlider.setLabel("cutoff");
-        cutoffSlider.setPostAction(new Action(){
-            public void actionPerformed() {
-                sim.potentialMaster.setRange(sim.potential.getTruncationRadius());
-                sim.potentialMaster.reset();
-                sim.potentialMaster.getNbrCellManager(sim.boxLiquid).assignCellAll();
-            }
-        });
         simGraphic.add(cutoffSlider);
+    }
+    
+    public static class NoGUI {
+        public static void main(String[] args) {
+            int nA = 500;
+            double temperature = 1.0;
+            double d = 0.70081;
+            long steps = 1000000;
+            double truncFactor = 0.40;
+            if (args.length > 0) {
+                nA = Integer.parseInt(args[0]);
+                temperature = Double.parseDouble(args[1]);
+                d = Double.parseDouble(args[2]);
+                steps = Long.parseLong(args[3])*1000;
+                truncFactor = Double.parseDouble(args[4]);
+            }
+            final int numAtoms = nA;
+            final double density = d;
+            System.out.println("N="+numAtoms);
+            System.out.println("T="+temperature);
+            System.out.println("rho="+density);
+            System.out.println(steps+" steps");
+            final LSim sim = new LSim(numAtoms, temperature, density);
+            sim.potential.setTruncationFactor(truncFactor);
+            System.out.println("cutoff="+sim.potential.getRange()+" ("+truncFactor+")");
+            sim.activityIntegrate.setMaxSteps(steps);
+            sim.getController().actionPerformed();
+            System.out.println("equilibration finished");
+
+            sim.getController().reset();
+
+            MeterPressure meterPressureLiquid = new MeterPressure(sim.getSpace());
+            meterPressureLiquid.setIntegrator(sim.integratorLiquid);
+            final AccumulatorAverage avgPressureLiquid = new AccumulatorAverageCollapsing();
+            DataPump pumpPressureLiquid = new DataPump(meterPressureLiquid, avgPressureLiquid);
+            sim.integratorLiquid.addIntervalAction(pumpPressureLiquid);
+            sim.integratorLiquid.setActionInterval(pumpPressureLiquid, 1000);
+            
+            final MeterPressureByVolumeChange meterPressureLiquidByDV = new MeterPressureByVolumeChange(sim.getSpace(), new boolean[]{true,true,true});
+            meterPressureLiquidByDV.setIntegrator(sim.integratorLiquid);
+            DataSplitter splitter = new DataSplitter();
+            int n = meterPressureLiquidByDV.getDataInfo().getLength();
+            final AccumulatorAverageCollapsing[] avgPressureLiquidByDV = new AccumulatorAverageCollapsing[n]; 
+            DataPump pumpPressureLiquidByDV = new DataPump(meterPressureLiquidByDV, splitter);
+            sim.integratorLiquid.addIntervalAction(pumpPressureLiquidByDV);
+            sim.integratorLiquid.setActionInterval(pumpPressureLiquidByDV, 1000);
+            for (int i=0; i<n; i++) {
+                avgPressureLiquidByDV[i] = new AccumulatorAverageCollapsing();
+                splitter.setDataSink(i, avgPressureLiquidByDV[i]);
+            }
+            
+            Action writeAction = new Action() {
+                public void actionPerformed() {
+                    double pressure = ((DataGroup)avgPressureLiquid.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index).getValue(0);
+                    double error = ((DataGroup)avgPressureLiquid.getData()).getData(AccumulatorAverage.StatType.ERROR.index).getValue(0);
+                    System.out.println("P="+pressure+" +/- "+error);
+                    
+                    double[] vScale = ((DataDoubleArray)meterPressureLiquidByDV.getScalingDataSource().getData()).getData();
+                    double volume = numAtoms / density;
+                    for (int i=0; i<avgPressureLiquidByDV.length; i++) {
+                        double pressureByDV = ((DataGroup)avgPressureLiquidByDV[i].getData()).getData(AccumulatorAverage.StatType.AVERAGE.index).getValue(0);
+                        double errorByDV = ((DataGroup)avgPressureLiquidByDV[i].getData()).getData(AccumulatorAverage.StatType.ERROR.index).getValue(0);
+                        pressure = Math.log(pressureByDV)/((vScale[i]-1)*volume);
+                        error = errorByDV/pressureByDV/(Math.abs(vScale[i]-1)*volume);
+                        System.out.println(i+" "+pressure+" "+error);
+                    }
+                }
+            };
+            sim.integratorLiquid.addIntervalAction(writeAction);
+            sim.integratorLiquid.setActionInterval(writeAction, (int)(steps/10));
+            sim.activityIntegrate.setMaxSteps(steps);
+
+            sim.getController().actionPerformed();
+            
+            double pressure = ((DataGroup)avgPressureLiquid.getData()).getData(AccumulatorAverage.StatType.AVERAGE.index).getValue(0);
+            double error = ((DataGroup)avgPressureLiquid.getData()).getData(AccumulatorAverage.StatType.ERROR.index).getValue(0);
+            System.out.println("final P="+pressure+" +/- "+error);
+        }
     }
 }

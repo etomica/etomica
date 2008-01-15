@@ -4,6 +4,7 @@ import etomica.config.Conformation;
 import etomica.config.ConformationLinear;
 import etomica.simulation.ISimulation;
 import etomica.space.Space;
+import etomica.species.Species;
 import etomica.util.Arrays;
 
 /**
@@ -16,13 +17,13 @@ import etomica.util.Arrays;
 
 public class AtomFactoryHetero extends AtomFactory {
 
-    public AtomFactoryHetero(ISimulation sim) {
-        this(sim.getSpace(), new ConformationLinear(sim));
+    public AtomFactoryHetero(ISimulation sim, Species species) {
+        this(species, sim.getSpace(), new ConformationLinear(sim));
     }
 
-    public AtomFactoryHetero(Space space, Conformation conformation) {
-        super(new AtomTypeGroup(new AtomPositionCOM(space)));
-        ((AtomTypeGroup)atomType).setConformation(conformation);
+    public AtomFactoryHetero(Species species, Space space, Conformation conformation) {
+        super(new AtomTypeMolecule(species, new AtomPositionCOM(space)));
+        ((AtomTypeMolecule)atomType).setConformation(conformation);
         childFactory = new AtomFactory[0];
         numberFraction = new double[0];
         childCount = new int[0];
@@ -34,11 +35,11 @@ public class AtomFactoryHetero extends AtomFactory {
      */
     public IAtom makeAtom() {
         isMutable = false;
-        AtomGroup group = new AtomGroup(atomType);
+        Molecule group = new Molecule(atomType);
         // make block copolymers
         for (int i = 0; i < childFactory.length; i++) {
             for(int j = 0; j < childCount[i]; j++) {
-                group.addChildAtom(childFactory[i].makeAtom());
+                group.addChildAtom((IAtomLeaf)childFactory[i].makeAtom());
             }
         }
         return group;
@@ -177,6 +178,9 @@ public class AtomFactoryHetero extends AtomFactory {
             throw new IllegalStateException("Factory is not mutable");
         }
         childFactory = (AtomFactory[])newChildFactory.clone();
+        for (int i=0; i<childFactory.length; i++) {
+            ((AtomTypeMolecule)atomType).addChildType((AtomTypeLeaf)childFactory[i].getType());
+        }
         if (numberFraction.length != childFactory.length) {
             double[] fraction = new double[childFactory.length];
             java.util.Arrays.fill(fraction, 1.0/childFactory.length);
@@ -193,6 +197,7 @@ public class AtomFactoryHetero extends AtomFactory {
         if (!isMutable) {
             throw new IllegalStateException("Factory is not mutable");
         }
+        ((AtomTypeMolecule)atomType).addChildType((AtomTypeLeaf)newChildFactory.getType());
         childFactory = (AtomFactory[])Arrays.addObject(childFactory,newChildFactory);
         if (childFactory.length > 1) {
             // assume fraction = 0 for new childFactory

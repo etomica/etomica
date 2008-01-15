@@ -5,15 +5,16 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.AtomAgentManager.AgentSource;
+import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
@@ -60,8 +61,8 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         speciesB = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(speciesA);
         getSpeciesManager().addSpecies(speciesB);
-        ((AtomTypeSphere)speciesA.getMoleculeType()).setDiameter(diameter);
-        ((AtomTypeSphere)speciesB.getMoleculeType()).setDiameter(diameter);
+        ((AtomTypeSphere)speciesA.getLeafType()).setDiameter(diameter);
+        ((AtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 10);
         box.setNMolecules(speciesB, 40);
         new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
@@ -77,11 +78,12 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 		BBbonded = new P2SquareWellBonded(space, agentManager, 0.5 * diameter, 2.0, 1.0);
 
 		potentialMaster.addPotential(AAbonded,
-		        new Species[] { speciesA, speciesA });
+		        new AtomType[] { speciesA.getLeafType(), speciesA.getLeafType() });
 		potentialMaster.addPotential(ABbonded,
-		        new Species[] { speciesA, speciesB });
+		        new AtomType[] { speciesA.getLeafType(), speciesB.getLeafType() });
 		
-		potentialMaster.addPotential(BBbonded,new Species[] { speciesB, speciesB });
+		potentialMaster.addPotential(BBbonded,
+		        new AtomType[] { speciesB.getLeafType(), speciesB.getLeafType() });
 
 
 		// **** Setting Up the thermometer Meter *****

@@ -1,14 +1,16 @@
 package etomica.species;
 import java.lang.reflect.Constructor;
 
+import etomica.atom.AtomFactoryHomo;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
+import etomica.config.ConformationLinear;
 import etomica.simulation.ISimulation;
-import etomica.simulation.Simulation;
 
 /**
  * Species in which molecules are each made of a single spherical atom.
@@ -34,9 +36,16 @@ public class SpeciesSpheresMono extends Species {
     }
     
     private SpeciesSpheresMono(ISimulation sim, AtomTypeSphere atomType) {
-        super(sim.isDynamic() ?
-                    new AtomFactoryMonoDynamic(sim.getSpace(), atomType) :
-                    new AtomFactoryMono(sim.getSpace(), atomType));
+        super();
+        setMoleculeFactory(new AtomFactoryHomo(this, sim.getSpace(), 1, new ConformationLinear(sim.getSpace(), 1)));
+        ((AtomFactoryHomo)factory).setChildFactory(sim.isDynamic() ? 
+                new AtomFactoryMonoDynamic(sim.getSpace(), atomType) :
+                new AtomFactoryMono(sim.getSpace(), atomType));
+//        ((AtomTypeMolecule)factory.getType()).addChildType(atomType);
+    }
+    
+    public AtomTypeLeaf getLeafType() {
+        return (AtomTypeLeaf)getMoleculeType().getChildTypes()[0];
     }
     
     public SpeciesSignature getSpeciesSignature() {

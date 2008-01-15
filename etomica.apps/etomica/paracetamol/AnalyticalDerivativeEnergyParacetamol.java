@@ -3,8 +3,8 @@ package etomica.paracetamol;
 import java.io.Serializable;
 
 import etomica.atom.AtomSet;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
@@ -91,7 +91,7 @@ public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunct
 			
 			for (int p=0; p<molecules.getAtomCount(); p++){ //loop over the 8 molecules in the basis cell
 				
-				AtomSet molecule = ((IAtomGroup)molecules.getAtom(p)).getChildList();
+				AtomSet molecule = ((IMolecule)molecules.getAtom(p)).getChildList();
 			
 				 //leafPos0 is atom C1 in Paracetamol
 				 //leafPos5 is atom C4 in Paracetamol

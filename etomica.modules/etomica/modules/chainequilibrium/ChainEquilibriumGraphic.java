@@ -121,8 +121,8 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         temperatureSelect.setIsothermal();
         
         ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
-        colorScheme.setColor(sim.speciesA.getMoleculeType(), java.awt.Color.red);
-        colorScheme.setColor(sim.speciesB.getMoleculeType(), java.awt.Color.black);
+        colorScheme.setColor(sim.speciesA.getLeafType(), java.awt.Color.RED);
+        colorScheme.setColor(sim.speciesB.getLeafType(), java.awt.Color.BLACK);
 
         int ms = 20;
         AEditor.nSlider.getSlider().setMajorTickSpacing(ms);

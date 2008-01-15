@@ -1,7 +1,7 @@
 package etomica.modules.swmd;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
@@ -9,6 +9,7 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD.ThermostatType;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
+import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
 import etomica.potential.PotentialMaster;
@@ -16,7 +17,6 @@ import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dalton;
 import etomica.units.Joule;
@@ -44,19 +44,20 @@ public class Swmd extends Simulation {
 	    integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
+        integrator.setNullPotential(new P1HardPeriodic(space));
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         integrator.setTimeStep(1);
 
 	    //species and potentials
 	    species = new SpeciesSpheresMono(this);//index 1
-	    ((ElementSimple)((AtomTypeLeaf)species.getMoleculeType()).getElement()).setMass(Dalton.UNIT.toSim(40));
+	    ((ElementSimple)species.getLeafType().getElement()).setMass(Dalton.UNIT.toSim(40));
         getSpeciesManager().addSpecies(species);
         
         //instantiate several potentials for selection in combo-box
 	    P2SquareWell potentialSW = new P2SquareWell(space, 4.0, 1.5, new UnitRatio(Joule.UNIT, Mole.UNIT).toSim(1500), true);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
-        potentialMaster.addPotential(potentialWrapper,new Species[]{species,species});
+        potentialMaster.addPotential(potentialWrapper,new AtomType[]{species.getLeafType(),species.getLeafType()});
 	    
         //construct box
 	    box = new Box(this);

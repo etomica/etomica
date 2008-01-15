@@ -3,10 +3,11 @@ package etomica.paracetamol;
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
 import etomica.atom.AtomAgentManager;
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.atom.AtomAgentManager.AgentSource;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
+import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -14,7 +15,6 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
-import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
@@ -41,7 +41,7 @@ import etomica.space3d.Space3D;
  * lattice position for each molecule that is placed. This can be useful if it
  * is desired to associate each molecule with a lattice site.
  */
-public class ConfigurationMonoclinicLattice extends Configuration implements AgentSource {
+public class ConfigurationMonoclinicLattice implements Configuration, AgentSource, java.io.Serializable {
 
 	private final static String APP_NAME = "Configuration Monoclinic Lattice";
 
@@ -91,8 +91,8 @@ public class ConfigurationMonoclinicLattice extends Configuration implements Age
      * lattice.  
      */
     public void initializeCoordinates(Box box) {
-        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
-        int sumOfMolecules = atomIterator.size();
+        AtomSet moleculeList = box.getMoleculeList();
+        int sumOfMolecules = moleculeList.getAtomCount();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -164,20 +164,19 @@ public class ConfigurationMonoclinicLattice extends Configuration implements Age
         myLat = new MyLattice(lattice, latticeScaling, offset);
 
         // Place molecules
-        atomIterator.reset();
         indexIterator.reset();
 
     	ConformationParacetamolMonoclinic regConfig = new ConformationParacetamolMonoclinic(lattice.getSpace());
     	cellManager = new AtomAgentManager(this, box);
     	IVector cellPosition = null;
     	Tensor t = lattice.getSpace().makeTensor();
-    	
-    	for (IAtomGroup atom = (IAtomGroup)atomIterator.nextAtom(); atom != null;
-        	atom = (IAtomGroup)atomIterator.nextAtom()) {
+
+    	for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
+    	    IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
     		    
             int[] ii = indexIterator.next();
             
-            regConfig.initializePositions(atom.getChildList());
+            regConfig.initializePositions(molecule.getChildList());
             
             switch (ii[3]){
             case 0:
@@ -203,10 +202,10 @@ public class ConfigurationMonoclinicLattice extends Configuration implements Age
             }
       
       	  ((AtomActionTransformed)atomGroupAction.getAction()).setTransformationTensor(t);
-          atomGroupAction.actionPerformed(atom);
+          atomGroupAction.actionPerformed(molecule);
  
             atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
-            atomActionTranslateTo.actionPerformed(atom);
+            atomActionTranslateTo.actionPerformed(molecule);
             
             if (ii[3] == 0){
             	cellPosition = box.getSpace().makeVector();
@@ -216,7 +215,7 @@ public class ConfigurationMonoclinicLattice extends Configuration implements Age
             //remember the coordinate of the cell
             //Loop 8 times over the basis and we can make the cell assignment here!!
             }
-            cellManager.setAgent(atom, cellPosition);
+            cellManager.setAgent(molecule, cellPosition);
         }
 
     }

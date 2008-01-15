@@ -113,11 +113,11 @@ public class MEAM_MC extends Simulation {
         /** The following values come from either the ASM Handbook or Cullity & Stock's 
          * "Elements of X-Ray Diffraction" (2001)
          */
-        ((AtomTypeSphere)sn.getMoleculeType()).setDiameter(3.022); 
+        ((AtomTypeSphere)sn.getLeafType()).setDiameter(3.022); 
         
-        ((AtomTypeSphere)ag.getMoleculeType()).setDiameter(2.8895); 
+        ((AtomTypeSphere)ag.getLeafType()).setDiameter(2.8895); 
         
-        ((AtomTypeSphere)cu.getMoleculeType()).setDiameter(2.5561); 
+        ((AtomTypeSphere)cu.getLeafType()).setDiameter(2.5561); 
         
 	    box = new Box(this);
         addBox(box);

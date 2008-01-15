@@ -4,6 +4,7 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomLeaf;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.Box;
@@ -145,7 +146,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
 			System.out.println("atom "+atom+" exceeded safe limit ("+dr+" > "+rMaxSafe+")");
 			System.out.println("old position "+((DoubleWrapper)agentManager.getAgent(atom)).x);
 			System.out.println("new position "+((IAtomPositioned)atom).getPosition().x(neighborDim));
-            throw new RuntimeException("stop that");
+            System.err.println("stop that");
 		}
 		return dr > displacementLimit;
 	}
@@ -192,7 +193,7 @@ public class CriterionPositionWall implements NeighborCriterion, AgentSource, ja
     }
     
     public Object makeAgent(IAtom atom) {
-        return atom.getType().isLeaf() ? new DoubleWrapper() : null;
+        return atom instanceof IAtomPositioned ? new DoubleWrapper() : null;
     }
     
     public void releaseAgent(Object agent, IAtom atom) {}

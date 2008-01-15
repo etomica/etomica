@@ -6,7 +6,7 @@ import etomica.action.AtomsetCount;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArray;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.IteratorDirective.Direction;
 
 public class TripletInnerSequential implements AtomsetIteratorBasisDependent, 
@@ -34,7 +34,7 @@ public class TripletInnerSequential implements AtomsetIteratorBasisDependent,
             childList = null;
         }
         else {
-            childList = ((IAtomGroup)atoms.getAtom(0)).getChildList();
+            childList = ((IMolecule)atoms.getAtom(0)).getChildList();
         }
     }
 

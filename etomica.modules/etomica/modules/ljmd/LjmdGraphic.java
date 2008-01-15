@@ -126,7 +126,7 @@ public class LjmdGraphic extends SimulationGraphic {
         vPlot.setDoLegend(true);
         vPlot.setLabel("Velocity");
 		
-		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(),sim.integrator.getTemperature(),((AtomTypeLeaf)sim.species.getMoleculeType()).getMass());
+		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(),sim.integrator.getTemperature(),sim.species.getLeafType().getMass());
 		final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann Distribution",
                 Null.DIMENSION, mbDistribution, 100, "Speed", new DimensionRatio(Length.DIMENSION,Time.DIMENSION));
 		DataSourceUniform mbX = mbSource.getXSource();

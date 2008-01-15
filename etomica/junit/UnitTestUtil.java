@@ -4,8 +4,8 @@ import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeLeaf;
+import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.box.Box;
@@ -16,7 +16,6 @@ import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
-import etomica.species.SpeciesTree;
 
 /**
  * Contains some convenience methods and fields useful for implementing unit
@@ -37,8 +36,7 @@ public class UnitTestUtil {
     }
 
     public static ISimulation makeStandardSpeciesTree() {
-        return makeStandardSpeciesTree(new int[] { 5, 7 }, 3, new int[] { 10,
-                10 }, new int[] { 3, 3 }, new int[] { 5, 4, 3 });
+        return makeStandardSpeciesTree(new int[] { 5, 7 }, 3, new int[] { 10, 10 });
     }
 
     /**
@@ -63,12 +61,11 @@ public class UnitTestUtil {
      */
 
     public static ISimulation makeStandardSpeciesTree(int[] n0, int nA0,
-            int[] n1, int[] n2, int[] n2Tree) {
+            int[] n1) {
         Space space = Space3D.getInstance();
-        ISimulation sim = new Simulation(space, false, new int[] { 5, 4, 11, 6, 3, 3 });
+        ISimulation sim = new Simulation(space, false);
         Species species0 = null;
         Species species1 = null;
-        Species species2 = null;
         int nBox = 0;
         if (n0 != null) {
             species0 = new SpeciesSpheres(sim, nA0);
@@ -80,11 +77,6 @@ public class UnitTestUtil {
             sim.getSpeciesManager().addSpecies(species1);
             nBox = n1.length;
         }
-        if (n2 != null) {
-            species2 = new SpeciesTree(sim, n2Tree);
-            sim.getSpeciesManager().addSpecies(species2);
-            nBox = n2.length;
-        }
         for (int i = 0; i < nBox; i++) {
             Box box = new Box(sim);
             sim.addBox(box);
@@ -92,8 +84,6 @@ public class UnitTestUtil {
                 box.setNMolecules(species0, n0[i]);
             if (species1 != null)
                 box.setNMolecules(species1, n1[i]);
-            if (species2 != null)
-                box.setNMolecules(species2, n2[i]);
         }
         return sim;
     }
@@ -125,21 +115,21 @@ public class UnitTestUtil {
     public static ISimulation makeMultitypeSpeciesTree(int[] nMolecules,
             int[][] nAtoms) {
         Space space = Space3D.getInstance();
-        ISimulation sim = new Simulation(space, false, new int[] { 9, 11, 6, 3, 3 });
+        ISimulation sim = new Simulation(space, false);
         //        new SpeciesSpheres(sim);
         Box box = new Box(sim);
         sim.addBox(box);
         for (int i = 0; i < nMolecules.length; i++) {
-            AtomFactoryHetero factory = new AtomFactoryHetero(sim);
+            Species species = new Species();
+            AtomFactoryHetero factory = new AtomFactoryHetero(sim, species);
+            species.setMoleculeFactory(factory);
             AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
             for (int j = 0; j < childFactories.length; j++) {
                 AtomTypeLeaf atomType = new AtomTypeSphere(sim);
-                atomType.setParentType((AtomTypeGroup) factory.getType());
                 childFactories[j] = new AtomFactoryMono(space, atomType);
             }
             factory.setChildFactory(childFactories);
             factory.setChildCount(nAtoms[i]);
-            Species species = new Species(factory);
             sim.getSpeciesManager().addSpecies(species);
             box.setNMolecules(species, nMolecules[i]);
         }

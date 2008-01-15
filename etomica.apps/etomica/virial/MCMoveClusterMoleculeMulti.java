@@ -1,9 +1,8 @@
 package etomica.virial;
 
-import etomica.atom.IAtom;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.integrator.mcmove.MCMoveMolecule;
+import etomica.atom.AtomSet;
 import etomica.box.Box;
+import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVectorRandom;
@@ -20,8 +19,8 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
     private static final long serialVersionUID = 1L;
     private final MeterClusterWeight weightMeter;
 
-    public MCMoveClusterMoleculeMulti(ISimulation sim, PotentialMaster potentialMaster, int nAtoms) {
-    	this(potentialMaster,sim.getRandom(), 1.0, nAtoms);
+    public MCMoveClusterMoleculeMulti(ISimulation sim, PotentialMaster potentialMaster) {
+    	this(potentialMaster,sim.getRandom(), 1.0);
     }
     
     /**
@@ -32,60 +31,55 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
      * because first atom is never moved)
      */
     public MCMoveClusterMoleculeMulti(PotentialMaster potentialMaster,
-            IRandom random, double stepSize, int nAtoms) {
+            IRandom random, double stepSize) {
         super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
-        this.nAtoms = nAtoms;
-        selectedAtoms = new IAtom[nAtoms];
-        translationVectors = new IVectorRandom[nAtoms];
-        for (int i=0; i<nAtoms; i++) {
-            translationVectors[i] = (IVectorRandom)potential.getSpace().makeVector();
-        }
         weightMeter = new MeterClusterWeight(potential);
     }
 
     public void setBox(Box p) {
         super.setBox(p);
         weightMeter.setBox(p);
+        translationVectors = new IVectorRandom[box.getMoleculeList().getAtomCount()-1];
+        for (int i=0; i<box.getMoleculeList().getAtomCount()-1; i++) {
+            translationVectors[i] = (IVectorRandom)potential.getSpace().makeVector();
+        }
     }
     
     //note that total energy is calculated
     public boolean doTrial() {
-        if (selectedAtoms[0] == null) selectMolecules();
         uOld = weightMeter.getDataAsScalar();
-        for(int i=0; i<selectedAtoms.length; i++) {
-            translationVectors[i].setRandomCube(random);
-            translationVectors[i].TE(stepSize);
-            groupTranslationVector.E(translationVectors[i]);
-            moveMoleculeAction.actionPerformed(selectedAtoms[i]);
+        AtomSet moleculeList = box.getMoleculeList();
+        for(int i=1; i<moleculeList.getAtomCount(); i++) {
+            translationVectors[i-1].setRandomCube(random);
+            translationVectors[i-1].TE(stepSize);
+            groupTranslationVector.E(translationVectors[i-1]);
+            moveMoleculeAction.actionPerformed(moleculeList.getAtom(i));
         }
         ((BoxCluster)box).trialNotify();
         return true;
     }
 	
-    protected IAtom[] selectMolecules() {
-        AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules(box);
-        if (iterator.size()-1 != nAtoms) throw new IllegalStateException("move should work on number of molecules in box-1");
-        iterator.reset();
-        int i=0;
-        iterator.next();
-        for (IAtom a = iterator.nextAtom(); a != null;
-             a = iterator.nextAtom()) {
-            selectedAtoms[i++] = a;
-        }
-        return selectedAtoms;
-    }
-	
     public void rejectNotify() {
-        for(int i=0; i<selectedAtoms.length; i++) {
-            groupTranslationVector.E(translationVectors[i]);
+        AtomSet moleculeList = box.getMoleculeList();
+        for(int i=1; i<moleculeList.getAtomCount(); i++) {
+            groupTranslationVector.E(translationVectors[i-1]);
             groupTranslationVector.TE(-1);
-            moveMoleculeAction.actionPerformed(selectedAtoms[i]);
+            moveMoleculeAction.actionPerformed(moleculeList.getAtom(i));
         }
         ((BoxCluster)box).rejectNotify();
+        if (weightMeter.getDataAsScalar() == 0) {
+            throw new RuntimeException("oops oops, reverted to illegal configuration");
+        }
     }
 
     public void acceptNotify() {
+        if (uNew == 0) {
+            throw new RuntimeException("oops, accepted illegal configuration");
+        }
         ((BoxCluster)box).acceptNotify();
+        if (weightMeter.getDataAsScalar() == 0) {
+            throw new RuntimeException("oops oops, accepted illegal configuration");
+        }
     }
     
     public double getB() {
@@ -97,7 +91,5 @@ public class MCMoveClusterMoleculeMulti extends MCMoveMolecule {
         return uNew/uOld;
     }
 	
-    private final int nAtoms;
-    private final IAtom[] selectedAtoms;
-    private final IVectorRandom[] translationVectors;
+    private IVectorRandom[] translationVectors;
 }

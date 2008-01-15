@@ -3,10 +3,12 @@ package etomica.modules.dcvgcmd;
 import etomica.action.AtomActionRandomizeVelocity;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
-import etomica.box.Box;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
 import etomica.util.IRandom;
@@ -45,8 +47,12 @@ public class MyMCMove extends MCMoveInsertDelete {
 		insert = (random.nextInt(2) == 0);
 		if(insert) {
 			uOld = 0.0;
-			if(!reservoir.isEmpty()) testMolecule = reservoir.remove(reservoir.getAtomCount()-1);
-			else testMolecule = moleculeFactory.makeAtom();
+			if(!reservoir.isEmpty()) {
+			    testMolecule = (IMolecule)reservoir.remove(reservoir.getAtomCount()-1);
+			}
+			else {
+			    testMolecule = (IMolecule)moleculeFactory.makeAtom();
+			}
             box.addMolecule(testMolecule);
 			position = (Vector3D)box.getBoundary().randomPosition();
 			double z = position.x(2);
@@ -65,7 +71,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 				return false;
 			}
             testMoleculeIndex = random.nextInt(activeAtoms.getAtomCount());
-			testMolecule = activeAtoms.getAtom(testMoleculeIndex);
+			testMolecule = (IMolecule)activeAtoms.getAtom(testMoleculeIndex);
 			energyMeter.setTarget(testMolecule);
 			uOld = energyMeter.getDataAsScalar();
 		} 
@@ -86,7 +92,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 		} else {
 			activeAtoms.add(testMolecule);
             randomizer.setTemperature(integrator.getTemperature());
-			randomizer.actionPerformed(testMolecule);
+			randomizer.actionPerformed(testMolecule.getChildList().getAtom(0));
 			deltaN++;
 		}
 	}
@@ -98,11 +104,11 @@ public class MyMCMove extends MCMoveInsertDelete {
     	double zmax = nearOrigin ? -0.5*(1.0-zFraction)*zBoundary : 0.5*zBoundary;
         int nMolecules = moleculeList.getAtomCount();
         for (int i=0; i<nMolecules; i++) {
-            IAtomPositioned atom = (IAtomPositioned)moleculeList.getAtom(i);
+            IAtom molecule = moleculeList.getAtom(i);
 
-    		double z = atom.getPosition().x(2);
+    		double z = ((IAtomPositioned)((IMolecule)molecule).getChildList().getAtom(0)).getPosition().x(2);
     		if(z < zmin || z > zmax) continue;
-    		activeAtoms.add(atom);
+    		activeAtoms.add(molecule);
     	}
     }
     

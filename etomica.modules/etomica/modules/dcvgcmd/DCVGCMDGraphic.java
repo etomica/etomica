@@ -10,7 +10,6 @@ import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.atom.AtomFilter;
-import etomica.atom.AtomTypeGroup;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.data.AccumulatorAverage;
@@ -158,7 +157,7 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	    ColorSchemeByType colorScheme = (ColorSchemeByType)(getDisplayBox(sim.box).getColorScheme());
 		colorScheme.setColor(sim.species1.getMoleculeType(), speciesColors[0]);
 		colorScheme.setColor(sim.species2.getMoleculeType(), speciesColors[1]);
-		colorScheme.setColor(((AtomTypeGroup)sim.speciesTube.getMoleculeType()).getChildTypes()[0],java.awt.Color.cyan);
+		colorScheme.setColor(sim.speciesTube.getMoleculeType().getChildTypes()[0],java.awt.Color.cyan);
 
 
 	    //panel for Mu's

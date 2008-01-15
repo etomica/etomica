@@ -5,8 +5,8 @@ import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.box.Box;
 import etomica.math.SpecialFunctions;
@@ -162,9 +162,7 @@ public class EwaldSummation implements IPotential{
 	 */
 	public double EwaldSumReal(){
 		
-		// Get the molecule list of the first species
-		// What you really want is all the lists of the molecules
-		AtomSet moleculeList = ((IAtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
+		AtomSet moleculeList = box.getMoleculeList();
 		//
 		
 		/*
@@ -181,85 +179,53 @@ public class EwaldSummation implements IPotential{
 		for (int vecCounter=-1; vecCounter<numNVector; vecCounter++){
 			
 			for (int i=0; i<numMolecules; i++){
-				IAtom moleculei = moleculeList.getAtom(i);
+				IMolecule moleculei = (IMolecule)moleculeList.getAtom(i);
 				
-				if (!(moleculei instanceof IAtomGroup)){
 					
-					/*
-					 * Monatomic
-					 */
-					IVector posAtomi = ((IAtomPositioned)moleculei).getPosition();
-					double chargei = ((MyCharge)atomAgentManager.getAgent(moleculei)).charge;
+					
+				/*
+				 * Multi atomic for Ewald Real
+				 */
+				
+				int numSites = moleculei.getChildList().getAtomCount();
+					
+				for (int a=0; a<numSites; a++){
+					IAtom sitea = moleculei.getChildList().getAtom(a);
+					IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
+					double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
+					atomPair.atom0 = sitea;
 					
 					for (int j=0; j<numMolecules; j++){
-						IAtom moleculej = moleculeList.getAtom(j);
-							
-						if(moleculei == moleculej && vecCounter==-1){
-							continue;
-						}
-							
-						IVector posAtomj = ((IAtomPositioned)moleculej).getPosition();
-						double chargej = ((MyCharge)atomAgentManager.getAgent(moleculej)).charge;
+						IMolecule moleculej = (IMolecule)moleculeList.getAtom(j);
 						
-						rij.Ev1Mv2(posAtomj, posAtomi);
+						for (int b=0; b<numSites; b++){
+							IAtom siteb = moleculej.getChildList().getAtom(b);
+							IVector posAtomb = ((IAtomPositioned)siteb).getPosition();
+							double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
+							atomPair.atom1 = siteb;
 						
-						if (vecCounter == -1){
-							rijNv.E(rij);
-						} else {
-							rijNv.Ev1Pv2(rij, nVector[vecCounter]);
-						}
-						double rijNvMagnitude = Math.sqrt(rijNv.squared());
+							rij.Ev1Mv2(posAtomb, posAtoma);
 							
-						uReal += 0.5*chargei*chargej*SpecialFunctions.erfc(alpha*rijNvMagnitude)/ rijNvMagnitude;
-					}
-				} // end of monatomic
-				else {
-					
-					
-					/*
-					 * Multi atomic for Ewald Real
-					 */
-					
-					int numSites = ((IAtomGroup)moleculei).getChildList().getAtomCount();
-						
-					for (int a=0; a<numSites; a++){
-						IAtom sitea = ((IAtomGroup)moleculei).getChildList().getAtom(a);
-						IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
-						double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
-						atomPair.atom0 = sitea;
-						
-						for (int j=0; j<numMolecules; j++){
-							IAtom moleculej = moleculeList.getAtom(j);
-							
-							for (int b=0; b<numSites; b++){
-								IAtom siteb = ((IAtomGroup)moleculej).getChildList().getAtom(b);
-								IVector posAtomb = ((IAtomPositioned)siteb).getPosition();
-								double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
-								atomPair.atom1 = siteb;
-							
-								rij.Ev1Mv2(posAtomb, posAtoma);
-								
-								if (vecCounter == -1){
-									if (i==j && (a==b||criterion.accept(atomPair))){
-										continue;
-									}
-									rijNv.E(rij);
-								} else {
-									rijNv.E(nVector[vecCounter]);
-									rijNv.TE(box.getBoundary().getDimensions());
-									rijNv.PE(rij);
+							if (vecCounter == -1){
+								if (i==j && (a==b||criterion.accept(atomPair))){
+									continue;
 								}
-								
-								double rijNvMagnitude = Math.sqrt(rijNv.squared());
-								
-								
-								uReal += 0.5*chargea*chargeb*SpecialFunctions.erfc(alpha*rijNvMagnitude)/ rijNvMagnitude;
-								//System.out.println("uReal difference: " + (uReal-uRealBefore));
-								//System.out.println("rijMagnitude: "+ rijNvMagnitude);
-							}	
-						}
+								rijNv.E(rij);
+							} else {
+								rijNv.E(nVector[vecCounter]);
+								rijNv.TE(box.getBoundary().getDimensions());
+								rijNv.PE(rij);
+							}
+							
+							double rijNvMagnitude = Math.sqrt(rijNv.squared());
+							
+							
+							uReal += 0.5*chargea*chargeb*SpecialFunctions.erfc(alpha*rijNvMagnitude)/ rijNvMagnitude;
+							//System.out.println("uReal difference: " + (uReal-uRealBefore));
+							//System.out.println("rijMagnitude: "+ rijNvMagnitude);
+						}	
 					}
-				} // end of multi atomic
+				}
 				//System.out.println("Molecule i: "+ moleculei);
 				//System.out.println("Ureal: "+ uReal);
 				
@@ -338,10 +304,7 @@ public class EwaldSummation implements IPotential{
 	 */
 	
 	public double EwaldSumSelf(){
-		// Get the molecule list of the first species
-		// What you really want is all the lists of the molecules
-		AtomSet moleculeList = ((IAtomGroup)box.getSpeciesMaster().getAgentList().getAtom(0)).getChildList();
-		//
+		AtomSet moleculeList = box.getMoleculeList();
 		
 		/*
 		 * molecules can be monoatomic or multiatomic
@@ -354,58 +317,47 @@ public class EwaldSummation implements IPotential{
 		
 		
 		for (int i=0; i<numMolecules; i++){
-			IAtom molecule = moleculeList.getAtom(i);
+			IMolecule molecule = (IMolecule)moleculeList.getAtom(i);
 			
-			if (!(molecule instanceof IAtomGroup)){
-				/*
-				 * Monatomic
-				 */
-				double chargei = ((MyCharge)atomAgentManager.getAgent(molecule)).charge;
-				cancelTerm += prefcancel*chargei*chargei;
-			}
-		 
+			/*
+			 * Multi atomic
+			 */
+			
+			IVector dabVector = box.getSpace().makeVector();
+			int numSites = molecule.getChildList().getAtomCount();
 		
-			else {
+			// cancel-Term
+			for (int a=0; a<numSites; a++){
+				IAtom sitea = molecule.getChildList().getAtom(a);
 				
-				/*
-				 * Multi atomic
-				 */
-				
-				IVector dabVector = box.getSpace().makeVector();
-				int numSites = ((IAtomGroup)molecule).getChildList().getAtomCount();
+				double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
+				cancelTerm += prefcancel*chargea*chargea;
+			}
 			
-				// cancel-Term
-				for (int a=0; a<numSites; a++){
-					IAtom sitea = ((IAtomGroup)molecule).getChildList().getAtom(a);
-					
-					double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
-					cancelTerm += prefcancel*chargea*chargea;
-				}
+			// self-Term
+			moleculeBasis.atom = molecule;
+			iterator.setBasis(moleculeBasis);
+			iterator.reset();
+			
+			for (AtomSet pair = iterator.next(); pair!= null; pair = iterator.next()){
+				IAtom sitea = pair.getAtom(0);
+				IAtom siteb = pair.getAtom(1);
 				
-				// self-Term
-				moleculeBasis.atom = molecule;
-				iterator.setBasis(moleculeBasis);
-				iterator.reset();
+				IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
+				IVector posAtomb = ((IAtomPositioned)siteb).getPosition();
 				
-				for (AtomSet pair = iterator.next(); pair!= null; pair = iterator.next()){
-					IAtom sitea = pair.getAtom(0);
-					IAtom siteb = pair.getAtom(1);
-					
-					IVector posAtoma = ((IAtomPositioned)sitea).getPosition();
-					IVector posAtomb = ((IAtomPositioned)siteb).getPosition();
-						
-					double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
-					double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
-					
-					dabVector.Ev1Mv2(posAtomb, posAtoma);
-					double dab = Math.sqrt(dabVector.squared());
-						
-					pairTerm += chargea*chargeb*(1-SpecialFunctions.erfc(alpha*dab))/dab;
-					
-				}
+				double chargea = ((MyCharge)atomAgentManager.getAgent(sitea)).charge;
+				double chargeb = ((MyCharge)atomAgentManager.getAgent(siteb)).charge;
+			
+				dabVector.Ev1Mv2(posAtomb, posAtoma);
+				double dab = Math.sqrt(dabVector.squared());
+				
+				pairTerm += chargea*chargeb*(1-SpecialFunctions.erfc(alpha*dab))/dab;
 			}
 		
 		}
+		
+		
 		// taking the 0.5 out because the AtomPairIterator does not do the double counting
 		return cancelTerm + pairTerm;
 	}

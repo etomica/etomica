@@ -74,10 +74,12 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     // assumes one box
     public void doStepInternal() {
         super.doStepInternal();
-        if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box)) {
-            AtomSet atoms = Debug.getAtoms(box);
-            if (atoms.getAtom(0) != null) {
-                System.out.println(atoms.getAtom(0)+" at "+((IAtomPositioned)atoms.getAtom(0)).getPosition()+", v="+((IAtomKinetic)atoms.getAtom(0)).getVelocity());
+        if (Debug.ON && Debug.DEBUG_NOW) {
+            AtomSet pair = Debug.getAtoms(box);
+            if (pair != null) {
+                IVector dr = box.getSpace().makeVector();
+                dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
+                System.out.println(pair+" dr "+dr);
             }
         }
         AtomSet leafList = box.getLeafList();
@@ -135,6 +137,14 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         if(!initialized) return;
         
         super.reset();
+        if (Debug.ON && Debug.DEBUG_NOW) {
+            AtomSet pair = Debug.getAtoms(box);
+            if (pair != null) {
+                IVector dr = box.getSpace().makeVector();
+                dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
+                System.out.println(pair+" dr "+dr);
+            }
+        }
 
         forceSum.reset();
         potential.calculate(box, allAtoms, forceSum);

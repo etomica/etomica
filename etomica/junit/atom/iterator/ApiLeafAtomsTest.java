@@ -19,9 +19,7 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         int[] n0 = new int[] {10, 1, 0};
         int nA0 = 5;
         int[] n1 = new int[] {5, 0, 6};
-        int[] n2 = new int[] {1, 7, 2};
-        int[] n2Tree = new int[] {3,4};
-        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1, n2, n2Tree);
+        ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
         ApiLeafAtoms api = new ApiLeafAtoms();
         
@@ -32,7 +30,7 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         
         for(int i=0; i<box.length; i++) {
             api.setBox(box[i]);
-            int count = nA0*n0[i] + n1[i] + n2[i]*n2Tree[0]*n2Tree[1];
+            int count = nA0*n0[i] + n1[i];
             count = count*(count-1)/2;
             countTest(api, count);
         }

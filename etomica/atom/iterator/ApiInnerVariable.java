@@ -165,7 +165,7 @@ public class ApiInnerVariable implements ApiComposite, java.io.Serializable {
              outerAtom = aiOuter.nextAtom()) {
             if (doSwap) {
                 pair.atom1 = outerAtom;
-                aiInner.setAtom(pair.atom1);
+                aiInner.setAtom(outerAtom);
                 aiInner.reset();
                 for (IAtom innerAtom = aiInner.nextAtom(); innerAtom != null;
                      innerAtom = aiInner.nextAtom()) {

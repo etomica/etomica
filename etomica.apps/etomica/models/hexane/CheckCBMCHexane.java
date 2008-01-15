@@ -2,11 +2,11 @@ package etomica.models.hexane;
 
 import etomica.action.Action;
 import etomica.atom.AtomSet;
-import etomica.atom.IAtomGroup;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.box.Box;
+import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 
@@ -47,17 +47,17 @@ public class CheckCBMCHexane implements Action {
         // System.out.println("NRG chk");
 
         // Check that bond lengths are 0.4;
-        moleculeIterator.reset();
-        for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
-             atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
-            AtomSet atomList = atom.getChildList();
+        AtomSet moleculeList = box.getMoleculeList();
+        for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
+            IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
+            AtomSet atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 1; i++) {
                 // vex.E(((AtomLeaf)atomList.get(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
                 test = Math.sqrt(vex.squared());
                 test -= length;
                 if (Math.abs(test) > tol) {
-                    System.out.println(atomList.getAtom(i).getAddress());
+                    System.out.println(atomList.getAtom(i));
                     throw new RuntimeException("The bond length is not "
                             + length + "!");
                 }
@@ -66,11 +66,10 @@ public class CheckCBMCHexane implements Action {
         // System.out.println("length chk");
 
         // Check that bond angles are 109.47 degrees
-        moleculeIterator.reset();
         tol = 0.0000005;
-        for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
-             atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
-            AtomSet atomList = atom.getChildList();
+        for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
+            IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
+            AtomSet atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 2; i++) {
                 vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
@@ -80,7 +79,7 @@ public class CheckCBMCHexane implements Action {
                 ang = Math.acos(vex.dot(temp) / length / length);
                 ang -= phi;
                 if (Math.abs(ang) > tol) {
-                    System.out.println(atomList.getAtom(i).getAddress());
+                    System.out.println(atomList.getAtom(i));
                     throw new RuntimeException("The bond angle is bad.");
                 }
             }
@@ -90,10 +89,9 @@ public class CheckCBMCHexane implements Action {
         // Check that torsional bond angles are between ~108 and ~251
         tol = 0.0000000001;
         double makeGood;
-        moleculeIterator.reset();
-        for (IAtomGroup atom = (IAtomGroup)moleculeIterator.nextAtom();
-             atom != null; atom = (IAtomGroup)moleculeIterator.nextAtom()) {
-            AtomSet atomList = atom.getChildList();
+        for (int iMolecule = 0; iMolecule<moleculeList.getAtomCount(); iMolecule++) {
+            IMolecule molecule = (IMolecule)moleculeList.getAtom(iMolecule);
+            AtomSet atomList = molecule.getChildList();
             for (int i = 0; i < atomList.getAtomCount() - 3; i++) {
                 vex.E(((IAtomPositioned) atomList.getAtom(i)).getPosition());
                 vex.ME(((IAtomPositioned) atomList.getAtom(i + 1)).getPosition());
@@ -143,11 +141,11 @@ public class CheckCBMCHexane implements Action {
                 ang = Math.acos(makeGood);
 
                 if (ang < lowerTorsLimit) {
-                    System.out.println(atomList.getAtom(i).getAddress());
+                    System.out.println(atomList.getAtom(i));
                     throw new RuntimeException("Torsional angle below limit!");
                 }
                 if (upperTorsLimit < ang) {
-                    System.out.println(atomList.getAtom(i).getAddress());
+                    System.out.println(atomList.getAtom(i));
                     throw new RuntimeException("Torsional angle above limit!");
                 }
             }

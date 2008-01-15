@@ -4,6 +4,7 @@ import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomLeaf;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.Box;
@@ -130,7 +131,7 @@ public class CriterionSimple implements NeighborCriterion, AgentSource, java.io.
     }
     
     public Object makeAgent(IAtom atom) {
-        return atom.getType().isLeaf() ? space.makeVector() : null;
+        return atom instanceof IAtomPositioned ? space.makeVector() : null;
     }
     
     public void releaseAgent(Object agent, IAtom atom) {}
