@@ -17,6 +17,7 @@ import javax.swing.event.ChangeListener;
 import etomica.action.Action;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.chem.elements.ElementSimple;
@@ -38,6 +39,7 @@ import etomica.graphics.ActionVelocityWindow;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceButton;
+import etomica.graphics.DeviceDelaySlider;
 import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceThermoSlider;
@@ -83,7 +85,7 @@ import etomica.units.systems.MKS;
 public class PistonCylinderGraphic extends SimulationGraphic {
     
 	private static final String APP_NAME = "Piston Cylinder";
-	private final static int REPAINT_INTERVAL = 100;
+	private final static int REPAINT_INTERVAL = 1;
 
     public PistonCylinder pc;
     public Potential2HardSphericalWrapper potentialWrapper;
@@ -142,6 +144,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
      */
     public void setDoRDF(boolean newDoRDF) {
         doRDF = newDoRDF;
+    }
+    
+    public void setRepaintInterval(int newRepaintInterval) {
+        pc.integrator.setIntervalActionPriority(getPaintAction(pc.box), newRepaintInterval);
     }
     
     /**
@@ -264,6 +270,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 else {
                 	pc.integrator.setThermostatInterval(200/n);
                 }
+                
+                displayBox.repaint();
             }
         });
 
@@ -293,7 +301,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 	    //combo box to select potentials
         final String idealGas = "Ideal gas";
         final String repulsionOnly = "Repulsion only";
-        final String repulsionAttraction = " Repulsion and attraction";
+        final String repulsionAttraction = "Repulsion and attraction";
 	    potentialChooser = new javax.swing.JComboBox(new String[] {
 	    		idealGas, repulsionOnly, repulsionAttraction});
 
@@ -365,9 +373,12 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 	    scaleLabels.put(new Integer(100), new JLabel( "max", JLabel.CENTER ));
 	    scaleSlider.getSlider().setLabelTable(scaleLabels);
 
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(pc.getController(), (ActivityIntegrate)pc.getController().getAllActions()[0]);
+        
         // Add panels to the control panel
         getPanel().controlPanel.add(setupPanel, vertGBC);
         getPanel().controlPanel.add(scaleSliderPanel, vertGBC);
+        getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         add(displayCycles);
         add(densityDisplayTextBox);
         add(temperatureDisplayTextBox);
@@ -699,6 +710,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
                     pressureDisplayTextBox.putData(pressureAvg.getData());
                     pressureDisplayTextBox.repaint();
+                    
+                    displayBox.repaint();
+                    
+                    displayCycles.putData(meterCycles.getData());
+                    displayCycles.repaint();
                 }
                 catch (ConfigurationOverlapException e) {
                     throw new RuntimeException(e);
@@ -768,6 +784,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public static void main(String[] args) {
         PistonCylinder sim = new PistonCylinder(2);
         PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
+        pcg.setDoRDF(true);
         pcg.init();
 		SimulationGraphic.makeAndDisplayFrame(pcg.getPanel(), APP_NAME);
     }
@@ -786,6 +803,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 pcg.setDoRDF(Boolean.valueOf(doRDFStr).booleanValue());
             }
             pcg.init();
+            String repaintIntervalStr = getParameter("repaintInterval");
+            if (repaintIntervalStr != null) {
+                pcg.setRepaintInterval(Integer.valueOf(repaintIntervalStr).intValue());
+            }
             getContentPane().add(pcg.getPanel());
         }
 
