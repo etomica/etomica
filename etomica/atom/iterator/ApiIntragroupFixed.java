@@ -12,7 +12,7 @@ import etomica.atom.iterator.IteratorDirective.Direction;
  * <p>
  * This iterator is constructed by extending ApiIntergroup, also forms atom
  * pairs by taking each atom from one of two disjoint sets of atoms. This feature
- * simplifies iteration becuase there needn't be concern for generating a pair
+ * simplifies iteration because there needn't be concern for generating a pair
  * twice, or generating a "pair" that is just two handles to the same atom.
  * 
  * @author D.A Kofke and A.J. Schultz
