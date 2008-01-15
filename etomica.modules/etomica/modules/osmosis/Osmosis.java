@@ -148,6 +148,7 @@ public class Osmosis extends SimulationGraphic {
 		tBox.setUnit(tUnit);
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
+		tBox.setPrecision(3);
 
         // Right side of membrane mole fraction
         moleFractionRight = new MeterLocalMoleFraction();
