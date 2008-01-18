@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
@@ -33,7 +34,6 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.CompoundUnit;
 import etomica.units.Joule;
@@ -234,12 +234,12 @@ public class MEAMMd3D extends Simulation {
 		config.initializeCoordinates(box);
         
 		potentialN = new PotentialMEAM(space);
-		potentialN.setParameters(sn, ParameterSetMEAM.Sn);
-		potentialN.setParameters(ag, ParameterSetMEAM.Ag);
-		potentialN.setParameters(cu, ParameterSetMEAM.Cu);
-		potentialN.setParametersIMC(cu, ParameterSetMEAM.Cu3Sn);
-		potentialN.setParametersIMC(ag, ParameterSetMEAM.Ag3Sn);
-        this.potentialMaster.addPotential(potentialN, new Species[]{sn, ag, cu});    
+		potentialN.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
+		potentialN.setParameters(ag.getLeafType(), ParameterSetMEAM.Ag);
+		potentialN.setParameters(cu.getLeafType(), ParameterSetMEAM.Cu);
+		potentialN.setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
+		potentialN.setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn);
+        this.potentialMaster.addPotential(potentialN, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});    
         potentialMaster.setRange(potentialN.getRange()*1.1);
         potentialMaster.setCriterion(potentialN, new CriterionSimple(this, potentialN.getRange(), potentialN.getRange()*1.1));
         integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));

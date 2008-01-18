@@ -1,6 +1,7 @@
 package etomica.meam;
 
 import etomica.atom.AtomSet;
+import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomPositioned;
 import etomica.box.Box;
 import etomica.potential.PotentialN;
@@ -22,17 +23,17 @@ public class PotentialMEAM extends PotentialN implements PotentialSoft {
 		super(space);
     }
 	
-	 public void setParameters(Species s, ParameterSetMEAM p) {
-		 int index = s.getMoleculeType().getIndex();
+	 public void setParameters(AtomTypeLeaf atomTypeLeaf, ParameterSetMEAM p) {
+		 int index = atomTypeLeaf.getIndex();
 		 if(index > parameters.length) { //15 parameters for each species
 			 parameters = (ParameterSetMEAM[])Arrays.resizeArray(parameters, index+1);
 		 }
 		 parameters[index] = p;
 	 }
 
-	 public void setParametersIMC(Species s, ParameterSetMEAM p) {
+	 public void setParametersIMC(AtomTypeLeaf atomTypeLeaf, ParameterSetMEAM p) {
 	 	 //If Cu (Ag) is involved, the reference IMC structure is Cu3Sn (Ag3Sn).
-		 int index = s.getMoleculeType().getIndex();
+		 int index = atomTypeLeaf.getIndex();
 		 if(index > parametersIMC.length) {
 			 parametersIMC = 
 			 	(ParameterSetMEAM[])Arrays.resizeArray(parametersIMC, index+1);
