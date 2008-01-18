@@ -1,6 +1,7 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
@@ -21,7 +22,6 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -133,12 +133,12 @@ public class EnergyMapMEAMadatom extends Simulation{
         
         potential = new PotentialMEAM(space);
         
-    	potential.setParameters(snFix, ParameterSetMEAM.Sn);
-        potential.setParameters(sn, ParameterSetMEAM.Sn);
-        potential.setParameters(snAdatom, ParameterSetMEAM.Sn);
-        potential.setParameters(movable, ParameterSetMEAM.Sn);
+    	potential.setParameters(snFix.getLeafType(), ParameterSetMEAM.Sn);
+        potential.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
+        potential.setParameters(snAdatom.getLeafType(), ParameterSetMEAM.Sn);
+        potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         
-        this.potentialMaster.addPotential(potential, new Species[]{sn, snFix, snAdatom, movable});
+        this.potentialMaster.addPotential(potential, new AtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
 		
         /**
         // Cu

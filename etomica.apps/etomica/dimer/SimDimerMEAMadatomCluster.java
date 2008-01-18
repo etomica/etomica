@@ -14,8 +14,8 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 	
 	 public static void main(String[] args){
 	        
-	        String fileName = args[0];
-	        int mdSteps = Integer.parseInt(args[1]);
+	        String fileName = "md700"; //args[0];
+	        int mdSteps = 700; //Integer.parseInt(args[1]);
 	        
 	    	final String APP_NAME = "SimDimerMEAMadatomCluster";
 	    	

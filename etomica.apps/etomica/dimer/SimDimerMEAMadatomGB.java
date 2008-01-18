@@ -1,19 +1,14 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
-import etomica.config.Configuration;
-import etomica.config.ConfigurationLattice;
 import etomica.config.GrainBoundaryTiltConfiguration;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
-import etomica.data.DataLogger;
 import etomica.data.DataPump;
-import etomica.data.DataTableWriter;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
@@ -23,8 +18,6 @@ import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisBetaSnA5;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
@@ -217,12 +210,12 @@ public class SimDimerMEAMadatomGB extends Simulation{
         // Sn
         potential = new PotentialMEAM(space);
         
-        potential.setParameters(snFix, ParameterSetMEAM.Sn);
-        potential.setParameters(sn, ParameterSetMEAM.Sn);
-        potential.setParameters(snAdatom, ParameterSetMEAM.Sn);
-        potential.setParameters(movable, ParameterSetMEAM.Sn);
+        potential.setParameters(snFix.getLeafType(), ParameterSetMEAM.Sn);
+        potential.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
+        potential.setParameters(snAdatom.getLeafType(), ParameterSetMEAM.Sn);
+        potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         
-        this.potentialMaster.addPotential(potential, new Species[]{sn, snFix, snAdatom, movable});
+        this.potentialMaster.addPotential(potential, new AtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
         
         /**
         //Ag
