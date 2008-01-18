@@ -68,7 +68,7 @@ public class SimDimerLJadatom extends Simulation{
     	final String APP_NAME = "DimerLJadatom";
     	final SimDimerLJadatom sim = new SimDimerLJadatom("adatom", false, false, false, false);
 
-    	sim.activityIntegrateMD.setMaxSteps(700);
+    	sim.activityIntegrateMD.setMaxSteps(1500);
     	sim.activityIntegrateDimer.setMaxSteps(700);
     	
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
@@ -86,12 +86,12 @@ public class SimDimerLJadatom extends Simulation{
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         accumulatorAveragePE.setPushInterval(1);
         
-        MeterEnergy meterE = new MeterEnergy(sim.potentialMaster);
-        meterE.setBox(sim.box);
+       // MeterEnergy meterE = new MeterEnergy(sim.potentialMaster);
+       // meterE.setBox(sim.box);
         
-        AccumulatorHistory totalEAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
-        DataPump totalEPump = new DataPump(meterE, totalEAccumulator);
-        totalEAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
+       // AccumulatorHistory totalEAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
+       // DataPump totalEPump = new DataPump(meterE, totalEAccumulator);
+       // totalEAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         
     	
     	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
@@ -100,7 +100,7 @@ public class SimDimerLJadatom extends Simulation{
         simGraphic.add(plotPE);
     	
         sim.integratorMD.addIntervalAction(energyPump);
-        sim.integratorMD.addIntervalAction(totalEPump);
+      //  sim.integratorMD.addIntervalAction(totalEPump);
         sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
         
         sim.integratorDimer.addIntervalAction(energyPump);
