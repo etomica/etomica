@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.Copper;
@@ -35,7 +36,6 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.threaded.IntegratorVelocityVerletThreaded;
 import etomica.threaded.PotentialThreaded;
@@ -246,16 +246,16 @@ public class MEAMMd3DThreaded extends Simulation {
         
         for(int i=0; i<numThreads; i++){
             potentialN[i] = new PotentialMEAM(space);
-            potentialN[i].setParameters(sn, ParameterSetMEAM.Sn);
-            potentialN[i].setParameters(ag, ParameterSetMEAM.Ag);
-            potentialN[i].setParameters(cu, ParameterSetMEAM.Cu);
-            potentialN[i].setParametersIMC(cu, ParameterSetMEAM.Cu3Sn);
-            potentialN[i].setParametersIMC(ag, ParameterSetMEAM.Ag3Sn); 
+            potentialN[i].setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
+            potentialN[i].setParameters(ag.getLeafType(), ParameterSetMEAM.Ag);
+            potentialN[i].setParameters(cu.getLeafType(), ParameterSetMEAM.Cu);
+            potentialN[i].setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
+            potentialN[i].setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn); 
         }
         
 		potentialThreaded = new PotentialThreaded(space, potentialN);
        
-        potentialMaster.addPotential(potentialThreaded, new Species[]{sn, ag, cu});  
+        potentialMaster.addPotential(potentialThreaded, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});  
         
         ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, box);
         
