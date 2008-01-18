@@ -4,8 +4,8 @@ import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
-import etomica.atom.IMolecule;
 import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
@@ -161,6 +161,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
             int[] ii = indexIterator.next();
             if (a instanceof IMolecule) {
                 // initialize coordinates of child atoms
+            	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
                 Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
                 config.initializePositions(((IMolecule)a).getChildList());
                 atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
