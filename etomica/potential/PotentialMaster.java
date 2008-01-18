@@ -7,6 +7,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomsetArray;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAll;
+import etomica.atom.iterator.AtomIteratorAllLeafType;
 import etomica.atom.iterator.AtomsetIteratorPDT;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
@@ -142,7 +143,15 @@ public class PotentialMaster implements java.io.Serializable {
      * 
      */
     public void addPotential(IPotential potential, AtomType[] atomTypes) {
-        if (potential.nBody() != atomTypes.length) {
+    	if (potential.nBody() == 0) {
+    		addPotential(potential, new AtomIterator0(),null);
+    		return;
+    	}
+        else if (potential.nBody() == Integer.MAX_VALUE) {
+        	addPotential(potential, new AtomIteratorAllLeafType(atomTypes), atomTypes);
+            return;
+        }
+    	else if (potential.nBody() != atomTypes.length) {
             throw new IllegalArgumentException("nBody of potential must match number of atom types");
         }
         Arrays.sort(atomTypes);
