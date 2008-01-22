@@ -7,7 +7,7 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
+import etomica.lattice.crystal.BasisCubicBcc;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
@@ -22,14 +22,14 @@ import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 
 /**
- * MC simulation of soft-sphere model in 3D with tabulation of the
+ * MC simulation of BCC soft-sphere model in 3D with tabulation of the
  * collective-coordinate S-matrix. No graphic display of simulation.
  * 
  * @author Tai Boon Tan
  */
-public class SimCalcSSoftSphere extends Simulation {
+public class SimCalcSSoftSphereBCC extends Simulation {
 
-    public SimCalcSSoftSphere(Space space, int numAtoms, double density, double temperature) {
+    public SimCalcSSoftSphereBCC(Space space, int numAtoms, double density, double temperature, double softness) {
         super(space, true);
 
         PotentialMaster potentialMaster = new PotentialMaster(space);
@@ -43,7 +43,7 @@ public class SimCalcSSoftSphere extends Simulation {
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature);
         MCMoveAtomCoupled move = new MCMoveAtomCoupled(potentialMaster, getRandom());
-        move.setStepSize(0.38);
+        move.setStepSize(0.2);
         move.setStepSizeMax(0.5);
         integrator.getMoveManager().addMCMove(move);
         ((MCMoveStepTracker)move.getTracker()).setNoisyAdjustment(true);
@@ -58,15 +58,15 @@ public class SimCalcSSoftSphere extends Simulation {
             nCells = new int[]{numAtoms};
             basis = new BasisMonatomic(space);
         } else {
-            double L = Math.pow(4.0/density, 1.0/3.0);
+            double L = Math.pow(2.0/density, 1.0/3.0);
             primitive = new PrimitiveCubic(space, L);
-            int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
+            int n = (int)Math.round(Math.pow(numAtoms/2, 1.0/3.0));
             nCells = new int[]{n,n,n};
             boundary = new BoundaryRectangularPeriodic(space, random, n * L);
-            basis = new BasisCubicFcc();
+            basis = new BasisCubicBcc();
         }
 
-        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, 0.1);
+        Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, softness);
         double truncationRadius = boundary.getDimensions().x(0) * 0.5;
         P2SoftSphericalTruncatedShifted pTruncated = new P2SoftSphericalTruncatedShifted(potential, truncationRadius);
         AtomType sphereType = species.getLeafType();
@@ -88,9 +88,10 @@ public class SimCalcSSoftSphere extends Simulation {
 
         // defaults
         int D = 3;
-        int nA = 32;
-        double density = 1.3;
-        double temperature = 1;
+        int nA = 128;
+        double density = 2.2;
+        double temperature = 0.01;
+        double softness = 0.16;
         if (D == 1) {
             nA = 3;
             density = 0.5;
@@ -110,25 +111,40 @@ public class SimCalcSSoftSphere extends Simulation {
         if (args.length > 4) {
             temperature = Double.parseDouble(args[4]);
         }
-        String filename = "normal_modes_softSphere_" + D + "D_"+nA;
+        if (args.length > 5) {
+        	softness = Double.parseDouble(args[5]);
+        }
+        String filename = "nm_SoftSphereBCC_" + softness + "S_"+temperature+"T";
         if (args.length > 0) {
             filename = args[0];
         }
 
         System.out.println("Running "
-                + (D == 1 ? "1D" : (D == 3 ? "FCC" : "2D hexagonal"))
+                + (D == 1 ? "1D" : (D == 3 ? "BCC" : "2D hexagonal"))
                 + " soft sphere simulation");
-        System.out.println(nA + " atoms at density " + density+" and temperature "+temperature);
+        System.out.println(nA + " atoms with softness " + softness+" and temperature "+temperature);
         System.out.println(simSteps+ " steps");
         System.out.println("output data to " + filename);
 
         // construct simulation
-        SimCalcSSoftSphere sim = new SimCalcSSoftSphere(Space.getInstance(D), nA, density, temperature);
+        SimCalcSSoftSphereBCC sim = new SimCalcSSoftSphereBCC(Space.getInstance(D), nA, density, temperature, softness);
 
         // set up initial configuration and save nominal positions
         Primitive primitive = sim.primitive;
-
-        // set up normal-mode meter
+        
+        /*
+        final String APP_NAME = "SimCalcSSoftSphere";
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+  
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+        */
+        
+        /* 
+         * set up normal-mode meter
+         */
+        
+        
         MeterNormalMode meterNormalMode = new MeterNormalMode();
         meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
         WaveVectorFactory waveVectorFactory;
@@ -139,11 +155,21 @@ public class SimCalcSSoftSphere extends Simulation {
         } else {
             waveVectorFactory = new WaveVectorFactorySimple(primitive);
         }
+        
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
 
         sim.integrator.addIntervalAction(meterNormalMode);
         sim.integrator.setActionInterval(meterNormalMode, nA);
+	
+/*        
+    	final String APP_NAME = "HSMD3D";
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+        simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+        ((AtomTypeSphere)((SpeciesSpheresMono)sim.getSpeciesManager().getSpecies()[0]).getLeafType()).setDiameter(.5);
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+  */      
+        
 
         // MeterMomentumCOM meterCOM = new MeterMomentumCOM(sim.space);
         // MeterPositionCOM meterCOM = new MeterPositionCOM(sim.space);
@@ -169,6 +195,11 @@ public class SimCalcSSoftSphere extends Simulation {
 //        logger.setWriteOnInterval(true);
 //        DataPump pump = new DataPump(m, logger);
 //        sim.integrator.addListener(new IntervalActionAdapter(pump));
+        
+        
+        
+        
+      
         sim.activityIntegrate.setMaxSteps(simSteps/10);
         sim.getController().actionPerformed();
         System.out.println("equilibrated");
@@ -188,9 +219,9 @@ public class SimCalcSSoftSphere extends Simulation {
         sim.activityIntegrate.setMaxSteps(simSteps);
         sim.getController().actionPerformed();
         PDBWriter pdbWriter = new PDBWriter(sim.box);
-        pdbWriter.setFileName("calcS.pdb");
+        pdbWriter.setFileName("calcS_"+softness+"_"+temperature+".pdb");
         pdbWriter.actionPerformed();
-        
+       
     }
 
     private static final long serialVersionUID = 1L;
