@@ -119,7 +119,7 @@ public class Box implements java.io.Serializable {
     
     public final Space getSpace() {return space;}
     
-    public IAtom addNewMolecule(Species species) {
+    public IMolecule addNewMolecule(Species species) {
         IMolecule aNew = (IMolecule)species.getMoleculeFactory().makeAtom();
         addMolecule(aNew, species);
         return aNew;
