@@ -48,13 +48,15 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public double Frot, Frot2, Fprimerot, dFrot;
 	public double saddleT;
 	public double dFsq;
+	public double gammai;
 	public int counter, rotCounter;
 	public int movableAtoms;
 	public boolean rotate;
 	public MeterPotentialEnergy energyBox1, energyBox2, energyBox0;
-	public IVector [] THETA, THETAstar;
+	public IVector [] THETA, THETAstar, THETAstarstar;
 	public IVector [] F, F1, F2;
 	public IVector [] Fperp, F1perp, F2perp;
+	public IVector [] Gperp, Gperplast, Fperplast;
 	public IVector [] Fstar, F1star, F2star, Fstarperp;
 	public IVector [] Feff, Feffstar, Fr, Fpara;
 	public IVector [] deltaV, V;
@@ -95,7 +97,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		deltaR = 10E-4;
 		dXl = 10E-4;
 		deltaXl = 0;
-		deltaXmax = 0.1;
+		deltaXmax = 0.05;
 		dTheta = 10E-4;
 		
 		deltaTheta = 0;
@@ -113,7 +115,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public void doStepInternal(){
 	    	    
 		rotateDimerNewton();
-		rotCounter=0;
 		translateDimerQuickmin();
 		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));
 		dimerSaddleTolerance();		
@@ -137,10 +138,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
         Nstar = new IVectorRandom [movableAtoms];
         THETA = new IVector [movableAtoms];
         THETAstar = new IVector [movableAtoms];
+        THETAstarstar = new IVector [movableAtoms];
         F = new IVector [movableAtoms];
         F1 = new IVector [movableAtoms];
         F2 = new IVector [movableAtoms];
         Fperp = new IVector [movableAtoms];
+        Fperplast = new IVector [movableAtoms];
+        Gperp = new IVector [movableAtoms];
+        Gperplast = new IVector [movableAtoms];
         F1perp = new IVector [movableAtoms];
         F2perp = new IVector [movableAtoms];
         Fstar = new IVector [movableAtoms];
@@ -162,10 +167,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             Nstar[i] = (IVectorRandom)box.getSpace().makeVector();
             THETA[i] = box.getSpace().makeVector();
             THETAstar[i] = box.getSpace().makeVector();
+            THETAstarstar[i] = box.getSpace().makeVector();
             F[i] = box.getSpace().makeVector();
             F1[i] = box.getSpace().makeVector();
             F2[i] = box.getSpace().makeVector();
             Fperp[i] = box.getSpace().makeVector();
+            Fperplast[i] = box.getSpace().makeVector();
+            Gperp[i] = box.getSpace().makeVector();
+            Gperplast[i] = box.getSpace().makeVector();
             F1perp[i] = box.getSpace().makeVector();
             F2perp[i] = box.getSpace().makeVector();
             Fstar[i] = box.getSpace().makeVector();
@@ -189,7 +198,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			N[i].setRandomSphere(random1);
 			mag += N[i].squared();
 		}
-		
 		mag = 1.0 / Math.sqrt(mag);
 		for (int i=0; i<N.length; i++){
 			N[i].TE(mag);
@@ -226,10 +234,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		// Set positions of atoms in replicas equal to box
 		for(int i=0; i<box.atomCount(); i++){
-			((IAtomPositioned)box1.getLeafList().getAtom(i)).getPosition().E(((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition());
-			((IAtomPositioned)box2.getLeafList().getAtom(i)).getPosition().E(((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition());
+			((IAtomPositioned)((IMolecule)box1.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
+			((IAtomPositioned)((IMolecule)box2.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)box.getMoleculeList().getAtom(i)).getChildList().getAtom(0)).getPosition());
 		}
-		
+				
 		// Atom list for movable and offset atoms
 		list = new AtomArrayList();
 		list1 = new AtomArrayList();
@@ -240,7 +248,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             AtomSet molecules1 = box1.getMoleculeList(movableSpecies[i]);
             AtomSet molecules2 = box2.getMoleculeList(movableSpecies[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
-            	
                 list.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
                 list1.add(((IMolecule)molecules1.getAtom(j)).getChildList().getAtom(0));
                 list2.add(((IMolecule)molecules2.getAtom(j)).getChildList().getAtom(0));
@@ -252,9 +259,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			((IAtomPositioned)list1.getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
 			((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(-deltaR, N[i]);
 		}
-
-		((IAtomPositioned)box1.getLeafList().getAtom(0)).getPosition().setX(0,3.0);
-		System.out.println(((IAtomPositioned)box1.getLeafList().getAtom(0)).getPosition().x(0));
 		
 		// Write out initial configuration
 		System.out.println(file+" ***Dimer Saddle Search***");
@@ -263,50 +267,99 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 				+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(2)
 				+"     "+((IAtomPositioned)list2.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list2.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list2.getAtom(0)).getPosition().x(2));
 		
+		for(int i=0; i<list.getAtomCount(); i++){
+			System.out.println(((IAtomPositioned)list1.getAtom(i)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(i)).getPosition().x(0));
+		}
+		
 		// Calculate F's
 		dimerForces(F1, F2, F);
 	}
 		
 	// Rotate the dimer to align it with the lowest curvature mode of the potential energy surface, NEWTON STYLE.
 	public void rotateDimerNewton(){
-	  	    
+		rotCounter=0;
+		double sinDtheta = Math.sin(dTheta);
+        double cosDtheta = Math.cos(dTheta);
+		
 	    while(true){
 			
 			// Calculate F|_
 			dimerForcePerp(N, F1, F2, Fperp);
 			
+			//CONJUGATE GRADIENT SEARCH FOR ROTATIONAL PLANE
+			
+			// Find Gperp = Fperp + gammai*|Gperplast|*THETAstarstar
+		
+			//gammaI = ( (Fperpi - Fperpi-1)[dot]Fperpi )/(Fperpi[dot]Fperpi)
+			/*
+			double gt = 0.0;
+			double gb = 0.0;
+			for(int i=0; i<Fperp.length; i++){
+				Fperplast[i].TE(-1.0);
+				Fperplast[i].PE(Fperp[i]);
+				gt += Fperplast[i].dot(Fperp[i]);
+			}
+			for(int i=0; i<Fperp.length; i++){
+				gb += Fperp[i].dot(Fperp[i]);
+			}
+			gammai = gt/gb;
+			
+			double magG=0;
+			for(int i=0; i<Gperplast.length; i++){
+				magG += Gperplast[i].squared();
+			}
+			magG = Math.sqrt(magG);
+			for(int i=0; i<Gperp.length; i++){
+				Gperp[i].E(THETAstarstar[i]);
+				Gperp[i].TE(gammai*magG);
+				Gperp[i].PE(Fperp[i]);
+			}
+						
+			if(rotCounter==0){
+				for(int i=0; i<Gperp.length; i++){
+					Gperp[i].E(Fperp[i]);
+				}
+			}
+			
+			*/
+			
 			// Find THETA and normalize
 			double mag = 0;
-			for(int i=0; i<Fperp.length; i++){
+			for(int i=0; i<Gperp.length; i++){
 				mag += Fperp[i].squared();
 			}
 			mag = 1.0 / Math.sqrt(mag);		
 			for(int i=0; i<THETA.length; i++){
 				THETA[i].E(Fperp[i]);
 				THETA[i].TE(mag);
+			}		
+			
+			//Copy arrays to remember for next iteration
+			for(int i=0; i<Fperplast.length; i++){
+				Gperplast[i].E(Gperp[i]);
+				Fperplast[i].E(Fperp[i]);
+				THETAstarstar[i].E(THETA[i]);
 			}
-						
 			
             // NEWTON'S LINE MINIMIZATION FOR ROTATIONAL FORCE	
 			Frot = 0;
-            for(int i=0; i<Fperp.length; i++){
+            for(int i=0; i<Gperp.length; i++){
                   Frot += Fperp[i].dot(THETA[i]);
             }
-            
-           // Leave loop if Frot at current location is small
+            // Leave loop if Frot at current location is small
             if(Frot<dFrot){break;}
             
-            double sinDtheta = Math.sin(dTheta);
-	        double cosDtheta = Math.cos(dTheta);
-				        
 			// Find Nstar after dTheta rotation
 	        IVector workVectorN1 = box.getSpace().makeVector();
 			for(int i=0; i<N.length; i++){
 				workVectorN1.Ea1Tv1(cosDtheta, N[i]);
 				workVectorN1.PEa1Tv1(sinDtheta, THETA[i]);
 				Nstar[i].E(workVectorN1);
+				workVectorN1.Ea1Tv1(-sinDtheta, N[i]);
+				workVectorN1.PEa1Tv1(cosDtheta, THETA[i]);
+				THETAstar[i].E(workVectorN1);
 			}
-						
+			
 			// Use N* to offset(rotate) replicas
 			IVector workVector1 = box.getSpace().makeVector();
 			for(int i=0; i<Nstar.length; i++){
@@ -320,22 +373,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             }
 			
 			// Calculate F*'s
-			dimerForcesStar(F, F1star, F2star, Fstar);     
+			dimerForcesStar(F, F1star, F2star);     
 			
 			// Calculate F*|_
 			dimerForcePerp(Nstar, F1star, F2star, Fstarperp);
-			
-			// Find THETA*
-			double mag1 = 0;
-			for(int i=0; i<Fstarperp.length; i++){
-				mag1 += Fstarperp[i].squared();
-			}
-			mag1 = 1.0 / Math.sqrt(mag1);		
-			for(int i=0; i<THETAstar.length; i++){
-				THETAstar[i].E(Fstarperp[i]);
-				THETAstar[i].TE(mag1);
-			}
-			
+						
 			// second part of Frot
 			for(int i=0; i<Fstarperp.length; i++){
 				Frot += Fstarperp[i].dot(THETAstar[i]);
@@ -343,10 +385,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			Frot = Frot/2.0;
 			
 			Fprimerot = 0;
-			for(int i=0; i<Fstar.length; i++){
+			for(int i=0; i<Fstarperp.length; i++){
 				Fprimerot += Fstarperp[i].dot(THETAstar[i]);
 			}
-			for(int i=0; i<Fstar.length; i++){
+			for(int i=0; i<Fstarperp.length; i++){
 				Fprimerot -= Fperp[i].dot(THETA[i]);
 			}
 			Fprimerot = Fprimerot / dTheta;
@@ -355,11 +397,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;				
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
 			
-			//double energy1 = (energyBox1.getDataAsScalar()-energyBox0.getDataAsScalar());
-			//double energy2 = (energyBox2.getDataAsScalar()-energyBox0.getDataAsScalar());
 			System.out.println(Frot+"     "+Fprimerot);
 			
 			 // Check deltaTheta vs. dTheta and adjust step size
+			/*
 			if (deltaTheta < 0){
                     dTheta /= 10;
                     System.out.println("dTheta changed to "+dTheta);
@@ -367,6 +408,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
                         deltaTheta = -dTheta;
                     }
             }
+            */
 					
 			double sindeltaTheta = Math.sin(deltaTheta);
             double cosdeltaTheta = Math.cos(deltaTheta);
@@ -374,8 +416,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			// Find N**
             IVector workVectorN2 = box.getSpace().makeVector();
             for(int i=0; i<N.length; i++){               
-                workVectorN2.Ea1Tv1(cosdeltaTheta, N[i]);
-                workVectorN2.PEa1Tv1(sindeltaTheta, THETA[i]);
+                workVectorN2.Ea1Tv1(cosdeltaTheta, Nstar[i]);
+                workVectorN2.PEa1Tv1(sindeltaTheta, THETAstar[i]);
                 N[i].E(workVectorN2);
 
             }
@@ -400,7 +442,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 						    
 			rotCounter++;
 			
-			if(rotCounter>90){
+			if(rotCounter>50){
 			   break;
 			}
 		}
@@ -422,9 +464,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		    mag += Feff[i].squared();
 		    Neff[i].E(Feff[i]);
 		}
-		
 		mag = 1.0/Math.sqrt(mag);
-        
         for (int i=0; i<N.length; i++){
             Neff[i].TE(mag);
         }
@@ -540,16 +580,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	}
 	
 	
-	protected void dimerForcesStar(IVector [] aF, IVector [] aF1star, IVector [] aF2star, IVector []aFstar){
+	protected void dimerForcesStar(IVector [] aF, IVector [] aF1star, IVector [] aF2star){
 	    force1.reset();
 	    potential.calculate(box1, allatoms, force1);
 	    
 	 // Copy forces of dimer end and center (R1, R) to local array
         for(int i=0; i<aF1star.length; i++){
             aF1star[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent1.getAgent(list1.getAtom(i))).force());
-            aFstar[i].E(aF[i]);
-            aF2star[i].Ea1Tv1(2.0, aFstar[i]);
-            aF2star[i].ME(aF1star[i]);
+            aF2star[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent2.getAgent(list2.getAtom(i))).force());
         }
 	}
 	

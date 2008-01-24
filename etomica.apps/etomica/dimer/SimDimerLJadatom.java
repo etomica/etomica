@@ -5,6 +5,8 @@ import java.io.IOException;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
@@ -18,7 +20,6 @@ import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
-import etomica.data.meter.MeterEnergy;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
@@ -54,7 +55,7 @@ public class SimDimerLJadatom extends Simulation{
     public IntegratorDimerMin integratorDimerMin;
     public Box box;
     public IVector [] saddle, normal;
-    public SpeciesSpheresMono adatom, bulk, fixed, movable;
+    public SpeciesSpheresMono adatom, fixed, movable;
     public P2LennardJones potential;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer, activityIntegrateMin;
     CalcGradientDifferentiable calcGradientDifferentiable;
@@ -68,7 +69,7 @@ public class SimDimerLJadatom extends Simulation{
     	final String APP_NAME = "DimerLJadatom";
     	final SimDimerLJadatom sim = new SimDimerLJadatom("adatom", false, false, false, false);
 
-    	sim.activityIntegrateMD.setMaxSteps(1500);
+    	sim.activityIntegrateMD.setMaxSteps(800);
     	sim.activityIntegrateDimer.setMaxSteps(700);
     	
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
@@ -107,10 +108,9 @@ public class SimDimerLJadatom extends Simulation{
     	sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
     	
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-    	colorScheme.setColor(sim.bulk.getMoleculeType(),java.awt.Color.gray);
-    	colorScheme.setColor(sim.fixed.getMoleculeType(),java.awt.Color.blue);
-    	colorScheme.setColor(sim.adatom.getMoleculeType(),java.awt.Color.red);
-        colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
+    	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.blue);
+    	colorScheme.setColor(sim.adatom.getLeafType(),java.awt.Color.red);
+        colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.PINK);
     	
         simGraphic.makeAndDisplayFrame(APP_NAME);
     }
@@ -130,9 +130,9 @@ public class SimDimerLJadatom extends Simulation{
     // INTEGRATOR - MD
     	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster);
     	integratorMD.setTimeStep(0.01);
-    	integratorMD.setTemperature(0.2);
+    	integratorMD.setTemperature(0.1);
     	integratorMD.setThermostatInterval(100);
-    	integratorMD.setIsothermal(false);
+    	integratorMD.setIsothermal(true);
     	integratorMD.setBox(box);
     	activityIntegrateMD = new ActivityIntegrate(integratorMD);
     	integratorMD.addIntervalAction(imposePbc);
@@ -140,34 +140,28 @@ public class SimDimerLJadatom extends Simulation{
     //SPECIES
     	double sigma = 1.0;
     	adatom = new SpeciesSpheresMono(this);
-    	bulk = new SpeciesSpheresMono(this);
     	Tin tinFixed = new Tin("SnFixed", Double.POSITIVE_INFINITY);
     	fixed = new SpeciesSpheresMono(this, tinFixed);
         movable = new SpeciesSpheresMono(this);      
-        getSpeciesManager().addSpecies(adatom);
-        getSpeciesManager().addSpecies(bulk);
         getSpeciesManager().addSpecies(fixed);
+        getSpeciesManager().addSpecies(adatom);
         getSpeciesManager().addSpecies(movable);
         ((AtomTypeSphere)adatom.getLeafType()).setDiameter(sigma); 
-        ((AtomTypeSphere)bulk.getLeafType()).setDiameter(sigma);
         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);
         ((AtomTypeSphere)movable.getLeafType()).setDiameter(sigma);
     	
-        box.setNMolecules(bulk, 256);	
-    	box.setNMolecules(fixed, 0);
+        // Must be in same order as the respective species is added to SpeciesManager
+        box.setNMolecules(fixed, 256);    	
     	
-    	box.setDensity(0.962);
+    	box.setDensity(1);
     	
     	potential = new P2LennardJones(space, sigma, 1.0);
-		potentialMaster.addPotential(potential, new AtomType[]{bulk.getLeafType(), bulk.getLeafType()});
 		potentialMaster.addPotential(potential, new AtomType[]{adatom.getLeafType(), adatom.getLeafType()});
 		potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new AtomType[]{adatom.getLeafType(), bulk.getLeafType()});
 		potentialMaster.addPotential(potential, new AtomType[]{adatom.getLeafType(), movable.getLeafType()});
 		potentialMaster.addPotential(potential, new AtomType[]{adatom.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), bulk.getLeafType()});
 		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new AtomType[]{bulk.getLeafType(), fixed.getLeafType()});
+		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), movable.getLeafType()});
         
     //CRYSTAL
         Configuration config = new ConfigurationLattice(new LatticeCubicFcc());
@@ -178,7 +172,7 @@ public class SimDimerLJadatom extends Simulation{
         box.addMolecule(iMolecule);
         IVector adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
         adAtomPos.setX(0, box.getBoundary().getDimensions().x(0)/2+0.5);
-        adAtomPos.setX(1, box.getBoundary().getDimensions().x(0)/16);
+        adAtomPos.setX(1, box.getBoundary().getDimensions().x(0)/16 + 0.1);
         adAtomPos.setX(2, box.getBoundary().getDimensions().x(0)/16);
         
   //INTEGRATOR - Dimer
@@ -221,22 +215,22 @@ public class SimDimerLJadatom extends Simulation{
 
         
         
-    //SET MOVABLE ATOMS
-        /*
+    //SET MOVABLE ATOMS - top 4 layers
+        
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
-        AtomSet loopSet = box.getMoleculeList(sn);
+        AtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
-            rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition()); 
-            if((rij.squared())<38.0){
+            rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            if(rij.squared()<5.0){
                movableList.add(loopSet.getAtom(i));
             } 
         }
        	for (int i=0; i<movableList.getAtomCount(); i++){
-           ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
+           ((IAtomPositioned)box.addNewMolecule(movable).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
            box.removeMolecule((IMolecule)movableList.getAtom(i));
        	}
-        */
+        
     
     //CALCULATE VIBRATIONAL MODES
         if(calcModes==true){
