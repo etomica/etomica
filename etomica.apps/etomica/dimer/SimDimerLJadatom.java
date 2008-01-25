@@ -222,7 +222,7 @@ public class SimDimerLJadatom extends Simulation{
         AtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
-            if(rij.squared()<5.0){
+            if(rij.x(0)<2.0){
                movableList.add(loopSet.getAtom(i));
             } 
         }
