@@ -4,6 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
@@ -62,6 +64,7 @@ public class SimDimerMEAMadatom extends Simulation{
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer, activityIntegrateMin;
     CalcGradientDifferentiable calcGradientDifferentiable;
     CalcVibrationalModes calcVibrationalModes;
+    AtomArrayList movableList;
     public double [][] dForces;
     public int [] d, modeSigns;
     public double [] positions;
@@ -322,21 +325,21 @@ public class SimDimerMEAMadatom extends Simulation{
         
         
     //SET MOVABLE ATOMS
-        /*
+                
         IVector rij = space.makeVector();
-        AtomArrayList movableList = new AtomArrayList();
+        movableList = new AtomArrayList();
         AtomSet loopSet = box.getMoleculeList(sn);
         for (int i=0; i<loopSet.getAtomCount(); i++){
-            rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition()); 
-            if((rij.squared())<38.0){
+            rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            if(rij.x(0)<1.0){
                movableList.add(loopSet.getAtom(i));
             } 
         }
        	for (int i=0; i<movableList.getAtomCount(); i++){
-           ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
+           ((IAtomPositioned)box.addNewMolecule(movable).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
            box.removeMolecule((IMolecule)movableList.getAtom(i));
        	}
-        */
+        
     
     //CALCULATE VIBRATIONAL MODES
         if(calcModes==true){
@@ -348,7 +351,7 @@ public class SimDimerMEAMadatom extends Simulation{
 		    System.out.println(file+" ***Vibrational Normal Mode Analysis***");
 		    System.out.println("  -Reading in system coordinates...");
 		    
-		    calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, box.getLeafList().getAtomCount()-1, box.getLeafList().getAtomCount()-1);
+		    calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, movableList);
 		    d = new int[3];
 		    positions = new double[d.length];
 		    dForces = new double[positions.length][positions.length];
