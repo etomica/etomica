@@ -215,14 +215,17 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		list = new AtomArrayList();
         listMin = new AtomArrayList();
 		
-        for(int i=0; i<movableSpecies.length; i++){
+		for(int i=0; i<movableSpecies.length; i++){
             AtomSet molecules = box.getMoleculeList(movableSpecies[i]);
+            AtomSet molecules1 = boxMin.getMoleculeList(movableSpecies[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
                 list.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
-                listMin.add(((IMolecule)molecules.getAtom(j)).getChildList().getAtom(0));
+                listMin.add(((IMolecule)molecules1.getAtom(j)).getChildList().getAtom(0));
             }
-        }     
+		}  
 		
+        dimerNormal();
+        
         // Write out initial configuration
         System.out.println(file+" ***Dimer Minima Search***");
         System.out.println(N[0].x(0)+"     "+N[0].x(1)+"     "+N[0].x(2));       
@@ -256,45 +259,38 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
                 THETA[i].TE(mag);
             }
 			
-            // Compute scalar rotational force and change in rotational force over length dTheta
+            // NEWTON'S LINE MINIMIZATION FOR ROTATIONAL FORCE	
             Frot = 0;
             for(int i=0; i<Fperp.length; i++){
                   Frot += Fperp[i].dot(THETA[i]);
-            }
-            
+            } 
             // Leave loop if Frot at current location is small
             if(Frot<dFrot){break;}
-            
-            
+                        
             sinDtheta = Math.sin(dTheta);
             cosDtheta = Math.cos(dTheta);
             
-            // Find THETA* in rotational plane
-            IVector workVectorTHETA1 = box.getSpace().makeVector();
-            for(int i=0; i<N.length; i++){
-                workVectorTHETA1.Ea1Tv1(cosDtheta, THETA[i]);
-                workVectorTHETA1.PEa1Tv1(-sinDtheta, N[i]);
-                THETAstar[i].E(workVectorTHETA1);
-            }
-            
-            // Find new N after dTheta rotation
-            IVector workVectorN1 = box.getSpace().makeVector();
-            for(int i=0; i<N.length; i++){
-                workVectorN1.Ea1Tv1(cosDtheta, N[i]);
-                workVectorN1.PEa1Tv1(sinDtheta, THETA[i]);
-                N[i].E(workVectorN1);
-            }
+			// Find Nstar and THETAstar after dTheta rotation
+	        IVector workVectorN1 = box.getSpace().makeVector();
+			for(int i=0; i<N.length; i++){
+				workVectorN1.Ea1Tv1(cosDtheta, N[i]);
+				workVectorN1.PEa1Tv1(sinDtheta, THETA[i]);
+				Nstar[i].E(workVectorN1);
+				workVectorN1.Ea1Tv1(-sinDtheta, N[i]);
+				workVectorN1.PEa1Tv1(cosDtheta, THETA[i]);
+				THETAstar[i].E(workVectorN1);
+			}
                         
-            // Use new N to offset(rotate) replicas
+            // Use Nstar to offset(rotate) replicas
             IVector workVector1 = box.getSpace().makeVector();
-            for(int i=0; i<N.length; i++){
+            for(int i=0; i<Nstar.length; i++){
                 workVector1.E(((IAtomPositioned)list.getAtom(i)).getPosition());
-                workVector1.PEa1Tv1(deltaR, N[i]);
+                workVector1.PEa1Tv1(deltaR, Nstar[i]);
                 ((IAtomPositioned)listMin.getAtom(i)).getPosition().E(workVector1);
             }
 			
 			// Calculate F*'s
-			dimerForcesStar(F0, Fminstar, Fstar, Fmin2star);
+			dimerForcesStar(Fminstar, Fmin2star, F0);
 			
 			// Calculate F*|_
 			dimerForcePerp(Nstar, Fminstar, Fstarperp);
@@ -312,23 +308,16 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			for(int i=0; i<Fstar.length; i++){
 				Fprimerot -= Fperp[i].dot(THETA[i]);
 			}
-			
 			Fprimerot = Fprimerot / dTheta;
 			
 			
 			// Find actual rotation angle to minimize energy
-			
-			// Adatom on surface 
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;
-			
-			
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
 			
-            //System.out.println(energy+"    "+Frot+"     "+Fprimerot+"     "+deltaTheta);
-            
              // Check deltaTheta vs. dTheta and adjust step size
             if (deltaTheta < 0){
-                    dTheta /= 100;
+                    dTheta /= 10;
                     System.out.println("dTheta changed to "+dTheta);
                     if (deltaTheta < -dTheta){
                         deltaTheta = -dTheta;
@@ -341,7 +330,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             // Find N**
             IVector workVectorN2 = box.getSpace().makeVector();
             for(int i=0; i<N.length; i++){               
-                workVectorN2.Ea1Tv1(cosdeltaTheta, N[i]);
+                workVectorN2.Ea1Tv1(cosdeltaTheta, Nstar[i]);
                 workVectorN2.PEa1Tv1(sindeltaTheta, THETAstar[i]);
                 N[i].E(workVectorN2);
             }
@@ -458,15 +447,14 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		}
 	}
 	
-	protected void dimerForcesStar(IVector [] aF, IVector [] aF1star, IVector [] aF2star, IVector []aFstar){
+	protected void dimerForcesStar(IVector [] aF1star, IVector [] aF2star, IVector [] aF){
         forceMin.reset();
         potential.calculate(boxMin, allatoms, forceMin);
         
      // Copy forces of dimer end and center (R1, R) to local array
         for(int i=0; i<aF1star.length; i++){
             aF1star[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgentMin.getAgent(listMin.getAtom(i))).force());
-            aFstar[i].E(aF[i]);
-            aF2star[i].Ea1Tv1(2.0, aFstar[i]);
+            aF2star[i].Ea1Tv1(2.0, aF[i]);
             aF2star[i].ME(aF1star[i]);
         }
     }

@@ -57,8 +57,8 @@ public class CalcVibrationalModes {
             
             frequencies[i] = Math.sqrt(modes[i]) / (2*Math.PI);
         }
-        System.out.println(eigenDecomp.getV().getArray()[1][2]);
-        eigenDecomp.getV().print(15, 6);
+        //System.out.println(eigenDecomp.getV().getArray()[1][2]);
+        //eigenDecomp.getV().print(15, 6);
         return frequencies;
     }
 }

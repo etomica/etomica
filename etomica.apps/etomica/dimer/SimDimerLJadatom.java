@@ -64,6 +64,7 @@ public class SimDimerLJadatom extends Simulation{
     public int [] d, modeSigns;
     public double [] positions;
     public double [] lambdas, frequencies;
+    AtomArrayList movableList;
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerLJadatom";
@@ -218,11 +219,11 @@ public class SimDimerLJadatom extends Simulation{
     //SET MOVABLE ATOMS - top 4 layers
         
         IVector rij = space.makeVector();
-        AtomArrayList movableList = new AtomArrayList();
+        movableList = new AtomArrayList();
         AtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
-            if(rij.x(0)<2.0){
+            if(rij.x(0)<1.0){
                movableList.add(loopSet.getAtom(i));
             } 
         }
@@ -242,15 +243,15 @@ public class SimDimerLJadatom extends Simulation{
 		    System.out.println(file+" ***Vibrational Normal Mode Analysis***");
 		    System.out.println("  -Reading in system coordinates...");
 		    
-		    calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, box.getLeafList().getAtomCount()-1, box.getLeafList().getAtomCount()-1);
-		    d = new int[3];
+		    calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, movableList);
+		    d = new int[movableList.getAtomCount()*3];
 		    positions = new double[d.length];
 		    dForces = new double[positions.length][positions.length];
 		    
 		    // setup position array
 		    for(int i=0; i<positions.length/3; i++){
 		        for(int j=0; j<3; j++){
-		            positions[(3*i)+j] = ((IAtomPositioned)box.getLeafList().getAtom(216)).getPosition().x(j);
+		            positions[(3*i)+j] = ((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition().x(j);
 		        }
 		    }
 		    

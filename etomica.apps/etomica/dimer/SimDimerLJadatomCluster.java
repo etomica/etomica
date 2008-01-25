@@ -15,10 +15,10 @@ public class SimDimerLJadatomCluster extends Simulation{
 	 public static void main(String[] args){
 	        
 	        String fileName = "lj700"; //args[0];
-	        int mdSteps = 700; //Integer.parseInt(args[1]);
+	        int mdSteps = 800; //Integer.parseInt(args[1]);
 	        
 	    	final String APP_NAME = "SimDimerLJadatomCluster";
-	    	
+	    	/*
 	    	//Simulation 1 - MD and Dimer search
 	    	final SimDimerLJadatom sim1 = new SimDimerLJadatom(fileName, false, false, false, false);
 	    	sim1.activityIntegrateMD.setMaxSteps(mdSteps);
@@ -29,7 +29,7 @@ public class SimDimerLJadatomCluster extends Simulation{
 	        final SimDimerLJadatom sim2 = new SimDimerLJadatom(fileName, true, false, false, false);
 	        sim2.activityIntegrateDimer.setMaxSteps(100);
 	        sim2.getController().actionPerformed();
-	        
+	        */
 	        //Simulation 3 - Vibrational normal mode analysis
 	        final SimDimerLJadatom sim3 = new SimDimerLJadatom(fileName+"_fine_saddle", false, true, false, false);
 	        sim3.getController().actionPerformed();
