@@ -91,23 +91,25 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		this.file = fileName;
 		this.normalD = normalDir;
 		
-		stepLength = 10E-3;
+		stepLength = 0.05;
 		deltaR = 10E-4;
 		dTheta = 10E-4;
 		dFrot = 0.01;
 		rotCounter = 0;
 		counter = 1;
 		Frot = 1;
-		rotate = true;
-		
-		sinDtheta = Math.sin(dTheta)*deltaR;
-		cosDtheta = Math.cos(dTheta)*deltaR;				
+		rotate = true;		
 	}
 		
 	public void doStepInternal(){
 		
 		// Orient half-dimer on minimum energy path
 		rotateDimerNewton();
+		
+		if(counter>50){
+            // Check and see if we're at the minimum energy
+            energyDimer();
+        }
 		
 		// Step half-dimer toward the local energy minimum
 		walkDimer();
@@ -118,14 +120,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         try{
             fileWriter = new FileWriter(file+"_minimum_path");
             fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"\n");
-            fileWriter.close();
         }catch(IOException e) {
           
         }
 		
-		// Check and see if we're at the minimum energy
-		energyDimer();
-		
+        
 		counter++;
 	}
 	
@@ -389,10 +388,10 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		
 		System.out.println(ElectronVolt.UNIT.fromSim(e0));
 		
-		if(e0 < eMin){ 
+		if(e0>eMin){ 
 		    System.out.println(file+" +++Dimer Minimum Found+++");
-			System.out.println("Box0 = "+ElectronVolt.UNIT.fromSim(e0));
-			System.out.println("BoxMin = "+ElectronVolt.UNIT.fromSim(eMin));
+			System.out.println("Box0 = "+ElectronVolt.UNIT.fromSim(e0)+"eV");
+			System.out.println("BoxMin = "+ElectronVolt.UNIT.fromSim(eMin)+"eV");
 			
 			try { 
 	            fileWriter.close();
