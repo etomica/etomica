@@ -64,11 +64,11 @@ public class SimDimerLJadatom extends Simulation{
     public int [] d, modeSigns;
     public double [] positions;
     public double [] lambdas, frequencies;
-    AtomArrayList movableList;
+    AtomSet movableSet;
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerLJadatom";
-    	final SimDimerLJadatom sim = new SimDimerLJadatom("adatom", false, false, false, false);
+    	final SimDimerLJadatom sim = new SimDimerLJadatom("lj700", true, false, true, false);
 
     	sim.activityIntegrateMD.setMaxSteps(800);
     	sim.activityIntegrateDimer.setMaxSteps(700);
@@ -107,6 +107,7 @@ public class SimDimerLJadatom extends Simulation{
         
         sim.integratorDimer.addIntervalAction(energyPump);
     	sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
+    	sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
     	
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.blue);
@@ -219,7 +220,7 @@ public class SimDimerLJadatom extends Simulation{
     //SET MOVABLE ATOMS - top 4 layers
         
         IVector rij = space.makeVector();
-        movableList = new AtomArrayList();
+        AtomArrayList movableList = new AtomArrayList();
         AtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
@@ -240,18 +241,21 @@ public class SimDimerLJadatom extends Simulation{
         	String file = fileName;
 		    ConfigurationFile configFile = new ConfigurationFile(file);
 		    configFile.initializeCoordinates(box);
+		    
+		    movableSet = box.getMoleculeList(movable);
+		    
 		    System.out.println(file+" ***Vibrational Normal Mode Analysis***");
 		    System.out.println("  -Reading in system coordinates...");
 		    
-		    calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, movableList);
-		    d = new int[movableList.getAtomCount()*3];
+		    calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, movableSet);
+		    d = new int[movableSet.getAtomCount()*3];
 		    positions = new double[d.length];
 		    dForces = new double[positions.length][positions.length];
 		    
 		    // setup position array
-		    for(int i=0; i<positions.length/3; i++){
+		    for(int i=0; i<movableSet.getAtomCount(); i++){
 		        for(int j=0; j<3; j++){
-		            positions[(3*i)+j] = ((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition().x(j);
+		            positions[(3*i)+j] = ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition().x(j);
 		        }
 		    }
 		    
