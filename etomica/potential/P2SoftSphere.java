@@ -23,7 +23,7 @@ import etomica.units.Length;
 public final class P2SoftSphere extends Potential2SoftSpherical {
 
     public P2SoftSphere(Space space) {
-        this(space, 1.0, 1.0, 1.0);
+        this(space, 1.0, 1.0, 0.1);
     }
     
     public P2SoftSphere(Space space, double sigma, double epsilon, double s) {
@@ -34,7 +34,7 @@ public final class P2SoftSphere extends Potential2SoftSpherical {
     }
     
     public static EtomicaInfo getEtomicaInfo() {
-        EtomicaInfo info = new EtomicaInfo("Simple Lennard-Jones potential");
+        EtomicaInfo info = new EtomicaInfo("Soft-Sphere potential");
         return info;
     }
 
