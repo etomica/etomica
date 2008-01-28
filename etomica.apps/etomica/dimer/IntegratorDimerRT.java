@@ -24,6 +24,7 @@ import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.species.Species;
+import etomica.units.ElectronVolt;
 import etomica.util.IRandom;
 
 /**
@@ -113,10 +114,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	
 	public void doStepInternal(){
-	    	    
+		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));    
 		rotateDimerNewton();
 		translateDimerQuickmin();
-		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));
 		dimerSaddleTolerance();		
 		counter++;
 	}
@@ -210,11 +210,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		sim.addBox(box1);
 		sim.addBox(box2);
 		
-		energyBox1 = new MeterPotentialEnergy(this.potential);
-		energyBox2 = new MeterPotentialEnergy(this.potential);
 		energyBox0 = new MeterPotentialEnergy(this.potential);
-		energyBox1.setBox(box1);
-		energyBox2.setBox(box2);
 		energyBox0.setBox(box);
 		
 		atomAgent0 = new AtomAgentManager(this, box);
@@ -258,17 +254,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		for(int i=0; i<N.length; i++){
 			((IAtomPositioned)list1.getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
 			((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(-deltaR, N[i]);
-		}
-		
-		// Write out initial configuration
-		System.out.println(file+" ***Dimer Saddle Search***");
-		System.out.println(N[0]);
-		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2)
-				+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list1.getAtom(0)).getPosition().x(2)
-				+"     "+((IAtomPositioned)list2.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list2.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list2.getAtom(0)).getPosition().x(2));
-		
-		for(int i=0; i<list.getAtomCount(); i++){
-			System.out.println(((IAtomPositioned)list1.getAtom(i)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(i)).getPosition().x(0));
 		}
 		
 		// Calculate F's
@@ -396,14 +381,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			// Find actual rotation angle to minimize energy
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;				
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
-			
-			System.out.println(Frot+"     "+Fprimerot);
-			
-			 // Check deltaTheta vs. dTheta and adjust step size
-			
+		
+			// Check deltaTheta vs. dTheta and adjust step size
 			if (deltaTheta < 0){
                     dTheta /= 10;
-                    System.out.println("dTheta changed to "+dTheta);
                     if (deltaTheta < -dTheta){
                         deltaTheta = -dTheta;
                     }
@@ -445,7 +426,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			   break;
 			}
 		}
-	    System.out.println(rotCounter);
 	}
 	
 	// Moves the dimer along the lowest curvature mode of the energy surface, Quickmin style.  Runs after rotateDimer[X]().
@@ -506,11 +486,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
         curvatureLM = curvatureLM/dXl;
                
         deltaXl = ((-Feffmag/curvatureLM) - (dXl/2));
-        
-        //System.out.println(Feff[0]+" effective force");
-        //System.out.println(Neff[0]+" effective normal");
-        //System.out.println(N[0]+" dimer normal");
-        
+
         // Step dimer
         dimerUpdatePositions(deltaXl, Neff);
         
@@ -518,8 +494,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
         dimerForces(F1, F2, F);
         
         // Calculate new Normal
-        dimerNormal();
-        
+        dimerNormal();    
 	}
 	
 	// Compute curvature value, C, for the energy surface
@@ -573,8 +548,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			aF1[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent1.getAgent(list1.getAtom(i))).force());
 			aF[i].E(((IntegratorVelocityVerlet.MyAgent)atomAgent0.getAgent(list.getAtom(i))).force());
 			aF2[i].Ea1Tv1(2.0, aF[i]);
-			aF2[i].ME(aF1[i]);
-			
+			aF2[i].ME(aF1[i]);	
 		}
 	}
 	
@@ -664,9 +638,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		}
 		saddleT /= Math.sqrt(saddleT);
 		if(saddleT<dFsq){
-			System.out.println(file+" +++Dimer Saddle Found+++");
-			System.out.println("  -"+counter+" steps.  "+saddleT+" magnitude of force array.  "+energyBox0.getDataAsScalar()+" energy of box 0.");
-
+	        try{
+	            fileWriter = new FileWriter(file+"_saddle-data", true);
+	            fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"    "+counter);
+	            fileWriter.close();
+	        }catch(IOException e) {
+	          
+	        }		
+			
 			// Write out configurations of 3 boxes
 		    WriteConfiguration writer = new WriteConfiguration();
 		    writer.setConfName(file+"_saddle");
