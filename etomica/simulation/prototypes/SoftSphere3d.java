@@ -46,7 +46,7 @@ public class SoftSphere3d extends Simulation {
         super(Space3D.getInstance());
         potentialMaster = new PotentialMaster(space);
 	    integrator = new IntegratorMC(this, potentialMaster);
-	    integrator.setTemperature(.5);
+	    integrator.setTemperature(temperature);
 	    
 	    
 	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
@@ -64,7 +64,7 @@ public class SoftSphere3d extends Simulation {
         box.setDensity(density);
        // box.setNMolecules(species2, 20);
         new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
-	    potential = new P2SoftSphere(space,1,1,softness );
+	    potential = new P2SoftSphere(space,1,1,softness);
 	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(potential,box.getBoundary().getDimensions().x(0)/2);
 	   // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());
 	    
