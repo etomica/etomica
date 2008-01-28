@@ -70,6 +70,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public double Frot, dFrot;
 	public double Fprimerot;
 	public double sinDtheta, cosDtheta;
+	public double e0prev;
 	public int rotCounter, counter;
 	public boolean rotate, normalD;
 	public String file;
@@ -99,22 +100,13 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		counter = 1;
 		Frot = 1;
 		rotate = true;		
+		e0prev = 0;
 	}
 		
 	public void doStepInternal(){
 		
 		// Orient half-dimer on minimum energy path
 		rotateDimerNewton();
-		
-		if(counter>50){
-            // Check and see if we're at the minimum energy
-            energyDimer();
-        }
-		
-		// Step half-dimer toward the local energy minimum
-		walkDimer();
-		
-		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));
 		
 		// Write energy to file
         try{
@@ -124,7 +116,13 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
           
         }
 		
+        // Check and see if we're at the minimum energy
+        energyDimer();
         
+		// Step half-dimer toward the local energy minimum
+		walkDimer();
+		
+		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));       
 		counter++;
 	}
 	
@@ -388,7 +386,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		
 		System.out.println(ElectronVolt.UNIT.fromSim(e0));
 		
-		if(e0>eMin){ 
+		if(e0>e0prev){ 
 		    System.out.println(file+" +++Dimer Minimum Found+++");
 			System.out.println("Box0 = "+ElectronVolt.UNIT.fromSim(e0)+"eV");
 			System.out.println("BoxMin = "+ElectronVolt.UNIT.fromSim(eMin)+"eV");
@@ -403,7 +401,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
             writer.actionPerformed();
             activityIntegrate.setMaxSteps(0);
 		}
-		
+		e0prev = e0;
 	}
 	
 	// Compute Normal vector for dimer orientation
