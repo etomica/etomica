@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.BoxImposePbc;
+import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
@@ -36,6 +37,7 @@ import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistoryCollapsingAverage;
+import etomica.util.RandomNumberGenerator;
 
 /**
  * Simulation using Henkelman's Dimer method to find a saddle point for
@@ -55,24 +57,25 @@ public class SimDimerLJadatom extends Simulation{
     public IntegratorDimerMin integratorDimerMin;
     public Box box;
     public IVector [] saddle, normal;
-    public SpeciesSpheresMono adatom, fixed, movable;
+    public SpeciesSpheresMono fixed, movable;
     public P2LennardJones potential;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer, activityIntegrateMin;
-    CalcGradientDifferentiable calcGradientDifferentiable;
-    CalcVibrationalModes calcVibrationalModes;
+    public CalcGradientDifferentiable calcGradientDifferentiable;
+    public CalcVibrationalModes calcVibrationalModes;
     public double [][] dForces;
     public int [] d, modeSigns;
     public double [] positions;
     public double [] lambdas, frequencies;
-    AtomSet movableSet;
+    public AtomSet movableSet;
+    public Boolean saddleFine, calcModes, minSearch, normalDir;
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerLJadatom";
-    	final SimDimerLJadatom sim = new SimDimerLJadatom("lj700", true, false, true, false);
+    	final SimDimerLJadatom sim = new SimDimerLJadatom("lj1000", false, false, false, false, false);
 
-    	sim.activityIntegrateMD.setMaxSteps(800);
-    	sim.activityIntegrateDimer.setMaxSteps(700);
-    	
+    	sim.activityIntegrateMD.setMaxSteps(0);
+    	sim.activityIntegrateDimer.setMaxSteps(0);
+    	    	
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);
         
@@ -86,15 +89,7 @@ public class SimDimerLJadatom extends Simulation{
         plotPE.setLabel("PE Plot");
         
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
-        accumulatorAveragePE.setPushInterval(1);
-        
-       // MeterEnergy meterE = new MeterEnergy(sim.potentialMaster);
-       // meterE.setBox(sim.box);
-        
-       // AccumulatorHistory totalEAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
-       // DataPump totalEPump = new DataPump(meterE, totalEAccumulator);
-       // totalEAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
-        
+        accumulatorAveragePE.setPushInterval(1);      
     	
     	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
     	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
@@ -102,24 +97,21 @@ public class SimDimerLJadatom extends Simulation{
         simGraphic.add(plotPE);
     	
         sim.integratorMD.addIntervalAction(energyPump);
-      //  sim.integratorMD.addIntervalAction(totalEPump);
         sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
         
         sim.integratorDimer.addIntervalAction(energyPump);
     	sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
-    	sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
+    	//sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
     	
     	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
     	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.blue);
-    	colorScheme.setColor(sim.adatom.getLeafType(),java.awt.Color.red);
         colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.PINK);
     	
         simGraphic.makeAndDisplayFrame(APP_NAME);
     }
 
-    public SimDimerLJadatom(String fileName, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
+    public SimDimerLJadatom(String fileName, Boolean useConfig, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
     	super(Space3D.getInstance(), true);
-    	    	
     	potentialMaster = new PotentialMaster(space);
     	
     //SIMULATION BOX
@@ -128,7 +120,6 @@ public class SimDimerLJadatom extends Simulation{
         
         BoxImposePbc imposePbc = new BoxImposePbc(box);
         
-    	
     // INTEGRATOR - MD
     	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster);
     	integratorMD.setTimeStep(0.01);
@@ -141,14 +132,11 @@ public class SimDimerLJadatom extends Simulation{
     	
     //SPECIES
     	double sigma = 1.0;
-    	adatom = new SpeciesSpheresMono(this);
     	Tin tinFixed = new Tin("SnFixed", Double.POSITIVE_INFINITY);
     	fixed = new SpeciesSpheresMono(this, tinFixed);
         movable = new SpeciesSpheresMono(this);      
         getSpeciesManager().addSpecies(fixed);
-        getSpeciesManager().addSpecies(adatom);
         getSpeciesManager().addSpecies(movable);
-        ((AtomTypeSphere)adatom.getLeafType()).setDiameter(sigma); 
         ((AtomTypeSphere)fixed.getLeafType()).setDiameter(sigma);
         ((AtomTypeSphere)movable.getLeafType()).setDiameter(sigma);
     	
@@ -158,10 +146,7 @@ public class SimDimerLJadatom extends Simulation{
     	box.setDensity(1);
     	
     	potential = new P2LennardJones(space, sigma, 1.0);
-		potentialMaster.addPotential(potential, new AtomType[]{adatom.getLeafType(), adatom.getLeafType()});
 		potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), fixed.getLeafType()});
-		potentialMaster.addPotential(potential, new AtomType[]{adatom.getLeafType(), movable.getLeafType()});
-		potentialMaster.addPotential(potential, new AtomType[]{adatom.getLeafType(), fixed.getLeafType()});
 		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), fixed.getLeafType()});
 		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), movable.getLeafType()});
         
@@ -170,7 +155,7 @@ public class SimDimerLJadatom extends Simulation{
         config.initializeCoordinates(box); 
        
     //ADATOM CREATION AND PLACEMENT
-        IMolecule iMolecule = (IMolecule)adatom.getMoleculeFactory().makeAtom();
+        IMolecule iMolecule = (IMolecule)movable.getMoleculeFactory().makeAtom();
         box.addMolecule(iMolecule);
         IVector adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
         adAtomPos.setX(0, box.getBoundary().getDimensions().x(0)/2+0.5);
@@ -178,7 +163,7 @@ public class SimDimerLJadatom extends Simulation{
         adAtomPos.setX(2, box.getBoundary().getDimensions().x(0)/16);
         
   //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{adatom,movable}, fileName);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{movable}, fileName);
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
@@ -188,7 +173,7 @@ public class SimDimerLJadatom extends Simulation{
     	getController().addAction(activityIntegrateDimer);
     	
     //FINE-DIMER SETTINGS
-        if(saddleFine==true){
+        if(saddleFine){
         	getController().removeAction(activityIntegrateMD);
         	
         	ConfigurationFile configFile = new ConfigurationFile(fileName+"_saddle");
@@ -203,10 +188,10 @@ public class SimDimerLJadatom extends Simulation{
         }
                         
     //INTEGRATOR - Minimum Energy Path
-        if(minSearch==true){
+        if(minSearch){
         	ConfigurationFile configFile = new ConfigurationFile(fileName+"_fine_saddle");
         	configFile.initializeCoordinates(box);
-            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{adatom,movable}, fileName, normalDir);
+            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new Species[]{movable}, fileName, normalDir);
             integratorDimerMin.setBox(box);
             activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
             integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
@@ -215,16 +200,13 @@ public class SimDimerLJadatom extends Simulation{
             getController().addAction(activityIntegrateMin);
         }
 
-        
-        
-    //SET MOVABLE ATOMS - top 4 layers
-        
+    //SET MOVABLE ATOMS
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
         AtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
             rij.Ev1Mv2(adAtomPos,((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
-            if(rij.x(0)<1.0){
+            if(rij.x(0)<2.0){
                movableList.add(loopSet.getAtom(i));
             } 
         }
@@ -232,17 +214,51 @@ public class SimDimerLJadatom extends Simulation{
            ((IAtomPositioned)box.addNewMolecule(movable).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
            box.removeMolecule((IMolecule)movableList.getAtom(i));
        	}
-        
-    
+       	movableSet = box.getMoleculeList(movable);
+
+        //GENERATE CONFIGURATIONS FROM GAUSSIAN 
+       	if(false){
+	   		getController().removeAction(activityIntegrateMD);
+	   		getController().removeAction(activityIntegrateDimer);
+	     	RandomNumberGenerator random = new RandomNumberGenerator();
+	     	IVector workVector = space.makeVector();
+	   		IVector [] currentPos = new IVector [movableSet.getAtomCount()];
+	   		for(int i=0; i<currentPos.length; i++){
+	   			currentPos[i] = space.makeVector();
+	   			currentPos[i].E(((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
+	   		}
+	     	ConfigurationFile configRandom = new ConfigurationFile(fileName+"_A_minimum");
+	   		configRandom.initializeCoordinates(box);
+	   		//Create multiple configurations
+	   		for(int m=0; m<50; m++){
+	   			WriteConfiguration genConfig = new WriteConfiguration();
+	   			genConfig.setBox(box);
+	   			genConfig.setConfName(fileName+"_config_"+m);
+	   			//Displaces atom's by at most +/-0.1 in each coordinate
+	   			for(int i=0; i<movableSet.getAtomCount(); i++){
+	   				IVector atomPosition = ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition();
+	   				for(int j=0; j<3; j++){
+	   					workVector.setX(j,0.1*random.nextGaussian());
+	   				}
+	   				atomPosition.Ev1Pv2(currentPos[i],workVector);
+	   			}
+	   			genConfig.actionPerformed();   			
+	   		}
+       	}
+       	
+    //RUN DIMER METHOD FROM GENERATED CONFIG FILE
+       	if(useConfig){
+            ConfigurationFile configFileFromMD = new ConfigurationFile(fileName);
+        	configFileFromMD.initializeCoordinates(box);
+       	}
+     
     //CALCULATE VIBRATIONAL MODES
-        if(calcModes==true){
+        if(calcModes){
         	getController().removeAction(activityIntegrateMD);
         	getController().removeAction(activityIntegrateDimer);
         	String file = fileName;
 		    ConfigurationFile configFile = new ConfigurationFile(file);
 		    configFile.initializeCoordinates(box);
-		    
-		    movableSet = box.getMoleculeList(movable);
 		    
 		    System.out.println(file+" ***Vibrational Normal Mode Analysis***");
 		    System.out.println("  -Reading in system coordinates...");
