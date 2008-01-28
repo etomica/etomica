@@ -142,6 +142,7 @@ public class HarmonicCrystalSoftSphereFCC {
         double rho = 1.338;
         double softness = 0.10;
         int maxLatticeShell = 49;
+        int nC =3;
 //        Primitive primitive = new PrimitiveFcc(Space3D.getInstance());
 //        Basis basis = new BasisMonatomic(Space3D.getInstance());
         
@@ -151,13 +152,15 @@ public class HarmonicCrystalSoftSphereFCC {
         if (args.length > 1) {
             softness = Double.parseDouble(args[1]);
         }
+        if (args.length > 2) {
+            nC = Integer.parseInt(args[2]);
+        }
         
         Primitive primitive = new PrimitiveCubic(Space3D.getInstance());
         Basis basis = new BasisCubicFcc();
         
         final Potential2SoftSpherical potential = new P2SoftSphere(Space3D.getInstance(), 1.0, 1.0, softness);
 
-        int nC = 1;
         int[] nCells = new int[] {nC, nC, nC};
         
         HarmonicCrystalSoftSphereFCC harmonicCrystal = new HarmonicCrystalSoftSphereFCC(nCells, primitive, basis, potential);
@@ -169,7 +172,7 @@ public class HarmonicCrystalSoftSphereFCC {
         
         double u = harmonicCrystal.getLatticeEnergy();
         
-        double[] a = new double[75];
+        double[] a = new double[100];
         double temp =0.01;
         for (int i =0; i<a.length; i++){
         	a[i] = harmonicCrystal.getHelmholtzFreeEnergy(temp);
