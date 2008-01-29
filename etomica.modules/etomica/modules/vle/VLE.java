@@ -246,4 +246,15 @@ public class VLE extends SimulationGraphic {
         VLE vle = new VLE(new VLESim());
         vle.makeAndDisplayFrame();
     }
+
+    public static class Applet extends javax.swing.JApplet {
+        public void init() {
+            getRootPane().putClientProperty(
+                    "defeatSystemEventQueueCheck", Boolean.TRUE);
+            VLE vle = new VLE(new VLESim());
+            getContentPane().add(vle.getPanel());
+        }
+
+        private static final long serialVersionUID = 1L;
+    }
 }
