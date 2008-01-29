@@ -52,7 +52,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public double gammai;
 	public int counter, rotCounter;
 	public int movableAtoms;
-	public boolean rotate;
+	public boolean rotate, ortho, startOrtho;
 	public MeterPotentialEnergy energyBox1, energyBox2, energyBox0;
 	public IVector [] THETA, THETAstar, THETAstarstar;
 	public IVector [] F, F1, F2;
@@ -63,7 +63,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public IVector [] deltaV, V;
 	public IVector [] newPosition;
 	public IVector [] workVector3;
-	public IVectorRandom [] N, Nstar, Neff;
+	public IVectorRandom [] N, Nstar, Neff, N1;
 	public IVector NDelta, NstarDelta;
 	public IVector workVector1;
 	public IVector workVector2;
@@ -108,6 +108,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		Frot = 1.0;
 		dFrot = 0.1;
 		
+		//To use orgthogonal dimer search, ortho=false, startOrtho=true.
+		ortho = false;
+		startOrtho = true;
+		
 		counter = 0;
 		rotCounter = 0;
 	}
@@ -115,9 +119,18 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	public void doStepInternal(){
 		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));    
+		
 		rotateDimerNewton();
+		
+		//N is now a vector orthogonal to N1;
+		if(ortho){
+			testOrthoCurvature(N1, N);
+		}
+		
 		translateDimerQuickmin();
+		
 		dimerSaddleTolerance();		
+		
 		counter++;
 	}
 			
@@ -136,6 +149,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
         N = new IVectorRandom [movableAtoms];
         Neff = new IVectorRandom [movableAtoms];
         Nstar = new IVectorRandom [movableAtoms];
+        N1 = new IVectorRandom [movableAtoms];
         THETA = new IVector [movableAtoms];
         THETAstar = new IVector [movableAtoms];
         THETAstarstar = new IVector [movableAtoms];
@@ -165,6 +179,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             N[i] = (IVectorRandom)box.getSpace().makeVector();
             Neff[i] = (IVectorRandom)box.getSpace().makeVector();
             Nstar[i] = (IVectorRandom)box.getSpace().makeVector();
+            N1[i] = (IVectorRandom)box.getSpace().makeVector();
             THETA[i] = box.getSpace().makeVector();
             THETAstar[i] = box.getSpace().makeVector();
             THETAstarstar[i] = box.getSpace().makeVector();
@@ -190,19 +205,24 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             workVector3[i] = box.getSpace().makeVector();
         }
 		
-		// Use random unit array for N to generate dimer.
+		// Use random unit array for N, N1 to generate dimer.
 
-		// Normalize N
+		// Normalize N, N1
 		double mag = 0;
+		double magN1 = 0;
 		for (int i=0; i<N.length; i++){ 
+			N1[i].setRandomSphere(random1);
 			N[i].setRandomSphere(random1);
 			mag += N[i].squared();
+			magN1 += N1[i].squared();
 		}
 		mag = 1.0 / Math.sqrt(mag);
+		magN1 = 1.0 / Math.sqrt(magN1);
 		for (int i=0; i<N.length; i++){
 			N[i].TE(mag);
+			N1[i].TE(magN1);
 		}
-		
+				
 		//Offset R1 and R2 (dimer ends) from initial configuration, along N.
 		box1 = new Box(box.getBoundary());
 		box2 = new Box(box.getBoundary());
@@ -267,13 +287,30 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 				
 	    while(true){
 			
+	    	//ORTHOGONAL DIMER SEARCH
+	    	if(ortho){
+				//Remove N1 component from F's and orthogonal N
+	    		// F1-(F1[dot]N1)*N1; F2-(F2[dot]N1)*N1; N-(N[dot]N1)*N1
+	    		double magF1 = 0;
+	    		double magF2 = 0;
+	    		double magN1 = 0;
+	    		for(int i=0; i<F1.length; i++){
+	    			magF1 += F1[i].dot(N1[i]);
+	    			magF2 += F2[i].dot(N1[i]);
+	    			magN1 += N[i].dot(N1[i]);
+	    		}
+	    		for (int i=0; i<F1.length; i++){
+	    			F1[i].PEa1Tv1(-magF1, N1[i]);	
+	    			F2[i].PEa1Tv1(-magF2, N1[i]);
+	    			N[i].PEa1Tv1(-magN1,N1[i]);
+	    		}
+			}
+	    	
 			// Calculate F|_
 			dimerForcePerp(N, F1, F2, Fperp);
-			
+						
 			//CONJUGATE GRADIENT SEARCH FOR ROTATIONAL PLANE
-			
 			// Find Gperp = Fperp + gammai*|Gperplast|*THETAstarstar
-		
 			//gammaI = ( (Fperpi - Fperpi-1)[dot]Fperpi )/(Fperpi[dot]Fperpi)
 			/*
 			double gt = 0.0;
@@ -287,7 +324,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 				gb += Fperp[i].dot(Fperp[i]);
 			}
 			gammai = gt/gb;
-			
 			double magG=0;
 			for(int i=0; i<Gperplast.length; i++){
 				magG += Gperplast[i].squared();
@@ -297,8 +333,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 				Gperp[i].E(THETAstarstar[i]);
 				Gperp[i].TE(gammai*magG);
 				Gperp[i].PE(Fperp[i]);
-			}
-						
+			}			
 			if(rotCounter==0){
 				for(int i=0; i<Gperp.length; i++){
 					Gperp[i].E(Fperp[i]);
@@ -314,8 +349,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			for(int i=0; i<THETA.length; i++){
 				THETA[i].E(Fperp[i]);
 				THETA[i].TE(mag);
-			}		
-			
+			}
 			//Copy arrays to remember for next iteration
 			for(int i=0; i<Fperplast.length; i++){
 				Gperplast[i].E(Gperp[i]);
@@ -328,8 +362,39 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             for(int i=0; i<Fperp.length; i++){
                   Frot += Fperp[i].dot(THETA[i]);
             }
+            
             // Leave loop if Frot at current location is small
-            if(Frot<dFrot){break;}
+            if(Frot<dFrot){
+            	
+            	//First time after converging to lowest curvature mode, N is copied to N1
+            	//Start ortho
+            	if(startOrtho){
+            		System.out.println("Starting othogonal dimer search.");
+            		
+            		IVector workVec = box.getSpace().makeVector();
+            		for(int i=0;i<N.length;i++){
+            			//swap
+            			workVec.E(N1[i]);
+            			N1[i].E(N[i]);
+            			N[i].E(workVec);
+            		}
+            		
+            		//Make N orthogonal to N1:  N - (N[dot]N1)*N1
+            		double orthN = 0;
+            		for(int i=0; i<N1.length; i++){
+            			orthN += N[i].dot(N1[i]);
+            		}
+            		for (int i=0; i<N1.length; i++){
+            			N[i].PEa1Tv1(-orthN,N1[i]);
+            		}
+            		System.out.println("ortho N: "+N[0].x(0)+"    "+N[0].x(1)+"    "+N[0].x(2));
+            		System.out.println(" lcm N1: "+N1[0].x(0)+"    "+N1[0].x(1)+"    "+N1[0].x(2));
+            		ortho=true;
+            	}
+            	startOrtho = false;
+            	
+            	break;
+            }
             
             double sinDtheta = Math.sin(dTheta);
             double cosDtheta = Math.cos(dTheta);
@@ -344,7 +409,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 				workVectorN1.PEa1Tv1(cosDtheta, THETA[i]);
 				THETAstar[i].E(workVectorN1);
 			}
-			
 			// Use N* to offset(rotate) replicas
 			IVector workVector1 = box.getSpace().makeVector();
 			for(int i=0; i<Nstar.length; i++){
@@ -356,7 +420,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
                 workVector1.PEa1Tv1(-deltaR, Nstar[i]);
                 ((IAtomPositioned)list2.getAtom(i)).getPosition().E(workVector1);
             }
-			
 			// Calculate F*'s
 			dimerForcesStar(F1star, F2star, F);     
 			
@@ -419,11 +482,12 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			
 			// Calculate new Normal
 			dimerNormal();
-						    
+									    
 			rotCounter++;
 			
 			if(rotCounter>30){
-			   break;
+				System.out.println(rotCounter+" rotations.");
+				break;
 			}
 		}
 	}
@@ -512,6 +576,27 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		curvature = 0.5 * curvature / deltaR;
 		
 		//System.out.println(curvature+" curvature");
+	}
+	
+	//Checks curvature value at dimer oriented along orthogonal unit vector, vs. lowest curv. mode unit vector.
+	//When the ortho unit vector returns a curvature less than that of the lowest curv. unit vector, ORTHO is turned off.
+	protected boolean testOrthoCurvature(IVectorRandom [] aN1, IVectorRandom [] aNortho){
+		
+		//Compute current curvature along orthogonal N
+		dimerCurvature(aNortho, F1, F2);
+		double orthoCurve = curvature;
+		
+		dimerCurvature(aN1, F1, F2);
+		double n1Curve = curvature;
+		
+		System.out.println("curvatures: "+n1Curve+" (LCM)    "+orthoCurve+" (ORTHO)");
+		
+		if(orthoCurve<n1Curve){
+			System.out.println("Secondary mode found, stopping ortho search.");
+			ortho = false;
+		}
+		
+		return ortho;
 	}
 	
 	// Compute Normal vector for dimer orientation
