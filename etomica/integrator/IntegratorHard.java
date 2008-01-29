@@ -169,8 +169,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
             if (Debug.ON && Debug.DEBUG_NOW && Debug.LEVEL > 0 &&((Debug.LEVEL > 1 && Debug.thisBox(box)) || Debug.anyAtom(atoms))) {
                 System.out.println("collision between atoms "+atoms+" at "+collisionTimeStep+" with "+colliderAgent.collisionPotential.getClass());
             }
-            if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box)) {
-                debugPair = Debug.getAtoms(box);
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.thisBox(box) && (debugPair = Debug.getAtoms(box)) != null) {
                 if (Debug.LEVEL > 1) {
                     IAtom a = debugPair.atom0;
                     if (a != null) {
