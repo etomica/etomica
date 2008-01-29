@@ -39,12 +39,16 @@ public class Swmd extends Simulation {
         
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
         
+        double sigma = 4.0;
+        double lambda = 2.0;
+        
         //controller and integrator
 	    integrator = new IntegratorHard(potentialMaster, getRandom(), 1.0, Kelvin.UNIT.toSim(300));
 	    integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
-        integrator.setNullPotential(new P1HardPeriodic(space));
+        P1HardPeriodic nullPotential = new P1HardPeriodic(space, sigma*lambda);
+        integrator.setNullPotential(nullPotential);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         integrator.setTimeStep(1);
@@ -55,7 +59,7 @@ public class Swmd extends Simulation {
         getSpeciesManager().addSpecies(species);
         
         //instantiate several potentials for selection in combo-box
-	    P2SquareWell potentialSW = new P2SquareWell(space, 4.0, 1.5, new UnitRatio(Joule.UNIT, Mole.UNIT).toSim(1500), true);
+	    P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, new UnitRatio(Joule.UNIT, Mole.UNIT).toSim(1500), true);
         potentialWrapper = new Potential2HardSphericalWrapper(space,potentialSW);
         potentialMaster.addPotential(potentialWrapper,new AtomType[]{species.getLeafType(),species.getLeafType()});
 	    
