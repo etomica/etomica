@@ -232,7 +232,7 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
             findNextCollider(); //this sets colliderAgent for the next collision
             if (Debug.ON && colliderAgent.atom == atoms.getAtom(0) && (atoms.getAtomCount() == 2 && colliderAgent.collisionPartner == atoms.getAtom(1))
                     && colliderAgent.collisionTime() == collisionTimeStep) {
-                throw new RuntimeException("repeating collision");
+                throw new RuntimeException("repeating collision "+atoms+" "+collisionTimeStep);
             }
             
             oldTime = collisionTimeStep;
