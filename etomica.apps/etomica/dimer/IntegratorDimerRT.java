@@ -304,6 +304,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	    			F2[i].PEa1Tv1(-magF2, N1[i]);
 	    			N[i].PEa1Tv1(-magN1,N1[i]);
 	    		}
+        		System.out.println("ortho N: "+N[0].x(0)+"    "+N[0].x(1)+"    "+N[0].x(2));
+        		System.out.println(" lcm N1: "+N1[0].x(0)+"    "+N1[0].x(1)+"    "+N1[0].x(2));
 			}
 	    	
 			// Calculate F|_
@@ -485,7 +487,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 									    
 			rotCounter++;
 			
-			if(rotCounter>30){
+			if(rotCounter>50){
 				System.out.println(rotCounter+" rotations.");
 				break;
 			}
