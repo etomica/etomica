@@ -15,9 +15,18 @@ public class Molecule extends Atom implements IMolecule {
      * from only the ordinal.
      */
     public String signature() {
-        return Integer.toString(getIndex());
+        return Integer.toString(index);
     }
-    
+
+    /**
+     * Returns a string formed by concatenating the signature of this atom
+     * to a string that identifies it as a molecule.
+     */
+    public final String toString() {
+//        return Integer.toBinaryString(node.index());
+        return "Molecule(" + index + ")";
+    }
+
     /**
      * Assigns ordinals to all child atoms, numbering them sequentially
      * according to their position in the childList.
