@@ -75,7 +75,7 @@ public class HSMD2D_noNbr extends Simulation {
         
         integrator.addIntervalAction(new BoxImposePbc(box));
         integrator.setBox(box);
-        integrator.setNullPotential(new P1HardPeriodic(space));
+        integrator.setNullPotential(new P1HardPeriodic(space, potential.getRange()));
 //        integrator.setIsothermal(true);
         
 //        MeterPressureHard meterPressure = new MeterPressureHard(integrator);
