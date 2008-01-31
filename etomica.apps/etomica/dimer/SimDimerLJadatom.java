@@ -71,10 +71,10 @@ public class SimDimerLJadatom extends Simulation{
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerLJadatom";
-    	final SimDimerLJadatom sim = new SimDimerLJadatom("lj1000", false, false, false, false, false);
+    	final SimDimerLJadatom sim = new SimDimerLJadatom("lj_config_0", true, true, false, false, false, false);
 
     	sim.activityIntegrateMD.setMaxSteps(0);
-    	sim.activityIntegrateDimer.setMaxSteps(0);
+    	sim.activityIntegrateDimer.setMaxSteps(1000);
     	    	
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);
@@ -110,7 +110,7 @@ public class SimDimerLJadatom extends Simulation{
         simGraphic.makeAndDisplayFrame(APP_NAME);
     }
 
-    public SimDimerLJadatom(String fileName, Boolean useConfig, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
+    public SimDimerLJadatom(String fileName, Boolean useConfig, Boolean ortho, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
     	super(Space3D.getInstance(), true);
     	potentialMaster = new PotentialMaster(space);
     	
@@ -163,7 +163,7 @@ public class SimDimerLJadatom extends Simulation{
         adAtomPos.setX(2, box.getBoundary().getDimensions().x(0)/16);
         
   //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{movable}, fileName);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{movable}, ortho, fileName);
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
@@ -234,11 +234,11 @@ public class SimDimerLJadatom extends Simulation{
 	   			WriteConfiguration genConfig = new WriteConfiguration();
 	   			genConfig.setBox(box);
 	   			genConfig.setConfName(fileName+"_config_"+m);
-	   			//Displaces atom's by at most +/-0.1 in each coordinate
+	   			//Displaces atom's by at most +/-0.03 in each coordinate
 	   			for(int i=0; i<movableSet.getAtomCount(); i++){
 	   				IVector atomPosition = ((IAtomPositioned)((IMolecule)movableSet.getAtom(i)).getChildList().getAtom(0)).getPosition();
 	   				for(int j=0; j<3; j++){
-	   					workVector.setX(j,0.1*random.nextGaussian());
+	   					workVector.setX(j,0.03*random.nextGaussian());
 	   				}
 	   				atomPosition.Ev1Pv2(currentPos[i],workVector);
 	   			}
