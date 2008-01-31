@@ -40,7 +40,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 
 	public Box box1, box2;
 	public ISimulation sim;
-	public double deltaT;
 	public double deltaR;
 	public double dTheta, deltaXl, dXl;
 	public double deltaTheta;
@@ -52,7 +51,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public double gammai;
 	public int counter, rotCounter;
 	public int movableAtoms;
-	public boolean rotate, ortho, startOrtho;
+	public boolean rotate, ortho, ortho2, startOrtho;
 	public MeterPotentialEnergy energyBox1, energyBox2, energyBox0;
 	public IVector [] THETA, THETAstar, THETAstarstar;
 	public IVector [] F, F1, F2;
@@ -78,11 +77,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public ActivityIntegrate activityIntegrate;
 	
 	
-	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster, Species[] species, String file) {
-		this(sim, potentialMaster, sim.getRandom(), 0.005, 1.0, species, file);
+	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster, Species[] species, boolean ortho, String file) {
+		this(sim, potentialMaster, sim.getRandom(), ortho, 1.0, species, file);
 	}
 	
-	public IntegratorDimerRT(ISimulation aSim, PotentialMaster potentialMaster, IRandom random, double timeStep, double temperature, Species[] aspecies, String aFile) {
+	public IntegratorDimerRT(ISimulation aSim, PotentialMaster potentialMaster, IRandom random, boolean aOrtho, double temperature, Species[] aspecies, String aFile) {
 		super(potentialMaster, temperature);
 		this.random1 = random;
 		this.sim = aSim;
@@ -90,10 +89,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		this.force1 = new PotentialCalculationForceSum();
 		this.force2 = new PotentialCalculationForceSum();
 		this.allatoms = new IteratorDirective();
-		this.deltaT = timeStep;
 		this.movableSpecies = aspecies;
 		this.file = aFile;
-		
+		this.startOrtho = aOrtho;
 		
 		deltaR = 10E-4;
 		dXl = 10E-4;
@@ -108,9 +106,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		Frot = 1.0;
 		dFrot = 0.1;
 		
-		//To use orgthogonal dimer search, ortho=false, startOrtho=true.
 		ortho = false;
-		startOrtho = true;
+		ortho2 = true;
 		
 		counter = 0;
 		rotCounter = 0;
@@ -122,7 +119,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		rotateDimerNewton();
 		
-		//N is now a vector orthogonal to N1;
+		//N is now a vector orthogonal to N1, check curvatures along each;
 		if(ortho){
 			testOrthoCurvature(N1, N);
 		}
@@ -392,9 +389,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
             		System.out.println("ortho N: "+N[0].x(0)+"    "+N[0].x(1)+"    "+N[0].x(2));
             		System.out.println(" lcm N1: "+N1[0].x(0)+"    "+N1[0].x(1)+"    "+N1[0].x(2));
             		ortho=true;
+            		startOrtho = false;
+            		file = file+"_ortho";
             	}
-            	startOrtho = false;
-            	
+            	System.out.println(rotCounter+" rotations.");
             	break;
             }
             
@@ -582,7 +580,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	//Checks curvature value at dimer oriented along orthogonal unit vector, vs. lowest curv. mode unit vector.
 	//When the ortho unit vector returns a curvature less than that of the lowest curv. unit vector, ORTHO is turned off.
-	protected boolean testOrthoCurvature(IVectorRandom [] aN1, IVectorRandom [] aNortho){
+	protected void testOrthoCurvature(IVectorRandom [] aN1, IVectorRandom [] aNortho){
 		
 		//Compute current curvature along orthogonal N
 		dimerCurvature(aNortho, F1, F2);
@@ -596,9 +594,14 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		if(orthoCurve<n1Curve){
 			System.out.println("Secondary mode found, stopping ortho search.");
 			ortho = false;
+			
+			// Run another Orthogonal search (N1, N2)
+			if(ortho2){
+				startOrtho = true;
+				ortho2=false;
+			}
 		}
-		
-		return ortho;
+
 	}
 	
 	// Compute Normal vector for dimer orientation
@@ -727,7 +730,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		if(saddleT<dFsq){
 	        try{
 	            fileWriter = new FileWriter(file+"_saddle-data", true);
-	            fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"    "+counter);
+	            fileWriter.write(ElectronVolt.UNIT.fromSim(energyBox0.getDataAsScalar())+"    "+counter+"\n");
 	            fileWriter.close();
 	        }catch(IOException e) {
 	          
