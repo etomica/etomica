@@ -18,7 +18,7 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 	        int mdSteps = 700; //Integer.parseInt(args[1]);
 	        
 	    	final String APP_NAME = "SimDimerMEAMadatomCluster";
-	    	
+	    	/*
 	    	//Simulation 1 - MD and Dimer search
 	    	final SimDimerMEAMadatom sim1 = new SimDimerMEAMadatom(fileName, false, false, false, false);
 	    	sim1.activityIntegrateMD.setMaxSteps(mdSteps);
@@ -51,7 +51,7 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 		    //Simulation 7 - Vibrational normal mode analysis
 	        final SimDimerMEAMadatom sim7 = new SimDimerMEAMadatom(fileName+"_B_minimum", false, true, false, false);
 	        sim7.getController().actionPerformed();
-	     
+	        */
 	    }
 
 

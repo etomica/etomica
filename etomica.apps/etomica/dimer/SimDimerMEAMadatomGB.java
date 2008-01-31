@@ -190,7 +190,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
         box = new Box(new BoundaryRectangularSlit(space, random, 0, 5));
         addBox(box);
         
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{snAdatom}, "SnAdatom");
+       // integratorDimer = new IntegratorDimerRT(this, potentialMaster, ortho, new Species[]{snAdatom}, "SnAdatom");
         /**
         //Ag
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{agAdatom}, "AgAdatom");
