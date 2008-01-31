@@ -11,12 +11,13 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.AtomIteratorBasis;
 import etomica.atom.iterator.AtomIteratorFiltered;
 import etomica.atom.iterator.AtomsetIterator;
+import etomica.atom.iterator.AtomsetIteratorAllLeafAtoms;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.atom.iterator.AtomsetIteratorDirectable;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.nbr.CriterionAll;
 import etomica.nbr.NeighborCriterion;
-import etomica.box.Box;
 import etomica.potential.PotentialMaster.AtomIterator0;
 import etomica.space.Space;
 
@@ -75,24 +76,27 @@ public class PotentialGroup extends Potential {
      * atom, with the second-type atoms taken from the second basis.
      */
     public void addPotential(IPotential potential, AtomType[] types) {
-        if(this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
+        if(this.nBody() != Integer.MAX_VALUE && this.nBody() > types.length) throw new IllegalArgumentException("Order of potential cannot exceed length of types array.");
         Arrays.sort(types);
-        switch(types.length) {
-            case 1:
-                AtomFilter filter = new AtomFilterTypeInstance(types[0]);
-                addPotential(potential, 
-                        (AtomsetIteratorBasisDependent)AtomIteratorFiltered.makeIterator(new AtomIteratorBasis(),filter),types);
-                break;
-            case 2:
-                if(this.nBody() == 1) {
-                    addPotential(potential,
-                            ApiBuilder.makeIntragroupTypeIterator(types),types);
-                }
-                else {//nBody == 2
-                    addPotential(potential,
-                            ApiBuilder.makeIntergroupTypeIterator(types),types);
-                }
-                break;
+        if (this.nBody() == Integer.MAX_VALUE){addPotential(potential, new AtomsetIteratorAllLeafAtoms(), types);}
+        else { 
+        	switch(types.length) {
+	            case 1:
+	                AtomFilter filter = new AtomFilterTypeInstance(types[0]);
+	                addPotential(potential, 
+	                        (AtomsetIteratorBasisDependent)AtomIteratorFiltered.makeIterator(new AtomIteratorBasis(),filter),types);
+	                break;
+	            case 2:
+	                if(this.nBody() == 1) {
+	                    addPotential(potential,
+	                            ApiBuilder.makeIntragroupTypeIterator(types),types);
+	                }
+	                else if(this.nBody() == 2) {
+	                    addPotential(potential,
+	                            ApiBuilder.makeIntergroupTypeIterator(types),types);
+	                }
+	                break;
+        	}
         }
         if(potential instanceof PotentialTruncated) {
             Potential0Lrc lrc = ((PotentialTruncated)potential).makeLrcPotential(types);

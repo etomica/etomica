@@ -146,15 +146,12 @@ public class PotentialMaster implements java.io.Serializable {
     	if (potential.nBody() == 0) {
     		addPotential(potential, new AtomIterator0(),null);
     		return;
-    	}
-        else if (potential.nBody() == Integer.MAX_VALUE) {
-        	addPotential(potential, new AtomIteratorAllLeafType(atomTypes), atomTypes);
-            return;
-        }
-    	else if (potential.nBody() != atomTypes.length) {
+    	}    	
+        else if (potential.nBody() != Integer.MAX_VALUE && potential.nBody() != atomTypes.length) {
             throw new IllegalArgumentException("nBody of potential must match number of atom types");
         }
-        Arrays.sort(atomTypes);
+        
+    	Arrays.sort(atomTypes);
         // depth of molecules
         boolean haveLeafTypes = false;
         for (int i=0; i<atomTypes.length; i++) {
@@ -178,7 +175,7 @@ public class PotentialMaster implements java.io.Serializable {
         // look for a PotentialGroup that applies to parentAtomTypes
         PotentialGroup pGroup = getPotential(parentAtomTypes);
         if (pGroup == null) { // didn't find an appropriate potentialgroup
-            pGroup = makePotentialGroup(atomTypes.length);
+            pGroup = makePotentialGroup(potential.nBody());
             addPotential(pGroup,parentAtomTypes);
         }
         pGroup.addPotential(potential,atomTypes);
