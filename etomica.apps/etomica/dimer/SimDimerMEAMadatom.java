@@ -21,6 +21,7 @@ import etomica.data.AccumulatorHistory;
 import etomica.data.DataPump;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterPotentialEnergy;
+import etomica.dimer.IntegratorDimerRT.PotentialMasterListDimer;
 import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayPlot;
@@ -32,7 +33,6 @@ import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.IVector;
@@ -56,7 +56,7 @@ public class SimDimerMEAMadatom extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "DimerMEAMadatomSn";
-    public final PotentialMasterList potentialMaster;
+    public final PotentialMasterListDimer potentialMaster;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
     public IntegratorDimerMin integratorDimerMin;
@@ -78,7 +78,7 @@ public class SimDimerMEAMadatom extends Simulation{
     	final String APP_NAME = "DimerMEAMadatomSn";
         final SimDimerMEAMadatom sim = new SimDimerMEAMadatom("meam", false, false, false, false, false, false);
 
-        sim.activityIntegrateMD.setMaxSteps(1000);
+        sim.activityIntegrateMD.setMaxSteps(2);
         sim.activityIntegrateDimer.setMaxSteps(1000);
                 
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
@@ -131,7 +131,7 @@ public class SimDimerMEAMadatom extends Simulation{
 
     public SimDimerMEAMadatom(String fileName, Boolean useConfig, Boolean ortho, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
         super(Space3D.getInstance(), true);    	
-    	potentialMaster = new PotentialMasterList(this);
+    	potentialMaster = new PotentialMasterListDimer(this);
     	
     //SIMULATION BOX
         box = new Box(new BoundaryRectangularSlit(space, random, 0, 5));
@@ -162,6 +162,7 @@ public class SimDimerMEAMadatom extends Simulation{
 		potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
 		
 		this.potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), movable.getLeafType()});
+		potentialMaster.setSpecies(new Species [] {movable});
 		potentialMaster.setRange(potential.getRange()*1.1);
 		potentialMaster.setCriterion(potential, new CriterionSimple(this, potential.getRange(), potential.getRange()*1.1));
         

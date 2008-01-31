@@ -375,7 +375,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		
 		double eMin, e0;
 		e0 = energyBox0.getDataAsScalar();
-		eMin = energyBoxMin.getDataAsScalar();
+		
 		
     	try { 
             fileWriter.write(ElectronVolt.UNIT.fromSim(e0)+"\n");
@@ -389,6 +389,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		if(e0>e0prev){ 
 		    System.out.println(file+" +++Dimer Minimum Found+++");
 			System.out.println("Box0 = "+ElectronVolt.UNIT.fromSim(e0)+"eV");
+			eMin = energyBoxMin.getDataAsScalar();
 			System.out.println("BoxMin = "+ElectronVolt.UNIT.fromSim(eMin)+"eV");
 			
 			try { 

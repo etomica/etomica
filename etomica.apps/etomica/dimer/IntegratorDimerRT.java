@@ -18,6 +18,9 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.nbr.list.NeighborListManager;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
@@ -25,6 +28,7 @@ import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.species.Species;
 import etomica.units.ElectronVolt;
+import etomica.util.Debug;
 import etomica.util.IRandom;
 
 /**
@@ -226,6 +230,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		sim.addBox(box1);
 		sim.addBox(box2);
+		
+		this.addNonintervalListener(((PotentialMasterList)potential).getNeighborManager(box1));
+        this.addIntervalAction(((PotentialMasterList)potential).getNeighborManager(box1));
 		
 		energyBox0 = new MeterPotentialEnergy(this.potential);
 		energyBox0.setBox(box);
@@ -772,5 +779,47 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		// TODO Auto-generated method stub	
 	}
 	
+	public static class PotentialMasterListDimer extends PotentialMasterList{
 
+		public PotentialMasterListDimer(ISimulation sim) {
+			super(sim);
+			
+		}
+		
+		public void setSpecies(Species[] species){
+			this.species = species;
+		}
+		
+	   public void calculate(Box box, IteratorDirective id, PotentialCalculation pc) {
+	        if(!enabled) return;
+	        IAtom targetAtom = id.getTargetAtom();
+	        if (targetAtom != null) {
+	        	super.calculate(box, id, pc);
+	        	return;
+	        }
+	        NeighborListManager neighborManager = (NeighborListManager)neighborListAgentManager.getAgent(box);
+	        
+            if (Debug.ON && id.direction() != IteratorDirective.Direction.UP) {
+                throw new IllegalArgumentException("When there is no target, iterator directive must be up");
+            }
+            // invoke setBox on all potentials
+            for (int i=0; i<allPotentials.length; i++) {
+                allPotentials[i].setBox(box);
+            }
+
+            //no target atoms specified
+            //call calculate with each SpeciesAgent
+	        for(int j=0; j<species.length; j++){    
+            	AtomSet list = box.getMoleculeList(species[j]);
+	            int size = list.getAtomCount();
+	            for (int i=0; i<size; i++) {
+	                calculate((IMolecule)list.getAtom(i), id, pc, neighborManager);//call calculate with the SpeciesAgent
+	            }
+	        }
+	   }
+		
+		
+		public Species [] species;
+	}
+	
 }
