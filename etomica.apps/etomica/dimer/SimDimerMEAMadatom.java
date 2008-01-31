@@ -163,10 +163,11 @@ public class SimDimerMEAMadatom extends Simulation{
 		
 		this.potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), movable.getLeafType()});
 		potentialMaster.setRange(potential.getRange()*1.1);
-       // potentialMaster.setCriterion(potential, new CriterionSimple(this, potential.getRange(), potential.getRange()*1.1));
+		potentialMaster.setCriterion(potential, new CriterionSimple(this, potential.getRange(), potential.getRange()*1.1));
         
         integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));    
+        integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
+      
 		
 		/**
         //Ag
@@ -258,6 +259,11 @@ public class SimDimerMEAMadatom extends Simulation{
         adAtomPos.setX(0, 10.0);
         adAtomPos.setX(1, 0.1);
         adAtomPos.setX(2, -0.1);
+        IVector newBoxLength = space.makeVector();
+        newBoxLength.E(box.getBoundary().getDimensions());
+        newBoxLength.setX(0, 2.0*adAtomPos.x(0)+1.0);
+        box.setDimensions(newBoxLength);
+        
         /**
         //Ag
         IAtom iAtom = agAdatom.getMoleculeFactory().makeAtom();
@@ -285,6 +291,9 @@ public class SimDimerMEAMadatom extends Simulation{
         //Cu
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{cuAdatom}, fileName);
          */
+        integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));    
+        
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
