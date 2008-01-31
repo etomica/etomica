@@ -89,7 +89,6 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
 		return Integer.MAX_VALUE;
 	}
 
-	@Override
 	public boolean haveTarget(IAtom target) {
 		for (int i=0; i<basis.getAtomCount(); i++){
 			if(((IMolecule)basis.getAtom(i)).getChildList().getAtom(0) == target){
@@ -99,7 +98,6 @@ public class AtomsetIteratorAllLeafAtoms implements AtomsetIteratorBasisDependen
 		return false;
 	}
 
-	@Override
 	public void setBasis(AtomSet atoms) {
 		basis = atoms;		
 	}
