@@ -791,7 +791,12 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            PistonCylinder sim = new PistonCylinder(2);
+            int D = 2;
+            String dimStr = getParameter("dim");
+            if (dimStr != null) {
+                D = Integer.parseInt(dimStr);
+            }
+            PistonCylinder sim = new PistonCylinder(D);
             PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
             String doConfigButtonStr = getParameter("doConfigButton");
             if (doConfigButtonStr != null) {
