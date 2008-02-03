@@ -1,6 +1,7 @@
 package etomica.modules.rosmosis;
 
 import etomica.action.AtomActionTranslateBy;
+import etomica.action.AtomGroupAction;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
@@ -30,6 +31,7 @@ public class ConfigurationMembrane implements Configuration {
     public void initializeCoordinates(Box box) {
         AtomActionTranslateBy translateBy = new AtomActionTranslateBy(box.getSpace());
         IVector translationVector = translateBy.getTranslationVector();
+        AtomGroupAction translator = new AtomGroupAction(translateBy);
         translationVector.E(0);
         
         box.setNMolecules(speciesSolute, 0);
@@ -77,11 +79,12 @@ public class ConfigurationMembrane implements Configuration {
                 // we need to translate the molecules into the proper chamber
                 double x = atom.getType().getPositionDefinition().position(atom).x(membraneDim);
                 if (x < 0) {
-                    translationVector.setX(membraneDim, -0.5*chamberLength + membraneThickness);
+                    translationVector.setX(membraneDim, -0.5*chamberLength - membraneThickness);
                 }
                 else {
                     translationVector.setX(membraneDim, 0.5*chamberLength + membraneThickness);
                 }
+                translator.actionPerformed(atom);
                 box.addMolecule(atom);
             }
         }

@@ -277,9 +277,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
         //display of box, timer
         ColorSchemeByType colorScheme = (ColorSchemeByType)getDisplayBox(sim.box).getColorScheme();
-        colorScheme.setColor(sim.speciesSolute.getMoleculeType(),java.awt.Color.RED);
-        colorScheme.setColor(sim.speciesSolvent.getMoleculeType(),java.awt.Color.BLUE);
-        colorScheme.setColor(sim.speciesMembrane.getMoleculeType(),java.awt.Color.WHITE);
+        colorScheme.setColor(sim.speciesSolute.getLeafType(),java.awt.Color.RED);
+        colorScheme.setColor(sim.speciesSolvent.getLeafType(),java.awt.Color.BLUE);
+        colorScheme.setColor(sim.speciesMembrane.getLeafType(),java.awt.Color.WHITE);
 
 	    //meters and displays
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);

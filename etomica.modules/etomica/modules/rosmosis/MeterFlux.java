@@ -119,10 +119,11 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
         for (int i=0; i<species.length; i++) {
             AtomSet molecules = box.getMoleculeList(species[i]);
             for (int j=0; j<molecules.getAtomCount(); j++) {
-                IAtomPositioned atom = (IAtomPositioned)molecules.getAtom(j);
+                IAtom atom = molecules.getAtom(j);
                 IVector oldPosition = ((IVector)agentManager.getAgent(atom));
                 double oldX = oldPosition.x(dim);
-                double newX = atom.getPosition().x(dim);
+                IVector newPosition = atom.getType().getPositionDefinition().position(atom);
+                double newX = newPosition.x(dim);
                 for (int k=0; k<boundaries.length; k++) {
                     double newDelta = newX - boundaries[k];
                     if (Math.abs(newDelta)  > 0.25*boxLength) continue;
@@ -133,7 +134,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
                         break;
                     }
                 }
-                oldPosition.E(atom.getPosition());
+                oldPosition.E(newPosition);
             }
         }
         data.x = crossings;
@@ -165,14 +166,15 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
     }
 
     public Object makeAgent(IAtom a) {
-        if (!(a instanceof IAtomPositioned)) {
+        if (a instanceof IAtomPositioned) {
+            // oh, the irony
             return null;
         }
         Species thisSpecies = a.getType().getSpecies();
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
                 IVector vec = box.getSpace().makeVector();
-                vec.E(((IAtomPositioned)a).getPosition());
+                vec.E(a.getType().getPositionDefinition().position(a));
                 return vec;
             }
         }
