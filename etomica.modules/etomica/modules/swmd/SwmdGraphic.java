@@ -16,7 +16,6 @@ import javax.swing.event.ChangeListener;
 import etomica.action.Action;
 import etomica.action.BoxImposePbc;
 import etomica.action.SimulationRestart;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.AccumulatorAverage;
@@ -626,7 +625,12 @@ public class SwmdGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(Space3D.getInstance()));
+            String dimStr = getParameter("dim");
+            int dim = 3;
+            if (dimStr != null) {
+                dim = Integer.valueOf(dimStr).intValue();
+            }
+            SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(Space.getInstance(dim)));
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }
@@ -635,5 +639,3 @@ public class SwmdGraphic extends SimulationGraphic {
     }
 
 }
-
-
