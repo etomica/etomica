@@ -138,9 +138,6 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         double kDot = kp*(targetT - kineticT)*box.atomCount();
         chi = ( - forceSumNPH.rvx - D*pDot*volume)/
                     ( forceSumNPH.x + D*D*pCurrent*volume);
-        if (Double.isNaN(chi)) {
-            throw new RuntimeException("oops "+chi+" "+forceSumNPH.rvx+" "+D+" "+forceSumNPH.x+" "+pDot+" "+volume+" "+pCurrent);
-        }
         zeta = (forceSumNPH.vf - kDot)/mvsq - chi;
     }
     
@@ -175,7 +172,8 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     protected void corrector() {
         super.corrector();
         double volOld = box.getBoundary().volume();
-        double voi = D*volOld*chi;
+        // voi (dV/dt... voi???) = Dr^(D-1) dr/dt, chi = dr/dt
+        double voi = D*volOld*chi/box.getBoundary().getDimensions().x(0);
         double corvol = voi - vol1;
         double volNew = volOld + c0*corvol;
         vol1 = voi;
@@ -183,9 +181,6 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         vol3 += c3*corvol;
         vol4 += c4*corvol;
         double rScale = Math.pow(volNew/volOld,1.0/D);
-        if (Double.isNaN(rScale) || Double.isInfinite(rScale) || rScale == 0) {
-            throw new RuntimeException("oops rscale in corrector "+rScale+" "+volNew+" "+volOld);
-        }
         inflate.setScale(rScale);
         inflate.actionPerformed();
     }//end of corrector
@@ -194,16 +189,10 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         super.predictor();
         double volOld = box.getBoundary().volume();
         double volNew = volOld + p1*vol1 + p2*vol2 + p3*vol3 + p4*vol4;
-        if (volNew < 0) {
-            throw new RuntimeException("volNew in predictor "+volNew+" "+volOld+" "+p1+" "+vol1+" "+p2+" "+vol2+" "+p3+" "+vol3+" "+p4+" "+vol4);
-        }
         vol1 += p1*vol2 + p2*vol3 + p3*vol4;
         vol2 += p1*vol3 + p2*vol4;
         vol3 += p1*vol4;
         double rScale = Math.pow(volNew/volOld,1.0/D);
-        if (Double.isNaN(rScale) || Double.isInfinite(rScale) || rScale == 0) {
-            throw new RuntimeException("oops rscale in predictor "+rScale+" "+volNew+" "+volOld);
-        }
         inflate.setScale(rScale);
         inflate.actionPerformed();
     }

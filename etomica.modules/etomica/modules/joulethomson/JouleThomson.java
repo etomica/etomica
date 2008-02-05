@@ -234,12 +234,13 @@ public class JouleThomson extends SimulationGraphic {
         
         MeterPressure meterPressure = new MeterPressure(sim.getSpace());
         meterPressure.setIntegrator(sim.integrator);
-        AccumulatorHistory pressureHistory = new AccumulatorHistory(new HistoryScrolling(20));
+        AccumulatorHistory pressureHistory = new AccumulatorHistory(new HistoryScrolling());
         pressureHistory.setTimeDataSource(time);
         pump = new DataPump(meterPressure, pressureHistory);
         sim.integratorJT.addIntervalAction(pump);
         sim.integratorJT.setActionInterval(pump, 20);
         pressureHistory.addDataSink(plot.getDataSet().makeDataSink());
+        plot.setUnit(new DataTag[]{pressureHistory.getTag()}, pUnit);
         
         MeterTemperature meterTemperature = new MeterTemperature();
         meterTemperature.setBox(sim.box);
@@ -247,8 +248,9 @@ public class JouleThomson extends SimulationGraphic {
         temperatureHistory.setTimeDataSource(time);
         pump = new DataPump(meterTemperature, temperatureHistory);
         sim.integratorJT.addIntervalAction(pump);
-        sim.integratorJT.setActionInterval(pump, 100);
+        sim.integratorJT.setActionInterval(pump, 20);
         temperatureHistory.addDataSink(plot.getDataSet().makeDataSink());
+        plot.setUnit(new DataTag[]{temperatureHistory.getTag()}, tUnit);
 
         //plot of enthalpy and PT set points
         DisplayPlot plotH = new DisplayPlot();
@@ -257,8 +259,6 @@ public class JouleThomson extends SimulationGraphic {
         // add enthalpy history
         plotH.setLabel("Enthalpy");
         plotH.getPlot().setYLabel("");
-        plot.setUnit(new DataTag[]{targetTemperatureHistory.getTag()}, tUnit);
-        plot.setUnit(new DataTag[]{targetPressureHistory.getTag()}, pUnit);
         
         SpeciesChooser speciesChooser = new SpeciesChooser(this);
 	    speciesChooser.setSpecies("Methane");
