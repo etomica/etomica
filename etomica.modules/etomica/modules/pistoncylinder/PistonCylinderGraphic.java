@@ -15,10 +15,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import etomica.action.Action;
+import etomica.action.ActionGroupSeries;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
@@ -51,6 +54,7 @@ import etomica.graphics.DisplayTextBox;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.graphics.DeviceBox.LabelType;
 import etomica.integrator.IIntegrator;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
@@ -60,6 +64,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
+import etomica.space.IVector;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
@@ -108,7 +113,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public DisplayPlot plotRDF;
     public Unit tUnit, dUnit, pUnit;
     public DeviceBox sigBox, epsBox, lamBox, massBox;
-	private DisplayTextBoxesCAE densityDisplayTextBox, temperatureDisplayTextBox, pressureDisplayTextBox;
+    public DeviceBox densityBox;
+	protected DisplayTextBoxesCAE densityDisplayTextBox, temperatureDisplayTextBox, pressureDisplayTextBox;
     public JPanel blankPanel = new JPanel();
     public JScrollPane plotsPane;
     public int historyLength;
@@ -118,8 +124,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public double lambda, epsilon, mass, sigma;
     public DeviceSlider doSleepSlider, integratorTimeStepSlider;
 
-    private boolean doConfigButton = false;
-    private boolean doRDF = false;
+    protected boolean doConfigButton = false;
+    protected boolean doRDF = false;
+    protected boolean doDensityInput = false;
 
     /**
      * Creates a PistonCylinder graphic instance.  init() must be called before
@@ -145,6 +152,13 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         doRDF = newDoRDF;
     }
     
+    /**
+     * Enable the RDF plot.  This must be called before init() is called.
+     */
+    public void setDoDensityInput(boolean newDoDensityInput) {
+        doDensityInput = newDoDensityInput;
+    }
+
     public void setRepaintInterval(int newRepaintInterval) {
         pc.integrator.setIntervalActionPriority(getPaintAction(pc.box), newRepaintInterval);
     }
@@ -251,6 +265,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         JPanel nSliderPanel = null;
 
+        if (doDensityInput) {
+            densityBox = new DeviceBox();
+            densityBox.setController(pc.getController());
+        }
 
         nSlider = new DeviceNSelector();
         nSlider.setLabel("Number of atoms");
@@ -292,6 +310,11 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         gbc2.gridx = 0;  gbc2.gridy = 2;
         statePanel.add(nSliderPanel, gbc2);
 
+        if (doDensityInput) {
+            gbc2.gridx = 0;  gbc2.gridy = 3;
+            gbc2.fill = GridBagConstraints.HORIZONTAL;
+            statePanel.add(densityBox.graphic(), gbc2);
+        }
 
         //
         // Potential tabbed pane page
@@ -479,6 +502,9 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 pc.pistonPotential.setStationary(b);
                 pressureSlider.getSlider().setEnabled(!b);
                 pressureSlider.getTextField().setEnabled(!b);
+                if (doDensityInput) {
+                    densityBox.setEditable(b);
+                }
             }
             public boolean getBoolean() {
                 return pc.pistonPotential.isStationary();
@@ -557,11 +583,29 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         nSlider.setController(pc.getController());
         nSlider.setResetAction(getController().getReinitButton().getAction());
+        nSlider.setPostAction(new Action() {
+            public void actionPerformed() {
+                pc.pistonPotential.setWallPosition(pc.box.getBoundary().getDimensions().x(1)*0.5);
+                if (pc.integrator.isInitialized()) {
+                    try {
+                        pc.integrator.reset();
+                    }
+                    catch (ConfigurationOverlapException e) {}
+                }
+            }
+        });
         nSlider.setBox(pc.box);
         nSlider.setSpecies(pc.species);
         nSlider.setMinimum(0);
         nSlider.setMaximum(200);
 
+        if (doDensityInput) {
+            densityBox.setLabelType(LabelType.BORDER);
+            densityBox.setLabel("Set Density ("+dUnit.symbol()+")");
+            densityBox.setUnit(dUnit);
+            densityBox.setModifier(new ModifierPistonDensity());
+            densityBox.setPostAction(new ActionGroupSeries(new Action[]{new IntegratorReset(pc.integrator,true), getPaintAction(pc.box)}));
+        }
 
         //  data panel
         // the data channel sending the DataTable should be cut off (and hopefully garbage collected)
@@ -749,6 +793,56 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         });
     }
 
+    public class ModifierPistonDensity implements Modifier {
+        public Dimension getDimension() {
+            return dUnit.dimension();
+        }
+
+        public String getLabel() {
+            return "density";
+        }
+
+        public double getValue() {
+            return pc.box.getDensity();
+        }
+
+        public void setValue(double newValue) {
+            double oldDensity = pc.box.getDensity();
+            double maxDensity;
+            int D = pc.getSpace().D();
+            if (D == 2) {
+                maxDensity = 2.0 / (Math.sqrt(3) * sigma * sigma);
+            }
+            else {
+                maxDensity = Math.sqrt(2) / (sigma*sigma*sigma);
+            }
+            if (newValue > maxDensity && newValue > oldDensity) {
+                if (oldDensity > maxDensity) {
+                    return;
+                }
+                newValue = maxDensity;
+            }
+            IVector boxDim = pc.box.getBoundary().getDimensions();
+            AtomSet leafList = pc.box.getLeafList();
+            double yShift = 0.5*(boxDim.x(1)-sigma);
+            if (D == 2) {
+                yShift = -yShift;
+            }
+            if (newValue > oldDensity) {
+                // scale atom positions
+                for (int i=0; i<leafList.getAtomCount(); i++) {
+                    IVector pos = ((IAtomPositioned)leafList.getAtom(i)).getPosition();
+                    double y = (pos.x(1)+yShift) * (oldDensity / newValue) - yShift;
+                    pos.setX(1, y);
+                }
+            }
+            yShift += (D==2 ? 1:-1) * 0.5*sigma;
+            double pistonY = pc.pistonPotential.getWallPosition();
+            pistonY = (pistonY + yShift) * (oldDensity / newValue) - yShift;
+            pc.pistonPotential.setWallPosition(pistonY);
+        }
+    }
+
     protected class ModifierAtomDiameter implements Modifier {
 
         public void setValue(double d) {
@@ -784,6 +878,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         PistonCylinder sim = new PistonCylinder(3);
         PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
         pcg.setDoRDF(true);
+        pcg.setDoDensityInput(true);
         pcg.init();
 		SimulationGraphic.makeAndDisplayFrame(pcg.getPanel(), APP_NAME);
     }
@@ -805,6 +900,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             String doRDFStr = getParameter("doRDF");
             if (doRDFStr != null) {
                 pcg.setDoRDF(Boolean.valueOf(doRDFStr).booleanValue());
+            }
+            String doDensityInputStr = getParameter("doDensityInput");
+            if (doDensityInputStr != null) {
+                pcg.setDoDensityInput(Boolean.valueOf(doDensityInputStr).booleanValue());
             }
             pcg.init();
             String repaintIntervalStr = getParameter("repaintInterval");
