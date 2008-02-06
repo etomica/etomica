@@ -18,12 +18,12 @@ import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorHistory;
+import etomica.data.DataFork;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.data.DataSourceCountTime;
 import etomica.data.DataSourceScalar;
 import etomica.data.DataTag;
-import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPressure;
 import etomica.data.meter.MeterTemperature;
@@ -34,10 +34,11 @@ import etomica.graphics.DeviceButton;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DeviceToggleRadioButtons;
 import etomica.graphics.DisplayPlot;
-import etomica.graphics.DisplayTable;
+import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.integrator.IntegratorGear4NPH;
+import etomica.integrator.IntegratorGear4NPH.MeterEnthalpy;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
@@ -48,6 +49,7 @@ import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
+import etomica.units.Joule;
 import etomica.units.Kelvin;
 import etomica.units.Liter;
 import etomica.units.Meter;
@@ -108,6 +110,7 @@ public class JouleThomson extends SimulationGraphic {
         }
 
         final Unit tUnit = Kelvin.UNIT;
+        final Unit hUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
 
 	    //colorscheme to color atoms blue to red according to their velocity
 	    DeviceSlider scaleSlider = null;
@@ -159,18 +162,6 @@ public class JouleThomson extends SimulationGraphic {
 		tSlider.setNMajor(4);
 		tSlider.setShowBorder(true);
 
-        //temperature, pressure, enthalpy meters
-        //XXX we have no way of using this Meter's output  :(
-//        MeterTPH properties = new MeterTPH(sim.integrator);
-//        etomica.MeterScalar tMeter = properties.allMeters()[0];
-//        etomica.MeterScalar pMeter = properties.allMeters()[1];
-//        etomica.MeterScalar hMeter = properties.allMeters()[2];
-//        properties.setHistorying(true);
-//        tMeter.setHistorying(true);
-//        tMeter.setBox(box);
-//        pMeter.setHistorying(true);
-//        hMeter.setHistorying(true);
-        
         //meter and display for density
 		DataSourceCountTime time = new DataSourceCountTime(sim.integrator);
         final MeterDensity densityMeter = new MeterDensity(sim.getSpace());
@@ -180,16 +171,6 @@ public class JouleThomson extends SimulationGraphic {
         DataPump densityPump = new DataPump(densityMeter, densityHistoryAcc);
         sim.integratorJT.addIntervalAction(densityPump);
         sim.integratorJT.setActionInterval(densityPump, 20);
-
-        //plot of temperature and density histories
-//		History tMeterHistory = tMeter.getHistory();
-//		History pMeterHistory = pMeter.getHistory();
-//		History hMeterHistory = hMeter.getHistory();
-//		densityHistory.setLabel("Density ("+dadUnit.symbol()+")");
-//		tMeterHistory.setLabel("Temperature ("+tUnit.symbol()+")");
-//		pMeterHistory.setLabel("Pressure ("+pUnit.symbol()+")");
-//		hMeterHistory.setLabel("Enthalpy ("+hUnit.symbol()+")");
-
 
         sim.activityIntegrate.setSleepPeriod(1);
 
@@ -219,60 +200,95 @@ public class JouleThomson extends SimulationGraphic {
         sim.integratorJT.setActionInterval(pump, 20);
 
         //plot of pressure-density-temperature setpoints and averages
-        DisplayPlot plot = new DisplayPlot();
-        densityHistoryAcc.addDataSink(plot.getDataSet().makeDataSink());
+        DisplayPlot plotT = new DisplayPlot();
+        DisplayPlot plotH = new DisplayPlot();
+        DisplayPlot plotP = new DisplayPlot();
+        DisplayPlot plotD = new DisplayPlot();
+        densityHistoryAcc.addDataSink(plotD.getDataSet().makeDataSink());
         //add actual temperature history
-        targetTemperatureHistory.addDataSink(plot.getDataSet().makeDataSink());
+        targetTemperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
         // add actual pressure history
-        targetPressureHistory.addDataSink(plot.getDataSet().makeDataSink());
-        plot.setLabel("PVT");
-        plot.getPlot().setYLabel("");
-        plot.getPlot().setYRange(0.0, 500.);
-        plot.setUnit(new DataTag[]{densityHistoryAcc.getTag()}, dadUnit);
-        plot.setUnit(new DataTag[]{targetTemperatureHistory.getTag()}, tUnit);
-        plot.setUnit(new DataTag[]{targetPressureHistory.getTag()}, pUnit);
-        
+        targetPressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
+        plotD.setLabel("Density");
+        plotD.setUnit(new DataTag[]{densityHistoryAcc.getTag()}, dadUnit);
+        plotT.setLabel("Temperature");
+        plotT.setUnit(new DataTag[]{targetTemperatureHistory.getTag()}, tUnit);
+        plotP.setLabel("Pressure");
+        plotP.setUnit(new DataTag[]{targetPressureHistory.getTag()}, pUnit);
+        plotH.setLabel("Enthalpy");
+
         MeterPressure meterPressure = new MeterPressure(sim.getSpace());
         meterPressure.setIntegrator(sim.integrator);
+        DataFork pressureFork = new DataFork();
         AccumulatorHistory pressureHistory = new AccumulatorHistory(new HistoryScrolling());
         pressureHistory.setTimeDataSource(time);
-        pump = new DataPump(meterPressure, pressureHistory);
+        pump = new DataPump(meterPressure, pressureFork);
+        pressureFork.addDataSink(pressureHistory);
         sim.integratorJT.addIntervalAction(pump);
         sim.integratorJT.setActionInterval(pump, 20);
-        pressureHistory.addDataSink(plot.getDataSet().makeDataSink());
-        plot.setUnit(new DataTag[]{pressureHistory.getTag()}, pUnit);
+        pressureHistory.addDataSink(plotP.getDataSet().makeDataSink());
+        plotP.setUnit(new DataTag[]{pressureHistory.getTag()}, pUnit);
+        AccumulatorAverageCollapsing pressureAverage = new AccumulatorAverageCollapsing();
+        pressureFork.addDataSink(pressureAverage);
+        pressureAverage.setPushInterval(10);
         
         MeterTemperature meterTemperature = new MeterTemperature();
         meterTemperature.setBox(sim.box);
+        DataFork temperatureFork = new DataFork();
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(time);
-        pump = new DataPump(meterTemperature, temperatureHistory);
+        pump = new DataPump(meterTemperature, temperatureFork);
+        temperatureFork.addDataSink(temperatureHistory);
         sim.integratorJT.addIntervalAction(pump);
         sim.integratorJT.setActionInterval(pump, 20);
-        temperatureHistory.addDataSink(plot.getDataSet().makeDataSink());
-        plot.setUnit(new DataTag[]{temperatureHistory.getTag()}, tUnit);
+        temperatureHistory.addDataSink(plotT.getDataSet().makeDataSink());
+        plotT.setUnit(new DataTag[]{temperatureHistory.getTag()}, tUnit);
+        AccumulatorAverageCollapsing temperatureAverage = new AccumulatorAverageCollapsing();
+        temperatureFork.addDataSink(temperatureAverage);
+        temperatureAverage.setPushInterval(10);
 
-        //plot of enthalpy and PT set points
-        DisplayPlot plotH = new DisplayPlot();
-        targetTemperatureHistory.addDataSink(plotH.getDataSet().makeDataSink());
-        targetPressureHistory.addDataSink(plotH.getDataSet().makeDataSink());
-        // add enthalpy history
-        plotH.setLabel("Enthalpy");
-        plotH.getPlot().setYLabel("");
+        MeterEnthalpy meterEnthalpy = new MeterEnthalpy(sim.integrator);
+        DataFork enthalpyFork = new DataFork();
+        AccumulatorHistory enthalpyHistory = new AccumulatorHistory();
+        enthalpyHistory.setTimeDataSource(time);
+        pump = new DataPump(meterEnthalpy, enthalpyFork);
+        enthalpyFork.addDataSink(enthalpyHistory);
+        sim.integrator.addIntervalAction(pump);
+        sim.integrator.setActionInterval(pump, 20);
+        enthalpyHistory.addDataSink(plotH.getDataSet().makeDataSink());
+        plotH.setUnit(new DataTag[]{enthalpyHistory.getTag()}, hUnit);
+        AccumulatorAverageCollapsing enthalpyAverage = new AccumulatorAverageCollapsing();
+        enthalpyFork.addDataSink(enthalpyAverage);
+        enthalpyAverage.setPushInterval(10);
         
         SpeciesChooser speciesChooser = new SpeciesChooser(this);
 	    speciesChooser.setSpecies("Methane");
 	    
-        DisplayTable displayTable = new DisplayTable();
         AccumulatorAverageCollapsing densityAverage = new AccumulatorAverageCollapsing();
         pump = new DataPump(densityMeter, densityAverage);
+        densityAverage.setPushInterval(10);
         sim.integratorJT.addIntervalAction(pump);
         sim.integratorJT.setActionInterval(pump, 20);
 
-        densityAverage.addDataSink(displayTable.getDataTable().makeDataSink(), new StatType[]{StatType.MOST_RECENT, StatType.AVERAGE});
-        // add temp meter, pressure meter, enthalpy meter to display table
-        displayTable.setUnit(new DataTag[]{densityAverage.getTag()}, dUnit);
-        // set units for temp meter, pressure meter, enthalpy meter to display table
+        DisplayTextBoxesCAE densityDisplay = new DisplayTextBoxesCAE();
+        densityDisplay.setAccumulator(densityAverage);
+        densityDisplay.setUnit(dadUnit);
+        add(densityDisplay);
+
+        DisplayTextBoxesCAE temperatureDisplay = new DisplayTextBoxesCAE();
+        temperatureDisplay.setAccumulator(temperatureAverage);
+        temperatureDisplay.setUnit(tUnit);
+        add(temperatureDisplay);
+
+        DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
+        pressureDisplay.setAccumulator(pressureAverage);
+        pressureDisplay.setUnit(pUnit);
+        add(pressureDisplay);
+
+        DisplayTextBoxesCAE enthalpyDisplay = new DisplayTextBoxesCAE();
+        enthalpyDisplay.setAccumulator(enthalpyAverage);
+        enthalpyDisplay.setUnit(hUnit);
+        add(enthalpyDisplay);
 
         timeBox = new DeviceBox();
         timeBox.setLabel("Time Step");
@@ -305,9 +321,10 @@ public class JouleThomson extends SimulationGraphic {
 
         // Add objects to tabbed pane (display area)
 	    getPanel().tabbedPane.add(getDisplayBox(sim.box).getLabel(), displayBoxPanel);
-	    getPanel().tabbedPane.add(displayTable.getLabel(), displayTable.graphic());
-	    getPanel().tabbedPane.add(plot.getLabel(), plot.graphic());
-	    getPanel().tabbedPane.add(plotH.getLabel(), plotH.graphic());
+	    getPanel().tabbedPane.add(plotD.getLabel(), plotD.graphic());
+	    getPanel().tabbedPane.add(plotT.getLabel(), plotT.graphic());
+        getPanel().tabbedPane.add(plotP.getLabel(), plotP.graphic());
+        getPanel().tabbedPane.add(plotH.getLabel(), plotH.graphic());
 
 	    // Default for Simulation panel is to use a single
 	    // graphic.  Remove the single graphic and add the
@@ -433,7 +450,7 @@ public class JouleThomson extends SimulationGraphic {
     
     
     public static void main(String[] args) {
-        int dim = 3;
+        int dim = 2;
         if(args.length > 0) {
             try {
             dim = Integer.parseInt(args[0]);
