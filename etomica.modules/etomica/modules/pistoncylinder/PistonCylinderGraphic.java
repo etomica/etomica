@@ -585,7 +585,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         nSlider.setResetAction(getController().getReinitButton().getAction());
         nSlider.setPostAction(new Action() {
             public void actionPerformed() {
-                pc.pistonPotential.setWallPosition(pc.box.getBoundary().getDimensions().x(1)*0.5);
+                pc.pistonPotential.setWallPosition((pc.getSpace().D() == 2 ? -1:1) * pc.box.getBoundary().getDimensions().x(1)*0.5);
                 if (pc.integrator.isInitialized()) {
                     try {
                         pc.integrator.reset();
