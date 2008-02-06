@@ -7,16 +7,16 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
+import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.meter.MeterTemperature;
-import etomica.data.types.DataDoubleArray;
-import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.modifier.ModifierBoolean;
-import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.potential.Potential2Soft;
 import etomica.potential.PotentialCalculationForceSum;
@@ -31,7 +31,6 @@ import etomica.units.Kelvin;
 import etomica.units.Null;
 import etomica.units.Pressure;
 import etomica.units.Temperature;
-import etomica.units.Undefined;
 import etomica.util.IRandom;
 
 /**
@@ -230,13 +229,13 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
         private IntegratorGear4NPH integrator;
     }
 
-    //meter group for temperature, pressure, enthalpy, obtaining values from
+    //meter for enthalpy, obtaining values from
     //most recent call to the ForceSumNPH instance
-    public static final class MeterTPH implements DataSource, java.io.Serializable {
+    public static final class MeterEnthalpy implements DataSource, java.io.Serializable {
         
-        public MeterTPH(IntegratorGear4NPH integrator) {
-            data = new DataDoubleArray(3);
-            dataInfo = new DataInfoDoubleArray("TPH", Undefined.DIMENSION, new int[]{3});
+        public MeterEnthalpy(IntegratorGear4NPH integrator) {
+            data = new DataDouble();
+            dataInfo = new DataInfoDouble("Enthalpy", Energy.DIMENSION);
             this.integrator = integrator;
             tag = new DataTag();
             dataInfo.addTag(tag);
@@ -257,14 +256,12 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
             double volume = box.volume();
             double pCurrent = box.getDensity()*kineticT - integrator.forceSumNPH.w/(box.getSpace().D()*volume);
             double hCurrent = 0.5*mvsq + integrator.forceSumNPH.u + pCurrent*volume;
-            data.getData()[0] = kineticT;
-            data.getData()[1] = pCurrent;
-            data.getData()[2] = hCurrent/box.moleculeCount();
+            data.x = hCurrent/box.moleculeCount();
             return data;
         }
         
         private static final long serialVersionUID = 1L;
-        private DataDoubleArray data;
+        private DataDouble data;
         private IntegratorGear4NPH integrator;
         private IDataInfo dataInfo;
         private DataTag tag;
