@@ -3,6 +3,7 @@ package etomica.modules.pistoncylinder;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
+import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
@@ -25,14 +26,13 @@ public class IntegratorHardPiston extends IntegratorHard {
         atomSetSinglet = new AtomSetSinglet();
     }
 
-    public void setup() {
+    public void resetPiston() {
         if (box.getSpace().D() == 3) {
             pistonPotential.setWallPosition(box.getBoundary().getDimensions().x(1)*0.5);
         }
         else {
             pistonPotential.setWallPosition(-box.getBoundary().getDimensions().x(1)*0.5);
         }
-        super.setup();
     }
     
     public void doStepInternal() {
@@ -52,6 +52,11 @@ public class IntegratorHardPiston extends IntegratorHard {
         if (isPistonPotential) {
             updatePiston();
         }
+    }
+    
+    public void reset() throws ConfigurationOverlapException {
+        updatePiston();
+        super.reset();
     }
     
     /**

@@ -582,16 +582,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
 
         nSlider.setController(pc.getController());
-        nSlider.setResetAction(getController().getReinitButton().getAction());
-        nSlider.setPostAction(new Action() {
+        nSlider.setResetAction(new Action() {
             public void actionPerformed() {
-                pc.pistonPotential.setWallPosition((pc.getSpace().D() == 2 ? -1:1) * pc.box.getBoundary().getDimensions().x(1)*0.5);
-                if (pc.integrator.isInitialized()) {
-                    try {
-                        pc.integrator.reset();
-                    }
-                    catch (ConfigurationOverlapException e) {}
-                }
+                pc.integrator.resetPiston();
+                getController().getReinitButton().getAction().actionPerformed();
             }
         });
         nSlider.setBox(pc.box);
@@ -742,29 +736,29 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         // display boxes and repaint the boxes.
         getController().getReinitButton().setPostAction(new Action() {
             public void actionPerformed() {
-                try {
-                    integrator.initialize();
-
-                    densityDisplayTextBox.putData(densityAvg.getData());
-                    densityDisplayTextBox.repaint();
-
-                    temperatureDisplayTextBox.putData(temperatureAvg.getData());
-                    temperatureDisplayTextBox.repaint();
-
-                    pressureDisplayTextBox.putData(pressureAvg.getData());
-                    pressureDisplayTextBox.repaint();
-                    
-                    displayBox.repaint();
-                    
-                    displayCycles.putData(meterCycles.getData());
-                    displayCycles.repaint();
+                pc.integrator.resetPiston();
+                if (pc.integrator.isInitialized()) {
+                    try {
+                        pc.integrator.reset();
+                    }
+                    catch (ConfigurationOverlapException e) {}
                 }
-                catch (ConfigurationOverlapException e) {
-                    throw new RuntimeException(e);
-                }
+
+                densityDisplayTextBox.putData(densityAvg.getData());
+                densityDisplayTextBox.repaint();
+
+                temperatureDisplayTextBox.putData(temperatureAvg.getData());
+                temperatureDisplayTextBox.repaint();
+
+                pressureDisplayTextBox.putData(pressureAvg.getData());
+                pressureDisplayTextBox.repaint();
+                
+                displayBox.repaint();
+                
+                displayCycles.putData(meterCycles.getData());
+                displayCycles.repaint();
             }
         });
-
     }
     
     public void setPotential(String potentialDesc) {
@@ -875,7 +869,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        PistonCylinder sim = new PistonCylinder(3);
+        PistonCylinder sim = new PistonCylinder(2);
         PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
         pcg.setDoRDF(true);
         pcg.setDoDensityInput(true);
