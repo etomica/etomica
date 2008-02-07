@@ -33,6 +33,7 @@ import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.meam.ParameterSetMEAM;
 import etomica.meam.PotentialMEAM;
 import etomica.nbr.CriterionSimple;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.IVector;
@@ -56,7 +57,7 @@ public class SimDimerMEAMadatom extends Simulation{
 
     private static final long serialVersionUID = 1L;
     private static final String APP_NAME = "DimerMEAMadatomSn";
-    public final PotentialMasterListDimer potentialMaster;
+    public final PotentialMaster potentialMaster;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
     public IntegratorDimerMin integratorDimerMin;
@@ -131,7 +132,7 @@ public class SimDimerMEAMadatom extends Simulation{
 
     public SimDimerMEAMadatom(String fileName, Boolean useConfig, Boolean ortho, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
         super(Space3D.getInstance(), true);    	
-    	potentialMaster = new PotentialMasterListDimer(this);
+    	potentialMaster = new PotentialMaster(space);
     	
     //SIMULATION BOX
         box = new Box(new BoundaryRectangularSlit(space, random, 0, 5));
@@ -162,12 +163,12 @@ public class SimDimerMEAMadatom extends Simulation{
 		potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
 		
 		this.potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), movable.getLeafType()});
-		potentialMaster.setSpecies(new Species [] {movable});
-		potentialMaster.setRange(potential.getRange()*1.1);
-		potentialMaster.setCriterion(potential, new CriterionSimple(this, potential.getRange(), potential.getRange()*1.1));
+		//potentialMaster.setSpecies(new Species [] {movable});
+		//potentialMaster.setRange(potential.getRange()*1.1);
+		//potentialMaster.setCriterion(potential, new CriterionSimple(this, potential.getRange(), potential.getRange()*1.1));
         
-        integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
+        //integratorMD.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        //integratorMD.addIntervalAction(potentialMaster.getNeighborManager(box));  
       
 		
 		/**
@@ -292,9 +293,8 @@ public class SimDimerMEAMadatom extends Simulation{
         //Cu
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{cuAdatom}, fileName);
          */
-        integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));    
-        
+        //integratorDimer.addNonintervalListener(potentialMaster.getNeighborManager(box));
+        //integratorDimer.addIntervalAction(potentialMaster.getNeighborManager(box));    
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);

@@ -14,17 +14,17 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 	
 	 public static void main(String[] args){
 	        
-	        String fileName = "md700"; //args[0];
-	        int mdSteps = 700; //Integer.parseInt(args[1]);
+	        String fileName = args[0];
+	        int mdSteps = Integer.parseInt(args[1]);
 	        
 	    	final String APP_NAME = "SimDimerMEAMadatomCluster";
-	    	/*
+	    	
 	    	//Simulation 1 - MD and Dimer search
-	    	final SimDimerMEAMadatom sim1 = new SimDimerMEAMadatom(fileName, false, false, false, false);
+	    	final SimDimerMEAMadatom sim1 = new SimDimerMEAMadatom(fileName, false, false, false, false, false, false);
 	    	sim1.activityIntegrateMD.setMaxSteps(mdSteps);
-	    	sim1.activityIntegrateDimer.setMaxSteps(700);
+	    	sim1.activityIntegrateDimer.setMaxSteps(1000);
 	        sim1.getController().actionPerformed();
-	  
+	        /**
 	        //Simulation 2 - Fine grain Dimer search
 	        final SimDimerMEAMadatom sim2 = new SimDimerMEAMadatom(fileName, true, false, false, false);
 	        sim2.activityIntegrateDimer.setMaxSteps(100);

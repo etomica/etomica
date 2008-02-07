@@ -231,8 +231,8 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		sim.addBox(box1);
 		sim.addBox(box2);
 		
-		this.addNonintervalListener(((PotentialMasterList)potential).getNeighborManager(box1));
-        this.addIntervalAction(((PotentialMasterList)potential).getNeighborManager(box1));
+		//this.addNonintervalListener(((PotentialMasterList)potential).getNeighborManager(box1));
+        //this.addIntervalAction(((PotentialMasterList)potential).getNeighborManager(box1));
 		
 		energyBox0 = new MeterPotentialEnergy(this.potential);
 		energyBox0.setBox(box);
@@ -451,7 +451,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			// Find actual rotation angle to minimize energy
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;				
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
-		
+			
+			System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
+			
 			// Check deltaTheta vs. dTheta and adjust step size
 			if (deltaTheta < 0){
                     dTheta /= 10;
@@ -469,7 +471,6 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
                 workVectorN2.Ea1Tv1(cosdeltaTheta, Nstar[i]);
                 workVectorN2.PEa1Tv1(sindeltaTheta, THETAstar[i]);
                 N[i].E(workVectorN2);
-
             }
             
             // Use new N to offset(rotate) replicas
@@ -492,7 +493,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 									    
 			rotCounter++;
 			
-			if(rotCounter>50){
+			if(rotCounter>80){
 				System.out.println(rotCounter+" rotations.");
 				break;
 			}
