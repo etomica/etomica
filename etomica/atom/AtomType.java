@@ -100,26 +100,6 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         return "AtomType "+index;
     }
     
-    //prototype of a real atom type
-    /*
-     * public final static class Carbon extends Sphere { public Carbon() {
-     * super(12.0, Color.black, 1.1); //mass, color, diameter } } public final
-     * static class Carbon12 extends Sphere { public Carbon12() { super(12.0,
-     * Color.black, 1.1); this.setName("Carbon" + Integer.toString(CarbonID++)); } }
-     * 
-     * public final static class Hydrogen extends Sphere { public Hydrogen() {
-     * super(1.0, Color.cyan, 0.5); this.setName("Hydrogen" +
-     * Integer.toString(HydrogenID++)); } }
-     * 
-     * public final static class Oxygen extends Sphere { public Oxygen() {
-     * super(16.0, Color.red, 1.3); this.setName("Oxygen" +
-     * Integer.toString(OxygenID++)); } }
-     * 
-     * public final static class Nitrogen extends Sphere { public Nitrogen() {
-     * super(14.0, Color.blue, 1.2); this.setName("Nitrogen" +
-     * Integer.toString(NitrogenID++)); } }
-     *  
-     */
     //interfaces for anisotropic atom types
     public interface Rotator {
 
