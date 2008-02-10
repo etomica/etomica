@@ -22,14 +22,14 @@ public class WriteConfiguration implements Action {
     public void setConfName(String newConfName) {
         confName = newConfName;
     }
-    
+
     /**
      * Returns the configuration name.  The file written to is confName.pos_new
      */
     public String getConfName() {
         return confName;
     }
-    
+
     /**
      * Sets the box whose atom coordinates get written to the file.
      */
@@ -37,14 +37,14 @@ public class WriteConfiguration implements Action {
         box = newBox;
         setDoApplyPBC(true);
     }
-    
+
     /**
      * Returns the box whose atom coordinates get written to the file.
      */
     public Box getBox() {
         return box;
     }
-    
+
     /**
      * Directs the writer to apply periodic boundary conditions or not (true 
      * by default).
@@ -52,14 +52,14 @@ public class WriteConfiguration implements Action {
     public void setDoApplyPBC(boolean newDoApplyPBC) {
         doApplyPBC = newDoApplyPBC;
     }
-    
+
     /**
      * Returns true if PBC are applied to coordinates written to the file.
      */
     public boolean getDoApplyPBC() {
         return doApplyPBC;
     }
-    
+
     /**
      * Writes the leaf Atom coordinates to the file confName.pos_new.  If the
      * file exists, it is overwritten.
@@ -67,7 +67,7 @@ public class WriteConfiguration implements Action {
     public void actionPerformed() {
         FileWriter fileWriter;
         String fileName = confName + ".pos_new";
-        try { 
+        try {
             fileWriter = new FileWriter(fileName);
         }catch(IOException e) {
             System.err.println("Cannot open "+fileName+", caught IOException: " + e.getMessage());
