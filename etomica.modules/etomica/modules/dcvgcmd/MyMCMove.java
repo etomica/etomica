@@ -10,7 +10,7 @@ import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.IRandom;
 
 /**
@@ -148,7 +148,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	/**
 	 * @see etomica.MCMoveInsertDelete#setSpecies(etomica.Species)
 	 */
-	public void setSpecies(Species s) {
+	public void setSpecies(ISpecies s) {
 		super.setSpecies(s);
 		moleculeList = box.getMoleculeList(s);
 	}

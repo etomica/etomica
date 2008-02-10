@@ -7,7 +7,7 @@ import etomica.atom.AtomToAtomSetSpecies;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
 import etomica.box.Box;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Gives pairs formed from the molecules of a species in a box, taking one
@@ -22,11 +22,11 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      * @param species
      *            species whose molecules will form the pair iterates
      */
-    public ApiIntraspecies1A(Species species) {
+    public ApiIntraspecies1A(ISpecies species) {
         this(species, new AtomToAtomSetSpecies(species));
     }
     
-    protected ApiIntraspecies1A(Species species, AtomToAtomSetSpecies atomToAtomSet) {
+    protected ApiIntraspecies1A(ISpecies species, AtomToAtomSetSpecies atomToAtomSet) {
         super(new AtomIteratorArrayList(IteratorDirective.Direction.UP, 1, atomToAtomSet, atomToAtomSet),
                 new AtomIteratorArrayList(IteratorDirective.Direction.DOWN, 1, atomToAtomSet, atomToAtomSet));
         if (species == null) {
@@ -97,7 +97,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     }
 
     private static final long serialVersionUID = 2L;
-    private final Species species;
+    private final ISpecies species;
 
     private IAtom targetAtom, targetMolecule;
     protected Box box;

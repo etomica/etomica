@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.box.Box;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Gives pairs formed from the molecules of two different species in a box.
@@ -25,7 +25,7 @@ public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
      * @throws IllegalArgumentException
      *             if species.length != 2 or if species[0] == species[1]
      */
-    public ApiInterspeciesAA(Species[] species) {
+    public ApiInterspeciesAA(ISpecies[] species) {
         super(new ApiInterArrayList());
         apiInterList = (ApiInterArrayList) iterator;
         if(species.length != 2) {
@@ -53,7 +53,7 @@ public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
     public void setBox(Box box) {
         if (species0.getMoleculeType().getIndex() > species1.getMoleculeType().getIndex()) {
             // species were out of order.  swap them
-            Species tempSpecies = species0;
+            ISpecies tempSpecies = species0;
             species0 = species1;
             species1 = tempSpecies;
         }
@@ -63,5 +63,5 @@ public class ApiInterspeciesAA extends AtomsetIteratorAdapter implements
 
     private static final long serialVersionUID = 1L;
     private final ApiInterArrayList apiInterList;
-    private Species species0, species1;
+    private ISpecies species0, species1;
 }

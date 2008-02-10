@@ -6,7 +6,7 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.Conformation;
 import etomica.potential.Potential2;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -115,7 +115,7 @@ public class ModelChain extends Model {
                 bondingPotential,ApiBuilder.makeAdjacentPairIterator())};
     }
 
-    protected Species makeSpeciesInternal(ISimulation sim) {
+    protected ISpecies makeSpeciesInternal(ISimulation sim) {
         if (bondingPotential == null) {
             throw new RuntimeException("Please set the bonding potential before" +
                     " creating the Species");
@@ -130,7 +130,7 @@ public class ModelChain extends Model {
         }
         
         if (conformation == null) {
-            Species species = new SpeciesSpheres(sim, numAtoms, element);
+            ISpecies species = new SpeciesSpheres(sim, numAtoms, element);
             setConformation(species.getMoleculeType().getConformation());
         }
         

@@ -2,7 +2,7 @@ package etomica.chem.models;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.potential.IPotential;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Top-level class for a molecular model.
@@ -14,14 +14,14 @@ public abstract class Model implements java.io.Serializable {
      * Returns the species associated with this Model, if it has already been
      * created.  If the species has not been made yet, getSpecies returns null.
 	 */
-    public Species getSpecies() {
+    public ISpecies getSpecies() {
         return species;
     }
     
     /**
      * Creates a species in the given simulation and returns it.
      */
-	public final Species makeSpecies(ISimulation sim) {
+	public final ISpecies makeSpecies(ISimulation sim) {
         if (species == null) {
             species = makeSpeciesInternal(sim);
             sim.getSpeciesManager().addSpecies(species);
@@ -34,7 +34,7 @@ public abstract class Model implements java.io.Serializable {
      * Internal method to be implemented by subclasses to create the actual
      * Species object for the given Simulation.
      */
-    protected abstract Species makeSpeciesInternal(ISimulation sim);
+    protected abstract ISpecies makeSpeciesInternal(ISimulation sim);
 	
     /**
      * Internal method to be implemented by subclasses to initialize the
@@ -52,7 +52,7 @@ public abstract class Model implements java.io.Serializable {
      */
 	public abstract PotentialAndIterator[] getPotentials();
     
-    private Species species;
+    private ISpecies species;
     protected PotentialAndIterator[] potentialsAndIterators;
 
     /**

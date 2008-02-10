@@ -23,7 +23,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
@@ -156,9 +156,9 @@ public class ZeoliteSimulation extends Simulation {
         //P2SoftSphericalTruncated MS = new P2SoftSphericalTruncated(potentialMS,2.5*potentialMS.getSigma());
         
         
-        potentialMaster.addPotential(MM,new Species[]{species[2],species[2]});
-        potentialMaster.addPotential(MO,new Species[]{species[0],species[2]});
-        potentialMaster.addPotential(potentialMS,new Species[]{species[1],species[2]});
+        potentialMaster.addPotential(MM,new ISpecies[]{species[2],species[2]});
+        potentialMaster.addPotential(MO,new ISpecies[]{species[0],species[2]});
+        potentialMaster.addPotential(potentialMS,new ISpecies[]{species[1],species[2]});
         
         //Initializes the coordinates and positions
         config.initializeCoordinates(box);
@@ -177,7 +177,7 @@ public class ZeoliteSimulation extends Simulation {
         //      Adding coordinate writer by Mike Sellars
      
         filename = (numAtoms[2]+"_"+activityIntegrate.getMaxSteps()+"_"+ts+"_"+interval+"_WCA");
-        sp = new Species[1];
+        sp = new ISpecies[1];
         sp[0] = species[2];
         /*
         MSDCoordWriter coordWriter = new MSDCoordWriter(this.space, filename,sp);
@@ -196,10 +196,10 @@ public class ZeoliteSimulation extends Simulation {
     String getFileName(){
     	return filename;
     }
-    Species[] getSpeciesRMS(){
+    ISpecies[] getSpeciesRMS(){
     	return sp;
     }
-    private Species[] sp;
+    private ISpecies[] sp;
     private String filename;
     public static void Converter(String inputFile) {
 		// TODO Auto-generated method stub

@@ -13,7 +13,7 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.threaded.IntegratorVelocityVerletThreaded;
 import etomica.threaded.PotentialThreaded;
@@ -87,7 +87,7 @@ public class LJMD3DThreaded extends Simulation {
         ((PotentialMasterListThreaded)potentialMaster).setCellRange(1);
         ((PotentialMasterListThreaded)potentialMaster).setRange(neighborFac * truncationRadius);
         ((PotentialMasterListThreaded)potentialMaster).getNeighborManager(box).setQuiet(true);
-        potentialMaster.addPotential(potentialThreaded, new Species[] {species, species});
+        potentialMaster.addPotential(potentialThreaded, new ISpecies[] {species, species});
        
         //--------------------------------------\\
         

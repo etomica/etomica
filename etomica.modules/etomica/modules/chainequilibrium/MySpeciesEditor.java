@@ -16,7 +16,7 @@ import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -86,7 +86,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 	}
     
     class MyNSelector extends DeviceNSelector {
-        MyNSelector(final ChainEquilibriumGraphic simGraphic, Box box, Species species) {
+        MyNSelector(final ChainEquilibriumGraphic simGraphic, Box box, ISpecies species) {
             super(simGraphic.sim.getController());
             setResetAction(new SimulationRestart(simGraphic.sim));
             setBox(box);

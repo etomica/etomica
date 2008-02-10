@@ -9,6 +9,6 @@ package etomica.species;
  */
 public interface SpeciesResolver {
 
-    public Species whichOneDoYouLike(Species[] candidates);
+    public ISpecies whichOneDoYouLike(ISpecies[] candidates);
     
 }

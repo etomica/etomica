@@ -2,7 +2,7 @@ package etomica.atom;
 
 import etomica.config.Conformation;
 import etomica.simulation.SpeciesManager;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
 /**
@@ -24,7 +24,7 @@ public class AtomTypeMolecule extends AtomType {
      * Sets the Species.  This may only be called once (typically from the
      * Species constructor)
      */
-    public void setSpecies(Species species) {
+    public void setSpecies(ISpecies species) {
         if (this.species != null) {
             throw new RuntimeException("Can only call setSpecies once");
         }
@@ -62,7 +62,7 @@ public class AtomTypeMolecule extends AtomType {
     /**
      * @return Returns the species.
      */
-    public Species getSpecies() {
+    public ISpecies getSpecies() {
         return species;
     }
 
@@ -102,7 +102,7 @@ public class AtomTypeMolecule extends AtomType {
     
     private static final long serialVersionUID = 2L;
     protected Conformation conformation;
-    protected Species species;
+    protected ISpecies species;
     protected SpeciesManager speciesManager;
     protected AtomTypeLeaf[] childTypes = new AtomTypeLeaf[0];
 }

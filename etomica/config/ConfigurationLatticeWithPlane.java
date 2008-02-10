@@ -19,7 +19,7 @@ import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -82,7 +82,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * 
      * @param newSpecies : species that will need to be configured
      */
-    public void addSpecies(Species newSpecies) {
+    public void addSpecies(ISpecies newSpecies) {
     	if(species.indexOf(newSpecies) == -1) {
     	    species.add(newSpecies);
     	    allocation.put(newSpecies, new Float(0.5));
@@ -93,7 +93,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * 
      * @param newSpecies : species that should be removed from configuration
      */
-    public void removeSpecies(Species remSpecies) {
+    public void removeSpecies(ISpecies remSpecies) {
     	if(species.indexOf(remSpecies) != -1) {
     		species.remove(remSpecies);
     	    allocation.remove(remSpecies);
@@ -109,7 +109,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * @param pct : Percentage of species to initially allocate
      * on the left side of the plane (0.0 <= pct <= 1.0)
      */
-    public void setSpeciesAllocation(Species sp, float pct) {
+    public void setSpeciesAllocation(ISpecies sp, float pct) {
     	if(species.indexOf(sp) != -1 && pct <= 1.0) {
     		allocation.remove(sp);
     		allocation.put(sp, new Float(pct));
@@ -125,7 +125,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * @param pct : Percentage of species to initially allocate
      * on the left side of the plane (0.0 <= pct <= 1.0)
      */
-    public float getSpeciesAllocation(Species sp) {
+    public float getSpeciesAllocation(ISpecies sp) {
     	float fValue = 0.0f;
     	if(allocation.containsKey(sp)) {
     		Float value = ((Float)allocation.get(sp));
@@ -148,7 +148,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         int sumOfMolecules = 0;
         for (int i = 0; i < numSpecies; i++) {
-            speciesCount[i] = box.getNMolecules((Species)species.get(i));
+            speciesCount[i] = box.getNMolecules((ISpecies)species.get(i));
             sumOfMolecules = sumOfMolecules + speciesCount[i];
         }
 
@@ -161,7 +161,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         int [] maxMolecules = { 0, 0 };
 
         for (int i = 0; i < numSpecies; i++) {
-        	Species sp = ((Species)species.get(i));
+        	ISpecies sp = ((ISpecies)species.get(i));
             molecules[LEFT][i] =  (int)(box.getNMolecules(sp) * getSpeciesAllocation(sp));
             molecules[RIGHT][i] = box.getNMolecules(sp) - molecules[LEFT][i];
             maxMolecules[LEFT] += molecules[LEFT][i];
@@ -205,7 +205,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 
         AtomIteratorArrayListSimple[] atomIterator = new AtomIteratorArrayListSimple[numSpecies];
         for (int i = 0; i < numSpecies; i++) {
-            atomIterator[i] = new AtomIteratorArrayListSimple(box.getMoleculeList((Species)species.get(i)));
+            atomIterator[i] = new AtomIteratorArrayListSimple(box.getMoleculeList((ISpecies)species.get(i)));
             atomIterator[i].reset();
         }
 

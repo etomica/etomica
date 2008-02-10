@@ -5,7 +5,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Iterator for the molecules of a single species in a box.  Can be targeted to
@@ -21,7 +21,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * @param species species for which molecules are returned as iterates.
      * species must not be null.
      */
-    public AtomIteratorMolecule(Species species) {
+    public AtomIteratorMolecule(ISpecies species) {
         super(new AtomIteratorArrayListSimple());
         listIterator = (AtomIteratorArrayListSimple)iterator;
         this.species = species;
@@ -89,7 +89,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
 
     private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple listIterator;
-    private final Species species;
+    private final ISpecies species;
     private final AtomArrayList littleList = new AtomArrayList();
     private Box box;
     private IAtom targetAtom;

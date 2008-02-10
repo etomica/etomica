@@ -17,7 +17,7 @@ import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
 import etomica.space.IVector;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -61,14 +61,14 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
         return boundaries;
     }
     
-    public void setSpecies(Species[] newSpecies) {
+    public void setSpecies(ISpecies[] newSpecies) {
         species = newSpecies;
         if (box != null) {
             agentManager = new AtomAgentManager(this, box);
         }
     }
     
-    public Species[] getSpecies() {
+    public ISpecies[] getSpecies() {
         return species;
     }
     
@@ -170,7 +170,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
             // oh, the irony
             return null;
         }
-        Species thisSpecies = a.getType().getSpecies();
+        ISpecies thisSpecies = a.getType().getSpecies();
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
                 IVector vec = box.getSpace().makeVector();
@@ -197,7 +197,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
     protected final DataDouble data;
     protected DataInfoDouble dataInfo;
     protected final DataTag tag;
-    protected Species[] species;
+    protected ISpecies[] species;
     protected Box box;
     protected double[] boundaries;
     protected int[] boundaryCoefficients;

@@ -8,7 +8,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Unit test for ApiIntraspeciesAA
@@ -25,7 +25,7 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
         int[] n1 = new int[] { 5, 1, 6, 0, 1};
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
 
-        Species[] species = sim.getSpeciesManager().getSpecies();
+        ISpecies[] species = sim.getSpeciesManager().getSpecies();
 
         for(int i=0; i<n0.length; i++) {
             boxTest(sim.getBoxs()[i], species);
@@ -36,7 +36,7 @@ public class AtomIteratorAllMoleculesTest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(Box box, Species[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         AtomIteratorAllMolecules iterator = new AtomIteratorAllMolecules();
 
         iterator.setBox(box);

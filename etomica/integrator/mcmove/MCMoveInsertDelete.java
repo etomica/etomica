@@ -11,7 +11,7 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.Debug;
 import etomica.util.IRandom;
 
@@ -29,7 +29,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
     
     //directive must specify "BOTH" to get energy with all atom pairs
     protected final MeterPotentialEnergy energyMeter;
-	protected Species species;
+	protected ISpecies species;
 	protected final AtomIteratorSinglet affectedAtomIterator = new AtomIteratorSinglet();
 	protected IMolecule testMolecule;
 	protected double uOld;
@@ -51,13 +51,13 @@ public class MCMoveInsertDelete extends MCMoveBox {
     }
     
 //perhaps should have a way to ensure that two instances of this class aren't assigned the same species
-    public void setSpecies(Species s) {
+    public void setSpecies(ISpecies s) {
         species = s;
         if(box != null) {
             moleculeList = box.getMoleculeList(species);
         }
     }
-    public Species getSpecies() {return species;}
+    public ISpecies getSpecies() {return species;}
     
     public void setBox(Box p) {
         super.setBox(p);

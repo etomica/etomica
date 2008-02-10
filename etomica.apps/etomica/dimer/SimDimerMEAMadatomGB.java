@@ -27,7 +27,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 import etomica.util.HistoryCollapsingAverage;
@@ -190,7 +190,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
         box = new Box(new BoundaryRectangularSlit(space, random, 0, 5));
         addBox(box);
         
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{snAdatom},false, "SnAdatom");
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{snAdatom},false, "SnAdatom");
         /**
         //Ag
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{agAdatom}, "AgAdatom");
@@ -253,7 +253,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
     	box.setDimensions(new Vector3D(5.8314*5, 5.8314*5, 3.1815*10));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
-        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new Species[] {snFix, sn}, 4.56);
+        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {snFix, sn}, 4.56);
 
         /**
         //Ag

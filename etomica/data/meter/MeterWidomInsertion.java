@@ -7,7 +7,7 @@ import etomica.box.Box;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Null;
 
 /**
@@ -62,7 +62,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
      * Sets the species, takes a prototype molecule, and gets handle to
      * appropriate species agent in box
      */
-    public void setSpecies(Species s) {
+    public void setSpecies(ISpecies s) {
         species = s;
         testMolecule = s.makeMolecule();
     }
@@ -70,7 +70,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
     /**
      * Accessor for the species for which chemical potential is evaluated
      */
-    public Species getSpecies() {
+    public ISpecies getSpecies() {
         return species;
     }
 
@@ -145,7 +145,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
      * 100
      */
     private int nInsert;
-    private Species species;
+    private ISpecies species;
     private IMolecule testMolecule;// prototype insertion molecule
     private boolean residual; // flag to specify if total or residual chemical
                               // potential evaluated. Default true

@@ -3,7 +3,7 @@ package etomica.modules.dcvgcmd;
 import etomica.EtomicaInfo;
 import etomica.atom.AtomSet;
 import etomica.atom.IMolecule;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
 
@@ -13,7 +13,7 @@ import etomica.units.Temperature;
  */
 public final class MeterTemperature extends etomica.data.meter.MeterTemperature {
 
-	public MeterTemperature(Species species) {
+	public MeterTemperature(ISpecies species) {
 		super();
 		this.species = species;
 	}
@@ -40,5 +40,5 @@ public final class MeterTemperature extends etomica.data.meter.MeterTemperature 
 	}
 
     private static final long serialVersionUID = 1L;
-	private final Species species;
+	private final ISpecies species;
 }

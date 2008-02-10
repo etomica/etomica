@@ -16,7 +16,7 @@ import etomica.data.types.DataDouble.DataInfoDouble;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTable.DataInfoTable;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Fraction;
@@ -45,7 +45,7 @@ public final class MeterDimerFraction implements DataSource {
         return tag;
     }
     
-    public void setSpeciesA(Species newSpeciesA) {
+    public void setSpeciesA(ISpecies newSpeciesA) {
         speciesA = newSpeciesA;
     }
     
@@ -117,7 +117,7 @@ public final class MeterDimerFraction implements DataSource {
 
     private String name;
     private Box box;
-    private Species speciesA;
+    private ISpecies speciesA;
     private final DataTable data;
     private final DataInfoTable dataInfo;
     private int[] count = new int[5];

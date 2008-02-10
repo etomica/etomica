@@ -3,7 +3,7 @@ package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
 import etomica.box.Box;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Fraction;
 
 /**
@@ -14,16 +14,16 @@ import etomica.units.Fraction;
  */
 public class MeterMoleFraction extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
-    private Species species;
+    private ISpecies species;
    
     public MeterMoleFraction() {
         super("Mole Fraction",Fraction.DIMENSION);
     }
     
-    public void setSpecies(Species s) {
+    public void setSpecies(ISpecies s) {
         species = s;
     }
-    public Species getSpecies() {return species;}
+    public ISpecies getSpecies() {return species;}
 
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Species mole fraction in a box");

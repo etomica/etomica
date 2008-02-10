@@ -1,10 +1,10 @@
 package etomica.simulation;
 
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 public class SimulationSpeciesRemovedEvent extends SimulationSpeciesEvent {
 
-    public SimulationSpeciesRemovedEvent(Species species) {
+    public SimulationSpeciesRemovedEvent(ISpecies species) {
         super(species);
     }
     

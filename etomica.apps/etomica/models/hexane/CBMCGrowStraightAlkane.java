@@ -8,7 +8,7 @@ import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.IRandom;
 
 /**
@@ -34,14 +34,14 @@ import etomica.util.IRandom;
 public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
 
     public CBMCGrowStraightAlkane(PotentialMaster potentialMaster,
-            IRandom random, IntegratorMC integrator, Box p, Species species,
+            IRandom random, IntegratorMC integrator, Box p, ISpecies species,
             int n, int NTrials) {
         super(potentialMaster, random, integrator, p, n, NTrials);
 
         setChainlength(n);
         sumW = 0.0;
 
-        Species[] sp = new Species[1];
+        ISpecies[] sp = new ISpecies[1];
         sp[0] = species;
 
         vex = (IVectorRandom) potentialMaster.getSpace().makeVector();

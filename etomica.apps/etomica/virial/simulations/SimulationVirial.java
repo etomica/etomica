@@ -12,7 +12,7 @@ import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
@@ -76,7 +76,7 @@ public class SimulationVirial extends Simulation {
         integrator.getMoveManager().addMCMove(mcMoveTranslate);
 		
 		P0Cluster p0 = new P0Cluster(space);
-		potentialMaster.addPotential(p0,new Species[]{});
+		potentialMaster.addPotential(p0,new ISpecies[]{});
 		
         ConfigurationCluster configuration = new ConfigurationCluster();
         configuration.initializeCoordinates(box);
@@ -93,7 +93,7 @@ public class SimulationVirial extends Simulation {
 	public DataSource meter;
 	public DataAccumulator accumulator;
 	public DataPump accumulatorPump;
-	public Species species;
+	public ISpecies species;
 	public ActivityIntegrate ai;
 	public IntegratorMC integrator;
 	public BoxCluster box;

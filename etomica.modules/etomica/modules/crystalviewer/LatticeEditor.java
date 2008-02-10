@@ -25,7 +25,7 @@ import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.box.Box;
 import etomica.space.IVector;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Quantity;
 import etomica.util.Arrays;
@@ -42,7 +42,7 @@ public class LatticeEditor {
     protected BravaisLattice currentLattice;
     private JPanel panel;
     protected Box box;
-    protected Species species;
+    protected ISpecies species;
     private DeviceBox[] angleBoxes, sizeBoxes;
     public JPanel anglePanel, sizePanel;
     public JPanel boxPanel;

@@ -1,7 +1,7 @@
 package etomica.atom.iterator;
 
 import etomica.box.Box;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Gives pairs formed from the molecules of a single species in a box. Species
@@ -14,7 +14,7 @@ public class ApiIntraspeciesAA extends AtomsetIteratorAdapter implements
      * @param species
      *            species whose molecules will form the pair iterates
      */
-    public ApiIntraspeciesAA(Species species) {
+    public ApiIntraspeciesAA(ISpecies species) {
         super(new ApiIntraArrayList());
         if (species == null) {
             throw new NullPointerException("Constructor of ApiIntraspecies1A requires a non-null species");
@@ -34,5 +34,5 @@ public class ApiIntraspeciesAA extends AtomsetIteratorAdapter implements
 
     private static final long serialVersionUID = 1L;
     private final ApiIntraArrayList pairIterator;
-    private final Species species;
+    private final ISpecies species;
 }

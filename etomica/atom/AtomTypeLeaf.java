@@ -1,7 +1,7 @@
 package etomica.atom;
 
 import etomica.chem.elements.Element;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Mass;
 
@@ -48,7 +48,7 @@ public class AtomTypeLeaf extends AtomType {
         return childIndex;
     }
     
-    public Species getSpecies() {
+    public ISpecies getSpecies() {
         return parentType.getSpecies();
     }
 

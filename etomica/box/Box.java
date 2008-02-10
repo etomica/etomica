@@ -13,7 +13,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
@@ -119,18 +119,18 @@ public class Box implements java.io.Serializable {
     
     public final Space getSpace() {return space;}
     
-    public IMolecule addNewMolecule(Species species) {
+    public IMolecule addNewMolecule(ISpecies species) {
         IMolecule aNew = species.makeMolecule();
         addMolecule(aNew, species);
         return aNew;
     }
     
     public void addMolecule(IMolecule molecule) {
-        Species species = molecule.getType().getSpecies();
+        ISpecies species = molecule.getType().getSpecies();
         addMolecule(molecule, species);
     }
     
-    protected void addMolecule(IMolecule molecule, Species species) {
+    protected void addMolecule(IMolecule molecule, ISpecies species) {
         int speciesIndex = species.getIndex();
         if (moleculeLists[speciesIndex].contains(molecule)) {
             throw new RuntimeException("you bastard!");
@@ -147,11 +147,11 @@ public class Box implements java.io.Serializable {
     }
 
     public void removeMolecule(IMolecule molecule) {
-        Species species = molecule.getType().getSpecies();
+        ISpecies species = molecule.getType().getSpecies();
         removeMolecule(molecule, species);
     }
     
-    protected void removeMolecule(IMolecule molecule, Species species) {
+    protected void removeMolecule(IMolecule molecule, ISpecies species) {
         int moleculeIndex = molecule.getIndex();
         AtomArrayList moleculeList = moleculeLists[species.getIndex()];
         if (moleculeList.getAtom(moleculeIndex) != molecule) {
@@ -175,7 +175,7 @@ public class Box implements java.io.Serializable {
      *
      * @param n  the new number of molecules for this species
      */
-    public void setNMolecules(Species species, int n) {
+    public void setNMolecules(ISpecies species, int n) {
         int speciesIndex = species.getIndex();
         AtomArrayList moleculeList = moleculeLists[speciesIndex];
         int currentNMolecules = moleculeList.getAtomCount();
@@ -192,12 +192,12 @@ public class Box implements java.io.Serializable {
         }
     }
     
-    public int getNMolecules(Species species) {
+    public int getNMolecules(ISpecies species) {
         int speciesIndex = species.getIndex();
         return moleculeLists[speciesIndex].getAtomCount();
     }
     
-    public AtomSet getMoleculeList(Species species) {
+    public AtomSet getMoleculeList(ISpecies species) {
         return moleculeLists[species.getIndex()];
     }
     
@@ -258,7 +258,7 @@ public class Box implements java.io.Serializable {
         return eventManager;
     }
 
-    public void addSpeciesNotify(Species species) {
+    public void addSpeciesNotify(ISpecies species) {
         moleculeLists = (AtomArrayList[])Arrays.addObject(moleculeLists, new AtomArrayList());
         allMoleculeList.setMoleculeLists(moleculeLists);
     }
@@ -267,7 +267,7 @@ public class Box implements java.io.Serializable {
      * Notifies the SpeciesMaster that a Species has been removed.  This method
      * should only be called by the SpeciesManager.
      */
-    public void removeSpeciesNotify(Species species) {
+    public void removeSpeciesNotify(ISpecies species) {
         moleculeLists = (AtomArrayList[])Arrays.removeObject(moleculeLists, moleculeLists[species.getIndex()]);
         allMoleculeList.setMoleculeLists(moleculeLists);
     }

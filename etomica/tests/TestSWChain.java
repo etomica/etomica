@@ -27,7 +27,7 @@ import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 
 /**
@@ -75,7 +75,7 @@ public class TestSWChain extends Simulation {
         PotentialGroup potentialChainIntra = potentialMaster.makePotentialGroup(1);
         potentialChainIntra.addPotential(bonded, ApiBuilder.makeAdjacentPairIterator());
 
-        potentialMaster.addPotential(potentialChainIntra, new Species[] {species});
+        potentialMaster.addPotential(potentialChainIntra, new ISpecies[] {species});
         ((ConformationLinear)species.getMoleculeType().getConformation()).setBondLength(sigma);
 
         P2SquareWell potential = new P2SquareWell(space,sigma,sqwLambda,0.5,false);

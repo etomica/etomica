@@ -31,7 +31,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Bar;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
@@ -90,7 +90,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		EwaldSummation ewaldSummation = new EwaldSummation(box, atomAgentManager, 0);
 		ewaldSummation.setCriterion(criterionAll);
 		ewaldSummation.setBondedIterator(new ApiIntragroup());
-		potentialMaster.addPotential(ewaldSummation, new Species[0]);
+		potentialMaster.addPotential(ewaldSummation, new ISpecies[0]);
 		////////
 		
 		

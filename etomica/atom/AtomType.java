@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * AtomType holds fields that are common to many atoms. It serves many
@@ -58,7 +58,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
         return index;
     }
     
-    public abstract Species getSpecies();
+    public abstract ISpecies getSpecies();
     
     /**
      * The position definition held by the type provides an appropriate default

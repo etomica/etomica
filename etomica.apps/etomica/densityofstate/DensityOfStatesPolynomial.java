@@ -19,7 +19,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistoryCollapsingAverage;
 import etomica.yukawa.P2Yukawa;
@@ -72,7 +72,7 @@ public class DensityOfStatesPolynomial extends Simulation{
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
 		((PotentialMasterCell)potentialMaster).setCellRange(3);
 		((PotentialMasterCell)potentialMaster).setRange(potentialTruncated.getRange());
-		potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
+		potentialMaster.addPotential(potentialTruncated, new ISpecies[] {species, species});
 			
 		integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(box).makeMCMoveListener());
 		

@@ -24,7 +24,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.ElectronVolt;
 import etomica.util.IRandom;
 
@@ -59,7 +59,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public IVector [] Fperp, Fminperp, Fmin2perp;
 	public IVector [] Fstar, Fminstar, Fmin2star, Fstarperp;
 	public IVector [] Fpara;
-	public Species [] movableSpecies;
+	public ISpecies [] movableSpecies;
 	public AtomArrayList list, listMin;
 	public int movableAtoms;
 	public double energy;
@@ -77,11 +77,11 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 	public WriteConfiguration writer;
 	
 	
-	public IntegratorDimerMin(ISimulation sim, PotentialMaster potentialMaster, Species[] species, String fileName, Boolean normalDir) {
+	public IntegratorDimerMin(ISimulation sim, PotentialMaster potentialMaster, ISpecies[] species, String fileName, Boolean normalDir) {
 		this(sim, potentialMaster, sim.getRandom(), 1.0, species, fileName, normalDir);
 	}
 	
-	public IntegratorDimerMin(ISimulation aSim, PotentialMaster potentialMaster, IRandom arandom, double temperature, Species[] aspecies, String fileName, Boolean normalDir) {
+	public IntegratorDimerMin(ISimulation aSim, PotentialMaster potentialMaster, IRandom arandom, double temperature, ISpecies[] aspecies, String fileName, Boolean normalDir) {
 		super(potentialMaster, temperature);
 		this.random = arandom;
 		this.sim = aSim;
@@ -189,7 +189,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		force0.setAgentManager(atomAgent0);
 		forceMin.setAgentManager(atomAgentMin);
 		
-		Species [] species = sim.getSpeciesManager().getSpecies();
+		ISpecies [] species = sim.getSpeciesManager().getSpecies();
 		
 		for(int i=0; i<species.length; i++){
 			boxMin.setNMolecules(species[i], box.getNMolecules(species[i]));

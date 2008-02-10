@@ -11,7 +11,7 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.IRandom;
 
 /**
@@ -27,7 +27,7 @@ import etomica.util.IRandom;
 public class MCMoveSemigrand extends MCMoveBox {
     
     private static final long serialVersionUID = 2L;
-    private Species[] speciesSet;
+    private ISpecies[] speciesSet;
     private AtomArrayList[] reservoirs;
     private double[] fugacityFraction;
     private int nSpecies;
@@ -67,10 +67,10 @@ public class MCMoveSemigrand extends MCMoveBox {
     /**
      * Mutator method for the set of species that can participate in an exchange move.
      */
-    public void setSpecies(Species[] species) {
+    public void setSpecies(ISpecies[] species) {
         nSpecies = species.length;
         if(nSpecies < 2) throw new IllegalArgumentException("Wrong size of species array in MCMoveSemigrand");
-        speciesSet = new Species[nSpecies];
+        speciesSet = new ISpecies[nSpecies];
         fugacityFraction = new double[nSpecies];
         reservoirs = new AtomArrayList[nSpecies];
         for(int i=0; i<nSpecies; i++) {
@@ -83,7 +83,7 @@ public class MCMoveSemigrand extends MCMoveBox {
     /**
      * Accessor method for the set of species that can participate in an exchange move.
      */
-    public Species[] getSpecies() {return speciesSet;}
+    public ISpecies[] getSpecies() {return speciesSet;}
     
     /**
      * Specifies the fugacity fractions for the set of species that can participate in

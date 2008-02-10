@@ -3,13 +3,13 @@ package etomica.atom;
 import java.io.Serializable;
 
 import etomica.box.Box;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 public class AtomToAtomSetSpecies implements AtomToAtomSet, AtomToIndex, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public AtomToAtomSetSpecies(Species species) {
+    public AtomToAtomSetSpecies(ISpecies species) {
         this.species = species;
     }
     
@@ -26,5 +26,5 @@ public class AtomToAtomSetSpecies implements AtomToAtomSet, AtomToIndex, Seriali
     }
 
     protected AtomSet moleculeList;
-    protected final Species species;
+    protected final ISpecies species;
 }

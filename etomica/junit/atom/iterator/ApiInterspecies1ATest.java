@@ -14,7 +14,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Unit test for ApiInterspecies1A
@@ -31,12 +31,12 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         int[] n1 = new int[] { 5, 1, 6 };
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
 
-        Species[] species = sim.getSpeciesManager().getSpecies();
+        ISpecies[] species = sim.getSpeciesManager().getSpecies();
         
         boxTest(sim.getBoxs()[0], species);
         boxTest(sim.getBoxs()[1], species);
 
-        ApiInterspecies1A api = new ApiInterspecies1A(new Species[] {
+        ApiInterspecies1A api = new ApiInterspecies1A(new ISpecies[] {
                 species[0], species[1] });
 
         //test new iterator gives no iterates
@@ -60,21 +60,21 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
         assertTrue(exceptionThrown);
         exceptionThrown = false;
         try {
-            new ApiInterspecies1A(new Species[] { species[0] });
+            new ApiInterspecies1A(new ISpecies[] { species[0] });
         } catch (IllegalArgumentException e) {
             exceptionThrown = true;
         }
         assertTrue(exceptionThrown);
         exceptionThrown = false;
         try {
-            new ApiInterspecies1A(new Species[] { species[0], species[0] });
+            new ApiInterspecies1A(new ISpecies[] { species[0], species[0] });
         } catch (IllegalArgumentException e) {
             exceptionThrown = true;
         }
         assertTrue(exceptionThrown);
         exceptionThrown = false;
         try {
-            new ApiInterspecies1A(new Species[] { species[0], null });
+            new ApiInterspecies1A(new ISpecies[] { species[0], null });
         } catch (NullPointerException e) {
             exceptionThrown = true;
         }
@@ -92,7 +92,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(Box box, Species[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         speciesTestForward(box, species[0], species[1]);
     }
 
@@ -101,8 +101,8 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
      * constructed with index of first species less than index of second.
      */
     private void speciesTestForward(Box box,
-            Species species0, Species species1) {
-        ApiInterspecies1A api = new ApiInterspecies1A(new Species[] {
+            ISpecies species0, ISpecies species1) {
+        ApiInterspecies1A api = new ApiInterspecies1A(new ISpecies[] {
                 species0, species1 });
         AtomsetAction speciesTest = new SpeciesTestAction();
         IAtom target = null;

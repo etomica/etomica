@@ -7,7 +7,7 @@ import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -65,7 +65,7 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
         Box box = new Box(sim);
         sim.addBox(box);
         box.setDimensions(new Vector1D(nCells));
-        Species species = new SpeciesSpheresMono(sim);
+        ISpecies species = new SpeciesSpheresMono(sim);
         box.setNMolecules(species, nCells*nCells*nCells);
         
         WaveVectorFactory1D foo = new WaveVectorFactory1D();

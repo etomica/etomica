@@ -5,15 +5,14 @@ import java.util.Iterator;
 
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.graphics.ColorSchemeCollective;
-import etomica.graphics.DisplayCanvas;
 import etomica.graphics.DisplayBox;
+import etomica.graphics.DisplayCanvas;
 import etomica.graphics.Drawable;
-import etomica.box.Box;
 import etomica.space.IVector;
-import etomica.species.Species;
 
 /**
  * Class used to define canvas onto which configuration is drawn
@@ -82,7 +81,6 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
     * of the specified periodic images to fit in the drawing of the box.  
     *
     * @param g The graphic object to which the image of the box is drawn
-    * @see Species
     */
     public void doPaint(Graphics g) {
         if(!isVisible() || displayBox.getBox() == null) {return;}

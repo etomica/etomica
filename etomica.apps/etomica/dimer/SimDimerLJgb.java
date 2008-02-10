@@ -27,7 +27,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.util.HistoryCollapsingAverage;
 
@@ -138,7 +138,7 @@ public class SimDimerLJgb extends Simulation{
 	 //CRYSTAL
     	box.setDimensions(new Vector3D(5,5,10));
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(new PrimitiveCubic(space, Math.pow(4, 1.0/3.0)),new BasisCubicFcc());
-        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new Species[] {fixed, movable}, 2.5);
+        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 2.5);
         gbtilt.setRotation(2, 45*Math.PI/180);
         gbtilt.setRotation(1, 53.79562*Math.PI/180);
         
@@ -147,7 +147,7 @@ public class SimDimerLJgb extends Simulation{
         gbtilt.initializeCoordinates(box);
 
       //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{movable}, false, "gb");
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, false, "gb");
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);

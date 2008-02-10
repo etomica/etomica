@@ -22,7 +22,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 import etomica.species.SpeciesSpheresRotating;
@@ -91,7 +91,7 @@ public class SimulationVirialOverlap extends Simulation {
         }
         
         P0Cluster p0 = new P0Cluster(space);
-        potentialMaster.addPotential(p0,new Species[]{});
+        potentialMaster.addPotential(p0,new ISpecies[]{});
         
         blockSize = 1000;
         
@@ -312,7 +312,7 @@ public class SimulationVirialOverlap extends Simulation {
     protected DataPump[] accumulatorPumps;
 	protected final ClusterWeight[] sampleClusters;
     public BoxCluster[] box;
-    public Species species;
+    public ISpecies species;
     public IntegratorMC[] integrators;
     public MCMoveBoxStep[] mcMoveRotate;
     public MCMoveBoxStep[] mcMoveTranslate;

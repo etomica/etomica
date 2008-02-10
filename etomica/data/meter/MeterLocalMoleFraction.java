@@ -8,7 +8,7 @@ import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.box.Box;
 import etomica.space.IVector;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Fraction;
 
 /**
@@ -59,13 +59,13 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
      * Accessor method to set which species mole-fraction or molar-density is averaged
      * To set to total number density, invoke with static ALL_SPECIES field as argument
      */
-    public final void setSpecies(Species s) {species = s;}
+    public final void setSpecies(ISpecies s) {species = s;}
     /**
      * Accessor method to get the current value of the species index
      *
      * @see #setSpeciesIndex
      */
-    public final Species getSpecies() {return species;}
+    public final ISpecies getSpecies() {return species;}
     
     /**
      * @return the current value of the local density or local mole fraction
@@ -123,7 +123,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */
-    private Species species;
+    private ISpecies species;
     private AtomIteratorBoxDependent iterator = new AtomIteratorLeafAtoms();
     private Polytope shape;
     private IVector shapeOrigin;

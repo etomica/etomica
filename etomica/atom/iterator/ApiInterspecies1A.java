@@ -8,7 +8,7 @@ import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Gives pairs formed from the molecules of two different species in a box,
@@ -51,7 +51,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
      *             if species array is null or if either species in array is
      *             null
      */
-    public ApiInterspecies1A(Species[] species) {
+    public ApiInterspecies1A(ISpecies[] species) {
         super();
         if (species.length != 2) {
             throw new IllegalArgumentException(
@@ -87,7 +87,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
         box = newBox;
         if (species0.getMoleculeType().getIndex() > species1.getMoleculeType().getIndex()) {
             // species were out of order.  swap them
-            Species tempSpecies = species0;
+            ISpecies tempSpecies = species0;
             species0 = species1;
             species1 = tempSpecies;
         }
@@ -199,7 +199,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
     private static final long serialVersionUID = 1L;
     private final AtomIteratorArrayListSimple aiInner;
     private final AtomIteratorSinglet aiOuter;
-    private Species species0, species1;
+    private ISpecies species0, species1;
     private final ApiInnerFixed apiUp, apiDown;
     private ApiInnerFixed iterator;
     private IteratorDirective.Direction direction, allowedDirection;

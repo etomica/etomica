@@ -123,7 +123,6 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     * of the specified periodic images to fit in the drawing of the box.  
     *
     * @param g The graphic object to which the image of the box is drawn
-    * @see Species
     */
     public void doPaint(Graphics g) {
         if(!isVisible() || displayBox.getBox() == null) {return;}

@@ -9,7 +9,7 @@ import etomica.atom.iterator.ApiIntraspeciesAA;
 import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 
 /**
@@ -28,7 +28,7 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         int[] n1 = new int[] {5, 1, 6};
         ISimulation sim = UnitTestUtil.makeStandardSpeciesTree(n0, nA0, n1);
         
-        Species[] species = sim.getSpeciesManager().getSpecies();
+        ISpecies[] species = sim.getSpeciesManager().getSpecies();
 
         boxTest(sim.getBoxs()[0], species);
         boxTest(sim.getBoxs()[1], species);
@@ -42,7 +42,7 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
         //test documented exceptions
         boolean exceptionThrown = false;
         try {
-            new ApiIntraspeciesAA((Species)null);
+            new ApiIntraspeciesAA((ISpecies)null);
         } catch(NullPointerException e) {exceptionThrown = true;}
         assertTrue(exceptionThrown);
 
@@ -52,7 +52,7 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(Box box, Species[] species) {
+    private void boxTest(Box box, ISpecies[] species) {
         speciesTestForward(box, species, 0);
         speciesTestForward(box, species, 1);
     }
@@ -61,7 +61,7 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
      * Test iteration in various directions with different targets.  Iterator constructed with
      * index of first species less than index of second.
      */
-    private void speciesTestForward(Box box, Species[] species, int species0Index) {
+    private void speciesTestForward(Box box, ISpecies[] species, int species0Index) {
         ApiIntraspeciesAA api = new ApiIntraspeciesAA(species[species0Index]);
         AtomsetAction speciesTest = new SpeciesTestAction(species[species0Index], species[species0Index]);
 
@@ -85,8 +85,8 @@ public class ApiIntraspeciesAATest extends IteratorTestAbstract {
     }
 
     private class SpeciesTestAction extends AtomsetActionAdapter {
-        final Species species0, species1;
-        public SpeciesTestAction(Species species0, Species species1) {
+        final ISpecies species0, species1;
+        public SpeciesTestAction(ISpecies species0, ISpecies species1) {
             this.species0 = species0;
             this.species1 = species1;
         }

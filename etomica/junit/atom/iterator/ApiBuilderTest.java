@@ -17,7 +17,7 @@ import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Tests the iterators made by the various static methods in ApiBuilder.
@@ -88,8 +88,8 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         //iterator must loop over pairs formed from molecules of each species
         sim = UnitTestUtil.makeMultitypeSpeciesTree(new int[] {5,7}, 
                 new int[][] {{3,2},{4,1,6}});
-        Species species0 = sim.getSpeciesManager().getSpecies()[0];
-        Species species1 = sim.getSpeciesManager().getSpecies()[1];
+        ISpecies species0 = sim.getSpeciesManager().getSpecies()[0];
+        ISpecies species1 = sim.getSpeciesManager().getSpecies()[1];
         AtomType[] types = new AtomType[2];
         AtomPair basisPair = new AtomPair();
 
@@ -256,7 +256,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
     //******* adjacent/nonadjacent setup -- basis has only one child
     private void setup4() {
         Box box = sim.getBoxs()[1];
-        Species species1 = sim.getSpeciesManager().getSpecies()[1];
+        ISpecies species1 = sim.getSpeciesManager().getSpecies()[1];
         parent = box.getMoleculeList(species1).getAtom(0);//box1, species1, molecule0
         target = ((IMolecule)parent).getChildList().getAtom(0);
         targetFirst = target;

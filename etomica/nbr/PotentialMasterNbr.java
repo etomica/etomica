@@ -12,7 +12,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.simulation.SimulationEventManager;
 import etomica.simulation.SpeciesManager;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
 public abstract class PotentialMasterNbr extends PotentialMaster implements AtomTypeAgentManager.AgentSource {
@@ -39,7 +39,7 @@ public abstract class PotentialMasterNbr extends PotentialMaster implements Atom
         return new PotentialGroupNbr(nBody, simulation.getSpace());
     }
     
-    public void addPotential(IPotential potential, Species[] species) {
+    public void addPotential(IPotential potential, ISpecies[] species) {
         super.addPotential(potential, species);
         if (!(potential instanceof PotentialGroup)) {
              AtomType[] atomTypes = moleculeTypes(species);

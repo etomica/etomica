@@ -20,7 +20,7 @@ import etomica.potential.P4BondTorsion;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
@@ -121,7 +121,7 @@ public class VirialAlkane {
                 triplets[i][2] = i+2;
             }
             pIntra.addPotential(p3, new Atomset3IteratorIndexList(triplets));
-            sim.integrators[1].getPotential().addPotential(pIntra,new Species[]{sim.species});
+            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         if (nSpheres > 3) {
             P4BondTorsion p4 = new P4BondTorsion(space, Kelvin.UNIT.toSim(355.03), Kelvin.UNIT.toSim(-68.19), Kelvin.UNIT.toSim(791.32));
@@ -133,11 +133,11 @@ public class VirialAlkane {
                 quads[i][3] = i+3;
             }
             pIntra.addPotential(p4, new Atomset4IteratorIndexList(quads));
-            sim.integrators[1].getPotential().addPotential(pIntra,new Species[]{sim.species});
+            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         if (nSpheres > 4) {
             pIntra.addPotential(p2CH3,new ApiIndexList(new int[][]{{0,nSpheres-1}}));
-            sim.integrators[1].getPotential().addPotential(pIntra,new Species[]{sim.species});
+            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         if (nSpheres > 5) {
             int[][] pairs = new int[2*(nSpheres-5)][2];
@@ -148,7 +148,7 @@ public class VirialAlkane {
                 pairs[2*i+1][1] = i+1;
             }
             pIntra.addPotential(p2CH3,new ApiIndexList(pairs));
-            sim.integrators[1].getPotential().addPotential(pIntra,new Species[]{sim.species});
+            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         if (nSpheres > 6) {
             int[][] pairs = new int[(nSpheres-6)*(nSpheres-5)/2][2];
@@ -161,7 +161,7 @@ public class VirialAlkane {
                 }
             }
             pIntra.addPotential(p2CH2,new ApiIndexList(pairs));
-            sim.integrators[1].getPotential().addPotential(pIntra,new Species[]{sim.species});
+            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         
         if (false) {

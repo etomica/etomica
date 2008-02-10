@@ -7,7 +7,7 @@ import etomica.data.DataSourceAtomic;
 import etomica.data.DataSourceScalar;
 import etomica.data.IDataInfo;
 import etomica.box.Box;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Quantity;
 
 /**
@@ -16,7 +16,7 @@ import etomica.units.Quantity;
 public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomic {
     
     private static final long serialVersionUID = 1L;
-    private Species species;
+    private ISpecies species;
     
     public MeterNMolecules() {
         super("Molecules",Quantity.DIMENSION);
@@ -27,8 +27,8 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
         return info;
     }
 
-    public void setSpecies(Species s) {species = s;}
-    public Species getSpecies() {return species;}
+    public void setSpecies(ISpecies s) {species = s;}
+    public ISpecies getSpecies() {return species;}
 
     public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");

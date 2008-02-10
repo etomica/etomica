@@ -20,7 +20,7 @@ import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.IVector;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 public class LatticePlaneTestUtility {
@@ -37,7 +37,7 @@ public class LatticePlaneTestUtility {
 	public final int CUBIC_DIAMOND = 9;
 
 	private ISimulation sim = null;
-	private Species species = null;
+	private ISpecies species = null;
 	private BravaisLattice lattice = null;
 	private Box box = null;
 	private LatticePlane latticePlane = null;
@@ -146,7 +146,7 @@ public class LatticePlaneTestUtility {
 		return sim;
 	}
 	
-	public Species getSpecies() {
+	public ISpecies getSpecies() {
 		return species;
 	}
 	

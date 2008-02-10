@@ -8,7 +8,7 @@ import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresHetero;
 import etomica.species.SpeciesSpheresMono;
@@ -60,8 +60,8 @@ public class UnitTestUtil {
             int[] n1) {
         Space space = Space3D.getInstance();
         ISimulation sim = new Simulation(space, false);
-        Species species0 = null;
-        Species species1 = null;
+        ISpecies species0 = null;
+        ISpecies species1 = null;
         int nBox = 0;
         if (n0 != null) {
             species0 = new SpeciesSpheres(sim, nA0);

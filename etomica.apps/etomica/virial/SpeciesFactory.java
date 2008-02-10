@@ -1,9 +1,9 @@
 package etomica.virial;
 
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 public interface SpeciesFactory {
 
-    public Species makeSpecies(ISimulation sim);
+    public ISpecies makeSpecies(ISimulation sim);
 }

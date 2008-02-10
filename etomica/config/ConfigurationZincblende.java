@@ -14,7 +14,7 @@ import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Sets the configuration to the zincblende structure, which consists
@@ -25,26 +25,26 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     
     private static final long serialVersionUID = 2L;
     private AtomGroupAction translator0, translator1;
-    protected Species[] species;
+    protected ISpecies[] species;
     
     public ConfigurationZincblende(double latticeConstant) {
         super(new LatticeCubicFcc(latticeConstant));
-        species = new Species[2];
+        species = new ISpecies[2];
     }
     
-    public void setSpecies1(Species species1) {
+    public void setSpecies1(ISpecies species1) {
         species[0] = species1;
     }
     
-    public void setSpecies2(Species species2) {
+    public void setSpecies2(ISpecies species2) {
         species[1] = species2;
     }
     
-    public Species getSpecies1() {
+    public ISpecies getSpecies1() {
         return species[0];
     }
     
-    public Species getSpecies2() {
+    public ISpecies getSpecies2() {
         return species[1];
     }
     

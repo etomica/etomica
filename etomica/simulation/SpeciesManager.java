@@ -8,7 +8,7 @@ import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeMolecule;
 import etomica.box.Box;
 import etomica.chem.elements.Element;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.Arrays;
 
 /**
@@ -21,7 +21,7 @@ public class SpeciesManager implements java.io.Serializable {
 
     public SpeciesManager(ISimulation sim) {
         this.sim = sim;
-        speciesList = new Species[0];
+        speciesList = new ISpecies[0];
         numAtomTypes = 0;
         elementSymbolHash = new HashMap();
         elementAtomTypeHash = new HashMap();
@@ -36,13 +36,13 @@ public class SpeciesManager implements java.io.Serializable {
      * 
      * @return the index assigned to the new species
      */
-    public void addSpecies(Species species) {
+    public void addSpecies(ISpecies species) {
         for (int i=0; i<speciesList.length; i++) {
             if (speciesList[i] == species) {
                 throw new IllegalArgumentException("Species already exists");
             }
         }
-        speciesList = (Species[])Arrays.addObject(speciesList,species);
+        speciesList = (ISpecies[])Arrays.addObject(speciesList,species);
         species.resetIndex(this);
         AtomTypeMolecule moleculeType = species.getMoleculeType();
         moleculeType.setSpeciesManager(this);
@@ -70,7 +70,7 @@ public class SpeciesManager implements java.io.Serializable {
      * Simulation and does cleanup, including renumbering indices and firing 
      * AtomType-related event notifications.
      */
-    public boolean removeSpecies(Species removedSpecies) {
+    public boolean removeSpecies(ISpecies removedSpecies) {
         boolean success = false;
         for (int i=0; i<speciesList.length; i++) {
             if (speciesList[i] == removedSpecies) {
@@ -84,7 +84,7 @@ public class SpeciesManager implements java.io.Serializable {
 
         sim.getEventManager().fireEvent(new SimulationSpeciesRemovedEvent(removedSpecies));
         
-        speciesList = (Species[])Arrays.removeObject(speciesList,removedSpecies);
+        speciesList = (ISpecies[])Arrays.removeObject(speciesList,removedSpecies);
         for (int i=removedSpecies.getIndex(); i<speciesList.length; i++) {
             speciesList[i].resetIndex(this);
         }
@@ -111,7 +111,7 @@ public class SpeciesManager implements java.io.Serializable {
     /**
      * Returns an array of the Species in the Simulation.
      */
-    public Species[] getSpecies() {
+    public ISpecies[] getSpecies() {
         return speciesList;
     }
 
@@ -271,7 +271,7 @@ public class SpeciesManager implements java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private Species[] speciesList;
+    private ISpecies[] speciesList;
     private final HashMap elementSymbolHash;
     private final HashMap elementAtomTypeHash;
     private int numAtomTypes;

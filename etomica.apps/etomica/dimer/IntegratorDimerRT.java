@@ -26,7 +26,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.IVectorRandom;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.ElectronVolt;
 import etomica.util.Debug;
 import etomica.util.IRandom;
@@ -71,7 +71,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public IVector workVector1;
 	public IVector workVector2;
 	public IRandom random1;
-	public Species [] movableSpecies;
+	public ISpecies [] movableSpecies;
 	public PotentialCalculationForceSum force0, force1, force2;
 	public AtomArrayList list, list1, list2;
 	public AtomAgentManager atomAgent0, atomAgent1, atomAgent2;
@@ -81,11 +81,11 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public ActivityIntegrate activityIntegrate;
 	
 	
-	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster, Species[] species, boolean ortho, String file) {
+	public IntegratorDimerRT(ISimulation sim, PotentialMaster potentialMaster, ISpecies[] species, boolean ortho, String file) {
 		this(sim, potentialMaster, sim.getRandom(), ortho, 1.0, species, file);
 	}
 	
-	public IntegratorDimerRT(ISimulation aSim, PotentialMaster potentialMaster, IRandom random, boolean aOrtho, double temperature, Species[] aspecies, String aFile) {
+	public IntegratorDimerRT(ISimulation aSim, PotentialMaster potentialMaster, IRandom random, boolean aOrtho, double temperature, ISpecies[] aspecies, String aFile) {
 		super(potentialMaster, temperature);
 		this.random1 = random;
 		this.sim = aSim;
@@ -245,7 +245,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		force1.setAgentManager(atomAgent1);
 		force2.setAgentManager(atomAgent2);
 		
-		Species [] species = sim.getSpeciesManager().getSpecies();
+		ISpecies [] species = sim.getSpeciesManager().getSpecies();
 		
 		for(int i=0; i<species.length; i++){
 			box1.setNMolecules(species[i], box.getNMolecules(species[i]));
@@ -787,7 +787,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			
 		}
 		
-		public void setSpecies(Species[] species){
+		public void setSpecies(ISpecies[] species){
 			this.species = species;
 		}
 		
@@ -820,7 +820,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	   }
 		
 		
-		public Species [] species;
+		public ISpecies [] species;
 	}
 	
 }

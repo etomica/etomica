@@ -17,7 +17,7 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
 import etomica.chem.models.Model;
 import etomica.potential.IPotential;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * BondListener listens for Atoms being added to the Simulation, determines
@@ -62,7 +62,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
      * simulation.
      */
     public void addModel(Model newModel) {
-        Species species = newModel.getSpecies();
+        ISpecies species = newModel.getSpecies();
         Model.PotentialAndIterator[] bondIterators = newModel.getPotentials();
         bondIteratorsHash.put(species, bondIterators);
 
@@ -105,7 +105,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
      * should no longer be tracked.
      */
     public void removeModel(Model model) {
-        Species species = model.getSpecies();
+        ISpecies species = model.getSpecies();
         AtomIteratorMolecule moleculeIterator = new AtomIteratorMolecule(species);
         moleculeIterator.setBox(box);
         moleculeIterator.reset();

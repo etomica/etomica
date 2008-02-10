@@ -14,7 +14,7 @@ import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * PotentialMaster that uses both neighbor-cell iteration and cell-list 
@@ -107,7 +107,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         useNbrLists = flag;
     }
     
-    public void addPotential(IPotential potential, Species[] species) {
+    public void addPotential(IPotential potential, ISpecies[] species) {
         potentialMasterList.addPotential(potential, species);
         potentialMasterCell.addPotential(potential, species);
         if (potential instanceof PotentialGroup) {

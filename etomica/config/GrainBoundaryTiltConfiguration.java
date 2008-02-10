@@ -8,7 +8,7 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.space.IVector;
 import etomica.space.RotationTensor;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * 
@@ -23,13 +23,13 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     RotationTensor eulerRotationL2BoxBOTTOM;
     RotationTensor eulerRotationB2LatticeBOTTOM;
     BravaisLatticeCrystal latticeTOP, latticeBOTTOM;
-    Species [] species;
+    ISpecies [] species;
     double cutoff;
     double angle;
     double dist;
-    protected Species fixedSpecies, mobileSpecies;
+    protected ISpecies fixedSpecies, mobileSpecies;
     
-    public GrainBoundaryTiltConfiguration(BravaisLatticeCrystal aLatticeTOP, BravaisLatticeCrystal aLatticeBOTTOM, Species [] aSpecies, double aCutoff){
+    public GrainBoundaryTiltConfiguration(BravaisLatticeCrystal aLatticeTOP, BravaisLatticeCrystal aLatticeBOTTOM, ISpecies [] aSpecies, double aCutoff){
         super();    
         
         latticeTOP = aLatticeTOP;
@@ -44,19 +44,19 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
     }
     
-    public void setFixedSpecies(Species newFixedSpecies) {
+    public void setFixedSpecies(ISpecies newFixedSpecies) {
         fixedSpecies = newFixedSpecies;
     }
     
-    public void setMobileSpecies(Species newMobileSpecies) {
+    public void setMobileSpecies(ISpecies newMobileSpecies) {
         mobileSpecies = newMobileSpecies;
     }
     
-    public Species getFixedSpecies() {
+    public ISpecies getFixedSpecies() {
         return fixedSpecies;
     }
     
-    public Species getMobileSpecies() {
+    public ISpecies getMobileSpecies() {
         return mobileSpecies;
     }
     

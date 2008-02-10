@@ -14,7 +14,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.ParameterBase;
 import etomica.util.ReadParameters;
 import etomica.virial.ClusterAbstract;
@@ -104,7 +104,7 @@ public class VirialTangentSpheres {
         if (nSpheres > 2) {
             PotentialGroup pIntra = sim.integrators[1].getPotential().makePotentialGroup(1);
             pIntra.addPotential(p2,ApiBuilder.makeNonAdjacentPairIterator());
-            sim.integrators[1].getPotential().addPotential(pIntra,new Species[]{sim.species});
+            sim.integrators[1].getPotential().addPotential(pIntra,new ISpecies[]{sim.species});
         }
         
         if (p2 instanceof P2HardSphere) {

@@ -7,7 +7,7 @@ import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.util.IRandom;
 
 /**
@@ -23,7 +23,7 @@ import etomica.util.IRandom;
 public class CBMCGrowSolidHexane extends CBMCGrowStraightAlkane {
 
     public CBMCGrowSolidHexane(PotentialMaster p, IRandom random,
-            IntegratorMC integrator, Box phs, Species species, int NTrials) {
+            IntegratorMC integrator, Box phs, ISpecies species, int NTrials) {
         super(p, random, integrator, phs, species, 6, NTrials);
 
         if (p.getSpace().D() != 3) {

@@ -16,13 +16,13 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 public class VLESim2 extends Simulation {
 
     public final Box boxLiquid, boxVapor;
-    public final Species species;
+    public final ISpecies species;
     public final IntegratorMC integratorLiquid, integratorVapor;
     public final IntegratorManagerMC integratorGEMC;
     public final PotentialMaster potentialMaster;
@@ -60,7 +60,7 @@ public class VLESim2 extends Simulation {
         P2LennardJones p2LJ = new P2LennardJones(space, sigma, epsilon);
         potential = new P2SoftSphericalTruncatedBox(p2LJ);
         ((P2SoftSphericalTruncatedBox)potential).setTruncationFactor(0.35);
-        potentialMaster.addPotential(potential, new Species[]{species, species});
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
         
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.setBox(boxLiquid);

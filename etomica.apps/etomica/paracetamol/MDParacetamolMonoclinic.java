@@ -36,7 +36,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 
@@ -133,7 +133,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         integrator.addIntervalAction(nbrManager);
                
         PotentialGroup intramolecularpotential = potentialMaster.makePotentialGroup(1);
-        potentialMaster.addPotential(intramolecularpotential, new Species[]{species});
+        potentialMaster.addPotential(intramolecularpotential, new ISpecies[]{species});
         
         /*
          *  Bond Stretch Potential             

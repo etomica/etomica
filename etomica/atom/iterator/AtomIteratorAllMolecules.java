@@ -4,7 +4,7 @@ import etomica.atom.AtomSet;
 import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheres;
 import etomica.species.SpeciesSpheresMono;
 
@@ -48,9 +48,9 @@ public class AtomIteratorAllMolecules extends AtomIteratorAdapter
     public static void main(String args[]) {
 
         ISimulation sim = new Simulation();
-        Species species2 = new SpeciesSpheresMono(sim);
-        Species species1 = new SpeciesSpheres(sim, 3);
-        Species species0 = new SpeciesSpheres(sim, 2);
+        ISpecies species2 = new SpeciesSpheresMono(sim);
+        ISpecies species1 = new SpeciesSpheres(sim, 3);
+        ISpecies species0 = new SpeciesSpheres(sim, 2);
         sim.getSpeciesManager().addSpecies(species2);
         sim.getSpeciesManager().addSpecies(species1);
         sim.getSpeciesManager().addSpecies(species0);

@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Class for construction of iterators of molecules.  Iterators are given for looping
@@ -28,7 +28,7 @@ public class IteratorFactory implements java.io.Serializable {
      * @param species array used to determine type of iterator to return
      * @return an appropriate iterator for looping over molecules of the given species
      */
-    public AtomsetIteratorPDT makeMoleculeIterator(Species[] species) {
+    public AtomsetIteratorPDT makeMoleculeIterator(ISpecies[] species) {
         if (species == null || species.length == 0 || species.length > 2
                 || species[0] == null || species[species.length-1] == null) {
             throw new IllegalArgumentException("null or invalid number of species.  Must specify either 1 or 2 species instances.");
@@ -47,7 +47,7 @@ public class IteratorFactory implements java.io.Serializable {
      * between two groups
      * @return the pair iterator
      */
-    public AtomsetIteratorPDT makeInterspeciesPairIterator(Species[] species) {
+    public AtomsetIteratorPDT makeInterspeciesPairIterator(ISpecies[] species) {
         AtomsetIteratorPDT api1A = new ApiInterspecies1A(species);
         AtomsetIteratorBoxDependent apiAA = new ApiInterspeciesAA(species);
         return new ApiMolecule(api1A, apiAA);
@@ -58,7 +58,7 @@ public class IteratorFactory implements java.io.Serializable {
      * within one group
      * @return the pair iterator
      */
-    public AtomsetIteratorPDT makeIntraspeciesPairIterator(Species species) {
+    public AtomsetIteratorPDT makeIntraspeciesPairIterator(ISpecies species) {
         AtomsetIteratorPDT api1A = new ApiIntraspecies1A(species);
         AtomsetIteratorBoxDependent apiAA = new ApiIntraspeciesAA(species);
         return new ApiMolecule(api1A, apiAA);

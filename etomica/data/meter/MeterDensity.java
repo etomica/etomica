@@ -4,7 +4,7 @@ import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
 import etomica.box.Box;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
 import etomica.units.Volume;
@@ -24,10 +24,10 @@ public class MeterDensity extends DataSourceScalar {
         return info;
     }
     
-    public void setSpecies(Species s) {
+    public void setSpecies(ISpecies s) {
         species = s;
     }
-    public Species getSpecies() {
+    public ISpecies getSpecies() {
     	return species;
     }
 
@@ -54,5 +54,5 @@ public class MeterDensity extends DataSourceScalar {
 
     private static final long serialVersionUID = 1L;
     private Box box;
-    private Species species;
+    private ISpecies species;
 }

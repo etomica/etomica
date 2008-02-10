@@ -16,7 +16,7 @@ import etomica.box.Box;
 import etomica.chem.models.Model;
 import etomica.chem.models.Model.PotentialAndIterator;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 
 /**
@@ -94,7 +94,7 @@ public class PotentialMaster implements java.io.Serializable {
             pGroup.addPotential(potentialsAndIterators[i].getPotential(),
                     potentialsAndIterators[i].getIterator());
         }
-        addPotential(pGroup, new Species[]{newModel.getSpecies()});
+        addPotential(pGroup, new ISpecies[]{newModel.getSpecies()});
     }
     
     /**
@@ -106,7 +106,7 @@ public class PotentialMaster implements java.io.Serializable {
      * intra-species potential, defining the iteractions between molecules of the
      * same species).
      */
-    public void addPotential(IPotential potential, Species[] species) {
+    public void addPotential(IPotential potential, ISpecies[] species) {
     	if (potential.nBody() == 0) {
     		addPotential(potential, new AtomIterator0(),null);
     	}
@@ -236,7 +236,7 @@ public class PotentialMaster implements java.io.Serializable {
      * Returns an array containing the atom types for the molecules
      * corresponding to the given array of species.
      */
-    protected AtomType[] moleculeTypes(Species[] species) {
+    protected AtomType[] moleculeTypes(ISpecies[] species) {
         AtomType[] types = new AtomType[species.length];
         for(int i=0; i<species.length; i++) {
             types[i] = species[i].getMoleculeType();
@@ -244,8 +244,8 @@ public class PotentialMaster implements java.io.Serializable {
         return types;
     }
     
-    private Species[] moleculeSpecies(AtomType[] types) {
-        Species[] species = new Species[types.length];
+    private ISpecies[] moleculeSpecies(AtomType[] types) {
+        ISpecies[] species = new ISpecies[types.length];
         for (int i=0; i<types.length; i++) {
             species[i] = types[i].getSpecies();
         }

@@ -3,7 +3,7 @@ package etomica.virial;
 import etomica.config.Conformation;
 import etomica.models.water.SpeciesWater4P;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 
 /**
@@ -13,7 +13,7 @@ public class SpeciesFactoryWater4P implements SpeciesFactory, java.io.Serializab
     public SpeciesFactoryWater4P(Conformation conformation) {
         this.conformation = conformation;
     }
-    public Species makeSpecies(ISimulation sim) {
+    public ISpecies makeSpecies(ISimulation sim) {
         SpeciesWater4P species = new SpeciesWater4P(sim.getSpace());
         species.getMoleculeType().setConformation(conformation);
         return species;

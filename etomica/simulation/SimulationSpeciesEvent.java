@@ -1,18 +1,18 @@
 package etomica.simulation;
 
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 public class SimulationSpeciesEvent extends SimulationEvent {
 
-    public SimulationSpeciesEvent(Species species) {
+    public SimulationSpeciesEvent(ISpecies species) {
         super();
         this.species = species;
     }
 
-    public Species getSpecies() {
+    public ISpecies getSpecies() {
         return species;
     }
     
-    private final Species species;
+    private final ISpecies species;
     private static final long serialVersionUID = 1L;
 }

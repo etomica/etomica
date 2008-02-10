@@ -23,7 +23,7 @@ import etomica.lattice.SpaceLattice;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * @author K.R. Schadel with help from A. Schultz
@@ -85,29 +85,29 @@ public class GrainBoundaryConfiguration implements Configuration {
     	iteratorDimensionsB[3] = latticeB.getBasis().getScaledCoordinates().length;
     }
     
-    public void setSpeciesA(Species newSpeciesAFixed, Species newSpeciesAMobile) {
+    public void setSpeciesA(ISpecies newSpeciesAFixed, ISpecies newSpeciesAMobile) {
         speciesAFixed = newSpeciesAFixed;
         speciesAMobile = newSpeciesAMobile;
     }
     
-    public void setSpeciesB(Species newSpeciesBFixed, Species newSpeciesBMobile) {
+    public void setSpeciesB(ISpecies newSpeciesBFixed, ISpecies newSpeciesBMobile) {
         speciesBFixed = newSpeciesBFixed;
         speciesBMobile = newSpeciesBMobile;
     }
 
-    public Species getSpeciesAFixed() {
+    public ISpecies getSpeciesAFixed() {
         return speciesAFixed;
     }
 
-    public Species getSpeciesBFixed() {
+    public ISpecies getSpeciesBFixed() {
         return speciesBFixed;
     }
 
-    public Species getSpeciesAMobile() {
+    public ISpecies getSpeciesAMobile() {
         return speciesAMobile;
     }
 
-    public Species getSpeciesBMobile() {
+    public ISpecies getSpeciesBMobile() {
         return speciesBMobile;
     }
 
@@ -259,7 +259,7 @@ public class GrainBoundaryConfiguration implements Configuration {
     }
 
     private final BravaisLatticeCrystal latticeA, latticeB;
-    private Species speciesAFixed, speciesBFixed, speciesAMobile, speciesBMobile;
+    private ISpecies speciesAFixed, speciesBFixed, speciesAMobile, speciesBMobile;
     private final IndexIteratorSizable indexIteratorA, indexIteratorB;
     private final AtomActionTranslateTo atomActionTranslateTo;
     int[] iteratorDimensionsA = new int[4];

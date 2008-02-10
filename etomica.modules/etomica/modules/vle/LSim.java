@@ -32,7 +32,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
 import etomica.util.HistoryCollapsingAverage;
@@ -40,7 +40,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class LSim extends Simulation {
 
     public final Box boxLiquid;
-    public final Species species;
+    public final ISpecies species;
     public final IntegratorMC integratorLiquid;
     public final PotentialMaster potentialMaster;
     public final ActivityIntegrate activityIntegrate;
@@ -65,7 +65,7 @@ public class LSim extends Simulation {
         P2LennardJones p2LJ = new P2LennardJones(space, 1.0, 1.0);
         potential = new P2SoftSphericalTruncatedBox(p2LJ);
         potential.setBox(boxLiquid);
-        potentialMaster.addPotential(potential, new Species[]{species, species});
+        potentialMaster.addPotential(potential, new ISpecies[]{species, species});
         
         integratorLiquid = new IntegratorMC(potentialMaster, random, temperature);
         integratorLiquid.setBox(boxLiquid);

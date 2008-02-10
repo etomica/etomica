@@ -26,7 +26,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.units.Kelvin;
 
 /**
@@ -175,7 +175,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         		}
         if (simType ==3){
         	P2DLPOLY p2DLPOLY = new P2DLPOLY(space);
-        	potentialMaster.addPotential(p2DLPOLY, new Species[]{species, species});
+        	potentialMaster.addPotential(p2DLPOLY, new ISpecies[]{species, species});
         	
         } else {
         	WriteConfigurationP2DLPOLY configDLPOLY = new WriteConfigurationP2DLPOLY();
@@ -187,7 +187,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         
         	PotentialDLPOLY potentialDLPOLY = new PotentialDLPOLY(space);
         	//potentialDLPOLY.setConfigDLPOLY(configDLPOLY);
-        	potentialMaster.addPotential(potentialDLPOLY, new Species[0]);
+        	potentialMaster.addPotential(potentialDLPOLY, new ISpecies[0]);
         }
         integrator.setBox(box);
         

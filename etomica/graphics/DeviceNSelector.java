@@ -7,7 +7,7 @@ import etomica.action.activity.Controller;
 import etomica.box.Box;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Slider that selects the number of atoms of a given species in a box.
@@ -46,7 +46,7 @@ public class DeviceNSelector extends DeviceSlider {
         }
     }
     
-    public void setSpecies(Species newSpecies) {
+    public void setSpecies(ISpecies newSpecies) {
         species = newSpecies;
         if (box != null) {
             init();
@@ -57,7 +57,7 @@ public class DeviceNSelector extends DeviceSlider {
         return box;
     }
     
-    public Species getSpecies() {
+    public ISpecies getSpecies() {
         return species;
     }
     
@@ -79,7 +79,7 @@ public class DeviceNSelector extends DeviceSlider {
     }
     
     protected Action resetAction;
-    protected Species species;
+    protected ISpecies species;
     protected Box box;
     
     //main method to demonstrate and test class

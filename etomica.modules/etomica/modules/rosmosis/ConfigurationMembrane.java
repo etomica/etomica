@@ -15,7 +15,7 @@ import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.simulation.ISimulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 public class ConfigurationMembrane implements Configuration {
 
@@ -69,7 +69,7 @@ public class ConfigurationMembrane implements Configuration {
         pretendBox.setNMolecules(speciesSolvent, nMolecules - nSolutes);
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
-        Species[] fluidSpecies = new Species[]{speciesSolute, speciesSolvent};
+        ISpecies[] fluidSpecies = new ISpecies[]{speciesSolute, speciesSolvent};
         for (int iSpecies=0; iSpecies<2; iSpecies++) {
             molecules = pretendBox.getMoleculeList(fluidSpecies[iSpecies]);
             for (int i=molecules.getAtomCount()-1; i>-1; i--) {
@@ -210,31 +210,31 @@ public class ConfigurationMembrane implements Configuration {
         membraneDim = newMembraneDim;
     }
 
-    public Species getSpeciesSolute() {
+    public ISpecies getSpeciesSolute() {
         return speciesSolute;
     }
 
-    public void setSpeciesSolute(Species newSpeciesSolute) {
+    public void setSpeciesSolute(ISpecies newSpeciesSolute) {
         speciesSolute = newSpeciesSolute;
     }
 
-    public Species getSpeciesSolvent() {
+    public ISpecies getSpeciesSolvent() {
         return speciesSolvent;
     }
 
-    public void setSpeciesSolvent(Species newSpeciesSolvent) {
+    public void setSpeciesSolvent(ISpecies newSpeciesSolvent) {
         speciesSolvent = newSpeciesSolvent;
     }
 
-    public Species getSpeciesMembrane() {
+    public ISpecies getSpeciesMembrane() {
         return speciesMembrane;
     }
 
-    public void setSpeciesMembrane(Species newSpeciesMembrane) {
+    public void setSpeciesMembrane(ISpecies newSpeciesMembrane) {
         speciesMembrane = newSpeciesMembrane;
     }
 
-    protected Species speciesSolute, speciesSolvent, speciesMembrane;
+    protected ISpecies speciesSolute, speciesSolvent, speciesMembrane;
     protected double membraneThicknessPerLayer;
     protected int numMembraneLayers, membraneWidth;
     protected double solventChamberDensity, solutionChamberDensity;

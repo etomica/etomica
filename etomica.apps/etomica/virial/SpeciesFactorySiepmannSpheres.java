@@ -4,7 +4,7 @@ import etomica.config.ConformationChainZigZag;
 import etomica.simulation.ISimulation;
 import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * SpeciesFactory that makes Siepmann's alkane model.
@@ -21,7 +21,7 @@ public class SpeciesFactorySiepmannSpheres implements SpeciesFactory, java.io.Se
         conformation = new ConformationChainZigZag(space, vector1, vector2);
     }
     
-    public Species makeSpecies(ISimulation sim) {
+    public ISpecies makeSpecies(ISimulation sim) {
         SpeciesAlkane species = new SpeciesAlkane(sim, nA);
         species.getMoleculeType().setConformation(conformation);
         return species;

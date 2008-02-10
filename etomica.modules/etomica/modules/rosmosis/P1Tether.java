@@ -10,7 +10,7 @@ import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
 import etomica.space.IVector;
 import etomica.space.Tensor;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Potential for a harmonic tether.
@@ -21,7 +21,7 @@ import etomica.species.Species;
  */
 public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
 
-    public P1Tether(Box box, Species species) {
+    public P1Tether(Box box, ISpecies species) {
         super(box.getSpace());
         this.species = species;
         agentManager = new AtomAgentManager(this, box);
@@ -80,7 +80,7 @@ public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
 
     private static final long serialVersionUID = 1L;
     protected final AtomAgentManager agentManager;
-    protected final Species species;
+    protected final ISpecies species;
     protected final IVector work;
     protected final IVector[] gradient;
     protected double epsilon;

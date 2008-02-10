@@ -19,7 +19,7 @@ import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -78,7 +78,7 @@ public class TestYukawaMD3D extends Simulation{
 		P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
 		potentialMaster.setCellRange(3);
 		potentialMaster.setRange(potentialTruncated.getRange()*1.2);
-		potentialMaster.addPotential(potentialTruncated, new Species[] {species, species});
+		potentialMaster.addPotential(potentialTruncated, new ISpecies[] {species, species});
 		
 		new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
 		integrator.setBox(box);

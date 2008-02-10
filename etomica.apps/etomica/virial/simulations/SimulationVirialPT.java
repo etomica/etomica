@@ -16,7 +16,7 @@ import etomica.integrator.mcmove.MCMoveManager;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 import etomica.virial.BoxCluster;
 import etomica.virial.ClusterAbstract;
 import etomica.virial.ClusterWeight;
@@ -116,7 +116,7 @@ public class SimulationVirialPT extends Simulation {
             }
         }
         P0Cluster p0 = new P0Cluster(space);
-        potentialMaster.addPotential(p0,new Species[]{});
+        potentialMaster.addPotential(p0,new ISpecies[]{});
 	}
 	
     private static final long serialVersionUID = 1L;
@@ -125,7 +125,7 @@ public class SimulationVirialPT extends Simulation {
     public DataSource[] meterAcceptP;
 	public DataAccumulator[] accumulator;
 	public DataPump[] accumulatorPump;
-	public Species species;
+	public ISpecies species;
 	public ActivityIntegrate ai;
 	public IntegratorMC[] integrator;
 	public BoxCluster[] box;

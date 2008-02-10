@@ -7,7 +7,7 @@ import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.box.Box;
-import etomica.species.Species;
+import etomica.species.ISpecies;
 
 /**
  * Iterator for all the molecules of a set of species in a box.  Each iterate
@@ -24,7 +24,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
      * @param species species for which molecules are returned as iterates. Only
      * species[0] is relevant, and must not be null.
      */
-    public AtomIteratorAll(Species[] species) {
+    public AtomIteratorAll(ISpecies[] species) {
         this.species = species;
         next = new AtomsetArrayList();
     }
@@ -105,7 +105,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
     }
 
     private static final long serialVersionUID = 1L;
-    private final Species[] species;
+    private final ISpecies[] species;
     private Box box;
     private int nextCursor;
     private final AtomsetArrayList next;
