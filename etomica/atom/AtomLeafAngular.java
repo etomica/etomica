@@ -6,7 +6,7 @@ import etomica.space.Space;
 public class AtomLeafAngular extends AtomLeaf implements
         IAtomOriented {
 
-    public AtomLeafAngular(Space space, AtomType type) {
+    public AtomLeafAngular(Space space, AtomTypeLeaf type) {
         super(space, type);
         iOrientation = space.makeOrientation();
     }

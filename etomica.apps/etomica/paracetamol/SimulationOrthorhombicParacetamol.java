@@ -89,8 +89,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (potentialCC, truncationRadiusCC); 
-            potentialMaster.addPotential(interpotentialCC, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).cType} );
+            potentialMaster.addPotential(interpotentialCC, new AtomType[]{species.getCType(), species.getCType()} );
             
             // CA-HY
             if(truncationRadiusCHy > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -98,8 +97,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialCHy = new P2SoftSphericalTruncated (potentialCHy, truncationRadiusCHy); 
-            potentialMaster.addPotential(interpotentialCHy, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hyType} );
+            potentialMaster.addPotential(interpotentialCHy, new AtomType[]{species.getCType(), species.getHyType()} );
             
             // HY-HY
             if(truncationRadiusHyHy > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -107,8 +105,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialHyHy = new P2SoftSphericalTruncated (potentialHyHy, truncationRadiusHyHy); 
-            potentialMaster.addPotential(interpotentialHyHy, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).hyType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hyType} );
+            potentialMaster.addPotential(interpotentialHyHy, new AtomType[]{species.getHyType(), species.getHyType()} );
                    
             // CA-NI
             if(truncationRadiusCN > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -116,8 +113,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (potentialCN, truncationRadiusCN); 
-            potentialMaster.addPotential(interpotentialCN, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
+            potentialMaster.addPotential(interpotentialCN, new AtomType[]{species.getCType(), species.getNType()} );
             
             // NI-OX
             if(truncationRadiusNO > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -125,8 +121,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialNO = new P2SoftSphericalTruncated (potentialNO, truncationRadiusNO); 
-            potentialMaster.addPotential(interpotentialNO, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).nType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
+            potentialMaster.addPotential(interpotentialNO, new AtomType[]{species.getNType(), species.getOType()} );
             
             //NI-NI
             if(truncationRadiusNN > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -134,8 +129,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialNN = new P2SoftSphericalTruncated (potentialNN, truncationRadiusNN); 
-            potentialMaster.addPotential(interpotentialNN, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).nType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
+            potentialMaster.addPotential(interpotentialNN, new AtomType[]{species.getNType(), species.getNType()} );
             
             // HY-NI
             if(truncationRadiusHyN > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -143,8 +137,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialHyN = new P2SoftSphericalTruncated (potentialHyN, truncationRadiusHyN); 
-            potentialMaster.addPotential(interpotentialHyN, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).hyType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
+            potentialMaster.addPotential(interpotentialHyN, new AtomType[]{species.getHyType(), species.getNType()} );
             
             // HY-OX
             if(truncationRadiusHyO > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -152,8 +145,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialHyO = new P2SoftSphericalTruncated (potentialHyO, truncationRadiusHyO); 
-            potentialMaster.addPotential(interpotentialHyO, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).hyType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
+            potentialMaster.addPotential(interpotentialHyO, new AtomType[]{species.getHyType(), species.getOType()} );
                  
             // OX-OX
             if(truncationRadiusOO > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -161,8 +153,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (potentialOO, truncationRadiusOO); 
-            potentialMaster.addPotential(interpotentialOO, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).oType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
+            potentialMaster.addPotential(interpotentialOO, new AtomType[]{species.getOType(), species.getOType()} );
             
             // CA-OX
             if(truncationRadiusCO > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -170,8 +161,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (potentialCO, truncationRadiusCO); 
-            potentialMaster.addPotential(interpotentialCO, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
+            potentialMaster.addPotential(interpotentialCO, new AtomType[]{species.getCType(), species.getOType()} );
             
             // HP-HP
             if(truncationRadiusHpHp > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -179,8 +169,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialHpHp = new P2SoftSphericalTruncated (potentialHpHp, truncationRadiusHpHp); 
-            potentialMaster.addPotential(interpotentialHpHp, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).hpType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hpType} );
+            potentialMaster.addPotential(interpotentialHpHp, new AtomType[]{species.getHpType(), species.getHpType()} );
             
             // CA-HP
             if(truncationRadiusCHp > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -188,8 +177,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialCHp = new P2SoftSphericalTruncated (potentialCHp, truncationRadiusCHp); 
-            potentialMaster.addPotential(interpotentialCHp, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hpType} );
+            potentialMaster.addPotential(interpotentialCHp, new AtomType[]{species.getCType(), species.getHpType()} );
                    
             // HP-NI
             if(truncationRadiusHpN > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -197,8 +185,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialHpN = new P2SoftSphericalTruncated (potentialHpN, truncationRadiusHpN); 
-            potentialMaster.addPotential(interpotentialHpN, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).hpType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
+            potentialMaster.addPotential(interpotentialHpN, new AtomType[]{species.getHpType(), species.getNType()} );
             
             // OX-HP
             if(truncationRadiusOHp > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -206,8 +193,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		" Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialOHp = new P2SoftSphericalTruncated (potentialOHp, truncationRadiusOHp); 
-            potentialMaster.addPotential(interpotentialOHp, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).oType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hpType} );
+            potentialMaster.addPotential(interpotentialOHp, new AtomType[]{species.getOType(), species.getHpType()} );
             
             // HY-HP
             if(truncationRadiusHyHp > 0.5*box.getBoundary().getDimensions().x(0)) {
@@ -215,8 +201,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
                 		"Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
                 }
             P2SoftSphericalTruncated interpotentialHyHp = new P2SoftSphericalTruncated (potentialHyHp, truncationRadiusHyHp); 
-            potentialMaster.addPotential(interpotentialHyHp, new AtomType[]{(
-            		(AtomFactoryParacetamol)species.getMoleculeFactory()).hyType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).hpType} );
+            potentialMaster.addPotential(interpotentialHyHp, new AtomType[]{species.getHyType(), species.getHpType()} );
       
             potentialMaster.lrcMaster().setEnabled(false);
        

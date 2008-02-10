@@ -146,10 +146,10 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             // Check to see if this atom needs to be fixed.
             IMolecule a = null;
             if(transformedPosition.x(2)>(box.getBoundary().getDimensions().x(2)/2.0 - cutoff)){
-                a = (IMolecule)fixedSpecies.getMoleculeFactory().makeAtom();
+                a = fixedSpecies.makeMolecule();
             }
             else{
-                a = (IMolecule)mobileSpecies.getMoleculeFactory().makeAtom();
+                a = mobileSpecies.makeMolecule();
             }
             box.addMolecule(a);
             ((IAtomPositioned)a.getChildList().getAtom(0)).getPosition().E(transformedPosition);
@@ -218,10 +218,10 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
             // Check to see if this atom needs to be fixed. Notice signs/inequalities
             IMolecule a = null;
             if(transformedPosition.x(2)<(-box.getBoundary().getDimensions().x(2)/2.0 + cutoff)){
-                a = (IMolecule)fixedSpecies.getMoleculeFactory().makeAtom();
+                a = fixedSpecies.makeMolecule();
             }
             else{
-                a = (IMolecule)mobileSpecies.getMoleculeFactory().makeAtom();
+                a = mobileSpecies.makeMolecule();
             }
             box.addMolecule(a);
             ((IAtomPositioned)a.getChildList().getAtom(0)).getPosition().E(transformedPosition);

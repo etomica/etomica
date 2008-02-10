@@ -1,7 +1,16 @@
 package etomica.models.water;
 import java.lang.reflect.Constructor;
 
+import etomica.atom.AtomLeaf;
+import etomica.atom.AtomPositionGeometricCenter;
+import etomica.atom.AtomTypeMolecule;
+import etomica.atom.AtomTypeSphere;
+import etomica.atom.IMolecule;
+import etomica.chem.elements.ElementSimple;
+import etomica.chem.elements.Hydrogen;
+import etomica.chem.elements.Oxygen;
 import etomica.simulation.ISimulation;
+import etomica.space.Space;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;
 
@@ -10,12 +19,50 @@ import etomica.species.SpeciesSignature;
  */
 public class SpeciesWater4P extends Species {
     
-    private static final long serialVersionUID = 1L;
 
-    public SpeciesWater4P(ISimulation sim) {
-       super();
-       setMoleculeFactory(new AtomFactoryWater4P(sim, this));
-    }
+    public SpeciesWater4P(Space space) {
+        super(new AtomTypeMolecule(new AtomPositionGeometricCenter(space)));
+        this.space = space;
+        hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
+        oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
+        mType = new AtomTypeSphere(new ElementSimple("M", 1.0), 2.0);
+        atomType.addChildType(hType);
+        atomType.addChildType(oType);
+        atomType.addChildType(mType);
+
+        atomType.setConformation(new ConformationWaterTIP4P(space)); 
+     }
+
+     public IMolecule makeMolecule() {
+         isMutable = false;
+         AtomWater4P water = new AtomWater4P(atomType);
+         water.H1 = new AtomLeaf(space, hType);
+         water.H2 = new AtomLeaf(space, hType);
+         water.O = new AtomLeaf(space, oType);
+         water.M = new AtomLeaf(space, mType);
+         water.addChildAtom(water.H1);
+         water.addChildAtom(water.H2);
+         water.addChildAtom(water.O);
+         water.addChildAtom(water.M);
+         atomType.getConformation().initializePositions(water.getChildList());
+         return water;
+     }
+
+     public AtomTypeSphere getHydrogenType() {
+         return hType;
+     }
+
+     public AtomTypeSphere getOxygenType() {
+         return oType;
+     }
+
+     public AtomTypeSphere getMType() {
+         return mType;
+     }
+
+     public int getNumLeafAtoms() {
+         return 3;
+     }
     
     public SpeciesSignature getSpeciesSignature() {
         Constructor constructor = null;
@@ -27,4 +74,8 @@ public class SpeciesWater4P extends Species {
         }
         return new SpeciesSignature(constructor,new Object[]{});
     }
+
+    private static final long serialVersionUID = 1L;
+    protected final Space space;
+    protected final AtomTypeSphere oType, hType, mType;
 }

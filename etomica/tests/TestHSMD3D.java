@@ -2,7 +2,6 @@ package etomica.tests;
 
 import etomica.action.ActionIntegrate;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeMolecule;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.meter.MeterPressureHard;
@@ -13,7 +12,6 @@ import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -52,8 +50,8 @@ public class TestHSMD3D extends Simulation {
         getSpeciesManager().addSpecies(species);
         species2 = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species2);
-        AtomType type1 = ((AtomTypeMolecule)species.getMoleculeType()).getChildTypes()[0];
-        AtomType type2 = ((AtomTypeMolecule)species2.getMoleculeType()).getChildTypes()[0];
+        AtomType type1 = species.getLeafType();
+        AtomType type2 = species2.getLeafType();
 
         potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new AtomType[]{type1, type1});
 

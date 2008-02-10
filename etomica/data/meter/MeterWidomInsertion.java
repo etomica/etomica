@@ -64,7 +64,7 @@ public class MeterWidomInsertion extends DataSourceScalar {
      */
     public void setSpecies(Species s) {
         species = s;
-        testMolecule = (IMolecule)s.getMoleculeFactory().makeAtom();
+        testMolecule = s.makeMolecule();
     }
 
     /**

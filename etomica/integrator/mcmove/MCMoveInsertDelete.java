@@ -2,7 +2,6 @@ package etomica.integrator.mcmove;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomFactory;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IMolecule;
@@ -38,7 +37,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
 	protected boolean insert;
 	protected final AtomArrayList reservoir;
     protected final AtomActionTranslateTo atomTranslator;
-    protected AtomFactory moleculeFactory;
     protected AtomSet moleculeList;
     protected IRandom random;
 
@@ -58,7 +56,6 @@ public class MCMoveInsertDelete extends MCMoveBox {
         if(box != null) {
             moleculeList = box.getMoleculeList(species);
         }
-        moleculeFactory = species.getMoleculeFactory();
     }
     public Species getSpecies() {return species;}
     
@@ -80,7 +77,7 @@ public class MCMoveInsertDelete extends MCMoveBox {
             uOld = 0.0;
             
             if(!reservoir.isEmpty()) testMolecule = (IMolecule)reservoir.remove(reservoir.getAtomCount()-1);
-            else testMolecule = (IMolecule)moleculeFactory.makeAtom();
+            else testMolecule = species.makeMolecule();
             box.addMolecule(testMolecule);
 
             atomTranslator.setDestination(box.getBoundary().randomPosition());

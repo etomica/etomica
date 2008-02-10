@@ -120,7 +120,7 @@ public class Box implements java.io.Serializable {
     public final Space getSpace() {return space;}
     
     public IMolecule addNewMolecule(Species species) {
-        IMolecule aNew = (IMolecule)species.getMoleculeFactory().makeAtom();
+        IMolecule aNew = species.makeMolecule();
         addMolecule(aNew, species);
         return aNew;
     }
@@ -179,8 +179,8 @@ public class Box implements java.io.Serializable {
         int speciesIndex = species.getIndex();
         AtomArrayList moleculeList = moleculeLists[speciesIndex];
         int currentNMolecules = moleculeList.getAtomCount();
-        notifyNewAtoms((n-currentNMolecules)*species.getMoleculeFactory().getNumTreeAtoms(),
-                                     (n-currentNMolecules)*species.getMoleculeFactory().getNumLeafAtoms());
+        notifyNewAtoms((n-currentNMolecules)*(1+species.getNumLeafAtoms()),
+                                     (n-currentNMolecules)*species.getNumLeafAtoms());
         if(n < 0) {
             throw new IllegalArgumentException("Number of molecules cannot be negative");
         }

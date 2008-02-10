@@ -5,7 +5,7 @@ import etomica.space.Space;
 
 public class AtomLeafDynamic extends AtomLeaf implements IAtomKinetic {
 
-    public AtomLeafDynamic(Space space, AtomType type) {
+    public AtomLeafDynamic(Space space, AtomTypeLeaf type) {
         super(space, type);
         velocity = space.makeVector();
     }

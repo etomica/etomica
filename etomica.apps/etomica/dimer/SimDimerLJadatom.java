@@ -155,7 +155,7 @@ public class SimDimerLJadatom extends Simulation{
         config.initializeCoordinates(box); 
        
     //ADATOM CREATION AND PLACEMENT
-        IMolecule iMolecule = (IMolecule)movable.getMoleculeFactory().makeAtom();
+        IMolecule iMolecule = movable.makeMolecule();
         box.addMolecule(iMolecule);
         IVector adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
         adAtomPos.setX(0, box.getBoundary().getDimensions().x(0)/2+0.5);

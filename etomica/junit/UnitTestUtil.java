@@ -1,11 +1,6 @@
 package etomica.junit;
 
-import etomica.atom.AtomFactory;
-import etomica.atom.AtomFactoryHetero;
-import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomSet;
-import etomica.atom.AtomTypeLeaf;
-import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorTreeBox;
 import etomica.box.Box;
@@ -15,6 +10,7 @@ import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheres;
+import etomica.species.SpeciesSpheresHetero;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -120,16 +116,12 @@ public class UnitTestUtil {
         Box box = new Box(sim);
         sim.addBox(box);
         for (int i = 0; i < nMolecules.length; i++) {
-            Species species = new Species();
-            AtomFactoryHetero factory = new AtomFactoryHetero(sim, species);
-            species.setMoleculeFactory(factory);
-            AtomFactory[] childFactories = new AtomFactory[nAtoms[i].length];
-            for (int j = 0; j < childFactories.length; j++) {
-                AtomTypeLeaf atomType = new AtomTypeSphere(sim);
-                childFactories[j] = new AtomFactoryMono(space, atomType);
+            AtomTypeSphere[] leafTypes = new AtomTypeSphere[nAtoms[i].length];
+            for (int j = 0; j < nAtoms[i].length; j++) {
+                leafTypes[j] = new AtomTypeSphere(sim);
             }
-            factory.setChildFactory(childFactories);
-            factory.setChildCount(nAtoms[i]);
+            SpeciesSpheresHetero species = new SpeciesSpheresHetero(sim.getSpace(), false, leafTypes);
+            species.setChildCount(nAtoms[i]);
             sim.getSpeciesManager().addSpecies(species);
             box.setNMolecules(species, nMolecules[i]);
         }

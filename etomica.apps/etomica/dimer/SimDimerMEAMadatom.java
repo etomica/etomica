@@ -255,7 +255,7 @@ public class SimDimerMEAMadatom extends Simulation{
        
     //ADATOM CREATION AND PLACEMENT
         // Sn
-        IMolecule iMolecule = (IMolecule)movable.getMoleculeFactory().makeAtom();
+        IMolecule iMolecule = movable.makeMolecule();
         box.addMolecule(iMolecule);
         IVector adAtomPos = ((IAtomPositioned)iMolecule.getChildList().getAtom(0)).getPosition();
         adAtomPos.setX(0, 10.0);

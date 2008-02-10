@@ -1,37 +1,42 @@
 package etomica.virial;
 
-import etomica.atom.AtomFactoryMono;
-import etomica.atom.AtomFactoryMonoDynamic;
-import etomica.atom.AtomTypeMolecule;
-import etomica.atom.AtomTypeSphere;
+import etomica.atom.IMolecule;
+import etomica.atom.Molecule;
+import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementSimple;
-import etomica.config.ConformationLinear;
 import etomica.simulation.ISimulation;
-import etomica.species.Species;
+import etomica.species.SpeciesSpheresHetero;
 
-public class SpeciesAlkane extends Species {
+public class SpeciesAlkane extends SpeciesSpheresHetero {
 
     public SpeciesAlkane(ISimulation sim, int numCarbons) {
-        super();
-        setMoleculeFactory(new AtomFactoryAlkane(this, sim.getSpace(), new ConformationLinear(sim)));
-        AtomFactoryMono[] childFactories = new AtomFactoryMono[2];
-        AtomTypeSphere atomTypeCH3 = new AtomTypeSphere(new ElementSimple("CH3", 15));
-        atomTypeCH3.setParentType((AtomTypeMolecule)factory.getType());
-        childFactories[0] = sim.isDynamic() ?
-                   new AtomFactoryMonoDynamic(sim.getSpace(), atomTypeCH3) :
-                   new AtomFactoryMono(sim.getSpace(), atomTypeCH3);
-        AtomTypeSphere atomTypeCH2 = new AtomTypeSphere(new ElementSimple("CH2", 14));
-        atomTypeCH2.setParentType((AtomTypeMolecule)factory.getType());
-        childFactories[1] = sim.isDynamic() ?
-                   new AtomFactoryMonoDynamic(sim.getSpace(), atomTypeCH2) :
-                   new AtomFactoryMono(sim.getSpace(), atomTypeCH2);
-        ((AtomFactoryAlkane)factory).setChildFactory(childFactories);
-        ((AtomFactoryAlkane)factory).setTotalChildren(numCarbons);
-        if (numCarbons > 1) {
-            ((AtomFactoryAlkane)factory).setChildCount(new int[]{2,numCarbons-2});
+        super(sim.getSpace(), sim.isDynamic(), makeAtomTypeSpheres(new Element[]{new ElementSimple("CH3", 15), new ElementSimple("CH2", 14)}));
+        setTotalChildren(numCarbons);
+    }
+
+    public IMolecule makeMolecule() {
+        isMutable = false;
+        Molecule group = new Molecule(atomType);
+        //make straight alkane CH3-CH2-...-CH2-CH3
+        group.addChildAtom(makeLeafAtom(leafTypes[0]));
+        for(int j = 0; j < childCount[1]; j++) {
+            group.addChildAtom(makeLeafAtom(leafTypes[1]));
+        }
+        if (childCount[0] > 1) {
+            group.addChildAtom(makeLeafAtom(leafTypes[0]));
+        }
+        return group;
+    }
+    
+    public void setTotalChildren(int newTotalChildren) {
+        if (newTotalChildren > 1) {
+            childCount[0] = 2;
+            childCount[1] = newTotalChildren - 2;
         }
         else {
-            ((AtomFactoryAlkane)factory).setChildCount(new int[]{1,0});
+            childCount[0] = 1;
+            childCount[1] = 0;
         }
     }
+
 }

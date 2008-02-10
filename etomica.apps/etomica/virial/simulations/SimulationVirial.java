@@ -64,7 +64,7 @@ public class SimulationVirial extends Simulation {
             mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom());
             mcMoveRotate.setStepSize(Math.PI);
             if (species instanceof SpeciesSpheres) {
-                if (species.getMoleculeFactory().getNumChildAtoms() > 2) {
+                if (species.getNumLeafAtoms() > 2) {
                     mcMoveWiggle = new MCMoveClusterWiggleMulti(this,potentialMaster, nMolecules);
                     integrator.getMoveManager().addMCMove(mcMoveWiggle);
                     mcMoveReptate = new MCMoveClusterReptateMulti(this,potentialMaster, nMolecules-1);

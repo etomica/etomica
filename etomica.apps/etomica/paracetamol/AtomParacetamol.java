@@ -1,7 +1,7 @@
 package etomica.paracetamol;
 
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomType;
+import etomica.atom.IAtomPositioned;
 import etomica.atom.Molecule;
 
 public class AtomParacetamol extends Molecule {
@@ -10,8 +10,8 @@ public class AtomParacetamol extends Molecule {
 		super(atomType);
 	}
 	
-	public AtomLeaf O1, O2, C1, C2, C3, C4, C5, C6, C7, C8, N1;
-	public AtomLeaf H1, H2, H3, H4, H5, H6, H7, H8, H9;
+	public IAtomPositioned O1, O2, C1, C2, C3, C4, C5, C6, C7, C8, N1;
+	public IAtomPositioned H1, H2, H3, H4, H5, H6, H7, H8, H9;
 	
 	public final static int indexC1 = 0;
 	public final static int indexC2 = 1;

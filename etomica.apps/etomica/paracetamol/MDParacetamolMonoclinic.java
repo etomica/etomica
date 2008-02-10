@@ -325,7 +325,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusCC);
         P2SoftSphericalTruncated interpotentialCC = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3832.14700*11604.45728, 0.277778, 25.286949*11604.45728), truncationRadiusCC); 
-        potentialMaster.addPotential(interpotentialCC, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).cType} );
+        potentialMaster.addPotential(interpotentialCC, new AtomType[]{species.getCType(), species.getCType()} );
         
         if(truncationRadiusCO > 0.5*box.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
@@ -333,7 +333,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusCO);
         P2SoftSphericalTruncated interpotentialCO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3022.850200*11604.45728, 0.264550, 17.160239*11604.45728), truncationRadiusCO); 
-        potentialMaster.addPotential(interpotentialCO, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
+        potentialMaster.addPotential(interpotentialCO, new AtomType[]{species.getCType(), species.getOType()} );
         
         if(truncationRadiusCN > 0.5*box.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
@@ -341,7 +341,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusCN);
         P2SoftSphericalTruncated interpotentialCN = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 3179.514600*11604.45728, 0.271003, 19.006710*11604.45728), truncationRadiusCN); 
-        potentialMaster.addPotential(interpotentialCN, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).cType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
+        potentialMaster.addPotential(interpotentialCN, new AtomType[]{species.getCType(), species.getNType()} );
         
         if(truncationRadiusON > 0.5*box.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
@@ -349,7 +349,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusON);
         P2SoftSphericalTruncated interpotentialON = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2508.044800*11604.45728, 0.258398, 12.898341*11604.45728), truncationRadiusON); 
-        potentialMaster.addPotential(interpotentialON, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).oType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
+        potentialMaster.addPotential(interpotentialON, new AtomType[]{species.getOType(), species.getNType()} );
         
         if(truncationRadiusOO > 0.5*box.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
@@ -357,7 +357,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusOO);
         P2SoftSphericalTruncated interpotentialOO = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2384.465800*11604.45728, 0.252525, 11.645288*11604.45728), truncationRadiusOO); 
-        potentialMaster.addPotential(interpotentialOO, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).oType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).oType} );
+        potentialMaster.addPotential(interpotentialOO, new AtomType[]{species.getOType(), species.getOType()} );
         
         if(truncationRadiusNN > 0.5*box.getBoundary().getDimensions().x(0)) {
             throw new RuntimeException("Truncation radius too large.  Max allowed is"+0.5*box.getBoundary().getDimensions().x(0));
@@ -365,7 +365,7 @@ public class MDParacetamolMonoclinic extends Simulation {
         potentialMaster.setCellRange(2);
         potentialMaster.setRange(1.2*truncationRadiusNN);
         P2SoftSphericalTruncated interpotentialNN = new P2SoftSphericalTruncated (new P2ElectrostaticDreiding(space, 2638.028500*11604.45728, 0.264550, 14.286224*11604.45728), truncationRadiusNN); 
-        potentialMaster.addPotential(interpotentialNN, new AtomType[]{((AtomFactoryParacetamol)species.getMoleculeFactory()).nType, ((AtomFactoryParacetamol)species.getMoleculeFactory()).nType} );
+        potentialMaster.addPotential(interpotentialNN, new AtomType[]{species.getNType(), species.getNType()} );
         
         ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialCC)).setIntraMolecularCriterion(new CriterionNone());
         ((CriterionInterMolecular)potentialMaster.getCriterion(interpotentialCO)).setIntraMolecularCriterion(new CriterionNone());

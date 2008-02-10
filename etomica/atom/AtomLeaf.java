@@ -12,7 +12,7 @@ import etomica.util.Debug;
   */
 public class AtomLeaf extends Atom implements IAtomPositioned {
 
-    public AtomLeaf(Space space, AtomType type) {
+    public AtomLeaf(Space space, AtomTypeLeaf type) {
         super(type);
         position = space.makeVector();
     }

@@ -51,7 +51,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 			    testMolecule = (IMolecule)reservoir.remove(reservoir.getAtomCount()-1);
 			}
 			else {
-			    testMolecule = (IMolecule)moleculeFactory.makeAtom();
+			    testMolecule = species.makeMolecule();
 			}
             box.addMolecule(testMolecule);
 			position = (Vector3D)box.getBoundary().randomPosition();

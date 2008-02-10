@@ -1,6 +1,6 @@
 package etomica.species;
-import etomica.atom.AtomFactory;
 import etomica.atom.AtomTypeMolecule;
+import etomica.atom.IMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.SpeciesManager;
 
@@ -34,14 +34,18 @@ import etomica.simulation.SpeciesManager;
   * @see SpeciesAgent
   * @see PotentialMaster
   */
-public class Species implements java.io.Serializable {
+public abstract class Species implements java.io.Serializable {
 
     /**
      * Constructs species with molecules built by the given atom factory.
      * Species agents made by this species will have the given type for 
      * their (common) AtomType.
      */
-    public Species() {}
+    public Species(AtomTypeMolecule atomType) {
+        this.atomType = atomType;
+        atomType.setSpecies(this);
+        isMutable = true;
+    }
     
     public void resetIndex(SpeciesManager speciesManager) {
         Species[] allSpecies = speciesManager.getSpecies();
@@ -58,16 +62,25 @@ public class Species implements java.io.Serializable {
         return index;
     }
     
-    public void setMoleculeFactory(AtomFactory newMoleculeFactory) {
-        factory = newMoleculeFactory;
+    /**
+     * Builds and returns the atom/atomgroup made by this factory.
+     * Implementation of this method in the subclass defines the 
+     * product of this factory.
+     */
+    public abstract IMolecule makeMolecule();
+
+    /**
+     * Returns the number of leaf atoms descended from the Atom returned 
+     * by makeAtom.  This will be 1 if makeAtom returns a leaf atom.
+     */
+    public abstract int getNumLeafAtoms();
+    
+    public boolean isMutable() {
+        return isMutable;
     }
     
-    public AtomFactory getMoleculeFactory() {
-        return factory;
-    }
-    
-    public final AtomTypeMolecule getMoleculeType() {
-        return (AtomTypeMolecule)factory.getType();
+    public AtomTypeMolecule getMoleculeType() {
+        return atomType;
     }
     
     /**
@@ -81,7 +94,7 @@ public class Species implements java.io.Serializable {
     }
     
     private static final long serialVersionUID = 2L;
-//    final AtomType agentType;
-    protected AtomFactory factory;
+    protected final AtomTypeMolecule atomType;
+    protected boolean isMutable;
     protected int index;
 }

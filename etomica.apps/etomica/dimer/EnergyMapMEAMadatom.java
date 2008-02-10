@@ -175,7 +175,7 @@ public class EnergyMapMEAMadatom extends Simulation{
         config.initializeCoordinates(box); 
 
         // Sn
-        IMolecule adMolecule = (IMolecule)snAdatom.getMoleculeFactory().makeAtom();
+        IMolecule adMolecule = snAdatom.makeMolecule();
         box.addMolecule(adMolecule);
         IAtomPositioned adAtom = (IAtomPositioned)adMolecule.getChildList().getAtom(0);
 

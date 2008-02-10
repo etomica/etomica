@@ -125,7 +125,7 @@ public class SimulationVirialOverlap extends Simulation {
                 mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, potentialMaster);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 if (doWiggle) {
-                    if (species.getMoleculeFactory().getNumChildAtoms() > 2) {
+                    if (species.getNumLeafAtoms() > 2) {
                         mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules);
                         moveManager.addMCMove(mcMoveWiggle[iBox]);
                     }

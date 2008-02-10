@@ -2,7 +2,6 @@ package etomica.tests;
 import etomica.action.ActionIntegrate;
 import etomica.action.activity.Controller;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeMolecule;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.data.AccumulatorAverage;
@@ -21,7 +20,6 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -69,7 +67,7 @@ public class TestLJMC3D extends Simulation {
         P2SoftSphericalTruncated potentialTruncated = new P2SoftSphericalTruncated(potential, truncationRadius);
         potentialMaster.setCellRange(3);
         potentialMaster.setRange(potentialTruncated.getRange());
-        AtomType leafType = ((AtomTypeMolecule)species.getMoleculeType()).getChildTypes()[0];
+        AtomType leafType = species.getLeafType();
         potentialMaster.addPotential(potentialTruncated, new AtomType[] {leafType, leafType});
         integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
         

@@ -5,7 +5,11 @@ import etomica.simulation.ISimulation;
 public class ElementSimple extends Element {
 
     public ElementSimple(ISimulation sim) {
-        this(sim.getSpeciesManager().makeUniqueElementSymbol("E"), 1.0);
+        this(sim.getSpeciesManager().makeUniqueElementSymbol("E"));
+    }
+    
+    public ElementSimple(String symbol) {
+        this(symbol, 1.0);
     }
     
     public ElementSimple(String symbol, double mass) {

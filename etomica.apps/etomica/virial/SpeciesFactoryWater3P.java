@@ -10,6 +10,6 @@ import etomica.species.Species;
  */
 public class SpeciesFactoryWater3P implements SpeciesFactory, java.io.Serializable {
     public Species makeSpecies(ISimulation sim) {
-        return new SpeciesWater3P(sim);
+        return new SpeciesWater3P(sim.getSpace());
     }
 }

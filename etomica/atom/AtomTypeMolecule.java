@@ -16,8 +16,18 @@ public class AtomTypeMolecule extends AtomType {
     /**
      * Simple invokes parent constructor with same arguments.
      */
-    public AtomTypeMolecule(Species species, AtomPositionDefinition positionDefinition) {
+    public AtomTypeMolecule(AtomPositionDefinition positionDefinition) {
         super(positionDefinition);
+    }
+    
+    /**
+     * Sets the Species.  This may only be called once (typically from the
+     * Species constructor)
+     */
+    public void setSpecies(Species species) {
+        if (this.species != null) {
+            throw new RuntimeException("Can only call setSpecies once");
+        }
         this.species = species;
     }
     
@@ -59,7 +69,7 @@ public class AtomTypeMolecule extends AtomType {
     /**
      * Returns the array of child types of this group.
      */
-    public AtomType[] getChildTypes() {
+    public AtomTypeLeaf[] getChildTypes() {
         return childTypes;
     }
 
@@ -92,7 +102,7 @@ public class AtomTypeMolecule extends AtomType {
     
     private static final long serialVersionUID = 2L;
     protected Conformation conformation;
-    protected final Species species;
+    protected Species species;
     protected SpeciesManager speciesManager;
     protected AtomTypeLeaf[] childTypes = new AtomTypeLeaf[0];
 }

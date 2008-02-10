@@ -47,7 +47,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		ConfigurationLattice configuration = new ConfigurationLattice(lattice);
 		
 		ConformationWaterTIP4P config = new ConformationWaterTIP4P(space);
-		species = new SpeciesWater4P(this);
+		species = new SpeciesWater4P(space);
 		species.getMoleculeType().setConformation(config);
 		getSpeciesManager().addSpecies(species);
 		
@@ -80,8 +80,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		
 		//Potential
 		P2LennardJones potentialLJ = new P2LennardJones(space, 3.154,Kelvin.UNIT.toSim(78.02));
-		potentialMaster.addPotential(potentialLJ, new AtomType[]{
-		((AtomFactoryWater4P)species.getMoleculeFactory()).oFactory.getType(), ((AtomFactoryWater4P)species.getMoleculeFactory()).oFactory.getType()} );
+		potentialMaster.addPotential(potentialLJ, new AtomType[]{species.getOxygenType(), species.getOxygenType()} );
         
 		CriterionAll criterionAll = new CriterionAll();
 		
