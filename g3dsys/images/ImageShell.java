@@ -111,18 +111,15 @@ public class ImageShell extends Figure {
       int[] ia = iter.next();
       
       //build offsets as linear combination of vectors
-      for(int i=0; i<D; i++) {
+      for(int i=0; i<ia.length; i++) {
         /*
          * DCVGCMDGraphic gives 2-dimensional vectors, which is not what we
          * want; work around that by checking safety of each dimension before
          * building offsets. Normal 3D periodicity still works with this.
          */
-        if(ia.length >= 1)
-          dx += (float)( (ia[i]-numLayers) * vectors[3*i]);
-        if(ia.length >= 2)
-          dy += (float)( (ia[i]-numLayers) * vectors[3*i+1]);
-        if(ia.length >= 3)
-          dz += (float)( (ia[i]-numLayers) * vectors[3*i+2]);
+    	dx += (float)( (ia[i]-numLayers) * vectors[3*i]);
+        dy += (float)( (ia[i]-numLayers) * vectors[3*i+1]);
+        dz += (float)( (ia[i]-numLayers) * vectors[3*i+2]);
       }
       
       if(dx == dy && dy == dz && dz == 0) continue; //don't redraw original
