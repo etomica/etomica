@@ -95,7 +95,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 		stepLength = 0.05;
 		deltaR = 10E-4;
 		dTheta = 10E-4;
-		dFrot = 0.01;
+		dFrot = 0.1;
 		rotCounter = 0;
 		counter = 1;
 		Frot = 1;
@@ -117,7 +117,9 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
         }
 		
         // Check and see if we're at the minimum energy
+        if(counter>100){
         energyDimer();
+        }
         
 		// Step half-dimer toward the local energy minimum
 		walkDimer();
@@ -311,6 +313,7 @@ public class IntegratorDimerMin extends IntegratorBox implements AgentSource {
 			// Find actual rotation angle to minimize energy
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
+			System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
 			
              // Check deltaTheta vs. dTheta and adjust step size
             if (deltaTheta < 0){

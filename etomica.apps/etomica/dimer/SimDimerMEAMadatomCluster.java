@@ -22,7 +22,7 @@ public class SimDimerMEAMadatomCluster extends Simulation{
 	    	//Simulation 1 - MD and Dimer search
 	    	final SimDimerMEAMadatom sim1 = new SimDimerMEAMadatom(fileName, false, false, false, false, false, false);
 	    	sim1.activityIntegrateMD.setMaxSteps(mdSteps);
-	    	sim1.activityIntegrateDimer.setMaxSteps(1000);
+	    	sim1.activityIntegrateDimer.setMaxSteps(2000);
 	        sim1.getController().actionPerformed();
 	        /**
 	        //Simulation 2 - Fine grain Dimer search

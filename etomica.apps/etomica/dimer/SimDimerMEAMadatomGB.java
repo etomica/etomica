@@ -49,7 +49,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
     public IntegratorDimerRT integratorDimer;
     public Box box;
     public IVector [] saddle;
-    public SpeciesSpheresMono sn, snFix, snAdatom, ag, agFix, agAdatom, cu, cuFix, cuAdatom, movable;
+    public SpeciesSpheresMono fixed, movable;
     public PotentialMEAM potential;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer;
     
@@ -89,9 +89,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
         ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
         
         //Sn
-        colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.gray);
-        colorScheme.setColor(sim.snFix.getMoleculeType(),java.awt.Color.blue);
-        colorScheme.setColor(sim.snAdatom.getMoleculeType(),java.awt.Color.red);
+        colorScheme.setColor(sim.fixed.getMoleculeType(),java.awt.Color.gray);
         colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
         
         /**
@@ -131,20 +129,14 @@ public class SimDimerMEAMadatomGB extends Simulation{
         //Sn
         Tin tinFixed = new Tin("SnFix", Double.POSITIVE_INFINITY);
         
-        snFix = new SpeciesSpheresMono(this, tinFixed);
-        sn = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        snAdatom = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        fixed = new SpeciesSpheresMono(this, tinFixed);
         movable = new SpeciesSpheresMono(this, Tin.INSTANCE);
         
-        getSpeciesManager().addSpecies(snFix);
-        getSpeciesManager().addSpecies(sn);
-        getSpeciesManager().addSpecies(snAdatom);
+        getSpeciesManager().addSpecies(fixed);
         getSpeciesManager().addSpecies(movable);
         
         
-        ((AtomTypeSphere)snFix.getLeafType()).setDiameter(3.022); 
-        ((AtomTypeSphere)sn.getLeafType()).setDiameter(3.022);
-        ((AtomTypeSphere)snAdatom.getLeafType()).setDiameter(3.022);
+        ((AtomTypeSphere)fixed.getLeafType()).setDiameter(3.022); 
         ((AtomTypeSphere)movable.getLeafType()).setDiameter(3.022);
         
         /**
@@ -190,7 +182,8 @@ public class SimDimerMEAMadatomGB extends Simulation{
         box = new Box(new BoundaryRectangularSlit(space, random, 0, 5));
         addBox(box);
         
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{snAdatom},false, "SnAdatom");
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable},false, "SnAdatom");
+
         /**
         //Ag
         integratorDimer = new IntegratorDimerRT(this, potentialMaster, new Species[]{agAdatom}, "AgAdatom");
@@ -210,12 +203,10 @@ public class SimDimerMEAMadatomGB extends Simulation{
         // Sn
         potential = new PotentialMEAM(space);
         
-        potential.setParameters(snFix.getLeafType(), ParameterSetMEAM.Sn);
-        potential.setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
-        potential.setParameters(snAdatom.getLeafType(), ParameterSetMEAM.Sn);
+        potential.setParameters(fixed.getLeafType(), ParameterSetMEAM.Sn);
         potential.setParameters(movable.getLeafType(), ParameterSetMEAM.Sn);
         
-        this.potentialMaster.addPotential(potential, new AtomType[]{sn.getLeafType(), snFix.getLeafType(), snAdatom.getLeafType(), movable.getLeafType()});
+        this.potentialMaster.addPotential(potential, new AtomType[]{fixed.getLeafType(), movable.getLeafType()});
         
         /**
         //Ag
@@ -253,7 +244,8 @@ public class SimDimerMEAMadatomGB extends Simulation{
     	box.setDimensions(new Vector3D(5.8314*5, 5.8314*5, 3.1815*10));
         PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
-        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {snFix, sn}, 4.56);
+        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 4.56);
+
 
         /**
         //Ag
@@ -270,8 +262,10 @@ public class SimDimerMEAMadatomGB extends Simulation{
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
         GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new Species[] {cuFix, cu}, 4.56);
         */
-        
-        gbtilt.setRotation(1, 30*Math.PI/180);
+        gbtilt.setFixedSpecies(fixed);
+        gbtilt.setMobileSpecies(movable);
+        gbtilt.setRotationTOP(1, 30*Math.PI/180);
+        gbtilt.setRotationBOTTOM(1, 30*Math.PI/180);
         gbtilt.initializeCoordinates(box); 
 
         //Set movable atoms

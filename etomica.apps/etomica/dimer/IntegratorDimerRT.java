@@ -452,7 +452,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			deltaTheta = -0.5 * Math.atan(2.0*Frot/Fprimerot) - dTheta/2.0;				
 			if(Fprimerot>0){deltaTheta = deltaTheta + Math.PI/2.0;}
 			
-			System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
+			//System.out.println("Frot "+Frot+"    Fprimerot "+Fprimerot);
 			
 			// Check deltaTheta vs. dTheta and adjust step size
 			if (deltaTheta < 0){
