@@ -42,6 +42,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         eulerRotationL2BoxBOTTOM = latticeBOTTOM.getSpace().makeRotationTensor();
         eulerRotationB2LatticeBOTTOM = latticeBOTTOM.getSpace().makeRotationTensor();
         
+        resetRotation();
+        
     }
     
     public void setFixedSpecies(ISpecies newFixedSpecies) {
@@ -60,18 +62,37 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         return mobileSpecies;
     }
     
+    public void resetRotation(){
+    	eulerRotationL2BoxTOP.reset();
+    	eulerRotationL2BoxBOTTOM.reset();
+    	eulerRotationB2LatticeTOP.reset();
+    	eulerRotationB2LatticeBOTTOM.reset();
+    }
+    
     /**
      * Sets tensor for rotation about the indicated axis (0=x,1=y,2=z) by 
      * the given angle. Calls method from RotationTensor3D.
      */
-    public void setRotation(int axis, double aAngle){
+    public void setRotationTOP(int axis, double aAngle){
         angle = aAngle;
         
-        eulerRotationL2BoxTOP.setAxial(axis, angle);
-        eulerRotationL2BoxBOTTOM.setAxial(axis, -angle);
+        RotationTensor rotT = latticeTOP.getSpace().makeRotationTensor();
+        rotT.setAxial(axis, angle);
+        rotT.TE(eulerRotationL2BoxTOP);
+        eulerRotationL2BoxTOP.E(rotT);
         
         eulerRotationB2LatticeTOP.E(eulerRotationL2BoxTOP);
         eulerRotationB2LatticeTOP.inverse();
+                
+    }
+    
+    public void setRotationBOTTOM(int axis, double aAngle){
+        angle = aAngle;
+        
+        RotationTensor rotT = latticeTOP.getSpace().makeRotationTensor();       
+        rotT.setAxial(axis, -angle);
+        eulerRotationL2BoxBOTTOM.TE(rotT);
+        eulerRotationL2BoxBOTTOM.E(rotT);
         
         eulerRotationB2LatticeBOTTOM.E(eulerRotationL2BoxBOTTOM);
         eulerRotationB2LatticeBOTTOM.inverse();
@@ -232,7 +253,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         /**
          * REMOVE OVERLAPPING ATOMS AT GRAIN BOUNDARY INTERFACE
          */
-        dist = 0.0001;
+        dist = 0.5;
         
         IVector rij = box.getSpace().makeVector();
         
@@ -243,7 +264,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
                 
                 rij.E(((IAtomPositioned)box.getLeafList().getAtom(i)).getPosition());
                 rij.ME(((IAtomPositioned)box.getLeafList().getAtom(j)).getPosition());
-                
+                box.getBoundary().nearestImage(rij);
                 range = rij.squared();
                 
                 if(range<dist){
