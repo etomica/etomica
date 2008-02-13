@@ -1,8 +1,12 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
+import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.GrainBoundaryTiltConfiguration;
@@ -57,8 +61,8 @@ public class SimDimerMEAMadatomGB extends Simulation{
     	final String APP_NAME = "DimerMEAMadatomGB";
     	final SimDimerMEAMadatomGB sim = new SimDimerMEAMadatomGB();
     	
-    	sim.activityIntegrateMD.setMaxSteps(7);
-        sim.activityIntegrateDimer.setMaxSteps(1);
+    	sim.activityIntegrateMD.setMaxSteps(0);
+        sim.activityIntegrateDimer.setMaxSteps(1000);
         
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
         energyMeter.setBox(sim.box);
@@ -179,10 +183,10 @@ public class SimDimerMEAMadatomGB extends Simulation{
         ((AtomTypeSphere)movable.getMoleculeType()).setDiameter(2.5561);
          */
         
-        box = new Box(new BoundaryRectangularSlit(space, random, 0, 5));
+        box = new Box(new BoundaryRectangularSlit(space, random, 2, 5));
         addBox(box);
         
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable},false, "SnAdatom");
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable},false, "Sngb");
 
         /**
         //Ag
@@ -241,10 +245,12 @@ public class SimDimerMEAMadatomGB extends Simulation{
         //the unit cell to prevent distortion of the lattice.  The values for the 
         //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815 
         //angstroms) are taken from the ASM Handbook. 
-    	box.setDimensions(new Vector3D(5.8314*5, 5.8314*5, 3.1815*10));
-        PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
+    	double a = 5.92; 
+    	double c = 3.23;
+    	box.setDimensions(new Vector3D(a*3, (Math.sqrt( (4*Math.pow(c, 2)) +Math.pow(a,2)))*3, c*10));
+        PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, a, c);
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisBetaSnA5());
-        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 4.56);
+        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, c*5);
 
 
         /**
@@ -264,26 +270,24 @@ public class SimDimerMEAMadatomGB extends Simulation{
         */
         gbtilt.setFixedSpecies(fixed);
         gbtilt.setMobileSpecies(movable);
-        gbtilt.setRotationTOP(1, 30*Math.PI/180);
-        gbtilt.setRotationBOTTOM(1, 30*Math.PI/180);
+        gbtilt.setRotationTOP(0, 47.4975865422*Math.PI/180);
+        gbtilt.setRotationBOTTOM(0, 47.4975865422*Math.PI/180);
         gbtilt.initializeCoordinates(box); 
-
-        //Set movable atoms
-        /** 
+        
+    
+      //SET MOVABLE ATOMS
         IVector rij = space.makeVector();
         AtomArrayList movableList = new AtomArrayList();
-        AtomSet loopSet = box.getMoleculeList(cu);
-        
+        AtomSet loopSet = box.getMoleculeList(fixed);
         for (int i=0; i<loopSet.getAtomCount(); i++){
-            rij.Ev1Mv2(((IAtomPositioned)iAtom).getPosition(),((IAtomPositioned)loopSet.getAtom(i)).getPosition());  
-            if(rij.squared()<21.0){
+            rij.E(((IAtomPositioned)((IMolecule)loopSet.getAtom(i)).getChildList().getAtom(0)).getPosition());
+            if(rij.squared()<14.0){
                movableList.add(loopSet.getAtom(i));
             } 
         }
-       for (int i=0; i<movableList.getAtomCount(); i++){
-           ((IAtomPositioned)box.addNewMolecule(movable)).getPosition().E(((IAtomPositioned)movableList.getAtom(i)).getPosition());
-           box.removeMolecule(movableList.getAtom(i));
-       }
-       */
+        for (int i=0; i<movableList.getAtomCount(); i++){
+           ((IAtomPositioned)box.addNewMolecule(movable).getChildList().getAtom(0)).getPosition().E(((IAtomPositioned)((IMolecule)movableList.getAtom(i)).getChildList().getAtom(0)).getPosition());
+           box.removeMolecule((IMolecule)movableList.getAtom(i));
+        }        
     }
 }
