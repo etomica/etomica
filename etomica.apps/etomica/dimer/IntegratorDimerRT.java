@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.WriteConfiguration;
+import etomica.action.XYZWriter;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
@@ -78,6 +79,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	public IteratorDirective allatoms;
 	public String file;
 	public FileWriter fileWriter;
+	public XYZWriter xyzwrite;
 	public ActivityIntegrate activityIntegrate;
 	
 	
@@ -96,7 +98,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		this.movableSpecies = aspecies;
 		this.file = aFile;
 		this.startOrtho = aOrtho;
-		
+				
 		deltaR = 10E-4;
 		dXl = 10E-4;
 		deltaXl = 0;
@@ -120,6 +122,9 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 	
 	public void doStepInternal(){
 		System.out.println(((IAtomPositioned)list.getAtom(0)).getPosition().x(0)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(1)+"     "+((IAtomPositioned)list.getAtom(0)).getPosition().x(2));    
+		
+		//Write XYZ File
+		xyzwrite.actionPerformed();
 		
 		rotateDimerNewton();
 		
@@ -279,6 +284,10 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 			((IAtomPositioned)list1.getAtom(i)).getPosition().PEa1Tv1(deltaR, N[i]);
 			((IAtomPositioned)list2.getAtom(i)).getPosition().PEa1Tv1(-deltaR, N[i]);
 		}
+		
+		//XYZ Writer
+		xyzwrite = new XYZWriter(box);
+		xyzwrite.setFileName(file+".xyz");
 		
 		// Calculate F's
 		dimerForces(F1, F2, F);
