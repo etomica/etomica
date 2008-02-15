@@ -97,9 +97,9 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
         stepCount = 0;
         initialized = false;
         setup();
+        iieCount = interval;
         initialized = true;
         reset();
-        iieCount = interval;
     }
     
     /**
