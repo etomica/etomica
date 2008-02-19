@@ -10,7 +10,7 @@ import etomica.util.Debug;
   * @author David Kofke, Andrew Schultz, and C. Daniel Barnes
   * 
   */
-public class AtomLeaf extends Atom implements IAtomPositioned {
+public class AtomLeaf extends Atom implements IAtomLeaf, IAtomPositioned {
 
     public AtomLeaf(Space space, AtomTypeLeaf type) {
         super(type);
