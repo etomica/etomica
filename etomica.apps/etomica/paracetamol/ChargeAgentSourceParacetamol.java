@@ -12,10 +12,10 @@ import etomica.potential.EwaldSummation.MyCharge;
 public class ChargeAgentSourceParacetamol implements AgentSource {
 	
 	public ChargeAgentSourceParacetamol(){
-		myCharge = new MyCharge[AtomParacetamol.Echarge.length];
+		myCharge = new MyCharge[SpeciesParacetamol.Echarge.length];
 		
-		for (int i=0; i<AtomParacetamol.Echarge.length; i++){
-			myCharge[i] = new MyCharge(AtomParacetamol.Echarge[i]);
+		for (int i=0; i<SpeciesParacetamol.Echarge.length; i++){
+			myCharge[i] = new MyCharge(SpeciesParacetamol.Echarge[i]);
 			
 		}
 	}

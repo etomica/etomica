@@ -45,7 +45,7 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         if (true){
         	return 0;
         }
-        return constant*AtomParacetamol.Echarge[index0]*AtomParacetamol.Echarge[index1]/Math.sqrt(r2)
+        return constant*SpeciesParacetamol.Echarge[index0]*SpeciesParacetamol.Echarge[index1]/Math.sqrt(r2)
         		+ u(r2);        
         		
     }
@@ -61,7 +61,7 @@ public class P2ElectrostaticDreiding extends etomica.potential.P2Exp6 {
         int index0 = atom0.getIndex();
         int index1 = atom1.getIndex();
         
-        double sumU = du(r2) - constant*AtomParacetamol.Echarge[index0]*AtomParacetamol.Echarge[index1]/Math.sqrt(r2);
+        double sumU = du(r2) - constant*SpeciesParacetamol.Echarge[index0]*SpeciesParacetamol.Echarge[index1]/Math.sqrt(r2);
         
         gradient[1].Ea1Tv1(sumU/r2,dr);
         gradient[0].Ea1Tv1(-1,gradient[1]);
