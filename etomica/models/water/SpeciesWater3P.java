@@ -6,6 +6,7 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IMolecule;
+import etomica.atom.Molecule;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.simulation.ISimulation;
@@ -31,13 +32,10 @@ public class SpeciesWater3P extends Species {
     
     public IMolecule makeMolecule() {
         isMutable = false;
-        AtomWater3P water = new AtomWater3P(atomType);
-        water.H1 = new AtomLeaf(space, hType);
-        water.H2 = new AtomLeaf(space, hType);
-        water.O = new AtomLeaf(space, oType);
-        water.addChildAtom(water.H1);
-        water.addChildAtom(water.H2);
-        water.addChildAtom(water.O);
+        Molecule water = new Molecule(atomType);
+        water.addChildAtom(new AtomLeaf(space, hType));
+        water.addChildAtom(new AtomLeaf(space, hType));
+        water.addChildAtom(new AtomLeaf(space, oType));
         atomType.getConformation().initializePositions(water.getChildList());
         return water;
     }
@@ -64,7 +62,11 @@ public class SpeciesWater3P extends Species {
         }
         return new SpeciesSignature(constructor,new Object[]{});
     }
-    
+
+    public final static int indexH1 = 0;
+    public final static int indexH2 = 1;
+    public final static int indexO  = 2;
+
     private static final long serialVersionUID = 1L;
     protected final Space space;
     protected final AtomTypeSphere oType, hType;

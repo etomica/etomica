@@ -2,8 +2,11 @@
 package etomica.models.water;
 
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.potential.Potential2;
+import etomica.space.Boundary;
 import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Electron;
@@ -20,83 +23,114 @@ public class P2WaterTIP4P extends Potential2 {
 
     public P2WaterTIP4P(Space space) {
 	    super(space);
-	    setSigma(3.1540);
-	    setEpsilon(Kelvin.UNIT.toSim(78.02));
+	    work = space.makeVector();
+	    shift = space.makeVector();
+        sigma = 3.1540;
+        sigma2 = sigma*sigma;
+        epsilon = Kelvin.UNIT.toSim(78.02);
+        epsilon4 = 4*epsilon;
+        chargeH = Electron.UNIT.toSim(0.52);
+        chargeM = Electron.UNIT.toSim(-1.04);
+        chargeHH = chargeH*chargeH;
+        chargeHM = chargeM*chargeH;
+        chargeMM = chargeM*chargeM;
     }   
 
     public double energy(AtomSet atoms){
         double sum = 0.0;
         double r2 = 0.0;
 
-        AtomWater4P water1 = (AtomWater4P)atoms.getAtom(0);
-        AtomWater4P water2 = (AtomWater4P)atoms.getAtom(1);
+        AtomSet water1Atoms = ((IMolecule)atoms.getAtom(0)).getChildList();
+        AtomSet water2Atoms = ((IMolecule)atoms.getAtom(1)).getChildList();
 
-        IVector O1r = water1.O.getPosition();
-        IVector O2r = water2.O.getPosition();
-        IVector H11r = water1.H1.getPosition();
-        IVector H12r = water1.H2.getPosition();
-        IVector H21r = water2.H1.getPosition();
-        IVector H22r = water2.H2.getPosition();
-
-        IVector M1r = water1.M.getPosition();
-        IVector M2r = water2.M.getPosition();
+        IVector O1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
+        IVector O2r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
         
-		
-        final double core = 0.1;
+        work.Ev1Mv2(O1r, O2r);
+        shift.Ea1Tv1(-1,work);
+        boundary.nearestImage(work);
+        shift.PE(work);
+        final boolean zeroShift = shift.squared() < 0.1;
+        r2 = work.squared();
 
-        //compute O-O distance to consider truncation   
-        r2 = O1r.Mv1Squared(O2r);
-        
-        if(r2<core) return Double.POSITIVE_INFINITY;
+        if(r2<1.2) return Double.POSITIVE_INFINITY;
+
         double s2 = sigma2/(r2);
         double s6 = s2*s2*s2;
         sum += epsilon4*s6*(s6 - 1.0);
+        
+        IVector H11r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+        IVector H12r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
+        IVector H21r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+        IVector H22r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
 
-        r2 = H11r.Mv1Squared(H21r);
-        if(r2<core) return Double.POSITIVE_INFINITY;
-        sum += chargeHH/Math.sqrt(r2);
+        IVector M1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
+        IVector M2r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
 
-        r2 = H11r.Mv1Squared(H22r);
-        if(r2<core) return Double.POSITIVE_INFINITY;
-        sum += chargeHH/Math.sqrt(r2);
+        if (zeroShift) {
+            r2 = M1r.Mv1Squared(H21r);
+            sum += chargeHM/Math.sqrt(r2);
+            r2 = M1r.Mv1Squared(H22r);
+            sum += chargeHM/Math.sqrt(r2);
+            r2 = H11r.Mv1Squared(M2r);
+            sum += chargeHM/Math.sqrt(r2);
+            r2 = H11r.Mv1Squared(H21r);
+            sum += chargeHH/Math.sqrt(r2);
+            r2 = H11r.Mv1Squared(H22r);
+            sum += chargeHH/Math.sqrt(r2);
+            r2 = H12r.Mv1Squared(M2r);
+            sum += chargeHM/Math.sqrt(r2);
+            r2 = H12r.Mv1Squared(H21r);
+            sum += chargeHH/Math.sqrt(r2);
+            r2 = H12r.Mv1Squared(H22r);
+            sum += chargeHH/Math.sqrt(r2);
+        }
+        else {
+            shift.PE(M1r);
+            r2 = H21r.Mv1Squared(shift);
+            shift.ME(M1r);
+            sum += chargeHM/Math.sqrt(r2);
 
-        r2 = H12r.Mv1Squared(H21r);
-        if(r2<core) return Double.POSITIVE_INFINITY;
-        sum += chargeHH/Math.sqrt(r2);
+            shift.PE(M1r);
+            r2 = H22r.Mv1Squared(shift);
+            shift.ME(M1r);
+            sum += chargeHM/Math.sqrt(r2);
 
-        r2 = H12r.Mv1Squared(H22r);
-        if(r2<core) return Double.POSITIVE_INFINITY;
-        sum += chargeHH/Math.sqrt(r2);
+            shift.PE(H11r);
+            r2 = M2r.Mv1Squared(shift);
+            shift.ME(H11r);
+            sum += chargeHM/Math.sqrt(r2);
 
-        r2 = M1r.Mv1Squared(H21r);
-        if(r2<core) return Double.POSITIVE_INFINITY;
-        sum += chargeHM/Math.sqrt(r2);
+            shift.PE(H11r);
+            r2 = H21r.Mv1Squared(shift);
+            shift.ME(H11r);
+            sum += chargeHH/Math.sqrt(r2);
 
-        r2 = M1r.Mv1Squared(H22r);
-        if(r2<core) return Double.POSITIVE_INFINITY;
-        sum += chargeHM/Math.sqrt(r2);
+            shift.PE(H11r);
+            r2 = H22r.Mv1Squared(shift);
+            shift.ME(H11r);
+            sum += chargeHH/Math.sqrt(r2);
 
-        r2 = M2r.Mv1Squared(H11r);
-        if(r2<core) return Double.POSITIVE_INFINITY;
-        sum += chargeHM/Math.sqrt(r2);
+            shift.PE(H12r);
+            r2 = M2r.Mv1Squared(shift);
+            shift.ME(H12r);
+            sum += chargeHM/Math.sqrt(r2);
 
-        r2 = M2r.Mv1Squared(H12r);
-        if(r2<core) return Double.POSITIVE_INFINITY;
-        sum += chargeHM/Math.sqrt(r2);
+            shift.PE(H12r);
+            r2 = H21r.Mv1Squared(shift);
+            shift.ME(H12r);
+            sum += chargeHH/Math.sqrt(r2);
 
-        r2 = M1r.Mv1Squared(M2r);
-        if(r2<core) return Double.POSITIVE_INFINITY;
-        sum += chargeMM/Math.sqrt(r2);
+            shift.PE(H12r);
+            r2 = H22r.Mv1Squared(shift);
+            shift.ME(H12r);
+            sum += chargeHH/Math.sqrt(r2);
+        }
 
         return sum;																					        
     }
 
     public double getSigma() {return sigma;}
-
-    private final void setSigma(double s) {
-        sigma = s;
-        sigma2 = s*s;
-    }
 
     public final double getRange() {
         return Double.POSITIVE_INFINITY;
@@ -104,20 +138,18 @@ public class P2WaterTIP4P extends Potential2 {
     
     public double getEpsilon() {return epsilon;}
     
-    private final void setEpsilon(double eps) {
-        epsilon = eps;
-        epsilon4 = 4*epsilon;
-    }
-
     public void setBox(Box box) {
+        boundary = box.getBoundary();
     }
 
     private static final long serialVersionUID = 1L;
-    public double sigma , sigma2;
-    public double epsilon, epsilon4;
-    private final double chargeH = Electron.UNIT.toSim(0.52);
-    private final double chargeM = Electron.UNIT.toSim(-1.04);
-    private final double chargeHH = chargeH*chargeH;
-    private final double chargeHM = chargeM*chargeH;
-    private final double chargeMM = chargeM*chargeM;
+    protected final double sigma , sigma2;
+    protected final double epsilon, epsilon4;
+    protected Boundary boundary;
+    protected final IVector work, shift;
+    protected final double chargeH;
+    protected final double chargeM;
+    protected final double chargeHH;
+    protected final double chargeHM;
+    protected final double chargeMM;
 }

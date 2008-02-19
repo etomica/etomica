@@ -8,10 +8,10 @@ import etomica.potential.EwaldSummation.MyCharge;
 public class ChargeAgentSourceTIP4PWater implements AgentSource {
 	
 	public ChargeAgentSourceTIP4PWater(){
-		myCharge = new MyCharge[AtomWater4P.Echarge.length];
+		myCharge = new MyCharge[ConformationWaterTIP4P.Echarge.length];
 		
-		for (int i=0; i<AtomWater4P.Echarge.length; i++){
-			myCharge[i] = new MyCharge(AtomWater4P.Echarge[i]);
+		for (int i=0; i<ConformationWaterTIP4P.Echarge.length; i++){
+			myCharge[i] = new MyCharge(ConformationWaterTIP4P.Echarge[i]);
 			
 		}
 	}

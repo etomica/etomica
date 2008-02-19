@@ -3,6 +3,8 @@ package etomica.models.water;
 import Jama.Matrix;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
+import etomica.atom.IAtomPositioned;
+import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.potential.PotentialN;
@@ -79,25 +81,26 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
      * pair of atoms (dispersion + fixed-charge electrostatics)
      */
     public double getNonPolarizationEnergy(AtomSet atoms) {
-        AtomWater4P water1 = (AtomWater4P)atoms.getAtom(0);
-        AtomWater4P water2 = (AtomWater4P)atoms.getAtom(1);
+        AtomSet water1Atoms = ((IMolecule)atoms.getAtom(0)).getChildList();
+        AtomSet water2Atoms = ((IMolecule)atoms.getAtom(1)).getChildList();
 
-        IVector O1r = water1.O.getPosition();
-        IVector O2r = water2.O.getPosition();
-        IVector H11r = water1.H1.getPosition();
-        IVector H12r = water1.H2.getPosition();
-        IVector H21r = water2.H1.getPosition();
-        IVector H22r = water2.H2.getPosition();
-
-        IVector M1r = water1.M.getPosition();
-        IVector M2r = water2.M.getPosition();
-
+        IVector O1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
+        IVector O2r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexO)).getPosition();
+        
         double r2 = O1r.Mv1Squared(O2r);
         
         if(r2<=core) {
             return Double.POSITIVE_INFINITY;
         }
         
+        IVector H11r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+        IVector H12r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
+        IVector H21r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+        IVector H22r = ((IAtomPositioned)water2Atoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
+
+        IVector M1r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
+        IVector M2r = ((IAtomPositioned)water1Atoms.getAtom(SpeciesWater4P.indexM)).getPosition();
+
         double r = Math.sqrt(r2);
         double rOverSigma = r/sigma;
         double sigma2OverR2 = 1/(rOverSigma*rOverSigma);
@@ -166,10 +169,10 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
          */
 
         for (int i=0; i<atoms.getAtomCount(); i++) {
-            AtomWater4P atomi = (AtomWater4P)atoms.getAtom(i);
-            IVector O1r = atomi.O.getPosition();
-            IVector H11r = atomi.H1.getPosition();
-            IVector H12r = atomi.H2.getPosition();
+            AtomSet iLeafAtoms = ((IMolecule)atoms.getAtom(i)).getChildList();
+            IVector O1r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexO)).getPosition();
+            IVector H11r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+            IVector H12r = ((IAtomPositioned)iLeafAtoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
 
             comWi.Ea1Tv1(massH, H11r);
             comWi.PEa1Tv1(massO, O1r);
@@ -178,18 +181,22 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
             
             for (int j=0; j<atoms.getAtomCount(); j++) {
                 if  (i == j) continue;
-                AtomWater4P atomj = (AtomWater4P)atoms.getAtom(j);
-            
-                double comWtoH1 = Math.sqrt(comWi.Mv1Squared(atomj.H1.getPosition()));
-                double comWtoH2 = Math.sqrt(comWi.Mv1Squared(atomj.H2.getPosition()));
-                double comWtoM = Math.sqrt(comWi.Mv1Squared(atomj.M.getPosition()));
+                AtomSet jLeafAtoms = ((IMolecule)atoms.getAtom(j)).getChildList();
+                IVector Mjr = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexM)).getPosition();
+                IVector Ojr = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexO)).getPosition();
+                IVector Hj1r = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexH1)).getPosition();
+                IVector Hj2r = ((IAtomPositioned)jLeafAtoms.getAtom(SpeciesWater4P.indexH2)).getPosition();
+
+                double comWtoH1 = Math.sqrt(comWi.Mv1Squared(Hj1r));
+                double comWtoH2 = Math.sqrt(comWi.Mv1Squared(Hj2r));
+                double comWtoM = Math.sqrt(comWi.Mv1Squared(Mjr));
 
                 // For molecules that are far apart, fac=chargeX/comWtoX^3, but we add up
                 // facs for H and M, which mostly cancel each other out, so we lose quite 
                 // a bit of precision (~2-3 digits).
                 double fac = chargeH/(comWtoH1*comWtoH1*comWtoH1)*((1-SpecialFunctions.erfc(comWtoH1/sqrtHMsigmas))
                         -Math.sqrt(2)*comWtoH1/sqrtPiHMsigmas*Math.exp(-comWtoH1*comWtoH1/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-                work.Ev1Mv2(comWi, atomj.H1.getPosition());
+                work.Ev1Mv2(comWi, Hj1r);
                 work.TE(fac);
                 myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.x(0));
                 myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.x(1));
@@ -197,7 +204,7 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
     
                 fac = chargeH/(comWtoH2*comWtoH2*comWtoH2)*((1-SpecialFunctions.erfc(comWtoH2/sqrtHMsigmas))
                         -Math.sqrt(2)*comWtoH2/sqrtPiHMsigmas*Math.exp(-comWtoH2*comWtoH2/(2*(sigmaM*sigmaM+sigmaH*sigmaH))));
-                work.Ev1Mv2(comWi, atomj.H2.getPosition());
+                work.Ev1Mv2(comWi, Hj2r);
                 work.TE(fac);
                 myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.x(0));
                 myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.x(1));
@@ -205,24 +212,24 @@ public class PNWaterGCPM extends PotentialN implements PotentialPolarizable {
     
                 fac = chargeM/(comWtoM*comWtoM*comWtoM)*((1-SpecialFunctions.erfc(comWtoM/(2*sigmaM)))
                         -Math.sqrt(2)*comWtoM/sqrtPiMMsigmas*Math.exp(-comWtoM*comWtoM/(4*sigmaM*sigmaM)));
-                work.Ev1Mv2(comWi, atomj.M.getPosition());
+                work.Ev1Mv2(comWi, Mjr);
                 work.TE(fac);
                 myEq.set(i*3+0, 0, myEq.get(i*3+0, 0)+work.x(0));
                 myEq.set(i*3+1, 0, myEq.get(i*3+1, 0)+work.x(1));
                 myEq.set(i*3+2, 0, myEq.get(i*3+2, 0)+work.x(2));
                 
                 if (i<j) {
-                    double OOr2 = O1r.Mv1Squared(atomj.O.getPosition());
+                    double OOr2 = O1r.Mv1Squared(Ojr);
                     if (OOr2 < core) {
                         UpolAtkins = Double.NaN;
                         return UpolAtkins;
                     }
-                    comWj.Ea1Tv1(massH, atomj.H1.getPosition());
-                    comWj.PEa1Tv1(massO, atomj.O.getPosition());
-                    comWj.PEa1Tv1(massH, atomj.H2.getPosition());
+                    comWj.Ea1Tv1(massH, Hj1r);
+                    comWj.PEa1Tv1(massO, Ojr);
+                    comWj.PEa1Tv1(massH, Hj2r);
                     comWj.TE(1.0/totalMass);
                     
-                    rijVector.Ev1Mv2(comWj,comWi);  // is this the correct direction? kmb, 8/7/06
+                    rijVector.Ev1Mv2(comWj,comWi);
                     
                     double r12 = Math.sqrt(rijVector.squared());
 

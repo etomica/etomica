@@ -6,6 +6,7 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IMolecule;
+import etomica.atom.Molecule;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
@@ -35,15 +36,11 @@ public class SpeciesWater4P extends Species {
 
      public IMolecule makeMolecule() {
          isMutable = false;
-         AtomWater4P water = new AtomWater4P(atomType);
-         water.H1 = new AtomLeaf(space, hType);
-         water.H2 = new AtomLeaf(space, hType);
-         water.O = new AtomLeaf(space, oType);
-         water.M = new AtomLeaf(space, mType);
-         water.addChildAtom(water.H1);
-         water.addChildAtom(water.H2);
-         water.addChildAtom(water.O);
-         water.addChildAtom(water.M);
+         Molecule water = new Molecule(atomType);
+         water.addChildAtom(new AtomLeaf(space, hType));
+         water.addChildAtom(new AtomLeaf(space, hType));
+         water.addChildAtom(new AtomLeaf(space, oType));
+         water.addChildAtom(new AtomLeaf(space, mType));
          atomType.getConformation().initializePositions(water.getChildList());
          return water;
      }
@@ -74,6 +71,11 @@ public class SpeciesWater4P extends Species {
         }
         return new SpeciesSignature(constructor,new Object[]{});
     }
+
+    public final static int indexH1 = 0;
+    public final static int indexH2 = 1;
+    public final static int indexO  = 2;
+    public final static int indexM  = 3;
 
     private static final long serialVersionUID = 1L;
     protected final Space space;
