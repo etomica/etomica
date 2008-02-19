@@ -46,7 +46,7 @@ public interface Tensor extends Cloneable {
     public abstract void PEa1Tt1(double a1, Tensor t1);
     public abstract double trace();
     public abstract void transpose();
-    public abstract void inverse();
+    public abstract void invert();
     public abstract void TE(double a);
     public abstract void TE(Tensor t);
     public abstract void DE(Tensor t);

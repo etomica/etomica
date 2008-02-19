@@ -131,7 +131,7 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         	temp = zy; zy = yz; yz = temp;    	
     }
     
-    public void inverse() {
+    public void invert() {
         double txx=xx;double txy=xy;double txz=xz;
         double tyx=yx;double tyy=yy;double tyz=yz;
         double tzx=zx;double tzy=zy;double tzz=zz;

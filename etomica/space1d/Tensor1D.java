@@ -86,7 +86,7 @@ public class Tensor1D implements etomica.space.Tensor, java.io.Serializable {
     public void transpose() {
     }
 
-    public void inverse() {
+    public void invert() {
         xx = 1.0 / xx;
     }
 

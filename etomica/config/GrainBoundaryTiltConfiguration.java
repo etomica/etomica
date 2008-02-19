@@ -82,7 +82,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         eulerRotationL2BoxTOP.E(rotT);
         
         eulerRotationB2LatticeTOP.E(eulerRotationL2BoxTOP);
-        eulerRotationB2LatticeTOP.inverse();
+        eulerRotationB2LatticeTOP.invert();
                 
     }
     
@@ -95,7 +95,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         eulerRotationL2BoxBOTTOM.E(rotT);
         
         eulerRotationB2LatticeBOTTOM.E(eulerRotationL2BoxBOTTOM);
-        eulerRotationB2LatticeBOTTOM.inverse();
+        eulerRotationB2LatticeBOTTOM.invert();
                 
     }
     

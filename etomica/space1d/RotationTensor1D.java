@@ -10,5 +10,4 @@ public class RotationTensor1D extends Tensor1D implements etomica.space.Rotation
     public void setAxial(int i, double theta) {
     }
     public void setAngles(double[] angles) {}
-    public void invert() {}
 }

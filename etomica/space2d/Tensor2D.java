@@ -146,7 +146,7 @@ public class Tensor2D implements etomica.space.Tensor, java.io.Serializable {
         double temp = xy; xy = yx; yx = temp;
     }
     
-    public void inverse() {
+    public void invert() {
         double det = xx*yy -xy*yx;
         double temp = xx; 
         xx = yy/det; yy = temp/det;

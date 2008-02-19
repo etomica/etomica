@@ -40,7 +40,7 @@ public class BoxInflateDeformable extends BoxInflate{
         
         //get the edge vectors, and invert the tensor with them in it.
         tempTensInv.E(((BoundaryDeformablePeriodic)box.getBoundary()).boundaryTensor());
-        tempTensInv.inverse();
+        tempTensInv.invert();
         tempTens.E(((BoundaryDeformablePeriodic)box.getBoundary()).boundaryTensor());        
         
         

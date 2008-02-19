@@ -2,19 +2,14 @@ package etomica.space2d;
 
 import etomica.space.RotationTensor;
 
-
-
-
-/*
- * History
- * Created on Jan 24, 2005 by kofke
- */
 public class RotationTensor2D extends Tensor2D implements RotationTensor {
     public RotationTensor2D() {super(); reset();}
+
     public void reset() {
         xx = 1.0; xy = 0.0;
         yx = 0.0; yy = 1.0;
     }
+
     public void setAxial(int i, double theta) {
         double st = Math.sin(theta);
         double ct = Math.cos(theta);
@@ -25,6 +20,10 @@ public class RotationTensor2D extends Tensor2D implements RotationTensor {
             default: throw new IllegalArgumentException();
         }
     }
+    
+    //FIXME should have a setOrientation
+    
     public void setAngles(double[] angles) {}
-    public void invert() {xy *= -1; yx *= -1;}
+    
+    private static final long serialVersionUID = 1L;
 }

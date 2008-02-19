@@ -394,7 +394,7 @@ public class BoundaryDeformablePeriodic extends Boundary {
 //      h times a vector s gives coordinate r in lab frame; s elements are between 0,1 to be in box
         h.E(edgeVectors);//edge vectors in column format
         hInv.E(h);
-        hInv.inverse(); // to get point s in edgeVector frame, do hInv times r
+        hInv.invert(); // to get point s in edgeVector frame, do hInv times r
         
         for(int i=0; i<edgeVectors.length; i++) {
             dimensions.setX(i, Math.sqrt(edgeVectors[i].squared()));
