@@ -2,7 +2,6 @@ package etomica.atom;
 
 import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space3d.OrientationFull3D;
 
 /**
  * Molecule class appropriate for a rigid molecule in a dynamic context.  The
@@ -19,16 +18,8 @@ public class MoleculeOrientedDynamic extends MoleculeOriented implements IAtomOr
         velocity = space.makeVector();
     }
 
-    public OrientationFull3D getOrientation() {
-        return orientation;
-    }
-
     public IVector getAngularVelocity() {
         return angularMomentum;
-    }
-
-    public IVector getPosition() {
-        return position;
     }
 
     public IVector getVelocity() {
