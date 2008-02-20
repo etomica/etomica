@@ -121,7 +121,7 @@ public class SwmdGraphic extends SimulationGraphic {
         Unit tUnit = Kelvin.UNIT;
 
         eUnit = new UnitRatio(Joule.UNIT, Mole.UNIT);
-        lambda = 1.5;
+        lambda = 2.0;
         epsilon = eUnit.toSim(1500.0);
         mass = 40;
         sigma = 4.0;
