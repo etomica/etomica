@@ -101,6 +101,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     public MeterTemperature thermometer;
     public DisplayBox displayBox;
     public DeviceButton configButton, velocityButton;
+    public DeviceButton goFastButton;
     public ItemListener potentialChooserListener;
     public JComboBox potentialChooser;
     DeviceThermoSlider tempSlider;
@@ -127,6 +128,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
     protected boolean doConfigButton = false;
     protected boolean doRDF = false;
     protected boolean doDensityInput = false;
+    protected boolean doNMoleculeSlider = false;
 
     /**
      * Creates a PistonCylinder graphic instance.  init() must be called before
@@ -159,8 +161,15 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         doDensityInput = newDoDensityInput;
     }
 
+    /**
+     * Enable the # of molecules slider.  This must be called before init() is called.
+     */
+    public void setDoNMoleculeSlider(boolean newDoNMoleculeSlider) {
+        doNMoleculeSlider = newDoNMoleculeSlider;
+    }
+
     public void setRepaintInterval(int newRepaintInterval) {
-        pc.integrator.setIntervalActionPriority(getPaintAction(pc.box), newRepaintInterval);
+        pc.integrator.setActionInterval(getPaintAction(pc.box), newRepaintInterval);
     }
     
     /**
@@ -234,6 +243,12 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             configPanel.add(velocityButton.graphic(),horizGBC);
             getPanel().controlPanel.add(configPanel,vertGBC);
         }
+        
+        if (pc.getSpace().D() == 3) {
+            goFastButton = new DeviceButton(pc.getController());
+            goFastButton.setLabel("Go Fast");
+            getPanel().controlPanel.add(goFastButton.graphic(), vertGBC);
+        }
 
         //
         // State tabbed pane page
@@ -270,33 +285,35 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             densityBox.setController(pc.getController());
         }
 
-        nSlider = new DeviceNSelector();
-        nSlider.setLabel("Number of atoms");
-        nSlider.setShowBorder(true);
-        nSlider.setEditValues(true);
-        nSlider.setShowValues(true);
-        // add a listener to adjust the thermostat interval for different
-        // system sizes (since we're using ANDERSEN_SINGLE).  Smaller systems 
-        // don't need as much thermostating.
-        nSlider.getSlider().addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent evt) {
-                int n = (int)nSlider.getValue();
-                if(n == 0) {
-                    pc.integrator.setThermostatInterval(200);
+        if (doNMoleculeSlider) {
+            nSlider = new DeviceNSelector();
+            nSlider.setLabel("Number of atoms");
+            nSlider.setShowBorder(true);
+            nSlider.setEditValues(true);
+            nSlider.setShowValues(true);
+            // add a listener to adjust the thermostat interval for different
+            // system sizes (since we're using ANDERSEN_SINGLE).  Smaller systems 
+            // don't need as much thermostating.
+            nSlider.getSlider().addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent evt) {
+                    int n = (int)nSlider.getValue();
+                    if(n == 0) {
+                        pc.integrator.setThermostatInterval(200);
+                    }
+                    else {
+                    	pc.integrator.setThermostatInterval(200/n);
+                    }
+                    
+                    displayBox.repaint();
                 }
-                else {
-                	pc.integrator.setThermostatInterval(200/n);
-                }
-                
-                displayBox.repaint();
-            }
-        });
+            });
 
-        nSliderPanel = new JPanel(new GridLayout(0,1));
-        nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
-        nSlider.setShowBorder(false);
-        nSlider.setNMajor(4);
-        nSliderPanel.add(nSlider.graphic());
+            nSliderPanel = new JPanel(new GridLayout(0,1));
+            nSliderPanel.setBorder(new TitledBorder(null, "Number of Molecules", TitledBorder.CENTER, TitledBorder.TOP));
+            nSlider.setShowBorder(false);
+            nSlider.setNMajor(4);
+            nSliderPanel.add(nSlider.graphic());
+        }
 
 
         // Add all state page sub panels onto a single panel
@@ -307,8 +324,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         gbc2.gridx = 0;  gbc2.gridy = 1;
         statePanel.add(pressureSliderPanel, gbc2);
 
-        gbc2.gridx = 0;  gbc2.gridy = 2;
-        statePanel.add(nSliderPanel, gbc2);
+        if (doNMoleculeSlider) {
+            gbc2.gridx = 0;  gbc2.gridy = 2;
+            statePanel.add(nSliderPanel, gbc2);
+        }
 
         if (doDensityInput) {
             gbc2.gridx = 0;  gbc2.gridy = 3;
@@ -373,33 +392,38 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         //
 
 	    //slider for scale of display
-	    ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayBox, "scale");
-	    scaleModulator.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
-	    scaleSlider = new DeviceSlider(null, scaleModulator);
-	    scaleSlider.setShowValues(false);
-	    JPanel scaleSliderPanel = new JPanel();
-	    scaleSliderPanel.setBorder(new TitledBorder(null, "Graphic Size", TitledBorder.CENTER, TitledBorder.TOP));
-	    scaleSliderPanel.add(scaleSlider.graphic());
-	    scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
-	        public void stateChanged(javax.swing.event.ChangeEvent evt) {
-	        	displayBox.repaint();
-	        }
-	    });
-	    scaleSlider.setMinimum(10);
-	    scaleSlider.setMaximum(100);
-	    scaleSlider.getSlider().setValue(100);
-	    scaleSlider.setNMajor(0);
-	    scaleSlider.setSliderVerticalOrientation(false);
-	    java.util.Hashtable scaleLabels = new java.util.Hashtable();
-	    scaleLabels.put(new Integer(10), new JLabel( "min", JLabel.CENTER ));
-	    scaleLabels.put(new Integer(100), new JLabel( "max", JLabel.CENTER ));
-	    scaleSlider.getSlider().setLabelTable(scaleLabels);
+        JPanel scaleSliderPanel = null;
+        if (pc.getSpace().D() == 2) {
+            scaleSliderPanel = new JPanel();
+    	    ModifierFunctionWrapper scaleModulator = new ModifierFunctionWrapper(displayBox, "scale");
+    	    scaleModulator.setFunction(new etomica.util.Function.Linear(0.01, 0.0));
+    	    scaleSlider = new DeviceSlider(null, scaleModulator);
+    	    scaleSlider.setShowValues(false);
+    	    scaleSliderPanel.setBorder(new TitledBorder(null, "Graphic Size", TitledBorder.CENTER, TitledBorder.TOP));
+    	    scaleSliderPanel.add(scaleSlider.graphic());
+    	    scaleSlider.getSlider().addChangeListener(new javax.swing.event.ChangeListener() {
+    	        public void stateChanged(javax.swing.event.ChangeEvent evt) {
+    	        	displayBox.repaint();
+    	        }
+    	    });
+    	    scaleSlider.setMinimum(10);
+    	    scaleSlider.setMaximum(100);
+    	    scaleSlider.getSlider().setValue(100);
+    	    scaleSlider.setNMajor(0);
+    	    scaleSlider.setSliderVerticalOrientation(false);
+    	    java.util.Hashtable scaleLabels = new java.util.Hashtable();
+    	    scaleLabels.put(new Integer(10), new JLabel( "min", JLabel.CENTER ));
+    	    scaleLabels.put(new Integer(100), new JLabel( "max", JLabel.CENTER ));
+    	    scaleSlider.getSlider().setLabelTable(scaleLabels);
+        }
 
         DeviceDelaySlider delaySlider = new DeviceDelaySlider(pc.getController(), (ActivityIntegrate)pc.getController().getAllActions()[0]);
         
         // Add panels to the control panel
         getPanel().controlPanel.add(setupPanel, vertGBC);
-        getPanel().controlPanel.add(scaleSliderPanel, vertGBC);
+        if (scaleSliderPanel != null) {
+            getPanel().controlPanel.add(scaleSliderPanel, vertGBC);
+        }
         getPanel().controlPanel.add(delaySlider.graphic(), vertGBC);
         add(displayCycles);
         add(densityDisplayTextBox);
@@ -490,11 +514,15 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         displayBox.setAlign(1,DisplayBox.BOTTOM);
         displayBox.canvas.setDrawBoundary(DisplayCanvasInterface.DRAW_BOUNDARY_NONE);
         displayBox.getDrawables().clear();
-        // doesn't actually work for 3D
-        displayBox.addDrawable(pc.pistonPotential);
-        displayBox.addDrawable(pc.wallPotential);
-        // doesn't actually have any effect for 3D
-        scaleSlider.setController(pc.getController());
+        if (pc.getSpace().D() == 2) {
+            // doesn't actually work for 3D
+            displayBox.addDrawable(pc.pistonPotential);
+            displayBox.addDrawable(pc.wallPotential);
+        }
+        if (scaleSlider != null) {
+            // doesn't actually have any effect for 3D
+            scaleSlider.setController(pc.getController());
+        }
 
         //  control panel
         ModifierBoolean fixPistonModulator = new ModifierBoolean() {
@@ -581,17 +609,19 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         pressureSlider.getTextField().setEnabled(!pc.pistonPotential.isStationary());
 
 
-        nSlider.setController(pc.getController());
-        nSlider.setResetAction(new Action() {
-            public void actionPerformed() {
-                pc.integrator.resetPiston();
-                getController().getReinitButton().getAction().actionPerformed();
-            }
-        });
-        nSlider.setBox(pc.box);
-        nSlider.setSpecies(pc.species);
-        nSlider.setMinimum(0);
-        nSlider.setMaximum(200);
+        if (doNMoleculeSlider) {
+            nSlider.setController(pc.getController());
+            nSlider.setResetAction(new Action() {
+                public void actionPerformed() {
+                    pc.integrator.resetPiston();
+                    getController().getReinitButton().getAction().actionPerformed();
+                }
+            });
+            nSlider.setBox(pc.box);
+            nSlider.setSpecies(pc.species);
+            nSlider.setMinimum(0);
+            nSlider.setMaximum(200);
+        }
 
         if (doDensityInput) {
             densityBox.setLabelType(LabelType.BORDER);
@@ -608,7 +638,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotP.getDataSet().reset();
         
         thermometer.setBox(pc.box);
-        AccumulatorHistory temperatureHistory = new AccumulatorHistory();
+        final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(meterCycles);
         temperatureHistory.getHistory().setHistoryLength(historyLength);
         final AccumulatorAverage temperatureAvg = new AccumulatorAverageCollapsing(100);
@@ -627,7 +657,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 return tempSlider.getModifier().getValue();
             }
         };
-        AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
+        final AccumulatorHistory targetTemperatureHistory = new AccumulatorHistory();
         targetTemperatureHistory.setTimeDataSource(meterCycles);
         targetTemperatureHistory.getHistory().setHistoryLength(historyLength);
         DataPump targetTemperatureDataPump = new DataPump(targetTemperatureDataSource, targetTemperatureHistory);
@@ -639,7 +669,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         pressureMeter = new DataSourceWallPressure(pc.getSpace(),pc.pistonPotential);
         pressureMeter.setIntegrator(pc.integrator);
-        AccumulatorHistory pressureHistory = new AccumulatorHistory();
+        final AccumulatorHistory pressureHistory = new AccumulatorHistory();
         pressureHistory.setTimeDataSource(meterCycles);
         pressureHistory.getHistory().setHistoryLength(historyLength);
         final AccumulatorAverage pressureAvg = new AccumulatorAverageCollapsing(100);
@@ -658,7 +688,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 return pUnit.toSim(pressureSlider.getValue());
             }
         };
-        AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
+        final AccumulatorHistory targetPressureHistory = new AccumulatorHistory();
         targetPressureHistory.setTimeDataSource(meterCycles);
         targetPressureHistory.getHistory().setHistoryLength(historyLength);
         pump = new DataPump(targetPressureDataSource, targetPressureHistory);
@@ -670,7 +700,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
         densityMeter = new MeterDensity(pc.getSpace()); //pc.pistonPotential,1);
         densityMeter.setBox(pc.box);
-        AccumulatorHistory densityHistory = new AccumulatorHistory();
+        final AccumulatorHistory densityHistory = new AccumulatorHistory();
         densityHistory.setTimeDataSource(meterCycles);
         densityHistory.getHistory().setHistoryLength(historyLength);
         final AccumulatorAverage densityAvg = new AccumulatorAverageCollapsing(100);
@@ -759,6 +789,40 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 displayCycles.repaint();
             }
         });
+        
+        if (pc.getSpace().D() == 3) {
+            goFastButton.setAction(new Action() {
+                public void actionPerformed() {
+                    if (isFast) {
+                        isFast = false;
+                        goFastButton.setLabel("Go Fast");
+                        pc.integrator.setTimeStep(1);
+                        setRepaintInterval(1);
+                        pc.integrator.setEventInterval(1);
+                        densityHistory.setActive(true);
+                        temperatureHistory.setActive(true);
+                        pressureHistory.setActive(true);
+                        targetTemperatureHistory.setActive(true);
+                        targetPressureHistory.setActive(true);
+                    }
+                    else {
+                        isFast = true;
+                        goFastButton.setLabel("Go Slower");
+                        pc.integrator.setTimeStep(10);
+                        pc.ai.setSleepPeriod(0);
+                        setRepaintInterval(10000);
+                        pc.integrator.setEventInterval(1);
+                        densityHistory.setActive(false);
+                        temperatureHistory.setActive(false);
+                        pressureHistory.setActive(false);
+                        targetTemperatureHistory.setActive(false);
+                        targetPressureHistory.setActive(false);
+                    }
+                }
+                
+                protected boolean isFast = false;
+            });
+        }
     }
     
     public void setPotential(String potentialDesc) {
@@ -873,6 +937,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
         pcg.setDoRDF(true);
         pcg.setDoDensityInput(true);
+        pcg.setDoConfigButton(true);
+        pcg.setDoNMoleculeSlider(true);
         pcg.init();
 		SimulationGraphic.makeAndDisplayFrame(pcg.getPanel(), APP_NAME);
     }
@@ -898,6 +964,10 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             String doDensityInputStr = getParameter("doDensityInput");
             if (doDensityInputStr != null) {
                 pcg.setDoDensityInput(Boolean.valueOf(doDensityInputStr).booleanValue());
+            }
+            String doNMoleculeSlider = getParameter("doNMoleculeSlider");
+            if (doNMoleculeSlider != null) {
+                pcg.setDoNMoleculeSlider(Boolean.valueOf(doNMoleculeSlider).booleanValue());
             }
             pcg.init();
             String repaintIntervalStr = getParameter("repaintInterval");
