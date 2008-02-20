@@ -287,6 +287,7 @@ public class IntegratorDimerRT extends IntegratorBox implements AgentSource {
 		
 		//XYZ Writer
 		xyzwrite = new XYZWriter(box);
+		xyzwrite.setIsAppend(true);
 		xyzwrite.setFileName(file+".xyz");
 		
 		// Calculate F's
