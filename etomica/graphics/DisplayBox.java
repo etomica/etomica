@@ -34,7 +34,7 @@ public class DisplayBox extends Display {
     public static final int RIGHT = +1;
     public static final int TOP = -1;
     public static final int BOTTOM = +1;
-    public static boolean _3dEnabled;
+    //Explicit to 2D because drawing to 2D image
     private final int D = 2;
     protected ColorScheme colorScheme = new ColorSchemeByType();
     protected AtomFilter atomFilter = AtomFilterStatic.ACCEPT_ALL;
@@ -46,27 +46,26 @@ public class DisplayBox extends Display {
     //do not instantiate here; instead must be in graphic method
     public DisplayCanvasInterface canvas = null;
 
-//Explicit to 2D because drawing to 2D image
     public final int[] align = new int[D];
     
- /**
-  * Size of drawing region of central image, in pixels
-  *
-  * @see #computeDrawSize
-  */
+    /**
+     * Size of drawing region of central image, in pixels
+     *
+     * @see #computeDrawSize
+     */
     protected final int[] drawSize = new int[D];
    
- /**
-  * Factor used to scale the size of the image. May be used
-  * to scale up or down the image within one box without affecting those
-  * in other displays.  Default value is 1.0.
-  */
+    /**
+     * Factor used to scale the size of the image. May be used
+     * to scale up or down the image within one box without affecting those
+     * in other displays.  Default value is 1.0.
+     */
     protected double scale = 1.0;
           
-   /**
-    * Coordinate origin for central image
-    * Explicit to 2D because drawing is done to 2D image
-    */
+    /**
+     * Coordinate origin for central image
+     * Explicit to 2D because drawing is done to 2D image
+     */
     protected final int[] centralOrigin = new int[D];
     
     /**
