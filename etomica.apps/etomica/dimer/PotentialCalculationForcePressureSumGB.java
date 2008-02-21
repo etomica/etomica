@@ -2,8 +2,8 @@ package etomica.dimer;
 
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomsetIterator;
+import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculationForceSum;
@@ -24,10 +24,11 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
     private static final long serialVersionUID = 1L;
     protected final Tensor pressureTensor;
     protected ISpecies fixed;
+    protected Box box;
     
-    public PotentialCalculationForcePressureSumGB(Space space, ISpecies fixedSpecies) {
+    public PotentialCalculationForcePressureSumGB(Space space, Box box) {
         pressureTensor = space.makeTensor();
-        this.fixed = fixedSpecies;
+        this.box = box;
     }
     
     /**
@@ -47,7 +48,10 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
 	public void doCalculation(AtomsetIterator iterator, IPotential potential) {
 		PotentialSoft potentialSoft = (PotentialSoft)potential;
 		int nBody = potential.nBody();
-		double fixZsum = 0.0;
+		
+		IVector forceTop = potential.getSpace().makeVector();
+		IVector forceBottom = potential.getSpace().makeVector();
+		
 		iterator.reset();
 		for (AtomSet atoms = iterator.next(); atoms != null; atoms = iterator.next()) {
 			IVector[] f = potentialSoft.gradient(atoms, pressureTensor);
@@ -65,28 +69,35 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                     //array of vectors to be large enough for one AtomSet and then not resize it
                     //back down for another AtomSet with fewer atoms.
                     
-                    //Find average force in Z-direction and assign to all fixed atoms.
+                    //Find average force in Z-direction and assign to all atoms.
                     for (int i=0; i<atoms.getAtomCount(); i++){
-                        if(atoms.getAtom(i).getType().getSpecies()==fixed){
-                            fixZsum += f[i].x(2) / fixed.getNumLeafAtoms();
-                        }
-                    }
-                    for (int i=0; i<atoms.getAtomCount(); i++){
-                        if(atoms.getAtom(i).getType().getSpecies()==fixed){
-                            rij.E(((IAtomPositioned)((IMolecule)atoms.getAtom(i)).getChildList().getAtom(0)).getPosition());
-                            if(rij.x(2) < 0){
-                                f[i].setX(2,-fixZsum);
+                        rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());      
+                            if(rij.x(2)>0){
+                                forceTop.PE(f[i]);        
                             }
                             else{
-                                f[i].setX(2,fixZsum);
+                                forceBottom.PE(f[i]);
                             }
+                            
                         }
+                    } 
+			
+			        forceTop.TE(2.0/box.atomCount());
+			        forceBottom.TE(2.0/box.atomCount());
+			        
+                    for (int i=0; i<atoms.getAtomCount(); i++){
+                        rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());
+                        
+                        if(rij.x(2)>0){
+                            f[i].E(forceTop);
+                        }
+                        else{
+                            f[i].E(forceBottom);
+                        }
+                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
+                        
                     }
                     
-                    for (int i=0; i<atoms.getAtomCount(); i++) {
-                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
-                    }
-			}
 		}
 	}
 

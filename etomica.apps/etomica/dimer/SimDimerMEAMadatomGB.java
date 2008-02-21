@@ -1,12 +1,8 @@
 package etomica.dimer;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.AtomArrayList;
-import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.IAtomPositioned;
-import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.chem.elements.Tin;
 import etomica.config.GrainBoundaryTiltConfiguration;
@@ -55,13 +51,14 @@ public class SimDimerMEAMadatomGB extends Simulation{
     public IVector [] saddle;
     public SpeciesSpheresMono fixed, movable;
     public PotentialMEAM potential;
+    public PotentialCalculationForcePressureSumGB pcGB;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer;
     
     public static void main(String[] args){
     	final String APP_NAME = "DimerMEAMadatomGB";
     	final SimDimerMEAMadatomGB sim = new SimDimerMEAMadatomGB();
     	
-    	sim.activityIntegrateMD.setMaxSteps(0);
+    	sim.activityIntegrateMD.setMaxSteps(900);
         sim.activityIntegrateDimer.setMaxSteps(1000);
         
         MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
@@ -238,9 +235,12 @@ public class SimDimerMEAMadatomGB extends Simulation{
         this.potentialMaster.addPotential(potential, new Species[]{cu, cuFix, cuAdatom, movable});
          */
     	
-    	integratorMD.setBox(box);
+        integratorMD.setBox(box);
     	integratorDimer.setBox(box);
-    	integratorMD.setPCGB(fixed);
+    	
+    	pcGB = new PotentialCalculationForcePressureSumGB(space, box);
+    	
+    	//integratorMD.setForceSum(pcGB);
     	
     	//Sn
     	//beta-Sn box
