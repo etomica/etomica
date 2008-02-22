@@ -76,7 +76,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
         energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
         accumulatorAveragePE.setPushInterval(1);        
         
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, 1);
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
         simGraphic.add(/*"PE Plot",*/plotPE);
@@ -240,7 +240,7 @@ public class SimDimerMEAMadatomGB extends Simulation{
     	
     	pcGB = new PotentialCalculationForcePressureSumGB(space, box);
     	
-    	//integratorMD.setForceSum(pcGB);
+    	integratorMD.setForceSum(pcGB);
     	
     	//Sn
     	//beta-Sn box
