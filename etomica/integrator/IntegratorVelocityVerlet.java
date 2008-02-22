@@ -14,6 +14,7 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
@@ -27,7 +28,7 @@ import etomica.util.IRandom;
 public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSource {
 
     private static final long serialVersionUID = 2L;
-    protected PotentialCalculationForceSum forceSum;
+    protected PotentialCalculationForceSum forceSum;;
     private final IteratorDirective allAtoms;
     protected final Tensor pressureTensor;
     protected final Tensor workTensor;
@@ -56,6 +57,14 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     public static EtomicaInfo getEtomicaInfo() {
         EtomicaInfo info = new EtomicaInfo("Molecular dynamics using velocity Verlet integration algorithm");
         return info;
+    }
+    
+    public void setForceSum(PotentialCalculationForceSum pc){
+        forceSum = pc;
+        if(box != null){
+            forceSum.setAgentManager(agentManager);
+        }
+        
     }
     
     public void setBox(Box p) {
