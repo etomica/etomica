@@ -6,19 +6,14 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
 import etomica.atom.OrientationCalc;
-import etomica.box.Box;
-import etomica.integrator.IntegratorVelocityVerletQuaternion;
-import etomica.simulation.Simulation;
-import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.IVector;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
 import etomica.space3d.IVector3D;
 import etomica.space3d.RotationTensor3D;
-import etomica.space3d.Space3D;
 
-public class OrientationCalcWater extends ConformationWater3P implements IntegratorVelocityVerletQuaternion.OrientationCalc, 
+public class OrientationCalcWater extends ConformationWater3P implements 
                                              OrientationCalc, java.io.Serializable {
 
     public OrientationCalcWater(Space space) {
@@ -248,29 +243,6 @@ public class OrientationCalcWater extends ConformationWater3P implements Integra
         }
     }
     
-    public void setOrientation(IMolecule molecule, double[] quat) {
-        xWork.E(atomPositionCOM.position(molecule));
-        AtomSet childList = molecule.getChildList();
-        initializePositions(childList);
-        rotationTensor.setQuaternions(quat);
-        rotationTensor.invert();
-        for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
-            IAtomPositioned a = (IAtomPositioned)childList.getAtom(iChild);
-            IVector r = a.getPosition();
-            r.ME(com0);
-            rotationTensor.transform(r);
-            r.PE(xWork);
-        }
-        
-//        if (previousTensor.trace() != 0) {
-//            previousTensor.invert();
-//            workTensor.E(rotationTensor);
-//            workTensor.TE(previousTensor);
-////            System.out.println("previous -> this rotation\n"+workTensor);
-//        }
-//        previousTensor.E(rotationTensor);
-    }
-
     private static final long serialVersionUID = 1L;
 
     protected final IVector3D xWork, yWork, zWork;
@@ -280,153 +252,6 @@ public class OrientationCalcWater extends ConformationWater3P implements Integra
     protected boolean initialized;
     protected final RotationTensor previousTensor, workTensor;
     
-    public static void main(String[] args) {
-        Simulation sim = new Simulation(Space3D.getInstance(), true);
-        SpeciesWater3P species = new SpeciesWater3P(sim.getSpace());
-        AtomPositionCOM atomPositionCOM = new AtomPositionCOM(sim.getSpace());
-        IVector com = sim.getSpace().makeVector();
-        sim.getSpeciesManager().addSpecies(species);
-        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), 10));
-        sim.addBox(box);
-        box.setNMolecules(species, 1);
-        IMolecule molecule = (IMolecule)box.getMoleculeList().getAtom(0);
-//        Conformation conformation = ((AtomTypeMolecule)molecule.getType()).getConformation();
-        OrientationCalcWater calcer = new OrientationCalcWater(sim.getSpace());
-        double[] quat = new double[4];
-        RotationTensor3D rotationTensor = (RotationTensor3D)sim.getSpace().makeRotationTensor();
-
-        calcer.initializePositions(molecule.getChildList());
-        com.E(atomPositionCOM.position(molecule));
-        calcer.calcOrientation(molecule, quat);
-        System.out.println(quat[0]+" "+quat[1]+" "+quat[2]+" "+quat[3]);
-        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
-        System.out.println();
-
-        calcer.initializePositions(molecule.getChildList());
-        rotationTensor.setAxial(2, 0.2);
-        doTransform(molecule, com, rotationTensor);
-        calcer.calcOrientation(molecule, quat);
-        System.out.println(quat[0]+" "+quat[1]+" "+quat[2]+" "+quat[3]);
-        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
-        System.out.println();
-
-        calcer.initializePositions(molecule.getChildList());
-        rotationTensor.setAxial(2, -0.2);
-        doTransform(molecule, com, rotationTensor);
-        calcer.calcOrientation(molecule, quat);
-        System.out.println(quat[0]+" "+quat[1]+" "+quat[2]+" "+quat[3]);
-        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
-        System.out.println();
-
-        calcer.initializePositions(molecule.getChildList());
-        rotationTensor.setAxial(1, 0.2);
-        doTransform(molecule, com, rotationTensor);
-        calcer.calcOrientation(molecule, quat);
-        System.out.println(quat[0]+" "+quat[1]+" "+quat[2]+" "+quat[3]);
-        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
-        System.out.println();
-
-        calcer.initializePositions(molecule.getChildList());
-        rotationTensor.setAxial(1, -0.2);
-        doTransform(molecule, com, rotationTensor);
-        calcer.calcOrientation(molecule, quat);
-        System.out.println(quat[0]+" "+quat[1]+" "+quat[2]+" "+quat[3]);
-        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
-        System.out.println();
-
-        calcer.initializePositions(molecule.getChildList());
-        rotationTensor.setAxial(0, 0.2);
-        doTransform(molecule, com, rotationTensor);
-        calcer.calcOrientation(molecule, quat);
-        System.out.println(quat[0]+" "+quat[1]+" "+quat[2]+" "+quat[3]);
-        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
-        System.out.println();
-
-        calcer.initializePositions(molecule.getChildList());
-        rotationTensor.setAxial(0, -0.2);
-        doTransform(molecule, com, rotationTensor);
-        calcer.calcOrientation(molecule, quat);
-        System.out.println(quat[0]+" "+quat[1]+" "+quat[2]+" "+quat[3]);
-        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
-        System.out.println();
-
-        calcer.initializePositions(molecule.getChildList());
-        rotationTensor.setAxial(2, -0.2);
-        doTransform(molecule, com, rotationTensor);
-        rotationTensor.setAxial(0, 0.2);
-        doTransform(molecule, com, rotationTensor);
-        calcer.calcOrientation(molecule, quat);
-        System.out.println(quat[0]+" "+quat[1]+" "+quat[2]+" "+quat[3]);
-        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
-        System.out.println();
-        
-        calcer.initializePositions(molecule.getChildList());
-        rotationTensor.setAxial(2, 0.2);
-        doTransform(molecule, com, rotationTensor);
-        rotationTensor.setAxial(0, -0.2);
-        doTransform(molecule, com, rotationTensor);
-        rotationTensor.setAxial(2, 0.4);
-        doTransform(molecule, com, rotationTensor);
-        calcer.calcOrientation(molecule, quat);
-        System.out.println(quat[0]+" "+quat[1]+" "+quat[2]+" "+quat[3]);
-        System.out.println((quat[0]*quat[0]+quat[1]*quat[1]+quat[2]*quat[2]+quat[3]*quat[3]));
-        System.out.println();
-        
-        RotationTensor fullRotation = sim.getSpace().makeRotationTensor();
-        
-        AtomSet children = molecule.getChildList();
-        calcer.initializePositions(children);
-        IVector H1orig = sim.getSpace().makeVector();
-        IVector H2orig = sim.getSpace().makeVector();
-        IVector Oorig = sim.getSpace().makeVector();
-        IVector H1pos = ((IAtomPositioned)children.getAtom(0)).getPosition();
-        IVector H2pos = ((IAtomPositioned)children.getAtom(1)).getPosition();
-        IVector Opos = ((IAtomPositioned)children.getAtom(2)).getPosition();
-        H1orig.E(H1pos);
-        H2orig.E(H2pos);
-        Oorig.E(Opos);
-        for (int j=0; j<50; j++) {
-            calcer.initializePositions(children);
-            fullRotation.E(0);
-            fullRotation.setComponent(0, 0, 1);
-            fullRotation.setComponent(1, 1, 1);
-            fullRotation.setComponent(2, 2, 1);
-            for (int i=0; i<3; i++) {
-                int axis = sim.getRandom().nextInt(3);
-                axis = ((i+1)*2) % 4;
-                double theta;
-                if (i == 2) {
-                    theta = (sim.getRandom().nextDouble()-0.5)*(Math.PI-0.0001);
-                }
-                else {
-                    theta = (sim.getRandom().nextDouble()-0.5)*2*(Math.PI-0.0001);
-                }
-                System.out.println("rotating "+axis+" "+theta);
-                rotationTensor.setAxial(axis, theta);
-                System.out.println("axial rotation tensor\n "+rotationTensor);
-                doTransform(molecule, com, rotationTensor);
-                rotationTensor.TE(fullRotation);
-                fullRotation.E(rotationTensor);
-            }
-            System.out.println("full rotation tensor\n "+fullRotation);
-            calcer.calcOrientation(molecule, quat);
-            rotationTensor.setQuaternions(quat);
-            System.out.println("quat rotation tensor\n "+rotationTensor);
-            doTransform(molecule, com, rotationTensor);
-            rotationTensor.invert();
-            System.out.println("inverted quat rotation tensor\n"+rotationTensor);
-            H1pos.ME(H1orig);
-            H2pos.ME(H2orig);
-            Opos.ME(Oorig);
-            if (H1pos.squared() + H2pos.squared() + Opos.squared() > 1.e-8) {
-                System.out.println("pos diff "+ H1pos+" "+H2pos+" "+Opos);
-                throw new RuntimeException("oops "+ H1pos+" "+H2pos+" "+Opos);
-            }
-            System.out.println("success\n\n");
-        }
-        
-    }
-
     protected static void doTransform(IMolecule molecule, IVector r0, RotationTensor rotationTensor) {
         AtomSet childList = molecule.getChildList();
         for (int iChild = 0; iChild<childList.getAtomCount(); iChild++) {
