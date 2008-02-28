@@ -244,8 +244,7 @@ public class P1HardMovingBoundary extends Potential1 implements PotentialHard, D
         virialSum = 0.0;
         return s;
     }
-        
-    
+
     public double lastCollisionVirial() {return 0;}
     
     /**
