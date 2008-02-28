@@ -146,22 +146,7 @@ public abstract class Potential0Lrc extends Potential0 implements PotentialSoft 
         }
         return (int)Math.round(nPairs/divisor);
     }
-    
-    /**
-     * Long-range correction to the energy u.
-     */
-    public abstract double uCorrection(double pairDensity);
-        
-    /**
-    * Long-range correction to r*du/dr.
-    */
-    public abstract double duCorrection(double pairDensity);
-    
-    /**
-    * Long-range correction to r^2 d2u/dr2.
-    */
-    public abstract double d2uCorrection(double pairDensity);
-    
+
     protected double divisor;
     protected Box box;
 
