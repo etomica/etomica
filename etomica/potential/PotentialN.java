@@ -9,9 +9,6 @@ import etomica.space.Space;
  * otherwise not naturally expressed as a single-, pair-, etc-body potential.
  */
 
-/* History
- * 08/29/03 (DAK) new; introduced for etomica.research.nonequilwork.PotentialOSInsert
- */
 public abstract class PotentialN extends Potential {
 
 	/**
@@ -19,10 +16,6 @@ public abstract class PotentialN extends Potential {
 	 * @param sim
 	 */
 	public PotentialN(Space space){
-		this(space, Integer.MAX_VALUE);
-	}
-	
-	public PotentialN(Space space, int nBody) {
-		super(nBody, space);
+		super(Integer.MAX_VALUE, space);
 	}
 }
