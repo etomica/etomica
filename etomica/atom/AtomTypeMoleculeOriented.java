@@ -42,7 +42,7 @@ public class AtomTypeMoleculeOriented extends AtomTypeMolecule {
      * molecule within the body-fixed frame.  Do NOT modify the returned moment
      * of inertia returned.
      */
-    public IVector momentOfInertia() {
+    public IVector getMomentOfInertia() {
         return moment;
     }
 
