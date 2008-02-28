@@ -7,19 +7,40 @@ import etomica.space.Space;
 /**
  * Atom type for a rigid molecule with an orientation and (therefore) a moment
  * of inertia.  The molecule holds the orientation and the type holds the
- * moment.  The type does not actually know how to calculate the moment, so
- * the moment must be initialized by whoever creates this type.
+ * moment.
  */
 public class AtomTypeMoleculeOriented extends AtomTypeMolecule {
     
     public AtomTypeMoleculeOriented(Space space) {
         super(new AtomPositionCOM(space));
         moment = space.makeVector();
+
+        // make a pretend molecule and calculate its moment of inertia
+        IMolecule molecule = species.makeMolecule();
+        AtomSet children = molecule.getChildList();
+        conformation.initializePositions(children);
+        IVector com = space.makeVector();
+        com.E(positionDefinition.position(molecule));
+        double[] I = new double[3];
+        IVector xWork = space.makeVector();
+        for (int i=0; i<children.getAtomCount(); i++) {
+            IAtomPositioned atom = (IAtomPositioned)children.getAtom(i);
+            xWork.Ev1Mv2(atom.getPosition(), com);
+            double atomMass = ((AtomTypeLeaf)atom.getType()).getMass();
+            for (int j=0; j<3; j++) {
+                for (int k=0; k<3; k++) {
+                    if (j==k) continue;
+                    I[j] += atomMass*xWork.x(k)*xWork.x(k);
+                }
+            }
+        }
+        moment.E(I);
     }
 
     /**
      * Returns the principle components of the moment of inertia of the
-     * molecule within the body-fixed frame.
+     * molecule within the body-fixed frame.  Do NOT modify the returned moment
+     * of inertia returned.
      */
     public IVector momentOfInertia() {
         return moment;
