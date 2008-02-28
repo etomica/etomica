@@ -178,7 +178,7 @@ public class SwmdGraphic extends SimulationGraphic {
         tempSlider.setUnit(Kelvin.UNIT);
 //        tempSlider.setPrecision(1);
         tempSlider.setMinimum(0.0);
-        tempSlider.setMaximum(500.0);
+        tempSlider.setMaximum(1500.0);
         tempSlider.setSliderMajorValues(3);
         tempSlider.setUnit(tUnit);
         tempSlider.setAdiabatic();
