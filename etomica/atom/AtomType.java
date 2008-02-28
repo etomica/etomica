@@ -27,7 +27,7 @@ public abstract class AtomType implements java.io.Serializable, Comparable {
 
     protected int index;
 
-    private AtomPositionDefinition positionDefinition;
+    protected AtomPositionDefinition positionDefinition;
 
     private boolean isInteracting = false;
 
