@@ -5,7 +5,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.potential.IPotentialTorque;
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.IVector3D;

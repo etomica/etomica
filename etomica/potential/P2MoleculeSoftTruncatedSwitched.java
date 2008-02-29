@@ -4,7 +4,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.MoleculeOrientedDynamic;
 import etomica.box.Box;
 import etomica.models.water.P2WaterSPCSoft;
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;

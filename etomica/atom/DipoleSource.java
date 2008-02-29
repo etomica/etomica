@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 
 /**
  * Interface for something that can calculate the dipole of a molecule.

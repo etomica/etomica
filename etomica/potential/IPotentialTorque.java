@@ -1,7 +1,7 @@
 package etomica.potential;
 
 import etomica.atom.AtomSet;
-import etomica.space.IVector;
+import etomica.api.IVector;
 
 public interface IPotentialTorque extends PotentialSoft {
 

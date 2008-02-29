@@ -5,7 +5,7 @@ import etomica.atom.AtomType;
 import etomica.atom.DipoleSource;
 import etomica.atom.IMolecule;
 import etomica.box.Box;
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.space.Tensor;

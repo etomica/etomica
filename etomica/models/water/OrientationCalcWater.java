@@ -6,7 +6,7 @@ import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
 import etomica.atom.OrientationCalc;
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space3d.IOrientationFull3D;
