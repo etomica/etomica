@@ -1,6 +1,7 @@
 package etomica.normalmode;
 
 import etomica.box.Box;
+import etomica.space.Space;
 
 /**
  * Normal-mode quantities for a 1-dimensional system of hard rods.  Frequencies are defined
@@ -8,12 +9,14 @@ import etomica.box.Box;
  */
 public class NormalModes1DHR implements NormalModes {
     
-    public NormalModes1DHR() {
+    public NormalModes1DHR(int D) {
         harmonicFudge = 1;
+        this.dim = D;
+        waveVectorFactory = new WaveVectorFactory1D(dim);
     }
     
     public double[][] getOmegaSquared(Box box) {
-        if(box.getSpace().D() != 1) {
+        if(dim != 1) {
             throw new RuntimeException("Must give a box for a 1D system"); 
         }
         int nA = box.moleculeCount();
@@ -28,7 +31,7 @@ public class NormalModes1DHR implements NormalModes {
     }
 
     public double[][][] getEigenvectors(Box box) {
-        if(box.getSpace().D() != 1) {
+        if(dim != 1) {
             throw new RuntimeException("Must give a box for a 1D system"); 
         }
         int nA = box.moleculeCount();
@@ -54,7 +57,8 @@ public class NormalModes1DHR implements NormalModes {
     
     protected double harmonicFudge;
     protected double temperature;
-    private final WaveVectorFactory1D waveVectorFactory = new WaveVectorFactory1D();
+    private final WaveVectorFactory1D waveVectorFactory;
+    private final int dim;
 
     /**
      * Returns the analytical result for the S matrix (just a scalar in this

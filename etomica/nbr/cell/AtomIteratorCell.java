@@ -3,13 +3,13 @@ package etomica.nbr.cell;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
+import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
@@ -35,7 +35,7 @@ public class AtomIteratorCell implements AtomIterator, java.io.Serializable {
         atomSetSinglet = new AtomSetSinglet();
 	}
 
-	public void setBox(Box box) {
+	public void setBox(IBox box) {
         CellLattice lattice = ((NeighborCellManager)boxAgentManager.getAgent(box)).getLattice();
         cellIterator.setLattice(lattice);
         unset();

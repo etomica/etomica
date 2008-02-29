@@ -3,17 +3,17 @@ package etomica.graphics;
 import java.awt.Color;
 import java.util.HashMap;
 
+import etomica.api.IBox;
 import etomica.atom.IAtom;
 import etomica.lattice.FiniteLattice;
 import etomica.nbr.PotentialMasterNbr;
 import etomica.nbr.cell.NeighborCellManager;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.util.IRandom;
 
 public class ColorSchemeCell extends ColorScheme {
     
-    public ColorSchemeCell(PotentialMasterNbr potentialMaster, IRandom random, Box box) {
+    public ColorSchemeCell(PotentialMasterNbr potentialMaster, IRandom random, IBox box) {
         BoxAgentManager cellAgentManager = potentialMaster.getCellAgentManager();
         cellManager = (NeighborCellManager)cellAgentManager.getAgent(box);
         this.random = random;

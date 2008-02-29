@@ -1,13 +1,13 @@
 
 package etomica.models.water;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.space.Boundary;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 

@@ -2,6 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
+import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
@@ -13,8 +14,9 @@ import etomica.units.Temperature;
 
 public class MeterTemperature extends DataSourceScalar {
 
-    public MeterTemperature() {
+    public MeterTemperature(int D) {
 		super("Temperature", Temperature.DIMENSION);
+		dim = D;
 		meterKE = new MeterKineticEnergy();
 	}
 
@@ -26,7 +28,7 @@ public class MeterTemperature extends DataSourceScalar {
 
 	public double getDataAsScalar() {
         if (box == null) throw new IllegalStateException("must call setBox before using meter");
-		return (2. / (box.atomCount() * box.getSpace().D()))
+		return (2. / (box.atomCount() * dim))
 				* meterKE.getDataAsScalar();
 	}
 
@@ -37,7 +39,7 @@ public class MeterTemperature extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**
@@ -51,4 +53,5 @@ public class MeterTemperature extends DataSourceScalar {
     private static final long serialVersionUID = 1L;
     protected Box box;
 	protected final MeterKineticEnergy meterKE;
+	private final int dim;
 }

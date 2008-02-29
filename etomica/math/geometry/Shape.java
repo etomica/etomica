@@ -1,6 +1,6 @@
 package etomica.math.geometry;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 
 /**
  * Interface for an object that defines a closed region of space.

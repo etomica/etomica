@@ -5,12 +5,12 @@ import java.io.Serializable;
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
+import etomica.api.IBox;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.box.Box;
 
 /**
  * Wraps an AtomIterator and filters its iterates so that only those meeting
@@ -260,12 +260,12 @@ public class AtomIteratorFiltered implements AtomIterator, Serializable {
     }
     private static class AIFBox extends AtomIteratorFiltered implements AtomIteratorBoxDependent {
         AIFBox(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setBox(Box box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
+        public void setBox(IBox box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
     }
     private static class AIFAtomBox extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomIteratorBoxDependent {
         AIFAtomBox(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
-        public void setBox(Box box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
+        public void setBox(IBox box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
     }
     private static class AIFDirectable extends AtomIteratorFiltered implements AtomsetIteratorDirectable {
         AIFDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
@@ -278,13 +278,13 @@ public class AtomIteratorFiltered implements AtomIterator, Serializable {
     }
     private static class AIFBoxDirectable extends AtomIteratorFiltered implements AtomIteratorBoxDependent, AtomsetIteratorDirectable {
         AIFBoxDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setBox(Box box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
+        public void setBox(IBox box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
     private static class AIFAtomBoxDirectable extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomIteratorBoxDependent, AtomsetIteratorDirectable {
         AIFAtomBoxDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
-        public void setBox(Box box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
+        public void setBox(IBox box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
     private static class AIFTarget extends AtomIteratorFiltered implements AtomsetIteratorTargetable {
@@ -310,7 +310,7 @@ public class AtomIteratorFiltered implements AtomIterator, Serializable {
     }
     private static class AIFBoxTarget extends AtomIteratorFiltered implements AtomIteratorBoxDependent, AtomsetIteratorTargetable {
         AIFBoxTarget(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setBox(Box box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
+        public void setBox(IBox box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
         public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
     }
     private static class AIFBoxBasis extends AIFBoxTarget implements AtomsetIteratorBasisDependent {
@@ -322,7 +322,7 @@ public class AtomIteratorFiltered implements AtomIterator, Serializable {
     private static class AIFAtomBoxTarget extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomIteratorBoxDependent, AtomsetIteratorTargetable {
         AIFAtomBoxTarget(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
-        public void setBox(Box box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
+        public void setBox(IBox box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
         public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
     }
     private static class AIFAtomBoxBasis extends AIFAtomBoxTarget implements AtomsetIteratorBasisDependent {
@@ -356,7 +356,7 @@ public class AtomIteratorFiltered implements AtomIterator, Serializable {
     }
     private static class AIFBoxTargetDirectable extends AtomIteratorFiltered implements AtomIteratorBoxDependent, AtomsetIteratorTargetable, AtomsetIteratorDirectable {
         AIFBoxTargetDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
-        public void setBox(Box box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
+        public void setBox(IBox box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
         public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }
@@ -369,7 +369,7 @@ public class AtomIteratorFiltered implements AtomIterator, Serializable {
     private static class AIFAtomBoxTargetDirectable extends AtomIteratorFiltered implements AtomIteratorAtomDependent, AtomIteratorBoxDependent, AtomsetIteratorTargetable, AtomsetIteratorDirectable {
         AIFAtomBoxTargetDirectable(AtomIterator iterator, AtomFilter filter) {super(iterator, filter);}
         public void setAtom(IAtom atom) {((AtomIteratorAtomDependent)iterator).setAtom(atom);}
-        public void setBox(Box box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
+        public void setBox(IBox box) {((AtomIteratorBoxDependent)iterator).setBox(box);}
         public void setTarget(IAtom atom) {((AtomsetIteratorTargetable)iterator).setTarget(atom);}
         public void setDirection(Direction direction) {((AtomsetIteratorDirectable)iterator).setDirection(direction);}
     }

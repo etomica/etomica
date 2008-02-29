@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
@@ -14,7 +15,6 @@ import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
 import etomica.chem.elements.Element;
 import etomica.chem.elements.ElementChemical;
-import etomica.box.Box;
 
 /**
  * Action that dumps a box's configuration to an XYZ file.  Arbitrary but 
@@ -24,7 +24,7 @@ import etomica.box.Box;
  */
 public class XYZWriter implements Action, Serializable {
 
-    public XYZWriter(Box aBox) {
+    public XYZWriter(IBox aBox) {
         leafList = aBox.getLeafList();
         elementAtomType = new LinkedList();
     }

@@ -5,6 +5,7 @@ import etomica.atom.AtomSet;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
+import etomica.space.Space;
 import etomica.util.IRandom;
 
 /**
@@ -21,13 +22,13 @@ public class IntegratorAnalytic extends IntegratorMD {
     private static final long serialVersionUID = 1L;
     private AtomTimeAction action;
     
-    public IntegratorAnalytic(ISimulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 0.05);
+    public IntegratorAnalytic(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+        this(potentialMaster, sim.getRandom(), 0.05, _space);
     }
     
     public IntegratorAnalytic(PotentialMaster potentialMaster, IRandom random,
-                              double timeStep) {
-        super(potentialMaster,random,timeStep,0);
+                              double timeStep, Space _space) {
+        super(potentialMaster,random,timeStep,0, _space);
     }
     
     public void doStepInternal() {

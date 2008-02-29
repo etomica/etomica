@@ -37,7 +37,7 @@ public class SimCalcSMorse extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -75,7 +75,7 @@ public class SimCalcSMorse extends Simulation {
 
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         integrator.setBox(box);
@@ -133,11 +133,11 @@ public class SimCalcSMorse extends Simulation {
         meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
         WaveVectorFactory waveVectorFactory;
         if (D == 1) {
-            waveVectorFactory = new WaveVectorFactory1D();
+            waveVectorFactory = new WaveVectorFactory1D(D);
         } else if (D == 2) {
             waveVectorFactory = null;
         } else {
-            waveVectorFactory = new WaveVectorFactorySimple(primitive);
+            waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
         }
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
@@ -176,7 +176,7 @@ public class SimCalcSMorse extends Simulation {
         sim.getController().reset();
         meterNormalMode.reset();
 
-        WriteS sWriter = new WriteS();
+        WriteS sWriter = new WriteS(sim.space);
         sWriter.setFilename(filename);
         sWriter.setOverwrite(true);
         sWriter.setMeter(meterNormalMode);

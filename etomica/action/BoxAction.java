@@ -1,5 +1,6 @@
 package etomica.action;
 
+import etomica.api.IBox;
 import etomica.box.Box;
 
  /**
@@ -9,6 +10,6 @@ public interface BoxAction extends Action {
 
     public void setBox(Box box);
     
-    public Box getBox();
+    public IBox getBox();
 
 }

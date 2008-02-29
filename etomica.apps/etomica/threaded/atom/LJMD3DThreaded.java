@@ -55,7 +55,7 @@ public class LJMD3DThreaded extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         box.setDensity(0.65);
@@ -89,7 +89,7 @@ public class LJMD3DThreaded extends Simulation {
         //--------------------------------------\\
         
 //        new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(box);
-        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
         integrator.setBox(box);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
 //        integrator.addListener(writeConfig);
@@ -107,7 +107,7 @@ public class LJMD3DThreaded extends Simulation {
             numAtoms = Integer.valueOf(args[0]).intValue();
         }
         LJMD3DThreaded sim = new LJMD3DThreaded(numAtoms, numThreads);
-        SimulationGraphic simgraphic = new SimulationGraphic(sim);
+        SimulationGraphic simgraphic = new SimulationGraphic(sim, sim.space);
         simgraphic.makeAndDisplayFrame();
         /**
         sim.getDefaults().blockSize = 10;

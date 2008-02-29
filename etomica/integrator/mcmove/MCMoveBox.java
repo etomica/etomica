@@ -1,5 +1,6 @@
 package etomica.integrator.mcmove;
 
+import etomica.api.IBox;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorNull;
 import etomica.box.Box;
@@ -37,7 +38,7 @@ public abstract class MCMoveBox extends MCMove {
         return box;
     }
 
-    public AtomIterator affectedAtoms(Box aBox) {
+    public AtomIterator affectedAtoms(IBox aBox) {
         if (box == aBox) {
             return affectedAtoms();
         }
@@ -46,7 +47,7 @@ public abstract class MCMoveBox extends MCMove {
 
     public abstract AtomIterator affectedAtoms();
     
-    public double energyChange(Box aBox) {
+    public double energyChange(IBox aBox) {
         if (box == aBox) {
             return energyChange();
         }

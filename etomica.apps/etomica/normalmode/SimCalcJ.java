@@ -28,7 +28,7 @@ public class SimCalcJ extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -49,7 +49,7 @@ public class SimCalcJ extends Simulation {
         }
         box.setBoundary(bdry);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
     }
 
@@ -77,11 +77,11 @@ public class SimCalcJ extends Simulation {
         // set up normal-mode meter
         WaveVectorFactory waveVectorFactory;
         if (D == 1) {
-            waveVectorFactory = new WaveVectorFactory1D();
+            waveVectorFactory = new WaveVectorFactory1D(D);
         } else if (D == 2) {
             waveVectorFactory = null;
         } else {
-            waveVectorFactory = new WaveVectorFactorySimple(sim.primitive);
+            waveVectorFactory = new WaveVectorFactorySimple(sim.primitive, sim.space);
         }
         CalcJacobian meterJacobian = new CalcJacobian();
         meterJacobian.setWaveVectorFactory(waveVectorFactory);

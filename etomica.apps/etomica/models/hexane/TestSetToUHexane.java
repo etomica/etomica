@@ -4,6 +4,7 @@ package etomica.models.hexane;
  * @author cribbin
  */
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IVector;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
@@ -26,7 +27,6 @@ import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -77,11 +77,11 @@ public class TestSetToUHexane extends Simulation {
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(prim, getRandom(), nCells);
-        box = new Box(bdry);
+        box = new Box(bdry, space);
         addBox(box);
         box.setNMolecules(species, xCells * yCells * zCells);
-        cdHex = new CoordinateDefinitionHexane(box, prim, species);
-        cdHex = new CoordinateDefinitionHexane(box, prim, species);
+        cdHex = new CoordinateDefinitionHexane(box, prim, species, space);
+        cdHex = new CoordinateDefinitionHexane(box, prim, species, space);
         cdHex.initializeCoordinates(nCells);
         oldUs = new double[cdHex.getCoordinateDim()];
         
@@ -233,7 +233,7 @@ public class TestSetToUHexane extends Simulation {
         boolean graphic = false;
         
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space);
             simGraphic.makeAndDisplayFrame();
         } else {
             sim.runit();

@@ -1,9 +1,9 @@
 package etomica.modules.junit.crystalviewer;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.lattice.crystal.PrimitiveTriclinic;
-import etomica.space.IVector;
 import junit.framework.TestCase;
 
 public class BLCPrimitiveTriclinicLatticePlaneTest extends TestCase {

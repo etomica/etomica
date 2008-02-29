@@ -6,8 +6,9 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.units.Energy;
 
 /**
@@ -63,7 +64,7 @@ public class MeterHarmonicSingleEnergy implements DataSource {
         return data;
     }
     
-    public Box getBox() {
+    public IBox getBox() {
         return coordinateDefinition.getBox();
     }
 

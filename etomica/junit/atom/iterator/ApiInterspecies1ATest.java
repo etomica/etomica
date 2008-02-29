@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
+import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
@@ -11,7 +12,6 @@ import etomica.atom.IAtomLeaf;
 import etomica.atom.IMolecule;
 import etomica.atom.iterator.ApiInterspecies1A;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
 import etomica.species.ISpecies;
@@ -92,7 +92,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(Box box, ISpecies[] species) {
+    private void boxTest(IBox box, ISpecies[] species) {
         speciesTestForward(box, species[0], species[1]);
     }
 
@@ -100,7 +100,7 @@ public class ApiInterspecies1ATest extends IteratorTestAbstract {
      * Test iteration in various directions with different targets. Iterator
      * constructed with index of first species less than index of second.
      */
-    private void speciesTestForward(Box box,
+    private void speciesTestForward(IBox box,
             ISpecies species0, ISpecies species1) {
         ApiInterspecies1A api = new ApiInterspecies1A(new ISpecies[] {
                 species0, species1 });

@@ -2,7 +2,7 @@ package etomica.atom;
 
 import java.io.Serializable;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.species.ISpecies;
 
 public class AtomToAtomSetSpecies implements AtomToAtomSet, AtomToIndex, Serializable {
@@ -21,7 +21,7 @@ public class AtomToAtomSetSpecies implements AtomToAtomSet, AtomToIndex, Seriali
         return atom.getIndex();
     }
     
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         moleculeList = box.getMoleculeList(species);
     }
 

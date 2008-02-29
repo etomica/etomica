@@ -2,6 +2,7 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
+import etomica.api.IBox;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
@@ -14,7 +15,6 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.ApiIntergroup;
 import etomica.atom.iterator.ApiIntragroup;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
 import etomica.species.ISpecies;
@@ -93,7 +93,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
         AtomType[] types = new AtomType[2];
         AtomPair basisPair = new AtomPair();
 
-        Box box = sim.getBoxs()[0];
+        IBox box = sim.getBoxs()[0];
         AtomSet moleculeList0 = box.getMoleculeList(species0);
         AtomSet moleculeList1 = box.getMoleculeList(species1);
         AtomTypeMolecule moleculeType0 = species0.getMoleculeType();
@@ -255,7 +255,7 @@ public class ApiBuilderTest extends IteratorTestAbstract {
 
     //******* adjacent/nonadjacent setup -- basis has only one child
     private void setup4() {
-        Box box = sim.getBoxs()[1];
+        IBox box = sim.getBoxs()[1];
         ISpecies species1 = sim.getSpeciesManager().getSpecies()[1];
         parent = box.getMoleculeList(species1).getAtom(0);//box1, species1, molecule0
         target = ((IMolecule)parent).getChildList().getAtom(0);

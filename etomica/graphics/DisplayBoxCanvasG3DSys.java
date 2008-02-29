@@ -9,6 +9,8 @@ import javax.vecmath.Point3f;
 
 import org.jmol.g3d.Graphics3D;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSet;
@@ -20,7 +22,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Polytope;
 import etomica.space.Boundary;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.IVector3D;
 import etomica.util.Arrays;
 import g3dsys.control.G3DSys;
@@ -54,13 +56,15 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
     private IVector3D[] planeIntersections;
     private IVector3D work, work2, work3;
     private double[] planeAngles;
+    private final Space space;
 
-	public DisplayBoxCanvasG3DSys(DisplayBox _box) {
+	public DisplayBoxCanvasG3DSys(DisplayBox _box, Space _space) {
 		// old stuff
 		scaleText.setVisible(true);
 		scaleText.setEditable(false);
 		scaleText.setBounds(0, 0, 100, 50);
 		displayBox = _box;
+		space = _space;
 
 		// init G3DSys
 		// adding JPanel flickers, Panel does not. Nobody knows why.
@@ -88,9 +92,9 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
         planeTriangles = new Triangle[0][0];
         planeIntersections = new IVector3D[0];
         planeAngles = new double[0];
-        work = (IVector3D)displayBox.getBox().getSpace().makeVector();
-        work2 = (IVector3D)displayBox.getBox().getSpace().makeVector();
-        work3 = (IVector3D)displayBox.getBox().getSpace().makeVector();
+        work = (IVector3D)space.makeVector();
+        work2 = (IVector3D)space.makeVector();
+        work3 = (IVector3D)space.makeVector();
 	}
 
 	/**
@@ -173,7 +177,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
 		return planeColor;
 	}
 
-	public void removeObjectByBox(etomica.box.Box p) {
+	public void removeObjectByBox(IBox p) {
 
 		// Remove old box atoms
 		AtomSet leafList = p.getLeafList();
@@ -402,7 +406,7 @@ public class DisplayBoxCanvasG3DSys extends DisplayCanvas implements
             if (alpha >= 0 && alpha <= 1) {
                 IVector newIntersection;
                 if (planeIntersections.length == intersectionCount) {
-                    newIntersection = displayBox.getBox().getSpace().makeVector();
+                    newIntersection = space.makeVector();
                     planeIntersections = (IVector3D[])Arrays.addObject(planeIntersections, newIntersection);
                 }
                 else {

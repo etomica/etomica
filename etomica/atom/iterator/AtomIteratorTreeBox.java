@@ -2,10 +2,10 @@ package etomica.atom.iterator;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomsetAction;
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IMolecule;
-import etomica.box.Box;
 
 /**
  * Atom iterator that traverses all atoms at or to a specified depth below a
@@ -61,7 +61,7 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
      * @param depth         nominal depth of iteration
      * @param doAllNodes    flag for iteration of all nodes between root and depth, inclusive
      */
-    public AtomIteratorTreeBox(Box box, int depth, boolean doAllNodes) {
+    public AtomIteratorTreeBox(IBox box, int depth, boolean doAllNodes) {
         super(null, depth, doAllNodes);
         if (box != null) {
             setBox(box);
@@ -75,7 +75,7 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
         super.setIterationDepth(newDepth);
     }
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         box = newBox;
         listIterator.setList(newBox.getMoleculeList());
         unset();
@@ -156,5 +156,5 @@ public class AtomIteratorTreeBox extends AtomIteratorTree implements AtomIterato
     }
 
     private static final long serialVersionUID = 1L;
-    protected Box box;
+    protected IBox box;
 }

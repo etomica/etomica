@@ -1,6 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.action.PDBWriter;
+import etomica.api.IBox;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
@@ -64,7 +65,7 @@ public class MeterPotentialEnergy extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**

@@ -18,6 +18,7 @@ import etomica.units.Temperature;
 public class MeterPressureHardTensor implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public MeterPressureHardTensor(Space space) {
+    	dim = space.D();
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("PV/Nk",Temperature.DIMENSION, space);
         v = space.makeTensor();
@@ -41,7 +42,7 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     public Data getData() {
         if (box == null || integratorHard == null) throw new IllegalStateException("must call setBox and integrator before using meter");
         double t = integratorHard.getCurrentTime();
-        data.x.TE(-1/((t-t0)*box.getSpace().D()));
+        data.x.TE(-1/((t-t0)*dim));
         t0 = t;
 
         //We're using the instantaneous velocity tensor with the average virial tensor
@@ -102,4 +103,5 @@ public class MeterPressureHardTensor implements DataSource, IntegratorHard.Colli
     private final DataTensor data;
     private final IDataInfo dataInfo;
     protected final DataTag tag;
+    private final int dim;
 }

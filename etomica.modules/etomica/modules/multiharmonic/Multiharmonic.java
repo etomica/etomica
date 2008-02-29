@@ -40,11 +40,11 @@ public class Multiharmonic extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getLeafType()).setDiameter(0.02);
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.getBoundary().setDimensions(new Vector1D(3.0));
         controller = getController();
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setBox(box);
         integrator.setTimeStep(0.02);
         integrator.setIsothermal(true);

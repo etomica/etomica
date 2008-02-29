@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.species.ISpecies;
 
 /**
@@ -28,7 +28,7 @@ public class ApiIntraspeciesAA extends AtomsetIteratorAdapter implements
      * box.
      * @throws a NullPointerException if the Box is null
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         pairIterator.setList(box.getMoleculeList(species));
     }
 

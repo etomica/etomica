@@ -2,6 +2,7 @@ package etomica.modules.chainequilibrium;
 
 import java.io.Serializable;
 
+import etomica.api.IBox;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.IAtom;
@@ -139,7 +140,7 @@ public class MeterChainLength implements DataSource, Serializable, AgentSource, 
         
     }
     
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     

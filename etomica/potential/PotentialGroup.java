@@ -2,6 +2,7 @@ package etomica.potential;
 
 import java.util.Arrays;
 
+import etomica.api.IBox;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterTypeInstance;
 import etomica.atom.AtomSet;
@@ -296,7 +297,7 @@ public class PotentialGroup extends Potential {
     
     private static final long serialVersionUID = 1L;
     protected PotentialLinker first;
-    protected Box box;
+    protected IBox box;
     protected PotentialMaster potentialMaster;
     protected NeighborCriterion criterion = new CriterionAll();
 

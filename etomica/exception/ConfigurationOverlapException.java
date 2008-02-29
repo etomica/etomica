@@ -1,6 +1,6 @@
 package etomica.exception;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 
 /**
  * Exception thrown when an overlap is detected in the configuration of
@@ -13,10 +13,10 @@ public class ConfigurationOverlapException extends Exception {
      * 
      * @param box the Box in which the overlap is detected
      */
-    public ConfigurationOverlapException(Box box) {
+    public ConfigurationOverlapException(IBox box) {
         super("Overlap in configuration "+box);
         this.box = box;
     }
 
-    public final Box box;
+    public final IBox box;
 }

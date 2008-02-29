@@ -1,6 +1,6 @@
 package etomica.math.geometry;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 
 /**
  * Polytope having parallel faces, and which can be specified via a set of edge vectors.

@@ -1,5 +1,7 @@
 package etomica.modules.rosmosis;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
@@ -16,7 +18,7 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalEvent;
 import etomica.integrator.IntegratorNonintervalListener;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
@@ -39,7 +41,8 @@ import etomica.units.Time;
  */
 public class MeterFlux implements DataSource, AgentSource, IntegratorNonintervalListener {
 
-    public MeterFlux() {
+    public MeterFlux(Space _space) {
+    	this.space = _space;
         data = new DataDouble();
         dataInfo = new DataInfoDouble("flux", new CompoundDimension(new Dimension[]{
                 Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1,-1,0}));
@@ -77,12 +80,12 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
         if (integrator != null) {
             if (integrator instanceof IntegratorMD) {
                 dataInfo = new DataInfoDouble("flux", new CompoundDimension(new Dimension[]{
-                        Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1,-1,1-box.getSpace().D()}));
+                        Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1,-1,1-space.D()}));
             }
             else {
                 // Quantity(crossings) / Quantity(steps)
                 dataInfo = new DataInfoDouble("flux", new CompoundDimension(new Dimension[]{
-                        Length.DIMENSION}, new double[]{1-box.getSpace().D()}));
+                        Length.DIMENSION}, new double[]{1-space.D()}));
             }
         }
         if (species != null) {
@@ -90,7 +93,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
         }
     }
     
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     
@@ -100,7 +103,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
             oldTime = ((IntegratorMD)integrator).getCurrentTime();
             if (box != null) {
                 dataInfo = new DataInfoDouble("flux", new CompoundDimension(new Dimension[]{
-                        Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1,-1,1-box.getSpace().D()}));
+                        Quantity.DIMENSION, Time.DIMENSION, Length.DIMENSION}, new double[]{1,-1,1-space.D()}));
             }
         }
         else {
@@ -108,7 +111,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
             if (box != null) {
                 // Quantity(crossings) / Quantity(steps)
                 dataInfo = new DataInfoDouble("flux", new CompoundDimension(new Dimension[]{
-                        Length.DIMENSION}, new double[]{1-box.getSpace().D()}));
+                        Length.DIMENSION}, new double[]{1-space.D()}));
             }
         }
     }
@@ -146,7 +149,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
             data.x /= integrator.getStepCount() - oldStep;
             oldTime = ((IntegratorMD)integrator).getCurrentTime();
         }
-        for (int i=0; i<box.getSpace().D(); i++) {
+        for (int i=0; i<space.D(); i++) {
             if (i == dim) continue;
             data.x /= box.getBoundary().getDimensions().x(i);
         }
@@ -173,7 +176,7 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
         ISpecies thisSpecies = a.getType().getSpecies();
         for (int i=0; i<species.length; i++) {
             if (species[i] == thisSpecies) {
-                IVector vec = box.getSpace().makeVector();
+                IVector vec = space.makeVector();
                 vec.E(a.getType().getPositionDefinition().position(a));
                 return vec;
             }
@@ -206,4 +209,5 @@ public class MeterFlux implements DataSource, AgentSource, IntegratorNoninterval
     protected IntegratorBox integrator;
     protected double oldTime;
     protected long oldStep;
+    private final Space space;
 }

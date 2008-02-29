@@ -2,6 +2,7 @@ package etomica.modules.rosmosis;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
@@ -14,22 +15,23 @@ import etomica.lattice.crystal.BasisCubicFcc;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.simulation.ISimulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.species.ISpecies;
 
 public class ConfigurationMembrane implements Configuration {
 
-    public ConfigurationMembrane(ISimulation sim) {
+    public ConfigurationMembrane(ISimulation sim, Space _space) {
         soluteMoleFraction = 1;
         solutionChamberDensity = 0.5;
         solventChamberDensity = 0.5;
         numMembraneLayers = 2;
         membraneWidth = 4;
         this.sim = sim;
+        this.space = _space;
     }
 
     public void initializeCoordinates(Box box) {
-        AtomActionTranslateBy translateBy = new AtomActionTranslateBy(box.getSpace());
+        AtomActionTranslateBy translateBy = new AtomActionTranslateBy(space);
         IVector translationVector = translateBy.getTranslationVector();
         AtomGroupAction translator = new AtomGroupAction(translateBy);
         translationVector.E(0);
@@ -44,15 +46,15 @@ public class ConfigurationMembrane implements Configuration {
         double chamberLength = 0.5 * boxLength - membraneThickness;
         
         // solventChamber (middle, solvent-only)
-        Box pretendBox = new Box(new BoundaryRectangularPeriodic(box.getSpace(), null, 1));
+        Box pretendBox = new Box(new BoundaryRectangularPeriodic(space, null, 1), space);
         sim.addBox(pretendBox);
-        IVector pretendBoxDim = box.getSpace().makeVector();
+        IVector pretendBoxDim = space.makeVector();
         pretendBoxDim.E(boxDimensions);
         pretendBoxDim.setX(membraneDim, chamberLength);
         pretendBox.getBoundary().setDimensions(pretendBoxDim);
         int nMolecules = (int)Math.round(pretendBox.getBoundary().volume() * solventChamberDensity);
         pretendBox.setNMolecules(speciesSolvent, nMolecules);
-        ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc());
+        ConfigurationLattice configLattice = new ConfigurationLattice(new LatticeCubicFcc(), space);
         configLattice.initializeCoordinates(pretendBox);
         // move molecules over to the real box
         AtomSet molecules = pretendBox.getMoleculeList(speciesSolvent);
@@ -102,7 +104,7 @@ public class ConfigurationMembrane implements Configuration {
         }
         
         nMolecules = 2*membraneWidth * membraneWidth * pretendNumMembraneLayers;
-        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(box.getSpace());
+        PrimitiveOrthorhombic primitive = new PrimitiveOrthorhombic(space);
         double a = boxDimensions.x(0) / membraneWidth;
         double b = boxDimensions.x(1) / membraneWidth;
         double c = boxDimensions.x(2) / membraneWidth;
@@ -121,7 +123,7 @@ public class ConfigurationMembrane implements Configuration {
         primitive.setSizeB(b);
         primitive.setSizeC(c);
         
-        configLattice = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisCubicFcc()));
+        configLattice = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisCubicFcc()), space);
         pretendBoxDim.E(boxDimensions);
         pretendBoxDim.setX(membraneDim, pretendMembraneThickness);
         pretendBox.getBoundary().setDimensions(pretendBoxDim);
@@ -241,4 +243,5 @@ public class ConfigurationMembrane implements Configuration {
     protected double soluteMoleFraction;
     protected int membraneDim;
     protected final ISimulation sim;
+    private final Space space;
 }

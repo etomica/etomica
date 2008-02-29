@@ -27,6 +27,10 @@ public class MCParacetamolOrthorhombicDLMULTIEquilibration extends Simulation {
 
 	private static final long serialVersionUID = 1L;
 
+	public MCParacetamolOrthorhombicDLMULTIEquilibration(Space _space) {
+		super(_space);
+	}
+
     public static void main(String[] args) {
     	
     	int numMolecules = 192;
@@ -53,10 +57,13 @@ public class MCParacetamolOrthorhombicDLMULTIEquilibration extends Simulation {
         System.out.println(numMolecules + " molecules " +" and temperature "+ Kelvin.UNIT.fromSim(temperature) +"K");
         System.out.println(simSteps+ " steps");
         System.out.println("output data to " + filename);
-        
-    	etomica.paracetamol.MCParacetamolOrthorhombicDLMULTI sim = 
-        	new MCParacetamolOrthorhombicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType, new int[] {2,3,4});
        
+    	Space sp = Space.getInstance(3);
+    	
+    	etomica.paracetamol.MCParacetamolOrthorhombicDLMULTI sim = 
+        	new MCParacetamolOrthorhombicDLMULTI(sp, numMolecules, temperature, simType, new int[] {2,3,4});
+       
+
        sim.actionIntegrate.setMaxSteps(simSteps);
        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
        meterPE.setBox(sim.box);
@@ -77,7 +84,7 @@ public class MCParacetamolOrthorhombicDLMULTIEquilibration extends Simulation {
        
        sim.getController().actionPerformed();
        
-       WriteConfiguration writeConfig = new WriteConfiguration();
+       WriteConfiguration writeConfig = new WriteConfiguration(sp);
        writeConfig.setConfName("FinalCoord_Paracetamol_Orthorhombic_"+Kelvin.UNIT.fromSim(temperature)+"K");
        writeConfig.setBox(sim.box);
        writeConfig.setDoApplyPBC(false);

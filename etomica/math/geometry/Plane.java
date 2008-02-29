@@ -2,7 +2,7 @@
 //(maybe should put this in a Space package hierarchy)
 package etomica.math.geometry;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 import etomica.space3d.Space3D;

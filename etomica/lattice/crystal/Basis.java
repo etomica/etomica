@@ -1,5 +1,5 @@
 package etomica.lattice.crystal;
-import etomica.space.IVector;
+import etomica.api.IVector;
 
 /**
  * General basis class that hold scaled coordinates of atoms within a unit cell.

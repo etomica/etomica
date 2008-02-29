@@ -1,7 +1,7 @@
 package etomica.normalmode;
 
+import etomica.api.IVector;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.IVector;
 
 /**
  * Class that calculates the dq/dx Jacobian.

@@ -2,6 +2,8 @@ package etomica.paracetamol;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataInfo;
@@ -18,7 +20,7 @@ import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.potential.PotentialMaster;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.util.Arrays;
 import etomica.util.Function;
@@ -34,7 +36,8 @@ import etomica.util.numerical.FiniteDifferenceDerivative;
 
 public class NormalModesPotentialParacetamol implements NormalModes {
 
-    public NormalModesPotentialParacetamol(int[] nCells, Primitive primitive, Basis basis) {
+    public NormalModesPotentialParacetamol(int[] nCells, Primitive primitive,
+    		               Basis basis, Space space) {
         
         harmonicFudge = 1.0;
         needToCalculateModes = true;
@@ -44,11 +47,11 @@ public class NormalModesPotentialParacetamol implements NormalModes {
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, new RandomNumberGenerator(), nCells);
         
-        box = new Box(boundary);
+        box = new Box(boundary, space);
 
         System.out.println("Cell Density: "+nSites/boundary.volume());
         System.out.println("Site Density: "+nSites/boundary.volume()*basis.getScaledCoordinates().length);
-        kFactory = new WaveVectorFactorySimple(primitive);
+        kFactory = new WaveVectorFactorySimple(primitive, space);
         kFactory.makeWaveVectors(box);
         System.out.println("Number of wave vectors: "+kFactory.getWaveVectors().length);
         
@@ -198,7 +201,7 @@ public class NormalModesPotentialParacetamol implements NormalModes {
 		this.potentialMaster = potentialMaster;
 	}
     
-	public Box getBox() {
+	public IBox getBox() {
 		return box;
 	}
 

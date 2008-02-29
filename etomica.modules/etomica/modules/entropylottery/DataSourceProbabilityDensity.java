@@ -1,6 +1,7 @@
 package etomica.modules.entropylottery;
 
 import etomica.action.Action;
+import etomica.api.IVector;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.Data;
@@ -14,7 +15,6 @@ import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.IntegratorBox;
 import etomica.box.Box;
 import etomica.space.BoundaryPeriodic;
-import etomica.space.IVector;
 import etomica.units.Quantity;
 
 public class DataSourceProbabilityDensity implements DataSource, Action, IntegratorNonintervalListener {

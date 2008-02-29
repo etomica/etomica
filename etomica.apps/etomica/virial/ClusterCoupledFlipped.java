@@ -1,9 +1,9 @@
 package etomica.virial;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
-import etomica.space.IVector;
 import etomica.space3d.Vector3D;
 
 public class ClusterCoupledFlipped implements ClusterAbstract {

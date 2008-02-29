@@ -96,7 +96,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
          */
     	super(Space3D.getInstance());
     	
-        potentialMaster = new PotentialMasterList(this, 1.6);
+        potentialMaster = new PotentialMasterList(this, 1.6, space);
     	
     	/*
     	 * Orthorhombic Crystal
@@ -106,11 +106,11 @@ public class MDParacetamolOrthorhombic extends Simulation {
         // 17.248, 12.086, 7.382
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         lattice = new BravaisLatticeCrystal(primitive, basis);
-        configOrthoLattice = new ConfigurationOrthorhombicLattice(lattice);
+        configOrthoLattice = new ConfigurationOrthorhombicLattice(lattice, space);
     	
         double neighborRangeFac = 1.6;
         
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setIsothermal(false);
         //integrator.setThermostatInterval(1);
         integrator.setTimeStep(0.001); //1 = pico sec
@@ -121,7 +121,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
         
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setDimensions(Space.makeVector(new double[] {25,25,25}));
         species = new SpeciesParacetamol(this);
@@ -379,7 +379,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         box.setBoundary(bdry);
        	configOrthoLattice.initializeCoordinates(box);
        	
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
         integrator.setBox(box);
         
     } //end of constructor
@@ -390,7 +390,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
      */
     public static void main(String[] args) {
         etomica.paracetamol.MDParacetamolOrthorhombic sim = new etomica.paracetamol.MDParacetamolOrthorhombic();
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME,1);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME,1, sim.space);
         Pixel pixel = new Pixel(10);
         simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
@@ -417,7 +417,7 @@ public class MDParacetamolOrthorhombic extends Simulation {
         sim.integrator.addIntervalAction(meterTotalpump);
         dataStreamPumps.add(meterTotalpump);
            
-        MeterTemperature meterTemp = new MeterTemperature();
+        MeterTemperature meterTemp = new MeterTemperature(sim.space.D());
         meterTemp.setBox(sim.box);
         DisplayTextBox tempBox = new DisplayTextBox();
         tempBox.setUnit(Kelvin.UNIT);

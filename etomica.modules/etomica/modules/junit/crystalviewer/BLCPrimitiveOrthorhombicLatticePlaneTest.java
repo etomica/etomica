@@ -2,10 +2,10 @@ package etomica.modules.junit.crystalviewer;
 
 import junit.framework.TestCase;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
-import etomica.space.IVector;
 
 
 public class BLCPrimitiveOrthorhombicLatticePlaneTest extends TestCase {

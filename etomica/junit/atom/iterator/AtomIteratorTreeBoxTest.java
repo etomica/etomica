@@ -2,9 +2,9 @@ package etomica.junit.atom.iterator;
 
 import java.util.LinkedList;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIteratorTreeBox;
-import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
 
@@ -104,7 +104,7 @@ public class AtomIteratorTreeBoxTest extends IteratorTestAbstract {
         return list;
     }
     
-    private Box box;
+    private IBox box;
     private AtomIteratorTreeBox treeIterator;
     int n0a, nAtoms, n1a;
 }

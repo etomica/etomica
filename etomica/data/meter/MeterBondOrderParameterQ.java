@@ -1,6 +1,8 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiLeafAtoms;
@@ -8,9 +10,7 @@ import etomica.atom.iterator.AtomsetIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.SphericalHarmonics;
 import etomica.math.geometry.coordinate.CoordinateConverter;
-import etomica.box.Box;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Undefined;
@@ -125,18 +125,18 @@ public class MeterBondOrderParameterQ  extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private Box box;
+    private IBox box;
     private double[] Qreal, Qimag;
     private int L;
     private AtomsetIteratorBoxDependent pairIterator = new ApiLeafAtoms();

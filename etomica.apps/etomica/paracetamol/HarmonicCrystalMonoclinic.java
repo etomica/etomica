@@ -13,6 +13,7 @@ import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.potential.PotentialDLPOLY;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
 import etomica.units.Kelvin;
@@ -28,11 +29,12 @@ import etomica.util.FunctionGeneral;
  */
 public class HarmonicCrystalMonoclinic {
 
-    public HarmonicCrystalMonoclinic(int[] nCells, Primitive primitive, Basis basis, Box box) {
+    public HarmonicCrystalMonoclinic(int[] nCells, Primitive primitive, Basis basis, Box box, Space _space) {
         //this.potential = potential;
         this.nCells = (int[])nCells.clone();
+        this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
-        normalModes = new NormalModesPotentialParacetamol(nCells, primitive, basis);
+        normalModes = new NormalModesPotentialParacetamol(nCells, primitive, basis, space);
         normalModes.setBox(box);
         //setMaxLatticeShell(49);
     }
@@ -129,7 +131,7 @@ public class HarmonicCrystalMonoclinic {
         Primitive primitive = lattice.getPrimitive();
         primitive.scaleSize(1.0/Math.pow(scale, 1.0/lattice.getSpace().D()));
 //        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
-        normalModes = new NormalModesPotentialParacetamol(nCells, primitive, lattice.getBasis());
+        normalModes = new NormalModesPotentialParacetamol(nCells, primitive, lattice.getBasis(), space);
         normalModes.setMaxLatticeShell(maxLatticeShell);
     }
     
@@ -154,10 +156,11 @@ public class HarmonicCrystalMonoclinic {
             temperature = Kelvin.UNIT.toSim(Double.parseDouble(args[0]));
         }
         
-        MCParacetamolMonoclinicDLMULTI sim = new MCParacetamolMonoclinicDLMULTI(Space3D.getInstance(),32,temperature, 2, new int[] {2,2,2});
+        etomica.space.Space sp = Space3D.getInstance();
+        MCParacetamolMonoclinicDLMULTI sim = new MCParacetamolMonoclinicDLMULTI(sp,32,temperature, 2, new int[] {2,2,2});
         BasisMonoclinicParacetamol basis = new BasisMonoclinicParacetamol();
       
-        CoordinateDefinitionParacetamol coordinateDefinition = new CoordinateDefinitionParacetamol(sim.box, sim.primitive, basis);
+        CoordinateDefinitionParacetamol coordinateDefinition = new CoordinateDefinitionParacetamol(sim.box, sim.primitive, basis, sp);
         coordinateDefinition.setBasisMonoclinic();
         //coordinateDefinition.setConfiguration(configFile);
         
@@ -182,7 +185,7 @@ public class HarmonicCrystalMonoclinic {
         
         
         
-        HarmonicCrystalMonoclinic harmonicCrystal = new HarmonicCrystalMonoclinic(nCells, sim.primitive, basis, sim.box);
+        HarmonicCrystalMonoclinic harmonicCrystal = new HarmonicCrystalMonoclinic(nCells, sim.primitive, basis, sim.box, sp);
         //harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
         harmonicCrystal.normalModes.setCoordinateDefinition(coordinateDefinition);
         harmonicCrystal.normalModes.setPotentialMaster(sim.potentialMaster);
@@ -216,6 +219,7 @@ public class HarmonicCrystalMonoclinic {
     private BravaisLatticeCrystal lattice;
     private int[] nCells;
     private int maxLatticeShell;
+    private final Space space;
     private static final long serialVersionUID = 1L;
     
 }

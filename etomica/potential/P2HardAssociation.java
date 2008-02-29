@@ -1,10 +1,10 @@
 package etomica.potential;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Dimension;

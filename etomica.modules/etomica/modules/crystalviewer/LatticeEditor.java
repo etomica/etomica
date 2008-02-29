@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
+import etomica.api.IVector;
 import etomica.config.ConfigurationLattice;
 import etomica.graphics.DeviceBox;
 import etomica.graphics.DeviceSlider;
@@ -24,7 +25,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.box.Box;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.Degree;
 import etomica.units.Quantity;
@@ -49,6 +50,8 @@ public class LatticeEditor {
     protected CrystalViewer viewer;
     protected final HashMap latticeNameHash;
     protected LatticeEditorBoxPropertyArray pvBox = null; 
+    private final Space space;
+    
     private final String[] fieldTitles = {"A", "B", "C",
                                           "Alpha", "Beta", "Gamma" };
     private final String[] fieldPrefix = {"size", "size", "size",
@@ -70,9 +73,11 @@ public class LatticeEditor {
     private static final int ANGLE_START_INDEX = 3;
     private static final int ANGLE_END_INDEX = 5;
 
-    public LatticeEditor(CrystalViewer viewer, BravaisLattice[] lattices, String[] latticeNames) {
+    public LatticeEditor(CrystalViewer viewer, BravaisLattice[] lattices,
+    		             String[] latticeNames, Space _space) {
     
         this.viewer = viewer;
+        this.space = _space;
         box = viewer.box;
         species = viewer.species;
         latticeNameHash = new HashMap();
@@ -283,7 +288,7 @@ public class LatticeEditor {
         dimensions.TE(size);
         box.setDimensions(dimensions);
         box.setNMolecules(species, numAtoms);
-        ConfigurationLattice config = new ConfigurationLattice(currentLattice);
+        ConfigurationLattice config = new ConfigurationLattice(currentLattice, space);
         config.initializeCoordinates(box);
         viewer.update(currentLattice);
     }
@@ -296,7 +301,7 @@ public class LatticeEditor {
     	box = new Box(new etomica.space.BoundaryDeformableLattice
     			                             (currentLattice.getPrimitive(),
     			    	                   	  (etomica.util.IRandom)null,
-    			    		                  boxSize));
+    			    		                  boxSize), space);
     	if(oldBox != null) {
     	    viewer.sim.removeBox(oldBox);
     	}

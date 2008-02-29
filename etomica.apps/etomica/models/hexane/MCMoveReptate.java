@@ -1,5 +1,6 @@
 package etomica.models.hexane;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
@@ -12,20 +13,20 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.IVectorRandom;
+import etomica.space.Space;
 import etomica.util.IRandom;
 
 public class MCMoveReptate extends MCMoveBoxStep {
     
-    public MCMoveReptate(ISimulation sim, PotentialMaster potentialMaster){
-        this(potentialMaster, sim.getRandom(), 1.0, 15.0, false /*, con*/);
+    public MCMoveReptate(ISimulation sim, PotentialMaster potentialMaster, Space _space){
+        this(potentialMaster, sim.getRandom(), 1.0, 15.0, false, _space);
     }
     
     public MCMoveReptate(PotentialMaster potentialMaster, IRandom random, 
-            double stepSize, double stepSizeMax, boolean fixOverlap){
+            double stepSize, double stepSizeMax, boolean fixOverlap, Space _space){
         super(potentialMaster);
-       
+        this.space = _space;
         this.random = random;
         atomSource = new AtomSourceRandomMolecule();
         ((AtomSourceRandomMolecule)atomSource).setRandom(random);
@@ -166,8 +167,8 @@ public class MCMoveReptate extends MCMoveBoxStep {
         super.setBox(p);
         energyMeter.setBox(p);
         atomSource.setBox(p);
-        tempV = (IVectorRandom)box.getSpace().makeVector();
-        positionOld = box.getSpace().makeVector();
+        tempV = (IVectorRandom)space.makeVector();
+        positionOld = space.makeVector();
     }
     
     /**
@@ -200,6 +201,7 @@ public class MCMoveReptate extends MCMoveBoxStep {
     private boolean forward;
     private double bondLength;
     protected final IRandom random;
+    private final Space space;
     
     
 }

@@ -4,7 +4,7 @@ import etomica.data.DataSourceScalar;
 import etomica.data.DataSourceTensorVirialHard;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorHard;
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Energy;
@@ -60,7 +60,7 @@ public class MeterSurfaceTensionHard extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return velocityTensor.getBox();
     }
 

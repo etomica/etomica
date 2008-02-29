@@ -3,6 +3,7 @@ package etomica.dimer;
 import java.io.IOException;
 import java.util.Formatter;
 
+import etomica.api.IVector;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.AtomAgentManager.AgentSource;
@@ -12,22 +13,22 @@ import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
+import etomica.space.Space;
 
 public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
 
     IAtomPositioned adatom;
     public MeterPotentialEnergy energy;
     String fileTail;
-    
-    public IntegratorEnergyMap(ISimulation aSim, PotentialMaster potentialMaster, IAtomPositioned aAdatom, String aFileTail) {
+    private final Space space;
+
+    public IntegratorEnergyMap(ISimulation aSim, PotentialMaster potentialMaster,
+    		                   IAtomPositioned aAdatom, String aFileTail,
+    		                   Space _space) {
         super(potentialMaster, 1.0);
         this.fileTail = aFileTail;
         this.adatom = aAdatom;
-    
-        
-    
-    
+        this.space = _space;
     }
     
     public void doStepInternal(){
@@ -78,7 +79,7 @@ public class IntegratorEnergyMap extends IntegratorBox implements AgentSource{
     }
 
     public Object makeAgent(IAtom a) {
-        return new IntegratorVelocityVerlet.MyAgent(box.getSpace());
+        return new IntegratorVelocityVerlet.MyAgent(space);
     }
 
     public void releaseAgent(Object agent, IAtom atom) {

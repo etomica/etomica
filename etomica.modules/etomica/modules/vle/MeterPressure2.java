@@ -1,5 +1,6 @@
 package etomica.modules.vle;
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
@@ -21,6 +22,7 @@ public class MeterPressure2 extends DataSourceScalar {
     
     public MeterPressure2(Space space) {
     	super("Pressure",Pressure.dimension(space.D()));
+    	dim = space.D();
         iteratorDirective = new IteratorDirective();
         iteratorDirective.includeLrc = true;
         virial = new PotentialCalculationVirialSum();
@@ -53,7 +55,7 @@ public class MeterPressure2 extends DataSourceScalar {
         box = newBox;
     }
     
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
 
@@ -81,7 +83,7 @@ public class MeterPressure2 extends DataSourceScalar {
     	virial.zeroSum();
         potentialMaster.calculate(box, iteratorDirective, virial);
         //System.out.println("fac="+(1/(box.getBoundary().volume()*box.getSpace().D())));
-        return - virial.getSum()/(box.getBoundary().volume()*box.getSpace().D());
+        return - virial.getSum()/(box.getBoundary().volume()*dim);
     }
 
     private static final long serialVersionUID = 1L;
@@ -89,4 +91,5 @@ public class MeterPressure2 extends DataSourceScalar {
     protected Box box;
     private IteratorDirective iteratorDirective;
     private final PotentialCalculationVirialSum virial;
+    private final int dim;
 }

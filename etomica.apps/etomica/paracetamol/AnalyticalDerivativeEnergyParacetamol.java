@@ -2,6 +2,7 @@ package etomica.paracetamol;
 
 import java.io.Serializable;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
@@ -9,27 +10,27 @@ import etomica.box.Box;
 import etomica.conjugategradient.DerivativeEnergyFunction;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.IVector3D;
 
 public class AnalyticalDerivativeEnergyParacetamol extends DerivativeEnergyFunction implements Serializable{
 	
-	public AnalyticalDerivativeEnergyParacetamol(Box box, PotentialMaster potentialMaster){
-		super(box, potentialMaster);
-		rotationAxis = (IVector3D)box.getSpace().makeVector();
-		a      = (IVector3D)box.getSpace().makeVector();
-		aProj  = (IVector3D)box.getSpace().makeVector();
-		v      = (IVector3D)box.getSpace().makeVector();
-		deltaV = (IVector3D)box.getSpace().makeVector();
+	public AnalyticalDerivativeEnergyParacetamol(Box box, PotentialMaster potentialMaster, Space space){
+		super(box, potentialMaster, space);
+		rotationAxis = (IVector3D)space.makeVector();
+		a      = (IVector3D)space.makeVector();
+		aProj  = (IVector3D)space.makeVector();
+		v      = (IVector3D)space.makeVector();
+		deltaV = (IVector3D)space.makeVector();
 		distance = new IVector3D[20];
 		torque   = new IVector3D[20];
 		torqueF  = new IVector3D[20];
 		for (int i=0; i<20; i++){
-			distance[i] = (IVector3D)box.getSpace().makeVector();
-			torque  [i] = (IVector3D)box.getSpace().makeVector();
-			torqueF [i] = (IVector3D)box.getSpace().makeVector();
+			distance[i] = (IVector3D)space.makeVector();
+			torque  [i] = (IVector3D)space.makeVector();
+			torqueF [i] = (IVector3D)space.makeVector();
 		}
-		torqueSum = box.getSpace().makeVector();
+		torqueSum = space.makeVector();
 		
 	}
 	

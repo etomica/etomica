@@ -96,7 +96,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setDimensions(Space.makeVector(new double[] {25,25,25}));
         box.setNMolecules(species, numMolecules);        
@@ -105,7 +105,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         bdry.setDimensions(Space.makeVector(new double []{cellDim[0]*17.248, cellDim[1]*12.086, cellDim[2]*7.382}));
         box.setBoundary(bdry);
 
-        coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
+        coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
         coordDef.setBasisOrthorhombic();
         
    
@@ -221,8 +221,10 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
         System.out.println(simSteps+ " steps");
         System.out.println("output data to " + filename);
         
+        Space sp = Space.getInstance(3);
+
     	MCParacetamolOrthorhombicDLMULTI sim = 
-        	new MCParacetamolOrthorhombicDLMULTI(Space.getInstance(3), numMolecules, temperature, simType, new int[] {1,1,2});
+        	new MCParacetamolOrthorhombicDLMULTI(sp, numMolecules, temperature, simType, new int[] {1,1,2});
        
        sim.actionIntegrate.setMaxSteps(simSteps);
        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(sim.potentialMaster);
@@ -244,7 +246,7 @@ public class MCParacetamolOrthorhombicDLMULTI extends Simulation {
        
        sim.getController().actionPerformed();
        
-       WriteConfiguration writeConfig = new WriteConfiguration();
+       WriteConfiguration writeConfig = new WriteConfiguration(sp);
        writeConfig.setConfName("FinalCoord_Paracetamol_Orthorhombic_"+Kelvin.UNIT.fromSim(temperature)+"K");
        writeConfig.setBox(sim.box);
        writeConfig.setDoApplyPBC(false);

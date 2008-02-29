@@ -43,42 +43,7 @@ public class EnergyMapMEAMadatom extends Simulation{
     public PotentialMEAM potential;
     public ActivityIntegrate activityIntegrateMAP;
     
-    public static void main(String[] args){
-        double height1 = 10.0;
-        String fileTail1 = ""+height1;
-    	final String APP_NAME = "EnergyMapMEAMadatomSn";
-    	final EnergyMapMEAMadatom sim = new EnergyMapMEAMadatom(height1, fileTail1);
-    	
-    	sim.activityIntegrateMAP.setMaxSteps(1); 
-    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
-    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
 
-    	sim.integratorMAP.addIntervalAction(simGraphic.getPaintAction(sim.box));
-    	
-    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-
-    	//Sn
-    
-    	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.gray);
-        colorScheme.setColor(sim.snFix.getMoleculeType(),java.awt.Color.blue);
-        colorScheme.setColor(sim.snAdatom.getMoleculeType(),java.awt.Color.red);
-        colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
-      
-        /**
-        
-        //Cu
-    
-        colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.yellow);
-        colorScheme.setColor(sim.cuFix.getMoleculeType(),java.awt.Color.cyan);
-        colorScheme.setColor(sim.cuAdatom.getMoleculeType(),java.awt.Color.red);
-        colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
-        
-         */
-    	
-    	simGraphic.makeAndDisplayFrame(APP_NAME);
-    	
-    }
-    
     
     public EnergyMapMEAMadatom(double height, String fileTail) {
     	super(Space3D.getInstance(), true);
@@ -123,7 +88,7 @@ public class EnergyMapMEAMadatom extends Simulation{
         ((AtomTypeSphere)movable.getMoleculeType()).setDiameter(2.5561);
          */
         
-        box = new Box(new BoundaryRectangularSlit(space, random, 0, 5));
+        box = new Box(new BoundaryRectangularSlit(random, 0, 5, space), space);
         addBox(box);
             	
 		// Sn
@@ -171,7 +136,7 @@ public class EnergyMapMEAMadatom extends Simulation{
          */
         
         
-        Configuration config = new ConfigurationLattice(crystal);
+        Configuration config = new ConfigurationLattice(crystal, space);
         config.initializeCoordinates(box); 
 
         // Sn
@@ -214,11 +179,48 @@ public class EnergyMapMEAMadatom extends Simulation{
         
          */
          
-         integratorMAP = new IntegratorEnergyMap(this, potentialMaster, adAtom, fileTail);
+         integratorMAP = new IntegratorEnergyMap(this, potentialMaster, adAtom, fileTail, space);
          integratorMAP.setBox(box);
          activityIntegrateMAP = new ActivityIntegrate(integratorMAP);
 
          getController().addAction(activityIntegrateMAP);
        
     }
+
+    public static void main(String[] args){
+        double height1 = 10.0;
+        String fileTail1 = ""+height1;
+    	final String APP_NAME = "EnergyMapMEAMadatomSn";
+    	final EnergyMapMEAMadatom sim = new EnergyMapMEAMadatom(height1, fileTail1);
+    	
+    	sim.activityIntegrateMAP.setMaxSteps(1); 
+    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
+    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+
+    	sim.integratorMAP.addIntervalAction(simGraphic.getPaintAction(sim.box));
+    	
+    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
+
+    	//Sn
+    
+    	colorScheme.setColor(sim.sn.getMoleculeType(),java.awt.Color.gray);
+        colorScheme.setColor(sim.snFix.getMoleculeType(),java.awt.Color.blue);
+        colorScheme.setColor(sim.snAdatom.getMoleculeType(),java.awt.Color.red);
+        colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
+      
+        /**
+        
+        //Cu
+    
+        colorScheme.setColor(sim.cu.getMoleculeType(),java.awt.Color.yellow);
+        colorScheme.setColor(sim.cuFix.getMoleculeType(),java.awt.Color.cyan);
+        colorScheme.setColor(sim.cuAdatom.getMoleculeType(),java.awt.Color.red);
+        colorScheme.setColor(sim.movable.getMoleculeType(),java.awt.Color.PINK);
+        
+         */
+    	
+    	simGraphic.makeAndDisplayFrame(APP_NAME);
+    	
+    }
+
 }

@@ -1,13 +1,14 @@
 package etomica.virial;
 
 import etomica.action.AtomAction;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveRotateMolecule3D;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.util.IRandom;
 
 /**
@@ -22,8 +23,9 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
      * @param space
      */
     public MCMoveClusterRotateMoleculeMulti(PotentialMaster potentialMaster,
-            IRandom random) {
+            IRandom random, Space _space) {
         super(potentialMaster, random);
+        this.space = _space;
         weightMeter = new MeterClusterWeight(potential);
     }
     
@@ -36,7 +38,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
             molecule = (IMolecule)moleculeList.getAtom(i);
             oldPositions[i-1] = new IVector[molecule.getChildList().getAtomCount()];
             for (int j=0; j<oldPositions[i-1].length; j++) {
-                oldPositions[i-1][j] = p.getSpace().makeVector();
+                oldPositions[i-1][j] = space.makeVector();
             }
         }
     }
@@ -116,4 +118,5 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveRotateMolecule3D {
     private IVector[][] oldPositions;
     private int trialCount, relaxInterval = 100;
     private AtomAction relaxAction;
+    private final Space space;
 }

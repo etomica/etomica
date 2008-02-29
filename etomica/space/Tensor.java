@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.api.IVector;
 import etomica.util.Function;
 
 

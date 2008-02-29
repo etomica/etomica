@@ -1,11 +1,11 @@
 package etomica.spin;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
-import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Undefined;
 
@@ -47,18 +47,18 @@ public class MeterSpin extends DataSourceScalar implements DataSource {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private Box box;
+    private IBox box;
     private final AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
     private final IVector sum;
 }

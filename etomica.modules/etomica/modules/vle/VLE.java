@@ -15,6 +15,7 @@ import etomica.graphics.DisplayPlot;
 import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.ModifierGeneral;
+import etomica.space.Space;
 import etomica.units.Debye;
 import etomica.units.Kelvin;
 import etomica.units.Liter;
@@ -31,8 +32,8 @@ public class VLE extends SimulationGraphic {
     private final static String APP_NAME = "Virial / VLE";
     private final static int REPAINT_INTERVAL = 200;
 
-    public VLE(final VLESim sim) {
-        super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+    public VLE(final VLESim sim, Space _space) {
+        super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
 
         getDisplayBox(sim.boxLiquid).setPixelUnit(new Pixel(8));
         getDisplayBox(sim.boxVapor).setPixelUnit(new Pixel(8));
@@ -243,7 +244,8 @@ public class VLE extends SimulationGraphic {
     }
     
     public static void main(String[] args) {
-        VLE vle = new VLE(new VLESim());
+    	VLESim sim = new VLESim();
+        VLE vle = new VLE(sim, sim.getSpace());
         vle.makeAndDisplayFrame();
     }
 
@@ -251,7 +253,8 @@ public class VLE extends SimulationGraphic {
         public void init() {
             getRootPane().putClientProperty(
                     "defeatSystemEventQueueCheck", Boolean.TRUE);
-            VLE vle = new VLE(new VLESim());
+            VLESim sim = new VLESim();
+            VLE vle = new VLE(sim, sim.getSpace());
             getContentPane().add(vle.getPanel());
         }
 

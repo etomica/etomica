@@ -1,11 +1,11 @@
 package etomica.modules.entropylottery;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IVector;
 import etomica.integrator.IntegratorMC;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesSpheresMono;
@@ -18,15 +18,15 @@ public class EntropyLottery extends Simulation {
     public IntegratorMC integrator;
     public ActivityIntegrate activityIntegrate;
     
-    public EntropyLottery(Space space) {
-        super(space);
+    public EntropyLottery(Space _space) {
+        super(_space);
         PotentialMaster potentialMaster = new PotentialMaster(space);
         
         final int N = 30;  //number of atoms
         
         //controller and integrator
 	    integrator = new IntegratorMC(this, potentialMaster);
-        MCMoveAtomAdjacent move = new MCMoveAtomAdjacent(getRandom());
+        MCMoveAtomAdjacent move = new MCMoveAtomAdjacent(getRandom(), space);
         integrator.getMoveManager().addMCMove(move);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
@@ -35,13 +35,13 @@ public class EntropyLottery extends Simulation {
         getSpeciesManager().addSpecies(species);
         
         //construct box
-	    box = new Box(new BoundaryRectangularNonperiodic(space, getRandom()));
+	    box = new Box(new BoundaryRectangularNonperiodic(space, getRandom()), space);
         addBox(box);
         box.setNMolecules(species, N);
         IVector dimensions = space.makeVector();
         dimensions.E(10);
         box.getBoundary().setDimensions(dimensions);
-        new ConfigurationZero().initializeCoordinates(box);
+        new ConfigurationZero(space).initializeCoordinates(box);
         integrator.setBox(box);
 		
 //        BoxImposePbc imposePBC = new BoxImposePbc(box);

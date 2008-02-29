@@ -1,9 +1,9 @@
 package etomica.lattice;
 
+import etomica.api.IVector;
 import etomica.data.Data;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataGroup;
-import etomica.space.IVector;
 import etomica.util.FunctionGeneral;
 
 public class LatticeSumCrystal {

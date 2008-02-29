@@ -7,12 +7,12 @@ import java.awt.RenderingHints;
 import java.awt.TextField;
 import java.util.Iterator;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.AtomTypeWell;
 import etomica.atom.IAtomPositioned;
 import etomica.space.Boundary;
-import etomica.space.IVector;
 import etomica.species.Species;
 
     /* History of changes

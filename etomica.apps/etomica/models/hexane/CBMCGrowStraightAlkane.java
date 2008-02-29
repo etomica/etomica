@@ -1,11 +1,11 @@
 package etomica.models.hexane;
 
+import etomica.api.IVector;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.IntegratorMC;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
@@ -115,7 +115,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                             calcRandomBondWithAngleAndTorsion(
                                     (IAtomPositioned) atomList.getAtom(i - dir),
                                     (IAtomPositioned) atomList.getAtom(i - 2 * dir),
-                                    (IAtomPositioned) atomList.getAtom(i - 3 * dir), k));
+                                    (IAtomPositioned) atomList.getAtom(i - 3 * dir)));
                     ((IAtomPositioned) atomList.getAtom(i)).getPosition().PE(
                             ((IAtomPositioned) atomList.getAtom(i - dir)).getPosition());
                 }
@@ -210,7 +210,7 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
                             calcRandomBondWithAngleAndTorsion(
                                     (IAtomPositioned) atomList.getAtom(i - dir),
                                     (IAtomPositioned) atomList.getAtom(i - 2 * dir),
-                                    (IAtomPositioned) atomList.getAtom(i - 3 * dir), k));
+                                    (IAtomPositioned) atomList.getAtom(i - 3 * dir)));
                     ((IAtomPositioned) atomList.getAtom(i)).getPosition().PE(
                             ((IAtomPositioned) atomList.getAtom(i - dir)).getPosition());
                 }
@@ -319,12 +319,13 @@ public abstract class CBMCGrowStraightAlkane extends MCMoveCBMC {
      */
     // Based on algorithm 46 in Frenkel & Smit
     protected IVector calcRandomBondWithAngleAndTorsion(IAtomPositioned a, IAtomPositioned b,
-            IAtomPositioned c, int dorkball) {
-        if (box.getSpace().D() != 3) {
+            IAtomPositioned c) {
+/*
+        if (dim != 3) {
             throw new IllegalArgumentException("Torsional bond is only used "
                     + "in 3D simulations");
         }
-
+*/
         tempFarther.E(b.getPosition());
         tempFarther.ME(c.getPosition());
         tempCloser.E(a.getPosition());

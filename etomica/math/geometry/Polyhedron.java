@@ -1,7 +1,7 @@
 package etomica.math.geometry;
 import java.util.LinkedList;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space3d.IVector3D;
 
 /**

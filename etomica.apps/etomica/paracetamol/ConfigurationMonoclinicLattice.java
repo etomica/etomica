@@ -2,6 +2,7 @@ package etomica.paracetamol;
 
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
@@ -16,7 +17,6 @@ import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Space3D;
@@ -44,13 +44,14 @@ import etomica.space3d.Space3D;
 public class ConfigurationMonoclinicLattice implements Configuration, AgentSource, java.io.Serializable {
 
 	private final static String APP_NAME = "Configuration Monoclinic Lattice";
+	private final Space space;
 
     /**
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationMonoclinicLattice(SpaceLattice lattice) {
-        this(lattice, new IndexIteratorRectangular(lattice.D()));
+    public ConfigurationMonoclinicLattice(SpaceLattice lattice, Space _space) {
+        this(lattice, new IndexIteratorRectangular(lattice.D()), _space);
     }
 
     /**
@@ -59,12 +60,13 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
      * iterator.
      */
     public ConfigurationMonoclinicLattice(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator) {
+            IndexIteratorSizable indexIterator, Space _space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
         this.lattice = lattice;
         this.indexIterator = indexIterator;
+        this.space = _space;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
         atomGroupAction = new AtomGroupAction(new AtomActionTransformed(lattice.getSpace()));
     }
@@ -105,7 +107,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector shape = box.getSpace().makeVector();
+        IVector shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
@@ -124,7 +126,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
         }
 
         // determine lattice constant
-        IVector latticeScaling = box.getSpace().makeVector();
+        IVector latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -136,11 +138,11 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = box.getSpace().makeVector();
+        IVector offset = space.makeVector();
         offset.E(box.getBoundary().getDimensions());
-        IVector vectorOfMax = box.getSpace().makeVector();
-        IVector vectorOfMin = box.getSpace().makeVector();
-        IVector site = box.getSpace().makeVector();
+        IVector vectorOfMax = space.makeVector();
+        IVector vectorOfMin = space.makeVector();
+        IVector site = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -208,7 +210,7 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
             atomActionTranslateTo.actionPerformed(molecule);
             
             if (ii[3] == 0){
-            	cellPosition = box.getSpace().makeVector();
+            	cellPosition = space.makeVector();
             	cellPosition.E((IVector)myLat.site(ii));
             	
             	
@@ -276,8 +278,9 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
     
 
     public static void main(String[] args) {
-        Simulation sim = new Simulation(Space3D.getInstance());
-        Box box = new Box(sim);
+    	Space sp = Space3D.getInstance();
+        Simulation sim = new Simulation(sp);
+        Box box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesParacetamol species = new SpeciesParacetamol(sim);
         PrimitiveMonoclinic primitive = new PrimitiveMonoclinic(sim.getSpace(), 12.119, 8.944, 7.278,  1.744806);
@@ -289,13 +292,13 @@ public class ConfigurationMonoclinicLattice implements Configuration, AgentSourc
         // CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new BravaisLatticeCrystal(primitive, basis);
         // CubicLattice lattice = new LatticeCubicSimple();
-        ConfigurationMonoclinicLattice configuration = new ConfigurationMonoclinicLattice(lattice);
+        ConfigurationMonoclinicLattice configuration = new ConfigurationMonoclinicLattice(lattice, sp);
         // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
         configuration.initializeCoordinates(box);
         // etomica.graphics.DisplayBox display = new
         // etomica.graphics.DisplayBox(box);
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp);
 //        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
 //                .getFirst()).getColorScheme()).setColor(species
 //                .getMoleculeType(), java.awt.Color.red);

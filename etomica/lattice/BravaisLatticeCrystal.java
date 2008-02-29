@@ -1,8 +1,8 @@
 package etomica.lattice;
 
+import etomica.api.IVector;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.IVector;
 
 /**
  * A lattice with sites given by the "atom" sites of a crystal. Sites of this

@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.api.IVector;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
@@ -8,7 +9,6 @@ import etomica.box.Box;
 import etomica.potential.Potential2;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.Potential2Spherical;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

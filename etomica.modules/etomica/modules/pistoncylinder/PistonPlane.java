@@ -1,8 +1,8 @@
 package etomica.modules.pistoncylinder;
 
+import etomica.api.IVector;
 import etomica.math.geometry.Plane;
 import etomica.potential.P1HardMovingBoundary;
-import etomica.space.IVector;
 
 /**
  * Wrap a P1HardMovingBoundary and make it look like a Plane.  A boatload of

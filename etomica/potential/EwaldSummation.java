@@ -1,5 +1,6 @@
 package etomica.potential;
 
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
@@ -12,7 +13,6 @@ import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.nbr.CriterionNone;
 import etomica.nbr.NeighborCriterion;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 import etomica.units.Dimension;
@@ -40,8 +40,8 @@ public class EwaldSummation implements IPotential{
 	 * 
 	 * @author: Tai Tan
 	 */
-	
-	
+
+
 	public double energy(AtomSet atoms) {
 		double energy = EwaldSum();
 		System.out.println("Energy Ewald Sum: "+ energy);
@@ -60,7 +60,7 @@ public class EwaldSummation implements IPotential{
 
 	public Space getSpace() {
 		// TODO Auto-generated method stub
-		return box.getSpace();
+		return space;
 	}
 
 	public int nBody() {
@@ -73,9 +73,10 @@ public class EwaldSummation implements IPotential{
 		
 	}
 
-	public EwaldSummation(Box box, AtomAgentManager atomAgentManager, int nVectorMax){
+	public EwaldSummation(Box box, AtomAgentManager atomAgentManager, int nVectorMax, Space _space){
 		
 		this.box = box;
+		this.space = _space;
 		this.atomAgentManager = atomAgentManager;
 		this.moleculeBasis = new AtomSetSinglet();
 		this.nVectorMax = nVectorMax;
@@ -147,7 +148,7 @@ public class EwaldSummation implements IPotential{
 					
 					if (sq !=0 && check <= rCut){
 						//System.out.println("[i, j, k]: "+i+" " +j+" " + k);
-						nVector[numNVector] = (IVector3D)box.getSpace().makeVector(new double[] {i,j,k});
+						nVector[numNVector] = (IVector3D)space.makeVector(new double[] {i,j,k});
 						numNVector += 1;
 					}
 				}
@@ -173,8 +174,8 @@ public class EwaldSummation implements IPotential{
 		int numNVector = nVector.length;
 		double uReal = 0.0;
 		
-		IVector rij = box.getSpace().makeVector();
-		IVector rijNv = box.getSpace().makeVector();
+		IVector rij = space.makeVector();
+		IVector rijNv = space.makeVector();
 		
 		for (int vecCounter=-1; vecCounter<numNVector; vecCounter++){
 			
@@ -323,7 +324,7 @@ public class EwaldSummation implements IPotential{
 			 * Multi atomic
 			 */
 			
-			IVector dabVector = box.getSpace().makeVector();
+			IVector dabVector = space.makeVector();
 			int numSites = molecule.getChildList().getAtomCount();
 		
 			// cancel-Term
@@ -385,6 +386,7 @@ public class EwaldSummation implements IPotential{
 	protected final AtomPair atomPair;
 	protected AtomsetIteratorBasisDependent iterator;
 	protected final AtomSetSinglet moleculeBasis;
+	private final Space space;
 	
 	
 	public static class MyCharge{

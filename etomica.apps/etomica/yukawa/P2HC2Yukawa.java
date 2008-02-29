@@ -1,11 +1,11 @@
 package etomica.yukawa;
 import etomica.EtomicaInfo;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 

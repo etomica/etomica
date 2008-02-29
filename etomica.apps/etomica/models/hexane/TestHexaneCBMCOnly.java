@@ -53,7 +53,7 @@ public class TestHexaneCBMCOnly extends Simulation {
 //        primitive.scaleSize(Math.pow(0.4165783882178116 / 0.01,
 //                1.0 / 3.0));
         lattice = new BravaisLattice(primitive);
-        ConfigurationLattice config = new ConfigurationLattice(lattice);
+        ConfigurationLattice config = new ConfigurationLattice(lattice, space);
 
         // This is the factor that multiples by the range of the potential in
         // order to define the area/volume in which neighbors are searched for.
@@ -67,7 +67,7 @@ public class TestHexaneCBMCOnly extends Simulation {
         getSpeciesManager().addSpecies(species);
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), new int[] {
             4, 6, 6 });
-        box = new Box(bdry);
+        box = new Box(bdry, space);
         addBox(box);
         box.setNMolecules(species, numMolecules);
         // config.initializeCoordinates(box);
@@ -182,7 +182,7 @@ public class TestHexaneCBMCOnly extends Simulation {
                 numMolecules);
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
             simGraphic.makeAndDisplayFrame(APP_NAME);
         } else {
             // PDBWriter write = new PDBWriter(sim.box);

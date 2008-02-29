@@ -1,12 +1,12 @@
 package etomica.normalmode;
 
+import etomica.api.IVector;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.IVector;
 import etomica.util.IRandom;
 
 public class MCMoveHarmonic extends MCMoveBox {

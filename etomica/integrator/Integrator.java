@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import etomica.action.Action;
+import etomica.api.IVector;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.space.IVector;
 
 /**
  * Integrator implements the algorithm used to move the atoms around and

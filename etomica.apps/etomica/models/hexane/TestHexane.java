@@ -100,7 +100,7 @@ public class TestHexane extends Simulation {
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
-        box = new Box(bdry);
+        box = new Box(bdry, space);
         addBox(box);
         box.setNMolecules(species, xCells * yCells * zCells);
 //        config.initializeCoordinates(box);
@@ -118,7 +118,7 @@ public class TestHexane extends Simulation {
         moveVolume.setBox(box);
         integrator.getMoveManager().addMCMove(moveVolume);
         
-        crank = new MCMoveClusterWiggleMulti(potentialMaster, getRandom(), 0.20, 6);
+        crank = new MCMoveClusterWiggleMulti(potentialMaster, getRandom(), 0.20, 6, space);
     
 //        snake = new MCMoveReptate(potentialMaster, getRandom(), 0.4, 3.0, true);
 //        snake.setBox(box);
@@ -178,7 +178,7 @@ public class TestHexane extends Simulation {
                 species.getMoleculeType(), species.getMoleculeType() }  ));
 
         //Initialize the positions of the atoms.
-        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species);
+        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species, space);
         coordinateDefinition.initializeCoordinates(nCells);
 //        WriteConfiguration writer = new WriteConfiguration();
 //        writer.setBox(box);
@@ -207,7 +207,7 @@ public class TestHexane extends Simulation {
         System.out.println("Happy Goodness!!");
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space);
             simGraphic.makeAndDisplayFrame();
         } else {
             long time = System.currentTimeMillis();
@@ -251,7 +251,7 @@ public class TestHexane extends Simulation {
             
             PrimitiveHexane primitive = (PrimitiveHexane)sim.lattice.getPrimitive();
             // primitive doesn't need scaling.  The boundary was designed to be commensurate with the primitive
-            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive);
+            WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
             // we need to set this up now even though we don't use it during equilibration so that
             // the meter can grab the lattice points
             MeterNormalMode meterNormalMode = new MeterNormalMode();
@@ -288,7 +288,7 @@ public class TestHexane extends Simulation {
 //            IVector[] waveVectors = waveVectorFactory.getWaveVectors();
 //            double[] coefficients = waveVectorFactory.getCoefficients();
             
-            WriteS sWriter = new WriteS();
+            WriteS sWriter = new WriteS(sim.space);
             sWriter.setFilename(filename);
             sWriter.setOverwrite(true);
             sWriter.setMeter(meterNormalMode);
@@ -307,7 +307,7 @@ public class TestHexane extends Simulation {
             pdbWriter.setFileName("calcHex.pdb");
             pdbWriter.actionPerformed();
 
-            WriteConfiguration writer = new WriteConfiguration();
+            WriteConfiguration writer = new WriteConfiguration(sim.space);
             writer.setBox(sim.box);
             writer.setDoApplyPBC(false);
             writer.setConfName("hexane");

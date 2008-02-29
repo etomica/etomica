@@ -67,7 +67,7 @@ public class MEAM_MC extends Simulation {
 	    //energyAccumulator.setBlockSize(50);
         sim.integrator.addIntervalAction(energyPump);
 
-	    SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME);
+	    SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, sim.space);
         simgraphic.getController().getDataStreamPumps().add(energyPump);
 
 	    simgraphic.getPanel().plotPanel.add(plot.graphic(), SimulationPanel.getVertGBC());
@@ -119,7 +119,7 @@ public class MEAM_MC extends Simulation {
         
         ((AtomTypeSphere)cu.getLeafType()).setDiameter(2.5561); 
         
-	    box = new Box(this);
+	    box = new Box(this, space);
         addBox(box);
         box.setNMolecules(sn, 216);
         box.setNMolecules(ag, 0);
@@ -154,7 +154,7 @@ public class MEAM_MC extends Simulation {
 		        primitive, new BasisCubicFcc(primitive)));
 	    **/
 	    
-		Configuration config = new ConfigurationLattice(crystal);
+		Configuration config = new ConfigurationLattice(crystal, space);
 		config.initializeCoordinates(box);  
 		
 		potentialN = new PotentialMEAM(space);
@@ -166,7 +166,7 @@ public class MEAM_MC extends Simulation {
         this.potentialMaster.addPotential(potentialN, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()}); 
 	        
 	    integrator.setBox(box);
-	    BoxImposePbc imposepbc = new BoxImposePbc();
+	    BoxImposePbc imposepbc = new BoxImposePbc(space);
 	    imposepbc.setBox(box);
 	    integrator.addIntervalAction(imposepbc);
 			

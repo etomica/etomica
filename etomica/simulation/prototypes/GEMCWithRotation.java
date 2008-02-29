@@ -27,9 +27,7 @@ import etomica.species.SpeciesSpheresRotating;
 public class GEMCWithRotation extends Simulation {
     
     private static final long serialVersionUID = 1L;
-    public GEMCWithRotation() {
-        this(Space2D.getInstance());
-    }
+
     
     public GEMCWithRotation(Space space) {
         super(space, false);
@@ -45,7 +43,7 @@ public class GEMCWithRotation extends Simulation {
         getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(sigma);
 
-	    box1 = new Box(this);
+	    box1 = new Box(this, space);
         addBox(box1);
         box1.setNMolecules(species, 200);
         
@@ -58,7 +56,7 @@ public class GEMCWithRotation extends Simulation {
         integrator.addIntegrator(integratorMC1);
         
 
-	    box2 = new Box(this);
+	    box2 = new Box(this, space);
         addBox(box2);
         box2.setNMolecules(species, 200);
         IntegratorMC integratorMC2 = new IntegratorMC(this, potentialMaster);
@@ -78,7 +76,7 @@ public class GEMCWithRotation extends Simulation {
         else {
             lattice = new LatticeCubicFcc();
         }
-        ConfigurationLattice config = new ConfigurationLattice(lattice);
+        ConfigurationLattice config = new ConfigurationLattice(lattice, space);
         config.initializeCoordinates(box1);
         config.initializeCoordinates(box2);
             
@@ -87,8 +85,8 @@ public class GEMCWithRotation extends Simulation {
 
         potentialMaster.addPotential(potential,new AtomType[] {species.getLeafType(), species.getLeafType()});
 
-        integratorMC1.addIntervalAction(new BoxImposePbc(box1));
-        integratorMC2.addIntervalAction(new BoxImposePbc(box2));
+        integratorMC1.addIntervalAction(new BoxImposePbc(box1, space));
+        integratorMC2.addIntervalAction(new BoxImposePbc(box2, space));
 
 	    box2.setDensity(0.1);
     }

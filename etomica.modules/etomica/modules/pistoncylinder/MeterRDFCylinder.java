@@ -1,11 +1,11 @@
 package etomica.modules.pistoncylinder;
 
+import etomica.api.IVector;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.data.Data;
 import etomica.data.meter.MeterRDF;
 import etomica.modules.pistoncylinder.ApiFilteredCylinder.AtomFilterInCylinder;
 import etomica.potential.P1HardMovingBoundary;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

@@ -14,6 +14,7 @@ import javax.swing.event.ChangeListener;
 
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
+import etomica.api.IVector;
 import etomica.config.ConfigurationLatticeWithPlane;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPump;
@@ -37,7 +38,7 @@ import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Plane;
 import etomica.math.geometry.Rectangle;
 import etomica.potential.P1HardBoundary;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Space3D;
@@ -64,9 +65,9 @@ public class Osmosis extends SimulationGraphic {
     public OsmosisSim sim;
     private DeviceThermoSlider temperatureSelect;
 
-    public Osmosis(OsmosisSim simulation) {
+    public Osmosis(OsmosisSim simulation, Space _space) {
 
-    	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
+    	super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space);
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
         
@@ -89,12 +90,12 @@ public class Osmosis extends SimulationGraphic {
         displayBox.setOriginShift(1, -thickness);
         if (sim.getSpace() instanceof Space2D) {
             displayBox.addDrawable(new MyWall());
-            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(sim.getSpace(), 1.0), null);
+            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(space, 1.0), null, space);
         }
         else if (sim.getSpace() instanceof Space3D) {
         	Plane plane = new Plane(sim.getSpace());
         	((etomica.graphics.DisplayBoxCanvasG3DSys)displayBox.canvas).addPlane(plane);
-            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(sim.getSpace(), 1.0), plane); 
+            config = new ConfigurationLatticeWithPlane(new LatticeCubicSimple(space, 1.0), plane, space); 
             config.addSpecies(sim.speciesSolvent);
             config.addSpecies(sim.speciesSolute);
         }
@@ -140,7 +141,7 @@ public class Osmosis extends SimulationGraphic {
 	    temperatureSelect.setMaximum(1000);
 	    temperatureSelect.setTemperature(300);
 	    temperatureSelect.setIsothermal();
-		MeterTemperature thermometer = new MeterTemperature();
+		MeterTemperature thermometer = new MeterTemperature(space.D());
 		thermometer.setBox(sim.box);
 		DisplayTextBox tBox = new DisplayTextBox();
         DataPump tempPump = new DataPump(thermometer, tBox);
@@ -151,7 +152,7 @@ public class Osmosis extends SimulationGraphic {
 		tBox.setPrecision(3);
 
         // Right side of membrane mole fraction
-        moleFractionRight = new MeterLocalMoleFraction();
+        moleFractionRight = new MeterLocalMoleFraction(space);
         moleFractionRight.setBox(sim.box);
         IVector dimensions = sim.box.getBoundary().getDimensions();
 
@@ -174,7 +175,7 @@ public class Osmosis extends SimulationGraphic {
         rightMFBox.setPrecision(5);
 
         // Left side of membrane mole fraction
-        moleFractionLeft = new MeterLocalMoleFraction();
+        moleFractionLeft = new MeterLocalMoleFraction(space);
         moleFractionLeft.setBox(sim.box);
 
         if (sim.getSpace() instanceof Space2D) { // 2D
@@ -312,11 +313,12 @@ public class Osmosis extends SimulationGraphic {
 
         OsmosisSim sim = null;
 
-    	sim = new OsmosisSim(Space3D.getInstance());
+        Space sp = Space3D.getInstance();
+    	sim = new OsmosisSim(sp);
 
         sim.activityIntegrate.setSleepPeriod(1);
 
-        Osmosis osmosis = new Osmosis(sim);
+        Osmosis osmosis = new Osmosis(sim, sp);
         SimulationGraphic.makeAndDisplayFrame(osmosis.getPanel(), APP_NAME);
     }
 
@@ -325,11 +327,12 @@ public class Osmosis extends SimulationGraphic {
 
 	    	OsmosisSim sim = null;
 
-	    	sim = new OsmosisSim(Space3D.getInstance());
+	    	Space sp = Space3D.getInstance();
+	    	sim = new OsmosisSim(sp);
 
 	        sim.activityIntegrate.setSleepPeriod(1);
 
-		    getContentPane().add(new Osmosis(sim).getPanel());
+		    getContentPane().add(new Osmosis(sim, sp).getPanel());
 	    }
 
         private static final long serialVersionUID = 1L;

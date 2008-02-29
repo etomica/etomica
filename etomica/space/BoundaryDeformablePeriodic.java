@@ -2,6 +2,7 @@ package etomica.space;
 
 import java.io.Serializable;
 
+import etomica.api.IVector;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.math.geometry.Parallelepiped;

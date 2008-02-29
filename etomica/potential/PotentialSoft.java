@@ -1,7 +1,7 @@
 package etomica.potential;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
-import etomica.space.IVector;
 import etomica.space.Tensor;
 
 

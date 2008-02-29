@@ -1,5 +1,7 @@
 package etomica.data.meter;
 import etomica.action.Action;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiLeafAtoms;
@@ -16,7 +18,6 @@ import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataFunction;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
-import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Length;
@@ -145,7 +146,7 @@ public class MeterRDF implements Action, DataSource, DataSourceIndependent, java
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**

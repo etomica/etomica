@@ -38,8 +38,8 @@ public class NeighborSiteManager implements BoxCellManager, AgentSource {
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborSiteManager(final Box box, int nCells) {
-        space = box.getSpace();
+    public NeighborSiteManager(final Box box, int nCells, Space _space) {
+        space = _space;
 
         lattice = new CellLattice(box.getBoundary().getDimensions(),
                 AtomSite.FACTORY);

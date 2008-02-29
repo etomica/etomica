@@ -82,12 +82,12 @@ public class ZeoliteSimulation extends Simulation {
         // the PotentialMaster is selected such as to implement neighbor listing
         super(Space3D.getInstance(), true);
 
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6, space);
         //Additions for Zeolite Calculations
         //Start by reading the first line, which is number of Atoms
         String fileName = "2unitcell";
         //String fileName = "pbu2";
-        ConfigurationFileXYZ config = new ConfigurationFileXYZ(fileName);
+        ConfigurationFileXYZ config = new ConfigurationFileXYZ(fileName, space);
         int[] numAtoms = config.getNumAtoms();
         
         nAtomsMeth = numAtoms[numAtoms.length - 1];
@@ -103,7 +103,7 @@ public class ZeoliteSimulation extends Simulation {
         potentialMaster.setRange(3.214*neighborRangeFac*2.5);
         
         
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(10);
         integrator.setTimeStep(0.00611);
@@ -114,7 +114,7 @@ public class ZeoliteSimulation extends Simulation {
         activityIntegrate.setMaxSteps(500);
         getController().addAction(activityIntegrate);
         
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addNonintervalListener(nbrManager);
@@ -216,7 +216,7 @@ public class ZeoliteSimulation extends Simulation {
     public static void main(String[] args) {
         //defaults.temperature = Kelvin.UNIT.toSim(298.0);
         ZeoliteSimulation sim = new ZeoliteSimulation();
-        zeoliteSimGraphic simGraphic = new zeoliteSimGraphic(sim, APP_NAME);
+        zeoliteSimGraphic simGraphic = new zeoliteSimGraphic(sim, sim.space, APP_NAME);
         int num = sim.species.length;
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));

@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.chem.elements.ElementSimple;
 
  /**
@@ -39,7 +39,7 @@ public abstract class Atom implements IAtom, java.io.Serializable {
     
     public abstract String signature();
     
-    public void setGlobalIndex(Box box) {
+    public void setGlobalIndex(IBox box) {
         globalIndex = box.requestGlobalIndex();
     }
 

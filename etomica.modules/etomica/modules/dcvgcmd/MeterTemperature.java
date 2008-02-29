@@ -13,8 +13,8 @@ import etomica.units.Temperature;
  */
 public final class MeterTemperature extends etomica.data.meter.MeterTemperature {
 
-	public MeterTemperature(ISpecies species) {
-		super();
+	public MeterTemperature(ISpecies species, int dim) {
+		super(dim);
 		this.species = species;
 	}
 

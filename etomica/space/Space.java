@@ -1,5 +1,6 @@
 package etomica.space;
 
+import etomica.api.IVector;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.space2d.Space2D;

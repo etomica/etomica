@@ -1,9 +1,9 @@
 package etomica.potential;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorBox;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 

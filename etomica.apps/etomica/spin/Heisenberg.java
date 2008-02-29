@@ -45,8 +45,8 @@ public class Heisenberg extends Simulation {
      */
     public Heisenberg(Space space, int nCells) {
         super(space, false);
-        potentialMaster = new PotentialMasterSite(this, nCells);
-        box = new Box(this);
+        potentialMaster = new PotentialMasterSite(this, nCells, space);
+        box = new Box(this, space);
         addBox(box);
         int numAtoms = space.powerD(nCells);
         spins = new SpeciesSpheresMono(this);
@@ -91,8 +91,9 @@ public class Heisenberg extends Simulation {
     public AccumulatorAverageCollapsing dAcc;
     
     public static void main(String[] args) {
-        Heisenberg sim = new Heisenberg(Space2D.getInstance(), 60);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+    	Space sp = Space2D.getInstance();
+        Heisenberg sim = new Heisenberg(sp, 60);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sp);
         ((SimulationRestart)simGraphic.getController().getReinitButton().getAction()).setConfiguration(null);
 		Action repaintAction = simGraphic.getPaintAction(sim.box);
         DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
@@ -100,7 +101,7 @@ public class Heisenberg extends Simulation {
         simGraphic.remove(displayBox);
         BoxAgentManager boxAgentManager = sim.potentialMaster.getCellAgentManager();
         NeighborSiteManager neighborSiteManager = (NeighborSiteManager)boxAgentManager.getAgent(sim.box);
-        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox,neighborSiteManager));
+        displayBox.setBoxCanvas(new DisplayBoxSpin2D(displayBox,neighborSiteManager, sp));
         simGraphic.add(displayBox);
         DeviceSlider temperatureSlider = new DeviceSlider(sim.getController(), sim.integrator,"temperature");
         temperatureSlider.setMinimum(0.5);

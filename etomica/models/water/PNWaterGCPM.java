@@ -1,6 +1,7 @@
 package etomica.models.water;
 
 import Jama.Matrix;
+import etomica.api.IVector;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
@@ -9,7 +10,6 @@ import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.potential.PotentialN;
 import etomica.potential.PotentialPolarizable;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.units.Electron;

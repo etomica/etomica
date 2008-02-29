@@ -72,9 +72,9 @@ public class LjmdGraphic extends SimulationGraphic {
     
     private boolean showConfig = false;
 
-    public LjmdGraphic(final Ljmd simulation) {
+    public LjmdGraphic(final Ljmd simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
         
@@ -144,7 +144,7 @@ public class LjmdGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
-		MeterTemperature thermometer = new MeterTemperature();
+		MeterTemperature thermometer = new MeterTemperature(space.D());
         thermometer.setBox(sim.box);
         DataFork temperatureFork = new DataFork();
         final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
@@ -218,7 +218,7 @@ public class LjmdGraphic extends SimulationGraphic {
 		ePlot.setDoLegend(true);
 		ePlot.setLabel("Energy");
 		
-        MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator();
+        MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator(space);
         pMeter.setIntegrator(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
         DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
@@ -336,17 +336,23 @@ public class LjmdGraphic extends SimulationGraphic {
     }
 
     public static void main(String[] args) {
-        Space space = Space2D.getInstance();
+        Space sp = null;
         if(args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
-                    space = Space3D.getInstance();
+                    sp = Space3D.getInstance();
+                }
+                else {
+                	sp = Space2D.getInstance();
                 }
             } catch(NumberFormatException e) {}
         }
+        else {
+        	sp = Space2D.getInstance();
+        }
 
-        LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(space));
+        LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(sp), sp);
 		SimulationGraphic.makeAndDisplayFrame
 		        (ljmdGraphic.getPanel(), APP_NAME);
     }
@@ -356,7 +362,8 @@ public class LjmdGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(Space2D.getInstance()));
+	        Space sp = Space2D.getInstance();
+            LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(sp), sp);
 
 		    getContentPane().add(ljmdGraphic.getPanel());
 	    }

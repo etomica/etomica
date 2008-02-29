@@ -1,5 +1,7 @@
 package etomica.box;
 
+import etomica.api.IBox;
+
 
 /**
  * Event that conveys that the maximum leaf index in a Box has changed
@@ -7,7 +9,7 @@ package etomica.box;
  */
 public class BoxGlobalAtomLeafIndexEvent extends BoxEvent {
 
-    public BoxGlobalAtomLeafIndexEvent(Box box, int maxIndex) {
+    public BoxGlobalAtomLeafIndexEvent(IBox box, int maxIndex) {
         super(box);
         this.maxIndex = maxIndex;
     }

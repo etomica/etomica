@@ -1,12 +1,12 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
-import etomica.box.Box;
 import etomica.units.DimensionRatio;
 import etomica.units.Quantity;
 import etomica.units.Volume;
@@ -51,13 +51,13 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
         iterator.setBox(box);
         if (shape == null) {
@@ -78,7 +78,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
         this.iterator = iterator;
     }
 
-    private Box box;
+    private IBox box;
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */

@@ -1,6 +1,7 @@
 package etomica.paracetamol;
 
 import etomica.action.AtomGroupAction;
+import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.data.Data;
 import etomica.data.IDataInfo;
@@ -12,7 +13,6 @@ import etomica.lattice.IndexIteratorReflecting;
 import etomica.lattice.IndexIteratorTriangular;
 import etomica.lattice.IndexIteratorTriangularPermutations;
 import etomica.lattice.SpaceLattice;
-import etomica.space.IVector;
 
 public class LatticeSumCrystalParacetamol {
 

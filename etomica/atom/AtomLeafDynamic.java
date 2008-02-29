@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.Space;
 
 public class AtomLeafDynamic extends AtomLeaf implements IAtomKinetic {

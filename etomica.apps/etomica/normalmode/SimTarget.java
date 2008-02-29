@@ -43,16 +43,16 @@ public class SimTarget extends Simulation {
     public SimTarget(Space space, int numAtoms, double density) {
         super(space, true);
 
-        PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this) : new PotentialMaster(space));
+        PotentialMaster potentialMaster = (space.D() == 1 ? new PotentialMasterList(this, space) : new PotentialMaster(space));
 
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorHard(this, potentialMaster);
+        integrator = new IntegratorHard(this, potentialMaster, space);
 
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -80,7 +80,7 @@ public class SimTarget extends Simulation {
         }
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
 
         if (potentialMaster instanceof PotentialMasterList) {
@@ -147,7 +147,7 @@ public class SimTarget extends Simulation {
         
         NormalModes normalModes = null;
         if(D == 1) {
-            normalModes = new NormalModes1DHR();
+            normalModes = new NormalModes1DHR(sim.space.D());
         } else {
             normalModes = new NormalModesFromFile(filename, D);
         }

@@ -3,11 +3,11 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.box.Box;
 import etomica.species.ISpecies;
 
 /**
@@ -80,7 +80,7 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
      * Configures iterator to return molecules from the set species in the given
      * box.
      */
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         if (newBox == null) {
             throw new IllegalArgumentException("You shouldn't pass a null Box.  Why would you do that?");
         }
@@ -203,6 +203,6 @@ public class ApiInterspecies1A implements AtomsetIteratorPDT,
     private final ApiInnerFixed apiUp, apiDown;
     private ApiInnerFixed iterator;
     private IteratorDirective.Direction direction, allowedDirection;
-    private Box box;
+    private IBox box;
     private IAtom targetAtom, targetMolecule;
 }

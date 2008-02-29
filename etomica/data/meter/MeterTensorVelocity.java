@@ -1,5 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -10,8 +12,6 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.data.types.DataTensor.DataInfoTensor;
-import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Energy;
 
@@ -82,13 +82,13 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
     }
 
@@ -102,7 +102,7 @@ public class MeterTensorVelocity implements DataSourceAtomic, java.io.Serializab
     
     private static final long serialVersionUID = 1L;
     private String name;
-    private Box box;
+    private IBox box;
     private final DataTensor data, atomData;
     private final DataInfoTensor dataInfo;
     protected DataTag tag;

@@ -3,10 +3,10 @@ package etomica.action;
 
 import java.io.Serializable;
 
+import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.IAtom;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

@@ -12,6 +12,7 @@ import etomica.box.Box;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
@@ -38,13 +39,13 @@ public class LJMD3DThreaded extends Simulation {
     public ActivityIntegrate activityIntegrate;
 
 
-    public LJMD3DThreaded() {
+    public LJMD3DThreaded(Space _space) {
         this(500, 1);
     }
 
     public LJMD3DThreaded(int numAtoms, int numThreads) {
         super(Space3D.getInstance(), true);
-        PotentialMasterListThreaded potentialMaster = new PotentialMasterListThreaded(this);
+        PotentialMasterListThreaded potentialMaster = new PotentialMasterListThreaded(this, space);
         // need optimization of fac and time step
         double neighborFac = 1.35;
 
@@ -58,7 +59,7 @@ public class LJMD3DThreaded extends Simulation {
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         box.setDensity(0.65);
@@ -92,7 +93,7 @@ public class LJMD3DThreaded extends Simulation {
         //--------------------------------------\\
         
 //        new ConfigurationFile(space,"LJMC3D"+Integer.toString(numAtoms)).initializeCoordinates(box);
-        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
         integrator.setBox(box);
 //        WriteConfiguration writeConfig = new WriteConfiguration("LJMC3D"+Integer.toString(numAtoms),box,1);
 //        integrator.addListener(writeConfig);
@@ -111,7 +112,7 @@ public class LJMD3DThreaded extends Simulation {
         }
 
         final LJMD3DThreaded sim = new LJMD3DThreaded(numAtoms, numThreads);
-        final SimulationGraphic simgraphic = new SimulationGraphic(sim, APP_NAME);
+        final SimulationGraphic simgraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
 
 	    simgraphic.getController().getReinitButton().setPostAction(simgraphic.getPaintAction(sim.box));
 

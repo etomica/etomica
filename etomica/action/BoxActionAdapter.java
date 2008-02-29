@@ -1,5 +1,6 @@
 package etomica.action;
 
+import etomica.api.IBox;
 import etomica.box.Box;
 
 /**
@@ -12,7 +13,7 @@ public abstract class BoxActionAdapter implements BoxAction, java.io.Serializabl
 	/**
 	 * @return Returns the box on which this action will be performed.
 	 */
-	public Box getBox() {
+	public IBox getBox() {
 		return box;
 	}
 

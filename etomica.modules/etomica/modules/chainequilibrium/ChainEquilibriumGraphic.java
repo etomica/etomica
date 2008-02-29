@@ -21,6 +21,7 @@ import etomica.graphics.DisplayTable;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
+import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 import etomica.units.PrefixedUnit;
@@ -40,9 +41,9 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
     protected ChainEquilibriumSim sim;
     private DeviceThermoSlider temperatureSelect;
 
-    public ChainEquilibriumGraphic(ChainEquilibriumSim simulation) {
+    public ChainEquilibriumGraphic(ChainEquilibriumSim simulation, Space _space) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
         this.sim = simulation;
         
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
@@ -262,7 +263,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
 
     public static void main(String[] args) {
         ChainEquilibriumSim sim = new ChainEquilibriumSim();
-        ChainEquilibriumGraphic graphic = new ChainEquilibriumGraphic(sim);
+        ChainEquilibriumGraphic graphic = new ChainEquilibriumGraphic(sim, sim.getSpace());
         SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
     }
 
@@ -271,7 +272,7 @@ public class ChainEquilibriumGraphic extends SimulationGraphic {
         public void init() {
 			getRootPane().putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 	        ChainEquilibriumSim sim = new ChainEquilibriumSim();
-			getContentPane().add(new ChainEquilibriumGraphic(sim).getPanel());
+			getContentPane().add(new ChainEquilibriumGraphic(sim, sim.getSpace()).getPanel());
         }
     }
 }

@@ -1,6 +1,6 @@
 package etomica.math.geometry.coordinate;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space1d.Vector1D;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;

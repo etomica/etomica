@@ -1,5 +1,7 @@
 package etomica.virial.paralleltempering;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
@@ -9,8 +11,7 @@ import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorPT;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMove;
-import etomica.box.Box;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.virial.BoxCluster;
 
 /**
@@ -27,11 +28,11 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     private BoxCluster box1, box2;
     private double weightOld1, weightOld2;
     private double weightNew1, weightNew2;
-    private final Box[] swappedBoxes = new Box[2];
+    private final IBox[] swappedBoxes = new IBox[2];
 
-    public MCMoveSwapCluster(IntegratorMC integrator1, IntegratorMC integrator2) {
+    public MCMoveSwapCluster(IntegratorMC integrator1, IntegratorMC integrator2, Space space) {
         super(null);
-        r = integrator1.getBox().getSpace().makeVector();
+        r = space.makeVector();
         this.integrator1 = integrator1;
         this.integrator2 = integrator2;		
     }
@@ -110,7 +111,7 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
         box2.rejectNotify();
     }
     
-    public double energyChange(Box box) {
+    public double energyChange(IBox box) {
         if(box == box1) return weightNew1/weightOld1;
         if(box == box2) return weightNew2/weightOld2;
         return 0.0;
@@ -119,13 +120,13 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     /**
      * Implementation of MCMoveSwap interface
      */
-    public Box[] swappedBoxes() {
+    public IBox[] swappedBoxes() {
         swappedBoxes[0] = box1;
         swappedBoxes[1] = box2;
         return swappedBoxes;
     }
 
-    public AtomIterator affectedAtoms(Box p) {
+    public AtomIterator affectedAtoms(IBox p) {
         if(p == box1 || p == box2) {
             affectedAtomIterator.setBox(p);
             affectedAtomIterator.reset();
@@ -137,8 +138,8 @@ public class MCMoveSwapCluster extends MCMove implements IntegratorPT.MCMoveSwap
     public final static SwapFactory FACTORY = new SwapFactory();
     
     protected static class SwapFactory implements IntegratorPT.MCMoveSwapFactory, java.io.Serializable {
-        public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2) {
-            return new MCMoveSwapCluster((IntegratorMC)integrator1, (IntegratorMC)integrator2);
+        public MCMove makeMCMoveSwap(IntegratorBox integrator1, IntegratorBox integrator2, Space _space) {
+            return new MCMoveSwapCluster((IntegratorMC)integrator1, (IntegratorMC)integrator2, _space);
         }
         private static final long serialVersionUID = 1L;
     } 

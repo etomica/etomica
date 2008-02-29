@@ -1,4 +1,4 @@
-package etomica.space;
+package etomica.api;
 
 import etomica.util.Function;
 

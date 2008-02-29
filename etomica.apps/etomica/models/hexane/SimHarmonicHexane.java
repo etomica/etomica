@@ -75,7 +75,7 @@ public class SimHarmonicHexane extends Simulation {
 
         int[] nCells = new int[]{xCells, yCells, zCells};
         bdry = new BoundaryDeformableLattice(primitive, getRandom(), nCells);
-        box = new Box(bdry);
+        box = new Box(bdry, space);
         addBox(box);
         box.setNMolecules(species, xCells * yCells * zCells);
 //        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0);
@@ -88,7 +88,7 @@ public class SimHarmonicHexane extends Simulation {
         integrator.getMoveManager().addMCMove(harm);
         
         coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, 
-                species);
+                species, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         normalModes = new NormalModesFromFile(filename, 3);
@@ -225,7 +225,7 @@ public class SimHarmonicHexane extends Simulation {
             meterNormalMode.setBox(sim.box);
             
             //graphic simulation - set up window
-            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME);
+            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME, sim.space);
             ArrayList dataStreamPumps = simG.getController().getDataStreamPumps();
             dataStreamPumps.add(pump);
             dataStreamPumps.add(pumpHarmonic);

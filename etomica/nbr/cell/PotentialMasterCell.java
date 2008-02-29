@@ -1,13 +1,14 @@
 package etomica.nbr.cell;
 
+import etomica.api.IBox;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomType;
 import etomica.nbr.site.PotentialMasterSite;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.simulation.ISimulation;
+import etomica.space.Space;
 
 /**
  * A PotentialMaster for use with a Simulation where cell-listing of atoms and
@@ -21,8 +22,8 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * Creates PotentialMasterCell with default (1.0) range.  Range
      * should be set manually via setRange method.
      */
-    public PotentialMasterCell(ISimulation sim) {
-        this(sim,1.0);
+    public PotentialMasterCell(ISimulation sim, Space _space) {
+        this(sim,1.0, _space);
     }
     
     /**
@@ -32,13 +33,13 @@ public class PotentialMasterCell extends PotentialMasterSite {
      * @param space the governing Space
      * @param range the neighbor distance.  May be changed after construction.
      */
-    public PotentialMasterCell(ISimulation sim, double range) {
-        this(sim, range, (AtomPositionDefinition)null);
+    public PotentialMasterCell(ISimulation sim, double range, Space _space) {
+        this(sim, range, (AtomPositionDefinition)null, _space);
     }
 
     public PotentialMasterCell(ISimulation sim, double range,
-            AtomPositionDefinition positionDefinition) {
-        this(sim, range, new BoxAgentSourceCellManager(positionDefinition));
+            AtomPositionDefinition positionDefinition, Space _space) {
+        this(sim, range, new BoxAgentSourceCellManager(positionDefinition, _space));
     }
     
     public PotentialMasterCell(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource) {
@@ -87,7 +88,7 @@ public class PotentialMasterCell extends PotentialMasterSite {
         
     }
     
-    public NeighborCellManager getNbrCellManager(Box box) {
+    public NeighborCellManager getNbrCellManager(IBox box) {
         NeighborCellManager manager = (NeighborCellManager)boxAgentManager.getAgent(box);
         manager.setPotentialRange(range);
         manager.setCellRange(getCellRange());

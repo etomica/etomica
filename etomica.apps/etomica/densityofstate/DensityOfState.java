@@ -61,7 +61,7 @@ public class DensityOfState extends Simulation{
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
 		box.setNMolecules(species, numAtoms);
-		box = new Box(this);
+		box = new Box(this, space);
 		box.setDensity(0.65);
 		potential = new P2Yukawa(this);
 		double truncationRadius = 3.0*potential.getKappa();
@@ -75,7 +75,7 @@ public class DensityOfState extends Simulation{
 			
 		integrator.getMoveEventManager().addListener(((PotentialMasterCell)potentialMaster).getNbrCellManager(box).makeMCMoveListener());
 		
-		new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
+		new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
 		integrator.setBox(box);
 		
 		((PotentialMasterCell)potentialMaster).getNbrCellManager(box).assignCellAll();

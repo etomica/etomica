@@ -2,6 +2,7 @@ package etomica.data.meter;
 
 import etomica.EtomicaInfo;
 import etomica.data.DataSourceScalar;
+import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.space.Space;
 import etomica.species.ISpecies;
@@ -42,7 +43,7 @@ public class MeterDensity extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**

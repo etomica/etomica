@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.api.IBox;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.DataSourceScalar;
 import etomica.box.Box;
@@ -29,7 +30,7 @@ public class MeterClusterWeight extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**

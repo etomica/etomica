@@ -1,11 +1,11 @@
 package etomica.action;
 
+import etomica.api.IVector;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
@@ -25,8 +25,8 @@ public class BoxInflateDeformable extends BoxInflate{
         tempTensInv = space.makeTensor();
     }
     
-    public BoxInflateDeformable(Box box){
-        this(box.getSpace());
+    public BoxInflateDeformable(Box box, Space space){
+        this(space);
         setBox(box);
     }
    

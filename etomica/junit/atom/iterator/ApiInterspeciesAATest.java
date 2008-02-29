@@ -2,11 +2,11 @@ package etomica.junit.atom.iterator;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetActionAdapter;
+import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.ApiInterspeciesAA;
-import etomica.box.Box;
 import etomica.junit.UnitTestUtil;
 import etomica.simulation.ISimulation;
 import etomica.species.ISpecies;
@@ -65,7 +65,7 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
     /**
      * Performs tests on different species combinations in a particular box.
      */
-    private void boxTest(Box box, ISpecies[] species) {
+    private void boxTest(IBox box, ISpecies[] species) {
         speciesTestForward(box, species, 0, 1);
         speciesTestForward(box, species, 1, 0);
     }
@@ -73,7 +73,7 @@ public class ApiInterspeciesAATest extends IteratorTestAbstract {
     /**
      * Test iteration in various directions with different targets.
      */
-    private void speciesTestForward(Box box, ISpecies[] species, int species0Index, int species1Index) {
+    private void speciesTestForward(IBox box, ISpecies[] species, int species0Index, int species1Index) {
         ApiInterspeciesAA api = new ApiInterspeciesAA(new ISpecies[] {species[species0Index], species[species1Index]});
         AtomsetAction speciesTest = new SpeciesTestAction();
 

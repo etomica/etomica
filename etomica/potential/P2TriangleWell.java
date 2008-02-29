@@ -1,10 +1,10 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import etomica.api.IBox;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
@@ -183,7 +184,7 @@ public class BondListener implements AtomAgentManager.AgentSource, Serializable 
     }
     
     private static final long serialVersionUID = 1L;
-    protected final Box box;
+    protected final IBox box;
     protected final AtomAgentManager atomAgentManager;
     protected final HashMap bondIteratorsHash;
     protected BondManager bondManager;

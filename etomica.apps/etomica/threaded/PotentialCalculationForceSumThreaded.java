@@ -1,5 +1,7 @@
 package etomica.threaded;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSet;
@@ -8,19 +10,20 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet.MyAgent;
-import etomica.box.Box;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialCalculationForceSum;
-import etomica.space.IVector;
+import etomica.space.Space;
 
 public class PotentialCalculationForceSumThreaded extends PotentialCalculationForceSum implements IPotentialCalculationThreaded, AgentSource{
 
 	final protected PotentialCalculationForceSum[] pc;
 	protected AtomLeafAgentManager[] atomAgentManager;
+	private final Space space;
     
-	public PotentialCalculationForceSumThreaded(PotentialCalculationForceSum[] pc) {
+	public PotentialCalculationForceSumThreaded(PotentialCalculationForceSum[] pc, Space _space) {
 		this.pc = pc;
+		this.space = _space;
 	}
 
     public void reset(){
@@ -55,7 +58,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
 	
 	public void writeData(){
        
-		Box box = integratorAgentManager.getBox();
+		IBox box = integratorAgentManager.getBox();
         AtomSet atomArrayList = box.getLeafList();
       
         for(int j=0; j<atomArrayList.getAtomCount(); j++){
@@ -75,7 +78,7 @@ public class PotentialCalculationForceSumThreaded extends PotentialCalculationFo
     }
 
     public final Object makeAgent(IAtom a) {
-        return new MyAgent(integratorAgentManager.getBox().getSpace());
+        return new MyAgent(space);
     }
     
     public void releaseAgent(Object object, IAtom atom){

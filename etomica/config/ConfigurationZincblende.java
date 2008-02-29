@@ -2,6 +2,7 @@ package etomica.config;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
@@ -10,7 +11,6 @@ import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -27,8 +27,8 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     private AtomGroupAction translator0, translator1;
     protected ISpecies[] species;
     
-    public ConfigurationZincblende(double latticeConstant) {
-        super(new LatticeCubicFcc(latticeConstant));
+    public ConfigurationZincblende(double latticeConstant, Space space) {
+        super(new LatticeCubicFcc(latticeConstant), space);
         species = new ISpecies[2];
     }
     
@@ -52,9 +52,9 @@ public class ConfigurationZincblende extends ConfigurationLattice {
      * Initializes positions of atoms to the zincblende structure.  The given
      * array should hold exactly two AtomLists, each with the same number of atoms.
      */
-    public void initializeCoordinates(Box box) {
-        translator0 = new AtomGroupAction(new AtomActionTranslateBy(box.getSpace()));
-        translator1 = new AtomGroupAction(new AtomActionTranslateBy(box.getSpace()));
+    public void initializeCoordinates(Box box, Space space) {
+        translator0 = new AtomGroupAction(new AtomActionTranslateBy(space));
+        translator1 = new AtomGroupAction(new AtomActionTranslateBy(space));
         AtomSet[] lists = new AtomSet[]{box.getMoleculeList(species[0]), box.getMoleculeList(species[1])};
         if(lists == null || lists.length != 2) {//need an exception for this
             throw new IllegalArgumentException("inappropriate argument to ConfigurationZincBlende");
@@ -66,7 +66,7 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         int nCells = (int) Math.ceil(lists[0].getAtomCount() / 4.0);
 
         // determine scaled shape of simulation volume
-        IVector shape = box.getSpace().makeVector();
+        IVector shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
@@ -117,8 +117,9 @@ public class ConfigurationZincblende extends ConfigurationLattice {
     public static void main(String[] args) {
     	final String APP_NAME = "Configuration Zinc Blende";
 
-        Simulation sim = new Simulation(Space3D.getInstance());
-        final Box box = new Box(sim);
+    	Space space = Space3D.getInstance();
+        Simulation sim = new Simulation(space);
+        final Box box = new Box(sim, space);
         box.getBoundary().setDimensions(new etomica.space3d.Vector3D(30.0, 30.0, 30.0));
         sim.addBox(box);
         etomica.species.SpeciesSpheresMono speciesSpheres0  = new etomica.species.SpeciesSpheresMono(sim);
@@ -129,11 +130,11 @@ public class ConfigurationZincblende extends ConfigurationLattice {
         ((AtomTypeSphere)speciesSpheres1.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
         box.setNMolecules(speciesSpheres0, 32);
         box.setNMolecules(speciesSpheres1, 32);
-        ConfigurationZincblende config = new ConfigurationZincblende(15);
+        ConfigurationZincblende config = new ConfigurationZincblende(15, space);
         config.initializeCoordinates(box);
 
-        final etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME);
-        simGraphic.add(new DisplayBox(box));
+        final etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, APP_NAME, space);
+        simGraphic.add(new DisplayBox(box, space));
         ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
         colorScheme.setColor(speciesSpheres0.getMoleculeType(),new java.awt.Color(0,255,0));
         colorScheme.setColor(speciesSpheres1.getMoleculeType(), java.awt.Color.red);

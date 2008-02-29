@@ -10,6 +10,7 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.AtomAction;
 import etomica.action.SimulationRestart;
+import etomica.api.IVector;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
@@ -44,7 +45,6 @@ import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.lattice.SpaceLattice;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.units.Bar;
@@ -80,12 +80,9 @@ public class JouleThomson extends SimulationGraphic {
     DeviceBox timeBox;
     JouleThomsonSim sim;
 
-    public JouleThomson() {
-        this(new JouleThomsonSim(Space2D.getInstance()));
-    }
 
-    public JouleThomson(JouleThomsonSim simulation) {
-        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+    public JouleThomson(JouleThomsonSim simulation, Space _space) {
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
         sim = simulation;
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
@@ -144,7 +141,7 @@ public class JouleThomson extends SimulationGraphic {
         scaleSlider.setShowBorder(true);
 	    //slider for scale of display
 	      
-        DeviceToggleRadioButtons isothermalToggleButton = new DeviceToggleRadioButtons(new IntegratorGear4NPH.EnsembleToggler(sim.integrator), "Ensemble", "NPT", "NPH");
+        DeviceToggleRadioButtons isothermalToggleButton = new DeviceToggleRadioButtons(new IntegratorGear4NPH.EnsembleToggler(sim.integrator, space.D()), "Ensemble", "NPT", "NPH");
 
 		final DeviceSlider pSlider = new DeviceSlider(sim.getController());
 		pSlider.setUnit(pUnit);
@@ -232,7 +229,7 @@ public class JouleThomson extends SimulationGraphic {
         pressureFork.addDataSink(pressureAverage);
         pressureAverage.setPushInterval(10);
         
-        MeterTemperature meterTemperature = new MeterTemperature();
+        MeterTemperature meterTemperature = new MeterTemperature(space.D());
         meterTemperature.setBox(sim.box);
         DataFork temperatureFork = new DataFork();
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
@@ -247,7 +244,7 @@ public class JouleThomson extends SimulationGraphic {
         temperatureFork.addDataSink(temperatureAverage);
         temperatureAverage.setPushInterval(10);
 
-        MeterEnthalpy meterEnthalpy = new MeterEnthalpy(sim.integrator);
+        MeterEnthalpy meterEnthalpy = new MeterEnthalpy(sim.integrator, space.D());
         DataFork enthalpyFork = new DataFork();
         AccumulatorHistory enthalpyHistory = new AccumulatorHistory();
         enthalpyHistory.setTimeDataSource(time);
@@ -261,7 +258,7 @@ public class JouleThomson extends SimulationGraphic {
         enthalpyFork.addDataSink(enthalpyAverage);
         enthalpyAverage.setPushInterval(10);
         
-        SpeciesChooser speciesChooser = new SpeciesChooser(this);
+        SpeciesChooser speciesChooser = new SpeciesChooser(this, space);
 	    speciesChooser.setSpecies("Methane");
 	    
         AccumulatorAverageCollapsing densityAverage = new AccumulatorAverageCollapsing();
@@ -370,9 +367,11 @@ public class JouleThomson extends SimulationGraphic {
             public void actionPerformed(IAtom a) {((ElementSimple)((AtomTypeLeaf)a.getType()).getElement()).setMass(currentMass);}
         };
         SimulationRestart simRestart;
+        private final Space space;
         
-        SpeciesChooser(JouleThomson simGraphic) {
+        SpeciesChooser(JouleThomson simGraphic, Space _space) {
             super(names);
+            this.space = _space;
             this.simGraphic = simGraphic;
             setPreferredSize(new java.awt.Dimension(150,30));
             setOpaque(false);
@@ -420,13 +419,13 @@ public class JouleThomson extends SimulationGraphic {
                 v.E(size);
                 sim.box.getBoundary().setDimensions(v);
                 SpaceLattice lattice;
-                if (sim.box.getSpace().D() == 2) {
+                if (space.D() == 2) {
                     lattice = new LatticeOrthorhombicHexagonal();
                 }
                 else {
                     lattice = new LatticeCubicFcc();
                 }
-                Configuration config = new ConfigurationLattice(lattice);
+                Configuration config = new ConfigurationLattice(lattice, space);
                 config.initializeCoordinates(sim.box);
             }
             if(speciesName.equals("Ideal gas")) sim.integrator.getPotential().setEnabled(sim.potential,false);
@@ -441,8 +440,8 @@ public class JouleThomson extends SimulationGraphic {
 	    public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-	        Space space = Space.getInstance(3);
-	        SimulationGraphic simPanel = new JouleThomson(new JouleThomsonSim(space));
+	        Space sp = Space.getInstance(3);
+	        SimulationGraphic simPanel = new JouleThomson(new JouleThomsonSim(sp), sp);
 		    getContentPane().add(simPanel.getPanel());
 	    }
     }//end of Applet
@@ -459,8 +458,8 @@ public class JouleThomson extends SimulationGraphic {
             }
         }
 
-        Space space = Space.getInstance(dim);
-        SimulationGraphic simPanel = new JouleThomson(new JouleThomsonSim(space));
+        Space sp = Space.getInstance(dim);
+        SimulationGraphic simPanel = new JouleThomson(new JouleThomsonSim(sp), sp);
         SimulationGraphic.makeAndDisplayFrame(simPanel.getPanel(), APP_NAME);
     } //end of main
 

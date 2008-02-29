@@ -1,5 +1,7 @@
 package etomica.normalmode;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.data.DataSourceScalar;
@@ -8,7 +10,6 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.IVector;
 import etomica.space1d.Space1D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Energy;
@@ -53,7 +54,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         return energySum;//don't multiply by 1/2 because we're summing over only half of the wave vectors
     }
 
-    public Box getBox() {
+    public IBox getBox() {
         return coordinateDefinition.getBox();
     }
 
@@ -107,7 +108,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
 
-        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), L));
+        Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), sim.getRandom(), L), sim.getSpace());
         sim.addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -115,7 +116,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         
         Primitive primitive = new PrimitiveCubic(sim.getSpace());
 
-        CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive);
+        CoordinateDefinition coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, sim.getSpace());
         coordinateDefinition.initializeCoordinates(new int[]{numAtoms});
 
         for(int i=0; i<numAtoms; i++) {
@@ -123,7 +124,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
             System.out.println(((IAtomPositioned)atoms.getAtom(i)).getPosition().x(0));
         }
         
-        NormalModes normalModes = new NormalModes1DHR();
+        NormalModes normalModes = new NormalModes1DHR(sim.getSpace().D());
 
         MeterHarmonicEnergy meter = new MeterHarmonicEnergy(coordinateDefinition, normalModes);
         meter.setBox(box);

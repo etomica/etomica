@@ -1,6 +1,7 @@
 package etomica.modules.swmd;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IVector;
 import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -14,7 +15,6 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -33,8 +33,8 @@ public class Swmd extends Simulation {
     public Potential2HardSphericalWrapper potentialWrapper;
     public ActivityIntegrate activityIntegrate;
     
-    public Swmd(Space space) {
-        super(space);
+    public Swmd(Space _space) {
+        super(_space);
         PotentialMaster potentialMaster = new PotentialMaster(space); //List(this, 2.0);
         
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
@@ -43,7 +43,7 @@ public class Swmd extends Simulation {
         double lambda = 2.0;
         
         //controller and integrator
-	    integrator = new IntegratorHard(potentialMaster, getRandom(), 1.0, Kelvin.UNIT.toSim(300));
+	    integrator = new IntegratorHard(potentialMaster, getRandom(), 1.0, Kelvin.UNIT.toSim(300), space);
 	    integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
@@ -64,16 +64,16 @@ public class Swmd extends Simulation {
         potentialMaster.addPotential(potentialWrapper,new AtomType[]{species.getLeafType(),species.getLeafType()});
 	    
         //construct box
-	    box = new Box(this);
+	    box = new Box(this, space);
         addBox(box);
         IVector dim = space.makeVector();
         dim.E(space.D() == 3 ? 30 : 50);
         box.setDimensions(dim);
         box.setNMolecules(species, N);
-        new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc() : new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
+        new ConfigurationLattice(space.D() == 3 ? new LatticeCubicFcc() : new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
         integrator.setBox(box);
 
-        integrator.addIntervalAction(new BoxImposePbc(box));
+        integrator.addIntervalAction(new BoxImposePbc(box, space));
     }
     
     public static void main(String[] args) {

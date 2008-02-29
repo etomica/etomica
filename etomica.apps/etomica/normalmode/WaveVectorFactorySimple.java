@@ -4,9 +4,10 @@ import java.io.Serializable;
 
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
@@ -21,8 +22,9 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable {
 
-    public WaveVectorFactorySimple(Primitive primitive) {
+    public WaveVectorFactorySimple(Primitive primitive, Space _space) {
         this.primitive = primitive;
+        this.space = _space;
     }
     
     public void makeWaveVectors(Box box) {
@@ -30,19 +32,19 @@ public class WaveVectorFactorySimple implements WaveVectorFactory, Serializable 
         // assume 1-molecule basis and matchup betwen the box and the primitive
     
         double[] d = primitive.getSize();
-        int[] numCells = new int[box.getSpace().D()];
+        int[] numCells = new int[space.D()];
         IVector[] reciprocals =  primitive.makeReciprocal().vectors();
         IVector[] waveVectorBasis = new IVector[reciprocals.length];
         
-        for (int i=0; i<box.getSpace().D(); i++) {
-            waveVectorBasis[i] = box.getSpace().makeVector();
+        for (int i=0; i<space.D(); i++) {
+            waveVectorBasis[i] = space.makeVector();
             waveVectorBasis[i].E(reciprocals[i]);
             numCells[i] = (int)Math.round(box.getBoundary().getDimensions().x(i) / (d[i]));
             waveVectorBasis[i].TE(1.0/numCells[i]);
         }
     
-        int[] kMin = new int[box.getSpace().D()];
-        int[] kMax= new int[box.getSpace().D()];
+        int[] kMin = new int[space.D()];
+        int[] kMax= new int[space.D()];
         for (int i=0; i<kMax.length; i++) {
             kMin[i] = -(numCells[i]-1)/2;
             kMax[i] = numCells[i]/2;
@@ -92,7 +94,7 @@ outer:              for (int i=0; i<3; i++){
                     if (flip) {
                         idx[0] -= k[0];
                         idx[1] -= k[1];
-                        idx[2] -= k[2];
+                        idx[2] -= k[2];space.D();
                     }
                     else {
                         idx[0] += k[0];
@@ -123,7 +125,7 @@ outer:              for (int i=0; i<3; i++){
             for (int ky = -kMax[1]; ky < kMax[1]+1; ky++) {
                 for (int kz = -kMax[2]; kz < kMax[2]+1; kz++) {
                     if (waveVectorIndices[kx+kMax[0]][ky+kMax[1]][kz+kMax[2]] > 0) {
-                        waveVectors[count] = box.getSpace().makeVector();
+                        waveVectors[count] = space.makeVector();
                         waveVectors[count].Ea1Tv1(kx, waveVectorBasis[0]);
                         waveVectors[count].PEa1Tv1(ky, waveVectorBasis[1]);
                         waveVectors[count].PEa1Tv1(kz, waveVectorBasis[2]);
@@ -145,8 +147,9 @@ outer:              for (int i=0; i<3; i++){
     
     public static void main(String[] args) {
         int [] nCells = new int []{2,3,4};
-        Simulation sim = new Simulation(Space3D.getInstance());
-        Box box = new Box(sim);
+        Space sp = Space3D.getInstance();
+        Simulation sim = new Simulation(sp);
+        Box box = new Box(sim, sp);
         sim.addBox(box);
         box.setDimensions(new Vector3D(nCells[0], nCells[1], nCells[2]));
         Species species = new SpeciesSpheresMono(sim);
@@ -154,7 +157,7 @@ outer:              for (int i=0; i<3; i++){
         box.setNMolecules(species, nCells[0]*nCells[1]*nCells[2]);
         Primitive primitive = new PrimitiveCubic(sim.getSpace(), 1);
         
-        WaveVectorFactorySimple foo = new WaveVectorFactorySimple(primitive);
+        WaveVectorFactorySimple foo = new WaveVectorFactorySimple(primitive, sp);
         foo.makeWaveVectors(box);
         IVector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
@@ -168,4 +171,5 @@ outer:              for (int i=0; i<3; i++){
     protected final Primitive primitive;
     protected IVector[] waveVectors;
     protected double[] coefficients;
+    private final Space space;
 }

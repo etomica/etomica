@@ -103,8 +103,9 @@ public class DeviceButton extends Device {
         
     	final String APP_NAME = "Device Button";
 
+    	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
         etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp);
         
         //here's the part unique to this class
         etomica.action.SimulationRestart action = new etomica.action.SimulationRestart(sim);

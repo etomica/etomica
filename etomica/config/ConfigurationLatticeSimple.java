@@ -1,6 +1,7 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IVector;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
@@ -15,7 +16,6 @@ import etomica.lattice.SpaceLattice;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -46,8 +46,8 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLatticeSimple(SpaceLattice lattice) {
-        this(lattice, new IndexIteratorRectangular(lattice.D()));
+    public ConfigurationLatticeSimple(SpaceLattice lattice, Space space) {
+        this(lattice, new IndexIteratorRectangular(lattice.D()), space);
     }
 
     /**
@@ -56,10 +56,11 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
      * iterator.
      */
     public ConfigurationLatticeSimple(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator) {
+            IndexIteratorSizable indexIterator, Space space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
+        this.space = space;
         this.lattice = lattice;
         this.indexIterator = indexIterator;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
@@ -83,7 +84,7 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector shape = box.getSpace().makeVector();
+        IVector shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
         shape.DE(latticeConstantV);
@@ -155,34 +156,36 @@ public class ConfigurationLatticeSimple implements Configuration, java.io.Serial
     protected final SpaceLattice lattice;
     protected final IndexIteratorSizable indexIterator;
     protected final AtomActionTranslateTo atomActionTranslateTo;
+    private final Space space;
     private static final long serialVersionUID = 2L;
 
     public static void main(String[] args) {
     	final String APP_NAME = "Configuration Lattice Simple";
 
-        Simulation sim = new Simulation(Space3D.getInstance());
+    	Space sp = Space3D.getInstance();
+        Simulation sim = new Simulation(sp);
         PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
-        Box box = new Box(sim);
+        Box box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
         int k = 4;
         box.setNMolecules(species, 4 * k * k * k);
-        IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);
+        IntegratorHard integrator = new IntegratorHard(sim, potentialMaster, sp);
         integrator.setBox(box);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new LatticeCubicFcc();
         // CubicLattice lattice = new LatticeCubicSimple();
-        ConfigurationLatticeSimple configuration = new ConfigurationLatticeSimple(lattice);
+        ConfigurationLatticeSimple configuration = new ConfigurationLatticeSimple(lattice, sp);
         // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
         configuration.initializeCoordinates(box);
         // etomica.graphics.DisplayBox display = new
         // etomica.graphics.DisplayBox(box);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
-                sim, APP_NAME);
+                sim, APP_NAME, sp);
 //        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
 //                .getFirst()).getColorScheme()).setColor(species
 //                .getMoleculeType(), java.awt.Color.red);

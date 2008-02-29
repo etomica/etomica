@@ -34,17 +34,17 @@ public class LjMd2D extends Simulation {
     public LjMd2D() {
         super(Space2D.getInstance(), false);
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.01);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(2);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, 50);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
         potential = new P2LennardJones(space);
         potentialMaster.addPotential(potential,new AtomType[]{species.getLeafType(),species.getLeafType()});
         

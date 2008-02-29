@@ -83,7 +83,7 @@ public class OsmosisSim extends Simulation {
 	    boundarySemiB.setCollisionRadius(0.5*sigma);
         
         //construct box
-	    box = new Box(this);
+	    box = new Box(this, space);
         addBox(box);
         box.setBoundary(new BoundaryRectangularNonperiodic(space, getRandom()));
 
@@ -96,7 +96,7 @@ public class OsmosisSim extends Simulation {
         box.setNMolecules(speciesSolvent, initialSolvent);
         box.setNMolecules(speciesSolute, initialSolute);
 
-        integrator = new IntegratorHard(this, potentialMaster);
+        integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setBox(box);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
 
@@ -105,12 +105,13 @@ public class OsmosisSim extends Simulation {
     }
 
     public static void main(String[] args) {
-        final OsmosisSim sim = new OsmosisSim(Space3D.getInstance());
-        final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(sim.getSpace(), 1.0));
+    	Space sp = Space3D.getInstance();
+        final OsmosisSim sim = new OsmosisSim(sp);
+        final ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicSimple(sp, 1.0), sp);
         config.initializeCoordinates(sim.box);
     	Plane plane = new Plane(sim.getSpace());
 
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim");
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, "Osmosis Sim", sp);
     	((etomica.graphics.DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas).addPlane(plane);
     	simGraphic.getController().getReinitButton().setPostAction(new etomica.action.Action () {
     		public void actionPerformed() {

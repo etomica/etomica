@@ -5,10 +5,10 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
+import etomica.api.IVector;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.graphics.SimulationGraphic;
 import etomica.lattice.RectangularLattice.Iterator;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 

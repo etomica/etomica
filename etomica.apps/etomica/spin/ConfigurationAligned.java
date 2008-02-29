@@ -1,11 +1,11 @@
 package etomica.spin;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.config.Configuration;
-import etomica.space.IVector;
 
 
 /**

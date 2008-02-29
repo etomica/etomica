@@ -1,11 +1,11 @@
 package etomica.lattice;
 
+import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Plane;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 

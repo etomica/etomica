@@ -2,6 +2,7 @@ package etomica.models.hexane;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSourceRandomMolecule;
 import etomica.atom.IAtom;
@@ -11,7 +12,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
 import etomica.util.IRandom;
 
 

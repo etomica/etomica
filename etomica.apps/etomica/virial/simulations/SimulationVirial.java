@@ -41,7 +41,7 @@ public class SimulationVirial extends Simulation {
         PotentialMaster potentialMaster = new PotentialMaster(space);
         sampleCluster = aSampleCluster;
 		int nMolecules = sampleCluster.pointCount();
-		box = new BoxCluster(this,sampleCluster);
+		box = new BoxCluster(this,sampleCluster, space);
         box.getBoundary().setDimensions(Space.makeVector(new double[]{3.0,3.0,3.0}));
 		species = speciesFactory.makeSpecies(this);
         getSpeciesManager().addSpecies(species);
@@ -61,11 +61,11 @@ public class SimulationVirial extends Simulation {
         }
         else {
             mcMoveTranslate = new MCMoveClusterMoleculeMulti(this, potentialMaster);
-            mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom());
+            mcMoveRotate = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
             mcMoveRotate.setStepSize(Math.PI);
             if (species instanceof SpeciesSpheres) {
                 if (species.getNumLeafAtoms() > 2) {
-                    mcMoveWiggle = new MCMoveClusterWiggleMulti(this,potentialMaster, nMolecules);
+                    mcMoveWiggle = new MCMoveClusterWiggleMulti(this,potentialMaster, nMolecules, space);
                     integrator.getMoveManager().addMCMove(mcMoveWiggle);
                     mcMoveReptate = new MCMoveClusterReptateMulti(this,potentialMaster, nMolecules-1);
                     integrator.getMoveManager().addMCMove(mcMoveReptate);
@@ -78,7 +78,7 @@ public class SimulationVirial extends Simulation {
 		P0Cluster p0 = new P0Cluster(space);
 		potentialMaster.addPotential(p0,new ISpecies[]{});
 		
-        ConfigurationCluster configuration = new ConfigurationCluster();
+        ConfigurationCluster configuration = new ConfigurationCluster(space);
         configuration.initializeCoordinates(box);
 
         allValueClusters = new ClusterAbstract[targetClusters.length+1];

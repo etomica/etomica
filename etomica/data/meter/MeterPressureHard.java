@@ -18,6 +18,7 @@ public class MeterPressureHard extends DataSourceScalar implements
     
     public MeterPressureHard(Space space) {
         super("Pressure", Pressure.dimension(space.D()));
+        dim = space.D();
     }
         
     /**
@@ -30,11 +31,11 @@ public class MeterPressureHard extends DataSourceScalar implements
         double currentTime = integratorHard.getCurrentTime();
         double elapsedTime = currentTime - lastTime;
         if(elapsedTime == 0.0) return Double.NaN;
-        double numAtomTemp = integratorHard.getKineticEnergy() * 2 / box.getSpace().D();
+        double numAtomTemp = integratorHard.getKineticEnergy() * 2 / dim;
         if (integratorHard.isIsothermal()) {
             numAtomTemp = integratorHard.getTemperature()*box.atomCount();
         }
-        double value = (numAtomTemp - virialSum/(box.getSpace().D()*elapsedTime)) / 
+        double value = (numAtomTemp - virialSum/(dim*elapsedTime)) / 
                         box.getBoundary().volume();
 
         virialSum = 0.0;
@@ -82,4 +83,5 @@ public class MeterPressureHard extends DataSourceScalar implements
     protected double virialSum;
     protected IntegratorHard integratorHard;
     protected double lastTime;
+    private final int dim;
 }

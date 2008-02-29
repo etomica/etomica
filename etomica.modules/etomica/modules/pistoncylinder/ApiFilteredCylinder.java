@@ -1,15 +1,15 @@
 package etomica.modules.pistoncylinder;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetFilter;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.ApiFiltered;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.AtomsetIteratorBoxDependent;
-import etomica.box.Box;
 import etomica.potential.P1HardMovingBoundary;
 import etomica.space.Boundary;
-import etomica.space.IVector;
 
 /**
  * Our own ApiFiltered that's box-dependent
@@ -19,7 +19,7 @@ public class ApiFilteredCylinder extends ApiFiltered implements AtomsetIteratorB
         super(iterator, filter);
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         ((AtomsetIteratorBoxDependent)iterator).setBox(newBox);
     }
     private static final long serialVersionUID = 1L;

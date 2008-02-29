@@ -1,5 +1,7 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.data.Data;
@@ -18,7 +20,6 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataFunction.DataInfoFunction;
 import etomica.box.Box;
 import etomica.space.Boundary;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Length;
 
@@ -134,7 +135,7 @@ public class MeterProfile implements DataSource, DataSourceIndependent, java.io.
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**

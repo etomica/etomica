@@ -49,12 +49,12 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         double diameter = 1.0;
 
         //controller and integrator
-        integratorHard1 = new IntegratorHard(this, potentialMaster);
+        integratorHard1 = new IntegratorHard(this, potentialMaster, space);
         integratorHard1.setIsothermal(true);
         integratorHard1.setNullPotential(new P1HardPeriodic(space, diameter));
 
         //construct box
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setBoundary(new BoundaryRectangularPeriodic(space, random, 30.0));
         integratorHard1.setBox(box);
@@ -89,13 +89,13 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         meterDimerFraction = new MeterDimerFraction(agentManager);
         meterDimerFraction.setSpeciesA(speciesA);
         meterDimerFraction.setBox(box);
-        thermometer = new MeterTemperature();
+        thermometer = new MeterTemperature(space.D());
         thermometer.setBox(box);
         
         activityIntegrate = new ActivityIntegrate(integratorHard1);
         activityIntegrate.setSleepPeriod(1);
         getController().addAction(activityIntegrate);
-        integratorHard1.addIntervalAction(new BoxImposePbc(box));
+        integratorHard1.addIntervalAction(new BoxImposePbc(box, space));
 	}
     
     public Class getAgentClass() {

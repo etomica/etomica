@@ -1,8 +1,8 @@
 package etomica.junit.atom.iterator;
 
+import etomica.api.IBox;
 import etomica.atom.iterator.ApiLeafAtoms;
 import etomica.junit.UnitTestUtil;
-import etomica.box.Box;
 import etomica.simulation.ISimulation;
 
 
@@ -26,7 +26,7 @@ public class ApiLeafAtomsTest extends IteratorTestAbstract {
         //test new iterator gives no iterates
         testNoIterates(api);
         
-        Box[] box = sim.getBoxs();
+        IBox[] box = sim.getBoxs();
         
         for(int i=0; i<box.length; i++) {
             api.setBox(box[i]);

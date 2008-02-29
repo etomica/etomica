@@ -7,12 +7,12 @@ import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
 import etomica.action.SimulationRestart;
+import etomica.api.IBox;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -42,6 +42,7 @@ import etomica.graphics.DisplayTextBox.LabelType;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.potential.P2SquareWell;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Angstrom;
 import etomica.units.Dimension;
@@ -67,9 +68,9 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
     protected DisplayTextBoxesCAE densityDisplay;
     private DeviceThermoSlider temperatureSelect;
 
-	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation) {
+	public ReactionEquilibriumGraphic(ReactionEquilibrium simulation, Space space) {
 
-		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+		super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, space);
         this.sim = simulation;
 
         sim.integratorHard1.setTimeStep(0.01);
@@ -77,7 +78,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
-        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
+        Configuration config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space);
         config.initializeCoordinates(sim.box);
 
 		temperatureSelect = new DeviceThermoSlider(sim.controller1);
@@ -416,7 +417,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 	public static void main(String[] args) {
 
 		ReactionEquilibrium sim = new ReactionEquilibrium();
-		ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim);
+		ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim, sim.getSpace());
 		SimulationGraphic.makeAndDisplayFrame(graphic.getPanel(), APP_NAME);
 	}
 
@@ -435,7 +436,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 
 		//    public java.awt.TextField mass = new java.awt.TextField("40");
 
-        public MySpeciesEditor(final ReactionEquilibrium sim, Box box, SpeciesSpheresMono s, String label) {
+        public MySpeciesEditor(final ReactionEquilibrium sim, IBox box, SpeciesSpheresMono s, String label) {
             super();
             species = s;
             nSlider = new DeviceNSelector(sim.getController());
@@ -506,7 +507,7 @@ public class ReactionEquilibriumGraphic extends SimulationGraphic {
 			getRootPane().putClientProperty("defeatSystemEventQueueCheck",
 					Boolean.TRUE);
 			ReactionEquilibrium sim = new ReactionEquilibrium();
-			ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim);
+			ReactionEquilibriumGraphic graphic = new ReactionEquilibriumGraphic(sim, sim.getSpace());
 			getContentPane().add(graphic.getPanel());
 		}
 	}//end of Applet

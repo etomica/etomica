@@ -6,12 +6,12 @@ import java.io.IOException;
 import etomica.action.Action;
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
+import etomica.api.IVector;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.integrator.Integrator;
 import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /* =====SUMMARY======
@@ -47,10 +47,10 @@ import etomica.space.Space;
 public class MSDCoordWriter implements Action,
                                        ControllerListener {
 	
-	public MSDCoordWriter(Space space, String fileName){
+	public MSDCoordWriter(Space _space, String fileName){
 		// Creates an instance of subclass AfterPBC
 		iterator = new AtomIteratorLeafAtoms();
-        afterPBCinstance = new AfterPBC(space,iterator);
+        afterPBCinstance = new AfterPBC(_space,iterator);
 		this.fileName = fileName;
 		setWriteInterval(1);
 	}
@@ -167,9 +167,10 @@ public class MSDCoordWriter implements Action,
 	
 	private static class AfterPBC implements Action {
 		
-		public AfterPBC(Space space, AtomIteratorBoxDependent iterator){
-			workVector = space.makeVector();
+		public AfterPBC(Space _space, AtomIteratorBoxDependent iterator){
+			workVector = _space.makeVector();
 			this.iterator = iterator;
+			this.space = _space;
 		}
 		
 		// Method called in main class (see above)
@@ -180,10 +181,10 @@ public class MSDCoordWriter implements Action,
 		public void setBox(Box box){
 			atomOldCoord = new IVector[box.atomCount()];
 			for (int j=0; j < atomOldCoord.length; j++){
-				atomOldCoord[j] = box.getSpace().makeVector();
+				atomOldCoord[j] = space.makeVector();
 			}
 						
-			atomPBIarray = new int[box.atomCount()][box.getSpace().D()];
+			atomPBIarray = new int[box.atomCount()][space.D()];
 			iterator.setBox(box);
 			boxDim = box.getBoundary().getDimensions();
 			updateAtomOldCoord();
@@ -232,6 +233,7 @@ public class MSDCoordWriter implements Action,
 		private IVector workVector;
 		private IVector [] atomOldCoord;
 		private AtomIteratorBoxDependent iterator;
+		private final Space space;
 	}
 	
 }

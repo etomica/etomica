@@ -1,5 +1,6 @@
 package etomica.modules.rosmosis;
 
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
@@ -8,7 +9,7 @@ import etomica.atom.AtomAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialSoft;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.species.ISpecies;
 
@@ -21,11 +22,11 @@ import etomica.species.ISpecies;
  */
 public class P1Tether extends Potential1 implements AgentSource, PotentialSoft {
 
-    public P1Tether(Box box, ISpecies species) {
-        super(box.getSpace());
+    public P1Tether(Box box, ISpecies species, Space _space) {
+        super(_space);
         this.species = species;
         agentManager = new AtomAgentManager(this, box);
-        work = box.getSpace().makeVector();
+        work = _space.makeVector();
         gradient = new IVector[]{work};
     }
     

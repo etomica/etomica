@@ -2,6 +2,7 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
@@ -9,7 +10,7 @@ import etomica.box.Box;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.IVector;
+import etomica.space.Space;
 
 /**
  * CoordinateDefinition implementation for monatomic molecules that are simply
@@ -24,13 +25,13 @@ import etomica.space.IVector;
 public class CoordinateDefinitionLeaf extends CoordinateDefinition implements
         Serializable {
 
-    public CoordinateDefinitionLeaf(Box box, Primitive primitive) {
-        this(box, primitive, new BasisMonatomic(box.getSpace()));
+    public CoordinateDefinitionLeaf(Box box, Primitive primitive, Space space) {
+        this(box, primitive, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionLeaf(Box box, Primitive primitive, Basis basis) {
-        super(box, box.getSpace().D()*basis.getScaledCoordinates().length, primitive, basis);
-        workVector = box.getSpace().makeVector();
+    public CoordinateDefinitionLeaf(Box box, Primitive primitive, Basis basis, Space space) {
+        super(box, space.D()*basis.getScaledCoordinates().length, primitive, basis, space);
+        workVector = space.makeVector();
         u = new double[coordinateDim];
     }
 

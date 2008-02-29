@@ -3,6 +3,7 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
@@ -19,7 +20,6 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**
@@ -36,15 +36,16 @@ import etomica.space.Space;
  */
 public abstract class CoordinateDefinition {
 
-    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive) {
-        this(box, coordinateDim, primitive, new BasisMonatomic(primitive.getSpace()));
+    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Space _space) {
+        this(box, coordinateDim, primitive, new BasisMonatomic(_space), _space);
     }
     
-    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Basis basis) {
+    public CoordinateDefinition(Box box, int coordinateDim, Primitive primitive, Basis basis, Space _space) {
         this.coordinateDim = coordinateDim;
         this.primitive = primitive;
         this.basis = basis;
         this.box = box;
+        this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
 
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
@@ -68,8 +69,8 @@ public abstract class CoordinateDefinition {
         }
         offset.TE(-0.5);
         
-        IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(box.getSpace().D()+1);
-        int[] iteratorDimensions = new int[box.getSpace().D()+1];
+        IndexIteratorRectangular indexIterator = new IndexIteratorRectangular(space.D()+1);
+        int[] iteratorDimensions = new int[space.D()+1];
         
         
         System.arraycopy(nCells, 0, iteratorDimensions, 0, nCells.length);
@@ -101,7 +102,7 @@ public abstract class CoordinateDefinition {
             atomActionTranslateTo.setDestination(position);
             atomActionTranslateTo.actionPerformed(molecule);
 
-            if (ii[box.getSpace().D()] == 0) {
+            if (ii[space.D()] == 0) {
                 if (iCell > -1) {
                     initNominalU(cells[iCell].molecules);
                 }
@@ -116,7 +117,7 @@ public abstract class CoordinateDefinition {
         
         initNominalU(cells[totalCells-1].molecules);
         
-        siteManager = new AtomAgentManager(new SiteSource(box.getSpace()), box);
+        siteManager = new AtomAgentManager(new SiteSource(space), box);
     }
 
     
@@ -221,6 +222,7 @@ public abstract class CoordinateDefinition {
     protected final Basis basis;
     protected final AtomActionTranslateTo atomActionTranslateTo;
     protected BasisCell[] cells;
+    protected final Space space;
     
     protected static class SiteSource implements AgentSource, Serializable {
         
@@ -238,9 +240,9 @@ public abstract class CoordinateDefinition {
         public void releaseAgent(Object agent, IAtom atom) {
             //nothing to do
         }
-        
-        private static final long serialVersionUID = 1L;
+
         private final Space space;
+        private static final long serialVersionUID = 1L;
     }
     
     public static class BasisCell implements Serializable {

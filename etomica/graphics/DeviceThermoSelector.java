@@ -170,8 +170,9 @@ public class DeviceThermoSelector extends Device {
     public static void main(String[] args) {
         final String APP_NAME = "Device Thermo Selector";
 
+        etomica.space.Space sp = etomica.space3d.Space3D.getInstance();
         final HSMD3D sim = new HSMD3D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp);
         
         DeviceThermoSelector device = new DeviceThermoSelector(sim, sim.integrator);
         device.setTemperatures(new double[] {0.5, 1.0, 2.0, 5.0});

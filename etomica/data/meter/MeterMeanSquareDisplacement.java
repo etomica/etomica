@@ -1,13 +1,13 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
 import etomica.action.Action;
+import etomica.api.IVector;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.IntegratorBox;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Undefined;
 

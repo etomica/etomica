@@ -27,7 +27,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
         species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setDimensions(Space.makeVector(new double[] {25,25,25}));
         box.setNMolecules(species, numAtoms);
@@ -210,7 +210,7 @@ public class SimulationOrthorhombicParacetamol extends Simulation {
         boundary.setDimensions(Space.makeVector(new double[] {2*17.248, 3*12.086, 4*7.382}));
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionParacetamol(box, primitive, basis);
+        coordinateDefinition = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
         coordinateDefinition.setBasisOrthorhombic();
         coordinateDefinition.initializeCoordinates(new int []{2,3,4});
         

@@ -25,13 +25,13 @@ public final class SimulationRestart extends SimulationActionAdapter {
     public void setSimulation(ISimulation sim) {
         super.setSimulation(sim);
         if (sim.getSpace().D() == 3) {
-            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
+            setConfiguration(new ConfigurationLattice(new LatticeCubicFcc(), sim.getSpace()));
         }
         else if (sim.getSpace().D() == 2) {
-            setConfiguration(new ConfigurationLattice(new LatticeOrthorhombicHexagonal()));
+            setConfiguration(new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), sim.getSpace()));
         }
         else {
-            setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(Space.getInstance(1), 1.0)));
+            setConfiguration(new ConfigurationLattice(new LatticeCubicSimple(Space.getInstance(1), 1.0), sim.getSpace()));
         }
         ignoreOverlap = false;
         accumulatorAction = new SimulationDataAction(new ResetAccumulators());

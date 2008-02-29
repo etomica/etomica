@@ -1,5 +1,7 @@
 package etomica.space;
 
+import etomica.api.IVector;
+
 /**
  * Interface for a class that performs a nearest-image transformation to a
  * separation vector. A class implementing this interface is required by the

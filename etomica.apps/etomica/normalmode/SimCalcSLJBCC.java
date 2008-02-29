@@ -37,7 +37,7 @@ public class SimCalcSLJBCC extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -75,7 +75,7 @@ public class SimCalcSLJBCC extends Simulation {
 
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         integrator.setBox(box);
@@ -130,7 +130,7 @@ public class SimCalcSLJBCC extends Simulation {
         
         
         final String APP_NAME = "SimCalcSLJ";
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
   
         simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
         simGraphic.makeAndDisplayFrame(APP_NAME);

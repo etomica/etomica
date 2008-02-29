@@ -2,6 +2,7 @@ package etomica.dimer;
 
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IVector;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -24,7 +25,6 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
@@ -42,7 +42,7 @@ import etomica.util.HistoryCollapsingAverage;
 public class SimDimerLJgb extends Simulation{
 
     private static final long serialVersionUID = 1L;
-    private static final String APP_NAME = "DimerMEAMadatomSn";
+    private static final String APP_NAME = "DimerLJgb";
     public final PotentialMaster potentialMaster;
     public IntegratorVelocityVerlet integratorMD;
     public IntegratorDimerRT integratorDimer;
@@ -52,46 +52,6 @@ public class SimDimerLJgb extends Simulation{
     public P2LennardJones potential;
     public ActivityIntegrate activityIntegrateMD, activityIntegrateDimer;
     
-    public static void main(String[] args){
-    	final String APP_NAME = "DimerLJgb";
-    	final SimDimerLJgb sim = new SimDimerLJgb();
-
-    	sim.activityIntegrateMD.setMaxSteps(1000);
-    	sim.activityIntegrateDimer.setMaxSteps(0);
-    	    	
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-        energyMeter.setBox(sim.box);
-        
-        AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
-        AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
-        
-        DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);       
-        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
-        
-        DisplayPlot plotPE = new DisplayPlot();
-        plotPE.setLabel("PE Plot");
-        
-        energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
-        accumulatorAveragePE.setPushInterval(1);      
-    	
-    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
-    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-
-        simGraphic.add(plotPE);
-    	
-        sim.integratorMD.addIntervalAction(energyPump);
-        sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        
-        sim.integratorDimer.addIntervalAction(energyPump);
-    	sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
-    	//sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
-    	
-    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-    	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.blue);
-        colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.PINK);
-    	
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-    }
     
     
     public SimDimerLJgb() {
@@ -99,13 +59,13 @@ public class SimDimerLJgb extends Simulation{
     	potentialMaster = new PotentialMaster(space);
     	
     //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(space, random, 2, 5));
+        box = new Box(new BoundaryRectangularSlit(random, 2, 5, space), space);
         addBox(box);
         
-        BoxImposePbc imposePbc = new BoxImposePbc(box);
+        BoxImposePbc imposePbc = new BoxImposePbc(box, space);
         
     // INTEGRATOR - MD
-    	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster);
+    	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
     	integratorMD.setTimeStep(0.01);
     	integratorMD.setTemperature(0.1);
     	integratorMD.setThermostatInterval(100);
@@ -138,7 +98,7 @@ public class SimDimerLJgb extends Simulation{
 	 //CRYSTAL
     	box.setDimensions(new Vector3D(Math.sqrt(5)*4,Math.pow(4, 1.0/3.0)*4,Math.pow(4, 1.0/3.0)*8));
         BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(new PrimitiveCubic(space, Math.pow(4, 1.0/3.0)),new BasisCubicFcc());
-        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 2.5);
+        GrainBoundaryTiltConfiguration gbtilt = new GrainBoundaryTiltConfiguration(crystal, crystal, new ISpecies[] {fixed, movable}, 2.5, space);
         //gbtilt.setRotation(2, 45*Math.PI/180);
         gbtilt.setRotationTOP(1, 63.434948829*Math.PI/180);
         gbtilt.setRotationBOTTOM(1, 63.434948829*Math.PI/180);
@@ -148,7 +108,7 @@ public class SimDimerLJgb extends Simulation{
         gbtilt.initializeCoordinates(box);
 
       //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, false, "gb");
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, false, "gb", space);
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
@@ -175,4 +135,45 @@ public class SimDimerLJgb extends Simulation{
        }
        */
     }
+
+    public static void main(String[] args){
+    	final SimDimerLJgb sim = new SimDimerLJgb();
+
+    	sim.activityIntegrateMD.setMaxSteps(1000);
+    	sim.activityIntegrateDimer.setMaxSteps(0);
+    	    	
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+        energyMeter.setBox(sim.box);
+        
+        AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
+        AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
+        
+        DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);       
+        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
+        
+        DisplayPlot plotPE = new DisplayPlot();
+        plotPE.setLabel("PE Plot");
+        
+        energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
+        accumulatorAveragePE.setPushInterval(1);      
+    	
+    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
+    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+
+        simGraphic.add(plotPE);
+    	
+        sim.integratorMD.addIntervalAction(energyPump);
+        sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        
+        sim.integratorDimer.addIntervalAction(energyPump);
+    	sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
+    	//sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
+    	
+    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
+    	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.blue);
+        colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.PINK);
+    	
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+    }
+
 }

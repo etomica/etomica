@@ -1,9 +1,9 @@
 package etomica.lattice.crystal;
 
+import etomica.api.IVector;
 import etomica.math.geometry.Cube;
 import etomica.math.geometry.Polytope;
 import etomica.math.geometry.Square;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

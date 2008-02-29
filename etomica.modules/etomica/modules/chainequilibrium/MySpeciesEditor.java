@@ -9,10 +9,10 @@ package etomica.modules.chainequilibrium;
 import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
+import etomica.api.IBox;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.DeviceNSelector;
@@ -38,7 +38,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 	public final javax.swing.JTextField mass = new javax.swing.JTextField("40");
 
 	
-	public MySpeciesEditor(final ChainEquilibriumGraphic simGraphic, Box box, SpeciesSpheresMono s, String label) {
+	public MySpeciesEditor(final ChainEquilibriumGraphic simGraphic, IBox box, SpeciesSpheresMono s, String label) {
 		super();
 		species = s;
         sim = simGraphic.sim;
@@ -86,7 +86,7 @@ class MySpeciesEditor extends javax.swing.JPanel {
 	}
     
     class MyNSelector extends DeviceNSelector {
-        MyNSelector(final ChainEquilibriumGraphic simGraphic, Box box, ISpecies species) {
+        MyNSelector(final ChainEquilibriumGraphic simGraphic, IBox box, ISpecies species) {
             super(simGraphic.sim.getController());
             setResetAction(new SimulationRestart(simGraphic.sim));
             setBox(box);

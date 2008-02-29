@@ -1,8 +1,8 @@
 package etomica.modules.entropylottery;
 
 import etomica.modifier.Modifier;
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.units.Dimension;
 import etomica.units.Length;
 

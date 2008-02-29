@@ -2,6 +2,7 @@ package etomica.box;
 
 import java.lang.reflect.Array;
 
+import etomica.api.IBox;
 import etomica.simulation.ISimulation;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationEventManager;
@@ -37,7 +38,7 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
     /**
      * Returns the agent associated with the given box
      */
-    public Object getAgent(Box box) {
+    public Object getAgent(IBox box) {
         return agents[box.getIndex()];
     }
     
@@ -86,7 +87,7 @@ public class BoxAgentManager implements SimulationListener, java.io.Serializable
             addAgent(((SimulationBoxEvent)evt).getBox());
         }
         else if (evt instanceof SimulationBoxRemovedEvent) {
-            Box box = ((SimulationBoxEvent)evt).getBox();
+            IBox box = ((SimulationBoxEvent)evt).getBox();
             // The given Box got removed.  The remaining boxs got shifted
             // down.
             int index = box.getIndex();

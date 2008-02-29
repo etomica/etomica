@@ -85,7 +85,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
         species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setDimensions(Space.makeVector(new double[] {25,25,25}));
         box.setNMolecules(species, numMolecules);  
@@ -288,7 +288,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
         bdry.setDimensions(Space.makeVector(new double []{2*17.248, 3*12.086, 4*7.382}));
         box.setBoundary(bdry);
 
-        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
+        CoordinateDefinitionParacetamol coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
         coordDef.setBasisOrthorhombic();
         coordDef.initializeCoordinates(new int []{2, 3, 4});
  
@@ -316,7 +316,7 @@ public class MCParacetamolOrthorhombicMoveHarmonicStep extends Simulation {
 //        DisplayBox PEbox = new DisplayBox();
 //        DataPump PEpump = new DataPump(meterPE, PEbox);
         
-        WriteConfiguration writeConfig = new WriteConfiguration();
+        WriteConfiguration writeConfig = new WriteConfiguration(sim.space);
         writeConfig.setConfName("Coord_Paracetamol_FormII_Minimum_Energy");
         writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);

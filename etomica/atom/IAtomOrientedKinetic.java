@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 
 /**
  * Interface for an Atom that has a position, orientation, velocity and angular

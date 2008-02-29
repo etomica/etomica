@@ -1,12 +1,12 @@
 package etomica.potential;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomOriented;
 import etomica.box.Box;
 import etomica.exception.MethodNotImplementedException;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
@@ -279,7 +279,7 @@ public class P2LJQ extends Potential2 implements Potential2Soft {
         RandomNumberGenerator random = new RandomNumberGenerator();
         Space3D space = Space3D.getInstance();
         Simulation sim = new Simulation(space, false);
-        Box box = new Box(new BoundaryRectangularNonperiodic(space, random));
+        Box box = new Box(new BoundaryRectangularNonperiodic(space, random), space);
         sim.addBox(box);
         SpeciesSpheresRotating species = new SpeciesSpheresRotating(sim);
         sim.getSpeciesManager().addSpecies(species);

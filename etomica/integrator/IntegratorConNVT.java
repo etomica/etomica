@@ -1,5 +1,6 @@
 package etomica.integrator;
 
+import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -11,7 +12,6 @@ import etomica.box.Box;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.IRandom;
 
@@ -37,18 +37,17 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorConNVT(ISimulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0);
+    public IntegratorConNVT(ISimulation sim, PotentialMaster potentialMaster, Space space) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, space);
     }
     
     public IntegratorConNVT(PotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature) {
-        super(potentialMaster,random,timeStep,temperature);
+            double timeStep, double temperature, Space space) {
+        super(potentialMaster,random,timeStep,temperature, space);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
         allAtoms.setIncludeLrc(false);
-        Space space = potentialMaster.getSpace();
         work = space.makeVector();
         work1 = space.makeVector();
         work2 = space.makeVector();
@@ -82,7 +81,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
   	public void doStepInternal() {
         super.doStepInternal();
 
-        double dim = box.getSpace().D();  //get the dimension
+        double dim = space.D();  //get the dimension
 
   	    //Compute forces on each atom
   	    forceSum.reset();
@@ -112,7 +111,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
         //calculate scaling factor chi
         chi= Math.sqrt(Temper*Free/(mass*k));
 
-        //calculate constrained velocities at T+Dt/2
+        //calculate constrained velbox.getSpace()ocities at T+Dt/2
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic)leafList.getAtom(iLeaf);
             Agent agent = (Agent)agentManager.getAgent(a);
@@ -143,7 +142,7 @@ public final class IntegratorConNVT extends IntegratorMD implements AgentSource 
     }
     
     public final Object makeAgent(IAtom a) {
-        return new Agent(box.getSpace());
+        return new Agent(space);
     }
     
     public void releaseAgent(Object agent, IAtom atom) {}

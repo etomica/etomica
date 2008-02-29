@@ -1,5 +1,6 @@
 package etomica.virial;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
@@ -8,7 +9,7 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.mcmove.MCMoveMolecule;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.IVector3D;
 import etomica.space3d.Vector3D;
 import etomica.util.Debug;
@@ -32,8 +33,8 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     private final MeterClusterWeight weightMeter;
     private final MeterPotentialEnergy energyMeter;
 
-    public MCMoveClusterWiggleMulti(ISimulation sim, PotentialMaster potentialMaster, int nAtoms) {
-    	this(potentialMaster,sim.getRandom(), 1.0, nAtoms);
+    public MCMoveClusterWiggleMulti(ISimulation sim, PotentialMaster potentialMaster, int nAtoms, Space _space) {
+    	this(potentialMaster,sim.getRandom(), 1.0, nAtoms, _space);
         setBondLength(1.0);
     }
     
@@ -45,8 +46,9 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
      * because first atom is never moved)
      */
     public MCMoveClusterWiggleMulti(PotentialMaster potentialMaster, 
-            IRandom random, double stepSize, int nAtoms) {
+            IRandom random, double stepSize, int nAtoms, Space _space) {
         super(potentialMaster,random,stepSize,Double.POSITIVE_INFINITY,false);
+        this.space = _space;
         setStepSizeMax(Math.PI);
         weightMeter = new MeterClusterWeight(potential);
         energyMeter = new MeterPotentialEnergy(potential);
@@ -60,7 +62,7 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
         selectedAtoms = new IAtomPositioned[box.getMoleculeList().getAtomCount()];
         translationVectors = new Vector3D[box.getMoleculeList().getAtomCount()];
         for (int i=0; i<translationVectors.length; i++) {
-            translationVectors[i] = (IVector3D)p.getSpace().makeVector();
+            translationVectors[i] = (IVector3D)space.makeVector();
         }
         weightMeter.setBox(p);
         energyMeter.setBox(p);
@@ -199,4 +201,5 @@ public class MCMoveClusterWiggleMulti extends MCMoveMolecule {
     private final IVector3D work1, work2, work3;
     private IVector3D[] translationVectors;
     private double wOld, wNew;
+    private final Space space;
 }

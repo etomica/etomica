@@ -35,11 +35,11 @@ public class SimCalcS extends Simulation {
         SpeciesSpheresMono species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
-        integrator = new IntegratorHard(potentialMaster, random, 0.04, 1.0);
+        integrator = new IntegratorHard(potentialMaster, random, 0.04, 1.0, space);
 
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);
@@ -69,7 +69,7 @@ public class SimCalcS extends Simulation {
         }
         box.setBoundary(bdry);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
         coordinateDefinition.initializeCoordinates(new int[]{nCells, nCells, nCells});
         
         integrator.setBox(box);
@@ -123,11 +123,11 @@ public class SimCalcS extends Simulation {
         meterNormalMode.setCoordinateDefinition(sim.coordinateDefinition);
         WaveVectorFactory waveVectorFactory;
         if (D == 1) {
-            waveVectorFactory = new WaveVectorFactory1D();
+            waveVectorFactory = new WaveVectorFactory1D(D);
         } else if (D == 2) {
             waveVectorFactory = null;
         } else {
-            waveVectorFactory = new WaveVectorFactorySimple(primitive);
+            waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.space);
         }
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
@@ -155,7 +155,7 @@ public class SimCalcS extends Simulation {
         sim.activityIntegrate.setMaxSteps(nSteps);
         sim.getController().actionPerformed();
 
-        WriteS sWriter = new WriteS();
+        WriteS sWriter = new WriteS(sim.space);
         sWriter.setFilename(filename);
         sWriter.setMeter(meterNormalMode);
         sWriter.setWaveVectorFactory(waveVectorFactory);

@@ -1,7 +1,7 @@
 package etomica.lattice;
 
+import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

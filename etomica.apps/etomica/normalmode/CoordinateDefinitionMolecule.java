@@ -2,13 +2,14 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.lattice.crystal.Basis;
 import etomica.lattice.crystal.BasisMonatomic;
 import etomica.lattice.crystal.Primitive;
 import etomica.box.Box;
-import etomica.space.IVector;
+import etomica.space.Space;
 
 /**
  * CoordinateDefinition implementation for molecules. The class takes the first
@@ -21,13 +22,13 @@ import etomica.space.IVector;
 public class CoordinateDefinitionMolecule extends CoordinateDefinition
         implements Serializable {
 
-    public CoordinateDefinitionMolecule(Box box, Primitive primitive, int orientationDim) {
-        this(box, primitive, orientationDim, new BasisMonatomic(box.getSpace()));
+    public CoordinateDefinitionMolecule(Box box, Primitive primitive, int orientationDim, Space space) {
+        this(box, primitive, orientationDim, new BasisMonatomic(space), space);
     }
     
-    public CoordinateDefinitionMolecule(Box box, Primitive primitive, int orientationDim, Basis basis) {
-        super(box, (box.getSpace().D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis);
-        work1 = box.getSpace().makeVector();
+    public CoordinateDefinitionMolecule(Box box, Primitive primitive, int orientationDim, Basis basis, Space space) {
+        super(box, (space.D() + orientationDim)*basis.getScaledCoordinates().length, primitive, basis, space);
+        work1 = space.makeVector();
         u = new double[coordinateDim];
     }
 

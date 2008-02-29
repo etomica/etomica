@@ -7,6 +7,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.lattice.RectangularLattice;
 import etomica.nbr.site.AtomSite;
 import etomica.nbr.site.NeighborSiteManager;
+import etomica.space.Space;
 
 
 /**
@@ -26,9 +27,9 @@ public class DisplayBoxSpin2D extends DisplayBoxCanvas2D {
     /**
      * @param box
      */
-    public DisplayBoxSpin2D(DisplayBox _box, NeighborSiteManager neighborSiteManager) {
-        super(_box);
-        latticeIndex = new int[displayBox.getBox().getSpace().D()];
+    public DisplayBoxSpin2D(DisplayBox _box, NeighborSiteManager neighborSiteManager, Space space) {
+        super(_box, space);
+        latticeIndex = new int[displayBox.getBox().getBoundary().getDimensions().getD()];
         spinWidth = 5;
         this.neighborSiteManager = neighborSiteManager;
     }

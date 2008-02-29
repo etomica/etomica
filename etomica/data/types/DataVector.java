@@ -1,11 +1,11 @@
 package etomica.data.types;
 
+import etomica.api.IVector;
 import etomica.data.Data;
 import etomica.data.DataInfo;
 import etomica.data.DataInfoFactory;
 import etomica.data.IDataInfo;
 import etomica.data.IDataInfoFactory;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.util.Function;

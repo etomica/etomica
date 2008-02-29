@@ -79,7 +79,7 @@ public class HSMD3D extends Simulation {
         // the PotentialMaster is selected such as to implement neighbor listing
         super(space, true);
 
-        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, 1.6) : new PotentialMaster(space);
+        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, 1.6, space) : new PotentialMaster(space);
 
         int numAtoms = params.nAtoms;
         double neighborRangeFac = 1.6;
@@ -88,7 +88,7 @@ public class HSMD3D extends Simulation {
             ((PotentialMasterList)potentialMaster).setRange(neighborRangeFac*sigma);
         }
 
-        integrator = new IntegratorHard(this, potentialMaster);
+        integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
@@ -103,11 +103,11 @@ public class HSMD3D extends Simulation {
 
         potentialMaster.addPotential(potential,new AtomType[]{leafType, leafType});
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         box.setDensity(params.eta * 6 / Math.PI);
-        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
         //deformed
 //        box.setBoundary(
 //            new etomica.space.BoundaryDeformablePeriodic(
@@ -129,7 +129,7 @@ public class HSMD3D extends Simulation {
             integrator.addNonintervalListener(nbrManager);
         }
         else {
-            integrator.addIntervalAction(new BoxImposePbc(box));
+            integrator.addIntervalAction(new BoxImposePbc(box, space));
         }
     }
 
@@ -142,7 +142,7 @@ public class HSMD3D extends Simulation {
         HSMD3DParam params = new HSMD3DParam();
         params.ignoreOverlap = true;
         final etomica.simulation.prototypes.HSMD3D sim = new etomica.simulation.prototypes.HSMD3D(params);
-        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+        final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));
         nSelector.setSpecies(sim.species);

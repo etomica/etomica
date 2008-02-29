@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.TextField;
 import java.util.Iterator;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeOrientedSphere;
 import etomica.atom.AtomTypeSphere;
@@ -14,7 +15,7 @@ import etomica.atom.IAtomPositioned;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polygon;
 import etomica.space.Boundary;
-import etomica.space.IVector;
+import etomica.space.Space;
 
 //Class used to define canvas onto which configuration is drawn
 public class DisplayBoxCanvas2D extends DisplayCanvas {
@@ -27,14 +28,16 @@ public class DisplayBoxCanvas2D extends DisplayCanvas {
     private final static Color wellColor = Color.pink;//new Color(185,185,185, 110);
     private final int[] atomOrigin;
     private final IVector boundingBox;
+    protected final Space space;
         
-    public DisplayBoxCanvas2D(DisplayBox _box) {
+    public DisplayBoxCanvas2D(DisplayBox _box, Space _space) {
+    	this.space = _space;
         scaleText.setVisible(true);
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
         displayBox = _box;
-        atomOrigin = new int[_box.getBox().getSpace().D()];
-        boundingBox = _box.getBox().getSpace().makeVector();
+        atomOrigin = new int[space.D()];
+        boundingBox = space.makeVector();
     }
     
     /**

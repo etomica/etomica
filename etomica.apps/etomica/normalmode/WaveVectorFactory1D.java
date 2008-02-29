@@ -2,9 +2,10 @@ package etomica.normalmode;
 
 import java.io.Serializable;
 
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
 import etomica.species.ISpecies;
@@ -23,13 +24,13 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
 
-    public WaveVectorFactory1D() {
+    public WaveVectorFactory1D(int dim) {
+        if(dim != 1) {
+            throw new RuntimeException("Must give a box for a 1D system"); 
+        }
     }
     
     public void makeWaveVectors(Box box) {
-        if(box.getSpace().D() != 1) {
-            throw new RuntimeException("Must give a box for a 1D system"); 
-        }
 
         int nA = box.moleculeCount();
         double L = box.getBoundary().getDimensions().x(0);
@@ -62,13 +63,13 @@ public class WaveVectorFactory1D implements WaveVectorFactory, Serializable {
     public static void main(String[] args) {
         int nCells = 6;
         Simulation sim = new Simulation(Space1D.getInstance());
-        Box box = new Box(sim);
+        Box box = new Box(sim, sim.getSpace());
         sim.addBox(box);
         box.setDimensions(new Vector1D(nCells));
         ISpecies species = new SpeciesSpheresMono(sim);
         box.setNMolecules(species, nCells*nCells*nCells);
         
-        WaveVectorFactory1D foo = new WaveVectorFactory1D();
+        WaveVectorFactory1D foo = new WaveVectorFactory1D(sim.getSpace().D());
         foo.makeWaveVectors(box);
         IVector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();

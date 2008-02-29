@@ -2,13 +2,13 @@ package etomica.nbr.cell;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
+import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.ApiInterArrayList;
 import etomica.atom.iterator.ApiIntraArrayList;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLattice;
 import etomica.space.BoundaryPeriodic;
@@ -30,7 +30,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
      *            neighbors. Used to define neighbor cells; some iterates may
      *            exceed this separation
      */
-	public ApiAACell(int D, double range, Box box) {
+	public ApiAACell(int D, double range, IBox box) {
         cellIterator = new RectangularLattice.Iterator(D);
         neighborIterator = new CellLattice.NeighborIterator(D, range);
         neighborIterator.setDirection(IteratorDirective.Direction.UP);
@@ -170,7 +170,7 @@ public class ApiAACell implements AtomsetIteratorCellular, java.io.Serializable 
    
     private static final long serialVersionUID = 1L;
     private AtomsetIterator listIterator;
-    private final Box box;
+    private final IBox box;
     private final ApiIntraArrayList intraListIterator;
     private final ApiInterArrayList interListIterator;
     private final CellLattice.NeighborIterator neighborIterator;

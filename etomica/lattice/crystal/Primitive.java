@@ -1,10 +1,10 @@
 package etomica.lattice.crystal;
 
+import etomica.api.IVector;
 import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Parallelepiped;
 import etomica.math.geometry.Parallelogram;
 import etomica.math.geometry.Polytope;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.IVector3D;
 

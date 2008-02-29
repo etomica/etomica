@@ -1,8 +1,8 @@
 package etomica.nbr;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.box.Box;
 
 public final class CriterionNone implements NeighborCriterion, java.io.Serializable {
     private static final long serialVersionUID = 1L;
@@ -17,7 +17,7 @@ public final class CriterionNone implements NeighborCriterion, java.io.Serializa
     /**
      * Performs no action.
      */
-    public void setBox(Box box) {}
+    public void setBox(IBox box) {}
 
     /**
      * Always returns false, indicating that neighbor list never needs updating.

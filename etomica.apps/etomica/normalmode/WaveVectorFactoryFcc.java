@@ -3,9 +3,10 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.lattice.crystal.PrimitiveFcc;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.Species;
@@ -19,14 +20,15 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
 
-    public WaveVectorFactoryFcc(PrimitiveFcc primitive) {
+    public WaveVectorFactoryFcc(PrimitiveFcc primitive, int D) {
         this.primitive = primitive;
+        this.dim = D;
     }
     
     public void makeWaveVectors(Box box) {
         int numCells = 0;
         double d = -1;
-        for (int i=0; i<box.getSpace().D(); i++) {
+        for (int i = 0; i < dim; i++) {
             //XXX divide by sqrt(2) for FCC
             int n = (int)Math.round(box.getBoundary().getDimensions().x(i) / (primitive.getSize()[i]*Math.sqrt(2)));
             if (i>0 && n != numCells) {
@@ -152,8 +154,9 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
     
     public static void main(String[] args) {
         int nCells = 3;
-        Simulation sim = new Simulation(Space3D.getInstance());
-        Box box = new Box(sim);
+        Space sp = Space3D.getInstance();
+        Simulation sim = new Simulation(sp);
+        Box box = new Box(sim, sp);
         sim.addBox(box);
         box.setDimensions(new Vector3D(nCells, nCells, nCells));
         Species species = new SpeciesSpheresMono(sim);
@@ -161,7 +164,7 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
         box.setNMolecules(species, 4*nCells*nCells*nCells);
         PrimitiveFcc primitive = new PrimitiveFcc(sim.getSpace(), 1/Math.sqrt(2));
         
-        WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc(primitive);
+        WaveVectorFactoryFcc foo = new WaveVectorFactoryFcc(primitive, sp.D());
         foo.makeWaveVectors(box);
         IVector[] waveVectors = foo.getWaveVectors();
         double[] coefficients = foo.getCoefficients();
@@ -175,4 +178,5 @@ public class WaveVectorFactoryFcc implements WaveVectorFactory, Serializable {
     protected final PrimitiveFcc primitive;
     protected Vector3D[] waveVectors;
     protected double[] coefficients;
+    private final int dim;
 }

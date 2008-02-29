@@ -110,7 +110,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         species.getMoleculeType().setConformation(conformation);
         getSpeciesManager().addSpecies(species);
         
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setDimensions(Space.makeVector(new double[] {35,35,35}));
         box.setNMolecules(species, numMolecules);        
@@ -119,7 +119,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         bdry.setDimensions(Space.makeVector(new double []{cellDim[0]*12.119, cellDim[1]*8.944, cellDim[2]*7.278}));
         box.setBoundary(bdry);
         
-        coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis);
+        coordDef = new CoordinateDefinitionParacetamol(box, primitive, basis, space);
         coordDef.setBasisMonoclinic();
         
         if (simType == 0){
@@ -261,7 +261,7 @@ public class MCParacetamolMonoclinicDLMULTI extends Simulation{
         
         sim.getController().actionPerformed();
         
-        WriteConfiguration writeConfig = new WriteConfiguration();
+        WriteConfiguration writeConfig = new WriteConfiguration(sim.space);
         writeConfig.setConfName("FinalCoord_Paracetamol_Monoclinic_"+Kelvin.UNIT.fromSim(temperature)+"K");
         writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);

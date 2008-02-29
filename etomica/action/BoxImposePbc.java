@@ -1,5 +1,6 @@
 package etomica.action;
 
+import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.IAtom;
@@ -10,7 +11,6 @@ import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.box.Box;
 import etomica.space.Boundary;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**
@@ -26,8 +26,9 @@ public final class BoxImposePbc extends BoxActionAdapter {
 	 * before action can have any effect. Default is to apply central-imaging at
 	 * the atom rather than molecule level.
 	 */
-	public BoxImposePbc() {
+	public BoxImposePbc(Space space) {
 		setApplyToMolecules(false);
+		this.space = space;
 	}
     
     public int getPriority() {return 100;}//100-199 is priority range for classes imposing PBC
@@ -37,8 +38,8 @@ public final class BoxImposePbc extends BoxActionAdapter {
 	 * 
 	 * @param box
 	 */
-	public BoxImposePbc(Box box) {
-		this();
+	public BoxImposePbc(Box box, Space space) {
+		this(space);
 		setBox(box);
 	}
 
@@ -69,13 +70,8 @@ public final class BoxImposePbc extends BoxActionAdapter {
 	public void setBox(Box box) {
 		super.setBox(box);
 		iterator.setBox(box);
-        if (space != box.getSpace()) {
-            space = box.getSpace();
-            translator = new AtomActionTranslateBy(box.getSpace());
-            moleculeTranslator = new AtomGroupAction(translator);
-            if (moleculePosition == null) {
-                moleculePosition = new AtomPositionCOM(box.getSpace());
-            }
+        if (space.D() != box.getBoundary().getDimensions().getD()) {
+            throw new IllegalArgumentException("Cannot change dimension of BoxImosePbc");
         }
 	}
 

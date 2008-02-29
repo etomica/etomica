@@ -1,7 +1,7 @@
 package etomica.nbr;
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.box.Box;
 
 /**
  * Atom filter used to specify whether two atoms are considered neighbors,
@@ -26,7 +26,7 @@ public interface NeighborCriterion {
      * needed if the criterion depends on features of the box, such as the
      * boundary.
      */
-	public void setBox(Box box);
+	public void setBox(IBox box);
 	
     /**
      * Indicates whether the atom has changed (e.g. moved) by an amount 

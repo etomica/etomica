@@ -1,6 +1,7 @@
 package etomica.integrator.mcmove;
 
 import etomica.action.BoxInflate;
+import etomica.api.IBox;
 import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.atom.iterator.AtomIteratorNull;
@@ -133,13 +134,13 @@ public class MCMoveVolumeExchange extends MCMoveStep {
         inflate2.undo();
     }
 
-    public double energyChange(Box box) {
+    public double energyChange(IBox box) {
         if(this.firstBox == box) return uNew1 - uOld1;
         else if(this.secondBox == box) return uNew2 - uOld2;
         else return 0.0;
     }
     
-    public final AtomIterator affectedAtoms(Box box) {
+    public final AtomIterator affectedAtoms(IBox box) {
         if(this.firstBox == box) {
             return box1AtomIterator;
         } else if(this.secondBox == box) {

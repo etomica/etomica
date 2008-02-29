@@ -1,7 +1,7 @@
 package etomica.models.hexane;
+import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
 import etomica.math.geometry.Polytope;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 

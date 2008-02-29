@@ -63,11 +63,11 @@ public class LSimCO2 extends Simulation {
         getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
 
-        boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize));
+        boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);
         addBox(boxLiquid);
         boxLiquid.setNMolecules(species, numAtoms);
         boxLiquid.setDensity(density);
-        Configuration config = new ConfigurationLattice(new LatticeCubicFcc());
+        Configuration config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         config.initializeCoordinates(boxLiquid);
         
         potentialMaster = new PotentialMaster(space);
@@ -88,14 +88,14 @@ public class LSimCO2 extends Simulation {
         activityIntegrate = new ActivityIntegrate(integratorLiquid);
         getController().addAction(activityIntegrate);
         
-        BoxImposePbc pbc = new BoxImposePbc(boxLiquid);
+        BoxImposePbc pbc = new BoxImposePbc(boxLiquid, space);
         integratorLiquid.addIntervalAction(pbc);
         integratorLiquid.setActionInterval(pbc, 1000);
     }
     
     public static void main(String[] args) {
         final LSimCO2 sim = new LSimCO2(256, Kelvin.UNIT.toSim(273.15), 0.004, 3.0);
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "L", 50);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "L", 50, sim.space);
         simGraphic.getDisplayBox(sim.boxLiquid).setPixelUnit(new Pixel(15));
         MeterPressure meterPressureLiquid = new MeterPressure(sim.getSpace());
         meterPressureLiquid.setIntegrator(sim.integratorLiquid);

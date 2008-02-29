@@ -1,8 +1,8 @@
 package etomica.virial;
 
+import etomica.api.IVector;
 import etomica.config.ConformationChainZigZag;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.species.ISpecies;
 

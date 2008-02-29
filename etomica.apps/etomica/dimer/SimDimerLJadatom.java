@@ -6,6 +6,7 @@ import java.io.IOException;
 import etomica.action.BoxImposePbc;
 import etomica.action.WriteConfiguration;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
@@ -32,7 +33,6 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
@@ -69,59 +69,19 @@ public class SimDimerLJadatom extends Simulation{
     public AtomSet movableSet;
     public Boolean saddleFine, calcModes, minSearch, normalDir;
     
-    public static void main(String[] args){
-    	final String APP_NAME = "DimerLJadatom";
-    	final SimDimerLJadatom sim = new SimDimerLJadatom("lj_config_0", true, true, false, false, false, false);
-
-    	sim.activityIntegrateMD.setMaxSteps(0);
-    	sim.activityIntegrateDimer.setMaxSteps(1000);
-    	    	
-        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
-        energyMeter.setBox(sim.box);
-        
-        AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
-        AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
-        
-        DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);       
-        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
-        
-        DisplayPlot plotPE = new DisplayPlot();
-        plotPE.setLabel("PE Plot");
-        
-        energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
-        accumulatorAveragePE.setPushInterval(1);      
-    	
-    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
-    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
-
-        simGraphic.add(plotPE);
-    	
-        sim.integratorMD.addIntervalAction(energyPump);
-        sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
-        
-        sim.integratorDimer.addIntervalAction(energyPump);
-    	sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
-    	//sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
-    	
-    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
-    	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.blue);
-        colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.PINK);
-    	
-        simGraphic.makeAndDisplayFrame(APP_NAME);
-    }
 
     public SimDimerLJadatom(String fileName, Boolean useConfig, Boolean ortho, Boolean saddleFine, Boolean calcModes, Boolean minSearch, Boolean normalDir) {
     	super(Space3D.getInstance(), true);
     	potentialMaster = new PotentialMaster(space);
     	
     //SIMULATION BOX
-        box = new Box(new BoundaryRectangularSlit(space, random, 0, 5));
+        box = new Box(new BoundaryRectangularSlit(random, 0, 5, space), space);
         addBox(box);
         
-        BoxImposePbc imposePbc = new BoxImposePbc(box);
+        BoxImposePbc imposePbc = new BoxImposePbc(box, space);
         
     // INTEGRATOR - MD
-    	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster);
+    	integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
     	integratorMD.setTimeStep(0.01);
     	integratorMD.setTemperature(0.1);
     	integratorMD.setThermostatInterval(100);
@@ -151,7 +111,7 @@ public class SimDimerLJadatom extends Simulation{
 		potentialMaster.addPotential(potential, new AtomType[]{movable.getLeafType(), movable.getLeafType()});
         
     //CRYSTAL
-        Configuration config = new ConfigurationLattice(new LatticeCubicFcc());
+        Configuration config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         config.initializeCoordinates(box); 
        
     //ADATOM CREATION AND PLACEMENT
@@ -163,7 +123,7 @@ public class SimDimerLJadatom extends Simulation{
         adAtomPos.setX(2, box.getBoundary().getDimensions().x(0)/16);
         
   //INTEGRATOR - Dimer
-        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, ortho, fileName);
+        integratorDimer = new IntegratorDimerRT(this, potentialMaster, new ISpecies[]{movable}, ortho, fileName, space);
         integratorDimer.setBox(box);
         activityIntegrateDimer = new ActivityIntegrate(integratorDimer);
         integratorDimer.setActivityIntegrate(activityIntegrateDimer);
@@ -191,7 +151,7 @@ public class SimDimerLJadatom extends Simulation{
         if(minSearch){
         	ConfigurationFile configFile = new ConfigurationFile(fileName+"_fine_saddle");
         	configFile.initializeCoordinates(box);
-            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, fileName, normalDir);
+            integratorDimerMin = new IntegratorDimerMin(this, potentialMaster, new ISpecies[]{movable}, fileName, normalDir, space);
             integratorDimerMin.setBox(box);
             activityIntegrateMin = new ActivityIntegrate(integratorDimerMin);
             integratorDimerMin.setActivityIntegrate(activityIntegrateMin);
@@ -231,7 +191,7 @@ public class SimDimerLJadatom extends Simulation{
 	   		configRandom.initializeCoordinates(box);
 	   		//Create multiple configurations
 	   		for(int m=0; m<50; m++){
-	   			WriteConfiguration genConfig = new WriteConfiguration();
+	   			WriteConfiguration genConfig = new WriteConfiguration(space);
 	   			genConfig.setBox(box);
 	   			genConfig.setConfName(fileName+"_config_"+m);
 	   			//Displaces atom's by at most +/-0.03 in each coordinate
@@ -263,7 +223,7 @@ public class SimDimerLJadatom extends Simulation{
 		    System.out.println(file+" ***Vibrational Normal Mode Analysis***");
 		    System.out.println("  -Reading in system coordinates...");
 		    
-		    calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, movableSet);
+		    calcGradientDifferentiable = new CalcGradientDifferentiable(box, potentialMaster, movableSet, space);
 		    d = new int[movableSet.getAtomCount()*3];
 		    positions = new double[d.length];
 		    dForces = new double[positions.length][positions.length];
@@ -337,4 +297,46 @@ public class SimDimerLJadatom extends Simulation{
 		    
         }
     }
+
+    public static void main(String[] args){
+    	final String APP_NAME = "DimerLJadatom";
+    	final SimDimerLJadatom sim = new SimDimerLJadatom("lj_config_0", true, true, false, false, false, false);
+
+    	sim.activityIntegrateMD.setMaxSteps(0);
+    	sim.activityIntegrateDimer.setMaxSteps(1000);
+    	    	
+        MeterPotentialEnergy energyMeter = new MeterPotentialEnergy(sim.potentialMaster);
+        energyMeter.setBox(sim.box);
+        
+        AccumulatorHistory energyAccumulator = new AccumulatorHistory(new HistoryCollapsingAverage());
+        AccumulatorAverageCollapsing accumulatorAveragePE = new AccumulatorAverageCollapsing();
+        
+        DataPump energyPump = new DataPump(energyMeter,accumulatorAveragePE);       
+        accumulatorAveragePE.addDataSink(energyAccumulator, new StatType[]{StatType.MOST_RECENT});
+        
+        DisplayPlot plotPE = new DisplayPlot();
+        plotPE.setLabel("PE Plot");
+        
+        energyAccumulator.setDataSink(plotPE.getDataSet().makeDataSink());
+        accumulatorAveragePE.setPushInterval(1);      
+    	
+    	SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME,sim.space);
+    	simGraphic.getController().getReinitButton().setPostAction(simGraphic.getPaintAction(sim.box));
+
+        simGraphic.add(plotPE);
+    	
+        sim.integratorMD.addIntervalAction(energyPump);
+        sim.integratorMD.addIntervalAction(simGraphic.getPaintAction(sim.box));
+        
+        sim.integratorDimer.addIntervalAction(energyPump);
+    	sim.integratorDimer.addIntervalAction(simGraphic.getPaintAction(sim.box));
+    	//sim.integratorDimerMin.addIntervalAction(simGraphic.getPaintAction(sim.box));
+    	
+    	ColorSchemeByType colorScheme = ((ColorSchemeByType)((DisplayBox)simGraphic.displayList().getFirst()).getColorScheme());
+    	colorScheme.setColor(sim.fixed.getLeafType(),java.awt.Color.blue);
+        colorScheme.setColor(sim.movable.getLeafType(),java.awt.Color.PINK);
+    	
+        simGraphic.makeAndDisplayFrame(APP_NAME);
+    }
+
 }

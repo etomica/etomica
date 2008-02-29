@@ -1,6 +1,6 @@
 package etomica.math.geometry;
+import etomica.api.IVector;
 import etomica.exception.MethodNotImplementedException;
-import etomica.space.IVector;
 
 /**
  * Representation of a mathematical polyhedron, a 3-dimensional polytope.

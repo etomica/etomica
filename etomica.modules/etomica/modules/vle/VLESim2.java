@@ -46,13 +46,13 @@ public class VLESim2 extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize));
+        boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);
         addBox(boxLiquid);
-        boxVapor = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize));
+        boxVapor = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);
         addBox(boxVapor);
         boxLiquid.setNMolecules(species, initNumMolecules);
         boxVapor.setNMolecules(species, initNumMolecules);
-        Configuration config = new ConfigurationLattice(new LatticeCubicFcc());
+        Configuration config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         config.initializeCoordinates(boxLiquid);
         config.initializeCoordinates(boxVapor);
         
@@ -67,7 +67,7 @@ public class VLESim2 extends Simulation {
         MCMoveAtom atomMove = new MCMoveAtom(potentialMaster, random, 0.5, 5.0, true);
         integratorLiquid.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
-        BoxImposePbc pbc = new BoxImposePbc(boxLiquid);
+        BoxImposePbc pbc = new BoxImposePbc(boxLiquid, space);
         integratorLiquid.addIntervalAction(pbc);
         integratorLiquid.setActionInterval(pbc, 100);
         
@@ -76,7 +76,7 @@ public class VLESim2 extends Simulation {
         atomMove = new MCMoveAtom(potentialMaster, random, 0.5, 5.0, true);
         integratorVapor.getMoveManager().addMCMove(atomMove);
 //        ((MCMoveStepTracker)atomMove.getTracker()).setNoisyAdjustment(true);
-        pbc = new BoxImposePbc(boxVapor);
+        pbc = new BoxImposePbc(boxVapor, space);
         integratorVapor.addIntervalAction(pbc);
         integratorVapor.setActionInterval(pbc, 100);
         

@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.box.Box;
-import etomica.space.IVector;
 
 /**
  * reads configuration coordinates from a file and assigns them to the leaf atoms in a box

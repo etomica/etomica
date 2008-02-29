@@ -25,6 +25,10 @@ import etomica.units.Kelvin;
 public class MCParacetamolMonoclinicDLMULTIEquilibration extends Simulation{
 	private static final long serialVersionUID = 1L;
 
+	public MCParacetamolMonoclinicDLMULTIEquilibration(Space _space) {
+		super(_space);
+	}
+
     public static void main(String[] args) {
     	
     	int numMolecules = 96;
@@ -75,7 +79,7 @@ public class MCParacetamolMonoclinicDLMULTIEquilibration extends Simulation{
         
         sim.getController().actionPerformed();
         
-        WriteConfiguration writeConfig = new WriteConfiguration();
+        WriteConfiguration writeConfig = new WriteConfiguration(sim.getSpace());
         writeConfig.setConfName("FinalCoord_Paracetamol_Monoclinic_"+Kelvin.UNIT.fromSim(temperature)+"K");
         writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);

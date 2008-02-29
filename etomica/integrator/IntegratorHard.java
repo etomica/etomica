@@ -3,6 +3,7 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomLeafAgentManager;
@@ -26,7 +27,7 @@ import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.util.Debug;
 import etomica.util.IRandom;
 import etomica.util.TreeLinker;
@@ -71,13 +72,13 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
     
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorHard(ISimulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0);
+    public IntegratorHard(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
     public IntegratorHard(PotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature) {
-        super(potentialMaster,random,timeStep,temperature);
+            double timeStep, double temperature, Space _space) {
+        super(potentialMaster,random,timeStep,temperature, _space);
         nullPotential = null;
         pair = new AtomPair();
         singlet = new AtomSetSinglet();
@@ -149,8 +150,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
                 System.out.println("previous time: "+oldTime+" current time: "+collisionTimeStep);
                 System.out.println("collision for "+atoms+" potential "+colliderAgent.collisionPotential.getClass());
                 if (atoms instanceof AtomPair) {
-                    IVector dr = box.getSpace().makeVector();
-                    IVector dv = box.getSpace().makeVector();
+                    IVector dr = space.makeVector();
+                    IVector dv = space.makeVector();
 
                     IAtomKinetic atom0 = (IAtomKinetic)pair.atom0;
                     IAtomKinetic atom1 = (IAtomKinetic)pair.atom1;
@@ -183,8 +184,8 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
                     }
                 }
                 if (debugPair.atom0 != null && debugPair.atom1 != null && !(debugPair.atom0 instanceof IMolecule && debugPair.atom1 instanceof IMolecule)) {
-                    IVector dr = box.getSpace().makeVector();
-                    IVector dv = box.getSpace().makeVector();
+                    IVector dr = space.makeVector();
+                    IVector dv = space.makeVector();
 
                     IAtomKinetic atom0 = (IAtomKinetic)debugPair.atom0;
                     IAtomKinetic atom1 = (IAtomKinetic)debugPair.atom1;

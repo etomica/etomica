@@ -1,13 +1,15 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.atom.iterator.AtomIteratorBoxDependent;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
 import etomica.box.Box;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.species.ISpecies;
 import etomica.units.Fraction;
 
@@ -16,8 +18,9 @@ import etomica.units.Fraction;
  */
 public class MeterLocalMoleFraction extends DataSourceScalar {
 
-    public MeterLocalMoleFraction() {
+    public MeterLocalMoleFraction(Space space) {
         super("Local Mole Fraction",Fraction.DIMENSION);
+        this.space = space;
         setSpecies(null);
     }
 
@@ -89,7 +92,7 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**
@@ -97,8 +100,8 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
      */
     public void setBox(Box newBox) {
         box = newBox;
-        tempVec = box.getSpace().makeVector();
-        shapeOrigin = box.getSpace().makeVector();
+        tempVec = space.makeVector();
+        shapeOrigin = space.makeVector();
         iterator.setBox(box);
         if (shape == null) {
             setShape(box.getBoundary().getShape());
@@ -128,4 +131,5 @@ public class MeterLocalMoleFraction extends DataSourceScalar {
     private Polytope shape;
     private IVector shapeOrigin;
     private IVector tempVec;
+    private final Space space;
 }

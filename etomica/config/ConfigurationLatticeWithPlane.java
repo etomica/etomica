@@ -3,6 +3,7 @@ package etomica.config;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import etomica.api.IVector;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
@@ -16,7 +17,6 @@ import etomica.math.geometry.Plane;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
@@ -56,8 +56,8 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLatticeWithPlane(SpaceLattice lattice, Plane plane) {
-        this(lattice, plane, new IndexIteratorRectangular(lattice.D()));
+    public ConfigurationLatticeWithPlane(SpaceLattice lattice, Plane plane, Space space) {
+        this(lattice, plane, new IndexIteratorRectangular(lattice.D()), space);
     }
 
     /**
@@ -66,10 +66,9 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
      * iterator.
      */
     private ConfigurationLatticeWithPlane(SpaceLattice lattice,
-            Plane plane, IndexIteratorSizable indexIterator) {
-    	super(lattice, indexIterator);
+            Plane plane, IndexIteratorSizable indexIterator, Space space) {
+    	super(lattice, indexIterator, space);
 
-    	
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
@@ -169,7 +168,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         }
 
         // determine scaled shape of simulation volume
-        IVector halfShape = box.getSpace().makeVector();
+        IVector halfShape = space.makeVector();
         halfShape.E(box.getBoundary().getDimensions());
 
 	    int planeDimIdx = 0;
@@ -179,12 +178,12 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
 	    else if(plane.getB() > plane.epsilon) {
 	    	planeDimIdx = 1;
 	    }
-	    else if(box.getSpace().D() == 3 &&
+	    else if(space.D() == 3 &&
 	    		plane.getC() > plane.epsilon) {
 	    	planeDimIdx = 2;
 	    }
 
-	    IVector entireShape = box.getSpace().makeVector();
+	    IVector entireShape = space.makeVector();
 	    entireShape.E(halfShape);
 
 	    //  NOTE, JUST DIVIDING BY 2 ASSUMES PLANE DOWN CENTER
@@ -212,7 +211,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
         for(int side = LEFT; side <= RIGHT; side++) {
 
 	        // determine lattice constant
-	        IVector latticeScaling = box.getSpace().makeVector();
+	        IVector latticeScaling = space.makeVector();
 	        if (rescalingToFitVolume) {
                 latticeScaling.E(halfShape);
 	            latticeScaling.DE(Space.makeVector(latticeDimensions[side]));
@@ -224,16 +223,16 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
             indexIterator.reset();
 
 	        // determine amount to shift lattice so it is centered in volume
-	        IVector offset = box.getSpace().makeVector();
+	        IVector offset = space.makeVector();
 	        offset.E(box.getBoundary().getDimensions());
 
-	        IVector temp3 = box.getSpace().makeVector();
+	        IVector temp3 = space.makeVector();
             temp3.E(entireShape);
             temp3.TE(-0.5);
             temp3.setX(planeDimIdx, halfShape.x(planeDimIdx) * (side-1));
             offset.E(temp3);
 
-	        IVector temp2 = box.getSpace().makeVector();
+	        IVector temp2 = space.makeVector();
 	        temp2.E(latticeScaling);
 	        temp2.TE(0.5);
 	        offset.PE(temp2);
@@ -259,29 +258,30 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
     }
 
     public static void main(String[] args) {
-        Simulation sim = new Simulation(Space3D.getInstance());
+    	Space sp = Space3D.getInstance();
+        Simulation sim = new Simulation(sp);
         PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
-        Box box = new Box(sim);
+        Box box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
         int k = 4;
         box.setNMolecules(species, 4 * k * k * k);
-        IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);
+        IntegratorHard integrator = new IntegratorHard(sim, potentialMaster, sp);
         integrator.setBox(box);
 //	        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new LatticeCubicFcc();
         // CubicLattice lattice = new LatticeCubicSimple();
-        ConfigurationLattice configuration = new ConfigurationLattice(lattice);
+        ConfigurationLattice configuration = new ConfigurationLattice(lattice, sp);
         // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
         configuration.initializeCoordinates(box);
         // etomica.graphics.DisplayBox display = new
         // etomica.graphics.DisplayBox(box);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
-                sim);
+                sim, sp);
 //	        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
 //	                .getFirst()).getColorScheme()).setColor(species
 //	                .getMoleculeType(), java.awt.Color.red);

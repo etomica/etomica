@@ -1,6 +1,6 @@
 package etomica.space3d;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 
 /**
  * Interface for a 3D vector, which has a XE (cross-product) method

@@ -47,7 +47,7 @@ public class TestSWChain extends Simulation {
     
     public TestSWChain(int numMolecules) {
         super(Space3D.getInstance(), true);
-        PotentialMasterList potentialMaster = new PotentialMasterList(this);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int chainLength = 10;
         int numAtoms = numMolecules * chainLength;
         double sigma = 1.0;
@@ -60,7 +60,7 @@ public class TestSWChain extends Simulation {
 
         // makes eta = 0.35
         double l = 14.4094*Math.pow((numAtoms/2000.0),1.0/3.0);
-        integrator = new IntegratorHard(this, potentialMaster);
+        integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setTimeStep(timeStep);
         integrator.setIsothermal(true);
         ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
@@ -87,7 +87,7 @@ public class TestSWChain extends Simulation {
         nonBondedCriterion.setBonded(false);
         sqwCriterion.setIntraMolecularCriterion(nonBondedCriterion);
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setDimensions(Space.makeVector(new double[]{l,l,l}));
         box.setNMolecules(species, numMolecules);

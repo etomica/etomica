@@ -25,6 +25,7 @@ import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2HardSphere;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.Space;
 import etomica.space2d.Space2D;
 import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
@@ -51,19 +52,19 @@ public class HSMD2D_noNbr extends Simulation {
     	this(Space2D.getInstance());
     }
     
-    public HSMD2D_noNbr(Space2D space) {
+    public HSMD2D_noNbr(Space space) {
         super(space);
         PotentialMaster potentialMaster = new PotentialMaster(space);
-        integrator = new IntegratorHard(this, potentialMaster);
+        integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
         activityIntegrate = new ActivityIntegrate(integrator);
         getController().addAction(activityIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-	    box = new Box(this);
+	    box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, 64);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
 	    P2HardSphere potential = new P2HardSphere(space);
 	    potentialMaster.addPotential(potential,new AtomType[]{species.getLeafType(),species.getLeafType()});
         P1HardBoundary potentialBoundary = new P1HardBoundary(space);
@@ -73,7 +74,7 @@ public class HSMD2D_noNbr extends Simulation {
 //        potentialBoundary.setActive(0,false,true);
 //        potentialBoundary.setActive(1,false,true);
         
-        integrator.addIntervalAction(new BoxImposePbc(box));
+        integrator.addIntervalAction(new BoxImposePbc(box, space));
         integrator.setBox(box);
         integrator.setNullPotential(new P1HardPeriodic(space, potential.getRange()));
 //        integrator.setIsothermal(true);
@@ -89,7 +90,7 @@ public class HSMD2D_noNbr extends Simulation {
 //          new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
 //                                      addDataSink(pressureHistory);
         
-        MeterTemperature meterTemperature = new MeterTemperature();
+        MeterTemperature meterTemperature = new MeterTemperature(space.D());
         meterTemperature.setBox(box);
         temperatureAverage = new AccumulatorAverageCollapsing();
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
@@ -112,7 +113,7 @@ public class HSMD2D_noNbr extends Simulation {
     	final String APP_NAME = "HSMD2D no Nbr";
 
         final HSMD2D_noNbr sim = new HSMD2D_noNbr();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
         sim.activityIntegrate.setSleepPeriod(10);
 //        DisplayTextBoxesCAE pressureDisplay = new DisplayTextBoxesCAE();
 //        pressureDisplay.setAccumulator(sim.pressureAverage);

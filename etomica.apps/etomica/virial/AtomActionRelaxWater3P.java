@@ -4,11 +4,11 @@
 package etomica.virial;
 
 import etomica.action.AtomAction;
+import etomica.api.IVector;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
 import etomica.models.water.SpeciesWater3P;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 public class AtomActionRelaxWater3P implements AtomAction {

@@ -1,9 +1,9 @@
 package etomica.paracetamol;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

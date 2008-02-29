@@ -51,8 +51,8 @@ public class JouleThomsonSim extends Simulation {
         double sigma = 3.0;
         
         //integrator
-        integratorNVE = new IntegratorVelocityVerlet(this, potentialMaster);
-        integrator = new IntegratorGear4NPH(this, potentialMaster);
+        integratorNVE = new IntegratorVelocityVerlet(this, potentialMaster, space);
+        integrator = new IntegratorGear4NPH(this, potentialMaster, space);
         integrator.setRelaxationRateP(500.);
         integrator.setRelaxationRateH(300.);
         integratorNVE.setTemperature(Kelvin.UNIT.toSim(300));
@@ -75,7 +75,7 @@ public class JouleThomsonSim extends Simulation {
         getSpeciesManager().addSpecies(species);
 	    potential = new P2LennardJones(space, sigma, Kelvin.UNIT.toSim(300));
         potentialMaster.addPotential(potential, new AtomType[]{species.getLeafType(), species.getLeafType()});
-	    box = new Box(this);
+	    box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, nAtoms);
         
@@ -86,11 +86,11 @@ public class JouleThomsonSim extends Simulation {
         else {
             lattice = new LatticeCubicFcc();
         }
-        config = new ConfigurationLattice(lattice);
+        config = new ConfigurationLattice(lattice, space);
         config.initializeCoordinates(box);
         
         integratorJT = new IntegratorJT(getRandom(), integrator, integratorNVE);
-        integratorJT.addIntervalAction(new BoxImposePbc(box));
+        integratorJT.addIntervalAction(new BoxImposePbc(box, space));
         integrator.setBox(box);
         integratorNVE.setBox(box);
 
@@ -102,8 +102,9 @@ public class JouleThomsonSim extends Simulation {
     }
     
     public static void main(String[] args) {
-        JouleThomsonSim sim = new JouleThomsonSim(Space3D.getInstance());
-        SimulationGraphic simGraphic = new SimulationGraphic(sim);
+    	Space sp = Space3D.getInstance();
+        JouleThomsonSim sim = new JouleThomsonSim(sp);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, sp);
         simGraphic.makeAndDisplayFrame();
         final DisplayBox displayBox = simGraphic.getDisplayBox(sim.box);
         sim.activityIntegrate.setSleepPeriod(10);

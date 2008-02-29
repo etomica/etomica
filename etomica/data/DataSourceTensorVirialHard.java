@@ -17,6 +17,7 @@ import etomica.units.Null;
 public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.CollisionListener, java.io.Serializable {
     
     public DataSourceTensorVirialHard(Space space) {
+    	dim = space.D();
         data = new DataTensor(space);
         dataInfo = new DataInfoTensor("PV/NkT", Null.DIMENSION, space);
         work = space.makeTensor();
@@ -49,9 +50,8 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
             return data;
         }
         Box box = integratorHard.getBox();
-        int D = box.getSpace().D();
 
-        work.TE(-1./(integratorHard.getTemperature()*elapsedTime*D*box.atomCount()));
+        work.TE(-1./(integratorHard.getTemperature()*elapsedTime*dim*box.atomCount()));
         data.x.E(work);
         //don't add 1.0 to diagonal elements because meter returns only virial contribution to pressure
         return data;
@@ -99,4 +99,5 @@ public class DataSourceTensorVirialHard implements DataSource, IntegratorHard.Co
     protected final Tensor work;
     protected final DataInfoTensor dataInfo;
     protected final DataTag tag;
+    private final int dim;
 }

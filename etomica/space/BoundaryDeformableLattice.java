@@ -1,6 +1,7 @@
 
 package etomica.space;
 
+import etomica.api.IVector;
 import etomica.lattice.crystal.Primitive;
 import etomica.util.IRandom;
 

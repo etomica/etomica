@@ -19,6 +19,8 @@ import etomica.graphics.DeviceSlider;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorBox;
 import etomica.modifier.Modifier;
+import etomica.space.Space;
+import etomica.space2d.Space2D;
 import etomica.units.Dimension;
 import etomica.units.Temperature;
 import etomica.units.Unit;
@@ -319,9 +321,10 @@ public class DeviceThermoSliderGEMC extends Device {
         device.setMinimum(100.0);
         device.setMaximum(1000.0);
         device.setTemperature(250.0);
-        
-        etomica.simulation.Simulation sim = new etomica.simulation.Simulation();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
+
+        Space sp = Space2D.getInstance();
+        etomica.simulation.Simulation sim = new etomica.simulation.Simulation(sp);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp);
         graphic.getPanel().controlPanel.remove(graphic.getController().graphic());
         graphic.add(device);
         graphic.makeAndDisplayFrame(APP_NAME);

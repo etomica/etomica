@@ -10,11 +10,12 @@ import etomica.data.types.DataTensor;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeSum;
 import etomica.lattice.crystal.Primitive;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
@@ -32,7 +33,7 @@ import etomica.util.RandomNumberGenerator;
 
 public class NormalModesSoftSpherical implements NormalModes {
 
-    public NormalModesSoftSpherical(int[] nCells, Primitive primitive, Potential2SoftSpherical potential) {
+    public NormalModesSoftSpherical(int[] nCells, Primitive primitive, Potential2SoftSpherical potential, Space space) {
         
         harmonicFudge = 1.0;
         needToCalculateModes = true;
@@ -43,10 +44,10 @@ public class NormalModesSoftSpherical implements NormalModes {
         int nSites = nCells[0]*nCells[1]*nCells[2];
         Boundary boundary = new BoundaryDeformableLattice(primitive, new RandomNumberGenerator(), nCells);
         
-        Box box = new Box(boundary);
+        Box box = new Box(boundary, space);
 
         System.out.println("Density: "+nSites/boundary.volume());
-        kFactory = new WaveVectorFactorySimple(primitive);
+        kFactory = new WaveVectorFactorySimple(primitive, space);
         kFactory.makeWaveVectors(box);
         System.out.println("Number of wave vectors: "+kFactory.getWaveVectors().length);
         

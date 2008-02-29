@@ -1,5 +1,6 @@
 package etomica.junit;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.iterator.AtomIteratorTreeBox;
@@ -74,7 +75,7 @@ public class UnitTestUtil {
             nBox = n1.length;
         }
         for (int i = 0; i < nBox; i++) {
-            Box box = new Box(sim);
+            Box box = new Box(sim, space);
             sim.addBox(box);
             if (species0 != null)
                 box.setNMolecules(species0, n0[i]);
@@ -113,7 +114,7 @@ public class UnitTestUtil {
         Space space = Space3D.getInstance();
         ISimulation sim = new Simulation(space, false);
         //        new SpeciesSpheres(sim);
-        Box box = new Box(sim);
+        Box box = new Box(sim, space);
         sim.addBox(box);
         for (int i = 0; i < nMolecules.length; i++) {
             AtomTypeSphere[] leafTypes = new AtomTypeSphere[nAtoms[i].length];
@@ -130,7 +131,7 @@ public class UnitTestUtil {
     
     public static void main(String[] arg) {
         ISimulation sim = makeStandardSpeciesTree();
-        Box[] boxs = sim.getBoxs();
+        IBox[] boxs = sim.getBoxs();
         for (int i=0; i<boxs.length; i++) {
             AtomIteratorTreeBox iterator = new AtomIteratorTreeBox();
             iterator.setBox(boxs[i]);

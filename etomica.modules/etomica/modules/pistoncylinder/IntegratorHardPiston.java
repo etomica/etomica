@@ -9,6 +9,7 @@ import etomica.potential.P1HardMovingBoundary;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -20,14 +21,16 @@ public class IntegratorHardPiston extends IntegratorHard {
      * @param potentialMaster
      * @param potential Potential between piston and every atom in the box
      */
-    public IntegratorHardPiston(ISimulation sim, PotentialMaster potentialMaster, P1HardMovingBoundary potential) {
-        super(sim, potentialMaster);
+    public IntegratorHardPiston(ISimulation sim,
+    		           PotentialMaster potentialMaster,
+    		           P1HardMovingBoundary potential, Space _space) {
+        super(sim, potentialMaster, _space);
         pistonPotential = potential;
         atomSetSinglet = new AtomSetSinglet();
     }
 
     public void resetPiston() {
-        if (box.getSpace().D() == 3) {
+        if (space.D() == 3) {
             pistonPotential.setWallPosition(box.getBoundary().getDimensions().x(1)*0.5);
         }
         else {

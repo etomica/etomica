@@ -1,6 +1,7 @@
 package etomica.modules.rosmosis;
 import etomica.action.BoxImposePbc;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IVector;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -11,7 +12,6 @@ import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedShifted;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.Species;
@@ -36,14 +36,14 @@ public class ReverseOsmosis extends Simulation {
     public ConfigurationMembrane configMembrane;
     public P1Tether potentialTether;
     
-    public ReverseOsmosis(Space space) {
-        super(space);
+    public ReverseOsmosis(Space _space) {
+        super(_space);
         PotentialMaster potentialMaster = new PotentialMaster(space); //List(this, 2.0);
         
         int N = 360;  //number of atoms, originally 768
         
         //controller and integrator
-	    integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125));
+	    integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), 0.01, Kelvin.UNIT.toSim(125), space);
 	    integrator.setIsothermal(false);
         integrator.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integrator.setThermostatInterval(1);
@@ -108,12 +108,12 @@ public class ReverseOsmosis extends Simulation {
         ((AtomTypeSphere)speciesMembrane.getLeafType()).setDiameter(sigMembrane);
 
         //construct box
-	    box = new Box(this);
+	    box = new Box(this, space);
         addBox(box);
         IVector dim = space.makeVector();
         dim.E(new double[]{xSize, yzSize, yzSize});
         box.setDimensions(dim);
-        configMembrane = new ConfigurationMembrane(this);
+        configMembrane = new ConfigurationMembrane(this, space);
         configMembrane.setMembraneDim(0);
         configMembrane.setMembraneThicknessPerLayer(10.0/3.0);
         configMembrane.setNumMembraneLayers(2);
@@ -126,7 +126,7 @@ public class ReverseOsmosis extends Simulation {
         configMembrane.setSpeciesSolvent(speciesSolvent);
         configMembrane.initializeCoordinates(box);
         
-        potentialTether = new P1Tether(box, speciesMembrane);
+        potentialTether = new P1Tether(box, speciesMembrane, space);
         potentialTether.setEpsilon(20000);
         potentialMaster.addPotential(potentialTether, new AtomType[]{speciesMembrane.getLeafType()});
         
@@ -134,7 +134,7 @@ public class ReverseOsmosis extends Simulation {
 
 //        integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
 //        integrator.addNonintervalListener(potentialMaster.getNeighborManager(box));
-        integrator.addIntervalAction(new BoxImposePbc(box));
+        integrator.addIntervalAction(new BoxImposePbc(box, space));
     }
     
     public static void main(String[] args) {

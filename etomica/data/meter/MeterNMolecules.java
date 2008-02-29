@@ -1,6 +1,7 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
 import etomica.atom.IAtom;
 import etomica.data.Data;
 import etomica.data.DataSourceAtomic;
@@ -47,7 +48,7 @@ public class MeterNMolecules extends DataSourceScalar implements DataSourceAtomi
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**

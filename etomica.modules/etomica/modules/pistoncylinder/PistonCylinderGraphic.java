@@ -19,6 +19,7 @@ import etomica.action.ActionGroupSeries;
 import etomica.action.IntegratorReset;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
@@ -64,7 +65,7 @@ import etomica.potential.P2HardSphere;
 import etomica.potential.P2Ideal;
 import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.units.Angstrom;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
@@ -134,8 +135,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
      * Creates a PistonCylinder graphic instance.  init() must be called before
      * this can be used.
      */
-    public PistonCylinderGraphic(PistonCylinder sim) {
-    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+    public PistonCylinderGraphic(PistonCylinder sim, Space _space) {
+    	super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
     	pc = sim;
     }
 
@@ -449,7 +450,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
 		//add meter and display for current kinetic temperature
 
-		thermometer = new MeterTemperature();
+		thermometer = new MeterTemperature(space.D());
 
         if (doRDF) {
             plotRDF = new DisplayPlot();
@@ -934,7 +935,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
     public static void main(String[] args) {
         PistonCylinder sim = new PistonCylinder(2);
-        PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
+        PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim, sim.getSpace());
         pcg.setDoRDF(true);
         pcg.setDoDensityInput(true);
         pcg.setDoConfigButton(true);
@@ -952,7 +953,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 D = Integer.parseInt(dimStr);
             }
             PistonCylinder sim = new PistonCylinder(D);
-            PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim);
+            PistonCylinderGraphic pcg = new PistonCylinderGraphic(sim, sim.getSpace());
             String doConfigButtonStr = getParameter("doConfigButton");
             if (doConfigButtonStr != null) {
                 pcg.setDoConfigButton(Boolean.valueOf(doConfigButtonStr).booleanValue());

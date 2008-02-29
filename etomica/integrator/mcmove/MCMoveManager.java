@@ -2,6 +2,7 @@ package etomica.integrator.mcmove;
 
 import java.io.Serializable;
 
+import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.util.IRandom;
 
@@ -106,7 +107,7 @@ public class MCMoveManager implements Serializable {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
 

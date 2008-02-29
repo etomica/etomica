@@ -2,6 +2,8 @@ package etomica.nbr.cell;
 
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomGroupAction;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
@@ -24,7 +26,6 @@ import etomica.integrator.mcmove.MCMoveListener;
 import etomica.integrator.mcmove.MCMoveTrialCompletedEvent;
 import etomica.lattice.CellLattice;
 import etomica.space.Boundary;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -44,7 +45,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
     protected final Space space;
     protected final AtomIteratorTreeBox atomIterator;
     protected final AtomPositionDefinition positionDefinition;
-    protected final Box box;
+    protected final IBox box;
     protected int cellRange = 2;
     protected double range;
     protected final AtomAgentManager agentManager;
@@ -54,8 +55,8 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * cells in each dimension is given by nCells. Position definition for each
      * atom is that given by its type (it is set to null in this class).
      */
-    public NeighborCellManager(Box box, double potentialRange) {
-        this(box, potentialRange, null);
+    public NeighborCellManager(Box box, double potentialRange, Space _space) {
+        this(box, potentialRange, null, _space);
     }
     
     /**
@@ -65,10 +66,10 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
      * definition given by the atom's type is used.  Position definition is
      * declared final.
      */
-    public NeighborCellManager(final Box box, double potentialRange, AtomPositionDefinition positionDefinition) {
+    public NeighborCellManager(final Box box, double potentialRange, AtomPositionDefinition positionDefinition, Space _space) {
         this.positionDefinition = positionDefinition;
         this.box = box;
-        space = box.getSpace();
+        space = _space;
         atomIterator = new AtomIteratorTreeBox();
         atomIterator.setDoAllNodes(true);
         atomIterator.setBox(box);
@@ -236,7 +237,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
     }
     
     private static class MyMCMoveListener implements MCMoveListener, java.io.Serializable {
-        public MyMCMoveListener(Space space, Box box, NeighborCellManager manager) {
+        public MyMCMoveListener(Space space, IBox box, NeighborCellManager manager) {
             moleculePosition = new AtomPositionCOM(space);
             translator = new AtomActionTranslateBy(space);
             moleculeTranslator = new AtomGroupAction(translator);
@@ -288,7 +289,7 @@ public class NeighborCellManager implements BoxCellManager, AgentSource, BoxList
         private final AtomPositionDefinition moleculePosition;
         private final AtomActionTranslateBy translator;
         private final AtomGroupAction moleculeTranslator;
-        private final Box box;
+        private final IBox box;
         private final NeighborCellManager neighborCellManager;
     }
 }

@@ -19,7 +19,7 @@ import etomica.potential.P1HardPeriodic;
 import etomica.potential.P2SquareWell;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space3d.Space3D;
+import etomica.space.Space;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -56,11 +56,11 @@ public class SWMD3D extends Simulation {
 
 	}
 	
-  public SWMD3D() {
-	super(Space3D.getInstance());
+  public SWMD3D(Space space) {
+	super(space);
 	PotentialMaster potentialMaster = new PotentialMaster(space);
 	
-    integrator = new IntegratorHard(this, potentialMaster);
+    integrator = new IntegratorHard(this, potentialMaster, space);
     integrator.setTimeStep(0.01);
     integrator.setIsothermal(true);
     integrator.setTemperature(1);
@@ -70,7 +70,7 @@ public class SWMD3D extends Simulation {
     getController().addAction(activityIntegrate);
 
 
-    box = new Box(this);
+    box = new Box(this, space);
     addBox(box);
     potential  = new etomica.potential.P2SquareWell(space);
     potential.setLambda(lambda);
@@ -106,12 +106,12 @@ public class SWMD3D extends Simulation {
     potentialMaster.addPotential(potential,new AtomType[]{species.getLeafType(),species.getLeafType()});
 
     integrator.setBox(box);
-    integrator.addIntervalAction(new BoxImposePbc(box));
+    integrator.addIntervalAction(new BoxImposePbc(box, space));
 
 //	DeviceNSelector nControl = new DeviceNSelector(speciesSpheres0.getAgent(box0));
 //	nControl.setMaximum(108);
 	box.setDensity(0.0405);
-    ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc());
+    ConfigurationLattice configuration = new ConfigurationLattice(new LatticeCubicFcc(), space);
     configuration.initializeCoordinates(box);
   }
 

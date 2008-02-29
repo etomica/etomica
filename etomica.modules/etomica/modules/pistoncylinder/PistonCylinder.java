@@ -2,6 +2,7 @@ package etomica.modules.pistoncylinder;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IVector;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
@@ -16,7 +17,6 @@ import etomica.potential.P2SquareWell;
 import etomica.potential.Potential2HardSphericalWrapper;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
@@ -50,16 +50,16 @@ public class PistonCylinder extends Simulation {
         ((ElementSimple)species.getLeafType().getElement()).setMass(16);
         ((AtomTypeSphere)species.getLeafType()).setDiameter(sigma);
         getSpeciesManager().addSpecies(species);
-        box = new Box(new BoundaryPistonCylinder(space, getRandom()));
+        box = new Box(new BoundaryPistonCylinder(space, getRandom()), space);
         addBox(box);
         box.setNMolecules(species, INIT_NUM_MOLECULES);
         IVector newDim;
         if (space.D() == 2) {
-            config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal());
+            config = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space);
             newDim = new Vector2D(80,150);
         }
         else {
-            config = new ConfigurationLattice(new LatticeCubicFcc());
+            config = new ConfigurationLattice(new LatticeCubicFcc(), space);
             newDim = new Vector3D(30,80,30);
         }
         config.setBoundaryPadding(sigma);
@@ -103,7 +103,7 @@ public class PistonCylinder extends Simulation {
         potentialMaster.addPotential(pistonPotential,new AtomType[]{species.getLeafType()});
         ((BoundaryPistonCylinder)box.getBoundary()).setPistonPotential(pistonPotential);
         
-        integrator = new IntegratorHardPiston(this,potentialMaster,pistonPotential);
+        integrator = new IntegratorHardPiston(this,potentialMaster,pistonPotential, space);
         integrator.setBox(box);
         integrator.setIsothermal(true);
         integrator.setThermostatInterval(1);

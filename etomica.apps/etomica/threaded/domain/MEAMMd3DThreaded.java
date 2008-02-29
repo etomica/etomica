@@ -85,6 +85,116 @@ public class MEAMMd3DThreaded extends Simulation {
     public ActivityIntegrate activityIntegrate;
     public IDataInfo info2;
 
+    
+    public MEAMMd3DThreaded(int numAtoms, int numThreads) {
+        super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
+        potentialMaster = new PotentialMasterListThreaded(this, space);
+        integrator = new IntegratorVelocityVerletThreaded(this, potentialMaster, numThreads);
+        integrator.setTimeStep(0.001);
+        integrator.setTemperature(Kelvin.UNIT.toSim(295));
+        integrator.setThermostatInterval(100);
+        integrator.setIsothermal(true);
+        activityIntegrate = new ActivityIntegrate(integrator);
+        activityIntegrate.setSleepPeriod(2);
+        getController().addAction(activityIntegrate);
+        sn = new SpeciesSpheresMono(this, Tin.INSTANCE);
+        ag = new SpeciesSpheresMono(this, Silver.INSTANCE);
+        cu = new SpeciesSpheresMono(this, Copper.INSTANCE);
+
+        getSpeciesManager().addSpecies(sn);
+        getSpeciesManager().addSpecies(ag);
+        getSpeciesManager().addSpecies(cu);
+
+        /** The following values come from either the ASM Handbook or Cullity & Stock's 
+         * "Elements of X-Ray Diffraction" (2001)
+         */
+        ((AtomTypeSphere)sn.getLeafType()).setDiameter(3.022); 
+        
+        ((AtomTypeSphere)ag.getLeafType()).setDiameter(2.8895); 
+        
+        ((AtomTypeSphere)cu.getLeafType()).setDiameter(2.5561); 
+        
+        
+        box = new Box(this, space);
+        addBox(box);
+        box.setNMolecules(sn, 0);
+        box.setNMolecules(ag, numAtoms);
+        box.setNMolecules(cu, 0);
+        
+        // beta-Sn box
+        /**
+        //The dimensions of the simulation box must be proportional to those of
+        //the unit cell to prevent distortion of the lattice.  The values for the 
+        //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815 
+        //angstroms) are taken from the ASM Handbook. 
+        box.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
+        PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
+        //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
+        //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
+        //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
+        LatticeCrystal crystal = new LatticeCrystal(new Crystal(
+        		primitive, new BasisBetaSnA5(primitive)));
+		*/
+		
+        //FCC Cu
+		/**
+	    box.setDimensions(new Vector3D(3.6148*4, 3.6148*4, 3.6148*4));
+	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
+	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
+		        primitive, new BasisCubicFcc(primitive)));
+	    */
+        
+        //FCC Ag
+        
+	    box.setDimensions(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
+	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
+	    BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
+	    
+           
+		Configuration config = new ConfigurationLattice(crystal, space);
+		config.initializeCoordinates(box);
+        
+        
+        
+        
+        potentialN = new PotentialMEAM[numThreads];
+        
+        for(int i=0; i<numThreads; i++){
+            potentialN[i] = new PotentialMEAM(space);
+            potentialN[i].setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
+            potentialN[i].setParameters(ag.getLeafType(), ParameterSetMEAM.Ag);
+            potentialN[i].setParameters(cu.getLeafType(), ParameterSetMEAM.Cu);
+            potentialN[i].setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
+            potentialN[i].setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn); 
+        }
+        
+		potentialThreaded = new PotentialThreaded(space, potentialN);
+       
+        potentialMaster.addPotential(potentialThreaded, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});  
+        
+        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, box);
+        
+        ((PotentialMasterListThreaded)potentialMaster).setRange(potentialThreaded.getRange()*1.1);
+        ((PotentialMasterListThreaded)potentialMaster).setCriterion(potentialThreaded, new CriterionSimple(this, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
+        integrator.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
+        
+        
+        integrator.setBox(box);
+        
+        
+        // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
+        //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
+        //coordWriter.setBox(box);
+        //coordWriter.setIntegrator(integrator);
+        //coordWriter.setWriteInterval(100);
+        
+        // Control simulation lengths
+        //activityIntegrate.setMaxSteps(500);
+
+		energy = new MeterEnergy(potentialMaster);
+    }
+    
     public static void main(String[] args) {
         int numAtoms = 500;
         int numThreads = 1;
@@ -134,7 +244,7 @@ public class MEAMMd3DThreaded extends Simulation {
         sim.integrator.addIntervalAction(energyPump);
     	sim.integrator.addIntervalAction(kineticPump);
 
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);
@@ -170,114 +280,5 @@ public class MEAMMd3DThreaded extends Simulation {
         //double PE = data[AccumulatorAverage.AVERAGE.index]/sim.species.getAgent(sim.box).getNMolecules();  // orig line
         //System.out.println("PE(eV)="+ElectronVolt.UNIT.fromSim(PE));
     }
-    
-    public MEAMMd3DThreaded(int numAtoms, int numThreads) {
-        super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMasterListThreaded(this);
-        integrator = new IntegratorVelocityVerletThreaded(this, potentialMaster, numThreads);
-        integrator.setTimeStep(0.001);
-        integrator.setTemperature(Kelvin.UNIT.toSim(295));
-        integrator.setThermostatInterval(100);
-        integrator.setIsothermal(true);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(2);
-        getController().addAction(activityIntegrate);
-        sn = new SpeciesSpheresMono(this, Tin.INSTANCE);
-        ag = new SpeciesSpheresMono(this, Silver.INSTANCE);
-        cu = new SpeciesSpheresMono(this, Copper.INSTANCE);
 
-        getSpeciesManager().addSpecies(sn);
-        getSpeciesManager().addSpecies(ag);
-        getSpeciesManager().addSpecies(cu);
-
-        /** The following values come from either the ASM Handbook or Cullity & Stock's 
-         * "Elements of X-Ray Diffraction" (2001)
-         */
-        ((AtomTypeSphere)sn.getLeafType()).setDiameter(3.022); 
-        
-        ((AtomTypeSphere)ag.getLeafType()).setDiameter(2.8895); 
-        
-        ((AtomTypeSphere)cu.getLeafType()).setDiameter(2.5561); 
-        
-        
-        box = new Box(this);
-        addBox(box);
-        box.setNMolecules(sn, 0);
-        box.setNMolecules(ag, numAtoms);
-        box.setNMolecules(cu, 0);
-        
-        // beta-Sn box
-        /**
-        //The dimensions of the simulation box must be proportional to those of
-        //the unit cell to prevent distortion of the lattice.  The values for the 
-        //lattice parameters for tin's beta box (a = 5.8314 angstroms, c = 3.1815 
-        //angstroms) are taken from the ASM Handbook. 
-        box.setDimensions(new Vector3D(5.8314*3, 5.8314*3, 3.1815*6));
-        PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.8318, 3.1819);
-        //Alternatively, using the parameters calculated in Ravelo & Baskes (1997)
-        //box.setDimensions(new Vector3D(5.92*3, 5.92*3, 3.23*6));
-        //PrimitiveTetragonal primitive = new PrimitiveTetragonal(space, 5.92, 3.23);
-        LatticeCrystal crystal = new LatticeCrystal(new Crystal(
-        		primitive, new BasisBetaSnA5(primitive)));
-		*/
-		
-        //FCC Cu
-		/**
-	    box.setDimensions(new Vector3D(3.6148*4, 3.6148*4, 3.6148*4));
-	    PrimitiveCubic primitive = new PrimitiveCubic(space, 3.6148);
-	    LatticeCrystal crystal = new LatticeCrystal(new Crystal(
-		        primitive, new BasisCubicFcc(primitive)));
-	    */
-        
-        //FCC Ag
-        
-	    box.setDimensions(new Vector3D(4.0863*4, 4.0863*4, 4.0863*4));
-	    PrimitiveCubic primitive = new PrimitiveCubic(space, 4.0863);
-	    BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
-	    
-           
-		Configuration config = new ConfigurationLattice(crystal);
-		config.initializeCoordinates(box);
-        
-        
-        
-        
-        potentialN = new PotentialMEAM[numThreads];
-        
-        for(int i=0; i<numThreads; i++){
-            potentialN[i] = new PotentialMEAM(space);
-            potentialN[i].setParameters(sn.getLeafType(), ParameterSetMEAM.Sn);
-            potentialN[i].setParameters(ag.getLeafType(), ParameterSetMEAM.Ag);
-            potentialN[i].setParameters(cu.getLeafType(), ParameterSetMEAM.Cu);
-            potentialN[i].setParametersIMC(cu.getLeafType(), ParameterSetMEAM.Cu3Sn);
-            potentialN[i].setParametersIMC(ag.getLeafType(), ParameterSetMEAM.Ag3Sn); 
-        }
-        
-		potentialThreaded = new PotentialThreaded(space, potentialN);
-       
-        potentialMaster.addPotential(potentialThreaded, new AtomType[]{sn.getLeafType(), ag.getLeafType(), cu.getLeafType()});  
-        
-        ((PotentialMasterListThreaded)potentialMaster).setNumThreads(numThreads, box);
-        
-        ((PotentialMasterListThreaded)potentialMaster).setRange(potentialThreaded.getRange()*1.1);
-        ((PotentialMasterListThreaded)potentialMaster).setCriterion(potentialThreaded, new CriterionSimple(this, potentialThreaded.getRange(), potentialThreaded.getRange()*1.1));   
-        integrator.addNonintervalListener(((PotentialMasterList)potentialMaster).getNeighborManager(box));
-        integrator.addIntervalAction(((PotentialMasterList)potentialMaster).getNeighborManager(box));
-        
-        
-        integrator.setBox(box);
-        
-        
-        // IntegratorCoordConfigWriter - Displacement output (3/1/06 - MS)
-        //IntegratorCoordConfigWriter coordWriter = new IntegratorCoordConfigWriter(space, "MEAMoutput");
-        //coordWriter.setBox(box);
-        //coordWriter.setIntegrator(integrator);
-        //coordWriter.setWriteInterval(100);
-        
-        // Control simulation lengths
-        //activityIntegrate.setMaxSteps(500);
-
-		energy = new MeterEnergy(potentialMaster);
-    }
-    
 }

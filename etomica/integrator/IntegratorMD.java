@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.action.AtomActionRandomizeVelocity;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -14,7 +15,7 @@ import etomica.data.meter.MeterKineticEnergy;
 import etomica.data.meter.MeterTemperature;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.units.Dimension;
 import etomica.units.Time;
 import etomica.util.Debug;
@@ -29,15 +30,16 @@ import etomica.util.IRandom;
 public abstract class IntegratorMD extends IntegratorBox implements BoxListener {
 
     public IntegratorMD(PotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature) {
+            double timeStep, double temperature, Space _space) {
         super(potentialMaster,temperature);
         this.random = random;
+        this.space = _space;
         setTimeStep(timeStep);
         thermostat = ThermostatType.ANDERSEN;
         setThermostatInterval(100);
         meterKE = new MeterKineticEnergy();
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature, random);
-        meterTemperature = new MeterTemperature();
+        meterTemperature = new MeterTemperature(space.D());
         momentum = potentialMaster.getSpace().makeVector();
     }
 
@@ -277,7 +279,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
         }
         
         // calculate current kinetic temperature.
-        for (int i = 0; i<box.getSpace().D(); i++) {
+        for (int i = 0; i < space.D(); i++) {
             // scale independently in each dimension
             double sum = 0.0;
             for (int iAtom = 0; iAtom<nLeaf; iAtom++) {
@@ -367,5 +369,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
     private MeterTemperature meterTemperature;
     private final IVector momentum;
     protected double currentTime;
+    protected final Space space;
 }
 

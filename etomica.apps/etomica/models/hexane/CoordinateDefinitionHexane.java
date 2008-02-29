@@ -1,5 +1,6 @@
 package etomica.models.hexane;
 
+import etomica.api.IVector;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
@@ -7,7 +8,7 @@ import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinitionMolecule;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;
 
@@ -36,8 +37,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
     
     
     public CoordinateDefinitionHexane(Box box, Primitive primitive, 
-            SpeciesHexane species){
-        super(box, primitive, 6);
+            SpeciesHexane species, Space space){
+        super(box, primitive, 6, space);
         
         length = species.getBondLength();
         phi = species.getBondAngle();
@@ -59,8 +60,8 @@ public class CoordinateDefinitionHexane extends CoordinateDefinitionMolecule {
         temp = new Vector3D();
         axial = new Vector3D();
         
-        rotor = box.getSpace().makeTensor();
-        confHex = new ConformationHexane(box.getSpace());
+        rotor = space.makeTensor();
+        confHex = new ConformationHexane(space);
         
     }
 

@@ -12,16 +12,16 @@ import etomica.box.Box;
  */
 public class BoxQuench extends BoxActionAdapter {
 
-    public BoxQuench() {
-        meterTemperature = new MeterTemperature();
+    public BoxQuench(int dim) {
+        meterTemperature = new MeterTemperature(dim);
     }
     
     /**
      * Constructs class without specifying box and using Default temperature.
      * Requires call to setBox before action will have any effect.
      */
-    public BoxQuench(double temperature) {
-        this();
+    public BoxQuench(double temperature, int dim) {
+        this(dim);
         setTemperature(temperature);
 	}
 	
@@ -29,7 +29,7 @@ public class BoxQuench extends BoxActionAdapter {
 	 * Constructs class ready to perform quench on given box to given temperature.
 	 */
 	public BoxQuench(Box p, double temperature) {
-		this(temperature);
+		this(temperature, p.getBoundary().getDimensions().getD());
         setBox(p);
 	}
 

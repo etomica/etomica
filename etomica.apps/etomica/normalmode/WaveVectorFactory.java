@@ -1,7 +1,7 @@
 package etomica.normalmode;
 
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.space.IVector;
 
 /**
  * Interface for a class the returns the appropriate wave vectors for a box

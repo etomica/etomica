@@ -44,7 +44,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 	
 	public TestHC2YukawaMC3D(int numAtoms){
 		super(Space3D.getInstance(), false);
-		PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
+		PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
 		
 		integrator = new IntegratorMC(this, potentialMaster);
 		mcMoveAtom = new MCMoveAtom(this, potentialMaster);
@@ -55,7 +55,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		getController().addAction(activityIntegrate);
 		species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-		box = new Box(this);
+		box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 		box.setDensity(0.65);
@@ -72,7 +72,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 			
 		integrator.getMoveEventManager().addListener(potentialMaster.getNbrCellManager(box).makeMCMoveListener());
 		
-		new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
+		new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
 		integrator.setBox(box);
 		
 		potentialMaster.getNbrCellManager(box).assignCellAll();
@@ -93,7 +93,7 @@ public class TestHC2YukawaMC3D extends Simulation{
 		energyAccumulator.setBlockSize(50);
         sim.integrator.addIntervalAction(energyManager);
 		
-		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
 		Action repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());

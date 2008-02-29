@@ -1,6 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeMolecule;
@@ -17,7 +18,6 @@ import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -29,15 +29,18 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class ConfigurationLatticeTube extends ConfigurationLattice {
 
-    public ConfigurationLatticeTube(BravaisLatticeCrystal lattice, double length) {
-        this(lattice, length, new IndexIteratorRectangular(lattice.D()));//need a default iterator
+    public ConfigurationLatticeTube(BravaisLatticeCrystal lattice,
+    		               double length, Space _space) {
+        this(lattice, length, new IndexIteratorRectangular(lattice.D()), _space);//need a default iterator
     }
 	/**
 	 * Constructor for ConfigurationLatticeTube.
 	 * @param space
 	 */
-	public ConfigurationLatticeTube(BravaisLatticeCrystal lattice, double length, IndexIteratorSizable indexIterator) {
-	    super(lattice);
+	public ConfigurationLatticeTube(BravaisLatticeCrystal lattice,
+			        double length, IndexIteratorSizable indexIterator,
+			        Space _space) {
+	    super(lattice, _space);
         this.indexIterator = indexIterator;
         this.length = length;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
@@ -61,7 +64,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         int nCells = (int)Math.ceil((double)spheresLists[0].getAtomCount()/(double)basisSize);
         
         //determine scaled shape of simulation volume
-        IVector shape = box.getSpace().makeVector();
+        IVector shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
         shape.setX(2,shape.x(2)*length);
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
@@ -81,7 +84,7 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
     
         // determine lattice constant
-        IVector latticeScaling = box.getSpace().makeVector();
+        IVector latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -92,10 +95,10 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = box.getSpace().makeVector();
+        IVector offset = space.makeVector();
         offset.E(box.getBoundary().getDimensions());
-        IVector vectorOfMax = box.getSpace().makeVector();
-        IVector vectorOfMin = box.getSpace().makeVector();
+        IVector vectorOfMax = space.makeVector();
+        IVector vectorOfMin = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -151,9 +154,9 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
         //loop for multiple tubes.
         AtomSet tubeList = box.getMoleculeList(speciesTube);
         int nTubes = tubeList.getAtomCount();
-        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(box.getSpace()));
+        atomActionTranslateTo.setAtomPositionDefinition(new AtomPositionGeometricCenter(space));
         // put them all at 0.  oops
-        atomActionTranslateTo.setDestination(box.getSpace().makeVector());
+        atomActionTranslateTo.setDestination(space.makeVector());
         for (int i=0; i<nTubes; i++) {
             IMolecule a = (IMolecule)tubeList.getAtom(i);
         	Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
@@ -171,8 +174,9 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
     private final double length;
 
 	public static void main(String[] args) {
+		Space sp = Space3D.getInstance();
         Simulation sim = new Simulation(Space3D.getInstance());
-		Box box = new Box(sim);
+		Box box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species1 = new SpeciesSpheresMono(sim);
 		SpeciesSpheresMono species2 = new SpeciesSpheresMono(sim);
@@ -191,13 +195,13 @@ public class ConfigurationLatticeTube extends ConfigurationLattice {
 //        CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new LatticeCubicFcc();
 //        CubicLattice lattice = new LatticeCubicSimple();
-		ConfigurationLatticeTube configuration = new ConfigurationLatticeTube(lattice, .25);
+		ConfigurationLatticeTube configuration = new ConfigurationLatticeTube(lattice, .25, sp);
 //        box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
         configuration.initializeCoordinates(box);
 //		etomica.graphics.DisplayBox display = new etomica.graphics.DisplayBox(box);
 		
-        etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim);
-        simGraphic.add(new DisplayBox(box));
+        etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(sim, sp);
+        simGraphic.add(new DisplayBox(box, sp));
         ColorSchemeByType colorScheme = (ColorSchemeByType)simGraphic.getDisplayBox(box).getColorScheme();
         colorScheme.setColor(species1.getMoleculeType(), java.awt.Color.blue);
         colorScheme.setColor(species2.getMoleculeType(), java.awt.Color.white);

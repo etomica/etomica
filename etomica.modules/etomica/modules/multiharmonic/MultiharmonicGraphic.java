@@ -20,6 +20,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
+import etomica.space.Space;
 import etomica.space1d.Vector1D;
 import etomica.units.Dimension;
 import etomica.units.Energy;
@@ -39,8 +40,8 @@ public class MultiharmonicGraphic extends SimulationGraphic {
     /**
      * 
      */
-    public MultiharmonicGraphic(Multiharmonic simulation) {
-        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL);
+    public MultiharmonicGraphic(Multiharmonic simulation, Space _space) {
+        super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_INTERVAL, _space);
         this.sim = simulation;
         
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
@@ -236,7 +237,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
     
     public static void main(String[] args) {
         final Multiharmonic sim = new Multiharmonic();
-        MultiharmonicGraphic simGraphic = new MultiharmonicGraphic(sim);
+        MultiharmonicGraphic simGraphic = new MultiharmonicGraphic(sim, sim.getSpace());
         SimulationGraphic.makeAndDisplayFrame(simGraphic.getPanel(), APP_NAME);
         simGraphic.initUPlot();
     }
@@ -245,7 +246,7 @@ public class MultiharmonicGraphic extends SimulationGraphic {
 
         public void init() {
             final Multiharmonic sim = new Multiharmonic();
-            MultiharmonicGraphic simGraphic = new MultiharmonicGraphic(sim);
+            MultiharmonicGraphic simGraphic = new MultiharmonicGraphic(sim, sim.getSpace());
             getContentPane().add(simGraphic.getPanel());
             simGraphic.initUPlot();
         }

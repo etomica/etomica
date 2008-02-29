@@ -13,6 +13,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.potential.P2SoftSphere;
 import etomica.potential.Potential2SoftSpherical;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.units.Energy;
@@ -30,11 +31,13 @@ import etomica.util.FunctionGeneral;
  */
 public class HarmonicCrystalSoftSphereBCC {
 
-    public HarmonicCrystalSoftSphereBCC(int[] nCells, Primitive primitive, Basis basis, Potential2SoftSpherical potential) {
+    public HarmonicCrystalSoftSphereBCC(int[] nCells, Primitive primitive,
+    		          Basis basis, Potential2SoftSpherical potential, Space _space) {
         this.potential = potential;
         this.nCells = (int[])nCells.clone();
+        this.space = _space;
         lattice = new BravaisLatticeCrystal(primitive, basis);
-        normalModes = new NormalModesPotential(nCells, primitive, basis, potential);
+        normalModes = new NormalModesPotential(nCells, primitive, basis, potential, _space);
         setMaxLatticeShell(49);
     }
     
@@ -125,7 +128,7 @@ public class HarmonicCrystalSoftSphereBCC {
         Primitive primitive = lattice.getPrimitive();
         primitive.scaleSize(1.0/Math.pow(scale, 1.0/lattice.getSpace().D()));
 //        normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
-        normalModes = new NormalModesPotential(nCells, primitive, lattice.getBasis(), potential);
+        normalModes = new NormalModesPotential(nCells, primitive, lattice.getBasis(), potential, space);
         normalModes.setMaxLatticeShell(maxLatticeShell);
     }
     
@@ -159,11 +162,12 @@ public class HarmonicCrystalSoftSphereBCC {
         Primitive primitive = new PrimitiveCubic(Space3D.getInstance());
         Basis basis = new BasisCubicBcc();
         
-        final Potential2SoftSpherical potential = new P2SoftSphere(Space3D.getInstance(), 1.0, 1.0, softness);
+        Space sp = Space3D.getInstance();
+        final Potential2SoftSpherical potential = new P2SoftSphere(sp, 1.0, 1.0, softness);
 
         int[] nCells = new int[] {nC, nC, nC};
         
-        HarmonicCrystalSoftSphereBCC harmonicCrystal = new HarmonicCrystalSoftSphereBCC(nCells, primitive, basis, potential);
+        HarmonicCrystalSoftSphereBCC harmonicCrystal = new HarmonicCrystalSoftSphereBCC(nCells, primitive, basis, potential, sp);
         harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
         harmonicCrystal.setMaxLatticeShell(harmonicCrystal.maxLatticeShell);
         
@@ -203,6 +207,7 @@ public class HarmonicCrystalSoftSphereBCC {
     private int[] nCells;
     private int maxLatticeShell;
     private Potential2SoftSpherical potential;
+    private final Space space;
     private static final long serialVersionUID = 1L;
     
 }

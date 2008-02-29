@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.Formatter;
 import java.util.HashMap;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomPositioned;
@@ -18,7 +20,6 @@ import etomica.chem.elements.Oxygen;
 import etomica.space.Boundary;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryPeriodic;
-import etomica.space.IVector;
 import etomica.space3d.BoundaryTruncatedOctahedron;
 
 
@@ -69,7 +70,7 @@ public class WriteConfigurationDLPOLY implements Action {
     /**
      * Returns the box whose atom coordinates get written to the file.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     

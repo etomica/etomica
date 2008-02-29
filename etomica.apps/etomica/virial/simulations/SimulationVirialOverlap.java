@@ -97,7 +97,7 @@ public class SimulationVirialOverlap extends Simulation {
         
         for (int iBox=0; iBox<sampleClusters.length; iBox++) {
             // integrator for iBox samples based on iBox cluster
-            box[iBox] = new BoxCluster(this,sampleClusters[iBox]);
+            box[iBox] = new BoxCluster(this,sampleClusters[iBox], space);
             addBox(box[iBox]);
             box[iBox].setNMolecules(species, nMolecules);
             
@@ -119,20 +119,20 @@ public class SimulationVirialOverlap extends Simulation {
                 }
             }
             else {
-                mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom());
+                mcMoveRotate[iBox] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
                 mcMoveRotate[iBox].setStepSize(Math.PI);
                 moveManager.addMCMove(mcMoveRotate[iBox]);
                 mcMoveTranslate[iBox] = new MCMoveClusterMoleculeMulti(this, potentialMaster);
                 moveManager.addMCMove(mcMoveTranslate[iBox]);
                 if (doWiggle) {
                     if (species.getNumLeafAtoms() > 2) {
-                        mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules);
+                        mcMoveWiggle[iBox] = new MCMoveClusterWiggleMulti(this, potentialMaster, nMolecules, space);
                         moveManager.addMCMove(mcMoveWiggle[iBox]);
                     }
                 }
             }
             
-            ConfigurationCluster configuration = new ConfigurationCluster();
+            ConfigurationCluster configuration = new ConfigurationCluster(space);
             configuration.initializeCoordinates(box[iBox]);
             MeterVirial meter = new MeterVirial(new ClusterAbstract[]{aValueClusters[iBox],aSampleClusters[1-iBox].makeCopy()});
             setMeter(meter,iBox);

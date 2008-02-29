@@ -12,12 +12,14 @@ import etomica.action.Action;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.api.IBox;
 import etomica.box.Box;
 import etomica.integrator.IIntegrator;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorManagerMC;
 import etomica.simulation.ISimulation;
 import etomica.simulation.SimulationContainer;
+import etomica.space.Space;
 import etomica.units.Pixel;
 
 /**
@@ -46,30 +48,32 @@ public class SimulationGraphic implements SimulationContainer {
     private final LinkedList deviceList = new LinkedList();
     private HashMap repaintActions = new HashMap();
     private int graphicType = GRAPHIC_ONLY;
+    protected final Space space;
 
 
-    public SimulationGraphic(ISimulation simulation) {
-    	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL);
+    public SimulationGraphic(ISimulation simulation, Space space) {
+    	this(simulation, GRAPHIC_ONLY, "", DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, int graphicType) {
-    	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL);
+    public SimulationGraphic(ISimulation simulation, int graphicType, Space space) {
+    	this(simulation, graphicType, "", DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, String appName) {
-    	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL);
+    public SimulationGraphic(ISimulation simulation, String appName, Space space) {
+    	this(simulation, GRAPHIC_ONLY, appName, DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, int graphicType, String appName) {
-    	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL);
+    public SimulationGraphic(ISimulation simulation, int graphicType, String appName, Space space) {
+    	this(simulation, graphicType, appName, DEFAULT_UPDATE_INTERVAL, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, String appName, int updateInterval) {
-    	this(simulation, GRAPHIC_ONLY, appName, updateInterval);
+    public SimulationGraphic(ISimulation simulation, String appName, int updateInterval, Space space) {
+    	this(simulation, GRAPHIC_ONLY, appName, updateInterval, space);
     }
 
-    public SimulationGraphic(ISimulation simulation, int graphicType, String appName, int updateInterval) {
+    public SimulationGraphic(ISimulation simulation, int graphicType, String appName, int updateInterval, Space space) {
         this.simulation = simulation;
+        this.space = space;
         this.updateInterval = updateInterval;
         simulationPanel = new SimulationPanel(appName);
         if(graphicType == GRAPHIC_ONLY || graphicType == TABBED_PANE) {
@@ -125,7 +129,7 @@ public class SimulationGraphic implements SimulationContainer {
 	        Box box = ((IntegratorBox)integrator).getBox();
 	        if (boxList.contains(box)) return;
 	        boxList.add(box);
-	        final DisplayBox display = new DisplayBox(box, new Pixel(30));
+	        final DisplayBox display = new DisplayBox(box, space, new Pixel(30));
 	        add(display);
 	         
 	        /* For G3DSys: panel is invisible until set visible here.
@@ -162,7 +166,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  * Sets the integrator interval between repaint actions to the value
 	  * specified for the given Box.
 	  */
-    public void setPaintInterval(Box box, int interval) {
+    public void setPaintInterval(IBox box, int interval) {
 
     	Action repaintAction = (Action)repaintActions.get(box);
 	    Action[] controllerActions = simulation.getController().getAllActions();
@@ -191,7 +195,7 @@ public class SimulationGraphic implements SimulationContainer {
 	  *
 	  * @return Returns the paint action associated with the given Box.
 	  */
-    public Action getPaintAction(Box box) {
+    public Action getPaintAction(IBox box) {
 	    return (Action)repaintActions.get(box);
     }
    
@@ -278,7 +282,7 @@ public class SimulationGraphic implements SimulationContainer {
 
     public DeviceTrioControllerButton getController() { return dcb; }
 
-    private Action createDisplayBoxPaintAction(Box box) {
+    private Action createDisplayBoxPaintAction(IBox box) {
     	Action repaintAction = null;
 
     	final DisplayBox display = getDisplayBox(box);
@@ -331,7 +335,7 @@ public class SimulationGraphic implements SimulationContainer {
             public void windowClosing(java.awt.event.WindowEvent e) {System.exit(0);}
         };
         
-    public DisplayBox getDisplayBox(Box box) {
+    public DisplayBox getDisplayBox(IBox box) {
         Iterator iterator = displayList.iterator();
         while(iterator.hasNext()) {
             Object display = iterator.next();
@@ -356,7 +360,8 @@ public class SimulationGraphic implements SimulationContainer {
         etomica.simulation.prototypes.HSMD2D sim = new etomica.simulation.prototypes.HSMD2D();
 //        etomica.simulation.prototypes.HSMD2D_noNbr sim = new etomica.simulation.prototypes.HSMD2D_noNbr();
 //        etomica.simulation.prototypes.GEMCWithRotation sim = new etomica.simulation.prototypes.GEMCWithRotation();
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY);
+        Space space = Space.getInstance(3);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, GRAPHIC_ONLY, space);
 		Action repaintAction = simGraphic.getPaintAction(sim.getBoxs()[0]);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());

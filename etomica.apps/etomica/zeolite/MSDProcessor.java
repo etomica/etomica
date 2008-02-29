@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.Space;
 
 public class MSDProcessor {

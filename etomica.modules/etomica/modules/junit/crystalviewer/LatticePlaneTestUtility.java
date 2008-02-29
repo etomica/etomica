@@ -15,10 +15,11 @@ import etomica.lattice.crystal.PrimitiveHexagonal;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesSpheresMono;
@@ -41,10 +42,12 @@ public class LatticePlaneTestUtility {
 	private BravaisLattice lattice = null;
 	private Box box = null;
 	private LatticePlane latticePlane = null;
+	private final Space3D space;
 
 	public LatticePlaneTestUtility() {
     	// Create a simulation
-    	sim = new Simulation(Space3D.getInstance());
+		this.space = Space3D.getInstance();
+    	sim = new Simulation(space);
     	sim.getSpace().makeVector();
 
     	// Create a species with one atom / molecule
@@ -111,7 +114,7 @@ public class LatticePlaneTestUtility {
 	    box = new Box(
 	    		new etomica.space.BoundaryDeformableLattice(
 	                  lattice.getPrimitive(),
-	              	  (etomica.util.IRandom)null, boxSize));
+	              	  (etomica.util.IRandom)null, boxSize), space);
 	    sim.addBox(box);
 
 	}
@@ -129,7 +132,7 @@ public class LatticePlaneTestUtility {
 	    // Set the number of molecules for the box and
 	    // initialze the positions.
 	    box.setNMolecules(species, numAtoms);
-	    ConfigurationLattice config = new ConfigurationLattice(lattice);
+	    ConfigurationLattice config = new ConfigurationLattice(lattice, space);
 	    config.initializeCoordinates(box);
 		
 	}
@@ -154,7 +157,7 @@ public class LatticePlaneTestUtility {
 		return lattice;
 	}
 	
-	public Box getBox() {
+	public IBox getBox() {
 		return box;
 	}
 	

@@ -42,7 +42,7 @@ public class TestYukawaMD3D extends Simulation{
 	
 	public TestYukawaMD3D(){
 		super(Space3D.getInstance(), true);
-        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, 1.6, space);
 		
 		int numAtoms = 256;
 		double neighborRangeFac = 1.6;
@@ -51,7 +51,7 @@ public class TestYukawaMD3D extends Simulation{
 		
 		potentialMaster.setRange(neighborRangeFac);
 		
-		integrator = new IntegratorVelocityVerlet(this, potentialMaster);
+		integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
 		integrator.setIsothermal(false);
 		integrator.setTimeStep(0.01);
 		
@@ -62,7 +62,7 @@ public class TestYukawaMD3D extends Simulation{
 		
 		species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-		box = new Box(this);
+		box = new Box(this, space);
         box.setDimensions(Space.makeVector(new double[]{l,l,l}));
         addBox(box);
         box.setNMolecules(species, numAtoms);
@@ -80,13 +80,13 @@ public class TestYukawaMD3D extends Simulation{
 		potentialMaster.setRange(potentialTruncated.getRange()*1.2);
 		potentialMaster.addPotential(potentialTruncated, new ISpecies[] {species, species});
 		
-		new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
+		new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
 		integrator.setBox(box);
 	}
 	
 	public static void main(String[] args){
 		TestYukawaMD3D sim = new TestYukawaMD3D();
-		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+		final SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
 		Action repaintAction = simGraphic.getPaintAction(sim.box);
 
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());

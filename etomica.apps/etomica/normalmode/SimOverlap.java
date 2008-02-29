@@ -61,12 +61,12 @@ public class SimOverlap extends Simulation {
         getSpeciesManager().addSpecies(species);
 
         // TARGET
-        PotentialMasterList potentialMasterTarget = new PotentialMasterList(this);
-        boxTarget = new Box(this);
+        PotentialMasterList potentialMasterTarget = new PotentialMasterList(this, space);
+        boxTarget = new Box(this, space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
-        IntegratorHard integratorTarget = new IntegratorHard(potentialMasterTarget, getRandom(), 4, 1.0);
+        IntegratorHard integratorTarget = new IntegratorHard(potentialMasterTarget, getRandom(), 4, 1.0, space);
 
         integratorTarget.setIsothermal(false);
         integrators[1] = integratorTarget;
@@ -94,7 +94,7 @@ public class SimOverlap extends Simulation {
         }
         boxTarget.setBoundary(boundaryTarget);
 
-        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis);
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
         if (potentialMasterTarget instanceof PotentialMasterList) {
@@ -122,7 +122,7 @@ public class SimOverlap extends Simulation {
             int n = (int)Math.round(Math.pow(numAtoms/4, 1.0/3.0));
             boundaryHarmonic = new BoundaryRectangularPeriodic(space, random, n * L);
         }
-        boxHarmonic = new Box(boundaryHarmonic);
+        boxHarmonic = new Box(boundaryHarmonic, space);
         addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
@@ -133,11 +133,11 @@ public class SimOverlap extends Simulation {
         integratorHarmonic.getMoveManager().addMCMove(move);
         integrators[0] = integratorHarmonic;
         
-        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis);
+        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(nCells);
 
         if(space.D() == 1) {
-            normalModes = new NormalModes1DHR();
+            normalModes = new NormalModes1DHR(space.D());
         } else {
             normalModes = new NormalModesFromFile(filename, space.D());
         }

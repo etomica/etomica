@@ -44,11 +44,11 @@ public class HsMc2d extends Simulation {
         species2 = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         getSpeciesManager().addSpecies(species2);
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, 20);
         box.setNMolecules(species2, 20);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
 	    potential = new P2HardSphere(space);
 	    AtomTypeLeaf type1 = species.getLeafType();
         AtomTypeLeaf type2 = species2.getLeafType();
@@ -59,7 +59,7 @@ public class HsMc2d extends Simulation {
 
         integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.addIntervalAction(new BoxImposePbc(box));
+        integrator.addIntervalAction(new BoxImposePbc(box, space));
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);

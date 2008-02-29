@@ -2,6 +2,7 @@ package etomica.potential;
 
 import java.util.Arrays;
 
+import etomica.api.IBox;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomsetArray;
@@ -366,7 +367,7 @@ public class PotentialMaster implements java.io.Serializable {
     
     private static final long serialVersionUID = 1L;
 	protected PotentialMasterLrc lrcMaster;
-	protected Box mostRecentBox = null;
+	protected IBox mostRecentBox = null;
 	protected IteratorFactory iteratorFactory;
 
     protected PotentialLinker first, last;
@@ -378,7 +379,7 @@ public class PotentialMaster implements java.io.Serializable {
         AtomIterator0() {
             super(new AtomsetArray(0));
         }
-        public void setBox(Box box) {}
+        public void setBox(IBox box) {}
         public void setTarget(IAtom target) {}
         public void setDirection(IteratorDirective.Direction direction) {}
     }

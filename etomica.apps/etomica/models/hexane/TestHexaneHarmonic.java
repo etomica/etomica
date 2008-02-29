@@ -88,7 +88,7 @@ public class TestHexaneHarmonic extends Simulation {
         getSpeciesManager().addSpecies(species);
         int[] nCells = new int[]{4,6,6};
         bdry =  new BoundaryDeformableLattice(primitive, getRandom(), nCells);
-        box = new Box(bdry);
+        box = new Box(bdry, space);
         addBox(box);
         box.setNMolecules(species, numMolecules);
 //        config.initializeCoordinates(box);
@@ -192,7 +192,7 @@ public class TestHexaneHarmonic extends Simulation {
 //        potentialMaster.addPotential(potentialChainIntra, new AtomType[] { species.getMoleculeType() } );
 
         //Initialize the positions of the atoms.
-        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species);
+        coordinateDefinition = new CoordinateDefinitionHexane(box, primitive, species, space);
         coordinateDefinition.initializeCoordinates(nCells);
 
         integrator.setBox(box);
@@ -250,7 +250,7 @@ public class TestHexaneHarmonic extends Simulation {
         harmonicSingleAvg.addDataSink(fooerSingle, new StatType[]{StatType.AVERAGE});
 
         if (graphic) {
-            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, sim.space);
             ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
             dataStreamPumps.add(pump);
             dataStreamPumps.add(pumpSingle);

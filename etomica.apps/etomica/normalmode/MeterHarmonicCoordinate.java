@@ -1,5 +1,6 @@
 package etomica.normalmode;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.data.Data;
 import etomica.data.DataSource;
@@ -60,7 +61,7 @@ public class MeterHarmonicCoordinate implements DataSource {
         return data;
     }
     
-    public Box getBox() {
+    public IBox getBox() {
         return coordinateDefinition.getBox();
     }
 

@@ -1,11 +1,11 @@
 package etomica.models.hexane;
 
+import etomica.api.IVector;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.integrator.IntegratorMC;
 import etomica.box.Box;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
 import etomica.space.Tensor;
 import etomica.species.ISpecies;
 import etomica.util.IRandom;

@@ -3,6 +3,8 @@ package etomica.normalmode;
 import java.io.Serializable;
 
 import etomica.action.Action;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.data.DataTag;
@@ -12,7 +14,6 @@ import etomica.data.types.DataGroup;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.units.CompoundDimension;
 import etomica.units.Dimension;
 import etomica.units.Length;
@@ -85,7 +86,7 @@ public class MeterNormalMode implements DataSource, Action, Serializable {
         dataInfo = new DataInfoGroup("all S", Null.DIMENSION, Sinfo);
     }
     
-    public Box getBox() {
+    public IBox getBox() {
         return coordinateDefinition.getBox();
     }
     

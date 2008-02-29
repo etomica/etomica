@@ -1,5 +1,6 @@
 package etomica.paracetamol;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
@@ -98,7 +99,7 @@ public class NumericalDerivativeEnergyParacetamol implements FunctionMultiDimens
 	protected CoordinateDefinition coordinateDefinition;
 	protected MeterPotentialEnergy meterEnergy;
 	protected double[] fPrime;
-	protected Box box;
+	protected IBox box;
 	protected PotentialMaster potentialMaster;
 	//public Species species;
 	

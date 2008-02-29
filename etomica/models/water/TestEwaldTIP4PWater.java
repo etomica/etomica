@@ -39,12 +39,12 @@ import etomica.units.Pixel;
 public class TestEwaldTIP4PWater extends Simulation {
 	
 	
-	TestEwaldTIP4PWater(){
-		super(Space3D.getInstance(), true);
+	TestEwaldTIP4PWater(Space space){
+		super(space, true);
 		potentialMaster = new PotentialMaster(space);
 		
 		LatticeCubicFcc lattice = new LatticeCubicFcc();
-		ConfigurationLattice configuration = new ConfigurationLattice(lattice);
+		ConfigurationLattice configuration = new ConfigurationLattice(lattice, space);
 		
 		ConformationWaterTIP4P config = new ConformationWaterTIP4P(space);
 		species = new SpeciesWater4P(space);
@@ -72,7 +72,7 @@ public class TestEwaldTIP4PWater extends Simulation {
         activityIntegrate.setMaxSteps(6000);
         getController().addAction(activityIntegrate);
         
-		box = new Box(this);
+		box = new Box(this, space);
 		addBox(box);
 		box.setDimensions(Space.makeVector(new double[] {25, 25, 25}));
 		box.setNMolecules(species, 125);
@@ -87,7 +87,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		//Ewald Summation
 		ChargeAgentSourceTIP4PWater agentSource = new ChargeAgentSourceTIP4PWater();
 		AtomAgentManager atomAgentManager = new AtomAgentManager(agentSource, box);
-		EwaldSummation ewaldSummation = new EwaldSummation(box, atomAgentManager, 0);
+		EwaldSummation ewaldSummation = new EwaldSummation(box, atomAgentManager, 0, space);
 		ewaldSummation.setCriterion(criterionAll);
 		ewaldSummation.setBondedIterator(new ApiIntragroup());
 		potentialMaster.addPotential(ewaldSummation, new ISpecies[0]);
@@ -95,7 +95,7 @@ public class TestEwaldTIP4PWater extends Simulation {
 		
 		
 		
-		BoxImposePbc imposePBC = new BoxImposePbc(box);
+		BoxImposePbc imposePBC = new BoxImposePbc(box, space);
 		
         boundary = new BoundaryRectangularPeriodic(space, getRandom(), 20);
         boundary.setDimensions(Space.makeVector(new double[] {20, 20, 20}));
@@ -110,8 +110,9 @@ public class TestEwaldTIP4PWater extends Simulation {
 	
 	public static void main (String[] args){
 		
-		TestEwaldTIP4PWater sim = new TestEwaldTIP4PWater();
-		SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1);
+		Space sp = Space3D.getInstance();
+		TestEwaldTIP4PWater sim = new TestEwaldTIP4PWater(sp);
+		SimulationGraphic simGraphic = new SimulationGraphic(sim, APP_NAME, 1, sp);
 		Pixel pixel = new Pixel(10);
 		simGraphic.getDisplayBox(sim.box).setPixelUnit(pixel);
 		ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();

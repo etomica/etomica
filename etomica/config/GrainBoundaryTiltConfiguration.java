@@ -1,13 +1,14 @@
 package etomica.config;
 
+import etomica.api.IVector;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
-import etomica.space.IVector;
 import etomica.space.RotationTensor;
+import etomica.space.Space;
 import etomica.species.ISpecies;
 
 /**
@@ -28,14 +29,18 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     double angle;
     double dist;
     protected ISpecies fixedSpecies, mobileSpecies;
+    private Space space;
     
-    public GrainBoundaryTiltConfiguration(BravaisLatticeCrystal aLatticeTOP, BravaisLatticeCrystal aLatticeBOTTOM, ISpecies [] aSpecies, double aCutoff){
+    public GrainBoundaryTiltConfiguration(BravaisLatticeCrystal aLatticeTOP,
+    		    BravaisLatticeCrystal aLatticeBOTTOM, ISpecies [] aSpecies,
+    		    double aCutoff, Space space){
         super();    
         
         latticeTOP = aLatticeTOP;
         latticeBOTTOM = aLatticeBOTTOM;
         cutoff = aCutoff;
         species = aSpecies;
+        this.space = space;
         
         eulerRotationL2BoxTOP = latticeTOP.getSpace().makeRotationTensor();
         eulerRotationB2LatticeTOP = latticeTOP.getSpace().makeRotationTensor();
@@ -105,8 +110,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
          * FILL ATOMS IN TOP DOMAIN
          */
         
-        IVector boxCorner = box.getSpace().makeVector();
-        IVector latticeVector = box.getSpace().makeVector();
+        IVector boxCorner = space.makeVector();
+        IVector latticeVector = space.makeVector();
         
         // Get extremes of rotated simulation domain A (usually top half of Box)
         for(int i=-1; i<3; i++){
@@ -131,8 +136,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         }
         
         //Compute number of cells to fit in box
-        int [] ncellsTOP = new int[box.getSpace().D()+1];
-        IVector latticeCenter = box.getSpace().makeVector();
+        int [] ncellsTOP = new int[space.D()+1];
+        IVector latticeCenter = space.makeVector();
         
         for(int i=0; i<ncellsTOP.length-1; i++){
             ncellsTOP[i] = (int)Math.ceil(latticeVector.x(i)*2/latticeTOP.getPrimitive().vectors()[i].x(i));
@@ -140,7 +145,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         }
         ncellsTOP[ncellsTOP.length-1] = latticeTOP.getBasis().getScaledCoordinates().length;
         
-        IndexIteratorRectangular indexIteratorTOP = new IndexIteratorRectangular(box.getSpace().D()+1);
+        IndexIteratorRectangular indexIteratorTOP = new IndexIteratorRectangular(space.D()+1);
         
         indexIteratorTOP.setSize(ncellsTOP);
         
@@ -149,7 +154,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
         while(indexIteratorTOP.hasNext()){
             
-            IVector transformedPosition = box.getSpace().makeVector();
+            IVector transformedPosition = space.makeVector();
             
             transformedPosition.E((IVector)latticeTOP.site(indexIteratorTOP.next()));
             
@@ -203,7 +208,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         }
         
         //Compute number of cells to fit in box
-        int [] ncellsBOTTOM = new int[box.getSpace().D()+1];
+        int [] ncellsBOTTOM = new int[space.D()+1];
         
         for(int i=0; i<ncellsBOTTOM.length-1; i++){
             ncellsBOTTOM[i] = (int)Math.ceil(latticeVector.x(i)*2/latticeBOTTOM.getPrimitive().vectors()[i].x(i));
@@ -211,7 +216,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         }
         ncellsBOTTOM[ncellsBOTTOM.length-1] = latticeBOTTOM.getBasis().getScaledCoordinates().length;
         
-        IndexIteratorRectangular indexIteratorBOTTOM = new IndexIteratorRectangular(box.getSpace().D()+1);
+        IndexIteratorRectangular indexIteratorBOTTOM = new IndexIteratorRectangular(space.D()+1);
         
         indexIteratorBOTTOM.setSize(ncellsBOTTOM);
         
@@ -220,7 +225,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
         while(indexIteratorBOTTOM.hasNext()){
             
-            IVector transformedPosition = box.getSpace().makeVector();
+            IVector transformedPosition = space.makeVector();
             
             transformedPosition.E((IVector)latticeBOTTOM.site(indexIteratorBOTTOM.next()));
             
@@ -255,7 +260,7 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
          */
         dist = 0.5;
         
-        IVector rij = box.getSpace().makeVector();
+        IVector rij = space.makeVector();
         
         int removeCount = 0;
         double range = 0.0;

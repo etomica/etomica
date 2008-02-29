@@ -1,6 +1,7 @@
 package etomica.conjugategradient;
 
 import etomica.action.Activity;
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
@@ -13,7 +14,6 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.normalmode.CoordinateDefinition;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.FunctionMultiDimensionalDifferentiable;
 
@@ -38,17 +38,17 @@ public class DerivativeEnergyFunction implements FunctionMultiDimensionalDiffere
 	protected IVector moleculeForce;
 	protected FunctionMultiDimensionalDifferentiable fFunction;
 	
-	public DerivativeEnergyFunction(Box box, PotentialMaster potentialMaster){
+	public DerivativeEnergyFunction(Box box, PotentialMaster potentialMaster, Space space){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
 		allAtoms = new IteratorDirective();
 		forceSum = new PotentialCalculationForceSum();
 		
-		MyAgentSource source = new MyAgentSource(box.getSpace());
+		MyAgentSource source = new MyAgentSource(space);
 		agentManager = new AtomAgentManager(source, box);
 		forceSum.setAgentManager(agentManager);
-		moleculeForce = box.getSpace().makeVector();
+		moleculeForce = space.makeVector();
 		
 		/*
 		 * Dimensions of a study system is three-times the number of atoms

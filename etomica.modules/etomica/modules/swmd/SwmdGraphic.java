@@ -110,9 +110,9 @@ public class SwmdGraphic extends SimulationGraphic {
     
     private boolean showConfig = true;
 
-    public SwmdGraphic(final Swmd simulation) {
+    public SwmdGraphic(final Swmd simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
 
@@ -306,7 +306,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
-		MeterTemperature thermometer = new MeterTemperature();
+		MeterTemperature thermometer = new MeterTemperature(space.D());
         thermometer.setBox(sim.box);
         DataFork temperatureFork = new DataFork();
         final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
@@ -549,7 +549,7 @@ public class SwmdGraphic extends SimulationGraphic {
             ((AtomTypeSphere)sim.species.getLeafType()).setDiameter(d);
             SwmdGraphic.this.potentialHS.setCollisionDiameter(d);
             SwmdGraphic.this.potentialSW.setCoreDiameter(d);
-            new BoxImposePbc(sim.box).actionPerformed();
+            new BoxImposePbc(sim.box, space).actionPerformed();
             try {
                 sim.integrator.reset();
             }
@@ -615,7 +615,7 @@ public class SwmdGraphic extends SimulationGraphic {
             } catch(NumberFormatException e) {}
         }
 
-        SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(space));
+        SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(space), space);
 		SimulationGraphic.makeAndDisplayFrame
 		        (swmdGraphic.getPanel(), APP_NAME);
     }
@@ -630,7 +630,8 @@ public class SwmdGraphic extends SimulationGraphic {
             if (dimStr != null) {
                 dim = Integer.valueOf(dimStr).intValue();
             }
-            SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(Space.getInstance(dim)));
+            Space sp = Space.getInstance(dim);
+            SwmdGraphic swmdGraphic = new SwmdGraphic(new Swmd(sp), sp);
 
 		    getContentPane().add(swmdGraphic.getPanel());
 	    }

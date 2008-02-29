@@ -48,12 +48,12 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
         double diameter = 1.0;
 
-        integratorHard1 = new IntegratorHard(this, potentialMaster);
+        integratorHard1 = new IntegratorHard(this, potentialMaster, space);
         integratorHard1.setIsothermal(true);
         integratorHard1.setThermostat(ThermostatType.ANDERSEN_SINGLE);
         integratorHard1.setThermostatInterval(10);
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setBoundary(new BoundaryRectangularPeriodic(space, random, 30));
         integratorHard1.setBox(box);	
@@ -65,7 +65,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
         ((AtomTypeSphere)speciesB.getLeafType()).setDiameter(diameter);
         box.setNMolecules(speciesA, 10);
         box.setNMolecules(speciesB, 40);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
 
         agentManager = new AtomLeafAgentManager(this,box);
 
@@ -88,12 +88,12 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
 		// **** Setting Up the thermometer Meter *****
 		
-		thermometer = new MeterTemperature();
+		thermometer = new MeterTemperature(space.D());
 		thermometer.setBox(box);
         
 		activityIntegrate = new ActivityIntegrate(integratorHard1, 1, true);
 		getController().addAction(activityIntegrate);
-		integratorHard1.addIntervalAction(new BoxImposePbc(box));
+		integratorHard1.addIntervalAction(new BoxImposePbc(box, space));
 
 	}
     

@@ -3,6 +3,8 @@ package etomica.integrator.mcmove;
 import etomica.action.AtomActionTranslateBy;
 import etomica.action.AtomActionTranslateTo;
 import etomica.action.AtomGroupAction;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionCOM;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSource;
@@ -17,7 +19,6 @@ import etomica.exception.ConfigurationOverlapException;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorMC;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.IRandom;
 
@@ -167,14 +168,14 @@ public class MCMoveMoleculeExchange extends MCMove {
         dBox.addMolecule(molecule);
     }
 
-    public final AtomIterator affectedAtoms(Box box) {
+    public final AtomIterator affectedAtoms(IBox box) {
         if(this.box1 != box && this.box2 != box) return AtomIteratorNull.INSTANCE;
         affectedAtomIterator.setAtom(molecule);
         affectedAtomIterator.reset();
         return affectedAtomIterator;
     }
     
-    public double energyChange(Box box) {
+    public double energyChange(IBox box) {
         if(box == iBox) return uNew;
         else if(box == dBox) return -uOld;
         else return 0.0;

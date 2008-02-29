@@ -62,7 +62,7 @@ public class SimulationVirialPT extends Simulation {
         // values
         sampleCluster = new ClusterWeight[temperature.length];
         allValueClusters = new ClusterAbstract[temperature.length][targetClusters.length+1];
-        integratorPT = new IntegratorPT(getRandom(),MCMoveSwapCluster.FACTORY);
+        integratorPT = new IntegratorPT(getRandom(),MCMoveSwapCluster.FACTORY, space);
 //        integratorPT.setSwapInterval(2);
         integratorPT.setEventInterval(1);
         ai = new ActivityIntegrate(integratorPT);
@@ -78,7 +78,7 @@ public class SimulationVirialPT extends Simulation {
 
             sampleCluster[iTemp] = sampleClusterFactory.makeWeightCluster(allValueClusters[iTemp]);
             sampleCluster[iTemp].setTemperature(temperature[iTemp]);
-            box[iTemp] = new BoxCluster(this,sampleCluster[iTemp]);
+            box[iTemp] = new BoxCluster(this,sampleCluster[iTemp], space);
             box[iTemp].setNMolecules(species, nMolecules);
             
             integrator[iTemp] = new IntegratorMC(this, potentialMaster);
@@ -97,12 +97,12 @@ public class SimulationVirialPT extends Simulation {
                 if (nMolecules>2) {
                     mcMoveMulti[iTemp] = new MCMoveClusterMoleculeMulti(this, potentialMaster);
                     moveManager.addMCMove(mcMoveMulti[iTemp]);
-                    mcMoveRotate[iTemp] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom());
+                    mcMoveRotate[iTemp] = new MCMoveClusterRotateMoleculeMulti(potentialMaster,getRandom(), space);
                     moveManager.addMCMove(mcMoveRotate[iTemp]);
                 }
             }
             
-            ConfigurationCluster configuration = new ConfigurationCluster();
+            ConfigurationCluster configuration = new ConfigurationCluster(space);
             configuration.initializeCoordinates(box[iTemp]);
             
             setMeter(iTemp,new MeterVirial(allValueClusters[iTemp]));

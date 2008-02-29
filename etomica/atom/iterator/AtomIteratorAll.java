@@ -1,12 +1,12 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomsetArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.box.Box;
 import etomica.species.ISpecies;
 
 /**
@@ -33,7 +33,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
      * Sets the box containing the molecules for iteration. A null
      * box conditions iterator to give no iterates.
      */
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         box = newBox;
         if (box == null) {
             throw new NullPointerException("Null box");
@@ -106,7 +106,7 @@ public class AtomIteratorAll implements AtomsetIteratorPDT, java.io.Serializable
 
     private static final long serialVersionUID = 1L;
     private final ISpecies[] species;
-    private Box box;
+    private IBox box;
     private int nextCursor;
     private final AtomsetArrayList next;
 }

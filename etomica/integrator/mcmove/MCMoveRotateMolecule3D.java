@@ -1,4 +1,5 @@
 package etomica.integrator.mcmove;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomMolecule;
@@ -10,7 +11,6 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
 import etomica.space.RotationTensor;
 import etomica.util.IRandom;
 

@@ -1,14 +1,14 @@
 package etomica.data.meter;
 
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
-import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.space.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.Space;
 import etomica.units.Length;
@@ -121,7 +121,7 @@ public class MeterRadiusGyration extends DataSourceScalar {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
 
@@ -129,12 +129,12 @@ public class MeterRadiusGyration extends DataSourceScalar {
      * @param box
      *            The box to set.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
     }
 
     private static final long serialVersionUID = 1L;
-    private Box box;
+    private IBox box;
     private AtomIteratorAllMolecules iterator;
     private final IVector cm, realPos;
     private final IVector dr;

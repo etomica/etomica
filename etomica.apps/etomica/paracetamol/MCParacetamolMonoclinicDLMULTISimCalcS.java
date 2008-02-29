@@ -28,6 +28,10 @@ import etomica.units.Kelvin;
 public class MCParacetamolMonoclinicDLMULTISimCalcS extends Simulation{
 	private static final long serialVersionUID = 1L;
 
+	public MCParacetamolMonoclinicDLMULTISimCalcS(Space _space) {
+		super(_space);
+	}
+
     public static void main(String[] args) {
     	
     	int numMolecules = 96;
@@ -64,7 +68,7 @@ public class MCParacetamolMonoclinicDLMULTISimCalcS extends Simulation{
         //Set up Normal-Mode Meter
         MeterNormalMode meterNormalMode = new MeterNormalMode();
         meterNormalMode.setCoordinateDefinition(sim.coordDef);
-        WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive);
+        WaveVectorFactorySimple waveVectorFactory = new WaveVectorFactorySimple(primitive, sim.getSpace());
        
         meterNormalMode.setWaveVectorFactory(waveVectorFactory);
         meterNormalMode.setBox(sim.box);
@@ -73,7 +77,7 @@ public class MCParacetamolMonoclinicDLMULTISimCalcS extends Simulation{
         sim.integrator.setActionInterval(meterNormalMode, 300);
     
         //Write S-Vectors
-        WriteS sWriter = new WriteS();
+        WriteS sWriter = new WriteS(sim.getSpace());
         sWriter.setFilename(filename);
         sWriter.setMeter(meterNormalMode);
         sWriter.setWaveVectorFactory(waveVectorFactory);
@@ -85,7 +89,7 @@ public class MCParacetamolMonoclinicDLMULTISimCalcS extends Simulation{
        
         sim.getController().actionPerformed();
         
-        WriteConfiguration writeConfig = new WriteConfiguration();
+        WriteConfiguration writeConfig = new WriteConfiguration(sim.getSpace());
         writeConfig.setConfName("FinalCoord_SimCalcS_Monoclinic_"+Kelvin.UNIT.fromSim(temperature)+"K");
         writeConfig.setBox(sim.box);
         writeConfig.setDoApplyPBC(false);

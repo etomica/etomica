@@ -1,12 +1,13 @@
 package etomica.virial;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.config.Configuration;
 import etomica.config.Conformation;
-import etomica.space.IVector;
+import etomica.space.Space;
 
 /**
  * @author kofke
@@ -16,12 +17,16 @@ import etomica.space.IVector;
  */
 public class ConfigurationCluster implements Configuration, java.io.Serializable {
 
+	public ConfigurationCluster(Space _space) {
+		this.space = _space;
+	}
+
 	/**
 	 * @see etomica.config.Configuration#initializePositions(etomica.AtomIterator)
 	 */
     //XXX this can't actually handle multi-atom molecules
 	public void initializeCoordinates(Box box) {
-        IVector dimVector = box.getSpace().makeVector();
+        IVector dimVector = space.makeVector();
         dimVector.E(box.getBoundary().getDimensions());
 		AtomSet moleculeList = box.getMoleculeList();
 		for (int i=0; i<moleculeList.getAtomCount(); i++) {
@@ -40,5 +45,6 @@ public class ConfigurationCluster implements Configuration, java.io.Serializable
         // nothing needs that (and alkanes are unhappy with it).
 	}
 
+	private final Space space;
     private static final long serialVersionUID = 3L;
 }

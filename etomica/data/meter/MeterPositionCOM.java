@@ -3,6 +3,8 @@
  */
 package etomica.data.meter;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomPositioned;
@@ -13,8 +15,6 @@ import etomica.data.DataTag;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataVector;
 import etomica.data.types.DataVector.DataInfoVector;
-import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.units.Length;
 
@@ -55,13 +55,13 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         box = newBox;
     }
     
@@ -82,7 +82,7 @@ public class MeterPositionCOM implements DataSource, java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
-    private Box box;
+    private IBox box;
     private final IVector positionSum;
     private final DataVector data;    
     private final DataInfo dataInfo;

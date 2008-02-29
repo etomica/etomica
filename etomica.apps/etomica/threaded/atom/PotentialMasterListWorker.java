@@ -1,5 +1,6 @@
 package etomica.threaded.atom;
 
+import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeAgentManager;
@@ -12,7 +13,6 @@ import etomica.atom.iterator.AtomIteratorArrayListSimple;
 import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.atom.iterator.AtomsetIteratorSinglet;
 import etomica.atom.iterator.IteratorDirective;
-import etomica.box.Box;
 import etomica.nbr.PotentialGroupNbr;
 import etomica.nbr.list.NeighborListManager;
 import etomica.potential.IPotential;
@@ -204,7 +204,7 @@ public class PotentialMasterListWorker extends Thread {
 	        arrayList.clear();
     }
     
-    public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, Box box){
+    public void fillNeighborListArray(int threadNumber, int numThreads, NeighborListManager nm, IBox box){
         
         // Make reference to neighbor lists
         AtomSet list = box.getMoleculeList();

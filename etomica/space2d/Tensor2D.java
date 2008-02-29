@@ -1,6 +1,6 @@
 package etomica.space2d;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.Tensor;
 import etomica.util.Function;
 

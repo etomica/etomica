@@ -1,9 +1,9 @@
 package etomica.virial;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorArrayListSimple;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.Debug;
 

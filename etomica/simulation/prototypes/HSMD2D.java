@@ -32,14 +32,14 @@ public class HSMD2D extends Simulation {
 
     public HSMD2D() {
         super(Space2D.getInstance(), true);
-        PotentialMasterList potentialMaster = new PotentialMasterList(this);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
 //        super(space, new PotentialMaster(space));//,IteratorFactoryCell.instance));
         double sigma = 0.38;
 
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac*sigma);
 
-        integrator = new IntegratorHard(this, potentialMaster);
+        integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
@@ -66,14 +66,14 @@ public class HSMD2D extends Simulation {
 
         potentialMaster.addPotential(potential22,new AtomType[]{leafType1, leafType2});
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species1, 512);
         box.setNMolecules(species2, 5);
         NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integrator.addIntervalAction(nbrManager);
         integrator.addNonintervalListener(nbrManager);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
         integrator.setBox(box);
     }
     

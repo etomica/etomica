@@ -3,6 +3,7 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
+import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
@@ -15,7 +16,6 @@ import etomica.box.Box;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.IRandom;
 
@@ -43,13 +43,13 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
 
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorGear4(ISimulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0);
+    public IntegratorGear4(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
     public IntegratorGear4(PotentialMaster potentialMaster, IRandom random, 
-            double timeStep, double temperature) {
-        super(potentialMaster,random,timeStep,temperature);
+            double timeStep, double temperature, Space _space) {
+        super(potentialMaster,random,timeStep,temperature, _space);
         forceSum = new PotentialCalculationForceSum();
         allAtoms = new IteratorDirective();
         // allAtoms is used only for the force calculation, which has no LRC
@@ -203,7 +203,7 @@ public class IntegratorGear4 extends IntegratorMD implements AgentSource {
     }
     
     public Object makeAgent(IAtom a) {
-        return new Agent(box.getSpace());
+        return new Agent(space);
     }
     
     public void releaseAgent(Object agent, IAtom atom) {}

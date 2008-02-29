@@ -1,6 +1,6 @@
 package etomica.lattice.crystal;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.Space;
 
 /**

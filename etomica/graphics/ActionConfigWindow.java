@@ -6,10 +6,10 @@ import java.awt.TextArea;
 import javax.swing.JFrame;
 
 import etomica.action.Action;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
-import etomica.space.IVector;
 
 /**
  * Action that opens a new window and dumps the coordinates into the window.
@@ -18,7 +18,7 @@ import etomica.space.IVector;
 public class ActionConfigWindow implements Action {
     private final AtomSet leafList;
     
-    public ActionConfigWindow(Box box) {
+    public ActionConfigWindow(IBox box) {
         leafList = box.getLeafList();
     }
     

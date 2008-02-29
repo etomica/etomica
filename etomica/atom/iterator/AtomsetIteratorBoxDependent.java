@@ -1,6 +1,6 @@
 package etomica.atom.iterator;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 
 /**
  * Interface indicating that an iterator can determine appropriate
@@ -12,6 +12,6 @@ public interface AtomsetIteratorBoxDependent extends AtomsetIterator {
      * Sets the Box to pull iterates from
      * @throws a NullPointerException if the Box is null
      */
-	public void setBox(Box box);
+	public void setBox(IBox box);
 	
 }

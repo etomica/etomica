@@ -61,7 +61,7 @@ public class SimOverlapSoftSphere extends Simulation {
 
         // TARGET
         
-        boxTarget = new Box(this);
+        boxTarget = new Box(this, space);
         addBox(boxTarget);
         boxTarget.setNMolecules(species, numAtoms);
 
@@ -89,7 +89,7 @@ public class SimOverlapSoftSphere extends Simulation {
         }
         boxTarget.setBoundary(boundaryTarget);
 
-        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis);
+        CoordinateDefinitionLeaf coordinateDefinitionTarget = new CoordinateDefinitionLeaf(boxTarget, primitive, basis, space);
         coordinateDefinitionTarget.initializeCoordinates(nCells);
 
         Potential2SoftSpherical potential = new P2SoftSphere(space, 1.0, 1.0, softness);
@@ -126,7 +126,7 @@ public class SimOverlapSoftSphere extends Simulation {
     
         // HARMONIC
         boundaryHarmonic = new BoundaryRectangularPeriodic(this);
-        boxHarmonic = new Box(boundaryHarmonic);
+        boxHarmonic = new Box(boundaryHarmonic, space);
         addBox(boxHarmonic);
         boxHarmonic.setNMolecules(species, numAtoms);
 
@@ -145,7 +145,7 @@ public class SimOverlapSoftSphere extends Simulation {
         }
         boxHarmonic.setBoundary(boundaryHarmonic);
 
-        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis);
+        CoordinateDefinitionLeaf coordinateDefinitionHarmonic = new CoordinateDefinitionLeaf(boxHarmonic, primitive, basis, space);
         coordinateDefinitionHarmonic.initializeCoordinates(nCells);
         
         normalModes = new NormalModesFromFile(filename, space.D());

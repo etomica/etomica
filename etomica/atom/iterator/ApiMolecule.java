@@ -1,10 +1,10 @@
 package etomica.atom.iterator;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.box.Box;
 
 /**
  * Adapater class that wraps three atomPair iterators, one suitable for
@@ -57,7 +57,7 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
     /**
      * Specifies the box from which iterates are taken.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
         if (box == null) {
             throw new NullPointerException("Null Box");
@@ -139,6 +139,6 @@ public class ApiMolecule implements AtomsetIteratorPDT, java.io.Serializable {
     private AtomsetIteratorBoxDependent iterator;
     private final AtomsetIteratorPDT api1A;
     private final AtomsetIteratorBoxDependent apiAA;
-    private Box box;
+    private IBox box;
 
 }

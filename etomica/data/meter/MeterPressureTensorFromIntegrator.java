@@ -8,6 +8,7 @@ import etomica.data.IDataInfo;
 import etomica.data.types.DataTensor;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.IntegratorVelocityVerlet;
+import etomica.space.Space;
 import etomica.units.Pressure;
 
 /**
@@ -18,8 +19,9 @@ import etomica.units.Pressure;
  */
 public class MeterPressureTensorFromIntegrator implements DataSource, java.io.Serializable {
 
-    public MeterPressureTensorFromIntegrator() {
+    public MeterPressureTensorFromIntegrator(Space space) {
         tag = new DataTag();
+        this.space = space;
     }
     
     public IDataInfo getDataInfo() {
@@ -33,8 +35,8 @@ public class MeterPressureTensorFromIntegrator implements DataSource, java.io.Se
     public void setIntegrator(IntegratorVelocityVerlet newIntegrator) {
         integrator = newIntegrator;
         if (integrator != null) {
-            data = new DataTensor(integrator.getBox().getSpace());
-            dataInfo = new DataTensor.DataInfoTensor("Pressure", Pressure.DIMENSION, integrator.getBox().getSpace());
+            data = new DataTensor(space);
+            dataInfo = new DataTensor.DataInfoTensor("Pressure", Pressure.DIMENSION, space);
         }
     }
     
@@ -52,4 +54,5 @@ public class MeterPressureTensorFromIntegrator implements DataSource, java.io.Se
     protected DataTensor data;
     protected DataInfo dataInfo;
     protected final DataTag tag;
+    private final Space space;
 }

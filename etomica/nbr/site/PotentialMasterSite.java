@@ -28,6 +28,7 @@ import etomica.potential.Potential2;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.ISimulation;
+import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.Debug;
 
@@ -39,8 +40,8 @@ public class PotentialMasterSite extends PotentialMasterNbr {
      * position definition to null, so that atom type's definition is used
      * to assign cells. 
 	 */
-	public PotentialMasterSite(ISimulation sim, int nCells) {
-        this(sim, new BoxAgentSiteManager(nCells));
+	public PotentialMasterSite(ISimulation sim, int nCells, Space _space) {
+        this(sim, new BoxAgentSiteManager(nCells, _space));
     }
     
     public PotentialMasterSite(ISimulation sim, BoxAgentSource boxAgentSource) {
@@ -293,8 +294,9 @@ public class PotentialMasterSite extends PotentialMasterNbr {
     private NeighborCriterion[] criteriaArray = new NeighborCriterion[0];
     
     public static class BoxAgentSiteManager implements BoxAgentSource {
-        public BoxAgentSiteManager(int nCells) {
+        public BoxAgentSiteManager(int nCells, Space _space) {
             this.nCells = nCells;
+            this.space = _space;
         }
         
         public Class getAgentClass() {
@@ -302,12 +304,13 @@ public class PotentialMasterSite extends PotentialMasterNbr {
         }
         
         public Object makeAgent(Box box) {
-            return new NeighborSiteManager(box,nCells);
+            return new NeighborSiteManager(box,nCells, space);
         }
         
         public void releaseAgent(Object agent) {
         }
         
         private final int nCells;
+        private final Space space;
     }
 }

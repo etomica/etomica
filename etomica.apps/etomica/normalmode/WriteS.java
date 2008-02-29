@@ -4,10 +4,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import etomica.action.Action;
+import etomica.api.IVector;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
-import etomica.space.IVector;
+import etomica.box.Box;
+import etomica.space.Space;
 
 /**
  * Class that writes out S from the MeterNormalMode, calculates
@@ -18,9 +20,10 @@ import etomica.space.IVector;
  */
 public class WriteS implements Action {
 
-    public WriteS() {
+    public WriteS(Space _space) {
         temperature = 1.0;
         doOverwrite = true;
+        space = _space;
     }
     
     public void setMeter(MeterNormalMode meter) {
@@ -93,7 +96,7 @@ public class WriteS implements Action {
         NormalModeEigenGetter.doit(thisFilename);
 
         BasisCell[] cells = meterNormalMode.getCoordinateDefinition().getBasisCells();
-        CalcHarmonicA.doit(thisFilename, meterNormalMode.getBox().getSpace().D(), 1.0, temperature, cells[0].molecules.getAtomCount(), cells.length);
+        CalcHarmonicA.doit(thisFilename, space.D(), 1.0, temperature, cells[0].molecules.getAtomCount(), cells.length);
     }
 
     protected MeterNormalMode meterNormalMode;
@@ -102,4 +105,5 @@ public class WriteS implements Action {
     protected String filename;
     protected WaveVectorFactory waveVectorFactory;
     protected double temperature;
+    private final Space space;
 }

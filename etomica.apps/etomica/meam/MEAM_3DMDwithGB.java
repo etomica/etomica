@@ -128,7 +128,7 @@ public class MEAM_3DMDwithGB extends Simulation {
         sim.integrator.addIntervalAction(energyPump);
         sim.integrator.addIntervalAction(kineticPump);
 
-        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
+        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
         ArrayList dataStreamPumps = simgraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);
@@ -172,8 +172,8 @@ public class MEAM_3DMDwithGB extends Simulation {
     
     public MEAM_3DMDwithGB() {
         super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMasterList(this);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
+        potentialMaster = new PotentialMasterList(this, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
@@ -203,7 +203,7 @@ public class MEAM_3DMDwithGB extends Simulation {
         nAImpurity = 0; nAVacancy = 0;
         nBImpurity = 0; nBVacancy = 0;
         
-        box = new Box(new BoundaryRectangularSlit(this, 2));
+        box = new Box(new BoundaryRectangularSlit(this, 2, space), space);
         addBox(box);
         
         // beta-Sn box
@@ -299,7 +299,7 @@ public class MEAM_3DMDwithGB extends Simulation {
 //	        
 //	    ((AtomTypeSphere)cuB.getFactory().getType()).setDiameter(2.5561); 
 //	     
-	    GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB);
+	    GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB, space);
 	    config.setDimensions(nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy, 
 	    		nCellsBz, aA, bA, cA, aB, bB, cB);
 	    config.initializeCoordinates(box);

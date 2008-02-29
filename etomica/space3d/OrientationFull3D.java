@@ -2,8 +2,8 @@ package etomica.space3d;
 
 import java.io.Serializable;
 
+import etomica.api.IVector;
 import etomica.space.IOrientation;
-import etomica.space.IVector;
 import etomica.space.IVectorRandom;
 import etomica.space.Space;
 import etomica.util.Debug;

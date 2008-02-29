@@ -27,6 +27,7 @@ import etomica.graphics.SimulationGraphic;
 import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierBoolean;
+import etomica.space.Space;
 import etomica.units.Kelvin;
 import etomica.units.Pixel;
 
@@ -39,9 +40,9 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	final static String APP_NAME = "Dual Control-volume GCMD";
 	final static int REPAINT_INTERVAL = 70;
 
-	public DCVGCMDGraphic(final DCVGCMD sim){
+	public DCVGCMDGraphic(final DCVGCMD sim, Space _space){
 
-		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL);	
+		super(sim, SimulationGraphic.TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);	
         getDisplayBox(sim.box).setPixelUnit(new Pixel(10));
 
         getController().getDataStreamPumps().add(sim.profile1pump);
@@ -200,14 +201,16 @@ public class DCVGCMDGraphic extends SimulationGraphic{
 	public static void main(String[] arg ){
 		
 		DCVGCMD sim = new DCVGCMD();
-		DCVGCMDGraphic graphic = new DCVGCMDGraphic(sim);
+		DCVGCMDGraphic graphic = new DCVGCMDGraphic(sim, sim.getSpace());
 		graphic.makeAndDisplayFrame(APP_NAME);
 	}//end of main
 	
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-            getContentPane().add(new DCVGCMDGraphic(new DCVGCMD()).getPanel());
+    		DCVGCMD sim = new DCVGCMD();
+    		DCVGCMDGraphic graphic = new DCVGCMDGraphic(sim, sim.getSpace());
+            getContentPane().add(new DCVGCMDGraphic(sim, sim.getSpace()).getPanel());
         }
     }
 

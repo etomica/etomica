@@ -17,6 +17,7 @@ import etomica.lattice.crystal.Primitive;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.paracetamol.LatticeSumCrystalParacetamol.DataGroupLSCParacetamol;
 import etomica.potential.P2DLPOLY;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.units.Energy;
 import etomica.units.Kelvin;
@@ -31,12 +32,16 @@ import etomica.util.Arrays;
  */
 public class HarmonicCrystalOrthorhombic {
 
-    public HarmonicCrystalOrthorhombic(int[] nCells, Primitive primitive, Basis basis, Box box, CoordinateDefinitionParacetamol coordinateDefinitionParacetamol) {
+    public HarmonicCrystalOrthorhombic(int[] nCells, Primitive primitive,
+    		     Basis basis, Box box,
+    		     CoordinateDefinitionParacetamol coordinateDefinitionParacetamol,
+    		     Space _space) {
         this.nCells = (int[])nCells.clone();
         this.coordinateDefinitionParacetamol = coordinateDefinitionParacetamol;
-        potential = new P2DLPOLY(box.getSpace());
+        this.space = _space;
+        potential = new P2DLPOLY(space);
         lattice = new BravaisLatticeCrystal(primitive, basis);
-        normalModes = new NormalModesPotentialParacetamol(nCells, primitive, basis);
+        normalModes = new NormalModesPotentialParacetamol(nCells, primitive, basis, space);
         normalModes.setBox(box);
     }
     
@@ -129,7 +134,7 @@ public class HarmonicCrystalOrthorhombic {
         Primitive primitive = lattice.getPrimitive();
         primitive.scaleSize(1.0/Math.pow(scale, 1.0/lattice.getSpace().D()));
 //       a normalModes = new NormalModesSoftSpherical(nCells, primitive, potential);
-        normalModes = new NormalModesPotentialParacetamol(nCells, primitive, lattice.getBasis());
+        normalModes = new NormalModesPotentialParacetamol(nCells, primitive, lattice.getBasis(), space);
         normalModes.setMaxLatticeShell(maxLatticeShell);
     }
     
@@ -153,7 +158,9 @@ public class HarmonicCrystalOrthorhombic {
         if (args.length > 0) {
             temperature = Kelvin.UNIT.toSim(Double.parseDouble(args[0]));
         }
-        MCParacetamolOrthorhombicDLMULTI sim = new MCParacetamolOrthorhombicDLMULTI(Space3D.getInstance(),16,temperature, 3, new int[] {1,1,2});
+        
+        Space sp = Space3D.getInstance();
+        MCParacetamolOrthorhombicDLMULTI sim = new MCParacetamolOrthorhombicDLMULTI(sp,16,temperature, 3, new int[] {1,1,2});
         BasisOrthorhombicParacetamol basis = new BasisOrthorhombicParacetamol();
         
         
@@ -173,7 +180,7 @@ public class HarmonicCrystalOrthorhombic {
    
         //a final Potential2SoftSpherical potential = new P2LennardJones(Space3D.getInstance(), 1.0, 1.0);
 
-        HarmonicCrystalOrthorhombic harmonicCrystal = new HarmonicCrystalOrthorhombic(new int[]{1,1,2}, sim.primitive, basis, sim.box, sim.coordDef);
+        HarmonicCrystalOrthorhombic harmonicCrystal = new HarmonicCrystalOrthorhombic(new int[]{1,1,2}, sim.primitive, basis, sim.box, sim.coordDef, sp);
         //harmonicCrystal.setCellDensity(rho/basis.getScaledCoordinates().length);
         harmonicCrystal.normalModes.setCoordinateDefinition(sim.coordDef);
         harmonicCrystal.normalModes.setPotentialMaster(sim.potentialMaster);
@@ -209,6 +216,7 @@ public class HarmonicCrystalOrthorhombic {
     private int maxLatticeShell;
     private final CoordinateDefinitionParacetamol coordinateDefinitionParacetamol;
     private final P2DLPOLY potential;
+    private final Space space;
     private static final long serialVersionUID = 1L;
     
     public static final class LatticeEnergy implements LatticeEnergyParacetamol {

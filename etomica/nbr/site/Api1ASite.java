@@ -6,6 +6,7 @@ package etomica.nbr.site;
 
 import etomica.action.AtomsetAction;
 import etomica.action.AtomsetCount;
+import etomica.api.IBox;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
@@ -15,7 +16,6 @@ import etomica.atom.iterator.IteratorDirective.Direction;
 import etomica.lattice.CellLattice;
 import etomica.lattice.RectangularLatticeNbrIterator;
 import etomica.lattice.RectangularLatticeNbrIteratorAdjacent;
-import etomica.box.Box;
 import etomica.box.BoxAgentManager;
 import etomica.space.BoundaryPeriodic;
 
@@ -41,7 +41,7 @@ public class Api1ASite implements AtomsetIteratorPDT, java.io.Serializable {
         boxAgentManager = agentManager;
 	}
 
-	public void setBox(Box box) {
+	public void setBox(IBox box) {
         neighborSiteManager = (NeighborSiteManager)boxAgentManager.getAgent(box);
         lattice = neighborSiteManager.getLattice();
         neighborIterator.setLattice(lattice);

@@ -1,11 +1,11 @@
 package etomica.potential;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.integrator.IntegratorBox;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Tensor;
 
@@ -43,7 +43,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
 		}
 	}
     
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         leafList = newBox.getLeafList();
     }
     
@@ -82,8 +82,7 @@ public class PotentialCalculationPressureTensor extends PotentialCalculation {
             throw new RuntimeException("Need an IntegratorBox to provide temperature since this is a non-dynamic simulation");
         }
         else {
-            int D = integrator.getBox().getSpace().D();
-            for (int i=0; i<D; i++) {
+            for (int i = 0; i < space.D(); i++) {
                 pressureTensor.PE(leafList.getAtomCount()*integrator.getTemperature());
             }
             return pressureTensor;

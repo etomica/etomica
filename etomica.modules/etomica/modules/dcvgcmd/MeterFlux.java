@@ -1,6 +1,6 @@
 package etomica.modules.dcvgcmd;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
 import etomica.units.Area;
@@ -31,17 +31,17 @@ public class MeterFlux extends DataSourceScalar implements DataSource {
     /**
      * @return Returns the box.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     /**
      * @param box The box to set.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         this.box = box;
     }
 
-    private Box box;
+    private IBox box;
     private double t0 = 0;
     private int n0 = 0;
     private MyMCMove mcMove;

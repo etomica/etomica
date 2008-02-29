@@ -9,11 +9,11 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtomPositioned;
-import etomica.box.Box;
 
 /**
  * Action that dumps a box's configuration to an PDB file.  Arbitrary but 
@@ -32,12 +32,12 @@ public class PDBWriter implements Action, Serializable {
         }
     }        
     
-    public PDBWriter(Box aBox) {
+    public PDBWriter(IBox aBox) {
         this();
         setBox(aBox);
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         leafList = newBox.getLeafList();
     }
     

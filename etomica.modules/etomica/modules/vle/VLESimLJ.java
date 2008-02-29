@@ -47,17 +47,17 @@ public class VLESimLJ extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize));
+        boxLiquid = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);
         addBox(boxLiquid);
-        boxVapor = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize));
+        boxVapor = new Box(new BoundaryRectangularPeriodic(space, random, initBoxSize), space);
         addBox(boxVapor);
         boxLiquid.setNMolecules(species, initNumMolecules);
         boxVapor.setNMolecules(species, initNumMolecules);
-        Configuration config = new ConfigurationLattice(new LatticeCubicFcc());
+        Configuration config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         config.initializeCoordinates(boxLiquid);
         config.initializeCoordinates(boxVapor);
         
-        potentialMaster = new PotentialMasterCell(this, cutoff);
+        potentialMaster = new PotentialMasterCell(this, cutoff, space);
         P2LennardJones p2LJ = new P2LennardJones(space, sigma, epsilon);
         potential = new P2SoftSphericalTruncated(p2LJ, cutoff);
         potentialMaster.addPotential(potential, new ISpecies[]{species, species});

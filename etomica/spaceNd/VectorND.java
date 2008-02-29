@@ -1,6 +1,6 @@
 package etomica.spaceNd;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.IVectorRandom;
 import etomica.util.Function;
 import etomica.util.IRandom;

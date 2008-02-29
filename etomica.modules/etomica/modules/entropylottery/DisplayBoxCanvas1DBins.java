@@ -3,16 +3,16 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Iterator;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.box.Box;
 import etomica.data.Data;
 import etomica.data.DataSource;
 import etomica.graphics.ColorSchemeCollective;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayCanvas;
 import etomica.graphics.Drawable;
-import etomica.space.IVector;
 
 /**
  * Class used to define canvas onto which configuration is drawn
@@ -102,7 +102,7 @@ public class DisplayBoxCanvas1DBins extends DisplayCanvas {
             ((ColorSchemeCollective)displayBox.getColorScheme()).colorAllAtoms();
         }
         
-        Box box = displayBox.getBox();
+        IBox box = displayBox.getBox();
         IVector dimensions = box.getBoundary().getDimensions();
         if (atomCount.length != (int)Math.round(dimensions.x(0))) {
             atomCount = new int[(int)Math.round(dimensions.x(0))];

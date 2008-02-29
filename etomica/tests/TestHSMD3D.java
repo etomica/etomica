@@ -29,7 +29,7 @@ public class TestHSMD3D extends Simulation {
 
     public TestHSMD3D(Space space, int numAtoms) {
         super(space, true);
-        PotentialMasterList potentialMaster = new PotentialMasterList(this);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         
         double neighborRangeFac = 1.6;
         double sigma = 1.0;
@@ -37,7 +37,7 @@ public class TestHSMD3D extends Simulation {
         double l = 14.4573*Math.pow((numAtoms/2000.0),1.0/3.0);
         potentialMaster.setCellRange(1);
         potentialMaster.setRange(neighborRangeFac*sigma);
-        integrator = new IntegratorHard(this, potentialMaster);
+        integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setTimeStep(0.01);
         integrator.setIsothermal(true);
         ActionIntegrate actionIntegrate = new ActionIntegrate(integrator,false);
@@ -59,7 +59,7 @@ public class TestHSMD3D extends Simulation {
 
         potentialMaster.addPotential(new P2HardSphere(space, sigma, false),new AtomType[]{type2, type2});
         
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         box.setNMolecules(species2, numAtoms/100);

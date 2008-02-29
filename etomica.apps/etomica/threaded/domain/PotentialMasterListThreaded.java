@@ -18,6 +18,7 @@ import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
 import etomica.potential.PotentialCalculation;
 import etomica.simulation.ISimulation;
+import etomica.space.Space;
 import etomica.threaded.IPotentialCalculationThreaded;
 import etomica.util.Debug;
 
@@ -28,33 +29,33 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	BoxAgentManager agentManagerThreaded;
 	
 	
-	public PotentialMasterListThreaded(ISimulation sim) {
-		this(sim, 0);
+	public PotentialMasterListThreaded(ISimulation sim, Space _space) {
+		this(sim, 0, _space);
 		// TODO Auto-generated constructor stub
 	}
 
-	public PotentialMasterListThreaded(ISimulation sim, double range) {
-        this(sim, range, (AtomPositionDefinition)null);
-		// TODO Auto-generated constructor stub
-	}
-
-	public PotentialMasterListThreaded(ISimulation sim, double range,
-			AtomPositionDefinition positionDefinition) {
-        this(sim, range, new BoxAgentSourceCellManager(positionDefinition));
+	public PotentialMasterListThreaded(ISimulation sim, double range, Space _space) {
+        this(sim, range, (AtomPositionDefinition)null, _space);
 		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
-			BoxAgentSourceCellManager boxAgentSource) {
-		this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource));
+			AtomPositionDefinition positionDefinition, Space _space) {
+        this(sim, range, new BoxAgentSourceCellManager(positionDefinition, _space), _space);
+		// TODO Auto-generated constructor stub
+	}
+
+	public PotentialMasterListThreaded(ISimulation sim, double range,
+			BoxAgentSourceCellManager boxAgentSource, Space _space) {
+		this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), _space);
 		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
 			BoxAgentSourceCellManager boxAgentSource,
-			BoxAgentManager agentManager) {
-		super(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceThreaded(range));
-        agentManagerThreaded = new BoxAgentManager(new BoxAgentSourceCellManagerThreaded(null), sim, true);
+			BoxAgentManager agentManager, Space _space) {
+		super(sim, range, boxAgentSource, agentManager, new NeighborListAgentSourceThreaded(range, _space));
+        agentManagerThreaded = new BoxAgentManager(new BoxAgentSourceCellManagerThreaded(null, _space), sim, true);
 	}
 	
     public NeighborCellManagerThreaded getNbrCellManagerThreaded(Box box) {
@@ -181,9 +182,10 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
     protected static class NeighborListAgentSourceThreaded extends NeighborListAgentSource{
         
         
-        public NeighborListAgentSourceThreaded(double range) {
+        public NeighborListAgentSourceThreaded(double range, Space _space) {
 
-            super(range);
+            super(range, _space);
+            this.space = _space;
         }
 
         public Class getAgentClass() {
@@ -191,9 +193,10 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
 
         public Object makeAgent(Box box) {
-            return new NeighborListManagerThreaded((PotentialMasterListThreaded)potentialMaster, range, box);
+            return new NeighborListManagerThreaded((PotentialMasterListThreaded)potentialMaster, range, box, space);
         }
 
+        private final Space space;
         private static final long serialVersionUID = 1L;
 
       

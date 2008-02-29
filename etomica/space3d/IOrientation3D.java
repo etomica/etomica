@@ -1,6 +1,6 @@
 package etomica.space3d;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.IOrientation;
 
 /**

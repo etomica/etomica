@@ -10,6 +10,7 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IVector;
 import etomica.atom.AtomPositionDefinitionSimple;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeMolecule;
@@ -20,7 +21,6 @@ import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
 import etomica.lattice.IndexIteratorSizable;
 import etomica.lattice.SpaceLattice;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
@@ -35,13 +35,14 @@ public class GrainBoundaryConfiguration implements Configuration {
      * proceeding in the order resulting from iteration through the given index
      * iterator.
      */
-    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB) {
+    public GrainBoundaryConfiguration(BravaisLatticeCrystal latticeA, BravaisLatticeCrystal latticeB, Space space) {
         super(); 
         /** Lattices A + B share same space.  Only need to getSpace() for one 
          *  of the two.
          */
         this.latticeA = latticeA; 
         this.latticeB = latticeB;
+        this.space = space;
         this.indexIteratorA = new IndexIteratorRectangular(latticeA.D()); 
         this.indexIteratorB = new IndexIteratorRectangular(latticeB.D());
         if(indexIteratorA.getD() != latticeA.D()) {
@@ -129,8 +130,8 @@ public class GrainBoundaryConfiguration implements Configuration {
          *  lattice A is above lattice B, and both are centered on the z axis.
          */
         
-        Vector3D offsetA = (Vector3D)box.getSpace().makeVector();
-        Vector3D offsetB = (Vector3D)box.getSpace().makeVector();
+        Vector3D offsetA = (Vector3D)space.makeVector();
+        Vector3D offsetB = (Vector3D)space.makeVector();
         offsetA.setX(0, -0.5 * latticeDimensionsA[0]);
         offsetA.setX(1, -0.5 * latticeDimensionsA[1]);
         offsetA.setX(2, (latticeDimensionsB[2] - latticeDimensionsA[2])/2.0 );
@@ -270,5 +271,6 @@ public class GrainBoundaryConfiguration implements Configuration {
     double[] latticeDimensionsB = new double[3];
     private int nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy, nCellsBz;
     private MyLattice myLatA, myLatB;
+    private final Space space;
     private static final long serialVersionUID = 2L;
 }

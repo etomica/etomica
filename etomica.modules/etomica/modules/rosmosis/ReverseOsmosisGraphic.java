@@ -10,8 +10,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
 import etomica.action.Action;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomTypeSphere;
-import etomica.box.Box;
 import etomica.data.AccumulatorAverage;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.AccumulatorAverageFixed;
@@ -45,7 +46,6 @@ import etomica.graphics.SimulationPanel;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifierGeneral;
 import etomica.potential.P2LennardJones;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
@@ -92,9 +92,9 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
     protected Unit eUnit, dUnit, pUnit;
     protected ReverseOsmosis sim;
     
-    public ReverseOsmosisGraphic(final ReverseOsmosis simulation) {
+    public ReverseOsmosisGraphic(final ReverseOsmosis simulation, Space _space) {
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
 
         GridBagConstraints vertGBC = SimulationPanel.getVertGBC();
 
@@ -286,7 +286,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
-		MeterTemperature thermometer = new MeterTemperature();
+		MeterTemperature thermometer = new MeterTemperature(space.D());
         thermometer.setBox(sim.box);
         DataFork temperatureFork = new DataFork();
         final DisplayTextBox tBox = new DisplayTextBox();
@@ -335,7 +335,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         sim.integrator.setActionInterval(kePump, 10);
         dataStreamPumps.add(kePump);
 
-        MeterFlux meterFlux = new MeterFlux();
+        MeterFlux meterFlux = new MeterFlux(space);
         double xLength = sim.box.getBoundary().getDimensions().x(0);
         meterFlux.setBoundaries(0, new double[]{-0.25*xLength, 0.25*xLength}, new int[]{1, -1});
         meterFlux.setIntegrator(sim.integrator);
@@ -618,7 +618,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
     
     public static class DataSinkExcludeOverlap extends DataProcessor {
 
-        public DataSinkExcludeOverlap(Box box) {
+        public DataSinkExcludeOverlap(IBox box) {
             myData = new DataDouble();
             this.box = box;
         }
@@ -638,21 +638,21 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         }
         
         protected final DataDouble myData;
-        protected final Box box;
+        protected final IBox box;
     }
 
     public static void main(String[] args) {
-        Space space = Space3D.getInstance();
+        Space sp = Space3D.getInstance();
         if(args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
-                    space = Space3D.getInstance();
+                    sp = Space3D.getInstance();
                 }
             } catch(NumberFormatException e) {}
         }
 
-        ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(space));
+        ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(sp), sp);
 		SimulationGraphic.makeAndDisplayFrame
 		        (reverseOsmosisGraphic.getPanel(), APP_NAME);
     }
@@ -662,7 +662,8 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
         public void init() {
 	        getRootPane().putClientProperty(
 	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-            ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(Space3D.getInstance()));
+	        Space3D sp = Space3D.getInstance();
+            ReverseOsmosisGraphic reverseOsmosisGraphic = new ReverseOsmosisGraphic(new ReverseOsmosis(sp), sp);
 
 		    getContentPane().add(reverseOsmosisGraphic.getPanel());
 	    }

@@ -1,7 +1,7 @@
 package etomica.space2d;
 
 import etomica.EtomicaInfo;
-import etomica.space.IVector;
+import etomica.api.IVector;
 import etomica.space.NearestImageTransformer;
 import etomica.space.IOrientation;
 import etomica.space.RotationTensor;

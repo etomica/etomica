@@ -1,10 +1,10 @@
 package etomica.atom.iterator;
 
+import etomica.api.IBox;
 import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.IteratorDirective.Direction;
-import etomica.box.Box;
 import etomica.species.ISpecies;
 
 /**
@@ -32,7 +32,7 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
      * box conditions iterator to give no iterates.
      * @throws a NullPointerException if the Box is null
      */
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         box = newBox;
     }
     
@@ -91,6 +91,6 @@ public class AtomIteratorMolecule extends AtomIteratorAdapter implements
     private final AtomIteratorArrayListSimple listIterator;
     private final ISpecies species;
     private final AtomArrayList littleList = new AtomArrayList();
-    private Box box;
+    private IBox box;
     private IAtom targetAtom;
 }

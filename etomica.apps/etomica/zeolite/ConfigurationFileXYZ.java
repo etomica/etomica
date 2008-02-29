@@ -4,24 +4,25 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import etomica.api.IVector;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.config.Configuration;
 import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 public class ConfigurationFileXYZ implements Configuration, java.io.Serializable {
 
-		public ConfigurationFileXYZ(String aConfName){
+		public ConfigurationFileXYZ(String aConfName, Space _space){
 			super();
+			this.space = _space;
 			confName = aConfName;
 		}
 		
 		public void initializeCoordinates(Box box) {
-            min = box.getSpace().makeVector();
-            max = box.getSpace().makeVector();
-            dim = box.getSpace().makeVector();
+            min = space.makeVector();
+            max = space.makeVector();
+            dim = space.makeVector();
 	        String fileName = confName+".xyz";
 	        FileReader fileReader;
 	        try {
@@ -109,5 +110,6 @@ public class ConfigurationFileXYZ implements Configuration, java.io.Serializable
 		private IVector dim;
 		private int[] nAtomsList;
 		private String confName;
+		private final Space space;
 
 }

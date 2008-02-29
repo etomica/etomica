@@ -3,8 +3,8 @@
  */
 package etomica.models.hexane;
 
+import etomica.api.IVector;
 import etomica.config.ConformationChainZigZag;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 

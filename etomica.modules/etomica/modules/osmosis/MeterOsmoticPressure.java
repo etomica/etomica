@@ -1,9 +1,9 @@
 package etomica.modules.osmosis;
 import etomica.EtomicaInfo;
+import etomica.api.IVector;
 import etomica.data.meter.MeterPressureHard;
 import etomica.integrator.IntegratorHard;
 import etomica.potential.P1HardBoundary;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

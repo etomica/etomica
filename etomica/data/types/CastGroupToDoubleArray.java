@@ -1,6 +1,7 @@
 package etomica.data.types;
 
 
+import etomica.api.IVector;
 import etomica.data.Data;
 import etomica.data.DataPipe;
 import etomica.data.DataProcessor;
@@ -10,7 +11,6 @@ import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.data.types.DataTensor.DataInfoTensor;
 import etomica.data.types.DataVector.DataInfoVector;
-import etomica.space.IVector;
 import etomica.space.Tensor;
 import etomica.units.Dimension;
 

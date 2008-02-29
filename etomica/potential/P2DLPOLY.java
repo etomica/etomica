@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import etomica.action.WriteConfigurationP2DLPOLY;
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.box.Box;
 import etomica.space.Space;
@@ -63,7 +64,7 @@ public class P2DLPOLY extends Potential{
 		this.configP2DLPOLY = configP2DLPOLY;
 	}
 
-	private Box box;
+	private IBox box;
 	private WriteConfigurationP2DLPOLY configP2DLPOLY;
 
 }

@@ -16,13 +16,7 @@ import etomica.util.RandomNumberGenerator;
 
 public class Simulation implements java.io.Serializable, ISimulation  {
 
-    /**
-     * Constructs a default 2D, dynamic simulation.
-     */
-    public Simulation() {
-        this(Space2D.getInstance());
-    }
-    
+
     /**
      * Creates a new simulation using the given space, with a default
      * setting of isDynamic = true.

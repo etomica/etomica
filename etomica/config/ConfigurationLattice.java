@@ -1,6 +1,7 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.api.IVector;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
@@ -16,7 +17,6 @@ import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.SpaceLattice;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
@@ -47,8 +47,8 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * Constructs class using instance of IndexIteratorRectangular as the default
      * index iterator.
      */
-    public ConfigurationLattice(SpaceLattice lattice) {
-        this(lattice, new IndexIteratorRectangular(lattice.D()));
+    public ConfigurationLattice(SpaceLattice lattice, Space space) {
+        this(lattice, new IndexIteratorRectangular(lattice.D()), space);
     }
 
     /**
@@ -57,12 +57,13 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * iterator.
      */
     public ConfigurationLattice(SpaceLattice lattice,
-            IndexIteratorSizable indexIterator) {
+            IndexIteratorSizable indexIterator, Space space) {
         if(indexIterator.getD() != lattice.D()) {
             throw new IllegalArgumentException("Dimension of index iterator and lattice are incompatible");
         }
         this.lattice = lattice;
         this.indexIterator = indexIterator;
+        this.space = space;
         atomActionTranslateTo = new AtomActionTranslateTo(lattice.getSpace());
         setBoundaryPadding(0);
     }
@@ -93,7 +94,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
                 / (double) basisSize);
 
         // determine scaled shape of simulation volume
-        IVector shape = box.getSpace().makeVector();
+        IVector shape = space.makeVector();
         shape.E(box.getBoundary().getDimensions());
         shape.PE(-boundaryPadding);
         IVector latticeConstantV = Space.makeVector(lattice.getLatticeConstants());
@@ -113,7 +114,7 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         }
 
         // determine lattice constant
-        IVector latticeScaling = box.getSpace().makeVector();
+        IVector latticeScaling = space.makeVector();
         if (rescalingToFitVolume) {
             // in favorable situations, this should be approximately equal
             // to 1.0
@@ -126,11 +127,11 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         }
 
         // determine amount to shift lattice so it is centered in volume
-        IVector offset = box.getSpace().makeVector();
+        IVector offset = space.makeVector();
         offset.E(box.getBoundary().getDimensions());
-        IVector vectorOfMax = box.getSpace().makeVector();
-        IVector vectorOfMin = box.getSpace().makeVector();
-        IVector site = box.getSpace().makeVector();
+        IVector vectorOfMax = space.makeVector();
+        IVector vectorOfMin = space.makeVector();
+        IVector site = space.makeVector();
         vectorOfMax.E(Double.NEGATIVE_INFINITY);
         vectorOfMin.E(Double.POSITIVE_INFINITY);
 
@@ -224,32 +225,34 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
     protected final AtomActionTranslateTo atomActionTranslateTo;
     protected MyLattice myLat;
     protected double boundaryPadding;
+    protected final Space space;
     private static final long serialVersionUID = 3L;
 
     public static void main(String[] args) {
-        Simulation sim = new Simulation(Space3D.getInstance());
+    	Space sp = Space3D.getInstance();
+        Simulation sim = new Simulation(sp);
         PotentialMaster potentialMaster = new PotentialMaster(sim.getSpace());
-        Box box = new Box(sim);
+        Box box = new Box(sim, sp);
         sim.addBox(box);
         SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
         sim.getSpeciesManager().addSpecies(species);
         ((AtomTypeSphere)species.getMoleculeType().getChildTypes()[0]).setDiameter(5.0);
         int k = 4;
         box.setNMolecules(species, 4 * k * k * k);
-        IntegratorHard integrator = new IntegratorHard(sim, potentialMaster);
+        IntegratorHard integrator = new IntegratorHard(sim, potentialMaster, sp);
         integrator.setBox(box);
 //        ColorSchemeByType colorScheme = new ColorSchemeByType();
         // CubicLattice lattice = new LatticeCubicBcc();
         BravaisLatticeCrystal lattice = new LatticeCubicFcc();
         // CubicLattice lattice = new LatticeCubicSimple();
-        ConfigurationLattice configuration = new ConfigurationLattice(lattice);
+        ConfigurationLattice configuration = new ConfigurationLattice(lattice, sp);
         // box.boundary().setDimensions(new Space3D.Vector(15.,30.,60.5));
         configuration.initializeCoordinates(box);
         // etomica.graphics.DisplayBox display = new
         // etomica.graphics.DisplayBox(box);
 
         etomica.graphics.SimulationGraphic simGraphic = new etomica.graphics.SimulationGraphic(
-                sim);
+                sim, sp);
 //        ((ColorSchemeByType) ((DisplayBox) simGraphic.displayList()
 //                .getFirst()).getColorScheme()).setColor(species
 //                .getMoleculeType(), java.awt.Color.red);

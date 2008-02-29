@@ -1,6 +1,8 @@
 package etomica.graphics2;
 
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
@@ -12,7 +14,7 @@ import etomica.math.geometry.LineSegment;
 import etomica.math.geometry.Polytope;
 import etomica.box.Box;
 import etomica.space.Boundary;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.Vector3D;
 
 /**
@@ -22,8 +24,8 @@ import etomica.space3d.Vector3D;
  */
 public final class SceneManager {
     
-    public SceneManager() 
-    {
+    public SceneManager(Space space) {
+    	this.space = space;
         setAtomFilter(AtomFilterStatic.ACCEPT_ALL);
         setScale(1.0);
  
@@ -46,7 +48,7 @@ public final class SceneManager {
         if (boundaryVertices == null || boundaryVertices.length != newVertices.length) {
             boundaryVertices = new IVector[newVertices.length];
             for (int i=0; i<boundaryVertices.length; i++) {
-                boundaryVertices[i] = box.getSpace().makeVector();
+                boundaryVertices[i] = space.makeVector();
                 boundaryVertices[i].E(newVertices[i]);
             }
             needUpdate = true;
@@ -66,7 +68,7 @@ public final class SceneManager {
             }
             
             LineSegment[] edges = shape.getEdges();
-            IVector shift = box.getSpace().makeVector();
+            IVector shift = space.makeVector();
             
             boundaryPoly = renderer.createPoly();
             for(int i=0; i<edges.length; i++) 
@@ -99,12 +101,12 @@ public final class SceneManager {
         agentIterator = agentManager.makeIterator();
     	box = newBox;
         if (box != null) {
-            from = box.getSpace().makeVector();
-            to = box.getSpace().makeVector();
+            from = space.makeVector();
+            to = space.makeVector();
         }
     }
     
-    public Box getBox() {
+    public IBox getBox() {
     	return box;
     }
     
@@ -210,6 +212,8 @@ public final class SceneManager {
      *  Sets the quality of the rendered image, false = low, true = high
       */
     boolean highQuality = false;
+    
+    private final Space space;
 
     public class SphereShapeSource implements AtomAgentManager.AgentSource {
 

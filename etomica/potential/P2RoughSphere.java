@@ -1,13 +1,13 @@
 package etomica.potential;
 
 import etomica.EtomicaInfo;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomOrientedKinetic;
 import etomica.simulation.Simulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.space3d.Vector3D;

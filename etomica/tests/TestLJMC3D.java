@@ -42,7 +42,7 @@ public class TestLJMC3D extends Simulation {
 
     public TestLJMC3D(int numAtoms) {
         super(Space3D.getInstance(), false);
-        PotentialMasterCell potentialMaster = new PotentialMasterCell(this);
+        PotentialMasterCell potentialMaster = new PotentialMasterCell(this, space);
         double sigma = 1.0;
 	    integrator = new IntegratorMC(this, potentialMaster);
 	    mcMoveAtom = new MCMoveAtom(this, potentialMaster);
@@ -55,7 +55,7 @@ public class TestLJMC3D extends Simulation {
         getController().addAction(actionIntegrate);
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
-	    box = new Box(this);
+	    box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
         box.setDensity(0.65);

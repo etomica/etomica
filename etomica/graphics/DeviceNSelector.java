@@ -4,7 +4,7 @@ import etomica.action.Action;
 import etomica.action.ActionGroupSeries;
 import etomica.action.SimulationRestart;
 import etomica.action.activity.Controller;
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.modifier.ModifierNMolecule;
 import etomica.simulation.prototypes.HSMD2D;
 import etomica.species.ISpecies;
@@ -39,7 +39,7 @@ public class DeviceNSelector extends DeviceSlider {
         return resetAction;
     }
 
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         box = newBox;
         if (species != null) {
             init();
@@ -53,7 +53,7 @@ public class DeviceNSelector extends DeviceSlider {
         }
     }
     
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
     
@@ -80,14 +80,15 @@ public class DeviceNSelector extends DeviceSlider {
     
     protected Action resetAction;
     protected ISpecies species;
-    protected Box box;
+    protected IBox box;
     
     //main method to demonstrate and test class
     public static void main(String[] args) {
         final String APP_NAME = "Devine n Selector";
 
+        etomica.space.Space space = etomica.space2d.Space2D.getInstance();
         final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, space);
         
         DeviceNSelector nSelector = new DeviceNSelector(sim.getController());
         nSelector.setResetAction(new SimulationRestart(sim));

@@ -58,12 +58,12 @@ public class SoftSphere3d extends Simulation {
         //species2 = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
         //getSpeciesManager().addSpecies(species2);
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, 108);
         box.setDensity(density);
        // box.setNMolecules(species2, 20);
-        new ConfigurationLattice(new LatticeCubicFcc()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeCubicFcc(), space).initializeCoordinates(box);
 	    potential = new P2SoftSphere(space,1,1,softness);
 	    P2SoftSphericalTruncated truncated = new P2SoftSphericalTruncated(potential,box.getBoundary().getDimensions().x(0)/2);
 	   // System.out.println("Truncated radius is: " +truncated.getTruncationRadius());
@@ -78,7 +78,7 @@ public class SoftSphere3d extends Simulation {
 
         integrator.setBox(box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-        integrator.addIntervalAction(new BoxImposePbc(box));
+        integrator.addIntervalAction(new BoxImposePbc(box, space));
 
 //	    LatticeRenderer.ColorSchemeCell colorSchemeCell = new LatticeRenderer.ColorSchemeCell();
 //	    display.setColorScheme(colorSchemeCell);

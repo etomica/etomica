@@ -131,7 +131,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
         sim.integrator.addIntervalAction(energyPump);
         sim.integrator.addIntervalAction(kineticPump);
 
-        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME);
+        SimulationGraphic simgraphic = new SimulationGraphic(sim, SimulationGraphic.GRAPHIC_ONLY, APP_NAME, sim.space);
         ArrayList dataStreamPumps = simgraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);
@@ -175,8 +175,8 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
     
     public MEAM_3DMDwithSnCuGB() {
         super(Space3D.getInstance(), true);//INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMasterList(this);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
+        potentialMaster = new PotentialMasterList(this, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
@@ -204,7 +204,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 //        getSpeciesManager().addSpecies(agB);
         getSpeciesManager().addSpecies(cuB);
         
-        box = new Box(new BoundaryRectangularSlit(this, 2));
+        box = new Box(new BoundaryRectangularSlit(this, 2, space), space);
         addBox(box);
         
         
@@ -272,7 +272,7 @@ public class MEAM_3DMDwithSnCuGB extends Simulation {
 //	        
 	    ((AtomTypeSphere)cuB.getLeafType()).setDiameter(2.5561); 
 	     
-	    GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB);
+	    GrainBoundaryConfiguration config = new GrainBoundaryConfiguration(latticeA, latticeB, space);
 	    config.setDimensions(nCellsAx, nCellsAy, nCellsAz, nCellsBx, nCellsBy, 
 	    		nCellsBz, aA, bA, cA, aB, bB, cB);
 	    config.initializeCoordinates(box);

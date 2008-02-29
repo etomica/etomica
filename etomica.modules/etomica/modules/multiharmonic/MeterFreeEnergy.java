@@ -1,8 +1,8 @@
 package etomica.modules.multiharmonic;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
-import etomica.box.Box;
 import etomica.data.DataSource;
 import etomica.data.DataSourceScalar;
 import etomica.potential.P1Harmonic;
@@ -34,17 +34,17 @@ public class MeterFreeEnergy extends DataSourceScalar implements DataSource {
         return Math.exp(-sum);
     }
     
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         iterator.setBox(box);
         this.box = box;
     }
     
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
 
     private static final long serialVersionUID = 1L;
     AtomIteratorLeafAtoms iterator = new AtomIteratorLeafAtoms();
-    Box box;
+    IBox box;
     P1Harmonic reference, target;
 }

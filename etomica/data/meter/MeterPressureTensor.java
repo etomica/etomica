@@ -1,5 +1,6 @@
 package etomica.data.meter;
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
 import etomica.atom.iterator.IteratorDirective;
 import etomica.data.Data;
 import etomica.data.DataInfo;
@@ -64,7 +65,7 @@ public class MeterPressureTensor implements DataSource, java.io.Serializable {
      * calculated for the box the integrator acts on and integrator's 
      * temperature is used for the ideal gas contribution.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
 

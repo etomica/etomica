@@ -1,5 +1,6 @@
 package etomica.models.hexane;
 
+import etomica.api.IVector;
 import etomica.atom.AtomArrayList;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSource;
@@ -14,7 +15,6 @@ import etomica.data.meter.MeterPotentialEnergy;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
 import etomica.util.Constants;
 import etomica.util.IRandom;
 

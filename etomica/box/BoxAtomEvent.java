@@ -1,5 +1,6 @@
 package etomica.box;
 
+import etomica.api.IBox;
 import etomica.atom.IAtom;
 
 /**
@@ -7,7 +8,7 @@ import etomica.atom.IAtom;
  */
 public class BoxAtomEvent extends BoxEvent {
     
-    public BoxAtomEvent(Box box, IAtom atom) {
+    public BoxAtomEvent(IBox box, IAtom atom) {
         super(box);
         this.atom = atom;
     }

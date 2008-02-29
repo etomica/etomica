@@ -166,6 +166,7 @@ public class DeviceTrioControllerButton extends Device {
      public static void main(String[] args) {
         final String APP_NAME = "Device Trio Controller Button";
 
+        etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
         final HSMD2D sim = new HSMD2D(); 
 
         DeviceTrioControllerButton button = new DeviceTrioControllerButton(sim);
@@ -173,7 +174,7 @@ public class DeviceTrioControllerButton extends Device {
 //        DeviceTrioControllerButton button = new DeviceTrioControllerButton(Simulation.instance, Simulation.instance.controller(0)); 
 //          button.setShape("VERTICAL"); //three choices "HORIZONTAL", "AUTOMATIC"
         
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
+        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME, sp);
 
         // Simulation Graphic will display it's own Trio button group by
         // default.  Just remove them and put ours on for this test.

@@ -4,9 +4,9 @@
  */
 package etomica.nbr;
 
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
-import etomica.box.Box;
 
 /**
  * Wraps another criterion while adding additional criteria to the acceptance
@@ -58,7 +58,7 @@ public abstract class CriterionAdapter implements NeighborCriterion, java.io.Ser
      * applied. Sometimes needed if the criterion depends on features of the
      * box, such as the volume.
      */
-    public void setBox(Box box) {
+    public void setBox(IBox box) {
         subCriterion.setBox(box);
     }
 

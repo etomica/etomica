@@ -3,10 +3,12 @@ package etomica.action;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.box.Box;
-import etomica.space.IVector;
+import etomica.space.Space;
 
 /**
  * Dumps a box's configuration to a file.  The coordinates are written in a 
@@ -15,6 +17,10 @@ import etomica.space.IVector;
  * ConfigurationFile.
  */
 public class WriteConfiguration implements Action {
+
+	public WriteConfiguration(Space space) {
+		this.space = space;
+	}
 
     /**
      * Sets the configuration name.  The file written to is newConfName.pos_new
@@ -41,7 +47,7 @@ public class WriteConfiguration implements Action {
     /**
      * Returns the box whose atom coordinates get written to the file.
      */
-    public Box getBox() {
+    public IBox getBox() {
         return box;
     }
 
@@ -74,7 +80,7 @@ public class WriteConfiguration implements Action {
             return;
         }
         try {
-            IVector writePosition = box.getSpace().makeVector();
+            IVector writePosition = space.makeVector();
             AtomSet leafList = box.getLeafList();
             int nLeaf = leafList.getAtomCount();
             for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
@@ -102,4 +108,5 @@ public class WriteConfiguration implements Action {
     private String confName;
     private Box box;
     private boolean doApplyPBC;
+    private final Space space;
 }

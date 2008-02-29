@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 import etomica.action.AtomAction;
 import etomica.action.AtomGroupAction;
+import etomica.api.IVector;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

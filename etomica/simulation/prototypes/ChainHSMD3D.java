@@ -19,6 +19,7 @@ import etomica.potential.P2HardBond;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
+import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheres;
 
@@ -30,19 +31,16 @@ public class ChainHSMD3D extends Simulation {
     public SpeciesSpheres species;
     public P2HardSphere potential;
     private ModelChain model;
-    
-    public ChainHSMD3D() {
-        this(Space3D.getInstance());
-    }
-    private ChainHSMD3D(Space space) {
-        super(space, true);
-        PotentialMasterList potentialMaster = new PotentialMasterList(this);
+
+    private ChainHSMD3D() {
+        super(Space3D.getInstance(), true);
+        PotentialMasterList potentialMaster = new PotentialMasterList(this, space);
         int numAtoms = 108;
         int chainLength = 4;
         double neighborRangeFac = 1.6;
         potentialMaster.setRange(neighborRangeFac);
 
-        integrator = new IntegratorHard(this, potentialMaster);
+        integrator = new IntegratorHard(this, potentialMaster, space);
         integrator.setIsothermal(false);
         integrator.setTimeStep(0.01);
 
@@ -58,11 +56,11 @@ public class ChainHSMD3D extends Simulation {
         ((ConformationLinear)model.getConformation()).setBondLength(1.0);
         ((ConformationLinear)model.getConformation()).setAngle(1,0.35);
         
-        box = new Box(this);
+        box = new Box(this, space);
         double l = 14.4573*Math.pow((chainLength*numAtoms/2020.0),1.0/3.0);
         box.getBoundary().setDimensions(Space.makeVector(new double[]{l,l,l}));
         addBox(box);
-        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc());
+        ConfigurationLattice config = new ConfigurationLattice(new LatticeCubicFcc(), space);
         box.setNMolecules(species, numAtoms);
         config.initializeCoordinates(box);
         integrator.addIntervalAction(potentialMaster.getNeighborManager(box));
@@ -76,8 +74,9 @@ public class ChainHSMD3D extends Simulation {
     }
 
     public static void main(String[] args) {
+
       final etomica.simulation.prototypes.ChainHSMD3D sim = new etomica.simulation.prototypes.ChainHSMD3D();
-      final SimulationGraphic simGraphic = new SimulationGraphic(sim);
+      final SimulationGraphic simGraphic = new SimulationGraphic(sim, sim.space);
       BondListener bl = new BondListener(sim.box,(DisplayBoxCanvasG3DSys)simGraphic.getDisplayBox(sim.box).canvas);
       bl.addModel(sim.model);
 

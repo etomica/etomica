@@ -1,6 +1,8 @@
 package etomica.space;
 
+import etomica.api.IVector;
 import etomica.simulation.ISimulation;
+import etomica.space.Space;
 import etomica.util.IRandom;
 
 /**
@@ -15,9 +17,9 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * not periodic.  Length of each box edge is given by default boxSize in
      * given Simulation.
      */
-    public BoundaryRectangularSlit(ISimulation sim) {
+    public BoundaryRectangularSlit(ISimulation sim, Space _space) {
         //consumer can set appropriate slit dim later
-        this(sim,0);
+        this(sim,0, _space);
     }
     
     /**
@@ -29,8 +31,8 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * 1 for y-dimension, etc.).
      * @throws IllegalArgumentException if not (0 <= slitDim < space.D).
      */
-    public BoundaryRectangularSlit(ISimulation sim, int slitDim) {
-        this(sim.getSpace(), sim.getRandom(), slitDim, 10.0);
+    public BoundaryRectangularSlit(ISimulation sim, int slitDim, Space _space) {
+        this(sim.getRandom(), slitDim, 10.0, _space);
     }
     
     /**
@@ -39,8 +41,8 @@ public class BoundaryRectangularSlit extends BoundaryRectangular {
      * @param space
      * @param slitDim slit dimension (in which PBC is not imposed).
      */
-    public BoundaryRectangularSlit(Space space, IRandom random, int slitDim, double boxSize) {
-        super(space,random,makePeriodicity(space.D(),slitDim),boxSize);
+    public BoundaryRectangularSlit(IRandom random, int slitDim, double boxSize, Space _space) {
+        super(_space,random,makePeriodicity(_space.D(),slitDim),boxSize);
         sDim = slitDim;
         dimensionsHalf = space.makeVector();
         tempImage = space.makeVector();

@@ -73,7 +73,7 @@ public class VirialGCPMGraphic {
         final SimulationVirialOverlap sim = new SimulationVirialOverlap(space,new SpeciesFactoryWaterGCPM(), temperature, new ClusterAbstract[]{refCluster,targetCluster},new ClusterWeight[]{refSample,sampleCluster1}, false);
         sim.box[0].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
         sim.box[1].getBoundary().setDimensions(space.makeVector(new double[]{10,10,10}));
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, space);
         simGraphic.getDisplayBox(sim.box[0]).setShowBoundary(false);
         simGraphic.getDisplayBox(sim.box[1]).setShowBoundary(false);
         ((ColorSchemeByType)simGraphic.getDisplayBox(sim.box[0]).getColorScheme()).setColor(((SpeciesWater4P)sim.getSpeciesManager().getSpecies()[0]).getMoleculeType().getChildTypes()[0], Color.WHITE);

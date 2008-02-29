@@ -1,12 +1,12 @@
 package etomica.modules.junit.crystalviewer;
 
 
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.lattice.BravaisLattice;
 import etomica.lattice.crystal.PrimitiveCubic;
 import junit.framework.TestCase;
-import etomica.space.IVector;
 
 
 public class LatticeCubicSimpleLatticePlaneTest extends TestCase {

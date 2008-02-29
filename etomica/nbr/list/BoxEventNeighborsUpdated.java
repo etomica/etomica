@@ -1,6 +1,6 @@
 package etomica.nbr.list;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.box.BoxEvent;
 
 /**
@@ -11,7 +11,7 @@ import etomica.box.BoxEvent;
  */
 public class BoxEventNeighborsUpdated extends BoxEvent {
 
-    public BoxEventNeighborsUpdated(Box box) {
+    public BoxEventNeighborsUpdated(IBox box) {
         super(box);
     }
 

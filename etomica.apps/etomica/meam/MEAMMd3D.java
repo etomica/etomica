@@ -127,7 +127,7 @@ public class MEAMMd3D extends Simulation {
         sim.integrator.addIntervalAction(energyPump);
         sim.integrator.addIntervalAction(kineticPump);
        
-        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
+        SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME, sim.space);
         ArrayList dataStreamPumps = simGraphic.getController().getDataStreamPumps();
         dataStreamPumps.add(energyPump);
         dataStreamPumps.add(kineticPump);
@@ -167,8 +167,8 @@ public class MEAMMd3D extends Simulation {
     
     public MEAMMd3D() {
         super(Space3D.getInstance(), true); //INSTANCE); kmb change 8/3/05
-        potentialMaster = new PotentialMasterList(this);
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster);
+        potentialMaster = new PotentialMasterList(this, space);
+        integrator = new IntegratorVelocityVerlet(this, potentialMaster, space);
         integrator.setTimeStep(0.001);
         integrator.setTemperature(Kelvin.UNIT.toSim(295));
         integrator.setThermostatInterval(100);
@@ -194,7 +194,7 @@ public class MEAMMd3D extends Simulation {
         ((AtomTypeSphere)cu.getLeafType()).setDiameter(2.5561); 
         
         
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(sn, 0);
         box.setNMolecules(ag, 256);
@@ -230,7 +230,7 @@ public class MEAMMd3D extends Simulation {
 	    BravaisLatticeCrystal crystal = new BravaisLatticeCrystal(primitive, new BasisCubicFcc());
 	    
            
-		Configuration config = new ConfigurationLattice(crystal);
+		Configuration config = new ConfigurationLattice(crystal, space);
 		config.initializeCoordinates(box);
         
 		potentialN = new PotentialMEAM(space);

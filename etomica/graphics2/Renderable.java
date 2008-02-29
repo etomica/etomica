@@ -1,6 +1,6 @@
 package etomica.graphics2;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 
 /** Interface used by SceneManager to communicate with the graphics package. 
  *  Should be implemented by all classes willing to draw the contents of etomica. */

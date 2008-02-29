@@ -1,6 +1,6 @@
 package etomica.modifier;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 import etomica.species.ISpecies;
 import etomica.units.Dimension;
 import etomica.units.Quantity;
@@ -15,7 +15,7 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
      * @param speciesAgent Agent of the affected species in the affected box.
      * Cannot be changed after construction.
      */
-    public ModifierNMolecule(Box box, ISpecies species) {
+    public ModifierNMolecule(IBox box, ISpecies species) {
         this.box = box;
         this.species = species;
     }
@@ -44,7 +44,7 @@ public class ModifierNMolecule implements Modifier, java.io.Serializable {
                 " molecules from " + previousValue + " to " + mostRecentValue;
     }
     private static final long serialVersionUID = 1L;
-    protected final Box box;
+    protected final IBox box;
     protected final ISpecies species;
     protected int mostRecentValue, previousValue;
 }

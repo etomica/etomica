@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import etomica.action.WriteConfigurationDLPOLY;
+import etomica.api.IBox;
 import etomica.atom.AtomSet;
 import etomica.box.Box;
 import etomica.space.Space;
@@ -54,7 +55,7 @@ public class PotentialDLPOLY extends Potential{
 		this.configDLPOLY = configDLPOLY;
 	}
 	
-	private Box box;
+	private IBox box;
 	private WriteConfigurationDLPOLY configDLPOLY;
 
 }

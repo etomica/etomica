@@ -1,5 +1,6 @@
 package etomica.nbr;
 
+import etomica.api.IBox;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomType;
 import etomica.atom.iterator.IteratorDirective;
@@ -14,6 +15,7 @@ import etomica.potential.IPotential;
 import etomica.potential.PotentialCalculation;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.ISimulation;
+import etomica.space.Space;
 import etomica.species.ISpecies;
 
 /**
@@ -31,26 +33,26 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
      * and position definition to null, causing cell assignment to be
      * based on atom type's position definition. 
 	 */
-	public PotentialMasterHybrid(ISimulation sim, double range) {
-        this(sim, null, range);
+	public PotentialMasterHybrid(ISimulation sim, double range, Space space) {
+        this(sim, null, range, space);
     }
     
     /**
      * Constructs class using given position definition for all atom cell assignments.
      * @param positionDefinition if null, specifies use of atom type's position definition
      */
-    public PotentialMasterHybrid(ISimulation sim, AtomPositionDefinition positionDefinition, double range) {
-        this(sim, range, new BoxAgentSourceCellManager(positionDefinition));
+    public PotentialMasterHybrid(ISimulation sim, AtomPositionDefinition positionDefinition, double range, Space space) {
+        this(sim, range, new BoxAgentSourceCellManager(positionDefinition, space), space);
     }
     
-    private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource) {
-        this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource));
+    private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource, Space space) {
+        this(sim, range, boxAgentSource, new BoxAgentManager(boxAgentSource), space);
     }
     
     private PotentialMasterHybrid(ISimulation sim, double range, BoxAgentSourceCellManager boxAgentSource,
-            BoxAgentManager agentManager) {
+            BoxAgentManager agentManager, Space space) {
         super(sim, boxAgentSource, agentManager);
-        potentialMasterList = new PotentialMasterList(sim, range, boxAgentSource, agentManager);
+        potentialMasterList = new PotentialMasterList(sim, range, boxAgentSource, agentManager, space);
         potentialMasterCell = new PotentialMasterCell(sim, range, boxAgentSource, agentManager);
 	}
     
@@ -99,7 +101,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         potentialMasterCell.setRange(newRange);
     }
 
-    public NeighborCellManager getNbrCellManager(Box box) {
+    public NeighborCellManager getNbrCellManager(IBox box) {
         return potentialMasterList.getNbrCellManager(box);
     }
     
@@ -126,7 +128,7 @@ public class PotentialMasterHybrid extends PotentialMasterNbr {
         potentialMasterCell.potentialAddedNotify(subPotential, pGroup);
     }
     
-    public NeighborListManager getNeighborManager(Box box) {
+    public NeighborListManager getNeighborManager(IBox box) {
         return potentialMasterList.getNeighborManager(box);
     }
 

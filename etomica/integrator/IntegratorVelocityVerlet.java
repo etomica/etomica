@@ -3,6 +3,7 @@ package etomica.integrator;
 import java.io.Serializable;
 
 import etomica.EtomicaInfo;
+import etomica.api.IVector;
 import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
@@ -19,7 +20,6 @@ import etomica.potential.PotentialCalculationForcePressureSum;
 import etomica.potential.PotentialCalculationForceSum;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space.Tensor;
 import etomica.util.Debug;
@@ -35,13 +35,13 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
     
     protected AtomLeafAgentManager agentManager;
 
-    public IntegratorVelocityVerlet(ISimulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(), 0.05, 1.0);
+    public IntegratorVelocityVerlet(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+        this(potentialMaster, sim.getRandom(), 0.05, 1.0, _space);
     }
     
     public IntegratorVelocityVerlet(PotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature) {
-        super(potentialMaster,random,timeStep,temperature);
+            double timeStep, double temperature, Space _space) {
+        super(potentialMaster,random,timeStep,temperature, _space);
         // if you're motivated to throw away information earlier, you can use 
         // PotentialCalculationForceSum instead.
         forceSum = new PotentialCalculationForcePressureSum(potentialMaster.getSpace());
@@ -86,7 +86,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         if (Debug.ON && Debug.DEBUG_NOW) {
             AtomSet pair = Debug.getAtoms(box);
             if (pair != null) {
-                IVector dr = box.getSpace().makeVector();
+                IVector dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
                 System.out.println(pair+" dr "+dr);
             }
@@ -149,7 +149,7 @@ public class IntegratorVelocityVerlet extends IntegratorMD implements AgentSourc
         if (Debug.ON && Debug.DEBUG_NOW) {
             AtomSet pair = Debug.getAtoms(box);
             if (pair != null) {
-                IVector dr = box.getSpace().makeVector();
+                IVector dr = space.makeVector();
                 dr.Ev1Mv2(((IAtomPositioned)pair.getAtom(1)).getPosition(), ((IAtomPositioned)pair.getAtom(0)).getPosition());
                 System.out.println(pair+" dr "+dr);
             }

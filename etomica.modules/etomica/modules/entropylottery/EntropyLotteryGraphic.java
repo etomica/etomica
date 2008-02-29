@@ -16,6 +16,7 @@ import etomica.graphics.DeviceNSelector;
 import etomica.graphics.DeviceSlider;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
+import etomica.space.Space;
 import etomica.space1d.Space1D;
 import etomica.units.Pixel;
 import etomica.util.HistoryCollapsing;
@@ -27,16 +28,16 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
 
 	protected final EntropyLottery sim;
 
-	public EntropyLotteryGraphic(final EntropyLottery simulation) {
+	public EntropyLotteryGraphic(final EntropyLottery simulation, Space _space) {
 
-		super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_ACTION);
+		super(simulation, GRAPHIC_ONLY, APP_NAME, REPAINT_ACTION, _space);
         this.sim = simulation;
 
         sim.activityIntegrate.setSleepPeriod(10);
 
         ArrayList dataStreamPumps = getController().getDataStreamPumps();
         
-        this.getController().getSimRestart().setConfiguration(new ConfigurationZero());
+        this.getController().getSimRestart().setConfiguration(new ConfigurationZero(space));
 
         this.getController().getReinitButton().setPostAction(getPaintAction(sim.box));
 
@@ -135,16 +136,18 @@ public class EntropyLotteryGraphic extends SimulationGraphic {
     }    
 
     public static void main(String[] args) {
-    	EntropyLottery sim = new EntropyLottery(Space1D.getInstance());
-        EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic(sim);
+    	Space sp = Space1D.getInstance();
+    	EntropyLottery sim = new EntropyLottery(sp);
+        EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic(sim, sp);
 		SimulationGraphic.makeAndDisplayFrame(entropyLotteryGraphic.getPanel(), APP_NAME);
     }
     
     public static class Applet extends javax.swing.JApplet {
 
         public void init() {
-        	EntropyLottery sim = new EntropyLottery(Space1D.getInstance());
-            EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic(sim);
+        	Space sp = Space1D.getInstance();
+        	EntropyLottery sim = new EntropyLottery(sp);
+            EntropyLotteryGraphic entropyLotteryGraphic = new EntropyLotteryGraphic(sim, sp);
 		    getContentPane().add(entropyLotteryGraphic.getPanel());
 	    }
 

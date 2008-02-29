@@ -1,11 +1,11 @@
 package etomica.util;
 
+import etomica.api.IBox;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
 import etomica.atom.iterator.AtomIteratorTreeBox;
-import etomica.box.Box;
 
 /**
  * Class holding static fields that determine whether debugging is on, how
@@ -135,7 +135,7 @@ public final class Debug {
      * @param box to be checked
      * @return true if the box is of interest
      */
-    public static boolean thisBox(Box box) {
+    public static boolean thisBox(IBox box) {
          return box.getIndex() == BOX_INDEX;
     }
     
@@ -145,7 +145,7 @@ public final class Debug {
      * the AtomPair will be null if the box does not contain an Atom 
      * with the proper global index.
      */
-    public static AtomPair getAtoms(Box box) {
+    public static AtomPair getAtoms(IBox box) {
         if (debugPair == null) {
             debugPair = new AtomPair();
         }
@@ -178,7 +178,7 @@ public final class Debug {
      * the AtomPair will be null if the box does not contain an Atom 
      * with the proper global index.
      */
-    public static IAtom getAtom1(Box box) {
+    public static IAtom getAtom1(IBox box) {
         if (ATOM1_INDEX > -1) {
             AtomIteratorTreeBox iterator = new AtomIteratorTreeBox(box,Integer.MAX_VALUE,true);
             iterator.reset();

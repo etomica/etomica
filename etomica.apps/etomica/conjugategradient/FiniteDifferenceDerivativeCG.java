@@ -38,9 +38,14 @@ public class FiniteDifferenceDerivativeCG {
 	protected double h;
 	protected boolean hOptimizer;
 	
-	public FiniteDifferenceDerivativeCG(Box box, PotentialMaster potentialMaster, AnalyticalDerivativeEnergyParacetamol derivativeFunction){
+	private final Space space;
+	
+	public FiniteDifferenceDerivativeCG(Box box, PotentialMaster potentialMaster,
+			             AnalyticalDerivativeEnergyParacetamol derivativeFunction,
+			             Space _space){
 		this.box = box;
 		this.potentialMaster = potentialMaster;
+		this.space = _space;
 		this.derivativeFunction = derivativeFunction;
 		meterEnergy = new MeterPotentialEnergy(potentialMaster);
 		allAtoms = new IteratorDirective();
@@ -48,7 +53,7 @@ public class FiniteDifferenceDerivativeCG {
 		h = 0.00001;
 		hOptimizer = false;
 		
-		MyAgentSource source = new MyAgentSource(box.getSpace());
+		MyAgentSource source = new MyAgentSource(space);
 		agentManager = new AtomAgentManager(source, box);
 		forceSum.setAgentManager(agentManager);
 	}
@@ -67,7 +72,7 @@ public class FiniteDifferenceDerivativeCG {
 		int coordinateDim = u.length;
 		double[] d2fdu2 = new double[coordinateDim];
 		
-		derivativeFunction = new AnalyticalDerivativeEnergyParacetamol(box, potentialMaster);
+		derivativeFunction = new AnalyticalDerivativeEnergyParacetamol(box, potentialMaster, space);
 		double[] uDerivative = new double[coordinateDim];
 		int[] dAssign = new int[coordinateDim];
 		

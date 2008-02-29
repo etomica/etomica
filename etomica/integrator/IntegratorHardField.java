@@ -1,6 +1,7 @@
 package etomica.integrator;
 
 import etomica.EtomicaInfo;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.IAtom;
@@ -13,7 +14,6 @@ import etomica.potential.IPotential;
 import etomica.potential.Potential1;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.IRandom;
 
@@ -29,7 +29,7 @@ public final class IntegratorHardField extends IntegratorHard {
     private static final long serialVersionUID = 1L;
 	public final PotentialCalculationForceSum forceSum;
     private final IteratorDirective fieldsOnly = new IteratorDirective();
-    private final Space space;
+//    private final Space space;
 	
     //XXX not serializable
     private final IteratorDirective.PotentialCriterion noFieldsCriterion = new IteratorDirective.PotentialCriterion() {
@@ -38,14 +38,13 @@ public final class IntegratorHardField extends IntegratorHard {
 	    }
     };
 
-    public IntegratorHardField(ISimulation sim, PotentialMaster potentialMaster) {
-        this(potentialMaster, sim.getRandom(),0.05, 1.0);
+    public IntegratorHardField(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
+        this(potentialMaster, sim.getRandom(),0.05, 1.0, _space);
     }
     
     public IntegratorHardField(PotentialMaster potentialMaster, IRandom random,
-            double timeStep, double temperature) {
-        super(potentialMaster,random,timeStep,temperature);
-        space = potentialMaster.getSpace();
+            double timeStep, double temperature, Space _space) {
+        super(potentialMaster,random,timeStep,temperature, _space);
         forceSum = new PotentialCalculationForceSum();
         //XXX not serializable
         fieldsOnly.addCriterion(new IteratorDirective.PotentialCriterion() {

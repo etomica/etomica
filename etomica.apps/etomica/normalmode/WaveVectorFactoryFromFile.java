@@ -1,7 +1,7 @@
 package etomica.normalmode;
 
+import etomica.api.IVector;
 import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

@@ -11,10 +11,12 @@ import java.awt.event.MouseMotionListener;
 import java.util.LinkedList;
 
 import etomica.EtomicaInfo;
+import etomica.api.IBox;
+import etomica.api.IVector;
 import etomica.atom.AtomFilter;
 import etomica.atom.AtomFilterStatic;
 import etomica.box.Box;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.units.Pixel;
 
 /**
@@ -42,6 +44,7 @@ public class DisplayBox extends Display {
     LinkedList drawables = new LinkedList();  //was ArrayList before Java2 conversion
     private Box box;
     private boolean graphicResizable = true;
+    private final Space space;
             
     //do not instantiate here; instead must be in graphic method
     public DisplayCanvasInterface canvas = null;
@@ -84,8 +87,8 @@ public class DisplayBox extends Display {
      */
     private boolean drawOverflow = false;
   
-    public DisplayBox(Box box) {
-        this(box,new Pixel());
+    public DisplayBox(Box box, Space space) {
+        this(box,space,new Pixel());
     }
     
     /**
@@ -101,8 +104,9 @@ public class DisplayBox extends Display {
      * @param box
      * @param pixel
      */
-    public DisplayBox(Box box, Pixel pixel) {
+    public DisplayBox(Box box, Space space, Pixel pixel) {
         super();
+        this.space = space;
         setPixelUnit(pixel);
         setLabel("Configuration");
 
@@ -262,7 +266,7 @@ public class DisplayBox extends Display {
      *  @return void
      */
     public void addDrawable(Object obj) {
-        if(box.getSpace().D() == 3) drawables.add(obj);
+        if(space.D() == 3) drawables.add(obj);
     }
     /**
      *  
@@ -283,7 +287,7 @@ public class DisplayBox extends Display {
      */
     public void setBox(Box p) {
 
-    	Box oldBox = box;
+    	IBox oldBox = box;
     	box = p;
     	if(p == null) {
             canvas = null;
@@ -293,14 +297,14 @@ public class DisplayBox extends Display {
         int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels() + 1);
         int boxY = 1;
 
-        switch(box.getSpace().D()) {
+        switch(space.D()) {
             case 3:
                 boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 boxX *=1.4;
                 boxY *=1.4;
                 //canvas = new DisplayBoxCanvas3DOpenGL(this, boxX, boxY);
                 if(canvas == null) {
-                	canvas = new DisplayBoxCanvasG3DSys(this);
+                	canvas = new DisplayBoxCanvasG3DSys(this, space);
                     setSize(boxX, boxY);
                 }
                 else {
@@ -311,7 +315,7 @@ public class DisplayBox extends Display {
                 break;
             case 2:
                 boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels() + 1);
-                canvas = new DisplayBoxCanvas2D(this);
+                canvas = new DisplayBoxCanvas2D(this, space);
                 setSize(boxX, boxY);
                 break;
             case 1:
@@ -358,7 +362,7 @@ public class DisplayBox extends Display {
         int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
         int boxY = 1;
 
-        switch(box.getSpace().D()) {
+        switch(space.D()) {
             case 3:
                 boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                 boxX *=1.4;
@@ -490,7 +494,7 @@ public class DisplayBox extends Display {
         toPixels = scale*pixel.toPixels();
         //Determine length and width of drawn image, in pixels
         drawSize[0] = (int)(toPixels*getBox().getBoundary().getBoundingBox().x(0));
-        drawSize[1] = (box.getSpace().D()==1) ? drawingHeight: (int)(toPixels*getBox().getBoundary().getBoundingBox().x(1));
+        drawSize[1] = (space.D()==1) ? drawingHeight: (int)(toPixels*getBox().getBoundary().getBoundingBox().x(1));
         //Find origin for drawing action
         centralOrigin[0] = (int)(getScale()*originShift[0]) + computeOrigin(align[0],drawSize[0],w);
         centralOrigin[1] = (int)(getScale()*originShift[1]) + computeOrigin(align[1],drawSize[1],h);
@@ -537,7 +541,7 @@ public class DisplayBox extends Display {
             int boxX = (int)(box.getBoundary().getBoundingBox().x(0) * pixel.toPixels());
             int boxY = 1;
 
-            switch(box.getSpace().D()) {
+            switch(space.D()) {
                 case 3:
                     boxY = (int)(box.getBoundary().getBoundingBox().x(1) * pixel.toPixels());
                     boxX *=1.4;
@@ -641,7 +645,8 @@ public class DisplayBox extends Display {
         
         InputEventHandler() {
             if(box == null) return;
-            point = box.getSpace().makeVector();
+
+            point = space.makeVector();
         }
         
         public void mouseClicked(MouseEvent evt) {
@@ -654,7 +659,7 @@ public class DisplayBox extends Display {
         public void mousePressed(MouseEvent evt) {
 //			System.out.println("mouse press");
            mouseAction(evt);
-            if(box.getSpace().D() == 3) {
+            if(space.D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());
             }
@@ -671,21 +676,21 @@ public class DisplayBox extends Display {
            float x = evt.getX();
             float y = evt.getY();
             
-            if (rotate  && box.getSpace().D() == 3) {
+            if (rotate  && space.D() == 3) {
                 float xtheta = (y - canvas.getPrevY()) * (360f / canvas.getSize().height);
                 float ytheta = (x - canvas.getPrevX()) * (360f / canvas.getSize().width);
                 canvas.setXRot(canvas.getXRot()+xtheta);
                 canvas.setYRot(canvas.getYRot()+ytheta);
             }
 
-            if (translate && box.getSpace().D() == 3) {
+            if (translate && space.D() == 3) {
                 float xShift = (x - canvas.getPrevX())/-(canvas.getSize().width/canvas.getZoom());
                 float yShift = (canvas.getPrevY() - y)/-(canvas.getSize().height/canvas.getZoom());
                 canvas.setShiftX(xShift+canvas.getShiftX());
                 canvas.setShiftY(yShift+canvas.getShiftY());
             }                                                   
 
-            if (zoom  && box.getSpace().D() == 3) {
+            if (zoom  && space.D() == 3) {
                 float xShift = 1f+(x-canvas.getPrevX())/canvas.getSize().width;
                 float yShift = 1f+(canvas.getPrevY()-y)/canvas.getSize().height;
                 float shift = (xShift+yShift)/2f;
@@ -694,7 +699,7 @@ public class DisplayBox extends Display {
             }
             
             canvas.repaint();
-            if(box.getSpace().D() == 3) {
+            if(space.D() == 3) {
                 canvas.setPrevX(evt.getX());
                 canvas.setPrevY(evt.getY());
             }

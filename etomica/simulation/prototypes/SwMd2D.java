@@ -31,13 +31,10 @@ public class SwMd2D extends Simulation {
     public DisplayBox display;
 
     public SwMd2D() {
-        this(Space2D.getInstance());
-    }
-    public SwMd2D(Space space) {
-        super(space);
+        super(Space2D.getInstance());
         PotentialMaster potentialMaster = new PotentialMaster(space);
         double sigma = 0.8;
-        integrator = new IntegratorHard(this, potentialMaster);
+        integrator = new IntegratorHard(this, potentialMaster, space);
         ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
         activityIntegrate.setSleepPeriod(1);
         integrator.setTimeStep(0.02);
@@ -47,15 +44,15 @@ public class SwMd2D extends Simulation {
         getSpeciesManager().addSpecies(species);
         AtomTypeSphere leafType = (AtomTypeSphere)species.getLeafType();
         leafType.setDiameter(sigma);
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, 50);
-        new ConfigurationLattice(new LatticeOrthorhombicHexagonal()).initializeCoordinates(box);
+        new ConfigurationLattice(new LatticeOrthorhombicHexagonal(), space).initializeCoordinates(box);
         potential = new P2SquareWell(space);
         potential.setCoreDiameter(sigma);
         potentialMaster.addPotential(potential,new AtomType[]{leafType,leafType});
         
         integrator.setBox(box);
-        integrator.addIntervalAction(new BoxImposePbc(box));
+        integrator.addIntervalAction(new BoxImposePbc(box, space));
     } 
 }

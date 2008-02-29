@@ -4,13 +4,13 @@
  */
 package etomica.action;
 
+import etomica.api.IVector;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomPair;
 import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.IAtom;
 import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.util.Debug;
 
@@ -26,6 +26,7 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * to setBox before action can have any effect.
      */
     public BoxInflate(Space space) {
+
         translator = new AtomActionTranslateBy(space);
         groupScaler = new AtomGroupAction(translator);
         moleculeIterator = new AtomIteratorAllMolecules();
@@ -37,8 +38,8 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
     /**
      * Constructs action ready to be performed on the given box. 
      */
-    public BoxInflate(Box box) {
-        this(box.getSpace());
+    public BoxInflate(Box box, Space space) {
+        this(space);
         setBox(box);
     }
 

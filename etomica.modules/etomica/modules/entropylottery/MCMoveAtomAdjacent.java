@@ -1,5 +1,6 @@
 package etomica.modules.entropylottery;
 
+import etomica.api.IVector;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomSourceRandomLeaf;
 import etomica.atom.IAtom;
@@ -9,7 +10,7 @@ import etomica.atom.iterator.AtomIteratorSinglet;
 import etomica.integrator.mcmove.MCMoveBox;
 import etomica.box.Box;
 import etomica.space.BoundaryPeriodic;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.util.IRandom;
 
 /**
@@ -24,10 +25,12 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
     protected IAtom atom;
     protected AtomSource atomSource;
     protected final IRandom random;
+    private final Space space;
 
-    public MCMoveAtomAdjacent(IRandom random) {
+    public MCMoveAtomAdjacent(IRandom random, Space _space) {
         super(null);
         this.random = random;
+        this.space = _space;
         atomSource = new AtomSourceRandomLeaf();
         ((AtomSourceRandomLeaf)atomSource).setRandomNumberGenerator(random);
         perParticleFrequency = true;
@@ -103,7 +106,7 @@ public class MCMoveAtomAdjacent extends MCMoveBox {
     
     public void setBox(Box p) {
         super.setBox(p);
-        translationVector = box.getSpace().makeVector();
+        translationVector = space.makeVector();
         atomSource.setBox(p);
     }
     

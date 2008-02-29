@@ -5,6 +5,7 @@ import java.io.Serializable;
 import etomica.action.Action;
 import etomica.action.AtomAction;
 import etomica.action.BoxImposePbc;
+import etomica.api.IBox;
 import etomica.atom.AtomAgentManager;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomSetSinglet;
@@ -20,6 +21,7 @@ import etomica.nbr.cell.ApiAACell;
 import etomica.nbr.cell.NeighborCellManager;
 import etomica.potential.IPotential;
 import etomica.potential.PotentialArray;
+import etomica.space.Space;
 import etomica.util.Debug;
 
 /**
@@ -41,7 +43,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
      * Configures instance for use by the given PotentialMaster.
      */
     public NeighborListManager(PotentialMasterList potentialMasterList, double range, 
-            Box box) {
+            Box box, Space space) {
         setUpdateInterval(1);
         this.box = box;
         iieCount = updateInterval;
@@ -50,7 +52,7 @@ public class NeighborListManager implements IntegratorNonintervalListener,
         iterator.setDoAllNodes(true);
         neighborCheck = new NeighborCheck(this);
         setPriority(200);
-        pbcEnforcer = new BoxImposePbc();
+        pbcEnforcer = new BoxImposePbc(space);
         pbcEnforcer.setBox(box);
         pbcEnforcer.setApplyToMolecules(false);
         potentialMaster = potentialMasterList;

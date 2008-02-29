@@ -3,10 +3,10 @@ package etomica.atom.iterator;
 import java.io.Serializable;
 
 import etomica.action.AtomsetAction;
+import etomica.api.IBox;
 import etomica.atom.AtomToAtomSetSpecies;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomLeaf;
-import etomica.box.Box;
 import etomica.species.ISpecies;
 
 /**
@@ -41,7 +41,7 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
      * box.
      * @throws NullPointerException if the Box is null
      */
-    public void setBox(Box newBox) {
+    public void setBox(IBox newBox) {
         if (newBox == null) {
             throw new IllegalArgumentException("You passed a null Box.  Now sit in the corner.");
         }
@@ -100,6 +100,6 @@ public class ApiIntraspecies1A extends ApiSequence1A implements
     private final ISpecies species;
 
     private IAtom targetAtom, targetMolecule;
-    protected Box box;
+    protected IBox box;
     protected AtomToAtomSetSpecies atomToAtomSet;
 }

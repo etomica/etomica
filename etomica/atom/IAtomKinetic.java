@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.space.IVector;
+import etomica.api.IVector;
 
 /**
  * Interface for an atom that holds vectors for

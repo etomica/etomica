@@ -19,11 +19,12 @@ import etomica.lattice.crystal.PrimitiveMonoclinic;
 import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.lattice.crystal.PrimitiveTetragonal;
 import etomica.lattice.crystal.PrimitiveTriclinic;
+import etomica.api.IVector;
 import etomica.box.Box;
 import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
-import etomica.space.IVector;
+import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Pixel;
@@ -45,7 +46,8 @@ public class CrystalViewer extends SimulationPanel {
 
     public CrystalViewer() {
         super(APP_NAME);
-        sim = new Simulation(Space3D.getInstance());
+        Space space = Space3D.getInstance();
+        sim = new Simulation(space);
         center = sim.getSpace().makeVector();
 
         species = new SpeciesSpheresMono(sim);
@@ -70,13 +72,13 @@ public class CrystalViewer extends SimulationPanel {
         
         box  = new Box(new BoundaryDeformableLattice(lattices[0].getPrimitive(),
         		                                         (etomica.util.IRandom)null,
-        		                                         boxSize));
+        		                                         boxSize), space);
         sim.addBox(box);
 
         String[] latticeNames = new String[]{
                 "Simple Cubic", "Tetragonal", "Hexagonal", "Orthorhombic", "Monoclinic", "Triclinic", "FCC", "BCC", "HCP", "Diamond"};
 
-        displayBox = new DisplayBox(box);
+        displayBox = new DisplayBox(box, space);
         displayBox.setPixelUnit(new Pixel(20));
         displayBox.setResizeOnNewBox(false);
 
@@ -85,7 +87,7 @@ public class CrystalViewer extends SimulationPanel {
         
         clipPlaneEditor = new ClipPlaneEditor(latticePlane, displayBox);
         
-        latticeEditor = new LatticeEditor(this, lattices, latticeNames);
+        latticeEditor = new LatticeEditor(this, lattices, latticeNames, space);
         
         JTabbedPane controlTabs = new JTabbedPane();
         controlTabs.add("Crystal", latticeEditor.getPanel());

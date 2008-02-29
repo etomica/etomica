@@ -1,6 +1,6 @@
 package etomica.atom;
 
-import etomica.box.Box;
+import etomica.api.IBox;
 
 public interface IAtom {
 
@@ -9,7 +9,7 @@ public interface IAtom {
      * index (with the Box).  This method should only be called by the
      * SpeciesMaster.
      */
-    public void setGlobalIndex(Box box);
+    public void setGlobalIndex(IBox box);
 
     /**
      * Returns the global index (within the Box) of this Atom.  The global

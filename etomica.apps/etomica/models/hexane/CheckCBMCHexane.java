@@ -1,6 +1,7 @@
 package etomica.models.hexane;
 
 import etomica.action.Action;
+import etomica.api.IVector;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
@@ -8,7 +9,7 @@ import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.data.meter.MeterPotentialEnergy;
 import etomica.potential.PotentialMaster;
-import etomica.space.IVector;
+import etomica.space.Space;
 
 /**
  * 
@@ -17,7 +18,7 @@ import etomica.space.IVector;
  */
 public class CheckCBMCHexane implements Action {
 
-    public CheckCBMCHexane(Box p, PotentialMaster potentialMaster) {
+    public CheckCBMCHexane(Box p, PotentialMaster potentialMaster, Space space) {
         box = p;
         energyMeter = new MeterPotentialEnergy(potentialMaster);
         energyMeter.setBox(box);
@@ -25,10 +26,10 @@ public class CheckCBMCHexane implements Action {
         moleculeIterator = new AtomIteratorAllMolecules(box);
         moleculeIterator.reset();
 
-        vex = box.getSpace().makeVector();
-        temp = box.getSpace().makeVector();
-        axial = box.getSpace().makeVector();
-        radial = box.getSpace().makeVector();
+        vex = space.makeVector();
+        temp = space.makeVector();
+        axial = space.makeVector();
+        radial = space.makeVector();
         booink = 0;
 
         phi = 109.47 * 2.0 * Math.PI / 360.0;

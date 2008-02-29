@@ -47,7 +47,7 @@ public class SimHarmonic extends Simulation {
         species = new SpeciesSpheresMono(this);
         getSpeciesManager().addSpecies(species);
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species, numAtoms);
 
@@ -73,11 +73,11 @@ public class SimHarmonic extends Simulation {
         }
         box.setBoundary(boundary);
 
-        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive);
+        coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, space);
         coordinateDefinition.initializeCoordinates(nCells);
         
         if(D == 1) {
-            normalModes = new NormalModes1DHR();
+            normalModes = new NormalModes1DHR(space.D());
         } else {
             normalModes = new NormalModesFromFile(filename, D);
         }
@@ -141,7 +141,7 @@ public class SimHarmonic extends Simulation {
         if (D == 1) {
             p2 = new P2XOrder(sim.getSpace(), (Potential2HardSpherical)p2);
         }
-        PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim) : new PotentialMaster(sim.getSpace()));
+        PotentialMaster potentialMaster = (D == 1 ? new PotentialMasterList(sim, sim.space) : new PotentialMaster(sim.getSpace()));
         potentialMaster.addPotential(p2, new AtomType[]{sim.species.getLeafType(),sim.species.getLeafType()});
 
         if (potentialMaster instanceof PotentialMasterList) {
@@ -217,7 +217,7 @@ public class SimHarmonic extends Simulation {
 
             //graphic simulation -- set up window
 //            sim.getDefaults().pixelUnit = new Pixel(0.05);
-            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME);
+            SimulationGraphic simG = new SimulationGraphic(sim, APP_NAME, sim.space);
             ArrayList dataStreamPumps = simG.getController().getDataStreamPumps();
             dataStreamPumps.add(pump);
             dataStreamPumps.add(pumpHarmonic);

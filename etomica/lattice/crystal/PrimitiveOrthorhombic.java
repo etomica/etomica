@@ -1,7 +1,7 @@
 package etomica.lattice.crystal;
+import etomica.api.IVector;
 import etomica.math.geometry.Cuboid;
 import etomica.math.geometry.Polytope;
-import etomica.space.IVector;
 import etomica.space.Space;
 
 /**

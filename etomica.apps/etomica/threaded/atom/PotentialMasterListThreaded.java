@@ -1,5 +1,6 @@
 package etomica.threaded.atom;
 
+import etomica.api.IBox;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSet;
 import etomica.atom.AtomTypeMolecule;
@@ -29,31 +30,31 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
 	
 	
 	public PotentialMasterListThreaded(ISimulation sim) {
-		super(sim);
+		super(sim, sim.getSpace());
 		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range) {
-		super(sim, range);
+		super(sim, range, sim.getSpace());
 		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
 			AtomPositionDefinition positionDefinition) {
-		super(sim, range, positionDefinition);
+		super(sim, range, positionDefinition, sim.getSpace());
 		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
 			BoxAgentSourceCellManager boxAgentSource) {
-		super(sim, range, boxAgentSource);
+		super(sim, range, boxAgentSource, sim.getSpace());
 		// TODO Auto-generated constructor stub
 	}
 
 	public PotentialMasterListThreaded(ISimulation sim, double range,
 			BoxAgentSourceCellManager boxAgentSource,
 			BoxAgentManager agentManager) {
-		super(sim, range, boxAgentSource, agentManager);
+		super(sim, range, boxAgentSource, agentManager, sim.getSpace());
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -114,7 +115,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         }
     }
 
-    protected void calculateThreaded(Box box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
+    protected void calculateThreaded(IBox box, IteratorDirective id, IPotentialCalculationThreaded pc, NeighborListManager neighborManager) {
 
         //cannot use AtomIterator field because of recursive call
         AtomSet list = box.getMoleculeList();
@@ -158,7 +159,7 @@ public class PotentialMasterListThreaded extends PotentialMasterList {
         
     }
 	
-	public void setNumThreads(int t, Box box){
+	public void setNumThreads(int t, IBox box){
 		threads = new PotentialMasterListWorker[t];
 				
         for (int i=0; i<t; i++){

@@ -1,6 +1,7 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.api.IVector;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
@@ -22,7 +23,6 @@ import etomica.nbr.list.NeighborListManager;
 import etomica.potential.P2WCA;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
-import etomica.space.IVector;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
@@ -72,7 +72,7 @@ public class DCVGCMD extends Simulation {
     private DCVGCMD(Space space) {
         //Instantiate classes
         super(space, true);
-        PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2);
+        PotentialMasterHybrid potentialMaster = new PotentialMasterHybrid(this, 5.2, space);
         double mass = 40.;
         double sigma = 3.0;
         double epsilon = 119.8;
@@ -167,7 +167,7 @@ public class DCVGCMD extends Simulation {
         potentialMaster.getPotentialMasterList().setCriterion(potentialwallPorousB1, new CriterionType(criterionWallB1, speciestype1));
 
 
-        box = new Box(this);
+        box = new Box(this, space);
         addBox(box);
         box.setNMolecules(species1, 20);
         box.setNMolecules(species2, 20);
@@ -176,7 +176,7 @@ public class DCVGCMD extends Simulation {
         double temperature = Kelvin.UNIT.toSim(500.);
         integratorDCV = new IntegratorDCVGCMD(potentialMaster, temperature, species1,
                 species2);
-        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster);
+        final IntegratorVelocityVerlet integratorMD = new IntegratorVelocityVerlet(this, potentialMaster, space);
         final IntegratorMC integratorMC = new IntegratorMC(this, potentialMaster);
         integratorDCV.setBox(box);
 
@@ -190,20 +190,20 @@ public class DCVGCMD extends Simulation {
 
         integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
-        integratorMD.setMeterTemperature(new MeterTemperature(speciesTube));
+        integratorMD.setMeterTemperature(new MeterTemperature(speciesTube, space.D()));
         //integrator.setSleepPeriod(1);
         integratorMD.setTimeStep(0.005);
         //integrator.setInterval(10);
         final NeighborListManager nbrManager = potentialMaster.getNeighborManager(box);
         integratorMD.addIntervalAction(nbrManager);
         integratorMD.addNonintervalListener(nbrManager);
-        box.setBoundary(new BoundaryRectangularSlit(this, 2));
+        box.setBoundary(new BoundaryRectangularSlit(this, 2, space));
 //        box.setBoundary(new BoundaryRectangularPeriodic(space));
         box.setDimensions(new Vector3D(40, 40, 80));
         // Crystal crystal = new Crystal(new PrimitiveTetragonal(space, 20,
         // 40),new BasisMonatomic(3));
         double length = 0.25;
-        config = new ConfigurationLatticeTube(new LatticeCubicFcc(), length);
+        config = new ConfigurationLatticeTube(new LatticeCubicFcc(), length, space);
         config.setSpeciesSpheres(new SpeciesSpheresMono[]{species1, species2});
         config.setSpeciesTube(speciesTube);
         config.initializeCoordinates(box);
@@ -252,7 +252,7 @@ public class DCVGCMD extends Simulation {
         meterFlux3.setBox(box);
         fluxMeters = new DataSourceGroup(new MeterFlux[] { meterFlux0, meterFlux1, meterFlux2, meterFlux3 });
 
-        thermometer = new MeterTemperature(speciesTube);
+        thermometer = new MeterTemperature(speciesTube, space.D());
         thermometer.setBox(box);
 
         density1 = new MeterNMolecules();
