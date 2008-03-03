@@ -130,10 +130,14 @@ public class BoxImposePbc extends BoxActionAdapter {
 	 */
 	public void setApplyToMolecules(boolean applyToMolecules) {
 		this.applyToMolecules = applyToMolecules;
-		if (applyToMolecules)
+		if (applyToMolecules) {
 			iterator = new AtomIteratorAllMolecules();
-		else
+	        translator = new AtomActionTranslateBy(space);
+	        moleculeTranslator = new AtomGroupAction(translator);
+		}
+		else {
 			iterator = new AtomIteratorLeafAtoms();
+		}
         if (box != null) {
             iterator.setBox(box);
         }
