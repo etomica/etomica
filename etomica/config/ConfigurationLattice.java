@@ -1,13 +1,12 @@
 package etomica.config;
 
 import etomica.action.AtomActionTranslateTo;
+import etomica.atom.AtomSet;
 import etomica.api.IVector;
 import etomica.atom.AtomTypeMolecule;
 import etomica.atom.AtomTypeSphere;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomPositioned;
 import etomica.atom.IMolecule;
-import etomica.atom.iterator.AtomIteratorAllMolecules;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
 import etomica.lattice.BravaisLatticeCrystal;
@@ -19,6 +18,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.SpeciesSpheresMono;
 
 /**
@@ -81,8 +81,8 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
      * lattice.  
      */
     public void initializeCoordinates(Box box) {
-        AtomIteratorAllMolecules atomIterator = new AtomIteratorAllMolecules(box);
-        int sumOfMolecules = atomIterator.size();
+        AtomSet moleculeList = box.getMoleculeList();
+        int sumOfMolecules = moleculeList.getAtomCount();
         if (sumOfMolecules == 0) {
             return;
         }
@@ -155,22 +155,17 @@ public class ConfigurationLattice implements Configuration, java.io.Serializable
         myLat = new MyLattice(lattice, latticeScaling, offset);
 
         // Place molecules
-        atomIterator.reset();
         indexIterator.reset();
-        for (IAtom a = atomIterator.nextAtom(); a != null;
-             a = atomIterator.nextAtom()) {
+        for (int i=0; i<sumOfMolecules; i++) {
+            IMolecule a = (IMolecule)moleculeList.getAtom(i);
             int[] ii = indexIterator.next();
-            if (a instanceof IMolecule) {
-                // initialize coordinates of child atoms
-            	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
-                Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
-                config.initializePositions(((IMolecule)a).getChildList());
-                atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
-                atomActionTranslateTo.actionPerformed(a);
-            }
-            else{
-                ((IAtomPositioned)a).getPosition().E((IVector)myLat.site(ii));
-            }
+            // initialize coordinates of child atoms
+        	atomActionTranslateTo.setAtomPositionDefinition(a.getType().getPositionDefinition());
+            Conformation config = ((AtomTypeMolecule)a.getType()).getConformation();
+            config.initializePositions(a.getChildList());
+
+            atomActionTranslateTo.setDestination((IVector)myLat.site(ii));
+            atomActionTranslateTo.actionPerformed(a);
         }
     }
 
