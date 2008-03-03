@@ -20,14 +20,18 @@ import etomica.species.SpeciesSignature;
 public class SpeciesWater3P extends Species {
     
     public SpeciesWater3P(Space space) {
-       super(new AtomTypeMolecule(new AtomPositionGeometricCenter(space)));
+        this(space, new AtomTypeMolecule(new AtomPositionGeometricCenter(space)));
+    }
+    
+    public SpeciesWater3P(Space space, AtomTypeMolecule moleculeType) {
+       super(moleculeType);
        this.space = space;
        hType = new AtomTypeSphere(Hydrogen.INSTANCE, 2.0);
        oType = new AtomTypeSphere(Oxygen.INSTANCE, 3.167);
        atomType.addChildType(hType);
        atomType.addChildType(oType);
 
-       atomType.setConformation(new ConformationWater3P(space)); 
+       atomType.setConformation(new ConformationWater3P(space));
     }
     
     public IMolecule makeMolecule() {

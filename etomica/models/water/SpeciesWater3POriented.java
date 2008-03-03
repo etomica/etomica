@@ -1,6 +1,7 @@
 package etomica.models.water;
 
 import etomica.atom.AtomLeaf;
+import etomica.atom.AtomTypeMoleculeOriented;
 import etomica.atom.IMolecule;
 import etomica.atom.MoleculeOriented;
 import etomica.atom.MoleculeOrientedDynamic;
@@ -9,8 +10,9 @@ import etomica.space.Space;
 public class SpeciesWater3POriented extends SpeciesWater3P {
 
     public SpeciesWater3POriented(Space space, boolean isDynamic) {
-        super(space);
+        super(space, new AtomTypeMoleculeOriented(space));
         this.isDynamic = isDynamic;
+        ((AtomTypeMoleculeOriented)atomType).init();
     }
 
     public IMolecule makeMolecule() {
