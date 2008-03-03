@@ -19,7 +19,7 @@ import etomica.space.Space;
  * be moved to the central-image location (inside the boundaries).
  */
 
-public final class BoxImposePbc extends BoxActionAdapter {
+public class BoxImposePbc extends BoxActionAdapter {
 
 	/**
 	 * Creates the action without specifying a box. Requires call to setBox
