@@ -1,7 +1,6 @@
 package etomica.action;
 
 import etomica.api.IVector;
-import etomica.atom.AtomPositionDefinition;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomPositioned;
 import etomica.atom.iterator.AtomIterator;
@@ -55,7 +54,7 @@ public class BoxImposePbc extends BoxActionAdapter {
                     position.PE(shift);
                 }
                 else {
-                    shift = boundary.centralImage(moleculePosition.position(molecule));
+                    shift = boundary.centralImage(molecule.getType().getPositionDefinition().position(molecule));
                 }
                 if (!shift.isZero()) {
                     translator.setTranslationVector(shift);
@@ -143,18 +142,10 @@ public class BoxImposePbc extends BoxActionAdapter {
         }
 	}
 
-    public void setMoleculePositionDefintion(AtomPositionDefinition positionDefinition) {
-        moleculePosition = positionDefinition;
-    }
-    public AtomPositionDefinition getMoleculePositionDefintion() {
-        return moleculePosition;
-    }
-    
     private static final long serialVersionUID = 1L;
 	private AtomIteratorBoxDependent iterator;
     private AtomActionTranslateBy translator;
     private AtomGroupAction moleculeTranslator;
-    private AtomPositionDefinition moleculePosition;
     private Space space;
 
 	private boolean applyToMolecules;
