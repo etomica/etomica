@@ -7,6 +7,7 @@ import etomica.atom.IMolecule;
 import etomica.box.Box;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.IndexIteratorRectangular;
+import etomica.lattice.crystal.Primitive;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.species.ISpecies;
@@ -30,6 +31,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
     double dist;
     protected ISpecies fixedSpecies, mobileSpecies;
     private Space space;
+    IVector [] reciprocal, origin;
+    IVector normal;
     
     public GrainBoundaryTiltConfiguration(BravaisLatticeCrystal aLatticeTOP,
     		    BravaisLatticeCrystal aLatticeBOTTOM, ISpecies [] aSpecies,
@@ -85,7 +88,6 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         rotT.setAxial(axis, angle);
         rotT.TE(eulerRotationL2BoxTOP);
         eulerRotationL2BoxTOP.E(rotT);
-        
         eulerRotationB2LatticeTOP.E(eulerRotationL2BoxTOP);
         eulerRotationB2LatticeTOP.invert();
                 
@@ -96,12 +98,40 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         
         RotationTensor rotT = latticeTOP.getSpace().makeRotationTensor();       
         rotT.setAxial(axis, -angle);
-        eulerRotationL2BoxBOTTOM.TE(rotT);
+        rotT.TE(eulerRotationL2BoxBOTTOM);
         eulerRotationL2BoxBOTTOM.E(rotT);
-        
         eulerRotationB2LatticeBOTTOM.E(eulerRotationL2BoxBOTTOM);
         eulerRotationB2LatticeBOTTOM.invert();
                 
+    }
+    
+    /**
+     * Allows a user to specify a plane for GB 
+     */
+    public void setRotationPLANE(int [] m, Primitive p){
+    	reciprocal = new IVector[space.D()];
+    	origin = new IVector[space.D()];
+    	for(int i=0; i<space.D(); i++){
+	    	reciprocal[i] = space.makeVector();
+	    	origin[i] = space.makeVector();
+	    	origin[i].setX(i, 1);
+    	}
+    	reciprocal = p.makeReciprocal().vectors();
+    	normal = space.makeVector();
+    	for(int i=0; i<space.D(); i++){
+    		normal.PEa1Tv1(m[i], reciprocal[i]);
+    	}
+    	
+    	//rotate Miller plane into X axis, about Z axis (through XY plane).
+    	double theta = Math.acos( normal.dot(origin[2]) / Math.sqrt(normal.squared()) );
+    	setRotationTOP(2,theta);
+    	setRotationBOTTOM(2,-theta);
+    	
+    	//rotate Miller plane into Z axis, about Y axis (through XZ plane).
+    	double phi = Math.acos( normal.dot(origin[1]) / Math.sqrt(normal.squared()) );
+    	setRotationTOP(1,phi);
+    	setRotationBOTTOM(1,phi);
+    	
     }
     
     public void initializeCoordinates(Box box){
@@ -258,8 +288,8 @@ public class GrainBoundaryTiltConfiguration implements Configuration {
         /**
          * REMOVE OVERLAPPING ATOMS AT GRAIN BOUNDARY INTERFACE
          */
-        dist = 0.5;
-        
+
+        dist = 1.0;
         IVector rij = space.makeVector();
         
         int removeCount = 0;
