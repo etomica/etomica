@@ -311,6 +311,12 @@ public class DevicePlotPoints {
         updateAction.actionPerformed();
 
 	}
+	
+	public void setSliderTextboxesEditable(boolean isSliderTextboxesEditable) {
+	    for (int i=0; i<funcSlider.length; i++) {
+	        funcSlider[i].setEditValues(isSliderTextboxesEditable);
+	    }
+	}
 
 	/**
 	 * Sets the column headers to the given strings and fires an event
