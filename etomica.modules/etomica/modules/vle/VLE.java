@@ -16,6 +16,8 @@ import etomica.graphics.DisplayTextBoxesCAE;
 import etomica.graphics.SimulationGraphic;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
+import etomica.units.Angstrom;
+import etomica.units.CompoundUnit;
 import etomica.units.Debye;
 import etomica.units.Kelvin;
 import etomica.units.Liter;
@@ -24,6 +26,7 @@ import etomica.units.Pascal;
 import etomica.units.Pixel;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
+import etomica.units.Unit;
 import etomica.units.UnitRatio;
 import etomica.util.HistoryCollapsingAverage;
 
@@ -31,12 +34,15 @@ public class VLE extends SimulationGraphic {
 
     private final static String APP_NAME = "Virial / VLE";
     private final static int REPAINT_INTERVAL = 200;
+    public boolean showNumMoleculesPlots = false;
 
     public VLE(final VLESim sim, Space _space) {
         super(sim, TABBED_PANE, APP_NAME, REPAINT_INTERVAL, _space);
 
         getDisplayBox(sim.boxLiquid).setPixelUnit(new Pixel(8));
+        getPanel().tabbedPane.setTitleAt(0, "Liquid");
         getDisplayBox(sim.boxVapor).setPixelUnit(new Pixel(8));
+        getPanel().tabbedPane.setTitleAt(1, "Vapor");
 
         DeviceThermoSliderGEMC thermoSlider = new DeviceThermoSliderGEMC(sim.getController());
         thermoSlider.setUnit(Kelvin.UNIT);
@@ -79,14 +85,14 @@ public class VLE extends SimulationGraphic {
         epsilonSlider.doUpdate();
 
         DeviceSlider momentSlider = new DeviceSlider(sim.getController(), new ModifierGeneral(sim, "moment"));
-        momentSlider.setUnit(Debye.UNIT);
+        momentSlider.setUnit(new CompoundUnit(new Unit[]{Debye.UNIT, Angstrom.UNIT}, new double[]{1,1}));
         momentSlider.setPrecision(2);
         momentSlider.setMinimum(3);
         momentSlider.setMaximum(6);
         momentSlider.setShowValues(true);
         momentSlider.setEditValues(true);
         momentSlider.setShowBorder(true);
-        momentSlider.setLabel("moment (Debye)");
+        momentSlider.setLabel("Quadrupole Moment (Debye A)");
         momentSlider.doUpdate();
         add(momentSlider);
 
@@ -96,6 +102,7 @@ public class VLE extends SimulationGraphic {
         DataPump pumpLiquidDensity = new DataPump(meterDensityLiquid, fork);
         getController().getDataStreamPumps().add(pumpLiquidDensity);
         AccumulatorAverageCollapsing avgLiquidDensity = new AccumulatorAverageCollapsing();
+        avgLiquidDensity.setPushInterval(5);
         fork.addDataSink(avgLiquidDensity);
 //        AccumulatorHistogram histogramLiquidDensity = new AccumulatorHistogram(new HistogramExpanding(0.01));
 //        fork.addDataSink(histogramLiquidDensity);
@@ -112,6 +119,7 @@ public class VLE extends SimulationGraphic {
         DataPump pumpVaporDensity = new DataPump(meterDensityVapor, fork);
         getController().getDataStreamPumps().add(pumpVaporDensity);
         AccumulatorAverageCollapsing avgVaporDensity = new AccumulatorAverageCollapsing();
+        avgVaporDensity.setPushInterval(5);
         fork.addDataSink(avgVaporDensity);
 //        AccumulatorHistogram histogramVaporDensity = new AccumulatorHistogram(new HistogramExpanding(0.001));
 //        fork.addDataSink(histogramVaporDensity);
@@ -163,32 +171,34 @@ public class VLE extends SimulationGraphic {
 //      historyDensityVapor.setPushInterval(1);
 //      densityHistoryPlot.setLegend(new DataTag[]{meterDensityLiquid.getTag()}, "Liquid");
 //      densityHistoryPlot.setLegend(new DataTag[]{meterDensityVapor.getTag()}, "Vapor");
-        
-        MeterNMolecules meterNMoleculesLiquid = new MeterNMolecules();
-        meterNMoleculesLiquid.setBox(sim.boxLiquid);
-        AccumulatorHistory historyNMoleculesLiquid = new AccumulatorHistory(new HistoryCollapsingAverage(100));
-        historyNMoleculesLiquid.setTimeDataSource(stepCounter);
-        DataPump pumpNMoleculesLiquid = new DataPump(meterNMoleculesLiquid, historyNMoleculesLiquid);
-        sim.integratorLiquid.addIntervalAction(pumpNMoleculesLiquid);
-        sim.integratorLiquid.setActionInterval(pumpNMoleculesLiquid, 100);
-        getController().getDataStreamPumps().add(pumpNMoleculesLiquid);
-        MeterNMolecules meterNMoleculesVapor = new MeterNMolecules();
-        meterNMoleculesVapor.setBox(sim.boxVapor);
-        AccumulatorHistory historyNMoleculesVapor = new AccumulatorHistory(new HistoryCollapsingAverage(100));
-        historyNMoleculesVapor.setTimeDataSource(stepCounter);
-        DataPump pumpNMoleculesVapor = new DataPump(meterNMoleculesVapor, historyNMoleculesVapor);
-        sim.integratorVapor.addIntervalAction(pumpNMoleculesVapor);
-        sim.integratorVapor.setActionInterval(pumpNMoleculesVapor, 100);
-        getController().getDataStreamPumps().add(pumpNMoleculesVapor);
-        
-        DisplayPlot nMoleculesLiquidHistoryPlot = new DisplayPlot();
-        nMoleculesLiquidHistoryPlot.setLabel("# of Liquid Atoms");
-        add(nMoleculesLiquidHistoryPlot);
-        historyNMoleculesLiquid.addDataSink(nMoleculesLiquidHistoryPlot.getDataSet().makeDataSink());
-        DisplayPlot nMoleculesVaporHistoryPlot = new DisplayPlot();
-        nMoleculesVaporHistoryPlot.setLabel("# of Vapor Atoms");
-        add(nMoleculesVaporHistoryPlot);
-        historyNMoleculesVapor.addDataSink(nMoleculesVaporHistoryPlot.getDataSet().makeDataSink());
+
+        if (showNumMoleculesPlots) {
+            MeterNMolecules meterNMoleculesLiquid = new MeterNMolecules();
+            meterNMoleculesLiquid.setBox(sim.boxLiquid);
+            AccumulatorHistory historyNMoleculesLiquid = new AccumulatorHistory(new HistoryCollapsingAverage(100));
+            historyNMoleculesLiquid.setTimeDataSource(stepCounter);
+            DataPump pumpNMoleculesLiquid = new DataPump(meterNMoleculesLiquid, historyNMoleculesLiquid);
+            sim.integratorLiquid.addIntervalAction(pumpNMoleculesLiquid);
+            sim.integratorLiquid.setActionInterval(pumpNMoleculesLiquid, 100);
+            getController().getDataStreamPumps().add(pumpNMoleculesLiquid);
+            MeterNMolecules meterNMoleculesVapor = new MeterNMolecules();
+            meterNMoleculesVapor.setBox(sim.boxVapor);
+            AccumulatorHistory historyNMoleculesVapor = new AccumulatorHistory(new HistoryCollapsingAverage(100));
+            historyNMoleculesVapor.setTimeDataSource(stepCounter);
+            DataPump pumpNMoleculesVapor = new DataPump(meterNMoleculesVapor, historyNMoleculesVapor);
+            sim.integratorVapor.addIntervalAction(pumpNMoleculesVapor);
+            sim.integratorVapor.setActionInterval(pumpNMoleculesVapor, 100);
+            getController().getDataStreamPumps().add(pumpNMoleculesVapor);
+            
+            DisplayPlot nMoleculesLiquidHistoryPlot = new DisplayPlot();
+            nMoleculesLiquidHistoryPlot.setLabel("# of Liquid Atoms");
+            add(nMoleculesLiquidHistoryPlot);
+            historyNMoleculesLiquid.addDataSink(nMoleculesLiquidHistoryPlot.getDataSet().makeDataSink());
+            DisplayPlot nMoleculesVaporHistoryPlot = new DisplayPlot();
+            nMoleculesVaporHistoryPlot.setLabel("# of Vapor Atoms");
+            add(nMoleculesVaporHistoryPlot);
+            historyNMoleculesVapor.addDataSink(nMoleculesVaporHistoryPlot.getDataSet().makeDataSink());
+        }
         
         MeterPressure meterPressureLiquid = new MeterPressure(sim.getSpace());
         meterPressureLiquid.setIntegrator(sim.integratorLiquid);
@@ -196,7 +206,7 @@ public class VLE extends SimulationGraphic {
         DataPump pumpPressureLiquid = new DataPump(meterPressureLiquid, fork);
         getController().getDataStreamPumps().add(pumpPressureLiquid);
         AccumulatorAverageCollapsing avgPressureLiquid = new AccumulatorAverageCollapsing();
-        avgPressureLiquid.setPushInterval(10);
+        avgPressureLiquid.setPushInterval(1);
         fork.addDataSink(avgPressureLiquid);
         AccumulatorHistory historyPressureLiquid = new AccumulatorHistory(new HistoryCollapsingAverage(100));
         historyPressureLiquid.setTimeDataSource(stepCounter);
@@ -209,7 +219,7 @@ public class VLE extends SimulationGraphic {
         DataPump pumpPressureVapor = new DataPump(meterPressureVapor, fork);
         getController().getDataStreamPumps().add(pumpPressureVapor);
         AccumulatorAverageCollapsing avgPressureVapor = new AccumulatorAverageCollapsing();
-        avgPressureVapor.setPushInterval(10);
+        avgPressureVapor.setPushInterval(1);
         fork.addDataSink(avgPressureVapor);
         AccumulatorHistory historyPressureVapor = new AccumulatorHistory(new HistoryCollapsingAverage(100));
         historyPressureVapor.setTimeDataSource(stepCounter);
