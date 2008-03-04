@@ -52,7 +52,7 @@ public class LjMd2D extends Simulation {
         //explicit implementation of elementCoordinator activities
         integrator.setBox(box);
 		
-		energy = new MeterEnergy(potentialMaster);
+		energy = new MeterEnergy(potentialMaster, box);
 //		energy.setHistorying(true);
 //		
 //		energy.getHistory().setHistoryLength(500);

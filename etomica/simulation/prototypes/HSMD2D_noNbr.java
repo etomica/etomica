@@ -90,8 +90,7 @@ public class HSMD2D_noNbr extends Simulation {
 //          new AccumulatorAverage.Type[] {AccumulatorAverage.AVERAGE}).
 //                                      addDataSink(pressureHistory);
         
-        MeterTemperature meterTemperature = new MeterTemperature(space.D());
-        meterTemperature.setBox(box);
+        MeterTemperature meterTemperature = new MeterTemperature(box, space.D());
         temperatureAverage = new AccumulatorAverageCollapsing();
         DataPump temperaturePump = new DataPump(meterTemperature, temperatureAverage);
         integrator.addIntervalAction(temperaturePump);
