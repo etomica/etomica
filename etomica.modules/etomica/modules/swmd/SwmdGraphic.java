@@ -306,8 +306,7 @@ public class SwmdGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
-		MeterTemperature thermometer = new MeterTemperature(space.D());
-        thermometer.setBox(sim.box);
+		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
         DataFork temperatureFork = new DataFork();
         final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
         sim.integrator.addIntervalAction(temperaturePump);
@@ -335,8 +334,7 @@ public class SwmdGraphic extends SimulationGraphic {
         dataStreamPumps.add(densityPump);
 	    densityBox.setLabel("Density");
 	    
-		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential());
-        eMeter.setBox(sim.box);
+		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential(), sim.box);
         final AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
         final DataSinkExcludeOverlap eExcludeOverlap = new DataSinkExcludeOverlap();

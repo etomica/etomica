@@ -250,7 +250,6 @@ public class IntegratorHard extends IntegratorMD implements AgentSource, BoxList
                     && Math.abs(PE - currentPotentialEnergy) > 1.e-9) {
                 throw new RuntimeException("potential energy of "+box+" is wrong. it's actually "+PE+" but I thought it was "+currentPotentialEnergy);
             }
-            meterKE.setBox(box);
             double KE = meterKE.getDataAsScalar();
             if (Math.abs(KE - currentKineticEnergy) > 1.e-8) {
                 throw new RuntimeException("kinetic energy of "+box+" is wrong. it's actually "+KE+" but I thought it was "+currentKineticEnergy);

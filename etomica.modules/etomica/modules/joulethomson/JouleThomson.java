@@ -46,7 +46,6 @@ import etomica.lattice.SpaceLattice;
 import etomica.modifier.ModifierFunctionWrapper;
 import etomica.modifier.ModifierGeneral;
 import etomica.space.Space;
-import etomica.space2d.Space2D;
 import etomica.units.Bar;
 import etomica.units.CompoundUnit;
 import etomica.units.Joule;
@@ -229,8 +228,7 @@ public class JouleThomson extends SimulationGraphic {
         pressureFork.addDataSink(pressureAverage);
         pressureAverage.setPushInterval(10);
         
-        MeterTemperature meterTemperature = new MeterTemperature(space.D());
-        meterTemperature.setBox(sim.box);
+        MeterTemperature meterTemperature = new MeterTemperature(sim.box, space.D());
         DataFork temperatureFork = new DataFork();
         AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(time);

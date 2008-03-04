@@ -77,8 +77,7 @@ public class Multiharmonic extends Simulation {
         dataPump = new DataPump(meter, accumulator);
         integrator.addIntervalAction(dataPump);
         
-        meterEnergy = new MeterEnergy(potentialMaster);
-        meterEnergy.setBox(box);
+        meterEnergy = new MeterEnergy(potentialMaster, box);
         accumulatorEnergy = new AccumulatorAverageCollapsing();
         dataPumpEnergy = new DataPump(meterEnergy, accumulatorEnergy);
         integrator.addIntervalAction(dataPumpEnergy);

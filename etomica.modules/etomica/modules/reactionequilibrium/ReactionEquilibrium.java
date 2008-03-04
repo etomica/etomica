@@ -89,8 +89,7 @@ public class ReactionEquilibrium extends Simulation implements AgentSource {
         meterDimerFraction = new MeterDimerFraction(agentManager);
         meterDimerFraction.setSpeciesA(speciesA);
         meterDimerFraction.setBox(box);
-        thermometer = new MeterTemperature(space.D());
-        thermometer.setBox(box);
+        thermometer = new MeterTemperature(box, space.D());
         
         activityIntegrate = new ActivityIntegrate(integratorHard1);
         activityIntegrate.setSleepPeriod(1);

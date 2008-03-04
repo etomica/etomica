@@ -39,7 +39,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
         setThermostatInterval(100);
         meterKE = new MeterKineticEnergy();
         atomActionRandomizeVelocity = new AtomActionRandomizeVelocity(temperature, random);
-        meterTemperature = new MeterTemperature(space.D());
         momentum = potentialMaster.getSpace().makeVector();
     }
 
@@ -58,8 +57,11 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
             box.getEventManager().removeListener(this);
         }
         super.setBox(p);
-        meterTemperature.setBox(p);
-        meterKE.setBox(p);
+        meterTemperature = new MeterTemperature(p, space.D());
+        meterTemperature.setKineticEnergyMeter(meterKE);
+        if (meterKE instanceof MeterKineticEnergy) {
+            ((MeterKineticEnergy)meterKE).setBox(p);
+        }
         box.getEventManager().addListener(this);
     }
 
@@ -70,7 +72,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
         catch (ConfigurationOverlapException e) {}
         currentTime = 0;
         thermostatCount = 1;
-        meterKE.setBox(box);
         doThermostat();
     }
     
@@ -78,7 +79,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
      * reset the integrator's kinetic energy tracker
      */
     public void reset() throws ConfigurationOverlapException {
-        meterKE.setBox(box);
         currentKineticEnergy = meterKE.getDataAsScalar();
         super.reset();
     }
@@ -343,7 +343,6 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
      */
     public void setMeterTemperature(MeterTemperature meter) {
         meterTemperature = meter;
-        meter.setBox(box);
     }
     
     public void actionPerformed(BoxEvent event) {
@@ -364,7 +363,7 @@ public abstract class IntegratorMD extends IntegratorBox implements BoxListener 
     protected double currentKineticEnergy;
     protected ThermostatType thermostat;
     private int thermostatCount, thermostatInterval;
-    protected MeterKineticEnergy meterKE;
+    protected DataSourceScalar meterKE;
     private AtomActionRandomizeVelocity atomActionRandomizeVelocity;
     private MeterTemperature meterTemperature;
     private final IVector momentum;

@@ -88,8 +88,7 @@ public class ChainEquilibriumSim extends Simulation implements AgentSource {
 
 		// **** Setting Up the thermometer Meter *****
 		
-		thermometer = new MeterTemperature(space.D());
-		thermometer.setBox(box);
+		thermometer = new MeterTemperature(box, space.D());
         
 		activityIntegrate = new ActivityIntegrate(integratorHard1, 1, true);
 		getController().addAction(activityIntegrate);

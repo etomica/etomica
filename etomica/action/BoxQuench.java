@@ -13,7 +13,7 @@ import etomica.box.Box;
 public class BoxQuench extends BoxActionAdapter {
 
     public BoxQuench(int dim) {
-        meterTemperature = new MeterTemperature(dim);
+        this.dim = dim;
     }
     
     /**
@@ -35,7 +35,7 @@ public class BoxQuench extends BoxActionAdapter {
 
     public void setBox(Box p) {
         super.setBox(p);
-        meterTemperature.setBox(box);
+        meterTemperature = new MeterTemperature(box, dim);
     }
     
 	/**
@@ -67,6 +67,7 @@ public class BoxQuench extends BoxActionAdapter {
 	}
 
     private static final long serialVersionUID = 1L;
-	private double temperature;
-	private MeterTemperature meterTemperature;
+	protected double temperature;
+	protected MeterTemperature meterTemperature;
+	protected final int dim;
 }

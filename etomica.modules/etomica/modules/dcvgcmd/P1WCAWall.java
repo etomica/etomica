@@ -16,19 +16,21 @@ import etomica.space.Tensor;
 public class P1WCAWall extends Potential1 implements PotentialSoft {
 
     private static final long serialVersionUID = 1L;
-    private final IVector[] gradient;
-    private double sigma;
-    private double epsilon;
-    private double cutoff;
+    protected final IVector[] gradient;
+    protected double sigma;
+    protected double epsilon;
+    protected double cutoff;
+    protected int wallDim;
 
-    public P1WCAWall(Space space) {
-        this(space, 1.0, 1.0);
+    public P1WCAWall(Space space, int wallDim) {
+        this(space, wallDim, 1.0, 1.0);
     }
 
-    public P1WCAWall(Space space, double sigma, double epsilon) {
+    public P1WCAWall(Space space, int wallDim, double sigma, double epsilon) {
         super(space);
         setSigma(sigma);
         setEpsilon(epsilon);
+        setWallDim(wallDim);
         gradient = new IVector[1];
         gradient[0] = space.makeVector();
     }
@@ -45,37 +47,37 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
 
     public double energy(AtomSet atom) {
         IVector dimensions = boundary.getDimensions();
-        double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(2);
-        double dzHalf = 0.5 * dimensions.x(2);
-        return energy(dzHalf + rz) + energy(dzHalf - rz);
-    }//end of energy
+        double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(wallDim);
+        double dzHalf = 0.5 * dimensions.x(wallDim);
+        return energy(sigma + dzHalf + rz) + energy(sigma + dzHalf - rz);
+    }
 
     private double energy(double r) {
-        if (r < cutoff) {
-            double rr = sigma / r;
-            double r2 = rr * rr;
-            double r6 = r2 * r2 * r2;
-            return 4 * epsilon * r6 * (r6 - 1.0) + epsilon;
+        if (r > cutoff) {
+            return 0;
         }
-        return 0;
+        double rr = sigma / r;
+        double r2 = rr * rr;
+        double r6 = r2 * r2 * r2;
+        return 4 * epsilon * r6 * (r6 - 1.0) + epsilon;
     }
 
     private double gradient(double r) {
-        if (r < cutoff) {
-            double rr = sigma / r;
-            double r2 = rr * rr;
-            double r6 = r2 * r2 * r2;
-            return -48 * epsilon * r6 * (r6 - 0.5);
+        if (r > cutoff) {
+            return 0;
         }
-        return 0;
+        double rr = sigma / r;
+        double r2 = rr * rr;
+        double r6 = r2 * r2 * r2;
+        return -48 * epsilon * r6 * (r6 - 0.5);
     }
 
     public IVector[] gradient(AtomSet atom) {
         IVector dimensions = boundary.getDimensions();
-        double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(2);
-        double dzHalf = 0.5 * dimensions.x(2);
-        double gradz = gradient(rz + dzHalf) - gradient(dzHalf - rz);
-        gradient[0].setX(2, gradz);
+        double rz = ((IAtomPositioned)atom.getAtom(0)).getPosition().x(wallDim);
+        double dzHalf = 0.5 * dimensions.x(wallDim);
+        double gradz = gradient(sigma + rz + dzHalf) - gradient(sigma + dzHalf - rz);
+        gradient[0].setX(wallDim, gradz);
         return gradient;
     }
     
@@ -120,5 +122,13 @@ public class P1WCAWall extends Potential1 implements PotentialSoft {
      */
     public void setEpsilon(double epsilon) {
         this.epsilon = epsilon;
+    }
+
+    public int getWallDim() {
+        return wallDim;
+    }
+
+    public void setWallDim(int wallDim) {
+        this.wallDim = wallDim;
     }
 }

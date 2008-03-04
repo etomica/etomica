@@ -450,7 +450,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
 		//add meter and display for current kinetic temperature
 
-		thermometer = new MeterTemperature(space.D());
+		thermometer = new MeterTemperature(pc.box, space.D());
 
         if (doRDF) {
             plotRDF = new DisplayPlot();
@@ -638,7 +638,6 @@ public class PistonCylinderGraphic extends SimulationGraphic {
         plotT.getDataSet().reset();
         plotP.getDataSet().reset();
         
-        thermometer.setBox(pc.box);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(meterCycles);
         temperatureHistory.getHistory().setHistoryLength(historyLength);

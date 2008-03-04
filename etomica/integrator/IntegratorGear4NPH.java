@@ -54,7 +54,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     private double rrh = 300.;
     private double kp, kh;
     protected int D;
-    protected final MeterTemperature meterTemperature = new MeterTemperature(space.D());
+    protected MeterTemperature meterTemperature;
     
     public IntegratorGear4NPH(ISimulation sim, PotentialMaster potentialMaster, Space _space) {
         this(potentialMaster, sim.getRandom(),0.05, 1.0, _space);
@@ -111,7 +111,7 @@ public class IntegratorGear4NPH extends IntegratorGear4 {
     public void setBox(Box p) {
         super.setBox(p);
         inflate.setBox(box);
-        meterTemperature.setBox(box);
+        meterTemperature = new MeterTemperature(box, D);
         forceSumNPH.setBox(box);
         forceSumNPH.setAgentManager(agentManager);
     }

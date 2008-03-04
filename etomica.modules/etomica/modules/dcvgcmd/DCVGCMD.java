@@ -3,7 +3,6 @@ package etomica.modules.dcvgcmd;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.api.IVector;
 import etomica.atom.AtomType;
-import etomica.atom.AtomTypeLeaf;
 import etomica.atom.AtomTypeSphere;
 import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
@@ -13,6 +12,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSourceGroup;
 import etomica.data.meter.MeterNMolecules;
 import etomica.data.meter.MeterProfile;
+import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.LatticeCubicFcc;
@@ -26,7 +26,6 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
-import etomica.species.Species;
 import etomica.species.SpeciesSpheresMono;
 import etomica.units.Kelvin;
 
@@ -118,7 +117,7 @@ public class DCVGCMD extends Simulation {
 
         double neighborRangeFacHalf = (1.0+neighborRangeFac)*0.5;
         
-        potentialwall = new P1WCAWall(space, sigma, epsilon);
+        potentialwall = new P1WCAWall(space, 2, sigma, epsilon);
         CriterionPositionWall criterionWall = new CriterionPositionWall(this);
         criterionWall.setInteractionRange(potentialwall.getRange());
         criterionWall.setNeighborRange(neighborRangeFacHalf*potentialwall.getRange());
@@ -126,7 +125,7 @@ public class DCVGCMD extends Simulation {
         potentialMaster.addPotential(potentialwall, new AtomType[] { species1.getLeafType() });
         potentialMaster.getPotentialMasterList().setCriterion(potentialwall, new CriterionType(criterionWall, speciestype));
         
-        potentialwall1 = new P1WCAWall(space, sigma, epsilon);
+        potentialwall1 = new P1WCAWall(space, 2, sigma, epsilon);
         CriterionPositionWall criterionWall1 = new CriterionPositionWall(this);
         criterionWall1.setInteractionRange(potentialwall1.getRange());
         criterionWall1.setNeighborRange(neighborRangeFacHalf*potentialwall1.getRange());
@@ -190,7 +189,10 @@ public class DCVGCMD extends Simulation {
 
         integratorDCV.setIntegrators(integratorMC, integratorMD, getRandom());
         integratorMD.setIsothermal(false);
-        integratorMD.setMeterTemperature(new MeterTemperature(speciesTube, space.D()));
+
+        thermometer = new MeterTemperature(this, box, space.D());
+
+        integratorMD.setMeterTemperature(thermometer);
         //integrator.setSleepPeriod(1);
         integratorMD.setTimeStep(0.005);
         //integrator.setInterval(10);
@@ -251,9 +253,6 @@ public class DCVGCMD extends Simulation {
         meterFlux2.setBox(box);
         meterFlux3.setBox(box);
         fluxMeters = new DataSourceGroup(new MeterFlux[] { meterFlux0, meterFlux1, meterFlux2, meterFlux3 });
-
-        thermometer = new MeterTemperature(speciesTube, space.D());
-        thermometer.setBox(box);
 
         density1 = new MeterNMolecules();
         density2 = new MeterNMolecules();

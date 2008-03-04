@@ -141,8 +141,7 @@ public class Osmosis extends SimulationGraphic {
 	    temperatureSelect.setMaximum(1000);
 	    temperatureSelect.setTemperature(300);
 	    temperatureSelect.setIsothermal();
-		MeterTemperature thermometer = new MeterTemperature(space.D());
-		thermometer.setBox(sim.box);
+		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
 		DisplayTextBox tBox = new DisplayTextBox();
         DataPump tempPump = new DataPump(thermometer, tBox);
         sim.integrator.addIntervalAction(tempPump);
