@@ -78,14 +78,10 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                             else{
                                 forceBottom.PE(f[i]);
                             }
-                            
-                        }
                     } 
-			
 			        forceTop.TE(2.0/box.atomCount());
 			        forceBottom.TE(2.0/box.atomCount());
-			        
-                    for (int i=0; i<atoms.getAtomCount(); i++){
+			        for (int i=0; i<atoms.getAtomCount(); i++){
                         rij.E(((IAtomPositioned)atoms.getAtom(i)).getPosition());
                         
                         if(rij.x(2)>0){
@@ -94,11 +90,12 @@ public class PotentialCalculationForcePressureSumGB extends PotentialCalculation
                         else{
                             f[i].E(forceBottom);
                         }
-                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);
-                        
+                        ((IntegratorBox.Forcible)integratorAgentManager.getAgent(atoms.getAtom(i))).force().ME(f[i]);    
                     }
-                    
+			}
 		}
+		
+		
 	}
 
     /**
