@@ -34,6 +34,7 @@ public class B2Fit extends SimulationPanel {
     	dPlot = new DevicePlotPoints(new String[] {"Q", "epsilon", "sigma"},
     			new Function[]{functionB2LJQ}, new String[] {"B2"}, false);
     	dPlot.setTableColumnNames(new String[]{"T (K)","B2 (mL/mol)"});
+    	dPlot.setSliderTextboxesEditable(true);
 
     	functionB2LJQ.dPlot = dPlot;
 //    	functionMayerB2LJQ.dPlot = dPlot;
