@@ -310,4 +310,11 @@ public abstract class Integrator implements java.io.Serializable, IIntegrator {
     public interface Forcible {
         public IVector force();
     }
+
+    /**
+     * Integrator agent that holds a torque vector.
+     */
+    public interface Torquable {
+        public IVector torque();
+    }
 }
