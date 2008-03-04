@@ -22,6 +22,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
         setTruncationRadius(truncationRadius);
         zeroGradientAndTorque = new IVector[2][0];
         dr = space.makeVector();
+        setSwitchFac(0.95);
     }
     
     /**
@@ -37,6 +38,16 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
     public void setTruncationRadius(double rCut) {
         rCutoff = rCut;
         r2Cutoff = rCut*rCut;
+        r2Switch = r2Cutoff*switchFac*switchFac;
+    }
+
+    public double getSwitchFac() {
+        return switchFac;
+    }
+
+    public void setSwitchFac(double newSwitchFac) {
+        switchFac = newSwitchFac;
+        r2Switch = r2Cutoff*switchFac*switchFac;
     }
 
     /**
@@ -57,7 +68,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
         double r2 = dr.squared();
         if (r2 < r2Cutoff) {
             IVector[][] gradientAndTorque = potential.gradientAndTorque(atoms);
-            if (r2 > 0.95*0.95*r2Cutoff) {
+            if (r2 > r2Switch) {
                 double r = Math.sqrt(r2);
                 double fac = getF(r);
                 // G = f G + u df/dr
@@ -88,11 +99,11 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
     protected double getF(double r) {
         switch (taperOrder) {
             case 1:
-                return (rCutoff-r)/(rCutoff*0.05);
+                return (rCutoff-r)/(rCutoff*(1-switchFac));
             case 2:
-                return (r2Cutoff-2*rCutoff*r+r*r)/(r2Cutoff*0.05*0.05)+1e-7;
+                return (r2Cutoff-2*rCutoff*r+r*r)/(r2Cutoff*(1-switchFac)*(1-switchFac))+1e-7;
             case 3:
-                double rt = 0.95*rCutoff;
+                double rt = switchFac*rCutoff;
                 double a = (r-rt)/(rCutoff-rt);
                 return (rCutoff-r)/(rCutoff-rt)*(1-a*a) + a*(1-a)*(1-a);
             default:
@@ -103,11 +114,11 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
     protected double getdFdr(double r) {
         switch (taperOrder) {
             case 1:
-                return -1.0/(rCutoff*0.05);
+                return -1.0/(rCutoff*(1-switchFac));
             case 2:
-                return -2 * (rCutoff - r) / (r2Cutoff*0.05*0.05);
+                return -2 * (rCutoff - r) / (r2Cutoff*(1-switchFac)*(1-switchFac));
             case 3:
-                double rt = 0.95*rCutoff;
+                double rt = switchFac*rCutoff;
                 double a = (r-rt)/(rCutoff-rt);
                 double b = rCutoff-rt;
                 double c = rCutoff-r;
@@ -116,11 +127,18 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
                 throw new RuntimeException("oops");
         }
     }
-    
+
     public static void main(String[] args) {
-        P2MoleculeSoftTruncatedSwitched p = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(Space3D.getInstance()), 2);
-        for (double x = 1.900001; x<1.999999; x+=0.001) {
-            System.out.println(x+" "+p.getF(x)+" "+p.getdFdr(x));
+        P2MoleculeSoftTruncatedSwitched p095 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(Space3D.getInstance()), 2);
+        p095.setSwitchFac(0.95);
+        P2MoleculeSoftTruncatedSwitched p080 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(Space3D.getInstance()), 2);
+        p080.setSwitchFac(0.80);
+        P2MoleculeSoftTruncatedSwitched p050 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(Space3D.getInstance()), 2);
+        p050.setSwitchFac(0.50);
+        P2MoleculeSoftTruncatedSwitched p010 = new P2MoleculeSoftTruncatedSwitched(new P2WaterSPCSoft(Space3D.getInstance()), 2);
+        p010.setSwitchFac(0.10);
+        for (double x = 0.002; x<2; x+=0.002) {
+            System.out.println(x+" "+(1.0/x)+" "+p095.getF(x)/x+" "+p080.getF(x)/x+" "+p050.getF(x)/x+" "+p010.getF(x)/x);
         }
     }
     
@@ -140,7 +158,7 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
             return 0;
         }
         double u = potential.energy(atoms);
-        if (r2 > 0.95*0.95*r2Cutoff) {
+        if (r2 > r2Switch) {
             u *= getF(Math.sqrt(r2));
         }
         return u;
@@ -171,5 +189,6 @@ public class P2MoleculeSoftTruncatedSwitched extends Potential2 implements IPote
     protected final IVector dr;
     protected NearestImageTransformer nearestImageTransformer;
     protected final IVector[][] zeroGradientAndTorque;
-    protected int taperOrder = 2;
+    protected int taperOrder = 3;
+    protected double switchFac, r2Switch;
 }
