@@ -286,8 +286,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 
         //add meter and display for current kinetic temperature
 
-		MeterTemperature thermometer = new MeterTemperature(space.D());
-        thermometer.setBox(sim.box);
+		MeterTemperature thermometer = new MeterTemperature(sim, sim.box, space.D());
         DataFork temperatureFork = new DataFork();
         final DisplayTextBox tBox = new DisplayTextBox();
         final DataPump temperaturePump = new DataPump(thermometer, tBox);
@@ -298,8 +297,7 @@ public class ReverseOsmosisGraphic extends SimulationGraphic {
 		tBox.setLabel("Measured Temperature");
 		tBox.setLabelPosition(CompassDirection.NORTH);
 
-		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential());
-        eMeter.setBox(sim.box);
+		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotential(), sim.box);
         final AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
         DataSinkExcludeOverlap foo = new DataSinkExcludeOverlap(sim.box);
