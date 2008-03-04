@@ -306,7 +306,7 @@ public class MEAM_3DMDwithSnAgGB extends Simulation {
         // Control simulation lengths
         //activityIntegrate.setMaxSteps(500);
 
-		energy = new MeterEnergy(potentialMaster);
+		energy = new MeterEnergy(potentialMaster, box);
     }
     
 }

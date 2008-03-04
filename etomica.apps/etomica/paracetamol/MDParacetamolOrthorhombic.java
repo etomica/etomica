@@ -410,15 +410,13 @@ public class MDParacetamolOrthorhombic extends Simulation {
         sim.integrator.addIntervalAction(PEpump);
         dataStreamPumps.add(PEpump);
         
-        MeterEnergy meterTotal = new MeterEnergy(sim.potentialMaster);
-        meterTotal.setBox(sim.box);   
+        MeterEnergy meterTotal = new MeterEnergy(sim.potentialMaster, sim.box);
         DisplayTextBox meterTotalbox = new DisplayTextBox();
         DataPump meterTotalpump = new DataPump(meterTotal, meterTotalbox);
         sim.integrator.addIntervalAction(meterTotalpump);
         dataStreamPumps.add(meterTotalpump);
            
-        MeterTemperature meterTemp = new MeterTemperature(sim.space.D());
-        meterTemp.setBox(sim.box);
+        MeterTemperature meterTemp = new MeterTemperature(sim.box, sim.space.D());
         DisplayTextBox tempBox = new DisplayTextBox();
         tempBox.setUnit(Kelvin.UNIT);
         DataPump tempPump = new DataPump(meterTemp, tempBox);

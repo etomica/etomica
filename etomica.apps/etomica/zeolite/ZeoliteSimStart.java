@@ -37,8 +37,7 @@ public class ZeoliteSimStart extends IntegratorActionAdapter{
         	sim.activityIntegrate.setSleepPeriod(0);
         	((IntegratorMD)integrator).setThermostatInterval(327000);
         	//Keeping another graphic of the total energy drift
-        	MeterEnergy eMeter = new MeterEnergy(((IntegratorBox)integrator).getPotential());
-        	eMeter.setBox(sim.box);
+        	MeterEnergy eMeter = new MeterEnergy(((IntegratorBox)integrator).getPotential(), sim.box);
         	AccumulatorHistory energyHistory = new AccumulatorHistory(new HistoryCollapsing());
         	energyHistory.getHistory().setHistoryLength(sim.getInterval()*500);
         	//AccumulatorAverage enAcc = new AccumulatorAverage(sim);
