@@ -29,7 +29,10 @@ public class PotentialCalculationForceSum extends PotentialCalculation {
         
         agentIterator.reset();
         while(agentIterator.hasNext()){
-            ((IntegratorBox.Forcible)agentIterator.next()).force().E(0);
+            Object agent = agentIterator.next();
+            if (agent instanceof IntegratorBox.Forcible) {
+                ((IntegratorBox.Forcible)agent).force().E(0);
+            }
         }
     }
     
