@@ -145,7 +145,7 @@ public final class IntegratorHardField extends IntegratorHard {
  //       System.out.println();
     }
     
-    public Class getAgentClass() {
+    public Class getTypeAgentClass() {
         return HardFieldAgent.class;
     }
     
